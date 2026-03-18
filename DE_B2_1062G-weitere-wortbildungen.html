@@ -908,7 +908,21 @@ var T3_DATA = [
   { w1:'Jahr', w2:'Zeit',
     pre:'Die sch\u00f6nste\u00a0', post:'\u00a0ist f\u00fcr viele Menschen der Sommer.',
     answer:'Jahreszeit', fuge:'-es-' },
-  // -n- / -en- (nach Nomen auf -e, schwache Nomen: Hase, Name, Mensch)
+  // -n- (nach Nomen auf -e: Straße, Hase, Blume …)
+  { w1:'Stra\u00dfe', w2:'Bahn',
+    pre:'Die\u00a0', post:'\u00a0f\u00e4hrt direkt vom Hauptbahnhof in die Innenstadt.',
+    answer:'Stra\u00dfenbahn', fuge:'-n-' },
+  { w1:'Hase', w2:'Pfote',
+    pre:'Die kleine\u00a0', post:'\u00a0war weich und warm wie Samt.',
+    answer:'Hasenpfote', fuge:'-n-' },
+  // -en- (nach schwachen Nomen: Mensch, Bett, Held …)
+  { w1:'Mensch', w2:'Leben',
+    pre:'Der Arzt hat in seiner Karriere viele\u00a0', post:'\u00a0gerettet.',
+    answer:'Menschenleben', fuge:'-en-' },
+  { w1:'Bett', w2:'Laken',
+    pre:'Das frisch geb\u00fcgelte\u00a0', post:'\u00a0duftete nach Lavendel.',
+    answer:'Bettlaken', fuge:'-en-' },
+  // kein Fugenelement (Nomen auf -er, -el, viele Fremdwörter, Verbstamm)
   { w1:'Hund', w2:'Leine',
     pre:'Er suchte verzweifelt nach der verlorenen\u00a0', post:'\u00a0seines Hundes.',
     answer:'Hundeleine', fuge:'kein Fugenelement' },
@@ -940,7 +954,9 @@ function t3LiveCheck(inp) {
   if (!val) return;
   if (val === ans) {
     inp.classList.add('correct');
-    fb.textContent = '\u2714 Richtig!'; fb.className = 't5-fb ok';
+    var fugeLabel = inp.dataset.fuge || '';
+    var fugeHint = fugeLabel === 'kein Fugenelement' ? ' — kein Fugenelement' : (' — Fugenelement\u00a0\u003cstrong\u003e' + fugeLabel + '\u003c/strong\u003e');
+    fb.innerHTML = '\u2714 Richtig!' + fugeHint; fb.className = 't5-fb ok';
     timerAutoStart(3);
     t3CheckAllDone();
   } else if (ans.toLowerCase().startsWith(val.toLowerCase())) {
@@ -987,6 +1003,7 @@ function buildT3() {
     inp.type = 'text';
     inp.className = 't5-inp';
     inp.dataset.answer = d.answer;
+    inp.dataset.fuge = d.fuge;
     inp.setAttribute('autocomplete', 'off');
     inp.style.width = Math.max(140, d.answer.length * 12 + 24) + 'px';
     inp.addEventListener('input', function(){ t3LiveCheck(this); });
