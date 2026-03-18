@@ -1295,6 +1295,39 @@ var LUECKE5_DATA = [
   { segs: [{t:'Das '},{b:'Lächeln',s:'m'},{t:' des Kindes r\u00fchrte alle Anwesenden zu Tr\u00e4nen.'}], hint:'Infinitivnominalisierung (neutrales Nomen)' },
   { segs: [{t:'Die '},{b:'Reinheit',s:'m'},{t:' des Wassers wird regelm\u00e4\u00dfig \u00fcberpr\u00fcft.'}], hint:'Adjektiv + Suffix -heit' },
 ];
+function buildLueckeContainer(data, containerId, tabNum) {
+  var cont = document.getElementById(containerId);
+  if (!cont) return;
+  cont.innerHTML = '';
+  data.forEach(function(item, idx) {
+    var card = document.createElement('div');
+    card.className = 'luecke-card';
+    card.style.cssText = 'background:#fafbff;border:1px solid #e8eaf6;border-radius:10px;padding:14px 18px;margin-bottom:14px;';
+    var sentDiv = document.createElement('div');
+    sentDiv.style.cssText = 'font-size:1.05rem;line-height:2;margin-bottom:6px;';
+    item.segs.forEach(function(seg) {
+      if (seg.t !== undefined) {
+        sentDiv.appendChild(document.createTextNode(seg.t));
+      } else {
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'luecke-inp';
+        inp.dataset.answer = seg.b;
+        inp.style.cssText = 'width:' + Math.max(80, seg.b.length * 11 + 20) + 'px;border:none;border-bottom:2px solid #667eea;background:transparent;font-size:1em;padding:2px 4px;outline:none;text-align:center;';
+        inp.addEventListener('input', function(){ liveCheck(this); timerAutoStart(tabNum); });
+        inp.addEventListener('dblclick', function(){ this.value = this.dataset.answer; liveCheck(this); });
+        sentDiv.appendChild(inp);
+      }
+    });
+    card.appendChild(sentDiv);
+    var hintDiv = document.createElement('div');
+    hintDiv.style.cssText = 'font-size:0.82em;color:#888;font-style:italic;';
+    hintDiv.textContent = item.hint;
+    card.appendChild(hintDiv);
+    cont.appendChild(card);
+  });
+}
+
 function buildLuecke5() { buildLueckeContainer(LUECKE5_DATA, 'luecke5-container', 5); }
 function resetTab5() { timerResetOne(5); buildLuecke5(); }
 
