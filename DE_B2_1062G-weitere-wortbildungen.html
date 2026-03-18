@@ -128,6 +128,10 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .t5-fb { font-size:0.83em; font-weight:600; min-height:1.1em; margin-top:4px; }
 .t5-fb.ok  { color:#27ae60; }
 .t5-fb.err { color:#e74c3c; }
+
+/* TAB 3 — FUGENELEMENTE */
+.t3-fe { display:inline-block; background:#fff8e1; border:1px solid #f39c12; border-radius:5px; padding:1px 7px; font-size:0.82em; font-weight:700; color:#e67e22; margin:0 2px; }
+.t3-wort { display:inline-block; background:#e8f0fb; border:1px solid #90caf9; border-radius:5px; padding:2px 9px; font-size:0.88em; font-weight:700; color:#1565c0; margin:0 2px; }
 #sec-1 .chip, #sec-3 .chip { background:white; border:2px solid #667eea; color:#667eea; padding:6px 12px; border-radius:20px; cursor:move; font-weight:500; font-size:0.88em; transition:all 0.2s; user-select:none; white-space:nowrap; }
 #sec-1 .chip.correct,  #sec-3 .chip.correct  { background:#27ae60!important; border-color:#27ae60!important; color:white!important; }
 #sec-1 .chip.incorrect,#sec-3 .chip.incorrect{ background:#e74c3c!important; border-color:#e74c3c!important; color:white!important; }
@@ -388,18 +392,17 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
     <text x="500" y="98" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="700" fill="rgba(255,255,255,0.92)">✏️ Fugenelemente</text>
   </svg>
   <div style="padding: 28px 30px;">
-    <h2 class="sec-title">Fugenelemente — Kompositum zusammensetzen</h2>
+    <h2 class="sec-title">Fugenelemente — das richtige Fugenelement w&#228;hlen</h2>
     <div class="timer-bar">
       <span>&#9201; <span class="timer-display" id="timer-3">0:00</span></span>
-      <span>&#127942; <span class="best-display" id="best-3">–</span></span>
+      <span>&#127942; <span class="best-display" id="best-3">&#8211;</span></span>
     </div>
     <div class="btn-row">
       <button onclick="resetTab3()">&#8635; Neu starten</button>
-      <button onclick="pool3SolveAll()">&#128161; Lösungen</button>
+      <button onclick="t3SolveAll()">&#128161; L&#246;sungen</button>
     </div>
-    <div class="hilfe-box"><strong>Aufgabe:</strong> Ziehe die richtigen Bausteine aus dem Pool in die passende Lücke. Die Fugenelemente (-s-, -n-, …) sind gelb markiert!</div>
-    <div id="pool3-bank" class="pool-bank"></div>
-    <div id="pool3-container"></div>
+    <div class="hilfe-box"><strong>Aufgabe:</strong> Die beiden Einzelw&#246;rter stehen im Satz. Schreib das fertige Kompositum in die L&#252;cke &mdash; mit dem richtigen Fugenelement. M&#246;gliche Fugenelemente: <span class="t3-fe">-s-</span> <span class="t3-fe">-es-</span> <span class="t3-fe">-n-</span> <span class="t3-fe">-en-</span> <span class="t3-fe">-e-</span> oder <em>kein Fugenelement</em>. <em>Doppelklick zeigt die L&#246;sung.</em></div>
+    <div id="t3-container"></div>
   </div>
 </div>
 
@@ -880,231 +883,142 @@ function updateZuo2Counter() {
 }
 function resetTab2() { timerResetOne(2); draggedChip2 = null; selectedChip2 = null; initZuo2(); }
 
-// ═══════════════ TAB 3 — LÜCKENTEXT FUGENELEMENTE ═══════════════
-/* ═══════════════ TAB 3 — WORTBAU DRAG-DROP FUGENELEMENTE ═══════════════ */
-// ═══ TAB 3 — POOL-PATTERN FUGENELEMENTE ═══
-var POOL3_DATA = [
-  { pre:'Das ',  post:' hing noch unberührt im Schrank.',
-    parts:['Hochzeit','-s-','Kleid'],       valid:['Hochzeit','-s-','Kleid'],       hint:'Nomen + Fuge (-s-) + Nomen' },
-  { pre:'Das ',  post:' der Schüler wurde beim Abschluss feierlich gebunden.',
-    parts:['Freundschaft','-s-','Band'],    valid:['Freundschaft','-s-','Band'],    hint:'Abstraktnomen + Fuge (-s-) + Nomen' },
-  { pre:'Der ',  post:' vom ewigen Frieden bleibt bis heute unrealisiert.',
-    parts:['Menschheit','-s-','Traum'],     valid:['Menschheit','-s-','Traum'],     hint:'Abstraktnomen + Fuge (-s-) + Nomen' },
-  { pre:'Das ',  post:' zur neuen Regelung war verständlich erklärt.',
-    parts:['Information','-s-','Material'], valid:['Information','-s-','Material'], hint:'Nomen auf -ion + Fuge (-s-) + Nomen' },
-  { pre:'Die ',  post:' ist ein natürlicher Prozess im Leben jedes Menschen.',
-    parts:['Alter','-s-','Schwäche'],       valid:['Alter','-s-','Schwäche'],       hint:'Nomen + Fuge (-s-) + Nomen' },
-  { pre:'Der ',  post:' machte das Einkaufen im Ausverkauf einfacher.',
-    parts:['Einheit','-s-','Preis'],        valid:['Einheit','-s-','Preis'],        hint:'Nomen auf -heit + Fuge (-s-) + Nomen' },
-  { pre:'Die ',  post:' der Nachbarn hat uns sehr gerührt.',
-    parts:['Hilf','-s-','Bereitschaft'],    valid:['Hilf','-s-','Bereitschaft'],    hint:'Verbstamm + Fuge (-s-) + Abstraktnomen' },
-  { pre:'Das ',  post:' wurde nach der Probezeit offiziell bestätigt.',
-    parts:['Arbeit','-s-','Verhältnis'],    valid:['Arbeit','-s-','Verhältnis'],    hint:'Nomen + Fuge (-s-) + Nomen' },
-  { pre:'Die ',  post:' gilt als Schlüsselkompetenz.',
-    parts:['Anpassung','-s-','Fähigkeit'],  valid:['Anpassung','-s-','Fähigkeit'],  hint:'Verbalnomen auf -ung + Fuge (-s-) + Abstraktnomen' },
-  { pre:'Der ',  post:' wurde pünktlich an alle Teilnehmenden versendet.',
-    parts:['Tagung','-s-','Bericht'],       valid:['Tagung','-s-','Bericht'],       hint:'Verbalnomen auf -ung + Fuge (-s-) + Nomen' },
-  { pre:'Das ',  post:' wurde mit einem riesigen Kuchen überrascht.',
-    parts:['Geburtstag','-s-','Kind'],      valid:['Geburtstag','-s-','Kind'],      hint:'Nomen + Fuge (-s-) + Nomen' },
-  { pre:'Die ',  post:' in Großstädten ist oft mühsam.',
-    parts:['Wohnung','-s-','Suche'],        valid:['Wohnung','-s-','Suche'],        hint:'Verbalnomen auf -ung + Fuge (-s-) + Nomen' },
+// ═══════════════ TAB 3 — FUGENELEMENTE (TIPPEN) ═══════════════
+// Beide Einzelwörter stehen hervorgehoben im Satz.
+// Schüler tippt das fertige Kompositum — Fokus: welches Fugenelement?
+// Fugenelemente variieren bewusst: -s-, -es-, -n-, -en-, kein Fuge
+var T3_DATA = [
+  // -s- (nach Nomen auf -heit, -keit, -schaft, -ung, -tät, -ion, -ität)
+  { w1:'Hochzeit', w2:'Kleid',
+    pre:'Das prunkvolle\u00a0', post:'\u00a0hing noch unber\u00fchrt im Schrank.',
+    answer:'Hochzeitskleid', fuge:'-s-' },
+  { w1:'Freundschaft', w2:'Band',
+    pre:'Das\u00a0', post:'\u00a0der Sch\u00fcler wurde beim Abschluss feierlich gebunden.',
+    answer:'Freundschaftsband', fuge:'-s-' },
+  { w1:'Wohnung', w2:'Suche',
+    pre:'Die\u00a0', post:'\u00a0in Gro\u00dfst\u00e4dten ist oft m\u00fchsam und langwierig.',
+    answer:'Wohnungssuche', fuge:'-s-' },
+  { w1:'Geburtstag', w2:'Kind',
+    pre:'Das\u00a0', post:'\u00a0wurde mit einem riesigen Kuchen \u00fcberrascht.',
+    answer:'Geburtstagskind', fuge:'-s-' },
+  // -es- (nach einsilbigen Nomen auf Konsonant: Tag, Jahr, Gott, Kind)
+  { w1:'Tag', w2:'Zeitung',
+    pre:'Die\u00a0', post:'\u00a0erscheint jeden Morgen p\u00fcnktlich um sechs Uhr.',
+    answer:'Tageszeitung', fuge:'-es-' },
+  { w1:'Jahr', w2:'Zeit',
+    pre:'Die sch\u00f6nste\u00a0', post:'\u00a0ist f\u00fcr viele Menschen der Sommer.',
+    answer:'Jahreszeit', fuge:'-es-' },
+  // -n- / -en- (nach Nomen auf -e, schwache Nomen: Hase, Name, Mensch)
+  { w1:'Hund', w2:'Leine',
+    pre:'Er suchte verzweifelt nach der verlorenen\u00a0', post:'\u00a0seines Hundes.',
+    answer:'Hundeleine', fuge:'kein Fugenelement' },
+  { w1:'Strafe', w2:'Zahlung',
+    pre:'Die p\u00fcnktliche\u00a0', post:'\u00a0verminderte den Gesamtbetrag erheblich.',
+    answer:'Strafzahlung', fuge:'kein Fugenelement' },
+  // kein Fugenelement (nach Nomen auf -er, -el, viele Fremdwörter)
+  { w1:'Kaffee', w2:'Tasse',
+    pre:'Die dampfende\u00a0', post:'\u00a0auf dem Schreibtisch war noch fast voll.',
+    answer:'Kaffeetasse', fuge:'kein Fugenelement' },
+  { w1:'Schreib', w2:'Tisch',
+    pre:'Er r\u00e4umte jeden Abend seinen\u00a0', post:'\u00a0sorgf\u00e4ltig auf.',
+    answer:'Schreibtisch', fuge:'kein Fugenelement' },
+  // -s- nach -tum, -ling
+  { w1:'Alter', w2:'Schw\u00e4che',
+    pre:'Die\u00a0', post:'\u00a0ist ein nat\u00fcrlicher Prozess im Leben jedes Menschen.',
+    answer:'Altersschwäche', fuge:'-s-' },
+  { w1:'Einheit', w2:'Preis',
+    pre:'Der\u00a0', post:'\u00a0vereinfachte die Abrechnung erheblich.',
+    answer:'Einheitspreis', fuge:'-s-' },
 ];
 
-var p3Dragged = null;
-
-function p3MakeChip(word) {
-  var chip = document.createElement('div');
-  chip.className = 'chip';
-  if (word === '-s-' || word === '-n-' || word === '-e-' || word === '-es-' || word === '-en-') chip.classList.add('fuge');
-  chip.textContent = word;
-  chip.dataset.orig = word;
-  chip.draggable = true;
-  chip.addEventListener('dragstart', function(e) {
-    p3Dragged = chip;
+function t3LiveCheck(inp) {
+  var val = inp.value.trim();
+  var ans = inp.dataset.answer;
+  var fb = inp.closest('.t5-card').querySelector('.t5-fb');
+  inp.classList.remove('correct', 'wrong');
+  fb.textContent = ''; fb.className = 't5-fb';
+  if (!val) return;
+  if (val === ans) {
+    inp.classList.add('correct');
+    fb.textContent = '\u2714 Richtig!'; fb.className = 't5-fb ok';
     timerAutoStart(3);
-    e.dataTransfer.setData('text/plain', '');
-    setTimeout(function(){ chip.style.opacity = '0.4'; }, 0);
-  });
-  chip.addEventListener('dragend', function() {
-    chip.style.opacity = '';
-    p3Dragged = null;
-    var c = document.getElementById('p3-cursor');
-    if (c && c.parentNode) c.parentNode.removeChild(c);
-  });
-  return chip;
-}
-
-function p3GetCursor() {
-  var c = document.getElementById('p3-cursor');
-  if (!c) {
-    c = document.createElement('div');
-    c.id = 'p3-cursor';
-    c.style.cssText = 'width:3px;min-height:28px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    t3CheckAllDone();
+  } else if (ans.toLowerCase().startsWith(val.toLowerCase())) {
+    timerAutoStart(3);
+  } else {
+    inp.classList.add('wrong');
+    timerAutoStart(3);
   }
-  return c;
 }
 
-function p3RegisterZone(zone, idx) {
-  zone.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    if (!p3Dragged) return;
-    var cursor = p3GetCursor();
-    var chips = Array.from(zone.querySelectorAll('.chip'));
-    var before = null;
-    for (var i = 0; i < chips.length; i++) {
-      var r = chips[i].getBoundingClientRect();
-      if (e.clientX < r.left + r.width / 2) { before = chips[i]; break; }
-    }
-    if (before) zone.insertBefore(cursor, before);
-    else zone.appendChild(cursor);
-  });
-  zone.addEventListener('dragleave', function(e) {
-    if (!zone.contains(e.relatedTarget)) {
-      var c = document.getElementById('p3-cursor');
-      if (c && c.parentNode === zone) zone.removeChild(c);
-    }
-  });
-  zone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    if (!p3Dragged) return;
-    var cursor = document.getElementById('p3-cursor');
-    if (cursor && cursor.parentNode === zone) {
-      zone.insertBefore(p3Dragged, cursor);
-      zone.removeChild(cursor);
-    } else {
-      zone.appendChild(p3Dragged);
-    }
-    p3Dragged = null;
-    p3CheckDrop(idx);
-  });
-}
-
-function p3CheckDrop(idx) {
-  var drop = document.getElementById('p3-drop-' + idx);
-  var fb   = document.getElementById('p3-fb-' + idx);
-  var chips = Array.from(drop.querySelectorAll('.chip'));
-  var expected = POOL3_DATA[idx].valid;
-  if (chips.length < expected.length) {
-    chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
-    drop.classList.remove('correct','incorrect');
-    fb.textContent = ''; fb.className = 'pool-item-fb';
-    p3UpdateScore(); return;
-  }
-  var order = chips.map(function(c){ return c.dataset.orig; });
-  var ok = JSON.stringify(order) === JSON.stringify(expected);
-  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok ? 'correct' : 'incorrect'); });
-  drop.classList.remove('correct','incorrect');
-  drop.classList.add(ok ? 'correct' : 'incorrect');
-  fb.className = 'pool-item-fb ' + (ok ? 'correct' : 'incorrect');
-  fb.textContent = ok ? '\u2713 Richtig!' : '\u2717 Falsche Reihenfolge oder falscher Baustein';
-  p3UpdateScore();
-  p3CheckAllDone();
-}
-
-function p3UpdateScore() {
-  var ok = POOL3_DATA.filter(function(_, i){
-    var d = document.getElementById('p3-drop-' + i);
-    return d && d.classList.contains('correct');
-  }).length;
-  var el = document.getElementById('score3');
-  if (el) el.textContent = ok;
-}
-
-function p3CheckAllDone() {
-  var allOk = POOL3_DATA.every(function(_, i){
-    var d = document.getElementById('p3-drop-' + i);
-    return d && d.classList.contains('correct');
-  });
+function t3CheckAllDone() {
+  var allOk = Array.from(document.querySelectorAll('#t3-container .t5-inp')).every(function(i){ return i.classList.contains('correct'); });
   if (allOk) timerStop(3);
 }
 
-function pool3ShowSolution(idx) {
-  var bank = document.getElementById('pool3-bank');
-  var drop = document.getElementById('p3-drop-' + idx);
-  var allChips = {};
-  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig] = c; });
-  Array.from(drop.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig] = c; });
-  while (drop.firstChild) drop.removeChild(drop.firstChild);
-  POOL3_DATA[idx].valid.forEach(function(word){
-    var chip = allChips[word];
-    if (chip) { chip.classList.remove('correct','incorrect'); drop.appendChild(chip); }
+function t3SolveAll() {
+  document.querySelectorAll('#t3-container .t5-inp').forEach(function(inp){
+    inp.value = inp.dataset.answer;
+    t3LiveCheck(inp);
   });
-  p3CheckDrop(idx);
 }
 
-function pool3SolveAll() {
-  POOL3_DATA.forEach(function(_, i){ pool3ShowSolution(i); });
-}
-
-function initPool3() {
-  var bank = document.getElementById('pool3-bank');
-  var cont = document.getElementById('pool3-container');
-  bank.innerHTML = '';
+function buildT3() {
+  var cont = document.getElementById('t3-container');
+  if (!cont) return;
   cont.innerHTML = '';
 
-  var allParts = [];
-  POOL3_DATA.forEach(function(ex){ ex.parts.forEach(function(p){ allParts.push(p); }); });
-  for (var i = allParts.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = allParts[i]; allParts[i] = allParts[j]; allParts[j] = tmp;
-  }
-  allParts.forEach(function(word){ bank.appendChild(p3MakeChip(word)); });
-  p3RegisterZone(bank, -1);
+  T3_DATA.forEach(function(d, idx) {
+    var card = document.createElement('div');
+    card.className = 't5-card';
 
-  POOL3_DATA.forEach(function(ex, idx) {
-    var item = document.createElement('div');
-    item.className = 'pool-item';
+    // Satzzeile: "Die [Wohnung] + [Suche] in Großstädten → [Eingabefeld] ..."
+    var satz = document.createElement('div');
+    satz.className = 't5-satz';
 
-    var sent = document.createElement('div');
-    sent.className = 'pool-item-sentence';
-    sent.appendChild(document.createTextNode(ex.pre));
+    // Vorangestellte Wörter hervorheben
+    var w1sp = document.createElement('span');
+    w1sp.className = 't3-wort'; w1sp.textContent = d.w1;
+    var w2sp = document.createElement('span');
+    w2sp.className = 't3-wort'; w2sp.textContent = d.w2;
 
-    var drop = document.createElement('span');
-    drop.className = 'pool-drop';
-    drop.id = 'p3-drop-' + idx;
-    p3RegisterZone(drop, idx);
-    sent.appendChild(drop);
-    sent.appendChild(document.createTextNode(ex.post));
-    item.appendChild(sent);
+    satz.appendChild(document.createTextNode(d.pre));
+    var inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 't5-inp';
+    inp.dataset.answer = d.answer;
+    inp.setAttribute('autocomplete', 'off');
+    inp.style.width = Math.max(140, d.answer.length * 12 + 24) + 'px';
+    inp.addEventListener('input', function(){ t3LiveCheck(this); });
+    inp.addEventListener('dblclick', function(){ this.value = d.answer; t3LiveCheck(this); });
+    satz.appendChild(inp);
+    satz.appendChild(document.createTextNode(d.post));
+    card.appendChild(satz);
 
-    var hint = document.createElement('div');
-    hint.className = 'pool-item-hint';
-    hint.textContent = ex.hint;
-    item.appendChild(hint);
+    // Einzelwörter-Hinweis
+    var wDiv = document.createElement('div');
+    wDiv.className = 't5-affixe';
+    var lbl = document.createElement('span');
+    lbl.className = 't5-affixe-label'; lbl.textContent = 'Einzelw\u00f6rter:';
+    wDiv.appendChild(lbl);
+    wDiv.appendChild(w1sp);
+    var plus = document.createElement('span');
+    plus.style.cssText = 'color:#aaa;font-size:0.85em;';
+    plus.textContent = '+';
+    wDiv.appendChild(plus);
+    wDiv.appendChild(w2sp);
+    card.appendChild(wDiv);
 
     var fb = document.createElement('div');
-    fb.className = 'pool-item-fb';
-    fb.id = 'p3-fb-' + idx;
-    item.appendChild(fb);
+    fb.className = 't5-fb';
+    card.appendChild(fb);
 
-    var btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:6px;';
-    var solveBtn = document.createElement('button');
-    solveBtn.className = 'btn'; solveBtn.textContent = 'L\u00f6sen';
-    solveBtn.setAttribute('data-idx', idx);
-    solveBtn.addEventListener('click', function(){ pool3ShowSolution(parseInt(this.getAttribute('data-idx'))); });
-    var resetBtn = document.createElement('button');
-    resetBtn.className = 'btn'; resetBtn.textContent = '\u21ba';
-    resetBtn.setAttribute('data-idx', idx);
-    resetBtn.addEventListener('click', function(){
-      var i2 = parseInt(this.getAttribute('data-idx'));
-      var d = document.getElementById('p3-drop-' + i2);
-      var b2 = document.getElementById('pool3-bank');
-      Array.from(d.querySelectorAll('.chip')).forEach(function(c){ c.classList.remove('correct','incorrect'); b2.appendChild(c); });
-      d.classList.remove('correct','incorrect');
-      document.getElementById('p3-fb-' + i2).textContent = '';
-      document.getElementById('p3-fb-' + i2).className = 'pool-item-fb';
-      p3UpdateScore();
-    });
-    btnRow.appendChild(solveBtn);
-    btnRow.appendChild(resetBtn);
-    item.appendChild(btnRow);
-    cont.appendChild(item);
+    cont.appendChild(card);
   });
 }
 
-function buildLuecke3() { initPool3(); }
-function resetTab3() { timerResetOne(3); initPool3(); }
+function buildLuecke3() { buildT3(); }
+function resetTab3() { timerResetOne(3); buildT3(); }
 
 // ═══════════════ TAB 4 — ZUORDNUNG DERIVATION ═══════════════
 var ZUO4_DATA = [
