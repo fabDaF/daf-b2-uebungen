@@ -87,14 +87,15 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
 
 /* Satzbau */
 .satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
-.satzbau-label { font-size: 0.8em; color: #999; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-.drop-row { background: white; border: 2px dashed #ccc; border-radius: 10px; padding: 14px; min-height: 60px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; transition: background .2s; }
-.drop-row.dragover { background: #e8eaff; border-color: #667eea; }
-.chip-pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; }
-.chip.punct { min-width: 32px; padding: 8px 10px; font-size: 1.1em; font-weight: 700; text-align: center; }
-.satzbau-feedback { font-size: 0.9em; font-weight: 600; min-height: 1.4em; margin-top: 4px; }
-.satzbau-feedback.ok { color: #27ae60; }
-.satzbau-feedback.err { color: #e74c3c; }
+.sb-label { font-size: 0.8em; color: #999; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct   { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
 
 /* Author Footer */
 .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
@@ -449,10 +450,11 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
       </div>
       <div class="score-box">Richtig: <span id="score5">0</span> / <span id="total5">7</span></div>
 
-      <div id="sb-container"></div>
+      <div id="satzbauContainer"></div>
 
       <div class="btn-row">
-        <button class="btn" onclick="resetSb()">↺ Neu starten</button>
+        <button onclick="resetSatzbau()">&#8635; Neu starten</button>
+        <button onclick="sbSolveAll()">&#128161; Lösungen</button>
       </div>
     </div>
   </div>
@@ -912,145 +914,275 @@ function resetLuecke4() {
 }
 
 /* ===== SATZBAU 5: NOMINALISIERUNG ===== */
-var SB_DATA = [
-  { id: 1, parts: ['das', 'Ausdrücken', 'meiner', 'Gefühle', 'fällt', 'mir', 'schwer'], answer: ['das', 'ausdrücken', 'meiner', 'gefühle', 'fällt', 'mir', 'schwer'], punct: '.' },
-  { id: 2, parts: ['ich', 'bin', 'genervt', 'vom', 'langen', 'Warten'], answer: ['ich', 'bin', 'genervt', 'vom', 'langen', 'warten'], punct: '.' },
-  { id: 3, parts: ['die', 'Zeit', 'des', 'ständigen', 'Mitfühlens', 'ist', 'vorbei'], answer: ['die', 'zeit', 'des', 'ständigen', 'mitfühlens', 'ist', 'vorbei'], punct: '.' },
-  { id: 4, parts: ['das', 'Wiederholen', 'der', 'Vokabeln', 'hilft', 'beim', 'Lernen'], answer: ['das', 'wiederholen', 'der', 'vokabeln', 'hilft', 'beim', 'lernen'], punct: '.' },
-  { id: 5, parts: ['das', 'Denken', 'in', 'Kategorien', 'kann', 'einschränken'], answer: ['das', 'denken', 'in', 'kategorien', 'kann', 'einschränken'], punct: '.' },
-  { id: 6, parts: ['nach', 'dem', 'Laufen', 'fühle', 'ich', 'mich', 'besser'], answer: ['nach', 'dem', 'laufen', 'fühle', 'ich', 'mich', 'besser'], punct: '.' },
-  { id: 7, parts: ['das', 'Zuhören', 'ist', 'eine', 'wichtige', 'Fähigkeit'], answer: ['das', 'zuhören', 'ist', 'eine', 'wichtige', 'fähigkeit'], punct: '.' }
+var satzbauData = [
+  { parts: ['das', 'Ausdrücken', 'meiner', 'Gefühle', 'fällt', 'mir', 'schwer'],
+    valid: [['das', 'Ausdrücken', 'meiner', 'Gefühle', 'fällt', 'mir', 'schwer']], punct: '.' },
+  { parts: ['ich', 'bin', 'genervt', 'vom', 'langen', 'Warten'],
+    valid: [['ich', 'bin', 'genervt', 'vom', 'langen', 'Warten']], punct: '.' },
+  { parts: ['die', 'Zeit', 'des', 'ständigen', 'Mitfühlens', 'ist', 'vorbei'],
+    valid: [['die', 'Zeit', 'des', 'ständigen', 'Mitfühlens', 'ist', 'vorbei']], punct: '.' },
+  { parts: ['das', 'Wiederholen', 'der', 'Vokabeln', 'hilft', 'beim', 'Lernen'],
+    valid: [['das', 'Wiederholen', 'der', 'Vokabeln', 'hilft', 'beim', 'Lernen']], punct: '.' },
+  { parts: ['das', 'Denken', 'in', 'Kategorien', 'kann', 'einschränken'],
+    valid: [['das', 'Denken', 'in', 'Kategorien', 'kann', 'einschränken']], punct: '.' },
+  { parts: ['nach', 'dem', 'Laufen', 'fühle', 'ich', 'mich', 'besser'],
+    valid: [['nach', 'dem', 'Laufen', 'fühle', 'ich', 'mich', 'besser']], punct: '.' },
+  { parts: ['das', 'Zuhören', 'ist', 'eine', 'wichtige', 'Fähigkeit'],
+    valid: [['das', 'Zuhören', 'ist', 'eine', 'wichtige', 'Fähigkeit']], punct: '.' }
 ];
 
-function sbInit() {
-  var cont = document.getElementById('sb-container');
-  if (cont.children.length > 0) return;
-  document.getElementById('total5').textContent = SB_DATA.length;
-  SB_DATA.forEach(function(ex) {
-    var item = document.createElement('div');
-    item.className = 'satzbau-item';
-    item.innerHTML = '<div class="satzbau-label">Satz ' + ex.id + '</div>';
+/* ── Globale Drag-Variable ── */
+var sbDragged = null;
 
-    var row = document.createElement('div');
-    row.className = 'drop-row';
-    row.id = 'sb-row-' + ex.id;
-    row.ondragover = allowDrop;
-    row.ondrop = function(e) { sbDrop(e, ex.id); };
+/* ── Insert-Cursor ── */
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+  }
+  return c;
+}
 
-    var pool = document.createElement('div');
-    pool.className = 'chip-pool';
-    pool.id = 'sb-pool-' + ex.id;
+/* ── Einfügeposition berechnen ── */
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
 
-    var shuffled = shuffle(ex.parts.slice());
-    shuffled.forEach(function(part) {
-      var chip = sbMakeChip(part, ex.id);
-      pool.appendChild(chip);
-    });
+/* ── Großschreibung ── */
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
-    var fb = document.createElement('div');
-    fb.className = 'satzbau-feedback';
-    fb.id = 'sb-fb-' + ex.id;
-
-    item.appendChild(row);
-    item.appendChild(pool);
-    item.appendChild(fb);
-    cont.appendChild(item);
+function sbUpdateCapitalization(row) {
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
   });
 }
 
-var sbDraggedChip = null;
-
-function sbMakeChip(text, exId) {
+/* ── Chip erstellen ── */
+function sbMakeChip(word) {
   var chip = document.createElement('div');
   chip.className = 'chip';
-  chip.textContent = text;
-  chip.dataset.orig = text.toLowerCase();
+  chip.textContent = word;
+  chip.dataset.orig = word;
   chip.draggable = true;
   chip.addEventListener('dragstart', function(e) {
-    sbDraggedChip = chip;
+    sbDragged = chip;
+    timerAutoStart(5);
     e.dataTransfer.setData('text/plain', '');
     setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
   });
   chip.addEventListener('dragend', function() {
-    chip.style.opacity = '1';
-    sbColorRow(exId);
-  });
-  chip.addEventListener('click', function() {
-    var inRow = chip.closest('.drop-row');
-    if (inRow) {
-      document.getElementById('sb-pool-' + exId).appendChild(chip);
-    } else {
-      document.getElementById('sb-row-' + exId).appendChild(chip);
-    }
-    sbUpdateCaps(exId);
-    sbColorRow(exId);
-    timerAutoStart(5);
+    chip.style.opacity = '';
+    sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
   });
   return chip;
 }
 
-function sbDrop(e, exId) {
-  e.preventDefault();
-  if (!sbDraggedChip) return;
-  document.getElementById('sb-row-' + exId).appendChild(sbDraggedChip);
-  sbDraggedChip.style.opacity = '1';
-  sbDraggedChip = null;
-  sbUpdateCaps(exId);
-  sbColorRow(exId);
-  timerAutoStart(5);
-}
-
-function sbUpdateCaps(exId) {
-  var row = document.getElementById('sb-row-' + exId);
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
-    var orig = c.dataset.orig;
-    c.textContent = (i === 0) ? orig.charAt(0).toUpperCase() + orig.slice(1) : orig;
+/* ── Zone registrieren ── */
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
   });
-}
-
-function sbColorRow(exId) {
-  var row = document.getElementById('sb-row-' + exId);
-  var data = SB_DATA.find(function(d) { return d.id === exId; });
-  var chips = Array.from(row.querySelectorAll('.chip'));
-  chips.forEach(function(chip, i) {
-    chip.classList.remove('correct', 'wrong');
-    if (i < data.answer.length) {
-      chip.classList.add(chip.dataset.orig === data.answer[i] ? 'correct' : 'wrong');
-    } else {
-      chip.classList.add('wrong');
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
     }
   });
-  sbCheckAllOk();
-}
-
-function sbCheckAllOk() {
-  var allOk = SB_DATA.every(function(ex) {
-    var row = document.getElementById('sb-row-' + ex.id);
-    if (!row) return false;
-    var chips = row.querySelectorAll('.chip');
-    if (chips.length !== ex.answer.length) return false;
-    return Array.from(chips).every(function(c) { return c.classList.contains('correct'); });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
   });
-  if (allOk) {
-    timerStop(5);
-    document.getElementById('score5').textContent = SB_DATA.length;
-  } else {
-    var ok = SB_DATA.filter(function(ex) {
-      var row = document.getElementById('sb-row-' + ex.id);
-      if (!row) return false;
-      var chips = row.querySelectorAll('.chip');
-      return chips.length === ex.answer.length &&
-        Array.from(chips).every(function(c) { return c.classList.contains('correct'); });
-    }).length;
-    document.getElementById('score5').textContent = ok;
-  }
 }
 
-function resetSb() {
+/* ── Einfärben + Punkt ── */
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) {
+    return JSON.stringify(v) === JSON.stringify(order);
+  });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+
+/* ── Auto-Auswertung ── */
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(5);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+
+/* ── Alle Sätze fertig? ── */
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) timerStop(5);
+}
+
+/* ── Lösung anzeigen (einzeln) ── */
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var chip = allChips[word];
+    if (chip) {
+      chip.textContent = word;
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+/* ── Alle lösen ── */
+function sbSolveAll() {
+  satzbauData.forEach(function(_, i) { sbShowSolution(i); });
+}
+
+/* ── Einzelnen Satz zurücksetzen ── */
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = '';
+  fb.className = 'satzbau-feedback';
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+
+/* ── Initialisierung ── */
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  document.getElementById('total5').textContent = satzbauData.length;
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+    var lbl = document.createElement('div');
+    lbl.className = 'sb-label';
+    lbl.textContent = 'Satz ' + (idx + 1);
+    item.appendChild(lbl);
+    var bank = document.createElement('div');
+    bank.className = 'chips-container';
+    bank.id = 'sb-bank-' + idx;
+    var row = document.createElement('div');
+    row.className = 'sentence-builder';
+    row.id = 'sb-row-' + idx;
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback';
+    fb.id = 'sb-fb-' + idx;
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn';
+    solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn);
+    btnRow.appendChild(resetBtn);
+    item.appendChild(bank);
+    item.appendChild(row);
+    item.appendChild(fb);
+    item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+
+function resetSatzbau() {
   timerResetOne(5);
-  var cont = document.getElementById('sb-container');
-  cont.innerHTML = '';
-  sbInit();
+  initSatzbau();
   document.getElementById('score5').textContent = '0';
 }
 
@@ -1069,7 +1201,7 @@ luecke1Init();
 zuo2Init();
 zuo3Init();
 luecke4Init();
-sbInit();
+initSatzbau();
 loadBestTimes();
 </script>
 </body>
