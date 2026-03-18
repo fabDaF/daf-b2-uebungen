@@ -67,11 +67,11 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .regel-karte .rk-example b { color: #3949ab; }
 
 /* CHIPS */
-.chip { padding: 6px 14px; border-radius: 20px; border: 2px solid #667eea; background: white; color: #667eea; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform .15s, opacity .15s; white-space: nowrap; display: inline-block; }
+.chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform .15s, opacity .15s; white-space: nowrap; }
 .chip:active { cursor: grabbing; transform: scale(1.04); }
 .chip.selected { outline: 3px solid #f39c12; }
-.chip.correct { border-color: #27ae60; background: #e8f5e9; color: #27ae60; }
-.chip.wrong { border-color: #e74c3c; background: #ffebee; color: #e74c3c; }
+.chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+.chip.wrong   { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
 
 /* DROP ZONES */
 .drop-zone { min-height: 80px; border-radius: 10px; border: 2px dashed #c5cae9; padding: 10px; background: #fafbff; transition: background .2s; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
@@ -82,10 +82,10 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 14px; min-height: 54px; }
 
 /* LÜCKENTEXT */
-input.blank { border: none; border-bottom: 2px solid #667eea; background: #fff; padding: 3px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color .2s, background .2s; margin: 0 2px; }
-input.blank:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
-input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
-input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 3px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color .2s, background .2s; background: white; margin: 0 2px; }
+input.blank:focus { border-color: #667eea; }
+input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
 .correction-hint { font-size: 0.78rem; color: #27ae60; font-weight: 700; margin-left: 4px; white-space: nowrap; }
 .luecke-item { background: #fafbff; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; border: 1px solid #e8eaf6; line-height: 2.1; font-size: 0.94rem; }
 .luecke-hint { font-size: 0.78rem; color: #888; margin-top: 4px; font-style: italic; }
@@ -500,12 +500,10 @@ function timerResetOne(n) {
   timerStarted[n] = false;
   timerSeconds[n] = 0;
   var el = document.getElementById('timer-' + n);
-  if (el) el.textContent = '00:00';
+  if (el) el.textContent = '0:00';
 }
 function fmtTime(s) {
-  var m = Math.floor(s/60);
-  var sec = s % 60;
-  return (m < 10 ? '0':'') + m + ':' + (sec < 10 ? '0':'') + sec;
+  return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
 }
 function loadBestTimes() {
   for (var i = 1; i <= 6; i++) {
@@ -585,18 +583,18 @@ function allowDrop(e) { e.preventDefault(); }
 
 // ═══════════════ TAB 1 — LÜCKENTEXT KOMPOSITION ═══════════════
 var LUECKE1_DATA = [
-  { segs: [{t:'Der '},{b:'Holztisch',s:'l'},{t:' in unserem B\u00fcro wurde aus nachhaltigem Material gefertigt.'}], hint:'Holz + Tisch' },
-  { segs: [{t:'Das '},{b:'Hochzeitskleid',s:'l'},{t:' der Braut war aus reiner Seide und sehr kostspielig.'}], hint:'Hochzeit + Kleid' },
-  { segs: [{t:'Der '},{b:'Menschheitstraum',s:'xl'},{t:' von einer friedlichen Welt ist bis heute nicht erf\u00fcllt.'}], hint:'Menschheit + Traum' },
-  { segs: [{t:'Das '},{b:'Informationsmaterial',s:'xl'},{t:' zur Veranstaltung lag bereits an der Pforte aus.'}], hint:'Information + Material' },
-  { segs: [{t:'Der '},{b:'Freundschaftsring',s:'l'},{t:' symbolisiert die enge Verbindung der beiden Schwestern.'}], hint:'Freundschaft + Ring' },
-  { segs: [{t:'Das '},{b:'Lesebuch',s:'m'},{t:' enth\u00e4lt zahlreiche spannende Texte f\u00fcr Anf\u00e4nger.'}], hint:'lesen + Buch' },
-  { segs: [{t:'Im '},{b:'Arbeitsalltag',s:'l'},{t:' sind klare Kommunikationsregeln besonders wichtig.'}], hint:'Arbeit + Alltag' },
-  { segs: [{t:'Die '},{b:'Kaffeetasse',s:'l'},{t:' auf dem Schreibtisch war schon fast leer.'}], hint:'Kaffee + Tasse' },
-  { segs: [{t:'Ein '},{b:'Schreibtisch',s:'l'},{t:' sollte ergonomisch gestaltet sein.'}], hint:'schreiben + Tisch' },
-  { segs: [{t:'Die '},{b:'Lesebrille',s:'l'},{t:' lag wie immer an der falschen Stelle.'}], hint:'lesen + Brille' },
-  { segs: [{t:'Das '},{b:'Bundesland',s:'m'},{t:' Bayern hat eine besonders vielf\u00e4ltige Kulturlandschaft.'}], hint:'Bund + Land' },
-  { segs: [{t:'Der '},{b:'Einheitspreis',s:'l'},{t:' vereinfachte die Abrechnung erheblich.'}], hint:'Einheit + Preis' },
+  { segs: [{t:'Der '},{b:'Holztisch',s:'l'},{t:' in unserem B\u00fcro wurde aus nachhaltigem Material gefertigt.'}], hint:'Nomen + Nomen (Determinativkompositum)' },
+  { segs: [{t:'Das '},{b:'Hochzeitskleid',s:'l'},{t:' der Braut war aus reiner Seide und sehr kostspielig.'}], hint:'Nomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Der '},{b:'Menschheitstraum',s:'xl'},{t:' von einer friedlichen Welt ist bis heute nicht erf\u00fcllt.'}], hint:'Abstraktnomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Das '},{b:'Informationsmaterial',s:'xl'},{t:' zur Veranstaltung lag bereits an der Pforte aus.'}], hint:'Fremdwort + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Der '},{b:'Freundschaftsring',s:'l'},{t:' symbolisiert die enge Verbindung der beiden Schwestern.'}], hint:'Abstraktnomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Das '},{b:'Lesebuch',s:'m'},{t:' enth\u00e4lt zahlreiche spannende Texte f\u00fcr Anf\u00e4nger.'}], hint:'Verbstamm + Nomen (Verbkompositum)' },
+  { segs: [{t:'Im '},{b:'Arbeitsalltag',s:'l'},{t:' sind klare Kommunikationsregeln besonders wichtig.'}], hint:'Nomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Die '},{b:'Kaffeetasse',s:'l'},{t:' auf dem Schreibtisch war schon fast leer.'}], hint:'Nomen + Nomen (kein Fugenelement)' },
+  { segs: [{t:'Ein '},{b:'Schreibtisch',s:'l'},{t:' sollte ergonomisch gestaltet sein.'}], hint:'Verbstamm + Nomen (Verbkompositum)' },
+  { segs: [{t:'Die '},{b:'Lesebrille',s:'l'},{t:' lag wie immer an der falschen Stelle.'}], hint:'Verbstamm + Nomen (Verbkompositum)' },
+  { segs: [{t:'Das '},{b:'Bundesland',s:'m'},{t:' Bayern hat eine besonders vielf\u00e4ltige Kulturlandschaft.'}], hint:'Nomen + Nomen (kein Fugenelement)' },
+  { segs: [{t:'Der '},{b:'Einheitspreis',s:'l'},{t:' vereinfachte die Abrechnung erheblich.'}], hint:'Abstraktnomen + Fuge (-s-) + Nomen' },
 ];
 
 function buildLueckeContainer(data, containerId, tabN) {
@@ -743,18 +741,18 @@ function resetTab2() { timerResetOne(2); draggedChip2 = null; selectedChip2 = nu
 
 // ═══════════════ TAB 3 — LÜCKENTEXT FUGENELEMENTE ═══════════════
 var LUECKE3_DATA = [
-  { segs: [{t:'Das '},{b:'Hochzeitskleid',s:'l'},{t:' h\u00e4ngt noch unber\u00fchrt im Schrank.'}], hint:'Hochzeit(-s-) + Kleid' },
-  { segs: [{t:'Das '},{b:'Freundschaftsband',s:'l'},{t:' der Sch\u00fcler wurde beim Abschluss feierlich gebunden.'}], hint:'Freundschaft(-s-) + Band' },
-  { segs: [{t:'Der '},{b:'Menschheitstraum',s:'xl'},{t:' vom ewigen Frieden bleibt bis heute unrealisiert.'}], hint:'Menschheit(-s-) + Traum' },
-  { segs: [{t:'Das '},{b:'Informationsmaterial',s:'xl'},{t:' zur neuen Regelung war verst\u00e4ndlich erkl\u00e4rt.'}], hint:'Information(-s-) + Material' },
-  { segs: [{t:'Die '},{b:'Altersschwäche',s:'l'},{t:' ist ein nat\u00fcrlicher Prozess im Leben jedes Menschen.'}], hint:'Alter(-s-) + Schw\u00e4che' },
-  { segs: [{t:'Der '},{b:'Einheitspreis',s:'l'},{t:' machte das Einkaufen im Ausverkauf einfacher.'}], hint:'Einheit(-s-) + Preis' },
-  { segs: [{t:'Die '},{b:'Hilfsbereitschaft',s:'l'},{t:' der Nachbarn hat uns sehr ger\u00fchrt.'}], hint:'Hilf(-s-) + Bereitschaft' },
-  { segs: [{t:'Das '},{b:'Arbeitsverhältnis',s:'l'},{t:' wurde nach der Probezeit offiziell best\u00e4tigt.'}], hint:'Arbeit(-s-) + Verh\u00e4ltnis' },
-  { segs: [{t:'Die '},{b:'Anpassungsfähigkeit',s:'xl'},{t:' gilt als Schl\u00fcsselkompetenz.'}], hint:'Anpassung(-s-) + F\u00e4higkeit' },
-  { segs: [{t:'Der '},{b:'Tagungsbericht',s:'l'},{t:' wurde p\u00fcnktlich an alle Teilnehmenden versendet.'}], hint:'Tagung(-s-) + Bericht' },
-  { segs: [{t:'Das '},{b:'Geburtstagskind',s:'l'},{t:' wurde mit einem riesigen Kuchen \u00fcberrascht.'}], hint:'Geburtstag(-s-) + Kind' },
-  { segs: [{t:'Die '},{b:'Wohnungssuche',s:'l'},{t:' in Gro\u00dfst\u00e4dten ist oft m\u00fchsam.'}], hint:'Wohnung(-s-) + Suche' },
+  { segs: [{t:'Das '},{b:'Hochzeitskleid',s:'l'},{t:' h\u00e4ngt noch unber\u00fchrt im Schrank.'}], hint:'Nomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Das '},{b:'Freundschaftsband',s:'l'},{t:' der Sch\u00fcler wurde beim Abschluss feierlich gebunden.'}], hint:'Abstraktnomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Der '},{b:'Menschheitstraum',s:'xl'},{t:' vom ewigen Frieden bleibt bis heute unrealisiert.'}], hint:'Abstraktnomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Das '},{b:'Informationsmaterial',s:'xl'},{t:' zur neuen Regelung war verst\u00e4ndlich erkl\u00e4rt.'}], hint:'Nomen auf -ion + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Die '},{b:'Altersschwäche',s:'l'},{t:' ist ein nat\u00fcrlicher Prozess im Leben jedes Menschen.'}], hint:'Nomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Der '},{b:'Einheitspreis',s:'l'},{t:' machte das Einkaufen im Ausverkauf einfacher.'}], hint:'Nomen auf -heit + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Die '},{b:'Hilfsbereitschaft',s:'l'},{t:' der Nachbarn hat uns sehr ger\u00fchrt.'}], hint:'Verbstamm + Fuge (-s-) + Abstraktnomen' },
+  { segs: [{t:'Das '},{b:'Arbeitsverhältnis',s:'l'},{t:' wurde nach der Probezeit offiziell best\u00e4tigt.'}], hint:'Nomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Die '},{b:'Anpassungsfähigkeit',s:'xl'},{t:' gilt als Schl\u00fcsselkompetenz.'}], hint:'Verbalnomen auf -ung + Fuge (-s-) + Abstraktnomen' },
+  { segs: [{t:'Der '},{b:'Tagungsbericht',s:'l'},{t:' wurde p\u00fcnktlich an alle Teilnehmenden versendet.'}], hint:'Verbalnomen auf -ung + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Das '},{b:'Geburtstagskind',s:'l'},{t:' wurde mit einem riesigen Kuchen \u00fcberrascht.'}], hint:'Nomen + Fuge (-s-) + Nomen' },
+  { segs: [{t:'Die '},{b:'Wohnungssuche',s:'l'},{t:' in Gro\u00dfst\u00e4dten ist oft m\u00fchsam.'}], hint:'Verbalnomen auf -ung + Fuge (-s-) + Nomen' },
 ];
 function buildLuecke3() { buildLueckeContainer(LUECKE3_DATA, 'luecke3-container', 3); }
 function resetTab3() { timerResetOne(3); buildLuecke3(); }
@@ -860,18 +858,18 @@ function resetTab4() { timerResetOne(4); draggedChip4 = null; selectedChip4 = nu
 
 // ═══════════════ TAB 5 — LÜCKENTEXT NOMENDERIVATE ═══════════════
 var LUECKE5_DATA = [
-  { segs: [{t:'Das laute '},{b:'Gelächter',s:'l'},{t:' der Kinder war im ganzen Haus zu h\u00f6ren.'}], hint:'lachen \u2192 Ge-...-er' },
-  { segs: [{t:'Die '},{b:'Sinnlichkeit',s:'l'},{t:' eines Gedichts l\u00e4sst sich nicht leicht erkl\u00e4ren.'}], hint:'sinnlich \u2192 -keit' },
-  { segs: [{t:'Die '},{b:'Schwäche',s:'m'},{t:' des Arguments \u00fcberzeugte das Gericht nicht.'}], hint:'schwach \u2192 -e + Umlaut' },
-  { segs: [{t:'Die j\u00e4hrliche '},{b:'Wanderung',s:'l'},{t:' durch den Schwarzwald ist ein sch\u00f6ner Familienbrauch.'}], hint:'wandern \u2192 -ung' },
-  { segs: [{t:'Der '},{b:'Schwimmer',s:'m'},{t:' des Vereins gewann die Bezirksmeisterschaft.'}], hint:'schwimmen \u2192 -er' },
-  { segs: [{t:'Die '},{b:'Schönheit',s:'m'},{t:' der Alpen beeindruckte die Touristen jedes Jahr.'}], hint:'sch\u00f6n \u2192 -heit' },
-  { segs: [{t:'Der '},{b:'Lauf',s:'m'},{t:' des Flusses hat sich im Laufe der Jahrtausende ver\u00e4ndert.'}], hint:'laufen \u2192 Konversion' },
-  { segs: [{t:'Die '},{b:'Begehung',s:'m'},{t:' des Grundst\u00fccks dauerte \u00fcber zwei Stunden.'}], hint:'begehen \u2192 -ung' },
-  { segs: [{t:'Das '},{b:'Gerede',s:'m'},{t:' der Nachbarn interessierte ihn nicht im Mindesten.'}], hint:'reden \u2192 Ge-...-e' },
-  { segs: [{t:'Die '},{b:'Stärke',s:'m'},{t:' des Teams liegt in seiner Vielf\u00e4ltigkeit.'}], hint:'stark \u2192 -e + Umlaut' },
-  { segs: [{t:'Das '},{b:'Lächeln',s:'m'},{t:' des Kindes r\u00fchrte alle Anwesenden zu Tr\u00e4nen.'}], hint:'l\u00e4cheln \u2192 Infinitiv-Nominalisierung' },
-  { segs: [{t:'Die '},{b:'Reinheit',s:'m'},{t:' des Wassers wird regelm\u00e4\u00dfig \u00fcberpr\u00fcft.'}], hint:'rein \u2192 -heit' },
+  { segs: [{t:'Das laute '},{b:'Gelächter',s:'l'},{t:' der Kinder war im ganzen Haus zu h\u00f6ren.'}], hint:'Ge-...-er (Kollektivum, Verb)' },
+  { segs: [{t:'Die '},{b:'Sinnlichkeit',s:'l'},{t:' eines Gedichts l\u00e4sst sich nicht leicht erkl\u00e4ren.'}], hint:'Adjektiv + Suffix -keit' },
+  { segs: [{t:'Die '},{b:'Schwäche',s:'m'},{t:' des Arguments \u00fcberzeugte das Gericht nicht.'}], hint:'Adjektiv + Umlaut + Suffix -e' },
+  { segs: [{t:'Die j\u00e4hrliche '},{b:'Wanderung',s:'l'},{t:' durch den Schwarzwald ist ein sch\u00f6ner Familienbrauch.'}], hint:'Verb + Suffix -ung' },
+  { segs: [{t:'Der '},{b:'Schwimmer',s:'m'},{t:' des Vereins gewann die Bezirksmeisterschaft.'}], hint:'Verb + Suffix -er (Agentiv)' },
+  { segs: [{t:'Die '},{b:'Schönheit',s:'m'},{t:' der Alpen beeindruckte die Touristen jedes Jahr.'}], hint:'Adjektiv + Suffix -heit' },
+  { segs: [{t:'Der '},{b:'Lauf',s:'m'},{t:' des Flusses hat sich im Laufe der Jahrtausende ver\u00e4ndert.'}], hint:'Konversion: Verbstamm → Nomen' },
+  { segs: [{t:'Die '},{b:'Begehung',s:'m'},{t:' des Grundst\u00fccks dauerte \u00fcber zwei Stunden.'}], hint:'Verb + Suffix -ung' },
+  { segs: [{t:'Das '},{b:'Gerede',s:'m'},{t:' der Nachbarn interessierte ihn nicht im Mindesten.'}], hint:'Ge-...-e (Kollektivum/Abwertung, Verb)' },
+  { segs: [{t:'Die '},{b:'Stärke',s:'m'},{t:' des Teams liegt in seiner Vielf\u00e4ltigkeit.'}], hint:'Adjektiv + Umlaut + Suffix -e' },
+  { segs: [{t:'Das '},{b:'Lächeln',s:'m'},{t:' des Kindes r\u00fchrte alle Anwesenden zu Tr\u00e4nen.'}], hint:'Infinitivnominalisierung (neutrales Nomen)' },
+  { segs: [{t:'Die '},{b:'Reinheit',s:'m'},{t:' des Wassers wird regelm\u00e4\u00dfig \u00fcberpr\u00fcft.'}], hint:'Adjektiv + Suffix -heit' },
 ];
 function buildLuecke5() { buildLueckeContainer(LUECKE5_DATA, 'luecke5-container', 5); }
 function resetTab5() { timerResetOne(5); buildLuecke5(); }
