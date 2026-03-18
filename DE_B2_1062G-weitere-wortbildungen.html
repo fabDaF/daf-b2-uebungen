@@ -108,6 +108,26 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .pool-item-fb { font-size:0.85em; font-weight:600; margin-top:4px; min-height:1em; }
 .pool-item-fb.correct   { color:#27ae60; }
 .pool-item-fb.incorrect { color:#e74c3c; }
+
+/* TAB 5 — NOMENDERIVATE */
+.t5-pool-label { font-size:0.75em; font-weight:700; color:#9c8fc0; text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px; }
+.t5-pool { display:flex; flex-wrap:wrap; gap:8px; background:#f0edf8; border:2px solid #c0b0e8; border-radius:12px; padding:14px 16px; margin-bottom:24px; }
+.t5-word { background:white; border:2px solid #c0b0e8; border-radius:20px; padding:5px 14px; font-size:0.93em; color:#3c3177; font-weight:600; cursor:default; user-select:none; }
+.t5-card { background:#fafbff; border:1px solid #e0daf5; border-radius:10px; padding:16px 20px; margin-bottom:14px; }
+.t5-satz { font-size:1.02em; line-height:2.2; color:#333; margin-bottom:6px; }
+.t5-inp { border:none; border-bottom:2px solid #667eea; background:transparent; font-size:1.05em; font-family:inherit; padding:2px 6px; outline:none; text-align:center; min-width:120px; transition:border-color .2s, color .2s; }
+.t5-inp:focus { border-bottom-color:#764ba2; }
+.t5-inp.correct { border-bottom-color:#27ae60; color:#27ae60; font-weight:700; }
+.t5-inp.wrong   { border-bottom-color:#e74c3c; color:#e74c3c; }
+.t5-affixe { display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap; }
+.t5-affixe-label { font-size:0.75em; color:#aaa; }
+.t5-affix { display:inline-block; padding:2px 9px; border-radius:5px; font-size:0.8em; font-weight:700; }
+.t5-affix.prefix  { background:#e8f0fb; border:1px solid #90caf9; color:#1565c0; }
+.t5-affix.suffix  { background:#fff3e0; border:1px solid #ffb74d; color:#e65100; }
+.t5-affix.slot    { background:#f3e5f5; border:1px dashed #ce93d8; color:#6a1b9a; font-style:italic; }
+.t5-fb { font-size:0.83em; font-weight:600; min-height:1.1em; margin-top:4px; }
+.t5-fb.ok  { color:#27ae60; }
+.t5-fb.err { color:#e74c3c; }
 #sec-1 .chip, #sec-3 .chip { background:white; border:2px solid #667eea; color:#667eea; padding:6px 12px; border-radius:20px; cursor:move; font-weight:500; font-size:0.88em; transition:all 0.2s; user-select:none; white-space:nowrap; }
 #sec-1 .chip.correct,  #sec-3 .chip.correct  { background:#27ae60!important; border-color:#27ae60!important; color:white!important; }
 #sec-1 .chip.incorrect,#sec-3 .chip.incorrect{ background:#e74c3c!important; border-color:#e74c3c!important; color:white!important; }
@@ -443,18 +463,19 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
     <text x="500" y="98" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="700" fill="rgba(255,255,255,0.92)">✏️ Nomenderivate</text>
   </svg>
   <div style="padding: 28px 30px;">
-    <h2 class="sec-title">Nomenderivate — Nomen aus Teilen zusammensetzen</h2>
+    <h2 class="sec-title">Nomenderivate — Nomen selbst schreiben</h2>
     <div class="timer-bar">
       <span>&#9201; <span class="timer-display" id="timer-5">0:00</span></span>
-      <span>&#127942; <span class="best-display" id="best-5">–</span></span>
+      <span>&#127942; <span class="best-display" id="best-5">&#8211;</span></span>
     </div>
     <div class="btn-row">
       <button onclick="resetTab5()">&#8635; Neu starten</button>
-      <button onclick="pool5SolveAll()">&#128161; Lösungen</button>
+      <button onclick="t5SolveAll()">&#128161; L&#246;sungen</button>
     </div>
-    <div class="hilfe-box"><strong>Aufgabe:</strong> Ziehe die richtigen Wortteile aus dem Pool in die Lücke — Basiswort und Suffix gehören zusammen. Achte auf die korrekte Schreibung!</div>
-    <div id="pool5-bank" class="pool-bank"></div>
-    <div id="pool5-container"></div>
+    <div class="hilfe-box"><strong>Aufgabe:</strong> Schreib das vollst&#228;ndige abgeleitete Nomen in die L&#252;cke. Im W&#246;rterpool findest du die Basisw&#246;rter. Die Affixe unter der L&#252;cke zeigen dir den Bildungsweg. <em>Doppelklick zeigt die L&#246;sung.</em></div>
+    <div class="t5-pool-label">W&#246;rterpool &mdash; Basisw&#246;rter</div>
+    <div id="t5-pool" class="t5-pool"></div>
+    <div id="t5-container"></div>
   </div>
 </div>
 
@@ -1280,208 +1301,162 @@ function updateZuo4Counter() {
 }
 function resetTab4() { timerResetOne(4); draggedChip4 = null; selectedChip4 = null; initZuo4(); }
 
-// ═══════════════ TAB 5 — LÜCKENTEXT NOMENDERIVATE ═══════════════
-// ═══════════════ TAB 5 — POOL NOMENDERIVATE ═══════════════
-// parts: alle Chips die in den Pool kommen
-// valid: die korrekte Reihenfolge der Chips in der Drop-Zone
-// Chip-Stil: Basiswörter normal, Suffixe orange (.suffix-chip)
-var POOL5_DATA = [
-  { pre: 'Das laute ',  post: ' der Kinder war im ganzen Haus zu h\u00f6ren.',
-    parts: ['lach-', '-en', 'Ge-', '-er'],  valid: ['Ge-', 'lach-', '-er'],
-    hint: 'Ge-...-er \u2192 Gelächter (Kollektivum, von: lachen)' },
-  { pre: 'Die ',  post: ' eines Gedichts l\u00e4sst sich nicht leicht erkl\u00e4ren.',
-    parts: ['sinn-', '-lich', '-keit'],  valid: ['sinn-', '-lich', '-keit'],
-    hint: 'sinnlich + -keit \u2192 Sinnlichkeit' },
-  { pre: 'Die ',  post: ' des Arguments \u00fcberzeugte das Gericht nicht.',
-    parts: ['schwach-', '-e', '-ung'],  valid: ['schwach-', '-e'],
-    hint: 'schwach + Umlaut + -e \u2192 Schwäche' },
-  { pre: 'Die j\u00e4hrliche ',  post: ' durch den Schwarzwald ist ein sch\u00f6ner Familienbrauch.',
-    parts: ['wander-', '-ung', '-er'],  valid: ['wander-', '-ung'],
-    hint: 'wandern + -ung \u2192 Wanderung' },
-  { pre: 'Der ',  post: ' des Vereins gewann die Bezirksmeisterschaft.',
-    parts: ['schwimm-', '-er', '-ung'],  valid: ['schwimm-', '-er'],
-    hint: 'schwimmen + -er \u2192 Schwimmer (Agentiv)' },
-  { pre: 'Die ',  post: ' der Alpen beeindruckte die Touristen jedes Jahr.',
-    parts: ['sch\u00f6n-', '-heit', '-keit'],  valid: ['sch\u00f6n-', '-heit'],
-    hint: 'schön + -heit \u2192 Schönheit' },
-  { pre: 'Die ',  post: ' des Grundst\u00fccks dauerte \u00fcber zwei Stunden.',
-    parts: ['geh-', '-ung', 'be-', '-er'],  valid: ['be-', 'geh-', '-ung'],
-    hint: 'begehen + -ung \u2192 Begehung' },
-  { pre: 'Das ',  post: ' der Nachbarn interessierte ihn nicht im Mindesten.',
-    parts: ['red-', '-e', 'Ge-', '-ung'],  valid: ['Ge-', 'red-', '-e'],
-    hint: 'Ge-...-e \u2192 Gerede (Kollektivum, von: reden)' },
-  { pre: 'Die ',  post: ' des Teams liegt in seiner Vielf\u00e4ltigkeit.',
-    parts: ['stark-', '-e', '-heit'],  valid: ['stark-', '-e'],
-    hint: 'stark + Umlaut + -e \u2192 Stärke' },
-  { pre: 'Das ',  post: ' des Kindes r\u00fchrte alle Anwesenden zu Tr\u00e4nen.',
-    parts: ['l\u00e4chel-', '-n', '-ung', '-er'],  valid: ['l\u00e4chel-', '-n'],
-    hint: 'lächeln (Infinitiv) \u2192 das Lächeln (Nominalisierung)' },
-  { pre: 'Die ',  post: ' des Wassers wird regelm\u00e4\u00dfig \u00fcberpr\u00fcft.',
-    parts: ['rein-', '-heit', '-keit'],  valid: ['rein-', '-heit'],
-    hint: 'rein + -heit \u2192 Reinheit' },
-  { pre: 'Der ',  post: ' des Flusses hat sich im Laufe der Jahrtausende ver\u00e4ndert.',
-    parts: ['lauf-', '-er', '-ung'],  valid: ['lauf-'],
-    hint: 'Konversion: Verbstamm lauf- \u2192 der Lauf' },
+// ═══════════════ TAB 5 — NOMENDERIVATE ═══════════════
+// Sätze belegt im Quasthoff (Schönheit, Lächeln, Schwäche, Stärke, Gerede)
+// Basiswörter im Pool (nur lesen), vollständiges Nomen eintippen,
+// Affixe als Hinweis darunter.
+var T5_DATA = [
+  { pre: 'Die zeitlose\u00a0', post: '\u00a0der Alpen beeindruckte die Touristen jedes Jahr.',
+    answer: 'Sch\u00f6nheit',
+    pool: 'sch\u00f6n',
+    affixe: [{ cls:'slot', t:'?' }, { cls:'suffix', t:'-heit' }],
+    hint: 'Adjektiv \u2192 Nomen: schön + -heit' },
+  { pre: 'Sein entwaffnendes\u00a0', post: '\u00a0bezauberte alle im Raum.',
+    answer: 'L\u00e4cheln',
+    pool: 'l\u00e4cheln',
+    affixe: [{ cls:'slot', t:'?' }],
+    hint: 'Infinitiv-Nominalisierung: lächeln \u2192 das Lächeln' },
+  { pre: 'Das Team musste seine eklatante\u00a0', post: '\u00a0in der Defensive eingestehen.',
+    answer: 'Schw\u00e4che',
+    pool: 'schwach',
+    affixe: [{ cls:'slot', t:'?' }, { cls:'suffix', t:'-e (+ Umlaut)' }],
+    hint: 'Adjektiv \u2192 Nomen: schwach + Umlaut + -e' },
+  { pre: 'Die beeindruckende\u00a0', post: '\u00a0des Athleten \u00fcberwand alle Hindernisse.',
+    answer: 'St\u00e4rke',
+    pool: 'stark',
+    affixe: [{ cls:'slot', t:'?' }, { cls:'suffix', t:'-e (+ Umlaut)' }],
+    hint: 'Adjektiv \u2192 Nomen: stark + Umlaut + -e' },
+  { pre: 'Das sinnlose\u00a0', post: '\u00a0der Kollegen interessierte ihn nicht.',
+    answer: 'Gerede',
+    pool: 'reden',
+    affixe: [{ cls:'prefix', t:'Ge-' }, { cls:'slot', t:'?' }, { cls:'suffix', t:'-e' }],
+    hint: 'Ge-...-e \u2192 Kollektivum: Ge + red + -e' },
+  { pre: 'Die j\u00e4hrliche\u00a0', post: '\u00a0durch den Schwarzwald ist ein sch\u00f6ner Brauch.',
+    answer: 'Wanderung',
+    pool: 'wandern',
+    affixe: [{ cls:'slot', t:'?' }, { cls:'suffix', t:'-ung' }],
+    hint: 'Verb \u2192 Nomen: wandern + -ung' },
+  { pre: 'Das ansteckende\u00a0', post: '\u00a0der Kinder hallte durch das ganze Haus.',
+    answer: 'Gel\u00e4chter',
+    pool: 'lachen',
+    affixe: [{ cls:'prefix', t:'Ge-' }, { cls:'slot', t:'?' }, { cls:'suffix', t:'-er' }],
+    hint: 'Ge-...-er \u2192 Kollektivum: Ge + lach + -er' },
+  { pre: 'Der schnellste\u00a0', post: '\u00a0des Vereins gewann die Meisterschaft.',
+    answer: 'Schwimmer',
+    pool: 'schwimmen',
+    affixe: [{ cls:'slot', t:'?' }, { cls:'suffix', t:'-er' }],
+    hint: 'Verb \u2192 Agentivnomen: schwimmen + -er' },
+  { pre: 'Die absolute\u00a0', post: '\u00a0des Wassers wird regelm\u00e4\u00dfig \u00fcberpr\u00fcft.',
+    answer: 'Reinheit',
+    pool: 'rein',
+    affixe: [{ cls:'slot', t:'?' }, { cls:'suffix', t:'-heit' }],
+    hint: 'Adjektiv \u2192 Nomen: rein + -heit' },
+  { pre: 'Die au\u00dfergew\u00f6hnliche\u00a0', post: '\u00a0eines Gedichts l\u00e4sst sich kaum erkl\u00e4ren.',
+    answer: 'Sinnlichkeit',
+    pool: 'sinnlich',
+    affixe: [{ cls:'slot', t:'?' }, { cls:'suffix', t:'-keit' }],
+    hint: 'Adjektiv \u2192 Nomen: sinnlich + -keit' },
 ];
 
-var p5Dragged = null;
-var p5Selected = null;
-
-function p5IsPrefix(word) { return word.endsWith('-') && !word.startsWith('-'); }
-function p5IsSuffix(word) { return word.startsWith('-'); }
-
-function p5MakeChip(word) {
-  var chip = document.createElement('div');
-  chip.className = 'chip';
-  if (p5IsSuffix(word)) chip.classList.add('fuge');
-  chip.dataset.orig = word;
-  chip.textContent = word;
-  chip.draggable = true;
-  chip.addEventListener('dragstart', function(e){ p5Dragged = chip; e.dataTransfer.setData('text/plain',''); });
-  chip.addEventListener('click', function(e){
-    e.stopPropagation();
-    if (p5Selected === chip) { chip.classList.remove('selected'); p5Selected = null; }
-    else { if (p5Selected) p5Selected.classList.remove('selected'); p5Selected = chip; chip.classList.add('selected'); }
-  });
-  return chip;
-}
-
-function p5RegisterZone(zone, idx) {
-  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.style.borderColor='#667eea'; });
-  zone.addEventListener('dragleave', function(){ zone.style.borderColor=''; });
-  zone.addEventListener('drop', function(e){
-    e.preventDefault(); zone.style.borderColor='';
-    if (!p5Dragged) return;
-    zone.appendChild(p5Dragged); p5Dragged = null;
-    if (idx >= 0) { p5CheckDrop(idx); timerAutoStart(5); }
-    else p5UpdateScore();
-  });
-  zone.addEventListener('click', function(e){
-    if (!p5Selected) return;
-    if (e.target === zone || !zone.contains(e.target) || e.target.classList.contains('pool-drop')) {
-      zone.appendChild(p5Selected); p5Selected.classList.remove('selected'); p5Selected = null;
-      if (idx >= 0) { p5CheckDrop(idx); timerAutoStart(5); }
-      else p5UpdateScore();
-    }
-  });
-}
-
-function p5CheckDrop(idx) {
-  var drop = document.getElementById('p5-drop-' + idx);
-  var fb = document.getElementById('p5-fb-' + idx);
-  if (!drop || !fb) return;
-  var chips = Array.from(drop.querySelectorAll('.chip'));
-  var valid = POOL5_DATA[idx].valid;
-  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
-  if (chips.length === 0) { drop.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='pool-item-fb'; return; }
-  var allRight = chips.length === valid.length && chips.every(function(c,i){ return c.dataset.orig === valid[i]; });
-  if (allRight) {
-    chips.forEach(function(c){ c.classList.add('correct'); });
-    drop.classList.add('correct'); drop.classList.remove('incorrect');
-    fb.textContent = '\u2714 Richtig!'; fb.className = 'pool-item-fb correct';
+function t5LiveCheck(inp) {
+  var val = inp.value.trim();
+  var ans = inp.dataset.answer;
+  var fb = inp.closest('.t5-card').querySelector('.t5-fb');
+  inp.classList.remove('correct', 'wrong');
+  fb.textContent = ''; fb.className = 't5-fb';
+  if (!val) return;
+  if (val === ans) {
+    inp.classList.add('correct');
+    fb.textContent = '\u2714 Richtig!'; fb.className = 't5-fb ok';
+    timerAutoStart(5);
+    t5CheckAllDone();
+  } else if (ans.toLowerCase().startsWith(val.toLowerCase())) {
+    timerAutoStart(5); // noch am Tippen — neutral
   } else {
-    chips.forEach(function(c){ c.classList.add('incorrect'); });
-    drop.classList.add('incorrect'); drop.classList.remove('correct');
-    fb.textContent = ''; fb.className = 'pool-item-fb';
+    inp.classList.add('wrong');
+    timerAutoStart(5);
   }
-  p5UpdateScore();
 }
 
-function p5UpdateScore() {
-  var allOk = POOL5_DATA.every(function(_, i){
-    var drop = document.getElementById('p5-drop-' + i);
-    return drop && drop.classList.contains('correct');
-  });
+function t5CheckAllDone() {
+  var allOk = Array.from(document.querySelectorAll('.t5-inp')).every(function(i){ return i.classList.contains('correct'); });
   if (allOk) timerStop(5);
 }
 
-function pool5ShowSolution(idx) {
-  var bank = document.getElementById('pool5-bank');
-  var drop = document.getElementById('p5-drop-' + idx);
-  if (!bank || !drop) return;
-  var allChips = {};
-  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig] = c; });
-  Array.from(drop.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig] = c; });
-  while (drop.firstChild) drop.removeChild(drop.firstChild);
-  POOL5_DATA[idx].valid.forEach(function(word){
-    var chip = allChips[word];
-    if (chip) { chip.classList.remove('correct','incorrect'); drop.appendChild(chip); }
+function t5SolveAll() {
+  document.querySelectorAll('.t5-inp').forEach(function(inp){
+    inp.value = inp.dataset.answer;
+    t5LiveCheck(inp);
   });
-  p5CheckDrop(idx);
 }
 
-function pool5SolveAll() {
-  POOL5_DATA.forEach(function(_, i){ pool5ShowSolution(i); });
-}
+function buildT5() {
+  var pool = document.getElementById('t5-pool');
+  var cont = document.getElementById('t5-container');
+  if (!pool || !cont) return;
+  pool.innerHTML = ''; cont.innerHTML = '';
 
-function initPool5() {
-  var bank = document.getElementById('pool5-bank');
-  var cont = document.getElementById('pool5-container');
-  if (!bank || !cont) return;
-  bank.innerHTML = ''; cont.innerHTML = '';
-  p5Dragged = null; p5Selected = null;
+  // Pool: alle Basiswörter gemischt anzeigen (nur lesen)
+  var words = T5_DATA.map(function(d){ return d.pool; });
+  shuffle(words).forEach(function(w){
+    var span = document.createElement('span');
+    span.className = 't5-word'; span.textContent = w;
+    pool.appendChild(span);
+  });
 
-  var allParts = [];
-  POOL5_DATA.forEach(function(ex){ ex.parts.forEach(function(p){ allParts.push(p); }); });
-  for (var i = allParts.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = allParts[i]; allParts[i] = allParts[j]; allParts[j] = tmp;
-  }
-  allParts.forEach(function(word){ bank.appendChild(p5MakeChip(word)); });
-  p5RegisterZone(bank, -1);
+  // Aufgabenkarten
+  T5_DATA.forEach(function(d, idx) {
+    var card = document.createElement('div');
+    card.className = 't5-card';
 
-  POOL5_DATA.forEach(function(ex, idx) {
-    var item = document.createElement('div');
-    item.className = 'pool-item';
+    // Satzezeile mit Eingabefeld
+    var satz = document.createElement('div');
+    satz.className = 't5-satz';
+    satz.appendChild(document.createTextNode(d.pre));
+    var inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 't5-inp';
+    inp.dataset.answer = d.answer;
+    inp.setAttribute('autocomplete', 'off');
+    inp.style.width = Math.max(120, d.answer.length * 12 + 24) + 'px';
+    inp.addEventListener('input', function(){ t5LiveCheck(this); });
+    inp.addEventListener('dblclick', function(){ this.value = d.answer; t5LiveCheck(this); });
+    satz.appendChild(inp);
+    satz.appendChild(document.createTextNode(d.post));
+    card.appendChild(satz);
 
-    var sent = document.createElement('div');
-    sent.className = 'pool-item-sentence';
-    sent.appendChild(document.createTextNode(ex.pre));
-    var drop = document.createElement('span');
-    drop.className = 'pool-drop';
-    drop.id = 'p5-drop-' + idx;
-    p5RegisterZone(drop, idx);
-    sent.appendChild(drop);
-    sent.appendChild(document.createTextNode(ex.post));
-    item.appendChild(sent);
-
-    var hint = document.createElement('div');
-    hint.className = 'pool-item-hint';
-    hint.textContent = ex.hint;
-    item.appendChild(hint);
-
-    var fb = document.createElement('div');
-    fb.className = 'pool-item-fb';
-    fb.id = 'p5-fb-' + idx;
-    item.appendChild(fb);
-
-    var btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:6px;';
-    var solveBtn = document.createElement('button');
-    solveBtn.className = 'btn'; solveBtn.textContent = 'L\u00f6sen';
-    solveBtn.setAttribute('data-idx', idx);
-    solveBtn.addEventListener('click', function(){ pool5ShowSolution(parseInt(this.getAttribute('data-idx'))); });
-    var resetBtn = document.createElement('button');
-    resetBtn.className = 'btn'; resetBtn.textContent = '\u21ba';
-    resetBtn.setAttribute('data-idx', idx);
-    resetBtn.addEventListener('click', function(){
-      var i2 = parseInt(this.getAttribute('data-idx'));
-      var d = document.getElementById('p5-drop-' + i2);
-      var b2 = document.getElementById('pool5-bank');
-      Array.from(d.querySelectorAll('.chip')).forEach(function(c){ c.classList.remove('correct','incorrect'); b2.appendChild(c); });
-      d.classList.remove('correct','incorrect');
-      document.getElementById('p5-fb-' + i2).textContent = '';
-      document.getElementById('p5-fb-' + i2).className = 'pool-item-fb';
-      p5UpdateScore();
+    // Affix-Hinweis
+    var affDiv = document.createElement('div');
+    affDiv.className = 't5-affixe';
+    var lbl = document.createElement('span');
+    lbl.className = 't5-affixe-label';
+    lbl.textContent = 'Affixe:';
+    affDiv.appendChild(lbl);
+    d.affixe.forEach(function(a){
+      var sp = document.createElement('span');
+      sp.className = 't5-affix ' + a.cls;
+      sp.textContent = a.t;
+      affDiv.appendChild(sp);
     });
-    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-    item.appendChild(btnRow);
-    cont.appendChild(item);
+    card.appendChild(affDiv);
+
+    // Hinweistext
+    var hintDiv = document.createElement('div');
+    hintDiv.style.cssText = 'font-size:0.75em;color:#bbb;margin-top:4px;font-style:italic;';
+    hintDiv.textContent = d.hint;
+    card.appendChild(hintDiv);
+
+    // Feedback
+    var fb = document.createElement('div');
+    fb.className = 't5-fb';
+    card.appendChild(fb);
+
+    cont.appendChild(card);
   });
 }
 
-function buildLuecke5() { initPool5(); }
-function resetTab5() { timerResetOne(5); initPool5(); }
+function buildLuecke5() { buildT5(); }
+function resetTab5() { timerResetOne(5); buildT5(); }
 
 // ═══════════════ TAB 6 — SATZBAU ═══════════════
 var SB_DATA = [
