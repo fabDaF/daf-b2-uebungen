@@ -443,18 +443,18 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
     <text x="500" y="98" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="700" fill="rgba(255,255,255,0.92)">✏️ Nomenderivate</text>
   </svg>
   <div style="padding: 28px 30px;">
-    <h2 class="sec-title">Nomenderivate — das abgeleitete Nomen einsetzen</h2>
-    <div class="control-bar">
-      <div class="btn-row">
-        <button class="btn" onclick="resetTab5()">↺ Neu starten</button>
-      </div>
-      <div class="timer-display-row">
-        <span>⏱ <span id="timer-5">00:00</span></span>
-        <span>🏆 <span id="best-5">--:--</span></span>
-      </div>
+    <h2 class="sec-title">Nomenderivate — Nomen aus Teilen zusammensetzen</h2>
+    <div class="timer-bar">
+      <span>&#9201; <span class="timer-display" id="timer-5">0:00</span></span>
+      <span>&#127942; <span class="best-display" id="best-5">–</span></span>
     </div>
-    <div class="hilfe-box"><strong>Aufgabe:</strong> Leite ein Nomen vom Basiswort ab und schreib es in die Lücke. Der Hinweis nennt das Basiswort und den Bildungsweg. <em>Doppelklick zeigt die Lösung.</em></div>
-    <div id="luecke5-container"></div>
+    <div class="btn-row">
+      <button onclick="resetTab5()">&#8635; Neu starten</button>
+      <button onclick="pool5SolveAll()">&#128161; Lösungen</button>
+    </div>
+    <div class="hilfe-box"><strong>Aufgabe:</strong> Ziehe die richtigen Wortteile aus dem Pool in die Lücke — Basiswort und Suffix gehören zusammen. Achte auf die korrekte Schreibung!</div>
+    <div id="pool5-bank" class="pool-bank"></div>
+    <div id="pool5-container"></div>
   </div>
 </div>
 
@@ -1281,55 +1281,207 @@ function updateZuo4Counter() {
 function resetTab4() { timerResetOne(4); draggedChip4 = null; selectedChip4 = null; initZuo4(); }
 
 // ═══════════════ TAB 5 — LÜCKENTEXT NOMENDERIVATE ═══════════════
-var LUECKE5_DATA = [
-  { segs: [{t:'Das laute '},{b:'Gelächter',s:'l'},{t:' der Kinder war im ganzen Haus zu h\u00f6ren.'}], hint:'Ge-...-er (Kollektivum, Verb)' },
-  { segs: [{t:'Die '},{b:'Sinnlichkeit',s:'l'},{t:' eines Gedichts l\u00e4sst sich nicht leicht erkl\u00e4ren.'}], hint:'Adjektiv + Suffix -keit' },
-  { segs: [{t:'Die '},{b:'Schwäche',s:'m'},{t:' des Arguments \u00fcberzeugte das Gericht nicht.'}], hint:'Adjektiv + Umlaut + Suffix -e' },
-  { segs: [{t:'Die j\u00e4hrliche '},{b:'Wanderung',s:'l'},{t:' durch den Schwarzwald ist ein sch\u00f6ner Familienbrauch.'}], hint:'Verb + Suffix -ung' },
-  { segs: [{t:'Der '},{b:'Schwimmer',s:'m'},{t:' des Vereins gewann die Bezirksmeisterschaft.'}], hint:'Verb + Suffix -er (Agentiv)' },
-  { segs: [{t:'Die '},{b:'Schönheit',s:'m'},{t:' der Alpen beeindruckte die Touristen jedes Jahr.'}], hint:'Adjektiv + Suffix -heit' },
-  { segs: [{t:'Der '},{b:'Lauf',s:'m'},{t:' des Flusses hat sich im Laufe der Jahrtausende ver\u00e4ndert.'}], hint:'Konversion: Verbstamm → Nomen' },
-  { segs: [{t:'Die '},{b:'Begehung',s:'m'},{t:' des Grundst\u00fccks dauerte \u00fcber zwei Stunden.'}], hint:'Verb + Suffix -ung' },
-  { segs: [{t:'Das '},{b:'Gerede',s:'m'},{t:' der Nachbarn interessierte ihn nicht im Mindesten.'}], hint:'Ge-...-e (Kollektivum/Abwertung, Verb)' },
-  { segs: [{t:'Die '},{b:'Stärke',s:'m'},{t:' des Teams liegt in seiner Vielf\u00e4ltigkeit.'}], hint:'Adjektiv + Umlaut + Suffix -e' },
-  { segs: [{t:'Das '},{b:'Lächeln',s:'m'},{t:' des Kindes r\u00fchrte alle Anwesenden zu Tr\u00e4nen.'}], hint:'Infinitivnominalisierung (neutrales Nomen)' },
-  { segs: [{t:'Die '},{b:'Reinheit',s:'m'},{t:' des Wassers wird regelm\u00e4\u00dfig \u00fcberpr\u00fcft.'}], hint:'Adjektiv + Suffix -heit' },
+// ═══════════════ TAB 5 — POOL NOMENDERIVATE ═══════════════
+// parts: alle Chips die in den Pool kommen
+// valid: die korrekte Reihenfolge der Chips in der Drop-Zone
+// Chip-Stil: Basiswörter normal, Suffixe orange (.suffix-chip)
+var POOL5_DATA = [
+  { pre: 'Das laute ',  post: ' der Kinder war im ganzen Haus zu h\u00f6ren.',
+    parts: ['lach-', '-en', 'Ge-', '-er'],  valid: ['Ge-', 'lach-', '-er'],
+    hint: 'Ge-...-er \u2192 Gelächter (Kollektivum, von: lachen)' },
+  { pre: 'Die ',  post: ' eines Gedichts l\u00e4sst sich nicht leicht erkl\u00e4ren.',
+    parts: ['sinn-', '-lich', '-keit'],  valid: ['sinn-', '-lich', '-keit'],
+    hint: 'sinnlich + -keit \u2192 Sinnlichkeit' },
+  { pre: 'Die ',  post: ' des Arguments \u00fcberzeugte das Gericht nicht.',
+    parts: ['schwach-', '-e', '-ung'],  valid: ['schwach-', '-e'],
+    hint: 'schwach + Umlaut + -e \u2192 Schwäche' },
+  { pre: 'Die j\u00e4hrliche ',  post: ' durch den Schwarzwald ist ein sch\u00f6ner Familienbrauch.',
+    parts: ['wander-', '-ung', '-er'],  valid: ['wander-', '-ung'],
+    hint: 'wandern + -ung \u2192 Wanderung' },
+  { pre: 'Der ',  post: ' des Vereins gewann die Bezirksmeisterschaft.',
+    parts: ['schwimm-', '-er', '-ung'],  valid: ['schwimm-', '-er'],
+    hint: 'schwimmen + -er \u2192 Schwimmer (Agentiv)' },
+  { pre: 'Die ',  post: ' der Alpen beeindruckte die Touristen jedes Jahr.',
+    parts: ['sch\u00f6n-', '-heit', '-keit'],  valid: ['sch\u00f6n-', '-heit'],
+    hint: 'schön + -heit \u2192 Schönheit' },
+  { pre: 'Die ',  post: ' des Grundst\u00fccks dauerte \u00fcber zwei Stunden.',
+    parts: ['geh-', '-ung', 'be-', '-er'],  valid: ['be-', 'geh-', '-ung'],
+    hint: 'begehen + -ung \u2192 Begehung' },
+  { pre: 'Das ',  post: ' der Nachbarn interessierte ihn nicht im Mindesten.',
+    parts: ['red-', '-e', 'Ge-', '-ung'],  valid: ['Ge-', 'red-', '-e'],
+    hint: 'Ge-...-e \u2192 Gerede (Kollektivum, von: reden)' },
+  { pre: 'Die ',  post: ' des Teams liegt in seiner Vielf\u00e4ltigkeit.',
+    parts: ['stark-', '-e', '-heit'],  valid: ['stark-', '-e'],
+    hint: 'stark + Umlaut + -e \u2192 Stärke' },
+  { pre: 'Das ',  post: ' des Kindes r\u00fchrte alle Anwesenden zu Tr\u00e4nen.',
+    parts: ['l\u00e4chel-', '-n', '-ung', '-er'],  valid: ['l\u00e4chel-', '-n'],
+    hint: 'lächeln (Infinitiv) \u2192 das Lächeln (Nominalisierung)' },
+  { pre: 'Die ',  post: ' des Wassers wird regelm\u00e4\u00dfig \u00fcberpr\u00fcft.',
+    parts: ['rein-', '-heit', '-keit'],  valid: ['rein-', '-heit'],
+    hint: 'rein + -heit \u2192 Reinheit' },
+  { pre: 'Der ',  post: ' des Flusses hat sich im Laufe der Jahrtausende ver\u00e4ndert.',
+    parts: ['lauf-', '-er', '-ung'],  valid: ['lauf-'],
+    hint: 'Konversion: Verbstamm lauf- \u2192 der Lauf' },
 ];
-function buildLueckeContainer(data, containerId, tabNum) {
-  var cont = document.getElementById(containerId);
-  if (!cont) return;
-  cont.innerHTML = '';
-  data.forEach(function(item, idx) {
-    var card = document.createElement('div');
-    card.className = 'luecke-card';
-    card.style.cssText = 'background:#fafbff;border:1px solid #e8eaf6;border-radius:10px;padding:14px 18px;margin-bottom:14px;';
-    var sentDiv = document.createElement('div');
-    sentDiv.style.cssText = 'font-size:1.05rem;line-height:2;margin-bottom:6px;';
-    item.segs.forEach(function(seg) {
-      if (seg.t !== undefined) {
-        sentDiv.appendChild(document.createTextNode(seg.t));
-      } else {
-        var inp = document.createElement('input');
-        inp.type = 'text';
-        inp.className = 'luecke-inp';
-        inp.dataset.answer = seg.b;
-        inp.style.cssText = 'width:' + Math.max(80, seg.b.length * 11 + 20) + 'px;border:none;border-bottom:2px solid #667eea;background:transparent;font-size:1em;padding:2px 4px;outline:none;text-align:center;';
-        inp.addEventListener('input', function(){ liveCheck(this); timerAutoStart(tabNum); });
-        inp.addEventListener('dblclick', function(){ this.value = this.dataset.answer; liveCheck(this); });
-        sentDiv.appendChild(inp);
-      }
-    });
-    card.appendChild(sentDiv);
-    var hintDiv = document.createElement('div');
-    hintDiv.style.cssText = 'font-size:0.82em;color:#888;font-style:italic;';
-    hintDiv.textContent = item.hint;
-    card.appendChild(hintDiv);
-    cont.appendChild(card);
+
+var p5Dragged = null;
+var p5Selected = null;
+
+function p5IsPrefix(word) { return word.endsWith('-') && !word.startsWith('-'); }
+function p5IsSuffix(word) { return word.startsWith('-'); }
+
+function p5MakeChip(word) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  if (p5IsSuffix(word)) chip.classList.add('fuge');
+  chip.dataset.orig = word;
+  chip.textContent = word;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e){ p5Dragged = chip; e.dataTransfer.setData('text/plain',''); });
+  chip.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (p5Selected === chip) { chip.classList.remove('selected'); p5Selected = null; }
+    else { if (p5Selected) p5Selected.classList.remove('selected'); p5Selected = chip; chip.classList.add('selected'); }
+  });
+  return chip;
+}
+
+function p5RegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.style.borderColor='#667eea'; });
+  zone.addEventListener('dragleave', function(){ zone.style.borderColor=''; });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.style.borderColor='';
+    if (!p5Dragged) return;
+    zone.appendChild(p5Dragged); p5Dragged = null;
+    if (idx >= 0) { p5CheckDrop(idx); timerAutoStart(5); }
+    else p5UpdateScore();
+  });
+  zone.addEventListener('click', function(e){
+    if (!p5Selected) return;
+    if (e.target === zone || !zone.contains(e.target) || e.target.classList.contains('pool-drop')) {
+      zone.appendChild(p5Selected); p5Selected.classList.remove('selected'); p5Selected = null;
+      if (idx >= 0) { p5CheckDrop(idx); timerAutoStart(5); }
+      else p5UpdateScore();
+    }
   });
 }
 
-function buildLuecke5() { buildLueckeContainer(LUECKE5_DATA, 'luecke5-container', 5); }
-function resetTab5() { timerResetOne(5); buildLuecke5(); }
+function p5CheckDrop(idx) {
+  var drop = document.getElementById('p5-drop-' + idx);
+  var fb = document.getElementById('p5-fb-' + idx);
+  if (!drop || !fb) return;
+  var chips = Array.from(drop.querySelectorAll('.chip'));
+  var valid = POOL5_DATA[idx].valid;
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
+  if (chips.length === 0) { drop.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='pool-item-fb'; return; }
+  var allRight = chips.length === valid.length && chips.every(function(c,i){ return c.dataset.orig === valid[i]; });
+  if (allRight) {
+    chips.forEach(function(c){ c.classList.add('correct'); });
+    drop.classList.add('correct'); drop.classList.remove('incorrect');
+    fb.textContent = '\u2714 Richtig!'; fb.className = 'pool-item-fb correct';
+  } else {
+    chips.forEach(function(c){ c.classList.add('incorrect'); });
+    drop.classList.add('incorrect'); drop.classList.remove('correct');
+    fb.textContent = ''; fb.className = 'pool-item-fb';
+  }
+  p5UpdateScore();
+}
+
+function p5UpdateScore() {
+  var allOk = POOL5_DATA.every(function(_, i){
+    var drop = document.getElementById('p5-drop-' + i);
+    return drop && drop.classList.contains('correct');
+  });
+  if (allOk) timerStop(5);
+}
+
+function pool5ShowSolution(idx) {
+  var bank = document.getElementById('pool5-bank');
+  var drop = document.getElementById('p5-drop-' + idx);
+  if (!bank || !drop) return;
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig] = c; });
+  Array.from(drop.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig] = c; });
+  while (drop.firstChild) drop.removeChild(drop.firstChild);
+  POOL5_DATA[idx].valid.forEach(function(word){
+    var chip = allChips[word];
+    if (chip) { chip.classList.remove('correct','incorrect'); drop.appendChild(chip); }
+  });
+  p5CheckDrop(idx);
+}
+
+function pool5SolveAll() {
+  POOL5_DATA.forEach(function(_, i){ pool5ShowSolution(i); });
+}
+
+function initPool5() {
+  var bank = document.getElementById('pool5-bank');
+  var cont = document.getElementById('pool5-container');
+  if (!bank || !cont) return;
+  bank.innerHTML = ''; cont.innerHTML = '';
+  p5Dragged = null; p5Selected = null;
+
+  var allParts = [];
+  POOL5_DATA.forEach(function(ex){ ex.parts.forEach(function(p){ allParts.push(p); }); });
+  for (var i = allParts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = allParts[i]; allParts[i] = allParts[j]; allParts[j] = tmp;
+  }
+  allParts.forEach(function(word){ bank.appendChild(p5MakeChip(word)); });
+  p5RegisterZone(bank, -1);
+
+  POOL5_DATA.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'pool-item';
+
+    var sent = document.createElement('div');
+    sent.className = 'pool-item-sentence';
+    sent.appendChild(document.createTextNode(ex.pre));
+    var drop = document.createElement('span');
+    drop.className = 'pool-drop';
+    drop.id = 'p5-drop-' + idx;
+    p5RegisterZone(drop, idx);
+    sent.appendChild(drop);
+    sent.appendChild(document.createTextNode(ex.post));
+    item.appendChild(sent);
+
+    var hint = document.createElement('div');
+    hint.className = 'pool-item-hint';
+    hint.textContent = ex.hint;
+    item.appendChild(hint);
+
+    var fb = document.createElement('div');
+    fb.className = 'pool-item-fb';
+    fb.id = 'p5-fb-' + idx;
+    item.appendChild(fb);
+
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:6px;';
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn'; solveBtn.textContent = 'L\u00f6sen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function(){ pool5ShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn'; resetBtn.textContent = '\u21ba';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function(){
+      var i2 = parseInt(this.getAttribute('data-idx'));
+      var d = document.getElementById('p5-drop-' + i2);
+      var b2 = document.getElementById('pool5-bank');
+      Array.from(d.querySelectorAll('.chip')).forEach(function(c){ c.classList.remove('correct','incorrect'); b2.appendChild(c); });
+      d.classList.remove('correct','incorrect');
+      document.getElementById('p5-fb-' + i2).textContent = '';
+      document.getElementById('p5-fb-' + i2).className = 'pool-item-fb';
+      p5UpdateScore();
+    });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(btnRow);
+    cont.appendChild(item);
+  });
+}
+
+function buildLuecke5() { initPool5(); }
+function resetTab5() { timerResetOne(5); initPool5(); }
 
 // ═══════════════ TAB 6 — SATZBAU ═══════════════
 var SB_DATA = [
