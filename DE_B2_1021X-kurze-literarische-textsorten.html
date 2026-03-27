@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1021X · Kurze literarische Textsorten | B2.1</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 30px 40px 25px;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 6px; }
+    header .subtitle { opacity: 0.85; font-size: 1rem; }
+    nav {
+      display: flex;
+      background: #f0f2ff;
+      border-bottom: 2px solid #e0e4ff;
+      padding: 0 10px;
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 6px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-size: 0.78rem;
+      color: #555;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      gap: 4px;
+    }
+    .nav-btn .nav-emoji { font-size: 1.4rem; }
+    .nav-btn .nav-label { font-weight: 600; }
+    .nav-btn:hover { background: #e8ecff; color: #667eea; }
+    .nav-btn.active { background: #fff; border-bottom: 3px solid #667eea; color: #667eea; }
+    .tab-content { display: none; padding: 30px 40px; min-height: 400px; }
+    .tab-content.active { display: block; }
+    .tab-banner { width:100%; max-height:180px; object-fit:cover; border-radius:10px; margin-bottom:20px; }
+
+    .control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .control-bar .btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-reset { background:#e8ecff; color:#667eea; }
+    .btn-reset:hover { background:#667eea; color:#fff; }
+    .timer-box { display:flex; align-items:center; gap:8px; font-size:0.85rem; color:#555; }
+    .timer-display { font-weight:700; color:#667eea; min-width:45px; text-align:center; }
+    .best-display { font-size:0.75rem; color:#888; }
+
+    /* Vorentlastung */
+    .poem-box {
+      background: linear-gradient(135deg, #f0f2ff, #f5f0ff);
+      border: 1px solid #d0d8ff;
+      border-radius: 12px;
+      padding: 20px 28px;
+      margin-bottom: 20px;
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      line-height: 1.9;
+      text-align: center;
+      color: #444;
+    }
+    .poem-box strong { color: #764ba2; font-style: normal; }
+    .info-block { background:#f0f2ff; border-left:4px solid #667eea; border-radius:8px; padding:16px 20px; margin-bottom:18px; }
+    .info-block h3 { color:#667eea; margin-bottom:12px; font-size:1rem; }
+    .textsorten-table { width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:4px; }
+    .textsorten-table th { background:#667eea; color:#fff; padding:8px 12px; text-align:left; }
+    .textsorten-table td { padding:8px 12px; border-bottom:1px solid #e0e4ff; vertical-align:top; }
+    .textsorten-table tr:nth-child(even) td { background:#f8f9ff; }
+    .textsorten-table .term { font-weight:700; color:#764ba2; }
+    .stilmittel-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .sm-item { background:#fff; border:1px solid #e0e4ff; border-radius:8px; padding:10px 14px; }
+    .sm-item .sm-term { font-weight:700; color:#667eea; font-size:0.9rem; margin-bottom:4px; }
+    .sm-item .sm-def { font-size:0.82rem; color:#555; line-height:1.4; }
+    .sm-item .sm-ex { font-size:0.8rem; color:#888; font-style:italic; margin-top:4px; }
+    .tag { display:inline-block; background:#e8ecff; color:#667eea; border-radius:12px; padding:2px 10px; font-size:0.78rem; font-weight:600; margin-bottom:12px; }
+
+    /* Lückentext */
+    .gap-sentence { margin-bottom:14px; line-height:1.8; font-size:0.95rem; color:#333; }
+    .gap-sentence input {
+      border: none;
+      border-bottom: 2px solid #667eea;
+      outline: none;
+      font-size: 0.92rem;
+      padding: 2px 6px;
+      width: 160px;
+      background: transparent;
+      transition: border-color 0.2s;
+    }
+    .gap-sentence input.correct { border-bottom-color:#27ae60; color:#27ae60; }
+    .gap-sentence input.wrong  { border-bottom-color:#e74c3c; color:#e74c3c; }
+    .gap-num { display:inline-block; background:#667eea; color:#fff; border-radius:50%; width:22px; height:22px; font-size:0.72rem; font-weight:700; text-align:center; line-height:22px; margin-right:6px; }
+
+    /* Satzbau */
+    #sbZone {
+      min-height: 56px;
+      border: 2px dashed #667eea;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      background: #f8f9ff;
+      align-items: center;
+    }
+    #sbBank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .sb-chip {
+      background: #667eea;
+      color: #fff;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.88rem;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .sb-chip:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(102,126,234,0.4); }
+    .sb-chip.punct { background: #764ba2; }
+    .sb-chip.dragging { opacity: 0.4; }
+    .sb-feedback { font-size:0.88rem; padding:8px 14px; border-radius:8px; margin-bottom:10px; display:none; }
+    .sb-feedback.correct { background:#d4edda; color:#155724; display:block; }
+    .sb-feedback.wrong   { background:#f8d7da; color:#721c24; display:block; }
+    .sb-nav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .sb-counter { font-size:0.85rem; color:#666; }
+    .btn-sb { background:#764ba2; color:#fff; }
+    .btn-sb:hover { background:#5a3782; }
+    .btn-sb-check { background:#667eea; color:#fff; }
+    .btn-sb-check:hover { background:#4a5fd4; }
+
+    /* Wortschatz */
+    #vocabContainer { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+    .vocab-card { border:1px solid #e0e4ff; border-radius:12px; overflow:hidden; transition: box-shadow 0.2s; }
+    .vocab-card:hover { box-shadow: 0 4px 16px rgba(102,126,234,0.15); }
+    .vocab-card img { width:100%; height:110px; object-fit:cover; }
+    .vocab-body { padding:12px 14px; }
+    .vocab-en { font-size:0.8rem; color:#888; margin-bottom:6px; }
+    .vocab-fields { display:flex; flex-direction:column; gap:6px; }
+    .vocab-fields input {
+      border:1px solid #ddd; border-radius:6px; padding:5px 10px;
+      font-size:0.85rem; outline:none; transition: border-color 0.2s; width:100%;
+    }
+    .vocab-fields input:focus { border-color:#667eea; }
+    .vocab-fields input.correct { border-color:#27ae60; background:#f0fff4; color:#27ae60; }
+    .vocab-fields input.wrong   { border-color:#e74c3c; background:#fff5f5; color:#e74c3c; }
+    .vocab-example { font-size:0.78rem; color:#888; margin-top:6px; font-style:italic; }
+
+    footer { text-align:center; padding:18px; font-size:0.8rem; color:#888; border-top:1px solid #eee; }
+    h2 { color:#333; margin-bottom:16px; font-size:1.2rem; }
+    p { color:#555; margin-bottom:12px; font-size:0.92rem; line-height:1.6; }
+
+    @media(max-width:600px) { .stilmittel-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📖 Kurze literarische Textsorten</h1>
+    <p class="subtitle">B2.1 · Einheit 2 · Literatur & Stilmittel</p>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </button>
+  </nav>
+
+  <main>
+    <!-- TAB 0: VORENTLASTUNG -->
+    <div class="tab-content active" id="tab-0">
+      <img class="tab-banner" src="https://images.pexels.com/photos/694740/pexels-photo-694740.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Literarische Textsorten">
+      <h2>Kurze literarische Textsorten</h2>
+      <span class="tag">Kommunikation</span>
+
+      <div class="poem-box">
+        Komm mit <strong>mir</strong><br>
+        Und mach diese Stunde <strong>hier</strong>!<br>
+        Du wirst es nicht <strong>bereuen</strong>,<br>
+        Im Gegenteil: Es soll dich <strong>erfreuen</strong>!
+      </div>
+
+      <div class="info-block">
+        <h3>📚 Textsorten im Überblick</h3>
+        <table class="textsorten-table">
+          <tr><th>Textsorte</th><th>Definition</th></tr>
+          <tr><td class="term">das Märchen</td><td>Erzählt Fantasie-Geschichten. Sprechende Tiere, Zauberer und Hexen kommen nur im Märchen vor. Bsp.: Rotkäppchen, Schneewittchen, Aschenputtel.</td></tr>
+          <tr><td class="term">die Fabel</td><td>Am Ende jeder Fabel gibt es eine Moral. In Fabeln interagieren Tiere – keine Menschen – die aber menschliche Eigenschaften haben.</td></tr>
+          <tr><td class="term">die Legende</td><td>Erzählt Geschichten, die seit Langem erzählt werden, aber historisch nicht nachweisbar sind.</td></tr>
+          <tr><td class="term">die Sage</td><td>Oft regional festgelegt. Meist geht es um eine Person, die eine schwierige Situation aus eigener Kraft meistern muss. Im Gegensatz zur Legende soll die Sage wahr sein.</td></tr>
+          <tr><td class="term">das Epos</td><td>Ein langes Gedicht, das eine Geschichte erzählt.</td></tr>
+          <tr><td class="term">die Parabel</td><td>Meist nicht sehr lang. Der Leser soll eine Lehre für sein eigenes Leben ziehen.</td></tr>
+          <tr><td class="term">die Ballade</td><td>Vereint Merkmale aller Textgattungen: Reime aus der Lyrik, direkte Rede aus der Dramatik und eine Erzählung mit Einleitung, Hauptteil und Schluss.</td></tr>
+          <tr><td class="term">das Gedicht</td><td>Reimt sich meistens und erzählt etwas auf sehr poetische Weise. Verwendet viele Stilmittel.</td></tr>
+        </table>
+      </div>
+
+      <div class="info-block">
+        <h3>🎭 Figuren in Texten</h3>
+        <p style="font-size:0.9rem; color:#333; margin-bottom:6px;">Der <strong>Protagonist</strong> / die <strong>Hauptfigur</strong> / der <strong>Hauptcharakter</strong> ist die wichtigste Figur der Geschichte – sie spricht und handelt am meisten.</p>
+        <p style="font-size:0.9rem; color:#333; margin-bottom:0;">Ein <strong>Nebencharakter</strong> hat eine weniger wichtige Rolle. Er spricht und handelt weniger als der Hauptcharakter.</p>
+      </div>
+
+      <div class="info-block">
+        <h3>✨ Stilmittel</h3>
+        <div class="stilmittel-grid">
+          <div class="sm-item">
+            <div class="sm-term">die Metapher</div>
+            <div class="sm-def">Verbildlichung durch Sinnübertragung.</div>
+            <div class="sm-ex">Bsp.: Baumkrone, Flaschenhals, Warteschlange</div>
+          </div>
+          <div class="sm-item">
+            <div class="sm-term">die Personifikation</div>
+            <div class="sm-def">Etwas Nicht-Menschliches erhält menschliche Eigenschaften.</div>
+            <div class="sm-ex">Bsp.: Die Sonne lacht!</div>
+          </div>
+          <div class="sm-item">
+            <div class="sm-term">die Alliteration</div>
+            <div class="sm-def">Aufeinanderfolgende Wörter beginnen mit demselben Laut.</div>
+            <div class="sm-ex">Bsp.: Milch macht müde Männer munter.</div>
+          </div>
+          <div class="sm-item">
+            <div class="sm-term">die rhetorische Frage</div>
+            <div class="sm-def">Auf eine rhetor. Frage kennt man bereits die Antwort.</div>
+            <div class="sm-ex">Soll den Leser aufmerksam machen.</div>
+          </div>
+          <div class="sm-item">
+            <div class="sm-term">der Reim</div>
+            <div class="sm-def">Gleichklang am Ende von Versen.</div>
+            <div class="sm-ex">Bsp.: Die Maus geht nach Haus' und zieht ihre Schuhe aus.</div>
+          </div>
+          <div class="sm-item">
+            <div class="sm-term">der Vergleich</div>
+            <div class="sm-def">Eigenschaften von zwei Dingen werden verglichen.</div>
+            <div class="sm-ex">Bsp.: Er ist stark wie ein Bär.</div>
+          </div>
+          <div class="sm-item">
+            <div class="sm-term">die Hyperbel</div>
+            <div class="sm-def">Übertreibung zur besonderen Hervorhebung.</div>
+            <div class="sm-ex">Bsp.: Ich habe dir schon hundertmal gesagt ...</div>
+          </div>
+          <div class="sm-item">
+            <div class="sm-term">das Symbol</div>
+            <div class="sm-def">Ein konkreter Gegenstand repräsentiert etwas Abstraktes.</div>
+            <div class="sm-ex">Bsp.: Das Herz steht für die Liebe.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 1: LÜCKENTEXT -->
+    <div class="tab-content" id="tab-1">
+      <img class="tab-banner" src="https://images.pexels.com/photos/256450/pexels-photo-256450.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bücher und Literatur">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="btn btn-reset" onclick="resetGaps()">🔄 Zurücksetzen</button>
+        </div>
+        <div class="timer-box">
+          ⏱️ <span class="timer-display" id="timer-1">0:00</span>
+          <span class="best-display" id="best-1"></span>
+        </div>
+      </div>
+      <h2>Lückentext – Literarische Textsorten & Stilmittel</h2>
+      <p>Setze das passende Wort ein. Das Feedback erscheint sofort.</p>
+
+      <div id="gapContainer">
+        <div class="gap-sentence"><span class="gap-num">1</span>Rotkäppchen, Schneewittchen und Aschenputtel sind bekannte <input data-answer="Märchen" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">2</span>Es gibt verschiedene <input data-answer="Textsorten" oninput="liveCheck(this)" placeholder="">, zum Beispiel Märchen, Gedichte und Kurzgeschichten.</div>
+        <div class="gap-sentence"><span class="gap-num">3</span>Am Ende jeder <input data-answer="Fabel" oninput="liveCheck(this)" placeholder=""> gibt es eine Moral für den Leser.</div>
+        <div class="gap-sentence"><span class="gap-num">4</span><input data-answer="Legenden" oninput="liveCheck(this)" placeholder=""> erzählen Geschichten, die historisch nicht nachweisbar sind.</div>
+        <div class="gap-sentence"><span class="gap-num">5</span>Ein <input data-answer="Epos" oninput="liveCheck(this)" placeholder=""> ist ein langes Gedicht, das eine Geschichte erzählt.</div>
+        <div class="gap-sentence"><span class="gap-num">6</span>Ein <input data-answer="Gedicht" oninput="liveCheck(this)" placeholder=""> reimt sich meistens und verwendet viele Stilmittel.</div>
+        <div class="gap-sentence"><span class="gap-num">7</span>Die Verbildlichung von Sprache durch Sinnübertragung nennt man <input data-answer="Metapher" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">8</span>Bei der <input data-answer="Personifikation" oninput="liveCheck(this)" placeholder=""> erhält etwas Nicht-Menschliches menschliche Eigenschaften.</div>
+        <div class="gap-sentence"><span class="gap-num">9</span>„Milch macht müde Männer munter" ist ein Beispiel für eine <input data-answer="Alliteration" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">10</span>Der <input data-answer="Protagonist" oninput="liveCheck(this)" placeholder=""> einer Geschichte ist die Hauptfigur.</div>
+        <div class="gap-sentence"><span class="gap-num">11</span>Bei einer <input data-answer="Hyperbel" oninput="liveCheck(this)" placeholder=""> wird etwas durch Übertreibung besonders hervorgehoben.</div>
+        <div class="gap-sentence"><span class="gap-num">12</span>„Er ist stark wie ein Bär" ist ein <input data-answer="Vergleich" oninput="liveCheck(this)" placeholder="">, bei dem zwei Dinge verglichen werden.</div>
+      </div>
+    </div>
+
+    <!-- TAB 2: SATZBAU -->
+    <div class="tab-content" id="tab-2">
+      <img class="tab-banner" src="https://images.pexels.com/photos/1130980/pexels-photo-1130980.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Lesen">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="btn btn-sb" onclick="sbReset()">🔄 Neu mischen</button>
+          <button class="btn btn-sb-check" onclick="sbCheck()">✔ Prüfen</button>
+        </div>
+        <div class="timer-box">
+          ⏱️ <span class="timer-display" id="timer-2">0:00</span>
+          <span class="best-display" id="best-2"></span>
+        </div>
+      </div>
+      <h2>Satzbau – Sätze neu ordnen</h2>
+      <p class="sb-counter" id="sbCounter">Aufgabe 1 von 7</p>
+      <div id="sbZone"></div>
+      <div id="sbBank"></div>
+      <div class="sb-feedback" id="sbFeedback"></div>
+      <div class="sb-nav">
+        <button class="btn btn-sb" onclick="sbPrev()">◀ Zurück</button>
+        <button class="btn btn-sb" onclick="sbNext()">Weiter ▶</button>
+      </div>
+    </div>
+
+    <!-- TAB 3: WORTSCHATZ -->
+    <div class="tab-content" id="tab-3">
+      <img class="tab-banner" src="https://images.pexels.com/photos/3747463/pexels-photo-3747463.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz Literatur">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="btn btn-reset" onclick="resetVocab()">🔄 Zurücksetzen</button>
+        </div>
+        <div class="timer-box">
+          ⏱️ <span class="timer-display" id="timer-3">0:00</span>
+          <span class="best-display" id="best-3"></span>
+        </div>
+      </div>
+      <h2>Wortschatz – Literarische Begriffe</h2>
+      <p>Tippe den deutschen Begriff (bei Nomen: Artikel, Wort und Plural).</p>
+      <div id="vocabContainer"></div>
+    </div>
+  </main>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+const TIMER_PREFIX = 'B2_1021X_';
+const timerIntervals = {};
+const timerSeconds = {};
+
+function timerAutoStart(n) {
+  if (timerIntervals[n]) return;
+  timerSeconds[n] = 0;
+  timerIntervals[n] = setInterval(() => {
+    timerSeconds[n]++;
+    const m = Math.floor(timerSeconds[n]/60);
+    const s = timerSeconds[n]%60;
+    const el = document.getElementById('timer-'+n);
+    if(el) el.textContent = m+':'+(s<10?'0':'')+s;
+  }, 1000);
+}
+
+function timerStop(n) {
+  if (!timerIntervals[n]) return;
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  const key = TIMER_PREFIX + 'timer' + n;
+  const prev = localStorage.getItem(key);
+  if (!prev || timerSeconds[n] < parseInt(prev)) {
+    localStorage.setItem(key, timerSeconds[n]);
+    loadBestTimes();
+  }
+}
+
+function timerResetOne(n) {
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  timerSeconds[n] = 0;
+  const el = document.getElementById('timer-'+n);
+  if(el) el.textContent = '0:00';
+}
+
+function loadBestTimes() {
+  [1,2,3].forEach(n => {
+    const key = TIMER_PREFIX + 'timer' + n;
+    const val = localStorage.getItem(key);
+    const el = document.getElementById('best-'+n);
+    if(el && val) {
+      const m = Math.floor(parseInt(val)/60);
+      const s = parseInt(val)%60;
+      el.textContent = '(Bestzeit: '+m+':'+(s<10?'0':'')+s+')';
+    }
+  });
+}
+
+function showTab(n) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  document.querySelectorAll('.nav-btn')[n].classList.add('active');
+  if(n===1) timerAutoStart(1);
+  if(n===2) { sbInit(); timerAutoStart(2); }
+  if(n===3) { renderVocab(); timerAutoStart(3); }
+}
+
+// --- LÜCKENTEXT ---
+function liveCheck(inp) {
+  const ans = (inp.dataset.answer||'').trim().toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val.length === 0) return;
+  if(ans.startsWith(val)) {
+    if(val === ans) { inp.classList.add('correct'); checkAllGaps(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllGaps() {
+  const inputs = document.querySelectorAll('#gapContainer input');
+  if([...inputs].every(i => i.classList.contains('correct'))) timerStop(1);
+}
+
+function resetGaps() {
+  document.querySelectorAll('#gapContainer input').forEach(i => {
+    i.value=''; i.classList.remove('correct','wrong');
+  });
+  timerResetOne(1); timerAutoStart(1);
+}
+
+// --- SATZBAU ---
+const satzbauData = [
+  { parts: ['Es gibt','verschiedene Textsorten,','zum Beispiel','Märchen, Gedichte','und Kurzgeschichten','.'], valid: 'Es gibt verschiedene Textsorten, zum Beispiel Märchen, Gedichte und Kurzgeschichten.' },
+  { parts: ['In der Fabel','interagieren Tiere,','die menschliche Eigenschaften','haben','.'], valid: 'In der Fabel interagieren Tiere, die menschliche Eigenschaften haben.' },
+  { parts: ['Ein Nebencharakter','hat','eine weniger wichtige Rolle','als der Hauptcharakter','.'], valid: 'Ein Nebencharakter hat eine weniger wichtige Rolle als der Hauptcharakter.' },
+  { parts: ['Die Metapher','kann','die Aussage','dem Leser','besser verständlich machen','.'], valid: 'Die Metapher kann die Aussage dem Leser besser verständlich machen.' },
+  { parts: ['Bei der Personifikation','erhält etwas,','das kein Mensch ist,','menschliche Eigenschaften','.'], valid: 'Bei der Personifikation erhält etwas, das kein Mensch ist, menschliche Eigenschaften.' },
+  { parts: ['Die rhetorische Frage','soll','den Leser','aufmerksam machen','.'], valid: 'Die rhetorische Frage soll den Leser aufmerksam machen.' },
+  { parts: ['Legenden','erzählen Geschichten,','die seit Langem erzählt werden,','aber historisch','nicht nachweisbar sind','.'], valid: 'Legenden erzählen Geschichten, die seit Langem erzählt werden, aber historisch nicht nachweisbar sind.' }
+];
+
+let sbCurrent = 0;
+let sbDragged = null;
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+function sbInit() { sbCurrent = 0; sbRender(); }
+
+function sbRender() {
+  const data = satzbauData[sbCurrent];
+  document.getElementById('sbCounter').textContent = 'Aufgabe '+(sbCurrent+1)+' von '+satzbauData.length;
+  document.getElementById('sbZone').innerHTML = '';
+  document.getElementById('sbFeedback').className = 'sb-feedback';
+  document.getElementById('sbFeedback').textContent = '';
+  const shuffled = shuffle([...data.parts]);
+  const bank = document.getElementById('sbBank');
+  bank.innerHTML = '';
+  shuffled.forEach(p => bank.appendChild(createChip(p)));
+  setupDropZone(document.getElementById('sbZone'));
+  setupDropZone(bank);
+}
+
+function createChip(text) {
+  const chip = document.createElement('div');
+  chip.className = 'sb-chip' + (/^[.!?]$/.test(text) ? ' punct' : '');
+  chip.textContent = text;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', e => { sbDragged = chip; chip.classList.add('dragging'); });
+  chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+  return chip;
+}
+
+function setupDropZone(zone) {
+  zone.addEventListener('dragover', e => e.preventDefault());
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    if(!sbDragged) return;
+    const afterEl = getDragAfterElement(zone, e.clientX);
+    if(afterEl) zone.insertBefore(sbDragged, afterEl);
+    else zone.appendChild(sbDragged);
+    sbDragged = null;
+  });
+}
+
+function getDragAfterElement(container, x) {
+  const els = [...container.querySelectorAll('.sb-chip:not(.dragging)')];
+  return els.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = x - box.left - box.width/2;
+    if(offset < 0 && offset > closest.offset) return {offset, element: child};
+    return closest;
+  }, {offset: Number.NEGATIVE_INFINITY}).element;
+}
+
+function sbCheck() {
+  const chips = [...document.getElementById('sbZone').querySelectorAll('.sb-chip')];
+  const built = chips.map(c=>c.textContent).join(' ').replace(/ ([.!?])/g,'$1');
+  const fb = document.getElementById('sbFeedback');
+  if(built === satzbauData[sbCurrent].valid) {
+    fb.className = 'sb-feedback correct';
+    fb.textContent = '✔ Richtig! ' + built;
+    if(sbCurrent === satzbauData.length-1) timerStop(2);
+  } else {
+    fb.className = 'sb-feedback wrong';
+    fb.textContent = '✘ Nicht ganz. Versuche es noch einmal!';
+  }
+}
+
+function sbReset() { sbRender(); }
+function sbNext() { if(sbCurrent < satzbauData.length-1) { sbCurrent++; sbRender(); } }
+function sbPrev() { if(sbCurrent > 0) { sbCurrent--; sbRender(); } }
+
+// --- WORTSCHATZ ---
+const vocabData = [
+  { type:'n', en:'text type / genre', artikel:'die', wort:'Textsorte', plural:'Textsorten', img:'694740', example:'Es gibt verschiedene Textsorten, zum Beispiel Märchen und Gedichte.' },
+  { type:'n', en:'fairy tale', artikel:'das', wort:'Märchen', plural:'Märchen', img:'1545743', example:'Rotkäppchen, Schneewittchen und Aschenputtel sind bekannte Märchen.' },
+  { type:'n', en:'fable', artikel:'die', wort:'Fabel', plural:'Fabeln', img:'3184338', example:'Am Ende jeder Fabel gibt es eine Moral.' },
+  { type:'n', en:'legend', artikel:'die', wort:'Legende', plural:'Legenden', img:'1496373', example:'Legenden erzählen Geschichten, die historisch nicht nachweisbar sind.' },
+  { type:'n', en:'poem', artikel:'das', wort:'Gedicht', plural:'Gedichte', img:'1130980', example:'Ein Gedicht reimt sich meistens und verwendet viele Stilmittel.' },
+  { type:'n', en:'parable', artikel:'die', wort:'Parabel', plural:'Parabeln', img:'256450', example:'Aus einer Parabel soll der Leser eine Lehre für sein Leben ziehen.' },
+  { type:'n', en:'stylistic device', artikel:'das', wort:'Stilmittel', plural:'Stilmittel', img:'3747463', example:'Metaphern und Alliterationen sind bekannte Stilmittel.' },
+  { type:'n', en:'metaphor', artikel:'die', wort:'Metapher', plural:'Metaphern', img:'1545756', example:'„Warteschlange" ist eine Metapher – Menschen stehen wie Schlangen.' },
+  { type:'n', en:'alliteration', artikel:'die', wort:'Alliteration', plural:'Alliterationen', img:'4065899', example:'„Milch macht müde Männer munter" ist eine Alliteration.' },
+  { type:'n', en:'rhyme', artikel:'der', wort:'Reim', plural:'Reime', img:'3747468', example:'Reime geben einem Gedicht eine zusätzliche Tiefe.' },
+  { type:'n', en:'personification', artikel:'die', wort:'Personifikation', plural:'Personifikationen', img:'3747464', example:'„Die Sonne lacht" ist eine Personifikation.' },
+  { type:'n', en:'hyperbole / exaggeration', artikel:'die', wort:'Hyperbel', plural:'Hyperbeln', img:'4065898', example:'„Ich habe dir das hundertmal gesagt!" ist eine Hyperbel.' }
+];
+
+function renderVocab() {
+  const container = document.getElementById('vocabContainer');
+  if(container.children.length > 0) return;
+  vocabData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    const imgSrc = `https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400`;
+    card.innerHTML = `
+      <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+      <div class="vocab-body">
+        <div class="vocab-en">${v.en}</div>
+        <div class="vocab-fields">
+          <input data-answer="${v.artikel}" oninput="vocabLiveCheck(this)" placeholder="Artikel">
+          <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+          <input data-answer="${v.plural}" oninput="vocabLiveCheck(this)" placeholder="Plural">
+        </div>
+        <div class="vocab-example">${v.example}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function vocabLiveCheck(inp) {
+  const ans = (inp.dataset.answer||'').trim().toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val.length === 0) return;
+  if(ans.startsWith(val)) {
+    if(val === ans) { inp.classList.add('correct'); checkAllVocab(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllVocab() {
+  const inputs = document.querySelectorAll('#vocabContainer input');
+  if([...inputs].every(i => i.classList.contains('correct'))) timerStop(3);
+}
+
+function resetVocab() {
+  document.querySelectorAll('#vocabContainer input').forEach(i => {
+    i.value=''; i.classList.remove('correct','wrong');
+  });
+  timerResetOne(3); timerAutoStart(3);
+}
+
+loadBestTimes();
+</script>
+</body>
+</html>
