@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DE B2 1055G – Es und das</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 24px 28px;
+}
+.header h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.header p { opacity: 0.85; font-size: 0.9rem; }
+nav {
+  display: flex;
+  border-bottom: 2px solid #e8e8e8;
+  background: #f9f9f9;
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s;
+}
+.nav-btn:hover { background: #f0f0f0; }
+.nav-btn.active {
+  background: white;
+  border-bottom: 3px solid #667eea;
+  color: #667eea;
+  font-weight: bold;
+}
+.nav-emoji { font-size: 1.3rem; margin-bottom: 2px; }
+.nav-label { font-size: 0.65rem; }
+.tab-content { display: none; padding: 24px; }
+.tab-content.active { display: block; }
+.tab-banner {
+  width: 100%; height: 180px; object-fit: cover;
+  border-radius: 8px; margin-bottom: 18px; display: block;
+}
+
+/* Grammatik Tab */
+.gram-section { margin-bottom: 22px; }
+.gram-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #e0e7ff;
+}
+.gram-box {
+  background: #f0f4ff;
+  border-left: 4px solid #667eea;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.6;
+}
+.gram-box strong { color: #3730a3; }
+.gram-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 10px; }
+.gram-table th { background: #667eea; color: white; padding: 8px 12px; text-align: left; }
+.gram-table td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: top; color: #444; }
+.gram-table tr:nth-child(even) td { background: #f9f8ff; }
+.gram-table td.kat { font-weight: 600; color: #667eea; white-space: nowrap; }
+.gram-example {
+  background: #e0e7ff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-style: italic;
+  color: #3730a3;
+  font-size: 0.88rem;
+  margin: 4px 0;
+}
+.gram-highlight { background: #fff176; padding: 1px 3px; border-radius: 3px; font-style: normal; }
+.warn-box {
+  background: #fff8e1;
+  border-left: 4px solid #f59e0b;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: #555;
+  margin-top: 8px;
+}
+
+/* Zuordnung */
+.ctrl-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.ctrl-bar .btns { display: flex; gap: 8px; flex: 1; }
+.timer-disp { font-size: 0.85rem; color: #888; margin-left: auto; }
+.zuord-list { list-style: none; }
+.zuord-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #f9f9f9;
+  flex-wrap: wrap;
+}
+.zuord-num {
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.zuord-stmt { flex: 1; color: #444; font-size: 0.9rem; min-width: 200px; line-height: 1.4; }
+.zuord-stmt em { font-style: normal; font-weight: 700; color: #667eea; }
+.zuord-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+.zuord-btn {
+  padding: 5px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  background: white;
+  transition: all 0.15s;
+  font-family: monospace;
+  font-weight: 600;
+}
+.zuord-btn:hover:not(:disabled) { background: #f0f0f0; }
+.zuord-btn.correct { background: #22c55e; color: white; border-color: #22c55e; }
+.zuord-btn.wrong { background: #ef4444; color: white; border-color: #ef4444; }
+.zuord-btn:disabled { cursor: default; }
+.score-line { text-align: right; color: #888; font-size: 0.85rem; margin-top: 8px; }
+
+/* Lückentext */
+.gap-list { list-style: none; }
+.gap-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #f9f9f9;
+  flex-wrap: wrap;
+}
+.gap-num {
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.gap-text { flex: 1; color: #444; font-size: 0.9rem; min-width: 180px; }
+.gap-inp {
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+  width: 80px;
+  outline: none;
+  text-align: center;
+}
+.gap-inp:focus { border-color: #667eea; }
+.gap-inp.correct { border-color: #22c55e; background: #f0fdf4; }
+.gap-inp.wrong { border-color: #ef4444; background: #fef2f2; }
+.gap-feedback { font-size: 0.85rem; min-width: 24px; }
+
+/* Satzbau */
+.sb-task {
+  margin-bottom: 22px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 14px;
+}
+.sb-sentence-num { font-size: 0.75rem; color: #888; margin-bottom: 8px; }
+.sb-drop-zone {
+  min-height: 46px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+  background: white;
+  transition: border-color 0.2s, background 0.2s;
+}
+.sb-drop-zone.drag-over { border-color: #667eea; background: #f0edff; }
+.chip-tray { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; min-height: 36px; }
+.chip {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 0.88rem;
+  cursor: grab;
+  user-select: none;
+  border: 1px solid #c7d2fe;
+  transition: box-shadow 0.15s;
+}
+.chip:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+.chip:active { cursor: grabbing; }
+.chip.punct { background: #ede9fe; color: #6d28d9; border-color: #c4b5fd; }
+.sb-feedback { font-size: 0.85rem; min-height: 1.2em; margin-bottom: 6px; }
+.sb-feedback.ok { color: #22c55e; font-weight: 500; }
+.sb-feedback.err { color: #ef4444; }
+.sb-btn-row { display: flex; gap: 6px; }
+.btn {
+  padding: 7px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.btn-primary { background: #667eea; color: white; }
+.btn-primary:hover { background: #5a6fd6; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+footer {
+  text-align: center;
+  padding: 14px;
+  font-size: 0.75rem;
+  color: #888;
+  border-top: 1px solid #eee;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Es und das</h1>
+    <p>B2.1 · Einheit 5 · Grammatik · Lektion 1055G</p>
+  </div>
+
+  <nav>
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">📖</span>
+      <span class="nav-label">Grammatik</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">🎯</span>
+      <span class="nav-label">Zuordnung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 0 — Grammatik
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content active" id="tab-0">
+    <img src="https://images.pexels.com/photos/261621/pexels-photo-261621.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Grammatik Es und Das">
+
+    <div class="gram-section">
+      <div class="gram-title">1. Einleitung: Es und das</div>
+      <div class="gram-box">
+        <strong>Es</strong> und <strong>das</strong> können je nach Zusammenhang ausgetauscht werden.<br>
+        Oft haben sie aber auch unterschiedliche Anwendungen.<br><br>
+        <span class="gram-example"><strong class="gram-highlight">Es</strong> blitzt! <strong class="gram-highlight">Das</strong> kann ganz schön gefährlich werden!</span>
+        <span class="gram-example">Leider gibt <strong class="gram-highlight">es</strong> keinen Knopf zum Ausschalten. Umso wichtiger ist <strong class="gram-highlight">es</strong>, manchmal abschalten zu können. <strong class="gram-highlight">Das</strong> ist wichtig für ein entspanntes Leben.</span>
+      </div>
+    </div>
+
+    <div class="gram-section">
+      <div class="gram-title">2. Das als Demonstrativpronomen</div>
+      <div class="gram-box">
+        <strong>Das</strong> ist ein <strong>Demonstrativpronomen</strong>. Es weist auf etwas hin, das bereits erwähnt wurde, oder bezieht sich auf etwas zuvor Gesagtes.
+      </div>
+      <table class="gram-table">
+        <thead><tr><th>Funktion</th><th>Beispiel</th></tr></thead>
+        <tbody>
+          <tr><td class="kat">Rückweisend</td><td><em>„Das hat er mir vorhin gesagt."</em> (auf etwas Erwähntes)</td></tr>
+          <tr><td class="kat">Vorausweisend</td><td><em>„Das, was ich dir gleich erzählen will, hast du bestimmt noch nicht gehört."</em></td></tr>
+          <tr><td class="kat">Als Subjekt + sein</td><td><em>„Das ist mein ganzer Besitz."</em> / <em>„Das sind meine Sachen."</em> — Verb richtet sich nach dem Prädikativ!</td></tr>
+          <tr><td class="kat">Als Objekt</td><td><em>„Hörst du das?"</em> / <em>„Ich will das nicht!"</em> / <em>„Kannst du mir das erklären?"</em></td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box">⚠️ <strong>Das beschreibt oft etwas Konkretes und Genaues.</strong> — „Ich verstehe <em>das</em> nicht." = konkretes Problem</div>
+    </div>
+
+    <div class="gram-section">
+      <div class="gram-title">3. Das Pronomen es – Überblick</div>
+      <div class="gram-box">
+        Das Pronomen <strong>es</strong> hat verschiedene Funktionen:<br>
+        • <strong>Es</strong> kann für ein einzelnes Wort, ein Satzglied oder einen ganzen Satz stehen.<br>
+        • <strong>Es</strong> steht auf <strong>Position 1</strong> oder <strong>3</strong> im Satz.<br>
+        • Man unterscheidet zwischen <strong>obligatorischem</strong> (Pflicht) und <strong>fakultativem</strong> (freiwilligem) Gebrauch.<br><br>
+        <span style="color:#888;font-style:italic;font-size:0.85rem;">„Es ist ungenauer und allgemeiner als das." — „Ich verstehe <em>es</em> nicht." = allgemeines Problem</span>
+      </div>
+    </div>
+
+    <div class="gram-section">
+      <div class="gram-title">4. Es als Personalpronomen (obligatorisch)</div>
+      <div class="gram-box">
+        Als Personalpronomen steht <strong>es</strong> stellvertretend für ein <strong>Nomen</strong> im Neutrum.
+      </div>
+      <table class="gram-table">
+        <thead><tr><th>Kasus / Position</th><th>Beispiel</th></tr></thead>
+        <tbody>
+          <tr><td class="kat">Nominativ (Pos. 1)</td><td><em>Das Internet ist so langsam. <strong>Es</strong> funktioniert nicht.</em></td></tr>
+          <tr><td class="kat">Akkusativ (Pos. 3)</td><td><em>Wo hast du dein Handy gekauft? – Ich habe <strong>es</strong> aus der Einkaufspassage.</em></td></tr>
+          <tr><td class="kat">Für Adjektiv/Partizip</td><td><em>Warum ist dein Mann so fleißig? – Meiner ist <strong>es</strong> leider nicht.</em></td></tr>
+          <tr><td class="kat">Für ganzen Satzteil</td><td><em>Jetzt hast du Computer gespielt! Ich habe <strong>es</strong> dir verboten!</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gram-section">
+      <div class="gram-title">5. Es als Begleiter unpersönlicher Verben (obligatorisch)</div>
+      <table class="gram-table">
+        <thead><tr><th>Kategorie</th><th>Beispiele</th></tr></thead>
+        <tbody>
+          <tr><td class="kat">Sinneseindrücke</td><td><em>Wie geht <strong>es</strong> dir? — Schmeckt <strong>es</strong> dir? — Gefällt <strong>es</strong> dir in Italien?</em></td></tr>
+          <tr><td class="kat">Geräusche</td><td><em><strong>Es</strong> hat jemand an der Tür geklingelt. — <strong>Es</strong> raschelt im Busch.</em></td></tr>
+          <tr><td class="kat">Wetter</td><td><em><strong>Es</strong> regnet. — <strong>Es</strong> blitzt. — <strong>Es</strong> hat gestern in Strömen geschüttet.</em></td></tr>
+          <tr><td class="kat">Zeitbegriffe</td><td><em>Wie viel Uhr ist <strong>es</strong>? — <strong>Es</strong> wird Sommer.</em></td></tr>
+          <tr><td class="kat">Themen einleiten</td><td><em><strong>Es</strong> gibt … / <strong>Es</strong> geht um … / <strong>Es</strong> handelt sich um … / <strong>Es</strong> dreht sich heutzutage alles um Social Media.</em></td></tr>
+          <tr><td class="kat">Feste Wendungen</td><td><em>Diese Aufgabe hat <strong>es</strong> in sich. — Er hat <strong>es</strong> im Leben weit gebracht.</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 1 — Zuordnung (Timer 1)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-1">
+    <img src="https://images.pexels.com/photos/1449934/pexels-photo-1449934.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Zuordnung">
+    <div class="ctrl-bar">
+      <div class="btns">
+        <button class="btn btn-secondary" onclick="resetZuord()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-disp" id="timerDisp1">⏱ 00:00</div>
+    </div>
+    <p style="font-size:0.88rem;color:#666;margin-bottom:14px;">Wähle: Welches Pronomen passt? <strong>es</strong>, <strong>das</strong> oder <strong>beides</strong>?</p>
+    <ul class="zuord-list" id="zuordList">
+      <!-- checkZuord(btn, answer, correct) -->
+      <li class="zuord-item">
+        <span class="zuord-num">1</span>
+        <span class="zuord-stmt">„___ regnet seit drei Tagen."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','es')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','es')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','es')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">2</span>
+        <span class="zuord-stmt">„Ich weiß nicht, worüber du redest. ___ ergibt keinen Sinn."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','das')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','das')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','das')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">3</span>
+        <span class="zuord-stmt">„Das Internet funktioniert nicht. ___ macht mich verrückt."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','das')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','das')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','das')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">4</span>
+        <span class="zuord-stmt">„___ hat jemand an der Tür geklingelt."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','es')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','es')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','es')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">5</span>
+        <span class="zuord-stmt">„___ gibt viele interessante Blogs zu diesem Thema."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','es')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','es')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','es')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">6</span>
+        <span class="zuord-stmt">„Hörst du ___? Mein Computer macht komische Geräusche."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','das')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','das')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','das')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">7</span>
+        <span class="zuord-stmt">„Wie geht ___ dir?"</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','es')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','es')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','es')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">8</span>
+        <span class="zuord-stmt">„___ dreht sich heutzutage alles um Social Media."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','es')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','es')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','es')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">9</span>
+        <span class="zuord-stmt">„Warum ist dein Mann immer so fleißig? Meiner ist ___ leider nicht."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','es')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','es')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','es')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">10</span>
+        <span class="zuord-stmt">„Lass mich in Ruhe! Ich will ___ nicht!"</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','das')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','das')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','das')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">11</span>
+        <span class="zuord-stmt">„Ich bin oft mit Freunden online. Meiner Meinung nach ist ___ fantastisch."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','beides')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','beides')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','beides')">beides</button>
+        </div>
+      </li>
+      <li class="zuord-item">
+        <span class="zuord-num">12</span>
+        <span class="zuord-stmt">„Manchmal muss ich abschalten. ___ ist wichtig für ein entspanntes Leben."</span>
+        <div class="zuord-btns">
+          <button class="zuord-btn" onclick="checkZuord(this,'es','beides')">es</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'das','beides')">das</button>
+          <button class="zuord-btn" onclick="checkZuord(this,'beides','beides')">beides</button>
+        </div>
+      </li>
+    </ul>
+    <div class="score-line" id="zuordScore">0 / 12</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 2 — Lückentext (Timer 2)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-2">
+    <img src="https://images.pexels.com/photos/1591060/pexels-photo-1591060.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="E-Mail Lückentext">
+    <div class="ctrl-bar">
+      <div class="btns">
+        <button class="btn btn-secondary" onclick="resetGap()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-disp" id="timerDisp2">⏱ 00:00</div>
+    </div>
+    <p style="font-size:0.88rem;color:#666;margin-bottom:14px;">
+      Oma Hilde schreibt ihrer Enkeltochter Anna eine E-Mail. Fülle die Lücken mit <strong>es</strong> oder <strong>das</strong>:
+    </p>
+    <ul class="gap-list" id="gapList">
+      <li class="gap-item">
+        <span class="gap-num">1</span>
+        <span class="gap-text">Betreff: (1) ___ Internet ist ja was Tolles!</span>
+        <input type="text" class="gap-inp" data-answer="das" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">2</span>
+        <span class="gap-text">Liebe Anna, wie geht (2) ___ dir?</span>
+        <input type="text" class="gap-inp" data-answer="es" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">3</span>
+        <span class="gap-text">Mir und Opa geht (3) ___ wunderbar!</span>
+        <input type="text" class="gap-inp" data-answer="es" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">4</span>
+        <span class="gap-text">(4) ___ klappt super, seit ich letztes Jahr den Kurs besucht habe!</span>
+        <input type="text" class="gap-inp" data-answer="das" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">5</span>
+        <span class="gap-text">Ich finde (5) ___ ganz toll und manchmal vergesse ich sogar zu kochen.</span>
+        <input type="text" class="gap-inp" data-answer="es" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">6</span>
+        <span class="gap-text">(6) ___ findet Opa gar nicht toll!</span>
+        <input type="text" class="gap-inp" data-answer="das" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">7</span>
+        <span class="gap-text">Ich habe ihm gesagt, er kann ja einen Kochkurs besuchen, (7) ___ will er aber auch nicht!</span>
+        <input type="text" class="gap-inp" data-answer="das" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">8</span>
+        <span class="gap-text">Meinst du, du könntest mir (8) ___ erklären?</span>
+        <input type="text" class="gap-inp" data-answer="das" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">9</span>
+        <span class="gap-text">Manchmal frage ich mich, was (9) ___ alles soll.</span>
+        <input type="text" class="gap-inp" data-answer="das" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">10</span>
+        <span class="gap-text">(10) ___ Essen wird nicht von allein fertig!</span>
+        <input type="text" class="gap-inp" data-answer="das" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">11</span>
+        <span class="gap-text">Hörst du nicht? (11) ___ läutet an der Tür!</span>
+        <input type="text" class="gap-inp" data-answer="es" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">12</span>
+        <span class="gap-text">Jetzt noch!? Wie spät ist (12) ___ denn eigentlich?</span>
+        <input type="text" class="gap-inp" data-answer="es" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+    </ul>
+    <div class="score-line" id="gapScore">0 / 12</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 3 — Satzbau (Timer 3)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-3">
+    <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Satzbau">
+    <div class="ctrl-bar">
+      <div class="btns">
+        <button class="btn btn-secondary" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+      </div>
+      <div class="timer-disp" id="timerDisp3">⏱ 00:00</div>
+    </div>
+    <div id="sbContainer"></div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+'use strict';
+const TIMER_PREFIX = 'B2_1055G_';
+
+// ─── Timer System ─────────────────────────────────────────────────────────────
+const timerState = {};
+function saveBestTime(id,s){try{localStorage.setItem(TIMER_PREFIX+id,s);}catch(e){}}
+function loadBestTime(id){try{const v=localStorage.getItem(TIMER_PREFIX+id);return v!==null?parseInt(v):null;}catch(e){return null;}}
+function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
+function timerInit(id){if(!timerState[id])timerState[id]={secs:0,running:false,done:false};}
+function timerStart(id){
+  timerInit(id);const st=timerState[id];
+  if(st.running||st.done)return;
+  st.running=true;
+  st.interval=setInterval(()=>{st.secs++;updateTimerDisp(id);},1000);
+}
+function timerStop(id){
+  const st=timerState[id];if(!st)return;
+  clearInterval(st.interval);st.running=false;st.done=true;
+  const best=loadBestTime(id);
+  if(best===null||st.secs<best)saveBestTime(id,st.secs);
+  updateTimerDisp(id);
+}
+function updateTimerDisp(id){
+  const el=document.getElementById('timerDisp'+id);if(!el)return;
+  const st=timerState[id];
+  if(!st){el.textContent='⏱ 00:00';return;}
+  const best=loadBestTime(id);
+  const bestStr=best!==null?' · Best: '+fmtTime(best):'';
+  el.textContent=(st.done?'✅ ':'⏱ ')+fmtTime(st.secs)+bestStr;
+}
+
+// ─── Tab Navigation ───────────────────────────────────────────────────────────
+let zuordBuilt=false;
+function showTab(idx){
+  document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  if(idx===1){if(!zuordBuilt){zuordBuilt=true;}if(!(timerState[1]&&timerState[1].done))timerStart(1);}
+  if(idx===2&&!(timerState[2]&&timerState[2].done))timerStart(2);
+  if(idx===3){buildSb();if(!(timerState[3]&&timerState[3].done))timerStart(3);}
+  [1,2,3].forEach(updateTimerDisp);
+}
+
+// ─── Zuordnung ────────────────────────────────────────────────────────────────
+let zuordAnswered=0, zuordCorrect=0;
+const ZUORD_TOTAL=12;
+function checkZuord(btn, answer, correct){
+  const item=btn.closest('.zuord-item');
+  if(item.dataset.done)return;
+  item.dataset.done='1';
+  zuordAnswered++;
+  const isCorrect=(answer===correct);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect){
+    item.querySelectorAll('.zuord-btn').forEach(b=>{
+      if(b.textContent.trim()===correct)b.classList.add('correct');
+    });
+  }
+  if(isCorrect)zuordCorrect++;
+  item.querySelectorAll('.zuord-btn').forEach(b=>b.disabled=true);
+  document.getElementById('zuordScore').textContent=zuordCorrect+' / '+ZUORD_TOTAL;
+  if(zuordAnswered===ZUORD_TOTAL)timerStop(1);
+}
+function resetZuord(){
+  zuordAnswered=0;zuordCorrect=0;
+  document.querySelectorAll('.zuord-item').forEach(item=>{
+    delete item.dataset.done;
+    item.querySelectorAll('.zuord-btn').forEach(b=>{b.classList.remove('correct','wrong');b.disabled=false;});
+  });
+  document.getElementById('zuordScore').textContent='0 / '+ZUORD_TOTAL;
+}
+
+// ─── Lückentext ───────────────────────────────────────────────────────────────
+const GAP_TOTAL=12;
+function liveCheck(inp){
+  const ans=inp.dataset.answer.toLowerCase();
+  const val=inp.value.trim().toLowerCase();
+  const fb=inp.nextElementSibling;
+  if(val.length===0){inp.classList.remove('correct','wrong');fb.textContent='';}
+  else if(ans.startsWith(val)){
+    inp.classList.remove('wrong');
+    if(val===ans){inp.classList.add('correct');fb.textContent='✓';fb.style.color='#22c55e';}
+    else{inp.classList.remove('correct');fb.textContent='';}
+  }else{inp.classList.remove('correct');inp.classList.add('wrong');fb.textContent='✗';fb.style.color='#ef4444';}
+  updateGapScore();
+}
+function updateGapScore(){
+  const c=document.querySelectorAll('#gapList .gap-inp.correct').length;
+  document.getElementById('gapScore').textContent=c+' / '+GAP_TOTAL;
+  if(c===GAP_TOTAL)timerStop(2);
+}
+function resetGap(){
+  document.querySelectorAll('#gapList .gap-inp').forEach(inp=>{
+    inp.value='';inp.classList.remove('correct','wrong');inp.nextElementSibling.textContent='';
+  });
+  document.getElementById('gapScore').textContent='0 / '+GAP_TOTAL;
+}
+
+// ─── Satzbau Drag-Drop ────────────────────────────────────────────────────────
+let sbBuilt=false, sbDragged=null;
+const PUNCT_SET=new Set([',','.','?','!',';',':']);
+const sbSentences=[
+  {parts:['Es','regnet','seit','drei','Tagen','.']},
+  {parts:['Das','sind','meine','Sachen','.']},
+  {parts:['Ich','verstehe','das','nicht','.']},
+  {parts:['Es','dreht','sich','heutzutage','alles','um Social Media','.']},
+  {parts:['Wie viel Uhr','ist','es','?']},
+  {parts:['Kannst','du','mir','das','erklären','?']},
+  {parts:['Leider','gibt','es','bei uns','keinen','Knopf','zum Ausschalten','.']}
+];
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function makeChip(word,idx){
+  const c=document.createElement('div');
+  c.className='chip'+(PUNCT_SET.has(word)?' punct':'');
+  c.textContent=word;c.draggable=true;
+  c.dataset.word=word;c.dataset.sb=String(idx);
+  c.addEventListener('dragstart',()=>{sbDragged=c;c.style.opacity='0.45';});
+  c.addEventListener('dragend',()=>{c.style.opacity='1';sbDragged=null;});
+  return c;
+}
+function buildSb(){
+  if(sbBuilt)return;sbBuilt=true;
+  const cont=document.getElementById('sbContainer');
+  sbSentences.forEach((sent,idx)=>{
+    const taskDiv=document.createElement('div');
+    taskDiv.className='sb-task';
+    taskDiv.innerHTML='<div class="sb-sentence-num">Satz '+(idx+1)+'</div>';
+    const dz=document.createElement('div');dz.className='sb-drop-zone';
+    dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+    dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+    dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(!sbDragged||parseInt(sbDragged.dataset.sb)!==idx)return;dz.appendChild(sbDragged);});
+    const tray=document.createElement('div');tray.className='chip-tray';
+    tray.addEventListener('dragover',e=>e.preventDefault());
+    tray.addEventListener('drop',e=>{e.preventDefault();if(!sbDragged||parseInt(sbDragged.dataset.sb)!==idx)return;tray.appendChild(sbDragged);});
+    shuffle(sent.parts).forEach(w=>tray.appendChild(makeChip(w,idx)));
+    const fb=document.createElement('div');fb.className='sb-feedback';
+    const btnRow=document.createElement('div');btnRow.className='sb-btn-row';
+    const chk=document.createElement('button');chk.className='btn btn-primary';chk.style.fontSize='0.8rem';
+    chk.textContent='✓ Prüfen';chk.onclick=()=>checkSb(idx,dz,sent.parts,fb);
+    const rst=document.createElement('button');rst.className='btn btn-secondary';rst.style.fontSize='0.8rem';
+    rst.textContent='↺';rst.onclick=()=>resetSb(dz,tray,fb);
+    btnRow.appendChild(chk);btnRow.appendChild(rst);
+    taskDiv.appendChild(dz);taskDiv.appendChild(tray);taskDiv.appendChild(fb);taskDiv.appendChild(btnRow);
+    cont.appendChild(taskDiv);
+  });
+}
+function checkSb(idx,dz,correctParts,fb){
+  const placed=Array.from(dz.children).map(c=>c.dataset.word);
+  if(placed.join(' ')===correctParts.join(' ')){
+    fb.textContent='✓ Richtig!';fb.className='sb-feedback ok';
+    const allOk=Array.from(document.querySelectorAll('#sbContainer .sb-feedback')).every(f=>f.classList.contains('ok'));
+    if(allOk)timerStop(3);
+  }else{fb.textContent='✗ Noch nicht richtig. Versuche es nochmal!';fb.className='sb-feedback err';}
+}
+function resetSb(dz,tray,fb){Array.from(dz.children).forEach(c=>tray.appendChild(c));fb.textContent='';fb.className='sb-feedback';}
+function resetAllSb(){
+  document.querySelectorAll('#sbContainer .sb-task').forEach(task=>{
+    resetSb(task.querySelector('.sb-drop-zone'),task.querySelector('.chip-tray'),task.querySelector('.sb-feedback'));
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+[1,2,3].forEach(updateTimerDisp);
+</script>
+</body>
+</html>
