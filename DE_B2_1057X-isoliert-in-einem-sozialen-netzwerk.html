@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1057X · Isoliert in einem sozialen Netzwerk</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px 30px;
+  }
+  .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+  .header p { font-size: 0.9rem; opacity: 0.85; }
+  .nav {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    overflow-x: auto;
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    min-width: 80px;
+    border-right: 1px solid #e9ecef;
+  }
+  .nav-btn:last-child { border-right: none; }
+  .nav-btn .nav-emoji { font-size: 1.3rem; margin-bottom: 3px; }
+  .nav-btn .nav-label { font-size: 0.75rem; }
+  .nav-btn:hover { background: #e9ecef; color: #333; }
+  .nav-btn.active { background: white; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
+  .tab-content { display: none; padding: 28px 30px; }
+  .tab-content.active { display: block; }
+  .tab-banner {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* VORENTLASTUNG */
+  .intro-quote {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
+    border-left: 4px solid #667eea;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .vocab-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .vocab-chip {
+    background: #667eea;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .vocab-chip.new { background: #764ba2; }
+  .info-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+  }
+  .info-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 9px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .info-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid #e9ecef;
+    color: #444;
+    vertical-align: top;
+  }
+  .info-table tr:nth-child(even) td { background: #f8f9fa; }
+  .info-table .cat-label {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* LÜCKENTEXT */
+  .control-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .control-bar .btn-group { display: flex; gap: 8px; }
+  .btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn-reset { background: #e9ecef; color: #555; }
+  .btn-reset:hover { background: #dee2e6; }
+  .timer-display {
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .luecke-text {
+    font-size: 0.95rem;
+    line-height: 2.5;
+    color: #333;
+  }
+  .luecke-text p { margin-bottom: 10px; }
+  .gap-input {
+    border: none;
+    border-bottom: 2px solid #667eea;
+    outline: none;
+    font-size: 0.95rem;
+    padding: 2px 4px;
+    width: 180px;
+    background: transparent;
+    color: #333;
+    text-align: left;
+    transition: border-color 0.2s;
+  }
+  .gap-input.correct { border-color: #28a745; background: #d4edda; border-radius: 4px; color: #155724; }
+  .gap-input.wrong { border-color: #dc3545; }
+  .score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
+  #luecke-score { font-weight: 700; color: #667eea; }
+
+  /* SATZBAU */
+  .sb-sentences { display: flex; flex-direction: column; gap: 22px; }
+  .sb-item { background: #f8f9fa; border-radius: 8px; padding: 16px; }
+  .sb-drop-zone {
+    min-height: 44px;
+    background: white;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .sb-drop-zone.drag-over { border-color: #667eea; background: #f0f4ff; }
+  .sb-chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .sb-chip {
+    background: #667eea;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: grab;
+    font-size: 0.85rem;
+    font-weight: 500;
+    user-select: none;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .sb-chip:active { cursor: grabbing; transform: scale(1.05); }
+  .sb-chip.punct { background: #9c6dd6; }
+  .sb-chip.in-zone { background: #5a67d8; }
+  .sb-chip.ghost { opacity: 0.35; }
+  .sb-feedback { font-size: 0.83rem; min-height: 20px; margin-top: 4px; }
+  .sb-feedback.ok { color: #28a745; font-weight: 600; }
+  .sb-feedback.err { color: #dc3545; }
+  #sb-score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
+  #sb-score { font-weight: 700; color: #667eea; }
+
+  /* WORTSCHATZ */
+  .vocab-container { display: flex; flex-direction: column; gap: 14px; }
+  .vocab-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .vocab-card-img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .vocab-card-info { flex: 1; min-width: 120px; }
+  .vocab-card-en { font-size: 0.82rem; color: #888; margin-bottom: 4px; }
+  .vocab-card-ex { font-size: 0.8rem; color: #555; font-style: italic; }
+  .vocab-inputs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .vocab-inp {
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .vocab-inp:focus { border-color: #667eea; }
+  .vocab-inp.correct { border-color: #28a745; background: #d4edda; color: #155724; }
+  .vocab-inp.wrong { border-color: #dc3545; }
+  .vocab-inp-art { width: 80px; }
+  .vocab-inp-word { width: 160px; }
+  .vocab-inp-plural { width: 120px; }
+  .vocab-inp-verb { width: 200px; }
+  .vocab-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #667eea;
+    margin: 14px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #e9ecef;
+  }
+  #vocab-score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
+  #vocab-score { font-weight: 700; color: #667eea; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.78rem;
+    color: #aaa;
+    border-top: 1px solid #e9ecef;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Isoliert in einem sozialen Netzwerk</h1>
+    <p>B2 · Einheit 5 · Lektion 1057 · Kommunikation</p>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </button>
+  </nav>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="tab-content active" id="tab-0">
+    <img src="https://images.pexels.com/photos/1440727/pexels-photo-1440727.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Soziale Netzwerke">
+
+    <div class="intro-quote">
+      „Immer online, nie mehr allein. <strong>Soziale Netzwerke</strong> sind zum ständigen Begleiter geworden. Egal, wo wir hinschauen, werden wir dazu veranlasst auf <strong>Meinungsbeiträge</strong> zu reagieren, manchmal durch <strong>Humor</strong> und <strong>Sarkasmus</strong>, aber auch durch <strong>Provokation</strong> und heftige <strong>Kritik</strong>."
+    </div>
+
+    <p style="font-size:0.85rem;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Bekannte Wörter</p>
+    <div class="vocab-chips">
+      <span class="vocab-chip">darstellen</span>
+      <span class="vocab-chip">kritisieren</span>
+      <span class="vocab-chip">isolieren</span>
+      <span class="vocab-chip">der Beitrag</span>
+      <span class="vocab-chip">vereinsamen</span>
+      <span class="vocab-chip">virtuell</span>
+      <span class="vocab-chip">das Netzwerk</span>
+      <span class="vocab-chip">das Massenmedium</span>
+    </div>
+
+    <p style="font-size:0.85rem;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Neue Wörter</p>
+    <div class="vocab-chips" style="margin-bottom:22px;">
+      <span class="vocab-chip new">provokant</span>
+      <span class="vocab-chip new">nachvollziehen</span>
+      <span class="vocab-chip new">die Ironie</span>
+      <span class="vocab-chip new">beleidigend</span>
+      <span class="vocab-chip new">die Polemik</span>
+      <span class="vocab-chip new">widersprechen</span>
+    </div>
+
+    <table class="info-table">
+      <tr><th colspan="2">💬 Kommunikationsmittel: Kritisch kommentieren</th></tr>
+      <tr>
+        <td class="cat-label">Zweifel äußern</td>
+        <td>Auf der einen Seite hast du recht, auf der anderen Seite sehe ich Probleme …<br>
+        Ich befürchte, dass …<br>
+        Man sollte bedenken, dass …<br>
+        Ich bezweifle, dass …</td>
+      </tr>
+      <tr>
+        <td class="cat-label">Widersprechen</td>
+        <td>Ich glaube eher, dass …<br>
+        In diesem Punkt habe ich eine ganz andere Meinung.<br>
+        Ich denke, diese Einstellung ist falsch, denn …<br>
+        Ich finde, da hast du unrecht, denn …<br>
+        Ich respektiere deine Meinung, aber meiner Meinung nach …</td>
+      </tr>
+      <tr>
+        <td class="cat-label">Entschärfen</td>
+        <td>Wenn ich dich richtig verstehe, dann ist dir wichtig, dass …<br>
+        Du meinst also, dass …<br>
+        Ich habe deine Einwände verstanden, trotzdem bin ich der Meinung, dass …</td>
+      </tr>
+      <tr>
+        <td class="cat-label">Auf Kritik reagieren</td>
+        <td>Es hat mich verletzt, dass …<br>
+        Ich finde deinen letzten Beitrag nicht gerechtfertigt.<br>
+        Kritik sollte konstruktiv und anregend sein.<br>
+        Man sollte Kritik nie persönlich nehmen!</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TAB 1: LÜCKENTEXT -->
+  <div class="tab-content" id="tab-1">
+    <img src="https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Kommentare in sozialen Medien">
+
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display" id="timer1-display">⏱ 00:00</div>
+    </div>
+
+    <div class="luecke-text">
+      <p>1. &nbsp;Sobald man anfängt, sich mit sozialen Medien zu <input class="gap-input" data-answer="beschäftigen" oninput="liveCheck(this)" placeholder="">, erwartet man positive Reaktionen.</p>
+      <p>2. &nbsp;Jedoch muss man sich oft mit negativen <input class="gap-input" data-answer="kommentaren" oninput="liveCheck(this)" placeholder=""> und provokanter Kritik auseinandersetzen.</p>
+      <p>3. &nbsp;Manche Beiträge sind sehr <input class="gap-input" data-answer="provokant" oninput="liveCheck(this)" placeholder=""> und versuchen, andere User zu reizen.</p>
+      <p>4. &nbsp;Solange Kommentare mit <input class="gap-input" data-answer="ironie" oninput="liveCheck(this)" placeholder=""> und Humor aufzufassen sind, ist alles in Ordnung.</p>
+      <p>5. &nbsp;Viele Reaktionen sind rational nicht <input class="gap-input" data-answer="nachzuvollziehen" oninput="liveCheck(this)" placeholder="">.</p>
+      <p>6. &nbsp;Solche Kommentare werden genutzt, um andere zu <input class="gap-input" data-answer="provozieren" oninput="liveCheck(this)" placeholder=""> oder persönlich anzugreifen.</p>
+      <p>7. &nbsp;Eine <input class="gap-input" data-answer="polemik" oninput="liveCheck(this)" placeholder=""> ist ein unsachlicher, feindseliger Angriff auf eine Person.</p>
+      <p>8. &nbsp;Persönlich <input class="gap-input" data-answer="beleidigende" oninput="liveCheck(this)" placeholder=""> Beiträge sind unangebracht und sollten vermieden werden.</p>
+      <p>9. &nbsp;Tweets und Kommentare können auch höflich und <input class="gap-input" data-answer="rational" oninput="liveCheck(this)" placeholder=""> verfasst werden.</p>
+      <p>10. Sie müssen weder <input class="gap-input" data-answer="aggressiv" oninput="liveCheck(this)" placeholder=""> noch beleidigend sein.</p>
+      <p>11. Der <input class="gap-input" data-answer="ton" oninput="liveCheck(this)" placeholder=""> macht oft die Musik, auch bei Reaktionen auf Kritik in sozialen Medien.</p>
+      <p>12. In diesem Punkt <input class="gap-input" data-answer="widerspreche" oninput="liveCheck(this)" placeholder=""> ich dir, denn ich habe eine ganz andere Meinung.</p>
+    </div>
+    <div class="score-row">Richtig: <span id="luecke-score">0</span> / 12</div>
+  </div>
+
+  <!-- TAB 2: SATZBAU -->
+  <div class="tab-content" id="tab-2">
+    <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Satzbau">
+
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+      </div>
+      <div class="timer-display" id="timer2-display">⏱ 00:00</div>
+    </div>
+
+    <div class="sb-sentences" id="sb-container"></div>
+    <div id="sb-score-row">Richtig: <span id="sb-score">0</span> / 7</div>
+  </div>
+
+  <!-- TAB 3: WORTSCHATZ -->
+  <div class="tab-content" id="tab-3">
+    <img src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Wortschatz">
+
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display" id="timer3-display">⏱ 00:00</div>
+    </div>
+
+    <div class="vocab-section-title">📌 Nomen</div>
+    <div class="vocab-container" id="vocab-container"></div>
+    <div id="vocab-score-row" style="margin-top:14px;font-size:0.9rem;color:#555;">Richtig: <span id="vocab-score">0</span> / <span id="vocab-total">0</span></div>
+  </div>
+
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
+
+<script>
+// ─── TAB NAVIGATION ───────────────────────────────────────────────
+function showTab(n) {
+  document.querySelectorAll('.tab-content').forEach((t,i) => t.classList.toggle('active', i===n));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+}
+
+// ─── TIMER SYSTEM ─────────────────────────────────────────────────
+const TIMER_PREFIX = 'B2_1057X_';
+const timers = {};
+
+function timerStart(n) {
+  if (timers[n] && timers[n].running) return;
+  const t = timers[n] || (timers[n] = {secs:0, running:false, interval:null});
+  t.running = true;
+  t.interval = setInterval(() => { t.secs++; updateTimerDisplay(n); }, 1000);
+}
+
+function timerStop(n) {
+  const t = timers[n];
+  if (!t || !t.running) return;
+  clearInterval(t.interval);
+  t.running = false;
+  const best = loadBestTime(n);
+  if (best === null || t.secs < best) saveBestTime(n, t.secs);
+  updateTimerDisplay(n, true);
+}
+
+function timerReset(n) {
+  const t = timers[n];
+  if (!t) return;
+  clearInterval(t.interval);
+  t.secs = 0;
+  t.running = false;
+  updateTimerDisplay(n);
+}
+
+function fmtTime(s) {
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+
+function updateTimerDisplay(n, done=false) {
+  const el = document.getElementById('timer'+n+'-display');
+  if (!el) return;
+  const t = timers[n] || {secs:0};
+  const best = loadBestTime(n);
+  const bestStr = best !== null ? ' · Best: ' + fmtTime(best) : '';
+  el.textContent = (done ? '✅ ' : '⏱ ') + fmtTime(t.secs) + bestStr;
+}
+
+function saveBestTime(n, secs) {
+  try { localStorage.setItem(TIMER_PREFIX+'best'+n, secs); } catch(e){}
+}
+function loadBestTime(n) {
+  try { const v = localStorage.getItem(TIMER_PREFIX+'best'+n); return v !== null ? parseInt(v) : null; } catch(e){ return null; }
+}
+
+// ─── LÜCKENTEXT ───────────────────────────────────────────────────
+let lueckeStarted = false;
+function liveCheck(inp) {
+  if (!lueckeStarted) { lueckeStarted = true; timerStart(1); }
+  const ans = inp.dataset.answer.toLowerCase();
+  const val = inp.value.toLowerCase().trim();
+  if (ans.startsWith(val) && val.length > 0) {
+    inp.classList.remove('wrong');
+  } else if (val.length > 0) {
+    inp.classList.remove('correct');
+    inp.classList.add('wrong');
+  }
+  if (val === ans) {
+    inp.classList.remove('wrong');
+    inp.classList.add('correct');
+  }
+  updateLueckeScore();
+}
+
+function updateLueckeScore() {
+  const all = document.querySelectorAll('#tab-1 .gap-input');
+  const correct = [...all].filter(i => i.classList.contains('correct')).length;
+  document.getElementById('luecke-score').textContent = correct;
+  if (correct === all.length) timerStop(1);
+}
+
+function resetLuecke() {
+  document.querySelectorAll('#tab-1 .gap-input').forEach(i => {
+    i.value = '';
+    i.classList.remove('correct','wrong');
+  });
+  timerReset(1);
+  lueckeStarted = false;
+  updateLueckeScore();
+}
+
+// ─── SATZBAU ──────────────────────────────────────────────────────
+let sbDragged = null;
+let sbStarted = false;
+
+const sbSentences = [
+  { parts: ['Soziale Netzwerke','sind','zum ständigen Begleiter','geworden','.'] },
+  { parts: ['Manche','Kommentare','sind','rational','nicht nachzuvollziehen','.'] },
+  { parts: ['Eine','provokante Bemerkung','kann','schnell','nach hinten','losgehen','.'] },
+  { parts: ['Tweets und Kommentare','müssen','nicht','beleidigend','sein','.'] },
+  { parts: ['Ich','bezweifle',',','dass','dieser Kommentar','sachlich','ist','.'] },
+  { parts: ['Kritik','sollte','man','nie','persönlich','nehmen','.'] },
+  { parts: ['In diesem Punkt','habe','ich','eine ganz andere Meinung','.'] }
+];
+
+const PUNCT = ['.','!','?',',',';',':'];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function makeChip(word, inZone=false) {
+  const chip = document.createElement('span');
+  chip.className = 'sb-chip' + (PUNCT.includes(word) ? ' punct' : '') + (inZone ? ' in-zone' : '');
+  chip.textContent = word;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', e => {
+    sbDragged = chip;
+    setTimeout(() => chip.classList.add('ghost'), 0);
+  });
+  chip.addEventListener('dragend', () => chip.classList.remove('ghost'));
+  return chip;
+}
+
+function buildSb() {
+  const container = document.getElementById('sb-container');
+  container.innerHTML = '';
+  sbSentences.forEach((sent, idx) => {
+    const item = document.createElement('div');
+    item.className = 'sb-item';
+    item.dataset.idx = idx;
+
+    const zone = document.createElement('div');
+    zone.className = 'sb-drop-zone';
+    zone.dataset.idx = idx;
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (sbDragged) {
+        zone.appendChild(sbDragged);
+        sbDragged.classList.add('in-zone');
+        checkSb(idx);
+        if (!sbStarted) { sbStarted = true; timerStart(2); }
+      }
+    });
+
+    const pool = document.createElement('div');
+    pool.className = 'sb-chip-pool';
+    pool.dataset.idx = idx;
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => {
+      e.preventDefault();
+      if (sbDragged) {
+        pool.appendChild(sbDragged);
+        sbDragged.classList.remove('in-zone');
+        checkSb(idx);
+      }
+    });
+
+    const feedback = document.createElement('div');
+    feedback.className = 'sb-feedback';
+    feedback.dataset.idx = idx;
+
+    const shuffled = shuffle(sent.parts);
+    shuffled.forEach(w => pool.appendChild(makeChip(w)));
+
+    item.appendChild(zone);
+    item.appendChild(pool);
+    item.appendChild(feedback);
+    container.appendChild(item);
+  });
+}
+
+function checkSb(idx) {
+  const zone = document.querySelector('.sb-drop-zone[data-idx="'+idx+'"]');
+  const feedback = document.querySelector('.sb-feedback[data-idx="'+idx+'"]');
+  const chips = [...zone.querySelectorAll('.sb-chip')].map(c => c.textContent);
+  const correct = sbSentences[idx].parts;
+  if (chips.length === correct.length && chips.every((c,i) => c === correct[i])) {
+    feedback.className = 'sb-feedback ok';
+    feedback.textContent = '✓ Richtig!';
+    updateSbScore();
+  } else if (chips.length === correct.length) {
+    feedback.className = 'sb-feedback err';
+    feedback.textContent = '✗ Nicht ganz richtig – versuche es noch einmal.';
+    updateSbScore();
+  } else {
+    feedback.className = 'sb-feedback';
+    feedback.textContent = '';
+  }
+}
+
+function updateSbScore() {
+  const correct = document.querySelectorAll('.sb-feedback.ok').length;
+  document.getElementById('sb-score').textContent = correct;
+  if (correct === sbSentences.length) timerStop(2);
+}
+
+function resetAllSb() {
+  sbStarted = false;
+  document.getElementById('sb-score').textContent = '0';
+  timerReset(2);
+  buildSb();
+}
+
+// ─── WORTSCHATZ ───────────────────────────────────────────────────
+let vocabStarted = false;
+
+const vocabData = [
+  { type:'n', art:'der', word:'Beitrag', plural:'Beiträge', en:'post / contribution', ex:'Meinungsbeiträge prägen unseren Alltag in sozialen Medien.' },
+  { type:'n', art:'das', word:'Netzwerk', plural:'Netzwerke', en:'network', ex:'Soziale Netzwerke sind zum ständigen Begleiter geworden.' },
+  { type:'n', art:'das', word:'Massenmedium', plural:'Massenmedien', en:'mass medium', ex:'Das Internet ist das größte unkontrollierte Massenmedium der Welt.' },
+  { type:'n', art:'die', word:'Polemik', plural:'Polemiken', en:'polemic', ex:'Eine Polemik ist ein unsachlicher, feindseliger Angriff auf jemanden.' },
+  { type:'n', art:'die', word:'Ironie', plural:'–', en:'irony', ex:'Negative Kommentare mit etwas Ironie zu sehen hilft, nicht alles ernst zu nehmen.' },
+  { type:'n', art:'die', word:'Kritik', plural:'Kritiken', en:'criticism', ex:'Kommentare sollten konstruktiv und anregend sein, keine persönliche Kritik.' },
+  { type:'v', word:'darstellen', en:'to present / depict', ex:'Wie stellst du deine Meinung in sozialen Medien dar?' },
+  { type:'v', word:'kritisieren', en:'to criticize', ex:'Es ist erlaubt zu kritisieren, solange man sachlich bleibt.' },
+  { type:'v', word:'isolieren', en:'to isolate', ex:'Soziale Medien können uns sowohl verbinden als auch isolieren.' },
+  { type:'v', word:'vereinsamen', en:'to become lonely', ex:'Wer ständig online ist, kann trotzdem vereinsamen.' },
+  { type:'v', word:'nachvollziehen', en:'to understand / follow', ex:'Manche Kommentare sind rational nicht nachzuvollziehen.' },
+  { type:'v', word:'widersprechen', en:'to contradict / disagree', ex:'In diesem Punkt widerspreche ich dir vollkommen.' },
+  { type:'v', word:'provozieren', en:'to provoke', ex:'Solche Kommentare werden genutzt, um andere zu provozieren.' },
+  { type:'v', word:'verfassen', en:'to write / compose', ex:'Tweets sollten höflich und sachlich verfasst werden.' }
+];
+
+const pexelsIds = {
+  'Beitrag': 3184418, 'Netzwerk': 1181675, 'Massenmedium': 518543, 'Polemik': 3808008,
+  'Ironie': 3807517, 'Kritik': 3769021
+};
+
+function buildVocab() {
+  const container = document.getElementById('vocab-container');
+  container.innerHTML = '';
+  let totalInputs = 0;
+  let nounSection = true;
+
+  vocabData.forEach((item, idx) => {
+    if (item.type === 'v' && nounSection) {
+      nounSection = false;
+      const divider = document.createElement('div');
+      divider.className = 'vocab-section-title';
+      divider.textContent = '🔤 Verben';
+      container.appendChild(divider);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+
+    if (item.type === 'n') {
+      const pid = pexelsIds[item.word];
+      if (pid) {
+        const img = document.createElement('img');
+        img.className = 'vocab-card-img';
+        img.src = `https://images.pexels.com/photos/${pid}/pexels-photo-${pid}.jpeg?auto=compress&cs=tinysrgb&w=80&h=60&fit=crop`;
+        img.alt = item.word;
+        card.appendChild(img);
+      }
+    }
+
+    const info = document.createElement('div');
+    info.className = 'vocab-card-info';
+    info.innerHTML = `<div class="vocab-card-en">${item.en}</div><div class="vocab-card-ex">${item.ex}</div>`;
+    card.appendChild(info);
+
+    const inputs = document.createElement('div');
+    inputs.className = 'vocab-inputs';
+
+    if (item.type === 'n') {
+      const inpArt = makeVocabInp('vocab-inp vocab-inp-art', 'Artikel', item.art.toLowerCase());
+      const inpWord = makeVocabInp('vocab-inp vocab-inp-word', 'Deutsch', item.word.toLowerCase());
+      const inpPlural = makeVocabInp('vocab-inp vocab-inp-plural', 'Plural', item.plural.toLowerCase());
+      inputs.appendChild(inpArt);
+      inputs.appendChild(inpWord);
+      inputs.appendChild(inpPlural);
+      totalInputs += 3;
+    } else {
+      const inpVerb = makeVocabInp('vocab-inp vocab-inp-verb', 'Deutsch', item.word.toLowerCase());
+      inputs.appendChild(inpVerb);
+      totalInputs += 1;
+    }
+
+    card.appendChild(inputs);
+    container.appendChild(card);
+  });
+
+  document.getElementById('vocab-total').textContent = totalInputs;
+}
+
+function makeVocabInp(cls, ph, ans) {
+  const inp = document.createElement('input');
+  inp.className = cls;
+  inp.placeholder = '';
+  inp.dataset.answer = ans;
+  inp.addEventListener('input', () => vocabLiveCheck(inp));
+  return inp;
+}
+
+function vocabLiveCheck(inp) {
+  if (!vocabStarted) { vocabStarted = true; timerStart(3); }
+  const ans = inp.dataset.answer.toLowerCase();
+  const val = inp.value.toLowerCase().trim();
+  if (ans.startsWith(val) && val.length > 0) {
+    inp.classList.remove('wrong');
+  } else if (val.length > 0) {
+    inp.classList.add('wrong');
+    inp.classList.remove('correct');
+  }
+  if (val === ans) {
+    inp.classList.remove('wrong');
+    inp.classList.add('correct');
+  }
+  updateVocabScore();
+}
+
+function updateVocabScore() {
+  const all = document.querySelectorAll('#tab-3 .vocab-inp');
+  const correct = [...all].filter(i => i.classList.contains('correct')).length;
+  document.getElementById('vocab-score').textContent = correct;
+  if (correct === all.length) timerStop(3);
+}
+
+function resetVocab() {
+  document.querySelectorAll('#tab-3 .vocab-inp').forEach(i => {
+    i.value = '';
+    i.classList.remove('correct','wrong');
+  });
+  timerReset(3);
+  vocabStarted = false;
+  updateVocabScore();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+buildSb();
+buildVocab();
+updateTimerDisplay(1);
+updateTimerDisplay(2);
+updateTimerDisplay(3);
+</script>
+</body>
+</html>
