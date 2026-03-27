@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1018S · Mein Auslandsjahr | B2.1</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 30px 40px 25px;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 6px; }
+    header .subtitle { opacity: 0.85; font-size: 1rem; }
+    nav {
+      display: flex;
+      background: #f0f2ff;
+      border-bottom: 2px solid #e0e4ff;
+      padding: 0 10px;
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 6px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-size: 0.78rem;
+      color: #555;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      gap: 4px;
+    }
+    .nav-btn .nav-emoji { font-size: 1.4rem; }
+    .nav-btn .nav-label { font-weight: 600; }
+    .nav-btn:hover { background: #e8ecff; color: #667eea; }
+    .nav-btn.active { background: #fff; border-bottom: 3px solid #667eea; color: #667eea; }
+    .tab-content { display: none; padding: 30px 40px; min-height: 400px; }
+    .tab-content.active { display: block; }
+    .tab-banner { width:100%; max-height:180px; object-fit:cover; border-radius:10px; margin-bottom:20px; }
+
+    /* Control bar */
+    .control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .control-bar .btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-reset { background:#e8ecff; color:#667eea; }
+    .btn-reset:hover { background:#667eea; color:#fff; }
+    .timer-box { display:flex; align-items:center; gap:8px; font-size:0.85rem; color:#555; }
+    .timer-display { font-weight:700; color:#667eea; min-width:45px; text-align:center; }
+    .best-display { font-size:0.75rem; color:#888; }
+
+    /* Vorentlastung */
+    .info-block { background:#f0f2ff; border-left:4px solid #667eea; border-radius:8px; padding:16px 20px; margin-bottom:18px; }
+    .info-block h3 { color:#667eea; margin-bottom:10px; font-size:1rem; }
+    .vocab-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px; }
+    .vocab-group { background:#f8f9ff; border-radius:10px; padding:14px 16px; border:1px solid #e0e4ff; }
+    .vocab-group h4 { color:#764ba2; font-size:0.9rem; margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid #e0e4ff; }
+    .vocab-group ul { list-style:none; }
+    .vocab-group li { padding:4px 0; font-size:0.88rem; color:#333; border-bottom:1px solid #eee; }
+    .vocab-group li:last-child { border-bottom:none; }
+    .vocab-group li .art { color:#667eea; font-weight:700; }
+    .speaking-box { background:#fff7f0; border-left:4px solid #e67e22; border-radius:8px; padding:14px 18px; margin-bottom:14px; }
+    .speaking-box h3 { color:#e67e22; margin-bottom:8px; font-size:0.95rem; }
+    .speaking-q { list-style:none; }
+    .speaking-q li { padding:6px 0; border-bottom:1px solid #ffe0c4; font-size:0.9rem; color:#333; }
+    .speaking-q li:last-child { border-bottom:none; }
+    .speaking-q li::before { content:"🗣️ "; }
+    .redemittel-box { background:#f0fff4; border-left:4px solid #27ae60; border-radius:8px; padding:14px 18px; margin-bottom:14px; }
+    .redemittel-box h3 { color:#27ae60; margin-bottom:8px; font-size:0.95rem; }
+    .redemittel-list { list-style:none; }
+    .redemittel-list li { padding:5px 0; font-size:0.88rem; color:#333; border-bottom:1px solid #d4edda; }
+    .redemittel-list li:last-child { border-bottom:none; }
+    .tag { display:inline-block; background:#e8ecff; color:#667eea; border-radius:12px; padding:2px 10px; font-size:0.78rem; font-weight:600; margin-bottom:12px; }
+
+    /* Lückentext */
+    .gap-sentence { margin-bottom:14px; line-height:1.8; font-size:0.95rem; color:#333; }
+    .gap-sentence input {
+      border: none;
+      border-bottom: 2px solid #667eea;
+      outline: none;
+      font-size: 0.92rem;
+      padding: 2px 6px;
+      width: 180px;
+      background: transparent;
+      transition: border-color 0.2s;
+    }
+    .gap-sentence input.correct { border-bottom-color:#27ae60; color:#27ae60; }
+    .gap-sentence input.wrong  { border-bottom-color:#e74c3c; color:#e74c3c; }
+    .gap-num { display:inline-block; background:#667eea; color:#fff; border-radius:50%; width:22px; height:22px; font-size:0.72rem; font-weight:700; text-align:center; line-height:22px; margin-right:6px; }
+
+    /* Satzbau */
+    #sbZone {
+      min-height: 56px;
+      border: 2px dashed #667eea;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      background: #f8f9ff;
+      align-items: center;
+    }
+    #sbBank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .sb-chip {
+      background: #667eea;
+      color: #fff;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.88rem;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .sb-chip:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(102,126,234,0.4); }
+    .sb-chip.punct { background: #764ba2; }
+    .sb-chip.dragging { opacity: 0.4; }
+    .sb-feedback { font-size:0.88rem; padding:8px 14px; border-radius:8px; margin-bottom:10px; display:none; }
+    .sb-feedback.correct { background:#d4edda; color:#155724; display:block; }
+    .sb-feedback.wrong   { background:#f8d7da; color:#721c24; display:block; }
+    .sb-nav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .sb-counter { font-size:0.85rem; color:#666; }
+    .btn-sb { background:#764ba2; color:#fff; }
+    .btn-sb:hover { background:#5a3782; }
+    .btn-sb-check { background:#667eea; color:#fff; }
+    .btn-sb-check:hover { background:#4a5fd4; }
+
+    /* Wortschatz */
+    #vocabContainer { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+    .vocab-card { border:1px solid #e0e4ff; border-radius:12px; overflow:hidden; transition: box-shadow 0.2s; }
+    .vocab-card:hover { box-shadow: 0 4px 16px rgba(102,126,234,0.15); }
+    .vocab-card img { width:100%; height:110px; object-fit:cover; }
+    .vocab-body { padding:12px 14px; }
+    .vocab-en { font-size:0.8rem; color:#888; margin-bottom:6px; }
+    .vocab-fields { display:flex; flex-direction:column; gap:6px; }
+    .vocab-fields input {
+      border:1px solid #ddd; border-radius:6px; padding:5px 10px;
+      font-size:0.85rem; outline:none; transition: border-color 0.2s; width:100%;
+    }
+    .vocab-fields input:focus { border-color:#667eea; }
+    .vocab-fields input.correct { border-color:#27ae60; background:#f0fff4; color:#27ae60; }
+    .vocab-fields input.wrong   { border-color:#e74c3c; background:#fff5f5; color:#e74c3c; }
+    .vocab-example { font-size:0.78rem; color:#888; margin-top:6px; font-style:italic; }
+
+    footer { text-align:center; padding:18px; font-size:0.8rem; color:#888; border-top:1px solid #eee; }
+    h2 { color:#333; margin-bottom:16px; font-size:1.2rem; }
+    p { color:#555; margin-bottom:12px; font-size:0.92rem; line-height:1.6; }
+
+    @media(max-width:600px) { .vocab-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>✈️ Mein Auslandsjahr!</h1>
+    <p class="subtitle">B2.1 · Einheit 1 · Sprechen & Wortschatz</p>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </button>
+  </nav>
+
+  <main>
+    <!-- TAB 0: VORENTLASTUNG -->
+    <div class="tab-content active" id="tab-0">
+      <img class="tab-banner" src="https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Auslandsjahr">
+      <h2>Mein Auslandsjahr – Studieren und Arbeiten im Ausland</h2>
+      <span class="tag">Sprechen</span>
+      <p>Ein Jahr im Ausland ist ein großes Abenteuer. Du erlebst vieles, bekommst viele Eindrücke und hast im Nachhinein viel Erfahrung gesammelt. Hier lernst du den Wortschatz für Studium und Arbeit im Ausland.</p>
+
+      <div class="vocab-grid">
+        <div class="vocab-group">
+          <h4>🎓 Im Ausland studieren</h4>
+          <ul>
+            <li><span class="art">der</span> Leistungspunkt, -e</li>
+            <li><span class="art">der</span> Stundenplan, -̈e</li>
+            <li><span class="art">das</span> Stipendium, -ien</li>
+            <li><span class="art">das</span> Semesterticket, -s</li>
+            <li><span class="art">das</span> Motivationsschreiben, -</li>
+            <li>Fachliteratur ausleihen</li>
+            <li>in der Mensa essen</li>
+            <li>Lehrveranstaltungen besuchen</li>
+          </ul>
+        </div>
+        <div class="vocab-group">
+          <h4>💼 Im Ausland arbeiten</h4>
+          <ul>
+            <li><span class="art">die</span> Berufsberatung, -en</li>
+            <li><span class="art">das</span> Vorstellungsgespräch, -e</li>
+            <li><span class="art">der</span> Lebenslauf, -̈e</li>
+            <li><span class="art">die</span> Bewerbungsmappe, -n</li>
+            <li><span class="art">die</span> Anerkennung, -en</li>
+            <li><span class="art">die</span> Unterlagen (Pl.)</li>
+            <li>befristeter Vertrag</li>
+            <li>praktische Erfahrungen sammeln</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>🌍 Das Erasmus-Programm</h3>
+        <p style="font-size:0.9rem; margin-bottom:0; color:#333;">Das Erasmus-Programm ermöglicht europäischen Studierenden, ein oder zwei Semester an einer Hochschule im europäischen Ausland zu studieren. Es gibt finanzielle Förderung (Stipendium), die Anerkennung der Studienleistungen und interkulturelle Erfahrungen. Teilnehmende Länder sind alle EU-Mitgliedstaaten sowie einige weitere europäische Länder.</p>
+      </div>
+
+      <div class="speaking-box">
+        <h3>🗣️ Sprechanlässe – Über das Auslandsjahr sprechen</h3>
+        <ul class="speaking-q">
+          <li>Könntest du ein Auslandssemester machen oder hast du bereits eines gemacht? Erzähle!</li>
+          <li>Welche Kompetenzen und Fähigkeiten sind von Vorteil, wenn man ein Auslandssemester machen möchte?</li>
+          <li>Viele denken, man macht ein Auslandssemester, um seinen Lebenslauf zu verbessern. Was denkst du?</li>
+          <li>Kann man sich in einem Auslandssemester auch persönlich weiterentwickeln?</li>
+          <li>Welche Schwierigkeiten gibt es beim Auslandssemester? Wie kann man sie überwinden?</li>
+        </ul>
+      </div>
+
+      <div class="redemittel-box">
+        <h3>💡 Redemittel – Meinung äußern & begründen</h3>
+        <ul class="redemittel-list">
+          <li>Meiner Meinung nach ...</li>
+          <li>Ich bin der Ansicht, dass ...</li>
+          <li>Ein Auslandsjahr hat den Vorteil, dass ...</li>
+          <li>Man sagt, ein Auslandssemester verbessert die Sprachkenntnisse und ...</li>
+          <li>Ich denke, man sollte / man sollte lieber nicht ..., weil ...</li>
+          <li>Auf der einen Seite ..., auf der anderen Seite ...</li>
+        </ul>
+      </div>
+
+      <div class="speaking-box">
+        <h3>🗣️ Rollenspiel: Vorstellungsgespräch im Ausland</h3>
+        <ul class="speaking-q">
+          <li>Erzählen Sie etwas über Ihren Lebenslauf und Ihre Erfahrungen.</li>
+          <li>Warum möchten Sie in unserem Unternehmen arbeiten?</li>
+          <li>Welche Stärken bringen Sie für diese Stelle mit?</li>
+          <li>Wie sind Ihre Deutschkenntnisse / Sprachkenntnisse?</li>
+          <li>Haben Sie Erfahrungen mit internationalen Teams?</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TAB 1: LÜCKENTEXT -->
+    <div class="tab-content" id="tab-1">
+      <img class="tab-banner" src="https://images.pexels.com/photos/1438072/pexels-photo-1438072.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Studieren im Ausland">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="btn btn-reset" onclick="resetGaps()">🔄 Zurücksetzen</button>
+        </div>
+        <div class="timer-box">
+          ⏱️ <span class="timer-display" id="timer-1">0:00</span>
+          <span class="best-display" id="best-1"></span>
+        </div>
+      </div>
+      <h2>Lückentext – Auslandsjahr: Studium & Arbeit</h2>
+      <p>Setze das passende Wort ein. Das Feedback erscheint sofort.</p>
+
+      <div id="gapContainer">
+        <div class="gap-sentence"><span class="gap-num">1</span>Am Anfang des Semesters muss man seinen <input data-answer="Stundenplan" oninput="liveCheck(this)" placeholder=""> für alle Kurse zusammenstellen.</div>
+        <div class="gap-sentence"><span class="gap-num">2</span>Im ersten Semester habe ich zehn <input data-answer="Lehrveranstaltungen" oninput="liveCheck(this)" placeholder=""> besucht.</div>
+        <div class="gap-sentence"><span class="gap-num">3</span>Das Erasmus-Programm vergibt ein <input data-answer="Stipendium" oninput="liveCheck(this)" placeholder=""> an Studierende, die im Ausland studieren möchten.</div>
+        <div class="gap-sentence"><span class="gap-num">4</span>Mit dem <input data-answer="Semesterticket" oninput="liveCheck(this)" placeholder=""> kann man den öffentlichen Nahverkehr kostenlos nutzen.</div>
+        <div class="gap-sentence"><span class="gap-num">5</span>Für die Bewerbung beim Erasmus-Programm braucht man ein <input data-answer="Motivationsschreiben" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">6</span>An der Universität kann man in der Bibliothek <input data-answer="Fachliteratur" oninput="liveCheck(this)" placeholder=""> ausleihen.</div>
+        <div class="gap-sentence"><span class="gap-num">7</span>Die <input data-answer="Berufsberatung" oninput="liveCheck(this)" placeholder=""> hilft dir, eine passende Stelle im Ausland zu finden.</div>
+        <div class="gap-sentence"><span class="gap-num">8</span>Beim <input data-answer="Vorstellungsgespräch" oninput="liveCheck(this)" placeholder=""> sollte man selbstbewusst auftreten und den Lebenslauf gut kennen.</div>
+        <div class="gap-sentence"><span class="gap-num">9</span>Für die Bewerbung braucht man eine vollständige <input data-answer="Bewerbungsmappe" oninput="liveCheck(this)" placeholder=""> mit Lebenslauf und Motivationsschreiben.</div>
+        <div class="gap-sentence"><span class="gap-num">10</span>Ausländische Abschlüsse brauchen manchmal eine offizielle <input data-answer="Anerkennung" oninput="liveCheck(this)" placeholder=""> in Deutschland.</div>
+        <div class="gap-sentence"><span class="gap-num">11</span>Im Ausland sammelt man wichtige praktische <input data-answer="Erfahrungen" oninput="liveCheck(this)" placeholder=""> für den späteren Beruf.</div>
+        <div class="gap-sentence"><span class="gap-num">12</span>In der Regel bekommt man im Ausland zunächst nur einen befristeten <input data-answer="Vertrag" oninput="liveCheck(this)" placeholder="">.</div>
+      </div>
+    </div>
+
+    <!-- TAB 2: SATZBAU -->
+    <div class="tab-content" id="tab-2">
+      <img class="tab-banner" src="https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Studierende im Gespräch">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="btn btn-sb" onclick="sbReset()">🔄 Neu mischen</button>
+          <button class="btn btn-sb-check" onclick="sbCheck()">✔ Prüfen</button>
+        </div>
+        <div class="timer-box">
+          ⏱️ <span class="timer-display" id="timer-2">0:00</span>
+          <span class="best-display" id="best-2"></span>
+        </div>
+      </div>
+      <h2>Satzbau – Sätze neu ordnen</h2>
+      <p class="sb-counter" id="sbCounter">Aufgabe 1 von 7</p>
+      <div id="sbZone"></div>
+      <div id="sbBank"></div>
+      <div class="sb-feedback" id="sbFeedback"></div>
+      <div class="sb-nav">
+        <button class="btn btn-sb" onclick="sbPrev()">◀ Zurück</button>
+        <button class="btn btn-sb" onclick="sbNext()">Weiter ▶</button>
+      </div>
+    </div>
+
+    <!-- TAB 3: WORTSCHATZ -->
+    <div class="tab-content" id="tab-3">
+      <img class="tab-banner" src="https://images.pexels.com/photos/1438073/pexels-photo-1438073.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz Auslandsjahr">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="btn btn-reset" onclick="resetVocab()">🔄 Zurücksetzen</button>
+        </div>
+        <div class="timer-box">
+          ⏱️ <span class="timer-display" id="timer-3">0:00</span>
+          <span class="best-display" id="best-3"></span>
+        </div>
+      </div>
+      <h2>Wortschatz – Studium & Arbeit im Ausland</h2>
+      <p>Tippe den deutschen Begriff (bei Nomen: Artikel, Wort und Plural).</p>
+      <div id="vocabContainer"></div>
+    </div>
+  </main>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+const TIMER_PREFIX = 'B2_1018S_';
+const timerIntervals = {};
+const timerSeconds = {};
+
+function timerAutoStart(n) {
+  if (timerIntervals[n]) return;
+  timerSeconds[n] = 0;
+  timerIntervals[n] = setInterval(() => {
+    timerSeconds[n]++;
+    const m = Math.floor(timerSeconds[n]/60);
+    const s = timerSeconds[n]%60;
+    const el = document.getElementById('timer-'+n);
+    if(el) el.textContent = m+':'+(s<10?'0':'')+s;
+  }, 1000);
+}
+
+function timerStop(n) {
+  if (!timerIntervals[n]) return;
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  const key = TIMER_PREFIX + 'timer' + n;
+  const prev = localStorage.getItem(key);
+  if (!prev || timerSeconds[n] < parseInt(prev)) {
+    localStorage.setItem(key, timerSeconds[n]);
+    loadBestTimes();
+  }
+}
+
+function timerResetOne(n) {
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  timerSeconds[n] = 0;
+  const el = document.getElementById('timer-'+n);
+  if(el) el.textContent = '0:00';
+}
+
+function loadBestTimes() {
+  [1,2,3].forEach(n => {
+    const key = TIMER_PREFIX + 'timer' + n;
+    const val = localStorage.getItem(key);
+    const el = document.getElementById('best-'+n);
+    if(el && val) {
+      const m = Math.floor(parseInt(val)/60);
+      const s = parseInt(val)%60;
+      el.textContent = '(Bestzeit: '+m+':'+(s<10?'0':'')+s+')';
+    }
+  });
+}
+
+function showTab(n) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  document.querySelectorAll('.nav-btn')[n].classList.add('active');
+  if(n===1) timerAutoStart(1);
+  if(n===2) { sbInit(); timerAutoStart(2); }
+  if(n===3) { renderVocab(); timerAutoStart(3); }
+}
+
+// --- LÜCKENTEXT ---
+function liveCheck(inp) {
+  const ans = (inp.dataset.answer||'').trim().toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val.length === 0) return;
+  if(ans.startsWith(val)) {
+    if(val === ans) { inp.classList.add('correct'); checkAllGaps(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllGaps() {
+  const inputs = document.querySelectorAll('#gapContainer input');
+  if([...inputs].every(i => i.classList.contains('correct'))) timerStop(1);
+}
+
+function resetGaps() {
+  document.querySelectorAll('#gapContainer input').forEach(i => {
+    i.value=''; i.classList.remove('correct','wrong');
+  });
+  timerResetOne(1); timerAutoStart(1);
+}
+
+// --- SATZBAU ---
+const satzbauData = [
+  { parts: ['Ein Auslandssemester','verbessert','die Sprachkenntnisse','und steigert','die Karrierechancen','.'], valid: 'Ein Auslandssemester verbessert die Sprachkenntnisse und steigert die Karrierechancen.' },
+  { parts: ['Für die Bewerbung','beim Erasmus-Programm','braucht man','ein Motivationsschreiben','.'], valid: 'Für die Bewerbung beim Erasmus-Programm braucht man ein Motivationsschreiben.' },
+  { parts: ['Das Stipendium','ermöglicht es','vielen Studierenden,','im Ausland','zu studieren','.'], valid: 'Das Stipendium ermöglicht es vielen Studierenden, im Ausland zu studieren.' },
+  { parts: ['Im Ausland','sammelt man','wertvolle praktische Erfahrungen','für den späteren Beruf','.'], valid: 'Im Ausland sammelt man wertvolle praktische Erfahrungen für den späteren Beruf.' },
+  { parts: ['Beim Vorstellungsgespräch','sollte man','seinen Lebenslauf','gut kennen','.'], valid: 'Beim Vorstellungsgespräch sollte man seinen Lebenslauf gut kennen.' },
+  { parts: ['Man kann sich','in einem Auslandsjahr','nicht nur fachlich,','sondern auch','persönlich weiterentwickeln','.'], valid: 'Man kann sich in einem Auslandsjahr nicht nur fachlich, sondern auch persönlich weiterentwickeln.' },
+  { parts: ['Die Anerkennung','ausländischer Abschlüsse','kann','manchmal','kompliziert sein','.'], valid: 'Die Anerkennung ausländischer Abschlüsse kann manchmal kompliziert sein.' }
+];
+
+let sbCurrent = 0;
+let sbDragged = null;
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+function sbInit() { sbCurrent = 0; sbRender(); }
+
+function sbRender() {
+  const data = satzbauData[sbCurrent];
+  document.getElementById('sbCounter').textContent = 'Aufgabe '+(sbCurrent+1)+' von '+satzbauData.length;
+  document.getElementById('sbZone').innerHTML = '';
+  document.getElementById('sbFeedback').className = 'sb-feedback';
+  document.getElementById('sbFeedback').textContent = '';
+  const shuffled = shuffle([...data.parts]);
+  const bank = document.getElementById('sbBank');
+  bank.innerHTML = '';
+  shuffled.forEach(p => bank.appendChild(createChip(p)));
+  setupDropZone(document.getElementById('sbZone'));
+  setupDropZone(bank);
+}
+
+function createChip(text) {
+  const chip = document.createElement('div');
+  chip.className = 'sb-chip' + (/^[.!?]$/.test(text) ? ' punct' : '');
+  chip.textContent = text;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', e => { sbDragged = chip; chip.classList.add('dragging'); });
+  chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+  return chip;
+}
+
+function setupDropZone(zone) {
+  zone.addEventListener('dragover', e => e.preventDefault());
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    if(!sbDragged) return;
+    const afterEl = getDragAfterElement(zone, e.clientX);
+    if(afterEl) zone.insertBefore(sbDragged, afterEl);
+    else zone.appendChild(sbDragged);
+    sbDragged = null;
+  });
+}
+
+function getDragAfterElement(container, x) {
+  const els = [...container.querySelectorAll('.sb-chip:not(.dragging)')];
+  return els.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = x - box.left - box.width/2;
+    if(offset < 0 && offset > closest.offset) return {offset, element: child};
+    return closest;
+  }, {offset: Number.NEGATIVE_INFINITY}).element;
+}
+
+function sbCheck() {
+  const chips = [...document.getElementById('sbZone').querySelectorAll('.sb-chip')];
+  const built = chips.map(c=>c.textContent).join(' ').replace(/ ([.!?])/g,'$1');
+  const fb = document.getElementById('sbFeedback');
+  if(built === satzbauData[sbCurrent].valid) {
+    fb.className = 'sb-feedback correct';
+    fb.textContent = '✔ Richtig! ' + built;
+    if(sbCurrent === satzbauData.length-1) timerStop(2);
+  } else {
+    fb.className = 'sb-feedback wrong';
+    fb.textContent = '✘ Nicht ganz. Versuche es noch einmal!';
+  }
+}
+
+function sbReset() { sbRender(); }
+function sbNext() { if(sbCurrent < satzbauData.length-1) { sbCurrent++; sbRender(); } }
+function sbPrev() { if(sbCurrent > 0) { sbCurrent--; sbRender(); } }
+
+// --- WORTSCHATZ ---
+const vocabData = [
+  { type:'n', en:'scholarship / grant', artikel:'das', wort:'Stipendium', plural:'Stipendien', img:'1438072', example:'Das Erasmus-Programm vergibt ein Stipendium an Studierende.' },
+  { type:'n', en:'timetable / schedule', artikel:'der', wort:'Stundenplan', plural:'Stundenpläne', img:'1545756', example:'Am Anfang des Semesters stellt man seinen Stundenplan zusammen.' },
+  { type:'n', en:'semester ticket (transit pass)', artikel:'das', wort:'Semesterticket', plural:'Semestertickets', img:'1427577', example:'Mit dem Semesterticket kann man den Nahverkehr kostenlos nutzen.' },
+  { type:'n', en:'motivation letter', artikel:'das', wort:'Motivationsschreiben', plural:'Motivationsschreiben', img:'590016', example:'Das Motivationsschreiben ist Teil der Erasmus-Bewerbung.' },
+  { type:'n', en:'job interview', artikel:'das', wort:'Vorstellungsgespräch', plural:'Vorstellungsgespräche', img:'3184611', example:'Beim Vorstellungsgespräch fragt man nach Erfahrungen und Stärken.' },
+  { type:'n', en:'CV, curriculum vitae', artikel:'der', wort:'Lebenslauf', plural:'Lebensläufe', img:'590016', example:'Der Lebenslauf sollte alle relevanten Erfahrungen enthalten.' },
+  { type:'n', en:'application portfolio / folder', artikel:'die', wort:'Bewerbungsmappe', plural:'Bewerbungsmappen', img:'4065899', example:'Die Bewerbungsmappe enthält Lebenslauf und Motivationsschreiben.' },
+  { type:'n', en:'recognition (of qualifications)', artikel:'die', wort:'Anerkennung', plural:'Anerkennungen', img:'1181533', example:'Die Anerkennung ausländischer Abschlüsse kann Zeit in Anspruch nehmen.' },
+  { type:'n', en:'vocational guidance', artikel:'die', wort:'Berufsberatung', plural:'Berufsberatungen', img:'3184360', example:'Die Berufsberatung hilft dir, eine Stelle im Ausland zu finden.' },
+  { type:'n', en:'credit point (ECTS)', artikel:'der', wort:'Leistungspunkt', plural:'Leistungspunkte', img:'1438073', example:'Für jede Lehrveranstaltung bekommt man Leistungspunkte.' },
+  { type:'v', en:'to borrow specialist literature', wort:'Fachliteratur ausleihen', img:'694740', example:'Ich habe für meine Hausarbeit Fachliteratur ausgeliehen.' },
+  { type:'v', en:'to gain practical experience', wort:'praktische Erfahrungen sammeln', img:'3184338', example:'Im Ausland kann man wertvolle praktische Erfahrungen sammeln.' }
+];
+
+function renderVocab() {
+  const container = document.getElementById('vocabContainer');
+  if(container.children.length > 0) return;
+  vocabData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    const imgSrc = `https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400`;
+    if(v.type === 'n') {
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+        <div class="vocab-body">
+          <div class="vocab-en">${v.en}</div>
+          <div class="vocab-fields">
+            <input data-answer="${v.artikel}" oninput="vocabLiveCheck(this)" placeholder="Artikel">
+            <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+            <input data-answer="${v.plural}" oninput="vocabLiveCheck(this)" placeholder="Plural">
+          </div>
+          <div class="vocab-example">${v.example}</div>
+        </div>`;
+    } else {
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+        <div class="vocab-body">
+          <div class="vocab-en">${v.en}</div>
+          <div class="vocab-fields">
+            <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+          </div>
+          <div class="vocab-example">${v.example}</div>
+        </div>`;
+    }
+    container.appendChild(card);
+  });
+}
+
+function vocabLiveCheck(inp) {
+  const ans = (inp.dataset.answer||'').trim().toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val.length === 0) return;
+  if(ans.startsWith(val)) {
+    if(val === ans) { inp.classList.add('correct'); checkAllVocab(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllVocab() {
+  const inputs = document.querySelectorAll('#vocabContainer input');
+  if([...inputs].every(i => i.classList.contains('correct'))) timerStop(3);
+}
+
+function resetVocab() {
+  document.querySelectorAll('#vocabContainer input').forEach(i => {
+    i.value=''; i.classList.remove('correct','wrong');
+  });
+  timerResetOne(3); timerAutoStart(3);
+}
+
+// Init
+loadBestTimes();
+</script>
+</body>
+</html>
