@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DE B2 1053R – Die Möglichkeiten des Internets</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 24px 28px;
+}
+.header h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.header p { opacity: 0.85; font-size: 0.9rem; }
+nav {
+  display: flex;
+  border-bottom: 2px solid #e8e8e8;
+  background: #f9f9f9;
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s;
+}
+.nav-btn:hover { background: #f0f0f0; }
+.nav-btn.active {
+  background: white;
+  border-bottom: 3px solid #667eea;
+  color: #667eea;
+  font-weight: bold;
+}
+.nav-emoji { font-size: 1.3rem; margin-bottom: 2px; }
+.nav-label { font-size: 0.65rem; }
+.tab-content { display: none; padding: 24px; }
+.tab-content.active { display: block; }
+
+/* Tab banner */
+.tab-banner {
+  width: 100%; height: 180px; object-fit: cover;
+  border-radius: 8px; margin-bottom: 18px;
+  display: block;
+}
+
+/* Vorentlastung */
+.vpc-intro { font-size: 1rem; margin-bottom: 16px; color: #444; }
+.vocab-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.vpc {
+  background: #f5f3ff;
+  border-left: 4px solid #667eea;
+  border-radius: 8px;
+  padding: 12px;
+}
+.vpc-word { font-weight: bold; color: #333; font-size: 0.95rem; }
+.vpc-en { color: #888; font-size: 0.8rem; margin: 2px 0; font-style: italic; }
+.vpc-ex { color: #555; font-size: 0.82rem; }
+.einstieg-box {
+  background: #fff8e1;
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+}
+.einstieg-box h3 { color: #b45309; margin-bottom: 10px; font-size: 0.95rem; }
+.einstieg-box ol { padding-left: 18px; }
+.einstieg-box li { margin-bottom: 8px; color: #555; font-size: 0.9rem; }
+
+/* Lesetext */
+.story-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: #333;
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: justify;
+  hyphens: auto;
+}
+.section-title {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 22px 0 8px;
+  font-family: 'Segoe UI', sans-serif;
+}
+.story-text p {
+  margin-bottom: 14px;
+  text-indent: 1.5em;
+}
+.story-text p.no-indent { text-indent: 0; }
+
+/* vocab highlight */
+.vhl {
+  background: #fff176;
+  border-radius: 3px;
+  cursor: help;
+  position: relative;
+  padding: 0 1px;
+}
+.vhl::after {
+  content: attr(data-tip);
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+.vhl:hover::after { display: block; }
+
+/* Lückentext */
+.ctrl-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.ctrl-bar .btns { display: flex; gap: 8px; flex: 1; }
+.timer-disp { font-size: 0.85rem; color: #888; margin-left: auto; }
+.gap-list { list-style: none; }
+.gap-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #f9f9f9;
+  flex-wrap: wrap;
+}
+.gap-num {
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.gap-text { flex: 1; color: #444; font-size: 0.9rem; min-width: 180px; }
+.gap-inp {
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+  width: 200px;
+  outline: none;
+}
+.gap-inp:focus { border-color: #667eea; }
+.gap-inp.correct { border-color: #22c55e; background: #f0fdf4; }
+.gap-inp.wrong { border-color: #ef4444; background: #fef2f2; }
+.gap-feedback { font-size: 0.85rem; min-width: 24px; }
+.score-line { text-align: right; color: #888; font-size: 0.85rem; margin-top: 8px; }
+
+/* Richtig/Falsch */
+.rf-list { list-style: none; }
+.rf-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.rf-num {
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.rf-stmt { flex: 1; color: #444; font-size: 0.9rem; line-height: 1.5; }
+.rf-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.rf-btn {
+  padding: 6px 14px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: white;
+  transition: all 0.15s;
+}
+.rf-btn:hover:not(:disabled) { background: #f0f0f0; }
+.rf-btn.correct { background: #22c55e; color: white; border-color: #22c55e; }
+.rf-btn.wrong { background: #ef4444; color: white; border-color: #ef4444; }
+.rf-btn:disabled { cursor: default; }
+
+/* Satzbau */
+.sb-task {
+  margin-bottom: 22px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 14px;
+}
+.sb-sentence-num {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 8px;
+  font-family: 'Segoe UI', sans-serif;
+}
+.sb-drop-zone {
+  min-height: 46px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+  background: white;
+  transition: border-color 0.2s, background 0.2s;
+}
+.sb-drop-zone.drag-over { border-color: #667eea; background: #f0edff; }
+.chip-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+  min-height: 36px;
+}
+.chip {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 0.88rem;
+  cursor: grab;
+  user-select: none;
+  border: 1px solid #c7d2fe;
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+.chip:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+.chip:active { cursor: grabbing; }
+.chip.punct { background: #ede9fe; color: #6d28d9; border-color: #c4b5fd; }
+.sb-feedback { font-size: 0.85rem; min-height: 1.2em; margin-bottom: 6px; }
+.sb-feedback.ok { color: #22c55e; font-weight: 500; }
+.sb-feedback.err { color: #ef4444; }
+.sb-btn-row { display: flex; gap: 6px; }
+
+/* Buttons */
+.btn {
+  padding: 7px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.btn-primary { background: #667eea; color: white; }
+.btn-primary:hover { background: #5a6fd6; }
+.btn-secondary { background: #f3f4f6; color: #374151; }
+.btn-secondary:hover { background: #e5e7eb; }
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 14px;
+  font-size: 0.75rem;
+  color: #888;
+  border-top: 1px solid #eee;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Die Möglichkeiten des Internets</h1>
+    <p>B2.1 · Einheit 5 · Lesen · Lektion 1053R</p>
+  </div>
+
+  <nav>
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">📖</span>
+      <span class="nav-label">Lesetext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">🔘</span>
+      <span class="nav-label">Richtig/Falsch</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(4)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 0 — Vorentlastung
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content active" id="tab-0">
+    <img src="https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Internet Technology">
+    <p class="vpc-intro">Lernen Sie die Schlüsselwörter kennen, bevor Sie den Text lesen:</p>
+    <div class="vocab-preview-grid">
+      <div class="vpc">
+        <div class="vpc-word">die Suchmaschine, -n</div>
+        <div class="vpc-en">search engine</div>
+        <div class="vpc-ex">Die bekannteste Suchmaschine ist Google.</div>
+      </div>
+      <div class="vpc">
+        <div class="vpc-word">die Entwicklung, -en</div>
+        <div class="vpc-en">development</div>
+        <div class="vpc-ex">Man kann viel über die Entwicklung des Internets sprechen.</div>
+      </div>
+      <div class="vpc">
+        <div class="vpc-word">recherchieren</div>
+        <div class="vpc-en">to research, to look up</div>
+        <div class="vpc-ex">Im Internet kann man viele Informationen recherchieren.</div>
+      </div>
+      <div class="vpc">
+        <div class="vpc-word">einschränken</div>
+        <div class="vpc-en">to restrict, to limit</div>
+        <div class="vpc-ex">Es gibt Webseiten, die man einschränken sollte.</div>
+      </div>
+      <div class="vpc">
+        <div class="vpc-word">die Möglichkeit, -en</div>
+        <div class="vpc-en">possibility, opportunity</div>
+        <div class="vpc-ex">Das Internet bietet viele Möglichkeiten.</div>
+      </div>
+      <div class="vpc">
+        <div class="vpc-word">wahrscheinlich</div>
+        <div class="vpc-en">probably, likely</div>
+        <div class="vpc-ex">Das Internet ist wahrscheinlich die interessanteste Erfindung.</div>
+      </div>
+      <div class="vpc">
+        <div class="vpc-word">die Aussage, -n</div>
+        <div class="vpc-en">statement, claim</div>
+        <div class="vpc-ex">Seine Aussage vor dem Gericht war nicht wahrheitsgemäß.</div>
+      </div>
+      <div class="vpc">
+        <div class="vpc-word">die Erfindung, -en</div>
+        <div class="vpc-en">invention</div>
+        <div class="vpc-ex">Das Internet ist die interessanteste Erfindung der letzten Jahre.</div>
+      </div>
+    </div>
+    <div class="einstieg-box">
+      <h3>💬 Einstiegsfragen — Diskutieren Sie:</h3>
+      <ol>
+        <li>Wie viele Stunden pro Tag verbringen Sie im Internet? Was machen Sie dort am liebsten?</li>
+        <li>Welche konkreten Vorteile hat das Internet für Sie persönlich? Nennen Sie drei Beispiele.</li>
+        <li>Gibt es Situationen, in denen das Internet das Leben eher erschwert als erleichtert?</li>
+        <li>Könnten Sie sich ein Leben ohne Internet vorstellen? Warum oder warum nicht?</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 1 — Lesetext
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-1">
+    <img src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Laptop Internet">
+    <div class="story-text" id="lesetext">
+      <div class="section-title">Eine eigene Welt</div>
+      <p class="no-indent">Das Internet stellt heute eine eigene Welt dar. Arbeiten, sich unterhalten, Essen bestellen, einkaufen, lieben – alles geht übers Internet. Heute geht absolut nichts mehr ohne Internet. Einkaufen, zahlen, lernen, sich unterhalten – das Internet bietet unendliche <span class="vhl" data-tip="possibilities">Möglichkeiten</span>. Internet gehört zum Alltag, es hat unser Leben erleichtert und nachhaltig verändert.</p>
+
+      <div class="section-title">Die Geschichte des Internets</div>
+      <p>Die ersten Gedanken über die Schaffung eines computergesteuerten Netzwerkes entstanden während des Kalten Krieges. Die Amerikaner wollten dadurch den Austausch von Informationen und Daten erleichtern und beschleunigen. 1965 wurde dieses Netzwerk für militärische Zwecke geöffnet, sodass ab diesem Zeitpunkt auch die amerikanischen Universitäten Zugriff auf die hier gespeicherten Daten hatten.</p>
+      <p>Die Jahre 1970–1980 waren sehr wichtig für die <span class="vhl" data-tip="development">Entwicklung</span> des Internets. Schrittweise verbreitete sich das Internet auch über die Grenzen der USA hinaus. 1984 wurde die erste E-Mail nach Deutschland verschickt, an die Universität Karlsruhe. 1993 wurden die ersten Webbrowser entwickelt und ein Jahr später die ersten <span class="vhl" data-tip="search engines">Suchmaschinen</span>. Google nahm im Jahr 1998 seinen Betrieb auf und wurde mit der Zeit der bekannteste Browser überhaupt. 2003 entstand Facebook, 2005 YouTube. Seitdem ist das Internet fester Teil unseres Lebens.</p>
+
+      <div class="section-title">Das Internet im Alltag</div>
+      <p>Wenn man ein Referat schreiben muss, beginnt man zuerst, das betreffende Thema im Internet zu <span class="vhl" data-tip="research">recherchieren</span>. Die Informationsflut ist riesengroß und die Auswahl der notwendigen Daten kann schon eine Herausforderung darstellen. Die guten von den schlechten Informationen zu trennen, kann manchmal kompliziert sein. Fakt ist, dass heute die Kommunikation größtenteils online erfolgt.</p>
+
+      <div class="section-title">Soziale Netzwerke</div>
+      <p>Es ist absolut klar, dass das Internet unser Leben verändert hat. Wer schreibt heute noch Briefe an alte Freunde oder Bekannte? Es geht viel schneller, wenn man diese über Facebook oder andere soziale Medien sucht. Fast jeder von uns hat auf Facebook einen Freundes- und Bekanntenkreis, mit dem er sein Leben teilt. Ein Foto aus dem Urlaub hochladen oder einen kleinen Kommentar verfassen – unser Leben mit anderen zu teilen ist absolut normal. Aber wo bleibt noch das Privatleben in diesem Fall?</p>
+
+      <div class="section-title">Online kennenlernen</div>
+      <p>Wer stundenlang im Internet surft, hat bestimmt keine Zeit mehr, in einen Club zu gehen oder neue Leute kennenzulernen. Und warum auch? Im Internet gibt es so viele Onlineportale, auf denen man bequem von zu Hause aus neue Leute kennenlernen kann. Außerdem besteht nicht mehr die <span class="vhl" data-tip="possibility">Möglichkeit</span>, von dem Partner direkt und von Angesicht zu Angesicht abgewiesen zu werden. Man muss nicht mehr stundenlang vor dem Spiegel stehen, um sich zu schminken oder in einem Geschäft verzweifelt neue Kleider suchen.</p>
+
+      <div class="section-title">Essen bestellen</div>
+      <p>Stell dir vor, du sitzt bequem in deinem Sessel zu Hause und siehst deinen Lieblingsfilm. Du hast Hunger, aber keine Lust zu kochen. Dich schnell anzuziehen und auszugehen oder aber einfach dein Lieblingsessen im Internet zu bestellen? Letzteres stellt eine besonders angenehme Alternative dar, insbesondere wenn man kein Kochspezialist ist. Griechisch, Chinesisch, Japanisch oder Mexikanisch? Die Auswahl ist unendlich, die Kosten sind nicht groß und du kannst auch weiterhin deinen Film verfolgen.</p>
+
+      <div class="section-title">Online einkaufen</div>
+      <p>Was kannst du machen, wenn dein bester Freund heute Geburtstag hat, du das aber vergessen hast? Zum Glück gibt es viele virtuelle Shoppingmöglichkeiten. Du kannst ihm Bücher, Schmuck, einen Gutschein, Süßigkeiten oder Geld schenken – und das mithilfe des Internets. Mit nur einem Klick kannst du den schönsten Blumenstrauß kaufen und rechtzeitig liefern lassen.</p>
+
+      <div class="section-title">Online-Banking</div>
+      <p>Mithilfe des Internets wird auch der Weg zur Bank überflüssig. Rechnungen können online bezahlt werden, Geld kann direkt von zu Hause aus überall auf der Welt überwiesen werden. Und wenn man von heute auf morgen eine Stadt besichtigen möchte, kann man ganz zügig eine Reservierung im besten Hotel mit Online-Banking vornehmen. Flugtickets und Fahrkarten können ebenfalls online bezahlt werden.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 2 — Lückentext (Timer 2)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-2">
+    <img src="https://images.pexels.com/photos/270366/pexels-photo-270366.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Keyboard Typing">
+    <div class="ctrl-bar">
+      <div class="btns">
+        <button class="btn btn-secondary" onclick="resetGap()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-disp" id="timerDisp2">⏱ 00:00</div>
+    </div>
+    <ul class="gap-list" id="gapList">
+      <li class="gap-item">
+        <span class="gap-num">1</span>
+        <span class="gap-text">Die bekannteste ___ ist Google.</span>
+        <input type="text" class="gap-inp" data-answer="suchmaschine" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">2</span>
+        <span class="gap-text">Im Internet kann man viele Informationen ___.</span>
+        <input type="text" class="gap-inp" data-answer="recherchieren" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">3</span>
+        <span class="gap-text">Das Internet bietet unendliche ___.</span>
+        <input type="text" class="gap-inp" data-answer="möglichkeiten" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">4</span>
+        <span class="gap-text">Das Internet ist ___ die interessanteste Erfindung der letzten Jahre.</span>
+        <input type="text" class="gap-inp" data-answer="wahrscheinlich" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">5</span>
+        <span class="gap-text">Es gibt Webseiten, die man ___ sollte.</span>
+        <input type="text" class="gap-inp" data-answer="einschränken" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">6</span>
+        <span class="gap-text">Die Jahre 1970–1980 waren sehr wichtig für die ___ des Internets.</span>
+        <input type="text" class="gap-inp" data-answer="entwicklung" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">7</span>
+        <span class="gap-text">1993 wurden die ersten ___ entwickelt.</span>
+        <input type="text" class="gap-inp" data-answer="webbrowser" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">8</span>
+        <span class="gap-text">Google nahm im Jahr 1998 seinen ___ auf.</span>
+        <input type="text" class="gap-inp" data-answer="betrieb" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">9</span>
+        <span class="gap-text">2003 entstand ___.</span>
+        <input type="text" class="gap-inp" data-answer="facebook" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">10</span>
+        <span class="gap-text">Mithilfe des Internets wird der Weg zur Bank ___.</span>
+        <input type="text" class="gap-inp" data-answer="überflüssig" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">11</span>
+        <span class="gap-text">Die guten von den schlechten Informationen zu trennen kann manchmal ___ sein.</span>
+        <input type="text" class="gap-inp" data-answer="kompliziert" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+      <li class="gap-item">
+        <span class="gap-num">12</span>
+        <span class="gap-text">Die ersten Ideen entstanden während des ___.</span>
+        <input type="text" class="gap-inp" data-answer="kalten krieges" oninput="liveCheck(this)" placeholder="">
+        <span class="gap-feedback"></span>
+      </li>
+    </ul>
+    <div class="score-line" id="gapScore">0 / 12</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 3 — Richtig/Falsch (Timer 3)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-3">
+    <img src="https://images.pexels.com/photos/1181325/pexels-photo-1181325.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Internet Quiz">
+    <div class="ctrl-bar">
+      <div class="btns">
+        <button class="btn btn-secondary" onclick="resetRF()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-disp" id="timerDisp3">⏱ 00:00</div>
+    </div>
+    <ul class="rf-list">
+      <!-- mcClick(btn, userSaysTrue, statementIsTrue) -->
+      <li class="rf-item">
+        <span class="rf-num">1</span>
+        <span class="rf-stmt">Das Internet entstand ursprünglich für militärische Zwecke.</span>
+        <div class="rf-btns">
+          <button class="rf-btn" onclick="mcClick(this, true, true)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, true)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <span class="rf-num">2</span>
+        <span class="rf-stmt">1984 wurde die erste E-Mail nach Frankreich verschickt.</span>
+        <div class="rf-btns">
+          <button class="rf-btn" onclick="mcClick(this, true, false)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, false)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <span class="rf-num">3</span>
+        <span class="rf-stmt">Google nahm seinen Betrieb im Jahr 1998 auf.</span>
+        <div class="rf-btns">
+          <button class="rf-btn" onclick="mcClick(this, true, true)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, true)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <span class="rf-num">4</span>
+        <span class="rf-stmt">Facebook wurde vor YouTube gegründet.</span>
+        <div class="rf-btns">
+          <button class="rf-btn" onclick="mcClick(this, true, true)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, true)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <span class="rf-num">5</span>
+        <span class="rf-stmt">Mit Online-Banking kann man Rechnungen bezahlen und Geld überweisen.</span>
+        <div class="rf-btns">
+          <button class="rf-btn" onclick="mcClick(this, true, true)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, true)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <span class="rf-num">6</span>
+        <span class="rf-stmt">Man kann im Internet keine Mahlzeiten bestellen.</span>
+        <div class="rf-btns">
+          <button class="rf-btn" onclick="mcClick(this, true, false)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, false)">Falsch</button>
+        </div>
+      </li>
+    </ul>
+    <div class="score-line" id="rfScoreDisp">0 / 6</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB 4 — Satzbau (Timer 4)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-4">
+    <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Sentence Building">
+    <div class="ctrl-bar">
+      <div class="btns">
+        <button class="btn btn-secondary" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+      </div>
+      <div class="timer-disp" id="timerDisp4">⏱ 00:00</div>
+    </div>
+    <div id="sbContainer"></div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+'use strict';
+const TIMER_PREFIX = 'B2_1053R_';
+
+// ─── Timer System ─────────────────────────────────────────────────────────────
+const timerState = {};
+function saveBestTime(id, secs) {
+  try { localStorage.setItem(TIMER_PREFIX + id, secs); } catch(e) {}
+}
+function loadBestTime(id) {
+  try { const v = localStorage.getItem(TIMER_PREFIX + id); return v !== null ? parseInt(v) : null; } catch(e) { return null; }
+}
+function fmtTime(s) {
+  const m = Math.floor(s / 60), sec = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
+function timerInit(id) {
+  if (!timerState[id]) timerState[id] = { secs: 0, running: false, done: false };
+}
+function timerStart(id) {
+  timerInit(id);
+  const st = timerState[id];
+  if (st.running || st.done) return;
+  st.running = true;
+  st.interval = setInterval(() => { st.secs++; updateTimerDisp(id); }, 1000);
+}
+function timerStop(id) {
+  const st = timerState[id];
+  if (!st) return;
+  clearInterval(st.interval);
+  st.running = false;
+  st.done = true;
+  const best = loadBestTime(id);
+  if (best === null || st.secs < best) saveBestTime(id, st.secs);
+  updateTimerDisp(id);
+}
+function updateTimerDisp(id) {
+  const el = document.getElementById('timerDisp' + id);
+  if (!el) return;
+  const st = timerState[id];
+  if (!st) { el.textContent = '⏱ 00:00'; return; }
+  const best = loadBestTime(id);
+  const bestStr = best !== null ? ' · Best: ' + fmtTime(best) : '';
+  el.textContent = (st.done ? '✅ ' : '⏱ ') + fmtTime(st.secs) + bestStr;
+}
+function timerAutoStart(id) {
+  timerInit(id);
+  timerStart(id);
+}
+
+// ─── Tab Navigation ───────────────────────────────────────────────────────────
+function showTab(idx) {
+  document.querySelectorAll('.tab-content').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  if (idx === 2 && !(timerState[2] && timerState[2].done)) timerStart(2);
+  if (idx === 3 && !(timerState[3] && timerState[3].done)) timerStart(3);
+  if (idx === 4) { buildSb(); if (!(timerState[4] && timerState[4].done)) timerStart(4); }
+  [2, 3, 4].forEach(updateTimerDisp);
+}
+
+// ─── Lückentext ───────────────────────────────────────────────────────────────
+const GAP_TOTAL = 12;
+function liveCheck(inp) {
+  const ans = inp.dataset.answer.toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  const fb = inp.nextElementSibling;
+  if (val.length === 0) {
+    inp.classList.remove('correct', 'wrong');
+    fb.textContent = '';
+  } else if (ans.startsWith(val)) {
+    inp.classList.remove('wrong');
+    if (val === ans) {
+      inp.classList.add('correct');
+      fb.textContent = '✓';
+      fb.style.color = '#22c55e';
+    } else {
+      inp.classList.remove('correct');
+      fb.textContent = '';
+    }
+  } else {
+    inp.classList.remove('correct');
+    inp.classList.add('wrong');
+    fb.textContent = '✗';
+    fb.style.color = '#ef4444';
+  }
+  updateGapScore();
+}
+function updateGapScore() {
+  const correct = document.querySelectorAll('#gapList .gap-inp.correct').length;
+  document.getElementById('gapScore').textContent = correct + ' / ' + GAP_TOTAL;
+  if (correct === GAP_TOTAL) timerStop(2);
+}
+function resetGap() {
+  document.querySelectorAll('#gapList .gap-inp').forEach(inp => {
+    inp.value = '';
+    inp.classList.remove('correct', 'wrong');
+    inp.nextElementSibling.textContent = '';
+  });
+  document.getElementById('gapScore').textContent = '0 / ' + GAP_TOTAL;
+}
+
+// ─── Richtig / Falsch ─────────────────────────────────────────────────────────
+let rfAnswered = 0, rfCorrect = 0;
+const RF_TOTAL = 6;
+function mcClick(btn, userSaysTrue, statementIsTrue) {
+  const item = btn.closest('.rf-item');
+  if (item.dataset.done) return;
+  item.dataset.done = '1';
+  rfAnswered++;
+  const correct = (userSaysTrue === statementIsTrue);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    // highlight the correct button
+    item.querySelectorAll('.rf-btn').forEach(b => {
+      const bTrue = b.getAttribute('onclick').includes(', true, ');
+      if (bTrue === statementIsTrue) b.classList.add('correct');
+    });
+  }
+  if (correct) rfCorrect++;
+  item.querySelectorAll('.rf-btn').forEach(b => b.disabled = true);
+  document.getElementById('rfScoreDisp').textContent = rfCorrect + ' / ' + RF_TOTAL;
+  if (rfAnswered === RF_TOTAL) timerStop(3);
+}
+function resetRF() {
+  rfAnswered = 0; rfCorrect = 0;
+  document.querySelectorAll('.rf-item').forEach(item => {
+    delete item.dataset.done;
+    item.querySelectorAll('.rf-btn').forEach(b => {
+      b.classList.remove('correct', 'wrong');
+      b.disabled = false;
+    });
+  });
+  document.getElementById('rfScoreDisp').textContent = '0 / ' + RF_TOTAL;
+}
+
+// ─── Satzbau Drag-Drop ────────────────────────────────────────────────────────
+let sbBuilt = false;
+let sbDragged = null;
+const sbSentences = [
+  { parts: ['Das', 'Internet', 'stellt', 'heute', 'eine', 'eigene', 'Welt', 'dar', '.'] },
+  { parts: ['Die', 'bekannteste', 'Suchmaschine', 'ist', 'Google', '.'] },
+  { parts: ['Im Internet', 'kann', 'man', 'viele', 'Informationen', 'recherchieren', '.'] },
+  { parts: ['1984', 'wurde', 'die', 'erste', 'E-Mail', 'nach', 'Deutschland', 'verschickt', '.'] },
+  { parts: ['Google', 'nahm', 'im Jahr', '1998', 'seinen', 'Betrieb', 'auf', '.'] },
+  { parts: ['Fakt', 'ist', ',', 'dass', 'heute', 'die', 'Kommunikation', 'größtenteils', 'online', 'erfolgt', '.'] },
+  { parts: ['Mithilfe des Internets', 'wird', 'auch', 'der', 'Weg', 'zur', 'Bank', 'überflüssig', '.'] }
+];
+const PUNCT_SET = new Set([',', '.', '?', '!', ';', ':']);
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function makeChip(word, sbIdx) {
+  const chip = document.createElement('div');
+  chip.className = 'chip' + (PUNCT_SET.has(word) ? ' punct' : '');
+  chip.textContent = word;
+  chip.draggable = true;
+  chip.dataset.word = word;
+  chip.dataset.sb = String(sbIdx);
+  chip.addEventListener('dragstart', () => { sbDragged = chip; chip.style.opacity = '0.45'; });
+  chip.addEventListener('dragend', () => { chip.style.opacity = '1'; sbDragged = null; });
+  return chip;
+}
+
+function buildSb() {
+  if (sbBuilt) return;
+  sbBuilt = true;
+  const cont = document.getElementById('sbContainer');
+  sbSentences.forEach((sent, idx) => {
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'sb-task';
+    taskDiv.innerHTML = '<div class="sb-sentence-num">Satz ' + (idx + 1) + '</div>';
+
+    // Drop zone
+    const dz = document.createElement('div');
+    dz.className = 'sb-drop-zone';
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault();
+      dz.classList.remove('drag-over');
+      if (!sbDragged || parseInt(sbDragged.dataset.sb) !== idx) return;
+      dz.appendChild(sbDragged);
+    });
+
+    // Chip tray
+    const tray = document.createElement('div');
+    tray.className = 'chip-tray';
+    tray.addEventListener('dragover', e => e.preventDefault());
+    tray.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!sbDragged || parseInt(sbDragged.dataset.sb) !== idx) return;
+      tray.appendChild(sbDragged);
+    });
+
+    shuffle(sent.parts).forEach(word => tray.appendChild(makeChip(word, idx)));
+
+    // Feedback
+    const fb = document.createElement('div');
+    fb.className = 'sb-feedback';
+
+    // Buttons
+    const btnRow = document.createElement('div');
+    btnRow.className = 'sb-btn-row';
+
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'btn btn-primary';
+    checkBtn.style.fontSize = '0.8rem';
+    checkBtn.textContent = '✓ Prüfen';
+    checkBtn.onclick = () => checkSb(idx, dz, sent.parts, fb);
+
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'btn btn-secondary';
+    resetBtn.style.fontSize = '0.8rem';
+    resetBtn.textContent = '↺';
+    resetBtn.onclick = () => resetSb(dz, tray, fb);
+
+    btnRow.appendChild(checkBtn);
+    btnRow.appendChild(resetBtn);
+
+    taskDiv.appendChild(dz);
+    taskDiv.appendChild(tray);
+    taskDiv.appendChild(fb);
+    taskDiv.appendChild(btnRow);
+    cont.appendChild(taskDiv);
+  });
+}
+
+function checkSb(idx, dz, correctParts, fb) {
+  const placed = Array.from(dz.children).map(c => c.dataset.word);
+  if (placed.join(' ') === correctParts.join(' ')) {
+    fb.textContent = '✓ Richtig!';
+    fb.className = 'sb-feedback ok';
+    const allOk = Array.from(document.querySelectorAll('#sbContainer .sb-feedback')).every(f => f.classList.contains('ok'));
+    if (allOk) timerStop(4);
+  } else {
+    fb.textContent = '✗ Noch nicht richtig. Versuche es nochmal!';
+    fb.className = 'sb-feedback err';
+  }
+}
+
+function resetSb(dz, tray, fb) {
+  Array.from(dz.children).forEach(c => tray.appendChild(c));
+  fb.textContent = '';
+  fb.className = 'sb-feedback';
+}
+
+function resetAllSb() {
+  document.querySelectorAll('#sbContainer .sb-task').forEach((task) => {
+    const dz = task.querySelector('.sb-drop-zone');
+    const tray = task.querySelector('.chip-tray');
+    const fb = task.querySelector('.sb-feedback');
+    resetSb(dz, tray, fb);
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+timerAutoStart(2);
+[2, 3, 4].forEach(updateTimerDisp);
+</script>
+</body>
+</html>
