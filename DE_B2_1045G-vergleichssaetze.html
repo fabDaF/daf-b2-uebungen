@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1045G · Vergleichssätze</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 24px 32px;
+}
+.header h1 { font-size: 1.6rem; font-weight: 700; }
+.header p { opacity: 0.85; margin-top: 4px; font-size: 0.95rem; }
+.nav {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f8f8f8;
+}
+.nav-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 12px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: #555;
+  border-bottom: 3px solid transparent;
+  transition: background 0.2s;
+}
+.nav-btn:hover { background: #efefef; }
+.nav-btn.active { background: #fff; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
+.nav-emoji { font-size: 1.3rem; }
+.tab { display: none; padding: 28px 32px; }
+.tab.active { display: block; }
+/* Control bar */
+.control-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.control-bar .buttons { display: flex; gap: 8px; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
+.btn-reset { background: #667eea; color: #fff; }
+.btn-reset:hover { background: #5a6fd6; }
+.timer-wrap { margin-left: auto; background: #f0f0f0; border-radius: 8px; padding: 6px 14px; font-size: 0.9rem; color: #444; font-family: monospace; }
+.score-bar { display: flex; align-items: center; gap: 12px; padding: 0 0 14px; font-size: 0.92rem; color: #555; }
+.score-val { font-weight: 700; font-size: 1.1rem; color: #667eea; }
+/* === GRAMMATIK TAB === */
+.gram-section { margin-bottom: 22px; }
+.gram-section h3 { font-size: 1rem; color: #667eea; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 2px solid #e8ecff; }
+.rule-box {
+  background: #f0f4ff;
+  border-left: 4px solid #667eea;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: #333;
+}
+.rule-box.purple { background: #f9f0ff; border-left-color: #764ba2; }
+.rule-box strong { color: #667eea; }
+.rule-box.purple strong { color: #764ba2; }
+.gram-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 14px; }
+.gram-table th { background: #667eea; color: #fff; padding: 8px 12px; text-align: left; }
+.gram-table td { padding: 8px 12px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
+.gram-table tr:nth-child(even) td { background: #f8f9ff; }
+.gram-table .sit { color: #555; }
+.gram-table .irr { color: #764ba2; font-weight: 600; }
+.gram-table .conn { display: inline-block; background: #667eea; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 0.82rem; margin-right: 4px; }
+.gram-table .conn.purp { background: #764ba2; }
+.kii-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 8px; }
+.kii-card { background: #f8f9ff; border: 1px solid #e0e4ff; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; }
+.kii-card h4 { color: #667eea; margin-bottom: 6px; font-size: 0.88rem; }
+.kii-card p { line-height: 1.8; }
+/* === ZUORDNUNG TAB === */
+.zuord-list { list-style: none; counter-reset: item; }
+.zuord-item {
+  counter-increment: item;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.zuord-item:last-child { border-bottom: none; }
+.zuord-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.zuord-row::before { content: counter(item) "."; color: #667eea; font-weight: 700; min-width: 22px; font-size: 0.95rem; }
+.zuord-sentence { font-size: 0.95rem; color: #333; flex: 1; min-width: 240px; }
+.zuord-hint { font-size: 0.8rem; color: #999; font-style: italic; }
+.zuord-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.zb {
+  padding: 5px 12px;
+  border: 2px solid #ccc;
+  background: #fff;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #555;
+  transition: all 0.15s;
+}
+.zb:hover:not(:disabled) { border-color: #667eea; color: #667eea; }
+.zb.ok { background: #43a047; border-color: #43a047; color: #fff; }
+.zb.err { background: #e53935; border-color: #e53935; color: #fff; }
+.zb:disabled { cursor: default; opacity: 0.7; }
+.zuord-fb { font-size: 0.82rem; font-weight: 600; margin-top: 4px; }
+.zuord-fb.ok { color: #43a047; }
+.zuord-fb.err { color: #e53935; }
+/* === LÜCKENTEXT === */
+.luecke-list { list-style: none; counter-reset: item; }
+.luecke-list li {
+  counter-increment: item;
+  display: flex; align-items: baseline; flex-wrap: wrap;
+  gap: 6px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; line-height: 1.8;
+}
+.luecke-list li::before { content: counter(item) "."; color: #667eea; font-weight: 700; min-width: 22px; }
+.luecke-inp {
+  border: none; border-bottom: 2px solid #ccc; outline: none;
+  font-size: 0.93rem; padding: 2px 6px; width: 120px;
+  background: transparent; transition: border-color 0.2s;
+}
+.luecke-inp:focus { border-color: #667eea; }
+.luecke-inp.ok { border-color: #43a047; background: #e8f5e9; }
+.luecke-inp.err { border-color: #e53935; background: #ffebee; }
+.luecke-hint { font-size: 0.78rem; color: #888; font-style: italic; }
+/* === SATZBAU === */
+.sb-section { margin-bottom: 24px; }
+.sb-sentence-label { font-size: 0.85rem; color: #888; margin-bottom: 6px; }
+.sb-chips-src { display: flex; flex-wrap: wrap; gap: 6px; min-height: 38px; padding: 6px; background: #f5f5f5; border-radius: 6px; border: 1px dashed #ccc; margin-bottom: 8px; }
+.sb-drop-zone { min-height: 44px; border: 2px dashed #667eea; border-radius: 8px; padding: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: #f8f9ff; margin-bottom: 6px; }
+.sb-drop-zone.drag-over { background: #e8eaff; }
+.chip-sb { background: #667eea; color: #fff; border-radius: 16px; padding: 5px 12px; font-size: 0.85rem; cursor: grab; user-select: none; }
+.chip-sb.punct { background: #764ba2; }
+.chip-sb.conn { background: #43a047; }
+.chip-sb:active { cursor: grabbing; }
+.sb-fb { font-size: 0.85rem; min-height: 18px; font-weight: 600; }
+.sb-fb.ok { color: #43a047; }
+.sb-fb.err { color: #e53935; }
+.footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; border-top: 1px solid #f0f0f0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Vergleichssätze</h1>
+    <p>B2 · Einheit 4 · Grammatik · 1045G</p>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab(0,this)"><span class="nav-emoji">📖</span><span class="nav-label">Grammatik</span></button>
+    <button class="nav-btn" onclick="showTab(1,this)"><span class="nav-emoji">🎯</span><span class="nav-label">Zuordnung</span></button>
+    <button class="nav-btn" onclick="showTab(2,this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button>
+    <button class="nav-btn" onclick="showTab(3,this)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></button>
+  </nav>
+
+  <!-- TAB 0: GRAMMATIK -->
+  <div class="tab active" id="tab0">
+    <div class="gram-section">
+      <h3>Was sind irreale Vergleichssätze?</h3>
+      <div class="rule-box">
+        In irrealen Vergleichssätzen wird eine <strong>Situation</strong> mit einem <strong>irrealen Sachverhalt</strong> verglichen — also mit etwas, das nie wirklich existiert hat. Die Konnektoren sind <strong>als ob</strong>, <strong>als wenn</strong> oder <strong>als</strong>. Die Verben im irrealen Vergleichssatz stehen immer im <strong>Konjunktiv II</strong>.
+      </div>
+      <div class="rule-box" style="background:#fff8e1;border-left-color:#f9a825;">
+        <strong style="color:#f9a825;">Beispiel:</strong> Bei vielen Frauen hat man den Eindruck, <em>als ob sie 10 Arme hätten</em>.
+      </div>
+    </div>
+
+    <div class="gram-section">
+      <h3>Struktur: als ob / als wenn → Nebensatz</h3>
+      <div class="rule-box">
+        Mit <strong>als ob</strong> und <strong>als wenn</strong> wird ein <strong>Nebensatz</strong> eingeleitet. Das konjugierte Verb steht am <strong>Ende</strong>. <em>Als wenn</em> wird eher in der gesprochenen Sprache verwendet.
+      </div>
+      <table class="gram-table">
+        <tr><th>Situation</th><th>Irrealer Vergleich (Konjunktiv II)</th></tr>
+        <tr><td class="sit">Ich empfinde soviel Glück,</td><td class="irr"><span class="conn">als ob</span> ich selbst die Geburt meines Kindes erlebt <strong>hätte</strong>.</td></tr>
+        <tr><td class="sit">Thomas sieht aus,</td><td class="irr"><span class="conn">als wenn</span> er drei Tage nicht geschlafen <strong>hätte</strong>.</td></tr>
+        <tr><td class="sit">Laura fühlt sich,</td><td class="irr"><span class="conn">als ob</span> keiner sie verstehen <strong>würde</strong>.</td></tr>
+        <tr><td class="sit">Du benimmst dich,</td><td class="irr"><span class="conn">als wenn</span> Empathie ein Fremdwort für dich <strong>wäre</strong>.</td></tr>
+      </table>
+    </div>
+
+    <div class="gram-section">
+      <h3>Struktur: als → zwei Hauptsätze</h3>
+      <div class="rule-box purple">
+        Mit nur <strong>als</strong> werden <strong>zwei Hauptsätze</strong> verbunden. Das konjugierte Verb steht direkt nach <em>als</em> an <strong>Position 2</strong>.
+      </div>
+      <table class="gram-table">
+        <tr><th>Situation</th><th>Irrealer Vergleich (Konjunktiv II)</th></tr>
+        <tr><td class="sit">Er tut so,</td><td class="irr"><span class="conn purp">als</span> <strong>würde</strong> er an einer schlimmen Krankheit leiden.</td></tr>
+        <tr><td class="sit">Thomas sieht aus,</td><td class="irr"><span class="conn purp">als</span> <strong>hätte</strong> er drei Tage nicht geschlafen.</td></tr>
+        <tr><td class="sit">Ich habe nicht das Gefühl,</td><td class="irr"><span class="conn purp">als</span> <strong>würdest</strong> du mit mir mitfühlen.</td></tr>
+      </table>
+    </div>
+
+    <div class="gram-section">
+      <h3>Konjunktiv II – Schnellübersicht</h3>
+      <div class="kii-grid">
+        <div class="kii-card">
+          <h4>haben → hätte</h4>
+          <p>ich hätte<br>du hättest<br>er/sie/es hätte<br>wir hätten<br>ihr hättet<br>sie hätten</p>
+        </div>
+        <div class="kii-card">
+          <h4>sein → wäre</h4>
+          <p>ich wäre<br>du wärst<br>er/sie/es wäre<br>wir wären<br>ihr wärt<br>sie wären</p>
+        </div>
+        <div class="kii-card">
+          <h4>würde + Infinitiv</h4>
+          <p>ich würde<br>du würdest<br>er/sie/es würde<br>wir würden<br>ihr würdet<br>sie würden</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: ZUORDNUNG -->
+  <div class="tab" id="tab1">
+    <div class="control-bar">
+      <div class="buttons">
+        <button class="btn btn-reset" onclick="resetZuordnung()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-wrap">⏱ <span id="timer1-display">00:00</span></div>
+    </div>
+    <p style="font-size:0.9rem;color:#555;margin-bottom:16px;">Wähle den richtigen Konnektor: <strong>als ob / als wenn</strong> (→ Verb am Ende) oder <strong>als</strong> (→ Verb an Position 2).</p>
+    <div class="score-bar">Richtig: <span class="score-val" id="zuord-score">0</span> / 8</div>
+    <ul class="zuord-list" id="zuord-list"></ul>
+  </div>
+
+  <!-- TAB 2: LÜCKENTEXT -->
+  <div class="tab" id="tab2">
+    <div class="control-bar">
+      <div class="buttons">
+        <button class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-wrap">⏱ <span id="timer2-display">00:00</span></div>
+    </div>
+    <p style="font-size:0.9rem;color:#555;margin-bottom:16px;">Setze die richtige Konjunktiv-II-Form ein. <em>(Hinweis in Klammern)</em></p>
+    <div class="score-bar">Richtig: <span class="score-val" id="luecke-score">0</span> / 12</div>
+    <ul class="luecke-list" id="luecke-list">
+      <li>Er tut so, als ob er krank <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
+      <li>Thomas sieht aus, als <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> er drei Tage nicht geschlafen. <span class="luecke-hint">(haben)</span></li>
+      <li>Laura fühlt sich, als ob keiner sie verstehen <input class="luecke-inp" data-answer="würde" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(würde + Inf.)</span></li>
+      <li>Du benimmst dich, als wenn Empathie ein Fremdwort <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
+      <li>Ich empfinde soviel Glück, als ob ich selbst die Geburt erlebt <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
+      <li>Ihr rennt, als ob ihr einen Geist gesehen <input class="luecke-inp" data-answer="hättet" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben – ihr)</span></li>
+      <li>Ich habe nicht das Gefühl, als <input class="luecke-inp" data-answer="würdest" oninput="liveCheck(this)" placeholder=""> du mit mir mitfühlen. <span class="luecke-hint">(würde + Inf. – du)</span></li>
+      <li>Mir ist so zumute, als ob ich drei Bier getrunken <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
+      <li>Bastian macht den Eindruck, als wenn er kein Interesse <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
+      <li>Es klingt, als ob es sehr kompliziert <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
+      <li>Meine Freundin tut so, als ob sie ihr Geld vergessen <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
+      <li>Es ist so heiß, als ob Juli <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
+    </ul>
+  </div>
+
+  <!-- TAB 3: SATZBAU -->
+  <div class="tab" id="tab3">
+    <div class="control-bar">
+      <div class="buttons">
+        <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+      </div>
+      <div class="timer-wrap">⏱ <span id="timer3-display">00:00</span></div>
+    </div>
+    <div id="sb-container"></div>
+  </div>
+
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
+
+<script>
+// === TIMER ===
+const TIMER_PREFIX = 'B2_1045G_';
+const timers = {};
+function timerAutoStart(n) {
+  if (timers[n]) return;
+  const start = Date.now();
+  const el = document.getElementById('timer' + n + '-display');
+  if (!el) return;
+  timers[n] = {
+    start, stopped: false,
+    interval: setInterval(() => {
+      const s = Math.floor((Date.now() - start) / 1000);
+      el.textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+    }, 1000)
+  };
+}
+function timerStop(n) {
+  if (!timers[n] || timers[n].stopped) return;
+  clearInterval(timers[n].interval);
+  timers[n].stopped = true;
+  const s = Math.floor((Date.now() - timers[n].start) / 1000);
+  const key = TIMER_PREFIX + 'T' + n;
+  const prev = localStorage.getItem(key);
+  if (!prev || s < parseInt(prev)) localStorage.setItem(key, s);
+}
+function timerResetOne(n) {
+  if (timers[n]) { clearInterval(timers[n].interval); delete timers[n]; }
+  const el = document.getElementById('timer' + n + '-display');
+  if (el) el.textContent = '00:00';
+}
+
+// === TAB NAVIGATION ===
+function showTab(idx, btn) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (idx === 1 && !timers[1]) timerAutoStart(1);
+  if (idx === 2 && !timers[2]) timerAutoStart(2);
+  if (idx === 3 && !timers[3]) timerAutoStart(3);
+}
+
+// === ZUORDNUNG ===
+const zuordnungData = [
+  { text: 'Bei vielen Frauen hat man den Eindruck, ___ sie zehn Arme hätten.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
+  { text: 'Thomas sieht aus, ___ hätte er drei Tage nicht geschlafen.', hint: '(Verb an Position 2)', correct: ['als'] },
+  { text: 'Laura fühlt sich, ___ keiner sie verstehen würde.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
+  { text: 'Du benimmst dich, ___ Empathie ein Fremdwort wäre.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
+  { text: 'Ich habe nicht das Gefühl, ___ würdest du mit mir mitfühlen.', hint: '(Verb an Position 2)', correct: ['als'] },
+  { text: 'Er tut so, ___ er an einer Krankheit leiden würde.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
+  { text: 'Ich habe das Gefühl, ___ wären unsere Unterschiede kein Problem.', hint: '(Verb an Position 2)', correct: ['als'] },
+  { text: 'Du klingst, ___ du in einer Menschenmenge stehen würdest.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] }
+];
+let zuordScore = 0;
+function buildZuordnung() {
+  const ul = document.getElementById('zuord-list');
+  ul.innerHTML = '';
+  zuordnungData.forEach((item, idx) => {
+    const li = document.createElement('li');
+    li.className = 'zuord-item';
+    li.dataset.idx = idx;
+    li.innerHTML = `<div class="zuord-row">
+      <span class="zuord-sentence">${item.text.replace('___', '<span style="color:#667eea;font-weight:700;">___</span>')}</span>
+    </div>
+    <div class="zuord-hint">${item.hint}</div>
+    <div class="zuord-btns" id="zbg-${idx}">
+      <button class="zb" onclick="checkZuord(${idx},'als ob')">als ob</button>
+      <button class="zb" onclick="checkZuord(${idx},'als wenn')">als wenn</button>
+      <button class="zb" onclick="checkZuord(${idx},'als')">als</button>
+    </div>
+    <div class="zuord-fb" id="zfb-${idx}"></div>`;
+    ul.appendChild(li);
+  });
+}
+function checkZuord(idx, choice) {
+  const item = zuordnungData[idx];
+  const fbEl = document.getElementById('zfb-' + idx);
+  const btnGroup = document.getElementById('zbg-' + idx);
+  if (btnGroup.dataset.done) return;
+  btnGroup.dataset.done = '1';
+  const correct = item.correct.includes(choice);
+  [...btnGroup.querySelectorAll('.zb')].forEach(b => {
+    b.disabled = true;
+    if (b.textContent === choice) b.className = 'zb ' + (correct ? 'ok' : 'err');
+    if (!correct && item.correct.includes(b.textContent)) b.className = 'zb ok';
+  });
+  fbEl.textContent = correct ? '✓ Richtig!' : '✗ Falsch — korrekt: ' + item.correct.join(' oder ');
+  fbEl.className = 'zuord-fb ' + (correct ? 'ok' : 'err');
+  if (correct) zuordScore++;
+  document.getElementById('zuord-score').textContent = zuordScore;
+  const allDone = [...document.querySelectorAll('.zuord-btns[data-done]')].length === zuordnungData.length;
+  if (allDone) timerStop(1);
+}
+function resetZuordnung() {
+  zuordScore = 0;
+  buildZuordnung();
+  document.getElementById('zuord-score').textContent = '0';
+  timerResetOne(1);
+}
+
+// === LÜCKENTEXT ===
+function liveCheck(inp) {
+  const ans = inp.dataset.answer.toLowerCase().trim();
+  const val = inp.value.toLowerCase().trim();
+  if (val === '') { inp.className = 'luecke-inp'; updateLueckeScore(); return; }
+  if (ans.startsWith(val)) {
+    inp.className = val === ans ? 'luecke-inp ok' : 'luecke-inp';
+  } else {
+    inp.className = 'luecke-inp err';
+  }
+  updateLueckeScore();
+}
+function updateLueckeScore() {
+  const all = document.querySelectorAll('#luecke-list .luecke-inp');
+  let c = 0; all.forEach(i => { if (i.classList.contains('ok')) c++; });
+  document.getElementById('luecke-score').textContent = c;
+  if (c === 12) timerStop(2);
+}
+function resetLuecke() {
+  document.querySelectorAll('#luecke-list .luecke-inp').forEach(i => { i.value = ''; i.className = 'luecke-inp'; });
+  document.getElementById('luecke-score').textContent = '0';
+  timerResetOne(2);
+}
+
+// === SATZBAU ===
+let sbDragged = null;
+const satzbauData = [
+  { parts: ['Thomas','sieht','aus,','als','hätte','er','nicht','geschlafen','.'],
+    valid: ['Thomas','sieht','aus,','als','hätte','er','nicht','geschlafen','.'] },
+  { parts: ['Es','ist','so','heiß,','als ob','Juli','wäre','.'],
+    valid: ['Es','ist','so','heiß,','als ob','Juli','wäre','.'] },
+  { parts: ['Du','benimmst','dich,','als','wäre','Empathie','ein','Fremdwort','.'],
+    valid: ['Du','benimmst','dich,','als','wäre','Empathie','ein','Fremdwort','.'] },
+  { parts: ['Mir','ist','so','zumute,','als','hätte','ich','Bier','getrunken','.'],
+    valid: ['Mir','ist','so','zumute,','als','hätte','ich','Bier','getrunken','.'] },
+  { parts: ['Laura','fühlt','sich,','als ob','keiner','sie','verstehen','würde','.'],
+    valid: ['Laura','fühlt','sich,','als ob','keiner','sie','verstehen','würde','.'] },
+  { parts: ['Ich','habe','das','Gefühl,','als ob','ich','zugenommen','hätte','.'],
+    valid: ['Ich','habe','das','Gefühl,','als ob','ich','zugenommen','hätte','.'] },
+  { parts: ['Er','macht','den','Eindruck,','als wenn','er','kein','Interesse','hätte','.'],
+    valid: ['Er','macht','den','Eindruck,','als wenn','er','kein','Interesse','hätte','.'] }
+];
+const punctChars = ['.', ',', '!', '?', ';'];
+const connWords = ['als ob', 'als wenn', 'als'];
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function makeChip(text, inSrc) {
+  const chip = document.createElement('div');
+  const isConn = connWords.includes(text);
+  const isPunct = punctChars.includes(text);
+  chip.className = 'chip-sb' + (isPunct ? ' punct' : isConn ? ' conn' : '');
+  chip.textContent = text;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', e => { sbDragged = chip; e.dataTransfer.effectAllowed = 'move'; });
+  chip.addEventListener('dragend', () => { sbDragged = null; });
+  if (inSrc) {
+    chip.addEventListener('click', () => {
+      chip.closest('.sb-section').querySelector('.sb-drop-zone').appendChild(chip);
+      checkSb(chip.closest('.sb-section'));
+    });
+  } else {
+    chip.addEventListener('click', () => {
+      chip.closest('.sb-section').querySelector('.sb-chips-src').appendChild(chip);
+      checkSb(chip.closest('.sb-section'));
+    });
+  }
+  return chip;
+}
+function buildSb() {
+  const container = document.getElementById('sb-container');
+  container.innerHTML = '';
+  satzbauData.forEach((data, idx) => {
+    const sec = document.createElement('div');
+    sec.className = 'sb-section';
+    sec.dataset.idx = idx;
+    sec.innerHTML = `<div class="sb-sentence-label">Satz ${idx + 1}</div>
+      <div class="sb-chips-src"></div>
+      <div class="sb-drop-zone"></div>
+      <div class="sb-fb"></div>`;
+    const src = sec.querySelector('.sb-chips-src');
+    const dz = sec.querySelector('.sb-drop-zone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      if (sbDragged) { dz.appendChild(sbDragged); checkSb(sec); }
+    });
+    src.addEventListener('dragover', e => e.preventDefault());
+    src.addEventListener('drop', e => {
+      e.preventDefault();
+      if (sbDragged) { src.appendChild(sbDragged); checkSb(sec); }
+    });
+    shuffle(data.parts).forEach(p => src.appendChild(makeChip(p, true)));
+    container.appendChild(sec);
+  });
+}
+function checkSb(sec) {
+  const idx = parseInt(sec.dataset.idx);
+  const dz = sec.querySelector('.sb-drop-zone');
+  const fb = sec.querySelector('.sb-fb');
+  const chips = [...dz.querySelectorAll('.chip-sb')].map(c => c.textContent);
+  const valid = satzbauData[idx].valid;
+  if (chips.length === 0) { fb.textContent = ''; fb.className = 'sb-fb'; return; }
+  if (chips.length === valid.length && chips.every((c, i) => c === valid[i])) {
+    fb.textContent = '✓ Richtig!'; fb.className = 'sb-fb ok';
+    const allDone = [...document.querySelectorAll('.sb-section')].every(s => s.querySelector('.sb-fb.ok'));
+    if (allDone) timerStop(3);
+  } else {
+    fb.textContent = chips.length === valid.length ? '✗ Noch nicht richtig' : '';
+    fb.className = chips.length === valid.length ? 'sb-fb err' : 'sb-fb';
+  }
+}
+function resetAllSb() {
+  document.querySelectorAll('.sb-section').forEach(sec => {
+    const src = sec.querySelector('.sb-chips-src');
+    const dz = sec.querySelector('.sb-drop-zone');
+    const fb = sec.querySelector('.sb-fb');
+    [...dz.querySelectorAll('.chip-sb')].forEach(c => src.appendChild(c));
+    fb.textContent = ''; fb.className = 'sb-fb';
+  });
+  timerResetOne(3);
+}
+
+// === INIT ===
+buildZuordnung();
+buildSb();
+</script>
+</body>
+</html>
