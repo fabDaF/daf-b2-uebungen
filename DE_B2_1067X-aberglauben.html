@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.1 · 1067X · Aberglauben</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px 30px;
+  }
+  header h1 { font-size: 1.6rem; font-weight: 700; }
+  header p { opacity: 0.85; margin-top: 4px; font-size: 0.95rem; }
+
+  nav {
+    display: flex;
+    background: #f8f8f8;
+    border-bottom: 2px solid #e0e0e0;
+    overflow-x: auto;
+  }
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: #555;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: background 0.2s;
+    border-right: 1px solid #e0e0e0;
+    flex: 1;
+  }
+  .nav-btn:last-child { border-right: none; }
+  .nav-btn .nav-emoji { font-size: 1.3rem; margin-bottom: 3px; }
+  .nav-btn .nav-label { font-size: 0.72rem; }
+  .nav-btn.active { background: white; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
+  .nav-btn:hover:not(.active) { background: #efefef; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .tab-banner { width: 100%; max-height: 180px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  @media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+
+  .sec-inner { padding: 24px 30px; }
+
+  .control-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .control-bar .buttons { display: flex; gap: 8px; flex: 1; }
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: opacity 0.2s; }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: #667eea; color: white; }
+  .btn-secondary { background: #e0e0e0; color: #333; }
+  .timer { font-size: 0.85rem; font-weight: 700; color: #764ba2; min-width: 60px; text-align: right; }
+
+  /* Vorentlastung vocab */
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .vocab-card { background: #f5f0ff; border-radius: 8px; padding: 12px 14px; border-left: 4px solid #667eea; }
+  .vocab-card .de { font-size: 1rem; font-weight: 700; color: #333; }
+  .vocab-card .en { font-size: 0.82rem; color: #666; margin-top: 2px; }
+  .vocab-card .example { font-size: 0.8rem; color: #555; margin-top: 6px; font-style: italic; }
+  .intro-box { background: #fff8e1; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; border-left: 4px solid #ffc107; }
+  .intro-box h3 { font-size: 1rem; color: #333; margin-bottom: 8px; }
+  .intro-box p { font-size: 0.9rem; color: #555; line-height: 1.6; }
+
+  /* Phrase boxes */
+  .phrase-section { margin-bottom: 22px; }
+  .phrase-section h3 { font-size: 0.95rem; font-weight: 700; color: #333; margin-bottom: 10px; border-left: 4px solid #667eea; padding-left: 10px; }
+  .phrase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .phrase-card { background: #f5f0ff; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #333; border-left: 3px solid #764ba2; }
+  .phrase-card .de { font-weight: 600; }
+  .phrase-card .en { color: #777; font-size: 0.78rem; margin-top: 3px; }
+  .phrase-card .example { font-size: 0.78rem; color: #555; margin-top: 4px; font-style: italic; }
+
+  /* Lückentext */
+  .gap-sentence { margin-bottom: 16px; font-size: 0.95rem; line-height: 1.7; color: #333; }
+  .gap-sentence .num { font-weight: 700; color: #667eea; margin-right: 6px; }
+  .gap-input { border: none; border-bottom: 2px solid #667eea; padding: 2px 6px; font-size: 0.93rem; font-family: inherit; color: #333; background: transparent; min-width: 120px; outline: none; }
+  .gap-input.correct { border-bottom-color: #4caf50; color: #2e7d32; }
+  .gap-input.wrong { border-bottom-color: #f44336; color: #c62828; }
+  .word-bank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; padding: 14px; background: #f5f0ff; border-radius: 8px; }
+  .word-chip { background: white; border: 1.5px solid #667eea; border-radius: 16px; padding: 4px 12px; font-size: 0.83rem; color: #667eea; cursor: pointer; transition: all 0.2s; }
+  .word-chip:hover { background: #667eea; color: white; }
+  .word-chip.used { opacity: 0.4; text-decoration: line-through; cursor: default; }
+
+  /* Satzbau */
+  .sb-task { margin-bottom: 26px; }
+  .sb-prompt { font-size: 0.88rem; color: #555; margin-bottom: 10px; font-style: italic; }
+  .chip-pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; padding: 10px; background: #f5f0ff; border-radius: 8px; margin-bottom: 10px; }
+  .drop-zone { display: flex; flex-wrap: wrap; gap: 8px; min-height: 50px; padding: 10px; background: #fafafa; border: 2px dashed #bbb; border-radius: 8px; margin-bottom: 8px; transition: border-color 0.2s; }
+  .drop-zone.drag-over { border-color: #667eea; background: #f0ecff; }
+  .chip { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 16px; font-size: 0.85rem; cursor: grab; user-select: none; }
+  .chip.pool-chip { background: white; border: 1.5px solid #764ba2; color: #764ba2; }
+  .chip.placed-chip { background: #764ba2; color: white; border: 1.5px solid #764ba2; }
+  .chip.dragging { opacity: 0.5; transform: scale(1.05); }
+  .sb-feedback { font-size: 0.83rem; min-height: 20px; }
+  .sb-feedback.ok { color: #2e7d32; font-weight: 600; }
+  .sb-feedback.err { color: #c62828; }
+
+  /* Wortschatz */
+  .vocab-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .vocab-item { border: 1.5px solid #e0e0e0; border-radius: 10px; overflow: hidden; background: white; }
+  .vocab-item img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .vocab-item .vi-body { padding: 12px 14px; }
+  .vocab-item .vi-en { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+  .vocab-item .vi-inputs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .vocab-item input { border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-size: 0.83rem; outline: none; font-family: inherit; }
+  .vocab-item input.art { width: 60px; }
+  .vocab-item input.wort { flex: 1; min-width: 100px; }
+  .vocab-item input.pl { width: 90px; }
+  .vocab-item input.verb { flex: 1; min-width: 150px; }
+  .vocab-item input.correct { border-color: #4caf50; background: #f1f8e9; }
+  .vocab-item input.wrong { border-color: #f44336; background: #ffebee; }
+  .vocab-item .vi-hint { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
+
+  /* Rollenspiel */
+  .role-card { background: linear-gradient(135deg, #f5f0ff, #e8e0ff); border-radius: 10px; padding: 18px 22px; margin-bottom: 16px; border: 1.5px solid #c5b8ff; }
+  .role-card h4 { font-size: 0.95rem; color: #764ba2; font-weight: 700; margin-bottom: 8px; }
+  .role-card p { font-size: 0.88rem; color: #444; line-height: 1.6; }
+  .role-card .role-label { display: inline-block; background: #764ba2; color: white; border-radius: 12px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; }
+
+  footer { text-align: center; font-size: 0.75rem; color: #aaa; padding: 14px 20px; border-top: 1px solid #eee; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Aberglauben</h1>
+    <p>B2.1 · Lektion 1067 · Kommunikation &amp; Redemittel</p>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">🔮</span><span class="nav-label">Einstieg</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
+    </button>
+  </nav>
+
+  <!-- TAB 0: Einstieg -->
+  <div class="section active" id="sec0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3758105/pexels-photo-3758105.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Aberglauben Glücksbringer">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons"><span></span></div>
+        <div class="timer" id="timer0">0:00</div>
+      </div>
+
+      <div class="intro-box">
+        <h3>🤔 Zum Einstieg</h3>
+        <p>Haben Sie einen Glücksbringer? Was bedeutet „Freitag der 13." in Ihrer Kultur? Glauben Sie an Glück und Pech? Tauschen Sie sich mit einem Partner aus — und nutzen Sie die Redemittel unten.</p>
+      </div>
+
+      <div class="phrase-section">
+        <h3>🔍 Kritisch einschätzen &amp; beurteilen</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card"><div class="de">einschätzen</div><div class="en">to assess, evaluate</div><div class="example">Wie würden Sie diese Situation einschätzen?</div></div>
+          <div class="phrase-card"><div class="de">kritisch betrachten</div><div class="en">to look at critically</div><div class="example">Kritisch betrachtet bist du selbst schuld an deiner Situation.</div></div>
+          <div class="phrase-card"><div class="de">das Argument (-e)</div><div class="en">argument, reasoning</div><div class="example">Ich kenne dein Argument, aber ich bin nicht überzeugt.</div></div>
+          <div class="phrase-card"><div class="de">die Schwäche (-n)</div><div class="en">weakness</div><div class="example">Ist Gefühle zu zeigen eine Schwäche?</div></div>
+          <div class="phrase-card"><div class="de">die Moral</div><div class="en">moral, lesson</div><div class="example">Die Moral besagt, dass Wahrheit sehr wichtig ist.</div></div>
+          <div class="phrase-card"><div class="de">neidisch sein (auf)</div><div class="en">to be envious (of)</div><div class="example">Viele sind neidisch auf mein neues Auto.</div></div>
+          <div class="phrase-card"><div class="de">sich auskennen mit</div><div class="en">to know a lot about</div><div class="example">Victor kennt sich mit Computern sehr gut aus.</div></div>
+          <div class="phrase-card"><div class="de">Angst haben vor</div><div class="en">to be afraid of</div><div class="example">Ich habe Angst vor Spinnen.</div></div>
+        </div>
+      </div>
+
+      <div class="phrase-section">
+        <h3>🍀 Aberglauben-Vokabular</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card"><div class="de">der Talisman (-e)</div><div class="en">talisman, lucky charm</div><div class="example">Er trägt immer einen Talisman bei sich.</div></div>
+          <div class="phrase-card"><div class="de">der Glücksbringer (-)</div><div class="en">lucky charm / mascot</div><div class="example">Das Hufeisen gilt in Deutschland als Glücksbringer.</div></div>
+          <div class="phrase-card"><div class="de">der Schutzengel (-)</div><div class="en">guardian angel</div><div class="example">Meine Oma glaubt, dass jeder einen Schutzengel hat.</div></div>
+          <div class="phrase-card"><div class="de">das Glücksamulett (-s)</div><div class="en">lucky amulet</div><div class="example">Ohne mein Glücksamulett würde ich jetzt im Krankenhaus liegen!</div></div>
+          <div class="phrase-card"><div class="de">der Brauch (¨-e)</div><div class="en">custom, tradition</div><div class="example">Das Kleeblatt ist ein alter Brauch in Irland.</div></div>
+          <div class="phrase-card"><div class="de">das Verhaltensritual (-e)</div><div class="en">behavioural ritual</div><div class="example">Sportler haben oft ein festes Verhaltensritual vor dem Spiel.</div></div>
+          <div class="phrase-card"><div class="de">das Unheil</div><div class="en">disaster, misfortune</div><div class="example">Die schwarze Katze soll angeblich Unheil bringen.</div></div>
+          <div class="phrase-card"><div class="de">die Täuschung (-en)</div><div class="en">deception, illusion</div><div class="example">Ist Aberglauben eine Selbsttäuschung oder hilfreich?</div></div>
+        </div>
+      </div>
+
+      <div class="phrase-section">
+        <h3>📊 Evaluation und Beurteilung</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card"><div class="de">die Evaluation (-en)</div><div class="en">evaluation</div><div class="example">Die Evaluation der Studie ergab überraschende Resultate.</div></div>
+          <div class="phrase-card"><div class="de">evaluieren</div><div class="en">to evaluate</div><div class="example">Wir müssen diese Ergebnisse sorgfältig evaluieren.</div></div>
+          <div class="phrase-card"><div class="de">beurteilen</div><div class="en">to judge, assess</div><div class="example">Man sollte andere nicht voreilig beurteilen.</div></div>
+          <div class="phrase-card"><div class="de">bewerten</div><div class="en">to rate, evaluate</div><div class="example">Wie würden Sie dieses Verhalten bewerten?</div></div>
+          <div class="phrase-card"><div class="de">die Wahrnehmung (-en)</div><div class="en">perception</div><div class="example">Unsere Wahrnehmung wird von Erwartungen beeinflusst.</div></div>
+          <div class="phrase-card"><div class="de">die Täuschung (-en)</div><div class="en">illusion, deception</div><div class="example">Selbsttäuschung kann manchmal schützend sein.</div></div>
+        </div>
+      </div>
+
+      <div class="phrase-section">
+        <h3>🎭 Rollenspiel</h3>
+        <div class="role-card">
+          <span class="role-label">Situation A</span>
+          <h4>Fan vs. Skeptiker</h4>
+          <p>Person A ist ein glühender Fan von Glücksbringern und sagt: „Ohne mein Glücksamulett würde ich jetzt im Krankenhaus liegen — das rettet mein Leben jeden Tag!" Person B ist skeptisch und glaubt nicht an Aberglauben. Führen Sie ein Gespräch und versuchen Sie, den anderen zu überzeugen!</p>
+        </div>
+        <div class="role-card">
+          <span class="role-label">Situation B</span>
+          <h4>Schwarze Katze — Unglück?</h4>
+          <p>Im Mittelalter galten schwarze Katzen als Hexentiere und wurden mit Unglück verbunden. Heute sehen viele das anders. Diskutieren Sie: Woher kommen solche Vorstellungen? Sind sie harmlos oder gefährlich? Wie beurteilen Sie Aberglauben insgesamt?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Lückentext -->
+  <div class="section" id="sec1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/4144923/pexels-photo-4144923.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lückentext schreiben">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons">
+          <button class="btn btn-secondary" onclick="resetLuecken()">↺ Neu</button>
+          <button class="btn btn-primary" onclick="showLueckenAnswers()">Lösung</button>
+        </div>
+        <div class="timer" id="timer1">0:00</div>
+      </div>
+      <div class="word-bank" id="wbank">
+        <span class="word-chip" onclick="chipClick(this)">Angst</span>
+        <span class="word-chip" onclick="chipClick(this)">neidisch</span>
+        <span class="word-chip" onclick="chipClick(this)">auskennt</span>
+        <span class="word-chip" onclick="chipClick(this)">Schwäche</span>
+        <span class="word-chip" onclick="chipClick(this)">Moral</span>
+        <span class="word-chip" onclick="chipClick(this)">kritisch</span>
+        <span class="word-chip" onclick="chipClick(this)">Täuschung</span>
+        <span class="word-chip" onclick="chipClick(this)">Wahrnehmung</span>
+        <span class="word-chip" onclick="chipClick(this)">evaluieren</span>
+        <span class="word-chip" onclick="chipClick(this)">Glücksbringer</span>
+        <span class="word-chip" onclick="chipClick(this)">Unheil</span>
+        <span class="word-chip" onclick="chipClick(this)">Verhaltensritual</span>
+      </div>
+      <div id="luecken-area">
+        <div class="gap-sentence"><span class="num">1.</span> Ich habe <input class="gap-input" data-ans="Angst" oninput="checkGap(this)" placeholder=""> vor Spinnen — das ist total irrational, ich weiß.</div>
+        <div class="gap-sentence"><span class="num">2.</span> Viele Menschen sind <input class="gap-input" data-ans="neidisch" oninput="checkGap(this)" placeholder=""> auf seinen Erfolg, aber er hat hart dafür gearbeitet.</div>
+        <div class="gap-sentence"><span class="num">3.</span> Victor <input class="gap-input" data-ans="auskennt" oninput="checkGap(this)" placeholder=""> sich sehr gut mit Computern und löst Probleme schnell.</div>
+        <div class="gap-sentence"><span class="num">4.</span> Ist Gefühle zu zeigen eine <input class="gap-input" data-ans="Schwäche" oninput="checkGap(this)" placeholder=""> — oder im Gegenteil ein Zeichen von Stärke?</div>
+        <div class="gap-sentence"><span class="num">5.</span> Die <input class="gap-input" data-ans="Moral" oninput="checkGap(this)" placeholder=""> der Geschichte ist, dass man nicht voreilig urteilen soll.</div>
+        <div class="gap-sentence"><span class="num">6.</span> <input class="gap-input" data-ans="kritisch" oninput="checkGap(this)" placeholder=""> betrachtet hat er durch sein eigenes Verhalten diesen Konflikt ausgelöst.</div>
+        <div class="gap-sentence"><span class="num">7.</span> Aberglauben kann eine Form der Selbst<input class="gap-input" data-ans="Täuschung" oninput="checkGap(this)" placeholder=""> sein — aber manchmal hilft er trotzdem.</div>
+        <div class="gap-sentence"><span class="num">8.</span> Unsere <input class="gap-input" data-ans="Wahrnehmung" oninput="checkGap(this)" placeholder=""> der Realität wird stark von unseren Erwartungen beeinflusst.</div>
+        <div class="gap-sentence"><span class="num">9.</span> Wir müssen diese Ergebnisse sorgfältig <input class="gap-input" data-ans="evaluieren" oninput="checkGap(this)" placeholder="">, bevor wir Schlussfolgerungen ziehen.</div>
+        <div class="gap-sentence"><span class="num">10.</span> Das Hufeisen ist ein traditioneller <input class="gap-input" data-ans="Glücksbringer" oninput="checkGap(this)" placeholder=""> in vielen europäischen Kulturen.</div>
+        <div class="gap-sentence"><span class="num">11.</span> Im Mittelalter glaubte man, dass schwarze Katzen <input class="gap-input" data-ans="Unheil" oninput="checkGap(this)" placeholder=""> bringen würden.</div>
+        <div class="gap-sentence"><span class="num">12.</span> Viele Sportler haben ein festes <input class="gap-input" data-ans="Verhaltensritual" oninput="checkGap(this)" placeholder=""> vor dem Wettkampf, um sich mental vorzubereiten.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Satzbau -->
+  <div class="section" id="sec2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1342460/pexels-photo-1342460.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau Puzzle">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons">
+          <button class="btn btn-secondary" onclick="resetSatzbau()">↺ Neu</button>
+          <button class="btn btn-primary" onclick="checkAllSatzbau()">Alles prüfen</button>
+        </div>
+        <div class="timer" id="timer2">0:00</div>
+      </div>
+      <div id="sb-area"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Wortschatz -->
+  <div class="section" id="sec3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/159751/book-address-book-learning-read-159751.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons">
+          <button class="btn btn-secondary" onclick="resetVocab()">↺ Neu</button>
+          <button class="btn btn-primary" onclick="showVocabAnswers()">Lösung</button>
+        </div>
+        <div class="timer" id="timer3">0:00</div>
+      </div>
+      <div class="vocab-container" id="vocab-container"></div>
+    </div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// ── TAB NAVIGATION ──────────────────────────────────────────────
+const timers=Array(4).fill(null),ticking=Array(4).fill(false),elapsed=Array(4).fill(0);
+function showTab(n){document.querySelectorAll('.section').forEach((s,i)=>s.classList.toggle('active',i===n));document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===n));if(!ticking[n]){ticking[n]=true;timers[n]=setInterval(()=>{elapsed[n]++;updateTimer(n);},1000);}}
+function updateTimer(n){const m=Math.floor(elapsed[n]/60),s=elapsed[n]%60;document.querySelectorAll('.timer').forEach((el,i)=>{if(i===n)el.textContent=m+':'+(s<10?'0':'')+s;});}
+
+// ── LÜCKENTEXT ───────────────────────────────────────────────────
+function checkGap(inp){const val=inp.value.trim(),ans=inp.dataset.ans;if(!val){inp.className='gap-input';return;}inp.classList.toggle('correct',val.toLowerCase()===ans.toLowerCase());inp.classList.toggle('wrong',val.toLowerCase()!==ans.toLowerCase());}
+function resetLuecken(){document.querySelectorAll('.gap-input').forEach(i=>{i.value='';i.className='gap-input';});document.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('used'));}
+function showLueckenAnswers(){document.querySelectorAll('.gap-input').forEach(i=>{i.value=i.dataset.ans;i.className='gap-input correct';});}
+function chipClick(chip){if(chip.classList.contains('used'))return;for(let inp of document.querySelectorAll('.gap-input')){if(!inp.value){inp.value=chip.textContent;checkGap(inp);chip.classList.add('used');break;}}}
+
+// ── SATZBAU ──────────────────────────────────────────────────────
+const sbSentences=[
+  {prompt:'Ordne die Wörter:',chips:['Ich','habe','Angst','vor','schwarzen','Katzen','.'],solution:'Ich habe Angst vor schwarzen Katzen .'},
+  {prompt:'Ordne die Wörter:',chips:['Kritisch','betrachtet','ist','Aberglauben','eine','Form','der','Selbsttäuschung','.'],solution:'Kritisch betrachtet ist Aberglauben eine Form der Selbsttäuschung .'},
+  {prompt:'Ordne die Wörter:',chips:['Man','sollte','andere','nicht','voreilig','beurteilen','.'],solution:'Man sollte andere nicht voreilig beurteilen .'},
+  {prompt:'Ordne die Wörter:',chips:['Ohne','mein','Glücksamulett','würde','ich','jetzt','im','Krankenhaus','liegen','!'],solution:'Ohne mein Glücksamulett würde ich jetzt im Krankenhaus liegen !'},
+  {prompt:'Ordne die Wörter:',chips:['Unsere','Wahrnehmung','wird','von','unseren','Erwartungen','beeinflusst','.'],solution:'Unsere Wahrnehmung wird von unseren Erwartungen beeinflusst .'},
+  {prompt:'Ordne die Wörter:',chips:['Ist','Gefühle','zu','zeigen','eine','Schwäche','?'],solution:'Ist Gefühle zu zeigen eine Schwäche ?'},
+  {prompt:'Ordne die Wörter:',chips:['Das','Hufeisen','gilt','als','traditioneller','Glücksbringer','.'],solution:'Das Hufeisen gilt als traditioneller Glücksbringer .'},
+];
+
+let sbDragged=null;
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function buildSatzbau(){
+  const area=document.getElementById('sb-area');area.innerHTML='';
+  sbSentences.forEach((s,idx)=>{
+    const div=document.createElement('div');div.className='sb-task';
+    div.innerHTML=`<div class="sb-prompt">${idx+1}. ${s.prompt}</div>
+      <div class="chip-pool" id="pool${idx}"></div>
+      <div class="drop-zone" id="drop${idx}" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropChip(event,${idx},'drop')"></div>
+      <div class="sb-feedback" id="fb${idx}"></div>`;
+    area.appendChild(div);
+    shuffle(s.chips).forEach(word=>div.querySelector('#pool'+idx).appendChild(makeChip(word,idx,'pool')));
+  });
+}
+function makeChip(word,idx,loc){
+  const chip=document.createElement('span');chip.className='chip '+(loc==='pool'?'pool-chip':'placed-chip');chip.textContent=word;chip.draggable=true;chip.dataset.idx=idx;chip.dataset.loc=loc;
+  chip.addEventListener('dragstart',e=>{sbDragged=chip;chip.classList.add('dragging');});
+  chip.addEventListener('dragend',e=>{chip.classList.remove('dragging');sbDragged=null;});
+  chip.addEventListener('click',()=>moveChipClick(chip,idx));return chip;
+}
+function moveChipClick(chip,idx){const isInPool=chip.dataset.loc==='pool';const target=document.getElementById((isInPool?'drop':'pool')+idx);const newLoc=isInPool?'drop':'pool';chip.dataset.loc=newLoc;chip.className='chip '+(newLoc==='pool'?'pool-chip':'placed-chip');chip.draggable=true;chip.addEventListener('dragstart',e=>{sbDragged=chip;chip.classList.add('dragging');});chip.addEventListener('dragend',e=>{chip.classList.remove('dragging');sbDragged=null;});chip.addEventListener('click',()=>moveChipClick(chip,idx));target.appendChild(chip);checkSbSentence(idx);}
+function dropChip(event,idx,targetLoc){event.preventDefault();document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('drag-over'));if(!sbDragged)return;if(parseInt(sbDragged.dataset.idx)!==idx)return;sbDragged.dataset.loc=targetLoc;sbDragged.className='chip '+(targetLoc==='pool'?'pool-chip':'placed-chip');document.getElementById((targetLoc==='pool'?'pool':'drop')+idx).appendChild(sbDragged);checkSbSentence(idx);}
+function checkSbSentence(idx){const placed=[...document.getElementById('drop'+idx).querySelectorAll('.chip')].map(c=>c.textContent).join(' ');const fb=document.getElementById('fb'+idx);if(!placed){fb.textContent='';return;}fb.textContent=placed===sbSentences[idx].solution?'✓ Richtig!':'Noch nicht richtig — probier weiter!';fb.className='sb-feedback '+(placed===sbSentences[idx].solution?'ok':'err');}
+function checkAllSatzbau(){sbSentences.forEach((s,i)=>checkSbSentence(i));}
+function resetSatzbau(){buildSatzbau();}
+
+// ── WORTSCHATZ ───────────────────────────────────────────────────
+const vocabData=[
+  {img:'https://images.pexels.com/photos/3758105/pexels-photo-3758105.jpeg?auto=compress&cs=tinysrgb&w=400',en:'superstition',type:'n',art:'der',wort:'Aberglaube',pl:'—',hint:'Sg. only'},
+  {img:'https://images.pexels.com/photos/1051838/pexels-photo-1051838.jpeg?auto=compress&cs=tinysrgb&w=400',en:'talisman, lucky charm',type:'n',art:'der',wort:'Talisman',pl:'-e',hint:'der Talisman, -e'},
+  {img:'https://images.pexels.com/photos/3822621/pexels-photo-3822621.jpeg?auto=compress&cs=tinysrgb&w=400',en:'lucky charm / mascot',type:'n',art:'der',wort:'Glücksbringer',pl:'—',hint:'der Glücksbringer, —'},
+  {img:'https://images.pexels.com/photos/933964/pexels-photo-933964.jpeg?auto=compress&cs=tinysrgb&w=400',en:'guardian angel',type:'n',art:'der',wort:'Schutzengel',pl:'—',hint:'der Schutzengel, —'},
+  {img:'https://images.pexels.com/photos/326559/pexels-photo-326559.jpeg?auto=compress&cs=tinysrgb&w=400',en:'custom, tradition',type:'n',art:'der',wort:'Brauch',pl:'¨-e',hint:'der Brauch, ¨-e'},
+  {img:'https://images.pexels.com/photos/3807571/pexels-photo-3807571.jpeg?auto=compress&cs=tinysrgb&w=400',en:'disaster, misfortune',type:'n',art:'das',wort:'Unheil',pl:'—',hint:'Sg. only'},
+  {img:'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=400',en:'perception',type:'n',art:'die',wort:'Wahrnehmung',pl:'-en',hint:'die Wahrnehmung, -en'},
+  {img:'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=400',en:'deception, illusion',type:'n',art:'die',wort:'Täuschung',pl:'-en',hint:'die Täuschung, -en'},
+  {img:'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=400',en:'to assess, evaluate',type:'v',wort:'einschätzen',hint:'trennbar: schätzt ein'},
+  {img:'https://images.pexels.com/photos/4144923/pexels-photo-4144923.jpeg?auto=compress&cs=tinysrgb&w=400',en:'to evaluate, assess',type:'v',wort:'evaluieren',hint:'evaluiert, hat evaluiert'},
+  {img:'https://images.pexels.com/photos/5082579/pexels-photo-5082579.jpeg?auto=compress&cs=tinysrgb&w=400',en:'to judge, assess',type:'v',wort:'beurteilen',hint:'beurteilt, hat beurteilt'},
+  {img:'https://images.pexels.com/photos/256417/pexels-photo-256417.jpeg?auto=compress&cs=tinysrgb&w=400',en:'weakness',type:'n',art:'die',wort:'Schwäche',pl:'-n',hint:'die Schwäche, -n'},
+];
+
+function buildVocab(){const con=document.getElementById('vocab-container');con.innerHTML='';vocabData.forEach((v,i)=>{const item=document.createElement('div');item.className='vocab-item';let inputs='';if(v.type==='n'){inputs=`<input class="art" data-ans="${v.art}" data-idx="${i}" placeholder="" oninput="checkVocab(this)"><input class="wort" data-ans="${v.wort}" data-idx="${i}" placeholder="" oninput="checkVocab(this)"><input class="pl" data-ans="${v.pl}" data-idx="${i}" placeholder="" oninput="checkVocab(this)">`;}else{inputs=`<input class="verb" data-ans="${v.wort}" data-idx="${i}" placeholder="" oninput="checkVocab(this)">`;}item.innerHTML=`<img src="${v.img}" alt="${v.en}" onerror="this.style.display='none'"><div class="vi-body"><div class="vi-en">${v.en}</div><div class="vi-inputs">${inputs}</div><div class="vi-hint">${v.hint}</div></div>`;con.appendChild(item);});}
+function checkVocab(inp){const val=inp.value.trim(),ans=inp.dataset.ans;if(!val){inp.classList.remove('correct','wrong');return;}inp.classList.toggle('correct',val.toLowerCase()===ans.toLowerCase());inp.classList.toggle('wrong',val.toLowerCase()!==ans.toLowerCase());}
+function resetVocab(){document.querySelectorAll('.vocab-item input').forEach(i=>{i.value='';i.classList.remove('correct','wrong');});}
+function showVocabAnswers(){document.querySelectorAll('.vocab-item input').forEach(inp=>{inp.value=inp.dataset.ans;inp.classList.add('correct');});}
+
+// ── INIT ─────────────────────────────────────────────────────────
+buildSatzbau();buildVocab();showTab(0);
+ticking[0]=true;timers[0]=setInterval(()=>{elapsed[0]++;updateTimer(0);},1000);
+</script>
+</body>
+</html>
