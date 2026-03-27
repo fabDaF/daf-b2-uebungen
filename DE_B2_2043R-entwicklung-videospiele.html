@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.2 – Die Entwicklung der Videospiele</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:'Segoe UI',sans-serif;padding:20px}
+.container{max-width:1000px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);overflow:hidden}
+header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 32px}
+header h1{font-size:1.6rem;margin-bottom:4px}
+header p{opacity:.85;font-size:.95rem}
+nav{display:flex;border-bottom:2px solid #e0e0e0;background:#f8f8f8;flex-wrap:wrap}
+.tab-btn{display:flex;flex-direction:column;align-items:center;padding:10px 16px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;color:#666;transition:all .2s;gap:3px;border-right:1px solid #e0e0e0}
+.tab-btn .nav-emoji{font-size:1.3rem}
+.tab-btn .nav-label{font-size:.72rem}
+.tab-btn.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea;font-weight:600}
+.tab-btn:hover:not(.active){background:#f0f0f0}
+.tab{display:none;padding:28px 32px}
+.tab.active{display:block}
+.tab-banner{width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:20px}
+h2{color:#667eea;font-size:1.2rem;margin-bottom:14px}
+h3{color:#764ba2;font-size:1rem;margin:18px 0 10px}
+.info-box{background:#f0f0ff;border-left:4px solid #667eea;padding:16px 20px;border-radius:8px;margin-bottom:16px;font-size:.95rem;line-height:1.7}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:14px}
+.vocab-card{background:#f5f0ff;border:1px solid #c9b8ff;border-radius:8px;padding:14px}
+.vocab-card .word{font-weight:700;color:#5a3e9b;font-size:.95rem;margin-bottom:4px}
+.vocab-card .type{font-size:.72rem;color:#888;margin-bottom:6px}
+.vocab-card .example{font-size:.82rem;color:#555;font-style:italic;line-height:1.4}
+/* Lesetext */
+.story-text{font-family:Georgia,serif;font-size:1rem;line-height:1.8;color:#222;text-align:justify;hyphens:auto;max-width:720px;margin:0 auto}
+.story-text p{text-indent:1.5em;margin-bottom:1em}
+.story-text p:first-child{text-indent:0}
+.vocab-hl{background:#fff176;border-radius:3px;padding:0 2px;cursor:pointer;position:relative}
+.vocab-hl:hover::after{content:attr(data-tooltip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:4px 8px;border-radius:4px;font-size:.75rem;white-space:nowrap;z-index:10;pointer-events:none}
+/* RF */
+.rf-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.rf-item{background:#f9f9f9;border:1px solid #ddd;border-radius:8px;padding:14px 16px}
+.rf-item .rf-question{font-size:.95rem;line-height:1.5;margin-bottom:10px}
+.rf-btns{display:flex;gap:8px}
+.rf-btn{padding:6px 18px;border:none;border-radius:6px;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .2s}
+.rf-btn.richtig{background:#e8f5e9;color:#2e7d32;border:2px solid #81c784}
+.rf-btn.falsch{background:#ffebee;color:#c62828;border:2px solid #e57373}
+.rf-btn.selected-correct{background:#4caf50;color:#fff}
+.rf-btn.selected-wrong{background:#f44336;color:#fff}
+/* Lückentext */
+input.gap{border:none;border-bottom:2px solid #999;outline:none;font-size:.95rem;padding:2px 4px;width:130px;text-align:center;background:transparent;transition:border-color .2s}
+input.gap.correct{border-bottom:2px solid #4caf50;color:#2e7d32}
+input.gap.wrong{border-bottom:2px solid #f44336;color:#c62828}
+.uebung-block{margin-bottom:20px}
+.uebung-block p{font-size:.95rem;margin-bottom:10px;line-height:1.7}
+.control-bar{display:flex;align-items:center;margin-bottom:16px;gap:10px}
+.btn{padding:8px 18px;border:none;border-radius:6px;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .2s}
+.btn-secondary{background:#e0e0e0;color:#555}.btn-secondary:hover{background:#c8c8c8}
+.timer{margin-left:auto;font-size:.88rem;color:#667eea;font-weight:600}
+.sb-sentence{margin-bottom:20px}
+.sb-sentence .sb-label{font-size:.82rem;color:#888;margin-bottom:6px}
+.sb-dropzone{min-height:44px;border:2px dashed #c9b8ff;border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#fafafa;margin-bottom:6px}
+.sb-dropzone.drag-over{background:#f0f0ff;border-color:#667eea}
+.sb-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-block;background:#667eea;color:#fff;padding:6px 12px;border-radius:20px;font-size:.88rem;cursor:grab;user-select:none;transition:all .2s}
+.chip:hover{background:#5567d5;transform:translateY(-1px)}
+.chip.in-zone{background:#764ba2}
+.chip.correct-chip{background:#4caf50}
+.chip.wrong-chip{background:#f44336}
+footer{background:#f5f5f5;border-top:1px solid #e0e0e0;padding:14px 32px;font-size:.78rem;color:#888;text-align:center}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Die Entwicklung der Videospiele</h1>
+  <p>B2.2 · Einheit 4 · Lesen · 2043R</p>
+</header>
+<nav>
+  <button class="tab-btn active" onclick="showTab('vorentlastung',this)"><span class="nav-emoji">🧩</span><span class="nav-label">Vorentlastung</span></button>
+  <button class="tab-btn" onclick="showTab('lesetext',this)"><span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span></button>
+  <button class="tab-btn" onclick="showTab('richtigfalsch',this)"><span class="nav-emoji">✓✗</span><span class="nav-label">Richtig/Falsch</span></button>
+  <button class="tab-btn" onclick="showTab('lueckentext',this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button>
+  <button class="tab-btn" onclick="showTab('wortschatz',this)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></button>
+  <button class="tab-btn" onclick="showTab('satzbau',this)"><span class="nav-emoji">🔧</span><span class="nav-label">Satzbau</span></button>
+</nav>
+
+<!-- Tab 1: Vorentlastung -->
+<div id="vorentlastung" class="tab active">
+  <img src="https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg?auto=compress&w=1000" class="tab-banner" alt="Videospiele">
+  <h2>Vorentlastung – Schlüsselwörter</h2>
+  <div class="info-box">
+    Auf dem Handy, dem Tablet oder dem Computer – <strong>Videospiele</strong> sind aus dem heutigen Alltag nicht mehr wegzudenken. Bevor du den Text liest, lerne die wichtigen Wörter kennen.
+  </div>
+  <div class="vocab-grid">
+    <div class="vocab-card"><div class="word">die Suchmaschine</div><div class="type">Nomen · -n</div><div class="example">Mit einer Suchmaschine kann man alles recherchieren.</div></div>
+    <div class="vocab-card"><div class="word">kunstvoll</div><div class="type">Adjektiv</div><div class="example">Das Spiel ist grafisch sehr kunstvoll gestaltet.</div></div>
+    <div class="vocab-card"><div class="word">die Entwicklung</div><div class="type">Nomen · -en</div><div class="example">Die Entwicklung der Videospiele war rasant.</div></div>
+    <div class="vocab-card"><div class="word">recherchieren</div><div class="type">Verb</div><div class="example">Er recherchiert die Geschichte des ersten Computerspiels.</div></div>
+    <div class="vocab-card"><div class="word">die Unterhaltung</div><div class="type">Nomen · (kein Pl.)</div><div class="example">Videospiele bieten eine besondere Form der Unterhaltung.</div></div>
+    <div class="vocab-card"><div class="word">die Veröffentlichung</div><div class="type">Nomen · -en</div><div class="example">Die Veröffentlichung des Spiels war ein großes Ereignis.</div></div>
+    <div class="vocab-card"><div class="word">herausbringen</div><div class="type">Verb (trennbar)</div><div class="example">Sie bringen nächstes Jahr ein neues Spiel heraus.</div></div>
+    <div class="vocab-card"><div class="word">die Interaktion</div><div class="type">Nomen · -en</div><div class="example">Die Interaktion zwischen Spielern macht den Reiz aus.</div></div>
+  </div>
+  <h3>Vor dem Lesen – Diskutiert:</h3>
+  <ul style="margin-left:20px;font-size:.95rem;line-height:1.9;margin-top:8px">
+    <li>Was weißt du über die Geschichte der Videospiele?</li>
+    <li>Wann wurde das erste Videospiel erfunden? Was schätzt du?</li>
+    <li>Wie haben sich Videospiele in den letzten 50 Jahren verändert?</li>
+  </ul>
+</div>
+
+<!-- Tab 2: Lesetext -->
+<div id="lesetext" class="tab">
+  <img src="https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg?auto=compress&w=1000" class="tab-banner" alt="Videospielgeschichte">
+  <h2>Die Entwicklung der Videospiele</h2>
+  <div class="story-text">
+    <p>Auf dem Handy, dem Tablet oder dem Computer – <span class="vocab-hl" data-tooltip="Videospiele = electronic games">Videospiele</span> sind aus dem heutigen Alltag nicht mehr wegzudenken. Ob Puzzle, Rennspiel oder Online-Rollenspiel: Die Welt der digitalen Spiele wächst und wächst. Doch wann begann diese faszinierende Geschichte?</p>
+    <p>Gesellschaftsspiele hat es schon immer gegeben. Bereits die alten Ägypter und Römer spielten Brett- und Würfelspiele. Das erste elektronische Spiel wurde jedoch erst 1946 entwickelt – ein militärischer Radar-Simulator. Das Patent dafür wurde am 25. Januar 1947 angemeldet, von Thomas T. Goldsmith Jr. und Estle Ray Mann.</p>
+    <p>In den folgenden Jahren entstanden immer neue digitale Spiele. 1952 wurde OXO entwickelt, eine digitale Version des bekannten Tic-Tac-Toe-Spiels. Zehn Jahre später, 1962, erschien <span class="vocab-hl" data-tooltip="Spacewar = einer der ersten Computerspiele">Spacewar</span> am Massachusetts Institute of Technology (MIT). Und 1972 wurde das berühmte Pong veröffentlicht – für viele der Beginn der modernen Videospielkultur.</p>
+    <p>Ebenfalls im Jahr 1972 brachte das Unternehmen Magnavox die erste <span class="vocab-hl" data-tooltip="die Videospielkonsole = gaming console">Videospielkonsole</span> auf den Markt: die Magnavox Odyssey. Sie enthielt zwölf Karten und konnte 28 verschiedene Spiele abspielen. Zunächst war sie ein Luxusobjekt für wohlhabende Familien. Bald jedoch breitete sich die neue Unterhaltungsform aus, und Spielhallen mit Spielautomaten entstanden überall.</p>
+    <p>Heute ist die <span class="vocab-hl" data-tooltip="die Entwicklung = development">Entwicklung</span> der Videospiele kaum zu bremsen. Professionelle E-Sport-Turniere füllen riesige Arenen, und die besten Spieler verdienen Millionen. Was einmal als Freizeitbeschäftigung für Kinder galt, ist längst ein globales Phänomen geworden.</p>
+  </div>
+</div>
+
+<!-- Tab 3: Richtig/Falsch -->
+<div id="richtigfalsch" class="tab">
+  <img src="https://images.pexels.com/photos/1260473/pexels-photo-1260473.jpeg?auto=compress&w=1000" class="tab-banner" alt="Richtig oder Falsch">
+  <h2>Richtig oder Falsch?</h2>
+  <ul class="rf-list">
+    <li class="rf-item">
+      <div class="rf-question">Das erste elektronische Spiel wurde 1946 entwickelt.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Das Spiel OXO wurde 1962 am MIT entwickelt.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','falsch')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','falsch')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Pong wurde 1972 veröffentlicht.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Die Magnavox Odyssey war die erste Videospielkonsole und enthielt 50 Spiele.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','falsch')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','falsch')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Das Patent für das erste elektronische Spiel wurde von Thomas T. Goldsmith Jr. angemeldet.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Bereits die alten Ägypter und Römer spielten Brett- und Würfelspiele.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- Tab 4: Lückentext -->
+<div id="lueckentext" class="tab">
+  <img src="https://images.pexels.com/photos/4144179/pexels-photo-4144179.jpeg?auto=compress&w=1000" class="tab-banner" alt="Lückentext">
+  <h2>Lückentext – Videospielgeschichte</h2>
+  <div class="info-box">Ergänze die Lücken mit den richtigen Wörtern aus dem Text.</div>
+  <div class="uebung-block">
+    <p>1. Das erste elektronische Spiel war ein militärischer <span class="gap-wrap"><input class="gap" data-answer="Radar-Simulator" oninput="checkGap(this)" placeholder=""></span>.</p>
+    <p>2. Das Patent wurde am 25. Januar <span class="gap-wrap"><input class="gap" style="width:60px" data-answer="1947" oninput="checkGap(this)" placeholder=""></span> angemeldet.</p>
+    <p>3. OXO ist eine digitale Version des Spiels <span class="gap-wrap"><input class="gap" data-answer="Tic-Tac-Toe" oninput="checkGap(this)" placeholder=""></span>.</p>
+    <p>4. Spacewar entstand 1962 am <span class="gap-wrap"><input class="gap" style="width:60px" data-answer="MIT" oninput="checkGap(this)" placeholder=""></span> in Massachusetts.</p>
+    <p>5. Die erste Videospielkonsole hieß Magnavox <span class="gap-wrap"><input class="gap" data-answer="Odyssey" oninput="checkGap(this)" placeholder=""></span>.</p>
+    <p>6. Die Odyssey enthielt zwölf Karten und <span class="gap-wrap"><input class="gap" style="width:50px" data-answer="28" oninput="checkGap(this)" placeholder=""></span> verschiedene Spiele.</p>
+    <p>7. Die Entwicklung der Videospiele machte die <span class="gap-wrap"><input class="gap" data-answer="Unterhaltung" oninput="checkGap(this)" placeholder=""></span> global.</p>
+    <p>8. Anfangs war die Konsole ein <span class="gap-wrap"><input class="gap" data-answer="Luxusobjekt" oninput="checkGap(this)" placeholder=""></span> für wohlhabende Familien.</p>
+  </div>
+</div>
+
+<!-- Tab 5: Wortschatz -->
+<div id="wortschatz" class="tab">
+  <img src="https://images.pexels.com/photos/1174746/pexels-photo-1174746.jpeg?auto=compress&w=1000" class="tab-banner" alt="Wortschatz">
+  <h2>Wortschatz üben</h2>
+  <h3>Bedeutungen zuordnen</h3>
+  <div class="uebung-block">
+    <p>Was bedeutet das Wort? Ergänze die Definition:</p>
+    <p>1. „herausbringen" = ein neues Produkt <span class="gap-wrap"><input class="gap" data-answer="veröffentlichen" oninput="checkGap(this)" placeholder=""></span></p>
+    <p>2. „die Veröffentlichung" = die <span class="gap-wrap"><input class="gap" data-answer="Herausgabe" oninput="checkGap(this)" placeholder=""></span> eines Werkes</p>
+    <p>3. „recherchieren" = Informationen <span class="gap-wrap"><input class="gap" data-answer="suchen" oninput="checkGap(this)" placeholder=""></span> und sammeln</p>
+  </div>
+  <h3>Wortschatz – Jahres-Timeline</h3>
+  <div class="vocab-grid">
+    <div class="vocab-card"><div class="word">1946</div><div class="type">Jahr</div><div class="example">Erstes elektronisches Spiel: Radar-Simulator</div></div>
+    <div class="vocab-card"><div class="word">1952</div><div class="type">Jahr</div><div class="example">OXO – digitales Tic-Tac-Toe</div></div>
+    <div class="vocab-card"><div class="word">1962</div><div class="type">Jahr</div><div class="example">Spacewar am MIT erscheint</div></div>
+    <div class="vocab-card"><div class="word">1972</div><div class="type">Jahr</div><div class="example">Pong + Magnavox Odyssey (erste Konsole)</div></div>
+  </div>
+</div>
+
+<!-- Tab 6: Satzbau -->
+<div id="satzbau" class="tab">
+  <img src="https://images.pexels.com/photos/261662/pexels-photo-261662.jpeg?auto=compress&w=1000" class="tab-banner" alt="Satzbau">
+  <h2>Satzbau – Videospielgeschichte</h2>
+  <div class="control-bar">
+    <button class="btn btn-secondary" onclick="resetSatzbau()">↺ Zurücksetzen</button>
+    <span class="timer" id="sb-timer">⏱ 00:00</span>
+  </div>
+  <div id="sb-container"></div>
+</div>
+
+<footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+function checkGap(inp){
+  const ans=inp.dataset.answer.trim().toLowerCase();
+  const val=inp.value.trim().toLowerCase();
+  if(!val){inp.classList.remove('correct','wrong');return;}
+  inp.classList.toggle('correct',val===ans);
+  inp.classList.toggle('wrong',val!==ans);
+}
+function checkRF(btn,chosen,correct){
+  const parent=btn.parentElement;
+  parent.querySelectorAll('.rf-btn').forEach(b=>b.classList.remove('selected-correct','selected-wrong'));
+  if(chosen===correct) btn.classList.add('selected-correct');
+  else { btn.classList.add('selected-wrong'); parent.querySelectorAll('.rf-btn').forEach(b=>{if((b.classList.contains('richtig')&&correct==='richtig')||(b.classList.contains('falsch')&&correct==='falsch')) b.classList.add('selected-correct');}); }
+}
+const sbSentences=[
+  {chips:["Das","erste","elektronische","Spiel","wurde","1946","entwickelt","."],correct:["Das","erste","elektronische","Spiel","wurde","1946","entwickelt","."]},
+  {chips:["1972","brachte","Magnavox","die","erste","Videospielkonsole","auf","den","Markt","."],correct:["1972","brachte","Magnavox","die","erste","Videospielkonsole","auf","den","Markt","."]},
+  {chips:["Videospiele","sind","aus","dem","heutigen","Alltag","nicht","mehr","wegzudenken","."],correct:["Videospiele","sind","aus","dem","heutigen","Alltag","nicht","mehr","wegzudenken","."]},
+];
+let sbTimer=null,sbSeconds=0,sbDragged=null;
+function fisher_yates(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildSatzbau(){
+  const c=document.getElementById('sb-container');c.innerHTML='';
+  sbSentences.forEach((s,si)=>{
+    const div=document.createElement('div');div.className='sb-sentence';
+    div.innerHTML=`<div class="sb-label">Satz ${si+1}:</div><div class="sb-dropzone" id="zone-${si}" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropChip(event,${si})"></div><div class="sb-chips" id="chips-${si}"></div>`;
+    c.appendChild(div);
+    fisher_yates(s.chips).forEach(w=>{
+      const chip=document.createElement('span');chip.className='chip';chip.textContent=w;chip.draggable=true;
+      chip.addEventListener('dragstart',()=>{sbDragged=chip;chip.style.opacity='.5';});
+      chip.addEventListener('dragend',()=>{chip.style.opacity='1';});
+      chip.addEventListener('click',()=>clickChip(chip,si));
+      document.getElementById(`chips-${si}`).appendChild(chip);
+    });
+  });
+}
+function clickChip(chip,si){const zone=document.getElementById(`zone-${si}`);if(chip.parentElement===zone){document.getElementById(`chips-${si}`).appendChild(chip);chip.classList.remove('in-zone');}else{zone.appendChild(chip);chip.classList.add('in-zone');}checkSbZone(si);}
+function dropChip(e,si){e.preventDefault();document.getElementById(`zone-${si}`).classList.remove('drag-over');if(sbDragged){document.getElementById(`zone-${si}`).appendChild(sbDragged);sbDragged.classList.add('in-zone');sbDragged=null;checkSbZone(si);}}
+function checkSbZone(si){const chips=[...document.getElementById(`zone-${si}`).querySelectorAll('.chip')];const correct=sbSentences[si].correct;if(chips.length!==correct.length)return;const match=chips.every((c,i)=>c.textContent===correct[i]);chips.forEach(c=>{c.classList.remove('correct-chip','wrong-chip');c.classList.add(match?'correct-chip':'wrong-chip');});}
+function resetSatzbau(){clearInterval(sbTimer);sbSeconds=0;document.getElementById('sb-timer').textContent='⏱ 00:00';buildSatzbau();startTimer();}
+function startTimer(){sbTimer=setInterval(()=>{sbSeconds++;const m=String(Math.floor(sbSeconds/60)).padStart(2,'0');const s=String(sbSeconds%60).padStart(2,'0');document.getElementById('sb-timer').textContent=`⏱ ${m}:${s}`;},1000);}
+buildSatzbau();startTimer();
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.2 – E-Sport</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:'Segoe UI',sans-serif;padding:20px}
+.container{max-width:1000px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);overflow:hidden}
+header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 32px}
+header h1{font-size:1.6rem;margin-bottom:4px}
+header p{opacity:.85;font-size:.95rem}
+nav{display:flex;border-bottom:2px solid #e0e0e0;background:#f8f8f8;flex-wrap:wrap}
+.tab-btn{display:flex;flex-direction:column;align-items:center;padding:10px 16px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;color:#666;transition:all .2s;gap:3px;border-right:1px solid #e0e0e0}
+.tab-btn .nav-emoji{font-size:1.3rem}
+.tab-btn .nav-label{font-size:.72rem}
+.tab-btn.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea;font-weight:600}
+.tab-btn:hover:not(.active){background:#f0f0f0}
+.tab{display:none;padding:28px 32px}
+.tab.active{display:block}
+.tab-banner{width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:20px}
+h2{color:#667eea;font-size:1.2rem;margin-bottom:14px}
+h3{color:#764ba2;font-size:1rem;margin:18px 0 10px}
+.info-box{background:#f0f0ff;border-left:4px solid #667eea;padding:16px 20px;border-radius:8px;margin-bottom:16px;font-size:.95rem;line-height:1.7}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px}
+.vocab-card{background:#f5f0ff;border:1px solid #c9b8ff;border-radius:8px;padding:14px}
+.vocab-card .word{font-weight:700;color:#5a3e9b;font-size:.95rem;margin-bottom:4px}
+.vocab-card .type{font-size:.72rem;color:#888;margin-bottom:6px}
+.vocab-card .example{font-size:.82rem;color:#555;font-style:italic;line-height:1.4}
+.story-text{font-family:Georgia,serif;font-size:1rem;line-height:1.8;color:#222;text-align:justify;hyphens:auto;max-width:720px;margin:0 auto}
+.story-text p{text-indent:1.5em;margin-bottom:1em}
+.story-text p:first-child{text-indent:0}
+.vocab-hl{background:#fff176;border-radius:3px;padding:0 2px;cursor:pointer;position:relative}
+.vocab-hl:hover::after{content:attr(data-tooltip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:4px 8px;border-radius:4px;font-size:.75rem;white-space:nowrap;z-index:10;pointer-events:none}
+.rf-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.rf-item{background:#f9f9f9;border:1px solid #ddd;border-radius:8px;padding:14px 16px}
+.rf-item .rf-question{font-size:.95rem;line-height:1.5;margin-bottom:10px}
+.rf-btns{display:flex;gap:8px}
+.rf-btn{padding:6px 18px;border:none;border-radius:6px;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .2s}
+.rf-btn.richtig{background:#e8f5e9;color:#2e7d32;border:2px solid #81c784}
+.rf-btn.falsch{background:#ffebee;color:#c62828;border:2px solid #e57373}
+.rf-btn.selected-correct{background:#4caf50;color:#fff}
+.rf-btn.selected-wrong{background:#f44336;color:#fff}
+input.gap{border:none;border-bottom:2px solid #999;outline:none;font-size:.95rem;padding:2px 4px;width:130px;text-align:center;background:transparent;transition:border-color .2s}
+input.gap.correct{border-bottom:2px solid #4caf50;color:#2e7d32}
+input.gap.wrong{border-bottom:2px solid #f44336;color:#c62828}
+.uebung-block{margin-bottom:20px}
+.uebung-block p{font-size:.95rem;margin-bottom:10px;line-height:1.7}
+.control-bar{display:flex;align-items:center;margin-bottom:16px;gap:10px}
+.btn{padding:8px 18px;border:none;border-radius:6px;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .2s}
+.btn-secondary{background:#e0e0e0;color:#555}.btn-secondary:hover{background:#c8c8c8}
+.timer{margin-left:auto;font-size:.88rem;color:#667eea;font-weight:600}
+.sb-sentence{margin-bottom:20px}
+.sb-sentence .sb-label{font-size:.82rem;color:#888;margin-bottom:6px}
+.sb-dropzone{min-height:44px;border:2px dashed #c9b8ff;border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#fafafa;margin-bottom:6px}
+.sb-dropzone.drag-over{background:#f0f0ff;border-color:#667eea}
+.sb-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-block;background:#667eea;color:#fff;padding:6px 12px;border-radius:20px;font-size:.88rem;cursor:grab;user-select:none;transition:all .2s}
+.chip:hover{background:#5567d5;transform:translateY(-1px)}
+.chip.in-zone{background:#764ba2}
+.chip.correct-chip{background:#4caf50}
+.chip.wrong-chip{background:#f44336}
+footer{background:#f5f5f5;border-top:1px solid #e0e0e0;padding:14px 32px;font-size:.78rem;color:#888;text-align:center}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>E-Sport</h1>
+  <p>B2.2 · Einheit 4 · Lesen · 2046R</p>
+</header>
+<nav>
+  <button class="tab-btn active" onclick="showTab('vorentlastung',this)"><span class="nav-emoji">🧩</span><span class="nav-label">Vorentlastung</span></button>
+  <button class="tab-btn" onclick="showTab('lesetext',this)"><span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span></button>
+  <button class="tab-btn" onclick="showTab('richtigfalsch',this)"><span class="nav-emoji">✓✗</span><span class="nav-label">Richtig/Falsch</span></button>
+  <button class="tab-btn" onclick="showTab('lueckentext',this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button>
+  <button class="tab-btn" onclick="showTab('wortschatz',this)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></button>
+  <button class="tab-btn" onclick="showTab('satzbau',this)"><span class="nav-emoji">🔧</span><span class="nav-label">Satzbau</span></button>
+</nav>
+
+<!-- Tab 1: Vorentlastung -->
+<div id="vorentlastung" class="tab active">
+  <img src="https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg?auto=compress&w=1000" class="tab-banner" alt="E-Sport">
+  <h2>Vorentlastung – E-Sport als Freizeitgestaltung</h2>
+  <div class="info-box">
+    Fußballspiel in der Arena oder E-Sport auf dem Computer? Das ist die Frage im 21. Jahrhundert! Lerne zuerst die wichtigen Wörter kennen.
+  </div>
+  <div class="vocab-grid">
+    <div class="vocab-card"><div class="word">das Sozialleben</div><div class="type">Nomen · (kein Pl.)</div><div class="example">Das Sozialleben findet heute oft auf dem Computer statt.</div></div>
+    <div class="vocab-card"><div class="word">die Entwicklung</div><div class="type">Nomen · -en</div><div class="example">Die Entwicklung des E-Sports war rasant.</div></div>
+    <div class="vocab-card"><div class="word">einschränken</div><div class="type">Verb (trennbar)</div><div class="example">Videospiele sollten für Kinder eingeschränkt werden.</div></div>
+    <div class="vocab-card"><div class="word">die Folge</div><div class="type">Nomen · -n</div><div class="example">Die Folgen mancher Videospiele sind schwer einschätzbar.</div></div>
+    <div class="vocab-card"><div class="word">eintragen</div><div class="type">Verb (trennbar)</div><div class="example">Trage das Ergebnis bitte in die Tabelle ein.</div></div>
+    <div class="vocab-card"><div class="word">die Chance</div><div class="type">Nomen · -n</div><div class="example">Du hast die Chance, diesen Wettkampf zu gewinnen.</div></div>
+    <div class="vocab-card"><div class="word">der Vorteil</div><div class="type">Nomen · ̈-e</div><div class="example">Der Vorteil eines Videospiels ist, dass es die Kreativität fördert.</div></div>
+    <div class="vocab-card"><div class="word">der Nachteil</div><div class="type">Nomen · ̈-e</div><div class="example">Der Nachteil ist, dass ein Videospiel viel Zeit in Anspruch nimmt.</div></div>
+  </div>
+  <h3>Vor dem Lesen:</h3>
+  <ul style="margin-left:20px;font-size:.95rem;line-height:1.9;margin-top:8px">
+    <li>Was ist E-Sport? Welche Spiele kennst du?</li>
+    <li>Würdest du lieber ein Fußballspiel oder ein E-Sport-Turnier besuchen?</li>
+    <li>Welche Vor- und Nachteile siehst du beim E-Sport?</li>
+  </ul>
+</div>
+
+<!-- Tab 2: Lesetext -->
+<div id="lesetext" class="tab">
+  <img src="https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg?auto=compress&w=1000" class="tab-banner" alt="E-Sport Lesetext">
+  <h2>Die Entwicklung des E-Sports</h2>
+  <div class="story-text">
+    <p>Heute stellt man sich oft die Frage, was man auswählen sollte: Ein Fußballspiel in einer Arena oder doch besser ein Turnier auf dem Computer? Alle kennen dieses Bild: zwei Personen sitzen vor dem Computerbildschirm, eventuell auf einer Bühne, und bewegen hektisch ihre Maus und ihre Tastatur. Hunderte Menschen schauen ihnen zu und jubeln. Was ist eigentlich so interessant an diesen Online-Turnieren? Es handelt sich um gesellschaftliche Spiele, das ist klar. Immer mehr Teilnehmer können sich daran beteiligen, der Wettkampf wird gefördert, die Preise sind in Millionenhöhe. Beste Voraussetzungen für ein außergewöhnliches Spiel.</p>
+    <p>Die ersten <span class="vocab-hl" data-tooltip="Wettkämpfe = competitions">Wettkämpfe</span> im Bereich der Videospiele begannen schon 1972. In diesem Jahr wurde das berühmte Pong-Spiel veröffentlicht, und es war zum ersten Mal möglich, dass sich an einem Computerspiel mehrere Teilnehmer beteiligten. Der Preis für den Sieger des ersten Spiels war ein Jahresabonnement für das bekannte Rolling-Stone-Magazin.</p>
+    <p>Später wurden sogar Highscore-Tabellen eingeführt, und die Spieler konnten sich problemlos daran orientieren. Nachdem sich das Internet immer mehr verbreitet hat, stieg auch das Interesse für den elektronischen Sport. So entstand der Ausdruck <span class="vocab-hl" data-tooltip="E-Sport = electronic sport">E-Sport</span>.</p>
+    <p>In den 90er Jahren entstanden die ersten Ligen für Videospiele, und man kämpfte schon um Titel. Nach 2000 fanden die <span class="vocab-hl" data-tooltip="World Cyber Games = Weltmeisterschaft im E-Sport">World Cyber Games</span> in Seoul statt. Nicht weniger als 174 Spieler beteiligten sich an diesem Wettkampf. In der letzten Zeit sind die professionellen Spieler angesehene Sportler geworden. In Südkorea zum Beispiel werden sie wie Superstars behandelt, sie werden respektiert und verfügen über hohe Einkommen – und das nicht nur von den Spielen. Sie sind gefragte Werbepartner und verdienen Millionen Dollar aus Werbeverträgen.</p>
+    <p>Was würdest du verfolgen? Ein Spiel zwischen zwei weltbekannten Tennisspielern oder ein E-Sport-Turnier in einer Sporthalle? Begründe!</p>
+  </div>
+</div>
+
+<!-- Tab 3: Richtig/Falsch -->
+<div id="richtigfalsch" class="tab">
+  <img src="https://images.pexels.com/photos/1260473/pexels-photo-1260473.jpeg?auto=compress&w=1000" class="tab-banner" alt="Richtig oder Falsch">
+  <h2>Richtig oder Falsch?</h2>
+  <ul class="rf-list">
+    <li class="rf-item">
+      <div class="rf-question">Die ersten E-Sport-Wettkämpfe begannen im Jahr 1972 mit dem Spiel Pong.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Der erste Preis beim Pong-Turnier war Bargeld in Millionenhöhe.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','falsch')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','falsch')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Die World Cyber Games fanden in Seoul mit mehr als 170 Teilnehmern statt.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">In Südkorea gelten professionelle E-Sport-Spieler als Superstars.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">Die ersten Ligen für Videospiele entstanden nach dem Jahr 2000.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','falsch')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','falsch')">Falsch</button>
+      </div>
+    </li>
+    <li class="rf-item">
+      <div class="rf-question">E-Sport-Profis verdienen Geld durch Werbeverträge.</div>
+      <div class="rf-btns">
+        <button class="rf-btn richtig" onclick="checkRF(this,'richtig','richtig')">Richtig</button>
+        <button class="rf-btn falsch" onclick="checkRF(this,'falsch','richtig')">Falsch</button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- Tab 4: Lückentext -->
+<div id="lueckentext" class="tab">
+  <img src="https://images.pexels.com/photos/4144179/pexels-photo-4144179.jpeg?auto=compress&w=1000" class="tab-banner" alt="Lückentext">
+  <h2>Lückentext – E-Sport</h2>
+  <div class="info-box">Ergänze die Lücken mit Wörtern aus dem Text.</div>
+  <div class="uebung-block">
+    <p>1. Die ersten Wettkämpfe im Bereich der Videospiele begannen schon <span class="gap-wrap"><input class="gap" style="width:60px" data-answer="1972" oninput="checkGap(this)" placeholder=""></span>.</p>
+    <p>2. Der erste Preis war ein <span class="gap-wrap"><input class="gap" data-answer="Jahresabonnement" oninput="checkGap(this)" placeholder=""></span> für das Rolling-Stone-Magazin.</p>
+    <p>3. Später wurden <span class="gap-wrap"><input class="gap" data-answer="Highscore-Tabellen" oninput="checkGap(this)" placeholder=""></span> eingeführt.</p>
+    <p>4. So entstand der Ausdruck <span class="gap-wrap"><input class="gap" style="width:90px" data-answer="E-Sport" oninput="checkGap(this)" placeholder=""></span>.</p>
+    <p>5. Die World Cyber Games fanden nach 2000 in <span class="gap-wrap"><input class="gap" style="width:80px" data-answer="Seoul" oninput="checkGap(this)" placeholder=""></span> statt.</p>
+    <p>6. In Südkorea werden Spieler wie <span class="gap-wrap"><input class="gap" data-answer="Superstars" oninput="checkGap(this)" placeholder=""></span> behandelt.</p>
+    <p>7. Sie verdienen Millionen Dollar aus <span class="gap-wrap"><input class="gap" data-answer="Werbeverträgen" oninput="checkGap(this)" placeholder=""></span>.</p>
+  </div>
+</div>
+
+<!-- Tab 5: Wortschatz -->
+<div id="wortschatz" class="tab">
+  <img src="https://images.pexels.com/photos/1174746/pexels-photo-1174746.jpeg?auto=compress&w=1000" class="tab-banner" alt="Wortschatz">
+  <h2>Wortschatz – E-Sport &amp; Digitales</h2>
+  <h3>Bedeutungen klären:</h3>
+  <div class="uebung-block">
+    <p>1. „einschränken" = etwas <span class="gap-wrap"><input class="gap" data-answer="begrenzen" oninput="checkGap(this)" placeholder=""></span></p>
+    <p>2. „der Nachteil" = das Gegenteil von <span class="gap-wrap"><input class="gap" data-answer="Vorteil" oninput="checkGap(this)" placeholder=""></span></p>
+    <p>3. „die Chance" = eine <span class="gap-wrap"><input class="gap" data-answer="Möglichkeit" oninput="checkGap(this)" placeholder=""></span></p>
+  </div>
+  <h3>Weitere Vokabeln:</h3>
+  <div class="vocab-grid">
+    <div class="vocab-card"><div class="word">der Wettkampf</div><div class="type">Nomen · ̈-e</div><div class="example">Der E-Sport-Wettkampf war sehr spannend.</div></div>
+    <div class="vocab-card"><div class="word">der Teilnehmer</div><div class="type">Nomen · -</div><div class="example">174 Teilnehmer kamen zum Turnier.</div></div>
+    <div class="vocab-card"><div class="word">die Highscore-Tabelle</div><div class="type">Nomen · -n</div><div class="example">Er steht auf Platz 1 der Highscore-Tabelle.</div></div>
+    <div class="vocab-card"><div class="word">der Werbepartner</div><div class="type">Nomen · -</div><div class="example">Profispieler sind beliebte Werbepartner.</div></div>
+  </div>
+</div>
+
+<!-- Tab 6: Satzbau -->
+<div id="satzbau" class="tab">
+  <img src="https://images.pexels.com/photos/261662/pexels-photo-261662.jpeg?auto=compress&w=1000" class="tab-banner" alt="Satzbau">
+  <h2>Satzbau – E-Sport</h2>
+  <div class="control-bar">
+    <button class="btn btn-secondary" onclick="resetSatzbau()">↺ Zurücksetzen</button>
+    <span class="timer" id="sb-timer">⏱ 00:00</span>
+  </div>
+  <div id="sb-container"></div>
+</div>
+
+<footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+function showTab(id,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+function checkGap(inp){const ans=inp.dataset.answer.trim().toLowerCase();const val=inp.value.trim().toLowerCase();if(!val){inp.classList.remove('correct','wrong');return;}inp.classList.toggle('correct',val===ans);inp.classList.toggle('wrong',val!==ans);}
+function checkRF(btn,chosen,correct){const parent=btn.parentElement;parent.querySelectorAll('.rf-btn').forEach(b=>b.classList.remove('selected-correct','selected-wrong'));if(chosen===correct)btn.classList.add('selected-correct');else{btn.classList.add('selected-wrong');parent.querySelectorAll('.rf-btn').forEach(b=>{if((b.classList.contains('richtig')&&correct==='richtig')||(b.classList.contains('falsch')&&correct==='falsch'))b.classList.add('selected-correct');});}}
+const sbSentences=[
+  {chips:["Fußballspiel","in","der","Arena","oder","E-Sport","auf","dem","Computer","?"],correct:["Fußballspiel","in","der","Arena","oder","E-Sport","auf","dem","Computer","?"]},
+  {chips:["Die","ersten","Wettkämpfe","begannen","schon","1972","mit","dem","Pong-Spiel","."],correct:["Die","ersten","Wettkämpfe","begannen","schon","1972","mit","dem","Pong-Spiel","."]},
+  {chips:["In","Südkorea","werden","sie","wie","Superstars","behandelt","."],correct:["In","Südkorea","werden","sie","wie","Superstars","behandelt","."]},
+];
+let sbTimer=null,sbSeconds=0,sbDragged=null;
+function fisher_yates(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildSatzbau(){const c=document.getElementById('sb-container');c.innerHTML='';sbSentences.forEach((s,si)=>{const div=document.createElement('div');div.className='sb-sentence';div.innerHTML=`<div class="sb-label">Satz ${si+1}:</div><div class="sb-dropzone" id="zone-${si}" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropChip(event,${si})"></div><div class="sb-chips" id="chips-${si}"></div>`;c.appendChild(div);fisher_yates(s.chips).forEach(w=>{const chip=document.createElement('span');chip.className='chip';chip.textContent=w;chip.draggable=true;chip.addEventListener('dragstart',()=>{sbDragged=chip;chip.style.opacity='.5';});chip.addEventListener('dragend',()=>{chip.style.opacity='1';});chip.addEventListener('click',()=>clickChip(chip,si));document.getElementById(`chips-${si}`).appendChild(chip);});});}
+function clickChip(chip,si){const zone=document.getElementById(`zone-${si}`);if(chip.parentElement===zone){document.getElementById(`chips-${si}`).appendChild(chip);chip.classList.remove('in-zone');}else{zone.appendChild(chip);chip.classList.add('in-zone');}checkSbZone(si);}
+function dropChip(e,si){e.preventDefault();document.getElementById(`zone-${si}`).classList.remove('drag-over');if(sbDragged){document.getElementById(`zone-${si}`).appendChild(sbDragged);sbDragged.classList.add('in-zone');sbDragged=null;checkSbZone(si);}}
+function checkSbZone(si){const chips=[...document.getElementById(`zone-${si}`).querySelectorAll('.chip')];const correct=sbSentences[si].correct;if(chips.length!==correct.length)return;const match=chips.every((c,i)=>c.textContent===correct[i]);chips.forEach(c=>{c.classList.remove('correct-chip','wrong-chip');c.classList.add(match?'correct-chip':'wrong-chip');});}
+function resetSatzbau(){clearInterval(sbTimer);sbSeconds=0;document.getElementById('sb-timer').textContent='⏱ 00:00';buildSatzbau();startTimer();}
+function startTimer(){sbTimer=setInterval(()=>{sbSeconds++;const m=String(Math.floor(sbSeconds/60)).padStart(2,'0');const s=String(sbSeconds%60).padStart(2,'0');document.getElementById('sb-timer').textContent=`⏱ ${m}:${s}`;},1000);}
+buildSatzbau();startTimer();
+</script>
+</body>
+</html>
