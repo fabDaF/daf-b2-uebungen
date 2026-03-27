@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.1 · 1063R · Karma</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px 30px;
+  }
+  header h1 { font-size: 1.6rem; font-weight: 700; }
+  header p { opacity: 0.85; margin-top: 4px; font-size: 0.95rem; }
+
+  nav {
+    display: flex;
+    background: #f8f8f8;
+    border-bottom: 2px solid #e0e0e0;
+    overflow-x: auto;
+  }
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: #555;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: background 0.2s;
+    border-right: 1px solid #e0e0e0;
+  }
+  .nav-btn:last-child { border-right: none; }
+  .nav-btn .nav-emoji { font-size: 1.3rem; margin-bottom: 3px; }
+  .nav-btn .nav-label { font-size: 0.72rem; }
+  .nav-btn.active {
+    background: white;
+    border-bottom: 3px solid #667eea;
+    color: #667eea;
+    font-weight: 600;
+  }
+  .nav-btn:hover:not(.active) { background: #efefef; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 0;
+    margin-bottom: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  @media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+
+  .sec-inner { padding: 24px 30px; }
+
+  .control-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .control-bar .buttons { display: flex; gap: 8px; flex: 1; }
+  .btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: #667eea; color: white; }
+  .btn-secondary { background: #e0e0e0; color: #333; }
+  .timer {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #764ba2;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  /* Vorentlastung */
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .vocab-card {
+    background: #f5f0ff;
+    border-radius: 8px;
+    padding: 12px 14px;
+    border-left: 4px solid #667eea;
+  }
+  .vocab-card .de { font-size: 1rem; font-weight: 700; color: #333; }
+  .vocab-card .en { font-size: 0.82rem; color: #666; margin-top: 2px; }
+  .vocab-card .example { font-size: 0.8rem; color: #555; margin-top: 6px; font-style: italic; }
+  .intro-box {
+    background: #fff8e1;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    border-left: 4px solid #ffc107;
+  }
+  .intro-box h3 { font-size: 1rem; color: #333; margin-bottom: 8px; }
+  .intro-box p { font-size: 0.9rem; color: #555; line-height: 1.6; }
+
+  /* Lesetext */
+  .lese-text {
+    font-family: Georgia, 'Times New Roman', serif;
+    max-width: 680px;
+    margin: 0 auto 30px;
+    text-align: justify;
+    hyphens: auto;
+    line-height: 1.9;
+    font-size: 1rem;
+    color: #222;
+  }
+  .lese-text h2 {
+    font-size: 1.3rem;
+    color: #667eea;
+    margin: 22px 0 10px;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: left;
+  }
+  .lese-text h3 {
+    font-size: 1.05rem;
+    color: #764ba2;
+    margin: 18px 0 8px;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: left;
+  }
+  .lese-text p { text-indent: 1.5em; margin-bottom: 0.5em; }
+  .lese-text p:first-of-type { text-indent: 0; }
+  .lese-text .caption {
+    font-size: 0.78rem;
+    color: #888;
+    text-align: center;
+    font-style: italic;
+    display: block;
+    margin-top: 4px;
+  }
+  .lese-img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 16px 0 6px;
+  }
+
+  /* Lückentext */
+  .gap-sentence {
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #333;
+  }
+  .gap-sentence .num {
+    font-weight: 700;
+    color: #667eea;
+    margin-right: 6px;
+  }
+  .gap-input {
+    border: none;
+    border-bottom: 2px solid #667eea;
+    padding: 2px 6px;
+    font-size: 0.93rem;
+    font-family: inherit;
+    color: #333;
+    background: transparent;
+    min-width: 120px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .gap-input.correct { border-bottom-color: #4caf50; color: #2e7d32; }
+  .gap-input.wrong { border-bottom-color: #f44336; color: #c62828; }
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 14px;
+    background: #f5f0ff;
+    border-radius: 8px;
+  }
+  .word-chip {
+    background: white;
+    border: 1.5px solid #667eea;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 0.83rem;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .word-chip:hover { background: #667eea; color: white; }
+  .word-chip.used { opacity: 0.4; text-decoration: line-through; cursor: default; }
+
+  /* Multiple Choice */
+  .mc-item {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    border: 1.5px solid #e0e0e0;
+  }
+  .mc-question { font-weight: 600; font-size: 0.93rem; margin-bottom: 10px; color: #333; }
+  .mc-options { display: flex; flex-direction: column; gap: 6px; }
+  .mc-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .mc-option:hover { background: #f0ecff; }
+  .mc-option input { accent-color: #667eea; }
+  .mc-option.correct-ans { background: #e8f5e9; color: #2e7d32; }
+  .mc-option.wrong-ans { background: #ffebee; color: #c62828; }
+
+  /* Satzbau */
+  .sb-task { margin-bottom: 26px; }
+  .sb-prompt { font-size: 0.88rem; color: #555; margin-bottom: 10px; font-style: italic; }
+  .chip-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px;
+    background: #f5f0ff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .drop-zone {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 50px;
+    padding: 10px;
+    background: #fafafa;
+    border: 2px dashed #bbb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+  }
+  .drop-zone.drag-over { border-color: #667eea; background: #f0ecff; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .chip:active { cursor: grabbing; }
+  .chip.pool-chip { background: white; border: 1.5px solid #764ba2; color: #764ba2; }
+  .chip.placed-chip { background: #764ba2; color: white; border: 1.5px solid #764ba2; }
+  .chip.dragging { opacity: 0.5; transform: scale(1.05); }
+  .sb-feedback { font-size: 0.83rem; min-height: 20px; color: #555; }
+  .sb-feedback.ok { color: #2e7d32; font-weight: 600; }
+  .sb-feedback.err { color: #c62828; }
+
+  /* Wortschatz */
+  .vocab-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .vocab-item {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+  .vocab-item img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .vocab-item .vi-body { padding: 12px 14px; }
+  .vocab-item .vi-en { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+  .vocab-item .vi-inputs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .vocab-item input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.83rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .vocab-item input.art { width: 60px; }
+  .vocab-item input.wort { flex: 1; min-width: 100px; }
+  .vocab-item input.pl { width: 90px; }
+  .vocab-item input.verb { flex: 1; min-width: 150px; }
+  .vocab-item input.correct { border-color: #4caf50; background: #f1f8e9; }
+  .vocab-item input.wrong { border-color: #f44336; background: #ffebee; }
+  .vocab-item .vi-hint { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
+
+  .score-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #aaa;
+    padding: 14px 20px;
+    border-top: 1px solid #eee;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Karma</h1>
+    <p>B2.1 · Lektion 1063 · Lesen &amp; Verstehen</p>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">🌅</span><span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">🎯</span><span class="nav-label">Multiple Choice</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(4)">
+      <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(5)">
+      <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
+    </button>
+  </nav>
+
+  <!-- TAB 0: Vorentlastung -->
+  <div class="section active" id="sec0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1051838/pexels-photo-1051838.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Karma und Balance">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons"><span></span></div>
+        <div class="timer" id="timer0">0:00</div>
+      </div>
+      <div class="intro-box">
+        <h3>🤔 Zum Nachdenken</h3>
+        <p>Haben Sie schon einmal erlebt, dass jemand „das bekommen hat, was er verdiente"? Glauben Sie an ein Prinzip der Gerechtigkeit im Leben? Kennen Sie das Konzept des Karmas? Tauschen Sie sich mit einem Partner aus.</p>
+      </div>
+      <h3 style="font-size:1rem;color:#333;font-weight:700;margin-bottom:14px;">Schlüsselvokabular</h3>
+      <div class="vocab-grid">
+        <div class="vocab-card"><div class="de">die Weltgerechtigkeit</div><div class="en">world justice / cosmic justice</div><div class="example">Die Weltgerechtigkeit sorgt dafür, dass jeder bekommt, was er verdient.</div></div>
+        <div class="vocab-card"><div class="de">die Schadenfreude</div><div class="en">pleasure at another's misfortune</div><div class="example">Er empfand Schadenfreude, als der arrogante Kollege scheiterte.</div></div>
+        <div class="vocab-card"><div class="de">die unsterbliche Seele</div><div class="en">the immortal soul</div><div class="example">Im Hinduismus glaubt man an die unsterbliche Seele.</div></div>
+        <div class="vocab-card"><div class="de">sich ausgleichen</div><div class="en">to balance out, even out</div><div class="example">Gutes und Schlechtes gleichen sich im Laufe des Lebens aus.</div></div>
+        <div class="vocab-card"><div class="de">die Hilfsbereitschaft</div><div class="en">helpfulness, willingness to help</div><div class="example">Ihre Hilfsbereitschaft war bekannt im ganzen Viertel.</div></div>
+        <div class="vocab-card"><div class="de">die göttliche Gnade</div><div class="en">divine grace</div><div class="example">Manche Religionen glauben an göttliche Gnade als Weg zur Erlösung.</div></div>
+        <div class="vocab-card"><div class="de">der Weltenrichter</div><div class="en">universal judge</div><div class="example">Im Karma-Konzept gibt es keinen Weltenrichter, der urteilt.</div></div>
+        <div class="vocab-card"><div class="de">der Kreislauf der Wiedergeburt</div><div class="en">cycle of rebirth / Samsara</div><div class="example">Samsara bezeichnet den Kreislauf der Wiedergeburt im Hinduismus.</div></div>
+      </div>
+      <div class="intro-box" style="background:#e8f5e9;border-color:#4caf50;">
+        <h3>📋 Wichtige Ausdrücke</h3>
+        <p>
+          <strong>Hilfe leisten</strong> = to provide help &nbsp;|&nbsp;
+          <strong>durch die Klausur fallen</strong> = to fail the exam &nbsp;|&nbsp;
+          <strong>vor der Tür stehen</strong> = to be imminent &nbsp;|&nbsp;
+          <strong>sein Bestmögliches geben</strong> = to give one's best &nbsp;|&nbsp;
+          <strong>das Universum gnädig stimmen</strong> = to appease the universe
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Lesetext -->
+  <div class="section" id="sec1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lesetext Karma">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons"><span></span></div>
+        <div class="timer" id="timer1">0:00</div>
+      </div>
+      <div class="lese-text">
+        <h2>Karma — Was wir säen, das ernten wir</h2>
+
+        <h3>Die gerechte Welt</h3>
+        <p>Kennen Sie dieses Gefühl? Sie stehen in der Schlange im Supermarkt, und plötzlich drängt sich jemand unhöflich vor. Innerlich hoffen Sie, dass dieser Person gleich etwas Unangenehmes passiert. Oder Sie sehen, wie ein arroganter Kommilitone, der nie gelernt hat, durch seine Klausur fällt — und trotz aller Bemühungen, Mitleid zu empfinden, spüren Sie eine leise Schadenfreude. Solche Reaktionen sind zutiefst menschlich. Sie verraten unseren Glauben an eine gerechte Welt, in der gutes Handeln belohnt und schlechtes Handeln bestraft wird.</p>
+
+        <img class="lese-img" src="https://images.pexels.com/photos/933964/pexels-photo-933964.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Gleichgewicht und Gerechtigkeit">
+        <span class="caption">Das Gleichgewicht zwischen Gut und Böse — ein universelles menschliches Bedürfnis.</span>
+
+        <h3>Zuckermans Experiment</h3>
+        <p>In den 1970er Jahren führte der Sozialpsychologe Miron Zuckerman ein bemerkenswertes Experiment durch. Er stellte Studenten in Situationen, in denen sie entscheiden mussten, ob sie helfen wollten — einer blinden Frau, die Hilfe beim Überqueren der Straße brauchte, oder einem obdachlosen Mann, der um Kleingeld bat. Das verblüffende Ergebnis: Die Studenten, die am meisten Hilfe leisteten, waren ausgerechnet jene, bei denen wichtige Prüfungen unmittelbar vor der Tür standen.</p>
+        <p>Zuckermans Schlussfolgerung war ebenso einfach wie überraschend: Menschen neigen dazu, in stressigen Situationen besonders hilfsbereit zu sein — nicht trotz des Stresses, sondern wegen ihm. Es schien, als ob sie durch ihre Hilfsbereitschaft das Universum gnädig stimmen wollten, in der Hoffnung, dass die Prüfung gut ausgehen würde. Dieses Verhalten lässt sich mit dem Karma-Glauben erklären: Wer Gutes tut, wird Gutes erfahren.</p>
+
+        <h3>Karma und die unsterbliche Seele</h3>
+        <p>Das Konzept des Karmas stammt aus den hinduistischen Schriften und lässt sich auf das 6. Jahrhundert vor Christus zurückführen. Im Kern geht es um die Idee, dass jede Handlung Konsequenzen hat — nicht nur in diesem Leben, sondern auch in zukünftigen Existenzen. Die unsterbliche Seele, so der Glaube, wird nach dem Tod wiedergeboren, und das angesammelte Karma aus früheren Leben beeinflusst die Umstände der nächsten Geburt.</p>
+        <p>Wichtig dabei ist: Im klassischen Karma-Verständnis gibt es keinen Weltenrichter, der über Gut und Böse urteilt. Das Karma funktioniert nicht wie ein göttliches Gericht, sondern wie ein unpersönliches Naturgesetz — ähnlich wie die Schwerkraft. Wer einen Stein in die Höhe wirft, muss damit rechnen, dass er wieder herunterkommt. Was man in die Welt setzt, kommt zurück.</p>
+
+        <h3>Karma und Physik</h3>
+        <p>Manche Wissenschaftler sehen in der Karma-Idee eine philosophische Entsprechung physikalischer Grundprinzipien. Das Gesetz von Ursache und Wirkung — in der Physik als drittes Newtonsches Gesetz bekannt — besagt, dass jede Aktion eine gleich große und entgegengesetzte Reaktion hervorruft. Im übertragenen Sinne bedeutet das: Energie kehrt zu ihrem Ursprung zurück. Wer Freundlichkeit aussendet, empfängt Freundlichkeit. Wer Feindseligkeit verbreitet, bekommt Feindseligkeit zurück. Ob man dieses Prinzip nun spirituell oder wissenschaftlich betrachtet — sein Kern ist derselbe: Die Welt ist ein System, das nach Gleichgewicht strebt.</p>
+
+        <h3>Das letzte Ziel</h3>
+        <p>Das höchste Ziel im karma-orientierten Denken ist nicht etwa, viel gutes Karma anzusammeln. Paradoxerweise lautet das eigentliche Ziel, überhaupt kein Karma mehr zu erzeugen — weder gutes noch schlechtes. Denn solange die Seele Karma erzeugt, bleibt sie im Kreislauf der Wiedergeburten gefangen. Erst wenn alle karmischen Bindungen aufgelöst sind, kann die Seele aus dem Samsara, dem ewigen Kreislauf, befreit werden. Das Streben nach diesem Zustand — der Moksha genannt wird — ist das eigentliche spirituelle Ziel vieler östlicher Traditionen.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Lückentext -->
+  <div class="section" id="sec2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/4144923/pexels-photo-4144923.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Lernen">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons">
+          <button class="btn btn-secondary" onclick="resetLuecken()">↺ Neu</button>
+          <button class="btn btn-primary" onclick="showLueckenAnswers()">Lösung</button>
+        </div>
+        <div class="timer" id="timer2">0:00</div>
+      </div>
+      <div class="word-bank" id="wbank">
+        <span class="word-chip" onclick="chipClick(this)">Schadenfreude</span>
+        <span class="word-chip" onclick="chipClick(this)">ausgleichen</span>
+        <span class="word-chip" onclick="chipClick(this)">unsterbliche</span>
+        <span class="word-chip" onclick="chipClick(this)">Weltenrichter</span>
+        <span class="word-chip" onclick="chipClick(this)">Karma</span>
+        <span class="word-chip" onclick="chipClick(this)">Wiedergeburt</span>
+        <span class="word-chip" onclick="chipClick(this)">Hilfsbereitschaft</span>
+        <span class="word-chip" onclick="chipClick(this)">Gleichgewicht</span>
+        <span class="word-chip" onclick="chipClick(this)">Ursache</span>
+        <span class="word-chip" onclick="chipClick(this)">gnädig</span>
+        <span class="word-chip" onclick="chipClick(this)">Samsara</span>
+        <span class="word-chip" onclick="chipClick(this)">Moksha</span>
+      </div>
+      <div id="luecken-area">
+        <div class="gap-sentence"><span class="num">1.</span> Als der arrogante Kommilitone durch die Klausur fiel, empfanden viele eine leise <input class="gap-input" data-ans="Schadenfreude" oninput="checkGap(this)" placeholder="">.
+        </div>
+        <div class="gap-sentence"><span class="num">2.</span> Gutes und Schlechtes sollen sich im Laufe des Lebens <input class="gap-input" data-ans="ausgleichen" oninput="checkGap(this)" placeholder="">, so der Glaube an die Weltgerechtigkeit.
+        </div>
+        <div class="gap-sentence"><span class="num">3.</span> Im Hinduismus glaubt man, dass die <input class="gap-input" data-ans="unsterbliche" oninput="checkGap(this)" placeholder=""> Seele nach dem Tod wiedergeboren wird.
+        </div>
+        <div class="gap-sentence"><span class="num">4.</span> Im klassischen Karma-Konzept gibt es keinen <input class="gap-input" data-ans="Weltenrichter" oninput="checkGap(this)" placeholder="">, der über Gut und Böse urteilt.
+        </div>
+        <div class="gap-sentence"><span class="num">5.</span> Das <input class="gap-input" data-ans="Karma" oninput="checkGap(this)" placeholder=""> ist kein göttliches Gericht, sondern funktioniert wie ein unpersönliches Naturgesetz.
+        </div>
+        <div class="gap-sentence"><span class="num">6.</span> Die <input class="gap-input" data-ans="Wiedergeburt" oninput="checkGap(this)" placeholder=""> hängt davon ab, welches Karma man im vorherigen Leben angesammelt hat.
+        </div>
+        <div class="gap-sentence"><span class="num">7.</span> Zuckermans Experiment zeigte, dass Menschen in Stresssituationen besondere <input class="gap-input" data-ans="Hilfsbereitschaft" oninput="checkGap(this)" placeholder=""> zeigen.
+        </div>
+        <div class="gap-sentence"><span class="num">8.</span> Die Studenten hofften, durch Hilfe das Universum <input class="gap-input" data-ans="gnädig" oninput="checkGap(this)" placeholder=""> zu stimmen.
+        </div>
+        <div class="gap-sentence"><span class="num">9.</span> Das Universum strebt nach <input class="gap-input" data-ans="Gleichgewicht" oninput="checkGap(this)" placeholder=""> — was man aussendet, kommt zurück.
+        </div>
+        <div class="gap-sentence"><span class="num">10.</span> Das Karma-Gesetz basiert auf dem Prinzip von <input class="gap-input" data-ans="Ursache" oninput="checkGap(this)" placeholder=""> und Wirkung.
+        </div>
+        <div class="gap-sentence"><span class="num">11.</span> <input class="gap-input" data-ans="Samsara" oninput="checkGap(this)" placeholder=""> bezeichnet den ewigen Kreislauf der Wiedergeburten im hinduistischen Denken.
+        </div>
+        <div class="gap-sentence"><span class="num">12.</span> Das spirituelle Ziel ist der <input class="gap-input" data-ans="Moksha" oninput="checkGap(this)" placeholder=""> — die Befreiung aus dem Kreislauf aller karmischen Bindungen.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Multiple Choice -->
+  <div class="section" id="sec3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Entscheidung und Wahl">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons">
+          <button class="btn btn-secondary" onclick="resetMC()">↺ Neu</button>
+          <button class="btn btn-primary" onclick="showMCAnswers()">Lösung</button>
+        </div>
+        <div class="timer" id="timer3">0:00</div>
+      </div>
+      <div id="mc-area">
+        <div class="mc-item">
+          <div class="mc-question">1. Was haben die Probanden in Zuckermans Experiment getan?</div>
+          <div class="mc-options">
+            <label class="mc-option"><input type="radio" name="mc1" value="a"> <span>Sie haben eine blinde Frau und einen Obdachlosen um Geld gebeten.</span></label>
+            <label class="mc-option" data-correct="true"><input type="radio" name="mc1" value="b"> <span>Sie haben entschieden, ob sie einer blinden Frau oder einem Obdachlosen helfen wollten.</span></label>
+            <label class="mc-option"><input type="radio" name="mc1" value="c"> <span>Sie haben an einer Prüfung teilgenommen und danach über Karma diskutiert.</span></label>
+          </div>
+        </div>
+        <div class="mc-item">
+          <div class="mc-question">2. Welche Studenten halfen am meisten?</div>
+          <div class="mc-options">
+            <label class="mc-option"><input type="radio" name="mc2" value="a"> <span>Jene, die bereits gute Prüfungsergebnisse hatten.</span></label>
+            <label class="mc-option"><input type="radio" name="mc2" value="b"> <span>Jene, die keine wichtigen Termine hatten.</span></label>
+            <label class="mc-option" data-correct="true"><input type="radio" name="mc2" value="c"> <span>Jene, bei denen wichtige Prüfungen unmittelbar bevorstanden.</span></label>
+          </div>
+        </div>
+        <div class="mc-item">
+          <div class="mc-question">3. Wann entstand das Karma-Konzept laut Text?</div>
+          <div class="mc-options">
+            <label class="mc-option"><input type="radio" name="mc3" value="a"> <span>Im 3. Jahrhundert nach Christus.</span></label>
+            <label class="mc-option" data-correct="true"><input type="radio" name="mc3" value="b"> <span>Im 6. Jahrhundert vor Christus.</span></label>
+            <label class="mc-option"><input type="radio" name="mc3" value="c"> <span>Im 1. Jahrhundert nach Christus.</span></label>
+          </div>
+        </div>
+        <div class="mc-item">
+          <div class="mc-question">4. Wie funktioniert Karma laut dem Text?</div>
+          <div class="mc-options">
+            <label class="mc-option"><input type="radio" name="mc4" value="a"> <span>Wie ein göttliches Gericht mit einem Richter.</span></label>
+            <label class="mc-option"><input type="radio" name="mc4" value="b"> <span>Als persönliche Belohnung durch ein höheres Wesen.</span></label>
+            <label class="mc-option" data-correct="true"><input type="radio" name="mc4" value="c"> <span>Wie ein unpersönliches Naturgesetz — Ursache und Wirkung.</span></label>
+          </div>
+        </div>
+        <div class="mc-item">
+          <div class="mc-question">5. Was ist das höchste Ziel im Karma-Denken?</div>
+          <div class="mc-options">
+            <label class="mc-option"><input type="radio" name="mc5" value="a"> <span>Möglichst viel gutes Karma anzusammeln.</span></label>
+            <label class="mc-option" data-correct="true"><input type="radio" name="mc5" value="b"> <span>Überhaupt kein Karma mehr zu erzeugen und aus dem Kreislauf befreit zu werden.</span></label>
+            <label class="mc-option"><input type="radio" name="mc5" value="c"> <span>In möglichst vielen Leben wiedergeboren zu werden.</span></label>
+          </div>
+        </div>
+        <div class="mc-item">
+          <div class="mc-question">6. Was verbindet Karma mit der Physik laut Text?</div>
+          <div class="mc-options">
+            <label class="mc-option"><input type="radio" name="mc6" value="a"> <span>Beide beschäftigen sich mit der unsterblichen Seele.</span></label>
+            <label class="mc-option"><input type="radio" name="mc6" value="b"> <span>Beide erklären das Leben nach dem Tod wissenschaftlich.</span></label>
+            <label class="mc-option" data-correct="true"><input type="radio" name="mc6" value="c"> <span>Das Prinzip von Aktion und Reaktion — was ausgesendet wird, kommt zurück.</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="score-box" id="mc-score" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Satzbau -->
+  <div class="section" id="sec4">
+    <img class="tab-banner" src="https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau und Puzzle">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons">
+          <button class="btn btn-secondary" onclick="resetSatzbau()">↺ Neu</button>
+          <button class="btn btn-primary" onclick="checkAllSatzbau()">Alles prüfen</button>
+        </div>
+        <div class="timer" id="timer4">0:00</div>
+      </div>
+      <div id="sb-area"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: Wortschatz -->
+  <div class="section" id="sec5">
+    <img class="tab-banner" src="https://images.pexels.com/photos/256417/pexels-photo-256417.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bücher und Wortschatz">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="buttons">
+          <button class="btn btn-secondary" onclick="resetVocab()">↺ Neu</button>
+          <button class="btn btn-primary" onclick="showVocabAnswers()">Lösung</button>
+        </div>
+        <div class="timer" id="timer5">0:00</div>
+      </div>
+      <div class="vocab-container" id="vocab-container"></div>
+    </div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// ── TAB NAVIGATION ──────────────────────────────────────────────
+const timers = Array(6).fill(null);
+const ticking = Array(6).fill(false);
+const elapsed = Array(6).fill(0);
+let activeTab = 0;
+
+function showTab(n) {
+  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i===n));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+  if (!ticking[n]) { ticking[n] = true; timers[n] = setInterval(() => { elapsed[n]++; updateTimer(n); }, 1000); }
+  activeTab = n;
+}
+function updateTimer(n) {
+  const m = Math.floor(elapsed[n]/60), s = elapsed[n]%60;
+  document.querySelectorAll('.timer').forEach((el,i) => { if(i===n) el.textContent = m+':'+(s<10?'0':'')+s; });
+}
+
+// ── LÜCKENTEXT ───────────────────────────────────────────────────
+function checkGap(inp) {
+  const val = inp.value.trim();
+  const ans = inp.dataset.ans;
+  if (!val) { inp.className='gap-input'; return; }
+  inp.classList.toggle('correct', val.toLowerCase()===ans.toLowerCase());
+  inp.classList.toggle('wrong', val.toLowerCase()!==ans.toLowerCase());
+}
+function resetLuecken() {
+  document.querySelectorAll('.gap-input').forEach(i => { i.value=''; i.className='gap-input'; });
+  document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('used'));
+}
+function showLueckenAnswers() {
+  document.querySelectorAll('.gap-input').forEach(i => { i.value=i.dataset.ans; i.className='gap-input correct'; });
+}
+function chipClick(chip) {
+  if (chip.classList.contains('used')) return;
+  const inputs = document.querySelectorAll('.gap-input');
+  for (let inp of inputs) {
+    if (!inp.value) { inp.value = chip.textContent; checkGap(inp); chip.classList.add('used'); break; }
+  }
+}
+
+// ── MULTIPLE CHOICE ──────────────────────────────────────────────
+function resetMC() {
+  document.querySelectorAll('.mc-options input').forEach(r => r.checked=false);
+  document.querySelectorAll('.mc-option').forEach(o => o.classList.remove('correct-ans','wrong-ans'));
+  document.getElementById('mc-score').style.display='none';
+}
+function showMCAnswers() {
+  let correct=0, total=0;
+  document.querySelectorAll('.mc-item').forEach(item => {
+    const opts = item.querySelectorAll('.mc-option');
+    opts.forEach(opt => {
+      const inp = opt.querySelector('input');
+      if (opt.dataset.correct==='true') {
+        opt.classList.add('correct-ans'); inp.checked=true; correct++;
+      }
+    });
+    total++;
+  });
+  const sc=document.getElementById('mc-score');
+  sc.textContent='Lösung angezeigt — '+correct+'/'+total+' richtig';
+  sc.style.display='block';
+}
+document.querySelectorAll('.mc-options input').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const item = this.closest('.mc-item');
+    item.querySelectorAll('.mc-option').forEach(o => o.classList.remove('correct-ans','wrong-ans'));
+    const chosen = this.closest('.mc-option');
+    chosen.classList.add(chosen.dataset.correct==='true' ? 'correct-ans' : 'wrong-ans');
+    if (chosen.dataset.correct==='true') {
+      const correctOpt = item.querySelector('.mc-option[data-correct="true"]');
+      correctOpt.classList.add('correct-ans');
+    }
+  });
+});
+
+// ── SATZBAU ──────────────────────────────────────────────────────
+const sbSentences = [
+  { prompt:'Ordne die Wörter zum richtigen Satz:', chips:['Jede','Handlung','hat','Konsequenzen','—','auch','im','nächsten','Leben','.'], solution:'Jede Handlung hat Konsequenzen — auch im nächsten Leben .' },
+  { prompt:'Ordne die Wörter zum richtigen Satz:', chips:['Die','unsterbliche','Seele','wird','nach','dem','Tod','wiedergeboren','.'], solution:'Die unsterbliche Seele wird nach dem Tod wiedergeboren .' },
+  { prompt:'Ordne die Wörter zum richtigen Satz:', chips:['Karma','funktioniert','wie','ein','unpersönliches','Naturgesetz','.'], solution:'Karma funktioniert wie ein unpersönliches Naturgesetz .' },
+  { prompt:'Ordne die Wörter zum richtigen Satz:', chips:['Was','man','aussendet',',','kommt','zu','einem','zurück','.'], solution:'Was man aussendet , kommt zu einem zurück .' },
+  { prompt:'Ordne die Wörter zum richtigen Satz:', chips:['Das','höchste','Ziel','ist','es',',','kein','Karma','mehr','zu','erzeugen','.'], solution:'Das höchste Ziel ist es , kein Karma mehr zu erzeugen .' },
+  { prompt:'Ordne die Wörter zum richtigen Satz:', chips:['Die','Studenten','wollten','das','Universum','gnädig','stimmen','.'], solution:'Die Studenten wollten das Universum gnädig stimmen .' },
+  { prompt:'Ordne die Wörter zum richtigen Satz:', chips:['Samsara','bezeichnet','den','ewigen','Kreislauf','der','Wiedergeburten','.'], solution:'Samsara bezeichnet den ewigen Kreislauf der Wiedergeburten .' },
+];
+
+let sbDragged = null;
+
+function shuffle(arr) {
+  const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a;
+}
+
+function buildSatzbau() {
+  const area = document.getElementById('sb-area');
+  area.innerHTML = '';
+  sbSentences.forEach((s,idx) => {
+    const div = document.createElement('div');
+    div.className = 'sb-task';
+    div.innerHTML = `<div class="sb-prompt">${idx+1}. ${s.prompt}</div>
+      <div class="chip-pool" id="pool${idx}"></div>
+      <div class="drop-zone" id="drop${idx}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="dropChip(event,${idx},'drop')"></div>
+      <div class="sb-feedback" id="fb${idx}"></div>`;
+    area.appendChild(div);
+    const pool = div.querySelector(`#pool${idx}`);
+    shuffle(s.chips).forEach(word => {
+      pool.appendChild(makeChip(word, idx, 'pool'));
+    });
+  });
+}
+
+function makeChip(word, idx, loc) {
+  const chip = document.createElement('span');
+  chip.className = 'chip ' + (loc==='pool'?'pool-chip':'placed-chip');
+  chip.textContent = word;
+  chip.draggable = true;
+  chip.dataset.idx = idx;
+  chip.dataset.loc = loc;
+  chip.addEventListener('dragstart', e => { sbDragged=chip; chip.classList.add('dragging'); });
+  chip.addEventListener('dragend', e => { chip.classList.remove('dragging'); sbDragged=null; });
+  chip.addEventListener('click', () => moveChipClick(chip, idx));
+  return chip;
+}
+
+function moveChipClick(chip, idx) {
+  const isInPool = chip.dataset.loc === 'pool';
+  const target = isInPool ? document.getElementById('drop'+idx) : document.getElementById('pool'+idx);
+  const newLoc = isInPool ? 'drop' : 'pool';
+  chip.dataset.loc = newLoc;
+  chip.className = 'chip ' + (newLoc==='pool'?'pool-chip':'placed-chip');
+  chip.draggable = true;
+  chip.addEventListener('dragstart', e => { sbDragged=chip; chip.classList.add('dragging'); });
+  chip.addEventListener('dragend', e => { chip.classList.remove('dragging'); sbDragged=null; });
+  chip.addEventListener('click', () => moveChipClick(chip, idx));
+  target.appendChild(chip);
+  checkSbSentence(idx);
+}
+
+function dropChip(event, idx, targetLoc) {
+  event.preventDefault();
+  document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('drag-over'));
+  if (!sbDragged) return;
+  const origIdx = parseInt(sbDragged.dataset.idx);
+  if (origIdx !== idx) return;
+  const newLoc = targetLoc;
+  sbDragged.dataset.loc = newLoc;
+  sbDragged.className = 'chip ' + (newLoc==='pool'?'pool-chip':'placed-chip');
+  document.getElementById((newLoc==='pool'?'pool':'drop')+idx).appendChild(sbDragged);
+  checkSbSentence(idx);
+}
+
+function checkSbSentence(idx) {
+  const placed = [...document.getElementById('drop'+idx).querySelectorAll('.chip')].map(c=>c.textContent).join(' ');
+  const fb = document.getElementById('fb'+idx);
+  if (!placed) { fb.textContent=''; return; }
+  if (placed === sbSentences[idx].solution) {
+    fb.textContent = '✓ Richtig!'; fb.className='sb-feedback ok';
+  } else {
+    fb.textContent = 'Noch nicht richtig — probier weiter!'; fb.className='sb-feedback err';
+  }
+}
+
+function checkAllSatzbau() {
+  sbSentences.forEach((s,i) => checkSbSentence(i));
+}
+
+function resetSatzbau() { buildSatzbau(); }
+
+// ── WORTSCHATZ ───────────────────────────────────────────────────
+const vocabData = [
+  { img:'https://images.pexels.com/photos/933964/pexels-photo-933964.jpeg?auto=compress&cs=tinysrgb&w=400', en:'world justice / cosmic justice', type:'n', art:'die', wort:'Weltgerechtigkeit', pl:'—', hint:'Sg. only' },
+  { img:'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=400', en:'pleasure at sb\'s misfortune', type:'n', art:'die', wort:'Schadenfreude', pl:'—', hint:'Sg. only' },
+  { img:'https://images.pexels.com/photos/1051838/pexels-photo-1051838.jpeg?auto=compress&cs=tinysrgb&w=400', en:'immortal soul', type:'n', art:'die', wort:'Seele', pl:'-n', hint:'die Seele, -n' },
+  { img:'https://images.pexels.com/photos/2698655/pexels-photo-2698655.jpeg?auto=compress&cs=tinysrgb&w=400', en:'helpfulness', type:'n', art:'die', wort:'Hilfsbereitschaft', pl:'—', hint:'Sg. only' },
+  { img:'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=400', en:'cycle of rebirth', type:'n', art:'der', wort:'Kreislauf', pl:'¨-e', hint:'der Kreislauf, ¨-e' },
+  { img:'https://images.pexels.com/photos/256417/pexels-photo-256417.jpeg?auto=compress&cs=tinysrgb&w=400', en:'to balance out', type:'v', wort:'sich ausgleichen', hint:'trennbar: gleicht sich aus' },
+  { img:'https://images.pexels.com/photos/3807571/pexels-photo-3807571.jpeg?auto=compress&cs=tinysrgb&w=400', en:'cause and effect', type:'n', art:'die', wort:'Ursache', pl:'-n', hint:'die Ursache, -n' },
+  { img:'https://images.pexels.com/photos/326559/pexels-photo-326559.jpeg?auto=compress&cs=tinysrgb&w=400', en:'balance, equilibrium', type:'n', art:'das', wort:'Gleichgewicht', pl:'-e', hint:'das Gleichgewicht, -e' },
+  { img:'https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg?auto=compress&cs=tinysrgb&w=400', en:'rebirth', type:'n', art:'die', wort:'Wiedergeburt', pl:'-en', hint:'die Wiedergeburt, -en' },
+  { img:'https://images.pexels.com/photos/4145153/pexels-photo-4145153.jpeg?auto=compress&cs=tinysrgb&w=400', en:'universe', type:'n', art:'das', wort:'Universum', pl:'Universen', hint:'das Universum, Universen' },
+  { img:'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=400', en:'divine grace', type:'n', art:'die', wort:'Gnade', pl:'-n', hint:'die Gnade, -n' },
+  { img:'https://images.pexels.com/photos/5212317/pexels-photo-5212317.jpeg?auto=compress&cs=tinysrgb&w=400', en:'liberation (from rebirth cycle)', type:'n', art:'der', wort:'Moksha', pl:'—', hint:'Sg. only (Sanskrit)' },
+];
+
+function buildVocab() {
+  const con = document.getElementById('vocab-container');
+  con.innerHTML = '';
+  vocabData.forEach((v,i) => {
+    const item = document.createElement('div');
+    item.className = 'vocab-item';
+    let inputs = '';
+    if (v.type==='n') {
+      inputs = `<input class="art" data-ans="${v.art}" data-idx="${i}" data-field="art" placeholder="" oninput="checkVocab(this)">
+                <input class="wort" data-ans="${v.wort}" data-idx="${i}" data-field="wort" placeholder="" oninput="checkVocab(this)">
+                <input class="pl" data-ans="${v.pl}" data-idx="${i}" data-field="pl" placeholder="" oninput="checkVocab(this)">`;
+    } else {
+      inputs = `<input class="verb" data-ans="${v.wort}" data-idx="${i}" data-field="verb" placeholder="" oninput="checkVocab(this)">`;
+    }
+    item.innerHTML = `<img src="${v.img}" alt="${v.en}" onerror="this.style.display='none'">
+      <div class="vi-body">
+        <div class="vi-en">${v.en}</div>
+        <div class="vi-inputs">${inputs}</div>
+        <div class="vi-hint">${v.hint}</div>
+      </div>`;
+    con.appendChild(item);
+  });
+}
+
+function checkVocab(inp) {
+  const val = inp.value.trim();
+  const ans = inp.dataset.ans;
+  if (!val) { inp.classList.remove('correct','wrong'); return; }
+  inp.classList.toggle('correct', val.toLowerCase()===ans.toLowerCase());
+  inp.classList.toggle('wrong', val.toLowerCase()!==ans.toLowerCase());
+}
+function resetVocab() {
+  document.querySelectorAll('.vocab-item input').forEach(i => { i.value=''; i.classList.remove('correct','wrong'); });
+}
+function showVocabAnswers() {
+  document.querySelectorAll('.vocab-item input').forEach(inp => { inp.value=inp.dataset.ans; inp.classList.add('correct'); });
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+buildSatzbau();
+buildVocab();
+showTab(0);
+ticking[0]=true; timers[0]=setInterval(()=>{elapsed[0]++;updateTimer(0);},1000);
+</script>
+</body>
+</html>
