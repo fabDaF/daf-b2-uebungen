@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 2021X · Eine ideale Stadt</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+  .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 30px 16px; }
+  header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  header p { opacity: 0.85; font-size: 0.95rem; }
+  nav { display: flex; background: #f0f0f0; border-bottom: 2px solid #ddd; overflow-x: auto; }
+  nav button { flex: 1; min-width: 90px; padding: 10px 8px; border: 1px solid #ccc; border-bottom: none; background: #e8e8e8; cursor: pointer; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: background 0.2s; color: #555; }
+  nav button .nav-emoji { font-size: 1.3rem; }
+  nav button .nav-label { font-size: 0.72rem; }
+  nav button.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  @media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+  .sec-inner { padding: 24px 28px; }
+  .control-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .control-bar .btn-group { display: flex; gap: 8px; }
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+  .btn-reset { background: #e0e0e0; color: #555; }
+  .btn-reset:hover { background: #ccc; }
+  .timer-box { font-size: 0.85rem; color: #666; font-variant-numeric: tabular-nums; background: #f5f5f5; padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd; }
+  .phrase-section { background: #f8f6ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+  .phrase-section h3 { color: #667eea; margin-bottom: 10px; font-size: 1rem; }
+  .phrase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 8px; }
+  .phrase-card { background: white; border: 1px solid #c8d4f8; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #333; line-height: 1.4; box-shadow: 0 1px 4px rgba(102,126,234,0.08); }
+  .phrase-card em { color: #667eea; font-style: normal; font-weight: 600; }
+  .gap-list { list-style: none; }
+  .gap-list li { background: #fafafa; border: 1px solid #e8e8e8; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; font-size: 0.95rem; line-height: 1.6; }
+  .gap-input { border: none; border-bottom: 2px solid #667eea; background: transparent; font-size: 0.95rem; padding: 2px 6px; min-width: 120px; outline: none; color: #333; }
+  .gap-input.correct { border-color: #4caf50; background: #e8f5e9; border-radius: 4px; }
+  .gap-input.wrong { border-color: #e53935; background: #ffebee; border-radius: 4px; }
+  .sb-area { margin-top: 8px; }
+  .sb-task { background: #f8f6ff; border: 1px solid #d0d8f8; border-radius: 10px; padding: 16px 18px; margin-bottom: 18px; }
+  .sb-task p { font-size: 0.82rem; color: #888; margin-bottom: 10px; }
+  .drop-zone { min-height: 44px; border: 2px dashed #b0bcf0; border-radius: 8px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; background: #f0f4ff; transition: background 0.2s; }
+  .drop-zone.drag-over { background: #e0e8ff; }
+  .chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { background: #667eea; color: white; padding: 6px 13px; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; border: none; transition: background 0.2s, opacity 0.2s; }
+  .chip:hover { background: #5a6fd6; }
+  .chip.placed { background: #764ba2; }
+  .chip.ghost { opacity: 0.4; }
+  .sb-feedback { font-size: 0.82rem; color: #666; min-height: 1.2em; }
+  .sb-feedback.ok { color: #4caf50; font-weight: 600; }
+  .sb-feedback.err { color: #e53935; }
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .vocab-card { border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+  .vocab-card img { width: 100%; height: 120px; object-fit: cover; }
+  .vocab-body { padding: 12px 14px; }
+  .vocab-en { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+  .vocab-inputs { display: flex; flex-direction: column; gap: 5px; }
+  .vocab-inputs input { border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
+  .vocab-inputs input:focus { border-color: #667eea; }
+  .vocab-inputs input.correct { border-color: #4caf50; background: #e8f5e9; }
+  .vocab-inputs input.wrong { border-color: #e53935; background: #ffebee; }
+  .vocab-inputs input::placeholder { color: #bbb; }
+  footer { text-align: center; padding: 14px; font-size: 0.78rem; color: #999; border-top: 1px solid #eee; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Eine ideale Stadt</h1>
+    <p>B2 · Einheit 2 · 2021X · Kommunikation &amp; Wortschatz</p>
+  </header>
+  <nav>
+    <button class="active" onclick="showTab(0)"><span class="nav-emoji">💬</span><span class="nav-label">Redemittel</span></button>
+    <button onclick="showTab(1)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button>
+    <button onclick="showTab(2)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></button>
+    <button onclick="showTab(3)"><span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span></button>
+  </nav>
+
+  <!-- TAB 0: Redemittel -->
+  <div class="section active" id="tab0">
+    <div class="sec-inner">
+      <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=900" class="tab-banner" alt="Eine ideale Stadt">
+      <div class="phrase-section">
+        <h3>Meinung anderer ausdrücken</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">Paul ist der <em>Meinung, dass</em>…</div>
+          <div class="phrase-card"><em>Laut</em> Herrn/Frau Müller…</div>
+          <div class="phrase-card"><em>Meiner Meinung nach</em>…</div>
+          <div class="phrase-card">Ich bin der <em>Ansicht, dass</em>…</div>
+          <div class="phrase-card"><em>Man kann sagen, dass</em>…</div>
+          <div class="phrase-card"><em>Aus meiner Sicht</em>…</div>
+        </div>
+      </div>
+      <div class="phrase-section">
+        <h3>Fakten nennen</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card"><em>Laut einer Studie</em>…</div>
+          <div class="phrase-card"><em>Studien haben ergeben, dass</em>…</div>
+          <div class="phrase-card"><em>Wissenschaftlich belegt ist, dass</em>…</div>
+          <div class="phrase-card"><em>Experten sind der Meinung, dass</em>…</div>
+          <div class="phrase-card"><em>Es ist bekannt, dass</em>…</div>
+          <div class="phrase-card"><em>Forschungen zeigen, dass</em>…</div>
+        </div>
+      </div>
+      <div class="phrase-section">
+        <h3>Stadtstrukturmodelle</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card"><em>das Zonenmodell</em> — Stadtstruktur in konzentrischen Ringen (kreisförmig)</div>
+          <div class="phrase-card"><em>das Mehrkernemodell</em> — mehrere Zentren in einer Stadt</div>
+          <div class="phrase-card"><em>das Sektorenmodell</em> — Stadt in Sektoren/Bereiche geteilt</div>
+          <div class="phrase-card"><em>die Urbanisierung</em> — Wachstum von Städten</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Lückentext -->
+  <div class="section" id="tab1">
+    <div class="sec-inner">
+      <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=900" class="tab-banner" alt="Lückentext">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="resetGaps('gapList1')">↺ Zurücksetzen</button></div>
+        <div class="timer-box" id="timer1">⏱ 00:00</div>
+      </div>
+      <ul class="gap-list" id="gapList1">
+        <li>1. Das <input class="gap-input" placeholder="" data-ans="Stadtstrukturmodell"> beschreibt, wie eine Stadt räumlich strukturiert ist.</li>
+        <li>2. Beim <input class="gap-input" placeholder="" data-ans="Zonenmodell"> liegt das Zentrum in der Mitte, umgeben von konzentrischen Ringen.</li>
+        <li>3. Das <input class="gap-input" placeholder="" data-ans="Mehrkernemodell"> hat mehrere Zentren, die gleichwertig nebeneinander existieren.</li>
+        <li>4. Die <input class="gap-input" placeholder="" data-ans="Innenstadt"> ist oft das wirtschaftliche und kulturelle Zentrum einer Stadt.</li>
+        <li>5. Die <input class="gap-input" placeholder="" data-ans="Urbanisierung"> ist der Prozess, bei dem immer mehr Menschen in Städte ziehen.</li>
+        <li>6. Die <input class="gap-input" placeholder="" data-ans="Stadtentwicklung"> beschäftigt sich mit der Planung und dem Wachstum von Städten.</li>
+        <li>7. Das <input class="gap-input" placeholder="" data-ans="Stadtzentrum"> bietet oft die beste Infrastruktur und Anbindung.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 2: Satzbau -->
+  <div class="section" id="tab2">
+    <div class="sec-inner">
+      <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=900" class="tab-banner" alt="Satzbau">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="initSatzbau()">↺ Neu mischen</button></div>
+        <div class="timer-box" id="timer2">⏱ 00:00</div>
+      </div>
+      <div class="sb-area" id="sbArea"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Wortschatz -->
+  <div class="section" id="tab3">
+    <div class="sec-inner">
+      <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=900" class="tab-banner" alt="Wortschatz">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button></div>
+        <div class="timer-box" id="timer3">⏱ 00:00</div>
+      </div>
+      <div class="vocab-grid" id="vocabGrid"></div>
+    </div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// Tab navigation
+function showTab(n) {
+  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i===n));
+  document.querySelectorAll('nav button').forEach((b,i) => b.classList.toggle('active', i===n));
+}
+
+// Timer
+const timers = {};
+function startTimer(id) {
+  if (timers[id]) return;
+  let s = 0;
+  timers[id] = setInterval(() => {
+    s++;
+    const m = String(Math.floor(s/60)).padStart(2,'0');
+    const sec = String(s%60).padStart(2,'0');
+    const el = document.getElementById(id);
+    if (el) el.textContent = `⏱ ${m}:${sec}`;
+  }, 1000);
+}
+document.querySelectorAll('.section').forEach((sec, i) => {
+  const obs = new MutationObserver(() => {
+    if (sec.classList.contains('active')) startTimer('timer'+i);
+  });
+  obs.observe(sec, {attributes: true});
+});
+
+// Gap inputs — live feedback
+document.querySelectorAll('.gap-input').forEach(inp => {
+  inp.addEventListener('input', function() {
+    const ans = this.dataset.ans.toLowerCase().trim();
+    const val = this.value.toLowerCase().trim();
+    if (!val) { this.className='gap-input'; return; }
+    this.classList.toggle('correct', val===ans);
+    this.classList.toggle('wrong', val!==ans);
+  });
+});
+function resetGaps(id) {
+  document.querySelectorAll(`#${id} .gap-input`).forEach(i => { i.value=''; i.className='gap-input'; });
+}
+
+// Satzbau
+const sbSentences = [
+  { words: ['Das', 'Zonenmodell', 'hat', 'konzentrische', 'Ringe', 'um', 'das', 'Stadtzentrum.'] },
+  { words: ['Laut', 'einer', 'Studie', 'wächst', 'die', 'Urbanisierung', 'weltweit', 'stark.'] },
+  { words: ['Das', 'Mehrkernemodell', 'hat', 'mehrere', 'gleichwertige', 'Zentren', 'in', 'der', 'Stadt.'] },
+  { words: ['Paul', 'ist', 'der', 'Meinung,', 'dass', 'die', 'Innenstadt', 'belebt', 'sein', 'sollte.'] },
+  { words: ['Wissenschaftlich', 'belegt', 'ist,', 'dass', 'Städte', 'immer', 'größer', 'werden.'] },
+  { words: ['Die', 'Stadtentwicklung', 'muss', 'nachhaltig', 'und', 'sozial', 'gerecht', 'sein.'] },
+];
+let sbDragged = null;
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+function initSatzbau() {
+  const area = document.getElementById('sbArea');
+  area.innerHTML = '';
+  sbSentences.forEach((s,si) => {
+    const div = document.createElement('div'); div.className='sb-task';
+    div.innerHTML=`<p>Aufgabe ${si+1}: Bringe die Wörter in die richtige Reihenfolge.</p>
+      <div class="drop-zone" id="dz${si}" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event,${si})"></div>
+      <div class="chip-pool" id="pool${si}"></div>
+      <div class="sb-feedback" id="fb${si}"></div>`;
+    area.appendChild(div);
+    shuffle([...s.words]).forEach((w,wi) => {
+      const chip = document.createElement('button');
+      chip.className='chip'; chip.textContent=w;
+      chip.dataset.si=si; chip.dataset.word=w;
+      chip.draggable=true;
+      chip.addEventListener('dragstart', e => { sbDragged=chip; chip.classList.add('ghost'); });
+      chip.addEventListener('dragend', e => { chip.classList.remove('ghost'); sbDragged=null; });
+      chip.addEventListener('click', () => handleChipClick(chip, si));
+      document.getElementById(`pool${si}`).appendChild(chip);
+    });
+  });
+}
+function handleChipClick(chip, si) {
+  const dz = document.getElementById('dz'+si);
+  const pool = document.getElementById('pool'+si);
+  if (chip.parentElement===pool) { chip.classList.add('placed'); dz.appendChild(chip); }
+  else { chip.classList.remove('placed'); pool.appendChild(chip); }
+  checkSb(si);
+}
+function dzOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dzLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dzDrop(e, si) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if (!sbDragged) return;
+  sbDragged.classList.add('placed');
+  e.currentTarget.appendChild(sbDragged);
+  checkSb(si);
+}
+function checkSb(si) {
+  const placed = [...document.getElementById('dz'+si).children].map(c=>c.textContent);
+  const correct = sbSentences[si].words;
+  const fb = document.getElementById('fb'+si);
+  if (placed.length===correct.length && placed.every((w,i)=>w===correct[i])) {
+    fb.textContent='✓ Richtig!'; fb.className='sb-feedback ok';
+  } else if (placed.length>0) {
+    fb.textContent='Noch nicht ganz richtig …'; fb.className='sb-feedback err';
+  } else { fb.textContent=''; fb.className='sb-feedback'; }
+}
+initSatzbau();
+
+// Vocabulary
+const vocabData = [
+  { en:'urban structure model', de:'das Stadtstrukturmodell', pl:'-e', type:'n', img:'325185' },
+  { en:'city center / downtown', de:'das Stadtzentrum', pl:'-zentren', type:'n', img:'1105766' },
+  { en:'urbanization', de:'die Urbanisierung', pl:'-en', type:'n', img:'1486785' },
+  { en:'city development', de:'die Stadtentwicklung', pl:'-en', type:'n', img:'1769350' },
+  { en:'zone model', de:'das Zonenmodell', pl:'-e', type:'n', img:'2058130' },
+  { en:'infrastructure', de:'die Infrastruktur', pl:'-en', type:'n', img:'210182' },
+];
+function buildVocab() {
+  const grid = document.getElementById('vocabGrid');
+  grid.innerHTML = '';
+  vocabData.forEach(v => {
+    const card = document.createElement('div'); card.className='vocab-card';
+    let inputs = '';
+    if (v.type==='n') {
+      const parts = v.de.split(' ');
+      const art = parts[0]; const word = parts.slice(1).join(' ');
+      inputs=`<input type="text" placeholder="Artikel" data-ans="${art}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Deutsch" data-ans="${word}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Plural" data-ans="${v.pl||''}" oninput="checkVocabInput(this)">`;
+    } else {
+      inputs=`<input type="text" placeholder="Deutsch" data-ans="${v.de}" oninput="checkVocabInput(this)">`;
+    }
+    card.innerHTML=`<img src="https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400&h=200&fit=crop" alt="${v.en}" loading="lazy">
+      <div class="vocab-body"><div class="vocab-en">${v.en}</div><div class="vocab-inputs">${inputs}</div></div>`;
+    grid.appendChild(card);
+  });
+}
+function checkVocabInput(inp) {
+  const val = inp.value.trim().toLowerCase();
+  const ans = inp.dataset.ans.toLowerCase().trim();
+  if (!val) { inp.className=''; return; }
+  inp.classList.toggle('correct', val===ans);
+  inp.classList.toggle('wrong', val!==ans);
+}
+function resetVocab() { document.querySelectorAll('.vocab-inputs input').forEach(i=>{i.value='';i.className='';}); }
+buildVocab();
+
+startTimer('timer0');
+</script>
+</body>
+</html>
