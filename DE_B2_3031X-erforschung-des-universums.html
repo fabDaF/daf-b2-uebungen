@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2.3 · Einheit 3 · Erforschung des Universums (X)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 { font-size: 28px; margin-bottom: 5px; }
+        header p { font-size: 14px; opacity: 0.9; }
+        nav {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            background: #fafafa;
+        }
+        nav button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        nav button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        nav button:hover:not(.active) {
+            background: #f5f5f5;
+        }
+        nav .emoji { font-size: 24px; }
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(100vh - 400px);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        .intro-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+        .intro-text { line-height: 1.8; color: #333; }
+        .intro-text p { margin-bottom: 15px; }
+        .intro-image {
+            border-radius: 8px;
+            width: 100%;
+            object-fit: cover;
+            max-height: 300px;
+        }
+        .exercise {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .exercise label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .exercise input, .exercise textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .exercise textarea { min-height: 80px; resize: vertical; }
+        .exercise input:focus, .exercise textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        .feedback {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            min-height: 20px;
+        }
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .vocab-item {
+            display: grid;
+            grid-template-columns: 2fr 2fr 2fr;
+            gap: 15px;
+            align-items: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .vocab-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+        .vocab-german {
+            font-weight: 600;
+            color: #333;
+        }
+        .vocab-plural {
+            color: #667eea;
+            font-size: 14px;
+        }
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #fafafa;
+            border-top: 2px solid #f0f0f0;
+        }
+        .buttons { display: flex; gap: 10px; }
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        .timer {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        footer {
+            background: #333;
+            color: #ccc;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .intro-section { grid-template-columns: 1fr; }
+            .vocab-item { grid-template-columns: 1fr; }
+            nav { flex-wrap: wrap; }
+            nav button { font-size: 12px; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Erforschung des Universums</h1>
+            <p>B2.3 · Einheit 3 · Lexik und Verstehen</p>
+        </header>
+
+        <nav id="tabNav">
+            <button class="tab-btn active" data-tab="0">
+                <span class="emoji">🚀</span>
+                <span>Einstieg</span>
+            </button>
+            <button class="tab-btn" data-tab="1">
+                <span class="emoji">✏️</span>
+                <span>Lückentext</span>
+            </button>
+            <button class="tab-btn" data-tab="2">
+                <span class="emoji">🔀</span>
+                <span>Satzbau</span>
+            </button>
+            <button class="tab-btn" data-tab="3">
+                <span class="emoji">📚</span>
+                <span>Wortschatz</span>
+            </button>
+        </nav>
+
+        <div class="content">
+            <!-- TAB 0: Einstieg -->
+            <div class="tab-content active">
+                <h2>🚀 Einstieg: Die moderne Weltraumforschung</h2>
+                <div class="intro-section">
+                    <div class="intro-text">
+                        <p><strong>Die Weltraumforschung heute</strong> hat revolutioniert, wie wir das Universum verstehen. Die Internationale Raumstation (ISS) umkreist die Erde und dient der wissenschaftlichen Forschung. Das Hubble Space Telescope hat seit 1990 Bilder vom tiefsten Weltall aufgenommen. Das moderne James Webb Space Telescope entdeckt nun die ältesten Galaxien im Universum.</p>
+                        <p>Bemannte und unbemannte Missionen zum Mars erforschen, ob es dort jemals Leben gab. Raumsonden sammeln Daten über Asteroiden, Schwarze Löcher und fremde Planeten. Diese Forschung stellt fundamentale Fragen: Sind wir allein im Weltall? Was geschah am Anfang des Universums?</p>
+                    </div>
+                    <img src="https://images.pexels.com/photos/2131471/pexels-photo-2131471.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Weltraum" class="intro-image">
+                </div>
+            </div>
+
+            <!-- TAB 1: Lückentext -->
+            <div class="tab-content">
+                <h2>✏️ Lückentext: Weltraumforschung</h2>
+                <div class="exercise">
+                    <label>1. Die ISS ist eine _____________ Raumstation, auf der Astronauten forschen.</label>
+                    <input type="text" class="luekentext" data-answer="internationale" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>2. Ein _____________ ist ein großes Objekt, das die Sonne umkreist.</label>
+                    <input type="text" class="luekentext" data-answer="asteroid" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>3. Eine _____________ ist ein Sternsystem mit Millionen von Sternen.</label>
+                    <input type="text" class="luekentext" data-answer="galaxie" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>4. Ein _____________ Loch ist eine Region, aus der nicht mal Licht entkommen kann.</label>
+                    <input type="text" class="luekentext" data-answer="schwarzes" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>5. Das Hubble Space Telescope ist eine _____________, die Bilder vom Weltall macht.</label>
+                    <input type="text" class="luekentext" data-answer="raumsonde" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>6. Ein _____________ ist ein künstliches Objekt, das die Erde umkreist.</label>
+                    <input type="text" class="luekentext" data-answer="satellit" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>7. Das _____________ ist die Summe aller Sterne, Galaxien und Objekte im Weltall.</label>
+                    <input type="text" class="luekentext" data-answer="universum" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>8. Ein _____________ ist ein Stern, der um einen anderen Stern kreist.</label>
+                    <input type="text" class="luekentext" data-answer="exoplanet" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Satzbau -->
+            <div class="tab-content">
+                <h2>🔀 Satzbau: Sätze ordnen</h2>
+                <p style="margin-bottom: 20px; color: #666;">Ordne die Wörter zu vollständigen Sätzen:</p>
+                <div id="sbContainer"></div>
+            </div>
+
+            <!-- TAB 3: Wortschatz -->
+            <div class="tab-content">
+                <h2>📚 Wortschatz: Weltraumforschung</h2>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Artikel</div>
+                        <div class="vocab-german">das</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Deutsch</div>
+                        <div class="vocab-german">Universum</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Plural</div>
+                        <div class="vocab-plural">die Universen</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Artikel</div>
+                        <div class="vocab-german">die</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Deutsch</div>
+                        <div class="vocab-german">Galaxie</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Plural</div>
+                        <div class="vocab-plural">die Galaxien</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Artikel</div>
+                        <div class="vocab-german">der</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Deutsch</div>
+                        <div class="vocab-german">Asteroid</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Plural</div>
+                        <div class="vocab-plural">die Asteroiden</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Artikel</div>
+                        <div class="vocab-german">das</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Deutsch</div>
+                        <div class="vocab-german">Schwarze Loch</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Plural</div>
+                        <div class="vocab-plural">die Schwarzen Löcher</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Artikel</div>
+                        <div class="vocab-german">die</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Deutsch</div>
+                        <div class="vocab-german">Raumsonde</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Plural</div>
+                        <div class="vocab-plural">die Raumsonden</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Artikel</div>
+                        <div class="vocab-german">der</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Deutsch</div>
+                        <div class="vocab-german">Satellit</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Plural</div>
+                        <div class="vocab-plural">die Satelliten</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-bar">
+            <div class="buttons">
+                <button class="btn-secondary" onclick="resetTab()">Zurücksetzen</button>
+            </div>
+            <div class="timer" id="timer">⏱️ 0:00</div>
+        </div>
+
+        <footer>
+            © Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com
+        </footer>
+    </div>
+
+    <script>
+        let currentTab = 0;
+        let timerInterval;
+        let seconds = 0;
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => switchTab(idx));
+        });
+
+        function switchTab(idx) {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tabButtons[idx].classList.add('active');
+            tabContents[idx].classList.add('active');
+            currentTab = idx;
+
+            if (idx === 2) initSatzbau();
+            if (idx === 3) startTimer();
+        }
+
+        function checkAnswer(el) {
+            const answer = el.dataset.answer.toLowerCase();
+            const input = el.value.toLowerCase().trim();
+            const feedback = el.nextElementSibling;
+
+            if (input === answer) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✓ Richtig!';
+            } else if (input.length > 0) {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '✗ Versuchen Sie es nochmal.';
+            } else {
+                feedback.className = 'feedback';
+                feedback.textContent = '';
+            }
+        }
+
+        function initSatzbau() {
+            const container = document.getElementById('sbContainer');
+            if (container.innerHTML) return;
+
+            const sentences = [
+                { words: ['Das', 'Hubble', 'Teleskop', 'hat', 'die', 'ältesten', 'Galaxien', 'entdeckt.'], correct: [0,1,2,3,4,5,6,7] },
+                { words: ['Die', 'ISS', 'umkreist', 'die', 'Erde', 'alle', '90', 'Minuten.'], correct: [0,1,2,3,4,5,6,7] },
+                { words: ['Schwarze', 'Löcher', 'entstehen', 'aus', 'kollabierenden', 'Sternen.'], correct: [0,1,2,3,4,5] },
+                { words: ['Astronauten', 'führen', 'Experimente', 'auf', 'der', 'Raumstation', 'durch.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Der', 'Mars', 'könnte', 'einmal', 'Wasser', 'und', 'Leben', 'beherbergt', 'haben.'], correct: [0,1,2,3,4,5,6,7,8] }
+            ];
+
+            sentences.forEach((sent, idx) => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '20px';
+
+                const label = document.createElement('p');
+                label.textContent = `Satz ${idx + 1}:`;
+                label.style.fontWeight = '600';
+                label.style.marginBottom = '10px';
+                div.appendChild(label);
+
+                const chips = document.createElement('div');
+                chips.style.display = 'flex';
+                chips.style.flexWrap = 'wrap';
+                chips.style.gap = '8px';
+                chips.style.minHeight = '50px';
+                chips.style.padding = '10px';
+                chips.style.background = '#f9f9f9';
+                chips.style.borderRadius = '6px';
+
+                sent.words.forEach((word, widx) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'punct-chip';
+                    chip.textContent = word;
+                    chip.style.padding = '8px 12px';
+                    chip.style.background = '#667eea';
+                    chip.style.color = 'white';
+                    chip.style.borderRadius = '4px';
+                    chip.style.cursor = 'pointer';
+                    chip.style.userSelect = 'none';
+                    chip.dataset.index = widx;
+                    chip.addEventListener('click', () => toggleWord(chip, chips));
+                    chips.appendChild(chip);
+                });
+
+                div.appendChild(chips);
+                container.appendChild(div);
+            });
+        }
+
+        function toggleWord(el, container) {
+            el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
+        }
+
+        function resetTab() {
+            location.reload();
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timer').textContent =
+                    `⏱️ ${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

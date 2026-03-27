@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3026R – Neue Kompetenzen Digitalisierung</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; min-height: 100vh; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+    .header h1 { font-size: 2rem; margin-bottom: 8px; }
+    .header .subtitle { font-size: 0.95rem; opacity: 0.95; }
+    .header img { width: 100%; height: 200px; object-fit: cover; margin-top: 20px; border-radius: 8px; }
+    .tab-nav { display: flex; border-bottom: 2px solid #eee; background: #fafbfc; overflow-x: auto; }
+    .tab-btn { flex: 1; padding: 16px 12px; border: none; background: transparent; cursor: pointer; font-size: 0.9rem; color: #666; display: flex; flex-direction: column; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.3s; border-bottom: 3px solid transparent; }
+    .tab-btn:hover { background: #f0f2f5; color: #333; }
+    .tab-btn.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
+    .tab-btn .emoji { font-size: 1.4rem; }
+    .content-area { padding: 30px; min-height: 500px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .help-box { background: #e8f4fd; border-left: 4px solid #0099ff; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; color: #003d66; }
+    .vorentlastung-box { background: #f0e8ff; border-left: 4px solid #9c27b0; padding: 16px 18px; margin-bottom: 16px; border-radius: 8px; }
+    .vorentlastung-box h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1rem; }
+    .vocab-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .vocab-tag { background: #e1bee7; padding: 6px 12px; border-radius: 16px; font-size: 0.85rem; color: #4a148c; font-weight: 600; }
+    .reading-text { background: #fafbff; border-left: 4px solid #667eea; padding: 18px 20px; margin-bottom: 20px; border-radius: 8px; line-height: 1.9; font-size: 0.98rem; color: #333; }
+    .reading-text p { margin-bottom: 14px; }
+    input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 4px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s, background 0.2s; background: white; margin: 0 2px; }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .mc-option { padding: 10px 14px; margin-bottom: 8px; border: 2px solid #c5cae9; border-radius: 8px; background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .mc-option:hover { border-color: #667eea; background: #f3f4ff; }
+    .mc-option.correct { border-color: #27ae60; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+    .mc-option.wrong { border-color: #e74c3c; background: #ffebee; color: #c62828; }
+    .chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform 0.15s; white-space: nowrap; display: inline-block; margin: 4px; }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 16px; min-height: 50px; }
+    .drop-zone { min-height: 80px; border: 2px dashed #c5cae9; border-radius: 10px; padding: 12px; background: #fafbff; margin-bottom: 16px; transition: background 0.2s; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; align-content: flex-start; }
+    .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
+    .timer-row { display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #666; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .btn-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; background: #667eea; color: white; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.3s; }
+    .btn:hover { background: #764ba2; }
+    .btn-reset { background: #f39c12; }
+    .btn-reset:hover { background: #d68910; }
+    .sentence-block { background: #fafbff; border-left: 4px solid #667eea; padding: 12px 16px; margin-bottom: 12px; border-radius: 6px; line-height: 1.8; font-size: 0.95rem; }
+    .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; }
+    .author-name { font-weight: 700; }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.3rem; }
+      .content-area { padding: 16px; }
+      .tab-btn { font-size: 0.75rem; padding: 12px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Neue Kompetenzen durch Digitalisierung</h1>
+      <p class="subtitle">B2.3 · Einheit 2 · R</p>
+      <img src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Digitale Kompetenz">
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab(0)"><span class="emoji">🌅</span> Vorentlastung</button>
+      <button class="tab-btn" onclick="switchTab(1)"><span class="emoji">📖</span> Lesetext</button>
+      <button class="tab-btn" onclick="switchTab(2)"><span class="emoji">✏️</span> Lückentext</button>
+      <button class="tab-btn" onclick="switchTab(3)"><span class="emoji">❓</span> Multiple Choice</button>
+      <button class="tab-btn" onclick="switchTab(4)"><span class="emoji">🔀</span> Satzbau</button>
+    </div>
+
+    <div class="content-area">
+      <!-- Tab 0: Vorentlastung -->
+      <div class="tab active" id="tab0">
+        <div class="help-box"><strong>Aufgabe:</strong> Lerne die neuen Wörter, die du für den Lesetext brauchst.</div>
+        <div class="vorentlastung-box">
+          <h3>Wichtige Wörter zum Thema</h3>
+          <div class="vocab-list">
+            <div class="vocab-tag">die Medienkompetenz — media literacy</div>
+            <div class="vocab-tag">das Datenschutzbewusstsein — data protection awareness</div>
+            <div class="vocab-tag">die Programmierung — programming</div>
+            <div class="vocab-tag">kritisches Denken — critical thinking</div>
+            <div class="vocab-tag">die Künstliche Intelligenz (KI) — artificial intelligence</div>
+            <div class="vocab-tag">die digitale Transformation — digital transformation</div>
+            <div class="vocab-tag">der Algorithmus — algorithm</div>
+            <div class="vocab-tag">die Fähigkeit — skill / ability</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 1: Lesetext -->
+      <div class="tab" id="tab1">
+        <div class="help-box"><strong>Aufgabe:</strong> Lese den Text aufmerksam und antworte dann auf die Fragen.</div>
+        <div class="reading-text">
+          <p>
+            Die digitale Welt verlangt von uns ständig neue Fähigkeiten. Wer heute nicht nur Medien nutzen, sondern sie auch verstehen und kritisch beurteilen kann, hat einen großen Vorteil. Diese Medienkompetenz ist zur grundlegenden Voraussetzung für ein selbstbestimmtes Leben geworden.
+          </p>
+          <p>
+            Doch was brauchen wir konkret? Erstens: Wir müssen verstehen, wie Algorithmen funktionieren. Sie entscheiden, welche Nachrichten wir sehen, welche Musik uns vorgeschlagen wird und welche Werbung uns erreicht. Wer nicht weiß, dass diese Systeme durch Daten trainiert werden, wird manipuliert. Zweitens: Datenschutzbewusstsein ist essentiell. Millionen von Menschen geben täglich persönliche Informationen an Konzerne ab, ohne zu wissen, was damit geschieht. Die Fähigkeit, Datenschutzrichtlinien zu verstehen und bewusst zu entscheiden, welche Daten man teilt, wird immer wichtiger.
+          </p>
+          <p>
+            Drittens: Grundkenntnisse in Programmierung werden nicht mehr nur für Spezialisten benötigt. In einem Beruf zu arbeiten, ohne zumindest die Grundprinzipien von Code und Automatisierung zu verstehen, wird bald unmöglich sein. Programmierer werden nicht nur als IT-Experten gebraucht, sondern in Designbüros, Kunstschulen und sogar in der Journalistik.
+          </p>
+          <p>
+            Viertens — und das ist vielleicht das Wichtigste: kritisches Denken online. Mit den neuen Technologien entstehen auch neue Möglichkeiten für Täuschung. Tiefgefälschte Videos, KI-generierte Texte und subtile Desinformationskampagnen werden immer überzeugender. Die Fähigkeit, Quellen zu hinterfragen, Fakten zu verifizieren und Manipulation zu erkennen, ist nicht mehr optional — sie ist lebensnotwendig.
+          </p>
+          <p>
+            Die gute Nachricht: Diese Kompetenzen sind lernbar. Schulen beginnen, Medienkompetenz und digitales Denken in ihre Lehrpläne zu integrieren. Online-Plattformen bieten kostenlose Kurse für Anfänger und Profis. Wer bereit ist, sich mit der digitalen Welt aktiv auseinanderzusetzen, kann nicht nur Informationen konsumieren — er kann sie auch mitgestalten.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tab 2: Lückentext -->
+      <div class="tab" id="tab2">
+        <div class="timer-row">⏱ <span class="timer-display" id="timer2">0:00</span></div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showLueckenSolution()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetLuecken()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Ergänze die Lücken mit Wörtern aus dem Text.</div>
+        <div id="lueckenContainer"></div>
+      </div>
+
+      <!-- Tab 3: Multiple Choice -->
+      <div class="tab" id="tab3">
+        <div class="timer-row">⏱ <span class="timer-display" id="timer3">0:00</span></div>
+        <div class="btn-row">
+          <button class="btn btn-reset" onclick="resetMC()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Wähle die richtige Antwort.</div>
+        <div id="mcContainer"></div>
+      </div>
+
+      <!-- Tab 4: Satzbau -->
+      <div class="tab" id="tab4">
+        <div class="timer-row">⏱ <span class="timer-display" id="timer4">0:00</span></div>
+        <div class="btn-row">
+          <button class="btn btn-reset" onclick="resetSatzbau()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge.</div>
+        <div id="satzbauContainer"></div>
+      </div>
+    </div>
+
+    <div class="author-footer">
+      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+  </div>
+
+  <script>
+    var TIMER_PREFIX = 'B23026R_';
+    var timerStarted = [false, false, false, false, false];
+    var timerRunning = [false, false, false, false, false];
+    var timerSeconds = [0, 0, 0, 0, 0];
+    var timerIntervals = [null, null, null, null, null];
+    var draggedChip = null;
+
+    function switchTab(n) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab' + n).classList.add('active');
+      document.querySelectorAll('.tab-btn')[n].classList.add('active');
+    }
+
+    function fmtTime(s) { return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60); }
+
+    function timerAutoStart(n) {
+      if (timerStarted[n]) return;
+      timerStarted[n] = true;
+      timerRunning[n] = true;
+      timerIntervals[n] = setInterval(function() {
+        timerSeconds[n]++;
+        var el = document.getElementById('timer' + n);
+        if (el) el.textContent = fmtTime(timerSeconds[n]);
+      }, 1000);
+    }
+
+    function timerStop(n) {
+      if (!timerRunning[n]) return;
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+    }
+
+    function timerReset(n) {
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+      timerStarted[n] = false;
+      timerSeconds[n] = 0;
+      var el = document.getElementById('timer' + n);
+      if (el) el.textContent = '0:00';
+    }
+
+    var lueckenData = [
+      { text: '<input class="blank" data-answer="Medienkompetenz" oninput="liveCheckLuecken(this)"> ist zur grundlegenden Voraussetzung geworden.', answer: 'Medienkompetenz' },
+      { text: '<input class="blank" data-answer="Algorithmen" oninput="liveCheckLuecken(this)"> entscheiden, welche Nachrichten wir sehen.', answer: 'Algorithmen' },
+      { text: 'Das <input class="blank" data-answer="Datenschutzbewusstsein" oninput="liveCheckLuecken(this)"> ist essentiell.', answer: 'Datenschutzbewusstsein' },
+      { text: 'Grundkenntnisse in <input class="blank" data-answer="Programmierung" oninput="liveCheckLuecken(this)"> werden immer wichtiger.', answer: 'Programmierung' },
+      { text: 'Kritisches <input class="blank" data-answer="Denken" oninput="liveCheckLuecken(this)"> ist lebensnotwendig.', answer: 'Denken' }
+    ];
+
+    function liveCheckLuecken(inp) {
+      var val = inp.value.trim();
+      var ans = inp.dataset.answer;
+      inp.classList.remove('correct', 'wrong');
+      if (val.length === 0) return;
+      if (val === ans) { inp.classList.add('correct'); } else if (ans.indexOf(val) === 0) {
+        // valid
+      } else { inp.classList.add('wrong'); }
+      timerAutoStart(2);
+      checkLueckenAll();
+    }
+
+    function checkLueckenAll() {
+      var inputs = document.querySelectorAll('#tab2 input.blank');
+      if (inputs.length === 0) return;
+      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
+      if (allOk) timerStop(2);
+    }
+
+    function showLueckenSolution() {
+      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
+        inp.value = inp.dataset.answer;
+        inp.classList.add('correct');
+      });
+      checkLueckenAll();
+    }
+
+    function resetLuecken() {
+      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+      });
+      timerReset(2);
+    }
+
+    var mcData = [
+      { q: 'Was ist Medienkompetenz?', opts: [
+        { text: 'Die Fähigkeit, Medien zu nutzen, zu verstehen und kritisch zu beurteilen', correct: true },
+        { text: 'Die Fähigkeit, nur Nachrichten zu lesen', correct: false }
+      ]},
+      { q: 'Warum sind Algorithmen wichtig?', opts: [
+        { text: 'Sie entscheiden, welche Informationen wir sehen', correct: true },
+        { text: 'Sie sind für das Internet unwichtig', correct: false }
+      ]},
+      { q: 'Welche Fähigkeiten werden im Text genannt?', opts: [
+        { text: 'Alle vier: Medienkompetenz, Datenschutzbewusstsein, Programmierung und kritisches Denken', correct: true },
+        { text: 'Nur Programmierung', correct: false }
+      ]}
+    ];
+
+    function renderMC() {
+      var cont = document.getElementById('mcContainer');
+      cont.innerHTML = '';
+      mcData.forEach((item, qIdx) => {
+        var div = document.createElement('div');
+        div.style.marginBottom = '20px';
+        var q = document.createElement('div');
+        q.style.fontSize = '0.95rem';
+        q.style.fontWeight = '600';
+        q.style.color = '#667eea';
+        q.style.marginBottom = '10px';
+        q.textContent = 'F' + (qIdx + 1) + ': ' + item.q;
+        div.appendChild(q);
+        item.opts.forEach((opt, oIdx) => {
+          var btn = document.createElement('button');
+          btn.className = 'mc-option';
+          btn.textContent = opt.text;
+          btn.onclick = function() { checkMCOption(qIdx, oIdx, opt.correct, btn); };
+          btn.dataset.qidx = qIdx;
+          btn.dataset.oidx = oIdx;
+          div.appendChild(btn);
+        });
+        cont.appendChild(div);
+      });
+    }
+
+    function checkMCOption(qIdx, oIdx, correct, btn) {
+      timerAutoStart(3);
+      document.querySelectorAll('[data-qidx="' + qIdx + '"]').forEach(b => {
+        b.disabled = true;
+        b.classList.remove('correct', 'wrong');
+      });
+      if (correct) {
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('wrong');
+        setTimeout(function() {
+          document.querySelectorAll('[data-qidx="' + qIdx + '"]').forEach(b => {
+            b.disabled = false;
+            b.classList.remove('wrong');
+          });
+        }, 1500);
+      }
+      checkMCAll();
+    }
+
+    function checkMCAll() {
+      var allCorrect = mcData.length === document.querySelectorAll('#tab3 .mc-option.correct').length;
+      if (allCorrect) timerStop(3);
+    }
+
+    function resetMC() {
+      document.querySelectorAll('#tab3 .mc-option').forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('correct', 'wrong');
+      });
+      timerReset(3);
+    }
+
+    var satzbauData = [
+      { words: ['Neue', 'Fähigkeiten', 'sind', 'in', 'der', 'digitalen', 'Welt', 'notwendig', '.'], correct: 'Neue Fähigkeiten sind in der digitalen Welt notwendig .' },
+      { words: ['Algorithmen', 'entscheiden', ',', 'welche', 'Informationen', 'wir', 'erhalten', '.'], correct: 'Algorithmen entscheiden , welche Informationen wir erhalten .' },
+      { words: ['Datenschutzbewusstsein', 'ist', 'essentiell', 'für', 'ein', 'sicheres', 'Leben', '.'], correct: 'Datenschutzbewusstsein ist essentiell für ein sicheres Leben .' }
+    ];
+
+    function shuffleArr(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderSatzbau() {
+      var cont = document.getElementById('satzbauContainer');
+      cont.innerHTML = '';
+      satzbauData.forEach((item, idx) => {
+        var div = document.createElement('div');
+        div.style.marginBottom = '20px';
+        var bank = document.createElement('div');
+        bank.className = 'chip-bank';
+        var shuffled = shuffleArr([...item.words]);
+        shuffled.forEach(word => {
+          var chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = word;
+          chip.draggable = true;
+          chip.dataset.idx = idx;
+          chip.dataset.word = word;
+          chip.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', '');
+            draggedChip = chip;
+          });
+          chip.addEventListener('dragend', function() {
+            colorSbChips(idx);
+          });
+          bank.appendChild(chip);
+        });
+        div.appendChild(bank);
+        var zone = document.createElement('div');
+        zone.className = 'drop-zone';
+        zone.dataset.idx = idx;
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          zone.classList.remove('dragover');
+          if (draggedChip) { zone.appendChild(draggedChip); colorSbChips(idx); }
+        });
+        div.appendChild(zone);
+        cont.appendChild(div);
+      });
+    }
+
+    function colorSbChips(idx) {
+      timerAutoStart(4);
+      var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
+      if (!zone) return;
+      var chips = zone.querySelectorAll('.chip');
+      var text = Array.from(chips).map(c => c.textContent).join(' ');
+      chips.forEach(c => c.classList.remove('correct', 'wrong'));
+      if (text === satzbauData[idx].correct) { chips.forEach(c => c.classList.add('correct')); }
+      checkSbAll();
+    }
+
+    function checkSbAll() {
+      var allOk = true;
+      satzbauData.forEach((_, idx) => {
+        var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
+        var text = Array.from(zone.querySelectorAll('.chip')).map(c => c.textContent).join(' ');
+        if (text !== satzbauData[idx].correct) allOk = false;
+      });
+      if (allOk) timerStop(4);
+    }
+
+    function resetSatzbau() {
+      renderSatzbau();
+      timerReset(4);
+    }
+
+    function initPage() {
+      var lueckeCont = document.getElementById('lueckenContainer');
+      lueckeCont.innerHTML = '';
+      lueckenData.forEach(item => {
+        var div = document.createElement('div');
+        div.className = 'sentence-block';
+        div.innerHTML = item.text;
+        lueckeCont.appendChild(div);
+      });
+      renderMC();
+      renderSatzbau();
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

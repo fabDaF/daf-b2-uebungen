@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3027X – Steuererklärung</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; min-height: 100vh; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+    .header h1 { font-size: 2rem; margin-bottom: 8px; }
+    .header .subtitle { font-size: 0.95rem; opacity: 0.95; }
+    .header img { width: 100%; height: 200px; object-fit: cover; margin-top: 20px; border-radius: 8px; }
+    .tab-nav { display: flex; border-bottom: 2px solid #eee; background: #fafbfc; overflow-x: auto; }
+    .tab-btn { flex: 1; padding: 16px 12px; border: none; background: transparent; cursor: pointer; font-size: 0.9rem; color: #666; display: flex; flex-direction: column; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.3s; border-bottom: 3px solid transparent; }
+    .tab-btn:hover { background: #f0f2f5; color: #333; }
+    .tab-btn.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
+    .tab-btn .emoji { font-size: 1.4rem; }
+    .content-area { padding: 30px; min-height: 500px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .help-box { background: #e8f4fd; border-left: 4px solid #0099ff; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; color: #003d66; }
+    .intro-text { background: #f3e5f5; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px; line-height: 1.7; font-size: 0.95rem; color: #333; }
+    .sentence-block { background: #fafbff; border-left: 4px solid #667eea; padding: 12px 16px; margin-bottom: 12px; border-radius: 6px; line-height: 1.8; font-size: 0.95rem; }
+    input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 4px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s, background 0.2s; background: white; margin: 0 2px; }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform 0.15s; white-space: nowrap; display: inline-block; margin: 4px; }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 16px; min-height: 50px; }
+    .drop-zone { min-height: 80px; border: 2px dashed #c5cae9; border-radius: 10px; padding: 12px; background: #fafbff; margin-bottom: 16px; transition: background 0.2s; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; align-content: flex-start; }
+    .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
+    .vocab-item { background: #f8f9ff; padding: 14px 18px; margin-bottom: 12px; border-radius: 10px; border-left: 4px solid #667eea; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .vocab-en { font-weight: 600; color: #764ba2; min-width: 140px; font-size: 0.95em; }
+    .vocab-arrow { color: #ccc; font-size: 1.2em; }
+    .vocab-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .vocab-inputs input { border: none; border-bottom: 2px solid #667eea; background: white; padding: 4px 8px; font-family: inherit; font-size: 0.95em; outline: none; transition: all 0.2s; }
+    .vocab-inputs input:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
+    .vocab-inputs input.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+    .vocab-inputs input.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+    .vocab-inputs input.art { width: 70px; }
+    .vocab-inputs input.wort { width: 130px; }
+    .vocab-inputs input.plural { width: 140px; }
+    .timer-row { display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #666; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .btn-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; background: #667eea; color: white; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.3s; }
+    .btn:hover { background: #764ba2; }
+    .btn-reset { background: #f39c12; }
+    .btn-reset:hover { background: #d68910; }
+    .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; }
+    .author-name { font-weight: 700; }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.3rem; }
+      .content-area { padding: 16px; }
+      .tab-btn { font-size: 0.75rem; padding: 12px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Steuererklärung</h1>
+      <p class="subtitle">B2.3 · Einheit 2 · X</p>
+      <img src="https://images.pexels.com/photos/3938022/pexels-photo-3938022.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Finanzen und Steuern">
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab(0)"><span class="emoji">🚀</span> Einstieg</button>
+      <button class="tab-btn" onclick="switchTab(1)"><span class="emoji">✏️</span> Lückentext</button>
+      <button class="tab-btn" onclick="switchTab(2)"><span class="emoji">🔀</span> Satzbau</button>
+      <button class="tab-btn" onclick="switchTab(3)"><span class="emoji">📚</span> Wortschatz</button>
+    </div>
+
+    <div class="content-area">
+      <div class="tab active" id="tab0">
+        <div class="help-box"><strong>Aufgabe:</strong> Erfahre, wie die Steuererklärung in Deutschland funktioniert.</div>
+        <div class="intro-text">
+          <strong>Die Steuererklärung in Deutschland</strong><br><br>
+          Die Steuererklärung (auch Steuererklärungserklärung oder kurz: SteuerE) ist ein wichtiges Dokument für alle Arbeitnehmer in Deutschland. Sie wird beim Finanzamt eingereicht. Das Finanzamt ist eine Behörde, die Steuern kontrolliert. Jedes Jahr müssen Arbeitnehmer ihre Einkünfte, Ausgaben und Sonderausgaben angeben. Das Finanzamt prüft dann, ob die gezahlten Steuern korrekt sind. Oft gibt es eine Steuererstattung zurück — manchmal sind aber auch Nachzahlungen notwendig.
+        </div>
+        <div style="background: #fff3e0; border-radius: 8px; padding: 14px 16px; margin-top: 16px;">
+          <strong style="color: #e65100;">Wichtige Fristen und Begriffe:</strong><br>
+          • <strong>Frist:</strong> Die Steuererklärung muss bis zum 31. Dezember des Folgejahres eingereicht werden (oder bis 31. März mit Steuerberater)<br>
+          • <strong>ELSTER:</strong> Das Online-Portal des Finanzamts für die digitale Steuererklärung<br>
+          • <strong>Abzug:</strong> Beträge, die von der Steuer abgezogen werden (wie Spenden oder Handwerkerkosten)<br>
+          • <strong>Einkommensteuer:</strong> Die wichtigste Steuer für Arbeitnehmer
+        </div>
+      </div>
+
+      <div class="tab" id="tab1">
+        <div class="timer-row">⏱ <span class="timer-display" id="timer1">0:00</span></div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showLueckenSolution()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetLuecken()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Ergänze die Lücken mit passenden Wörtern.</div>
+        <div id="lueckenContainer"></div>
+      </div>
+
+      <div class="tab" id="tab2">
+        <div class="timer-row">⏱ <span class="timer-display" id="timer2">0:00</span></div>
+        <div class="btn-row">
+          <button class="btn btn-reset" onclick="resetSatzbau()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge.</div>
+        <div id="satzbauContainer"></div>
+      </div>
+
+      <div class="tab" id="tab3">
+        <div class="timer-row">⏱ <span class="timer-display" id="timer3">0:00</span></div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showVocabSolution()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetVocab()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche. Bei Nomen: Artikel + Wort + Plural!</div>
+        <div id="vocabContainer"></div>
+      </div>
+    </div>
+
+    <div class="author-footer">
+      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+  </div>
+
+  <script>
+    var TIMER_PREFIX = 'B23027X_';
+    var timerStarted = [false, false, false, false];
+    var timerRunning = [false, false, false, false];
+    var timerSeconds = [0, 0, 0, 0];
+    var timerIntervals = [null, null, null, null];
+    var draggedChip = null;
+
+    function switchTab(n) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab' + n).classList.add('active');
+      document.querySelectorAll('.tab-btn')[n].classList.add('active');
+    }
+
+    function fmtTime(s) { return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60); }
+
+    function timerAutoStart(n) {
+      if (timerStarted[n]) return;
+      timerStarted[n] = true;
+      timerRunning[n] = true;
+      timerIntervals[n] = setInterval(function() {
+        timerSeconds[n]++;
+        var el = document.getElementById('timer' + n);
+        if (el) el.textContent = fmtTime(timerSeconds[n]);
+      }, 1000);
+    }
+
+    function timerStop(n) {
+      if (!timerRunning[n]) return;
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+    }
+
+    function timerReset(n) {
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+      timerStarted[n] = false;
+      timerSeconds[n] = 0;
+      var el = document.getElementById('timer' + n);
+      if (el) el.textContent = '0:00';
+    }
+
+    var lueckenData = [
+      { text: 'Die <input class="blank" data-answer="Steuererklärung" oninput="liveCheckLuecken(this)"> wird beim Finanzamt eingereicht.', answer: 'Steuererklärung' },
+      { text: 'Die wichtigste <input class="blank" data-answer="Steuer" oninput="liveCheckLuecken(this)"> für Arbeitnehmer ist die Einkommensteuer.', answer: 'Steuer' },
+      { text: 'Das <input class="blank" data-answer="Finanzamt" oninput="liveCheckLuecken(this)"> ist eine Behörde der Bundesrepublik.', answer: 'Finanzamt' },
+      { text: 'Die <input class="blank" data-answer="Frist" oninput="liveCheckLuecken(this)"> für die Abgabe ist der 31. Dezember.', answer: 'Frist' },
+      { text: 'Mit <input class="blank" data-answer="ELSTER" oninput="liveCheckLuecken(this)"> können Sie die Steuererklärung online einreichen.', answer: 'ELSTER' },
+      { text: 'Ein <input class="blank" data-answer="Abzug" oninput="liveCheckLuecken(this)"> reduziert die zu zahlende Steuer.', answer: 'Abzug' }
+    ];
+
+    function liveCheckLuecken(inp) {
+      var val = inp.value.trim();
+      var ans = inp.dataset.answer;
+      inp.classList.remove('correct', 'wrong');
+      if (val.length === 0) return;
+      if (val === ans) { inp.classList.add('correct'); } else if (ans.indexOf(val) === 0) {
+        // valid
+      } else { inp.classList.add('wrong'); }
+      timerAutoStart(1);
+      checkLueckenAll();
+    }
+
+    function checkLueckenAll() {
+      var inputs = document.querySelectorAll('#tab1 input.blank');
+      if (inputs.length === 0) return;
+      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
+      if (allOk) timerStop(1);
+    }
+
+    function showLueckenSolution() {
+      document.querySelectorAll('#tab1 input.blank').forEach(inp => {
+        inp.value = inp.dataset.answer;
+        inp.classList.add('correct');
+      });
+      checkLueckenAll();
+    }
+
+    function resetLuecken() {
+      document.querySelectorAll('#tab1 input.blank').forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+      });
+      timerReset(1);
+    }
+
+    var satzbauData = [
+      { words: ['Die', 'Steuererklärung', 'wird', 'jedes', 'Jahr', 'beim', 'Finanzamt', 'eingereicht', '.'], correct: 'Die Steuererklärung wird jedes Jahr beim Finanzamt eingereicht .' },
+      { words: ['Das', 'Finanzamt', 'prüft', ',', 'ob', 'die', 'Steuern', 'korrekt', 'sind', '.'], correct: 'Das Finanzamt prüft , ob die Steuern korrekt sind .' },
+      { words: ['Mit', 'ELSTER', 'können', 'Sie', 'die', 'Steuererklärung', 'online', 'einreichen', '.'], correct: 'Mit ELSTER können Sie die Steuererklärung online einreichen .' },
+      { words: ['Die', 'Frist', 'für', 'die', 'Abgabe', 'ist', 'der', '31.', 'Dezember', '.'], correct: 'Die Frist für die Abgabe ist der 31. Dezember .' },
+      { words: ['Oft', 'gibt', 'es', 'eine', 'Steuererstattung', 'zurück', '.'], correct: 'Oft gibt es eine Steuererstattung zurück .' }
+    ];
+
+    function shuffleArr(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderSatzbau() {
+      var cont = document.getElementById('satzbauContainer');
+      cont.innerHTML = '';
+      satzbauData.forEach((item, idx) => {
+        var div = document.createElement('div');
+        div.style.marginBottom = '20px';
+        var bank = document.createElement('div');
+        bank.className = 'chip-bank';
+        var shuffled = shuffleArr([...item.words]);
+        shuffled.forEach(word => {
+          var chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = word;
+          chip.draggable = true;
+          chip.dataset.idx = idx;
+          chip.dataset.word = word;
+          chip.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', '');
+            draggedChip = chip;
+          });
+          chip.addEventListener('dragend', function() {
+            colorSbChips(idx);
+          });
+          bank.appendChild(chip);
+        });
+        div.appendChild(bank);
+        var zone = document.createElement('div');
+        zone.className = 'drop-zone';
+        zone.dataset.idx = idx;
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          zone.classList.remove('dragover');
+          if (draggedChip) { zone.appendChild(draggedChip); colorSbChips(idx); }
+        });
+        div.appendChild(zone);
+        cont.appendChild(div);
+      });
+    }
+
+    function colorSbChips(idx) {
+      timerAutoStart(2);
+      var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
+      if (!zone) return;
+      var chips = zone.querySelectorAll('.chip');
+      var text = Array.from(chips).map(c => c.textContent).join(' ');
+      chips.forEach(c => c.classList.remove('correct', 'wrong'));
+      if (text === satzbauData[idx].correct) { chips.forEach(c => c.classList.add('correct')); }
+      checkSbAll();
+    }
+
+    function checkSbAll() {
+      var allOk = true;
+      satzbauData.forEach((_, idx) => {
+        var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
+        var text = Array.from(zone.querySelectorAll('.chip')).map(c => c.textContent).join(' ');
+        if (text !== satzbauData[idx].correct) allOk = false;
+      });
+      if (allOk) timerStop(2);
+    }
+
+    function resetSatzbau() {
+      renderSatzbau();
+      timerReset(2);
+    }
+
+    var vocabData = [
+      { en: 'tax return', art: 'die', word: 'Steuererklärung', plural: 'Steuererklärungen' },
+      { en: 'tax', art: 'die', word: 'Steuer', plural: 'Steuern' },
+      { en: 'tax office', art: 'das', word: 'Finanzamt', plural: 'Finanzämter' },
+      { en: 'deadline', art: 'die', word: 'Frist', plural: 'Fristen' },
+      { en: 'deduction', art: 'der', word: 'Abzug', plural: 'Abzüge' },
+      { en: 'tax refund', art: 'die', word: 'Steuererstattung', plural: 'Steuererstattungen' }
+    ];
+
+    function renderVocab() {
+      var cont = document.getElementById('vocabContainer');
+      cont.innerHTML = '';
+      vocabData.forEach((item, idx) => {
+        var div = document.createElement('div');
+        div.className = 'vocab-item';
+        var en = document.createElement('div');
+        en.className = 'vocab-en';
+        en.textContent = item.en;
+        var arrow = document.createElement('div');
+        arrow.className = 'vocab-arrow';
+        arrow.textContent = '→';
+        var inputs = document.createElement('div');
+        inputs.className = 'vocab-inputs';
+        var artInp = document.createElement('input');
+        artInp.className = 'art';
+        artInp.dataset.answer = item.art;
+        artInp.placeholder = 'Art.';
+        artInp.addEventListener('input', function() { liveCheckVocab(this); });
+        var wortInp = document.createElement('input');
+        wortInp.className = 'wort';
+        wortInp.dataset.answer = item.word;
+        wortInp.placeholder = 'Wort';
+        wortInp.addEventListener('input', function() { liveCheckVocab(this); });
+        var pluralInp = document.createElement('input');
+        pluralInp.className = 'plural';
+        pluralInp.dataset.answer = item.plural;
+        pluralInp.placeholder = 'Plural';
+        pluralInp.addEventListener('input', function() { liveCheckVocab(this); });
+        inputs.appendChild(artInp);
+        inputs.appendChild(wortInp);
+        inputs.appendChild(pluralInp);
+        div.appendChild(en);
+        div.appendChild(arrow);
+        div.appendChild(inputs);
+        cont.appendChild(div);
+      });
+    }
+
+    function liveCheckVocab(inp) {
+      timerAutoStart(3);
+      var val = inp.value.trim();
+      var ans = inp.dataset.answer;
+      inp.classList.remove('correct', 'wrong');
+      if (val.length === 0) return;
+      if (val === ans) { inp.classList.add('correct'); } else if (ans.indexOf(val) === 0) {
+        // valid
+      } else { inp.classList.add('wrong'); }
+      checkVocabAll();
+    }
+
+    function checkVocabAll() {
+      var inputs = document.querySelectorAll('#tab3 input');
+      if (inputs.length === 0) return;
+      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
+      if (allOk) timerStop(3);
+    }
+
+    function showVocabSolution() {
+      document.querySelectorAll('#tab3 input').forEach(inp => {
+        inp.value = inp.dataset.answer;
+        inp.classList.add('correct');
+      });
+      checkVocabAll();
+    }
+
+    function resetVocab() {
+      document.querySelectorAll('#tab3 input').forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+      });
+      timerReset(3);
+    }
+
+    function initPage() {
+      var lueckeCont = document.getElementById('lueckenContainer');
+      lueckeCont.innerHTML = '';
+      lueckenData.forEach(item => {
+        var div = document.createElement('div');
+        div.className = 'sentence-block';
+        div.innerHTML = item.text;
+        lueckeCont.appendChild(div);
+      });
+      renderSatzbau();
+      renderVocab();
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

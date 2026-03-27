@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Die Geschichte der Mythologie — Deutsch Lernen fabDaF B2.3</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 1.8rem; margin-bottom: 5px; }
+    .header p { font-size: 0.95rem; opacity: 0.95; }
+    .nav {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #f0f2f5;
+      overflow-x: auto;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      background: #f8f9fa;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+    .nav-btn:hover { background: #f0f2f5; }
+    .nav-btn.active {
+      background: white;
+      border-bottom-color: #667eea;
+    }
+    .nav-emoji { font-size: 1.4rem; }
+    .nav-label { font-weight: 600; color: #333; }
+    .content { padding: 30px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .help-box {
+      background: #e8f4fd;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border-left: 4px solid #0288d1;
+      font-size: 0.9rem;
+      color: #01579b;
+    }
+    .timer-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .best-time { color: #f39c12; font-weight: 600; }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #667eea;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn:hover { background: #764ba2; }
+    input.blank {
+      border: 2px solid #c5cae9;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      background: white;
+      margin: 0 2px;
+    }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .correction-hint {
+      font-size: 0.78rem;
+      color: #27ae60;
+      font-weight: 700;
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+    .chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      cursor: grab;
+      font-size: 0.85rem;
+      font-weight: 600;
+      user-select: none;
+      transition: transform 0.15s, opacity 0.15s;
+      white-space: nowrap;
+      display: inline-block;
+      margin: 4px 4px 4px 0;
+    }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .drop-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 2px dashed #c5cae9;
+      background: #fafbff;
+      margin-bottom: 14px;
+    }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
+    .chip-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      min-height: 54px;
+    }
+    .vocab-box {
+      background: #f8f9ff;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .vocab-en { font-weight: 600; color: #764ba2; min-width: 140px; font-size: 0.95em; }
+    .vocab-de { color: #333; font-size: 0.95em; }
+    .vocab-example { color: #666; font-size: 0.85em; font-style: italic; margin-top: 4px; }
+    .mc-option {
+      padding: 9px 16px;
+      border: 2px solid #c5cae9;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+    .mc-option:hover { border-color: #667eea; background: #f3f4ff; }
+    .mc-option.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+    .mc-option.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .reading-text {
+      background: #fafbff;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      line-height: 1.85;
+      font-size: 0.95rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .author-footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 16px;
+      font-size: 0.8rem;
+      color: #aaa;
+      border-top: 1px solid #f0f2f5;
+    }
+    .author-footer a { color: #aaa; }
+    .author-name { font-weight: 700; }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Die Geschichte der Mythologie</h1>
+      <p>B2.3 · Einheit 1 · Lesetext</p>
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" onclick="showTab(0)">
+        <span class="nav-emoji">🌅</span>
+        <span class="nav-label">Vorentlastung</span>
+      </button>
+      <button class="nav-btn" onclick="showTab(1)">
+        <span class="nav-emoji">📖</span>
+        <span class="nav-label">Lesetext</span>
+      </button>
+      <button class="nav-btn" onclick="showTab(2)">
+        <span class="nav-emoji">✏️</span>
+        <span class="nav-label">Lückentext</span>
+      </button>
+      <button class="nav-btn" onclick="showTab(3)">
+        <span class="nav-emoji">❓</span>
+        <span class="nav-label">Multiple Choice</span>
+      </button>
+      <button class="nav-btn" onclick="showTab(4)">
+        <span class="nav-emoji">🔀</span>
+        <span class="nav-label">Satzbau</span>
+      </button>
+    </div>
+    <div class="content">
+
+      <!-- TAB 0: Vorentlastung -->
+      <div class="tab active" id="tab0">
+        <div class="help-box">
+          <strong>Wichtige Vokabeln zum Thema:</strong> Mythen, Götter, antike Zivilisationen
+        </div>
+        <div>
+          <div class="vocab-box">
+            <div>
+              <div class="vocab-en"><strong>der Mythos</strong></div>
+              <div class="vocab-de">myth — eine Geschichte, die eine Kultur erklärt</div>
+              <div class="vocab-example">„Der Mythos der Schöpfung ist in allen Kulturen vorhanden."</div>
+            </div>
+          </div>
+          <div class="vocab-box">
+            <div>
+              <div class="vocab-en"><strong>die Antike</strong></div>
+              <div class="vocab-de">antiquity — die alte Zeit der Griechen und Römer</div>
+              <div class="vocab-example">„In der Antike entstanden viele berühmte Mythen."</div>
+            </div>
+          </div>
+          <div class="vocab-box">
+            <div>
+              <div class="vocab-en"><strong>der Gott</strong></div>
+              <div class="vocab-de">god — übernatürliches Wesen in Religionen</div>
+              <div class="vocab-example">„Die Götter der Griechen lebten auf dem Olymp."</div>
+            </div>
+          </div>
+          <div class="vocab-box">
+            <div>
+              <div class="vocab-en"><strong>übernaturlich</strong></div>
+              <div class="vocab-de">supernatural — nicht nach den Regeln der Natur</div>
+              <div class="vocab-example">„Mythen beschreiben übernatürliche Kräfte."</div>
+            </div>
+          </div>
+          <div class="vocab-box">
+            <div>
+              <div class="vocab-en"><strong>die Erklärung</strong></div>
+              <div class="vocab-de">explanation — das Erklären von etwas</div>
+              <div class="vocab-example">„Mythen bieten Erklärungen für Naturphänomene."</div>
+            </div>
+          </div>
+          <div class="vocab-box">
+            <div>
+              <div class="vocab-en"><strong>entstehen</strong></div>
+              <div class="vocab-de">to arise, to emerge — anfangen zu existieren</div>
+              <div class="vocab-example">„Neue Mythen entstehen in jeder Generation."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 1: Lesetext -->
+      <div class="tab" id="tab1">
+        <div class="reading-text">
+          <strong>Die Geschichte der Mythologie</strong><br><br>
+          Mythen sind seit der Antike ein wichtiger Teil menschlicher Kulturen. Sie entstehen, um Naturphänomene, historische Ereignisse und existenzielle Fragen zu erklären. Die bekanntesten Mythen stammen aus der griechischen, der nordischen und der ägyptischen Zivilisation. Jede Kultur entwickelt ihre eigenen Götter und Helden.<br><br>
+          In der griechischen Antike beschrieben Dichter wie Homer die Götter des Olymp. Diese Göthen waren mächtig, aber auch fehlerhaft — sie liebten, hassten und kämpften wie Menschen. Die nordischen Mythen der Wikinger erzählen von Göttern wie Odin und Thor, die die Welt schützen und Schicksalsverfügungen erfüllen. Die ägyptischen Mythen wiederum erklären den Kreislauf von Geburt, Tod und Wiedergeburt.<br><br>
+          Heute fragen Wissenschaftler: Warum entstehen Mythen? Psychologen sagen, dass Mythen unserer Psyche helfen, komplexe Ideen zu verstehen. Mythen sind nicht einfach Lügen — sie sind kulturelle Werkzeuge. Sie vermitteln Werte, Normen und Moral einer Gesellschaft. Ein Mythos wie die Geschichte des Prometheus zeigt, dass Ungehorsam gegen Autorität Konsequenzen hat.<br><br>
+          Der Unterschied zwischen Mythos und Wissenschaft ist wichtig. Wissenschaft erklärt Phänomene durch Beobachtung und Experiment. Mythos erklärt durch Geschichten und Symbolik. Moderne Menschen verstehen, dass Götter nicht literal existieren — aber die Wahrheit in den Mythen bleibt bedeutsam. Sie zeigen, wer wir sind und was wir wertschätzen.
+        </div>
+      </div>
+
+      <!-- TAB 2: Lückentext -->
+      <div class="tab" id="tab2">
+        <div class="timer-row">
+          ⏱ <span class="timer-display" id="timer2">0:00</span>
+          <span class="best-time" id="best2"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="showLueckeLoesung(2)">Lösungen</button>
+          <button class="btn" onclick="resetLuecke(2); timerResetOne(2);">Neu starten</button>
+        </div>
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Ergänze die Lücken mit Wörtern aus dem Text.
+        </div>
+        <div id="luecke-container-2"></div>
+      </div>
+
+      <!-- TAB 3: Multiple Choice -->
+      <div class="tab" id="tab3">
+        <div class="timer-row">
+          ⏱ <span class="timer-display" id="timer3">0:00</span>
+          <span class="best-time" id="best3"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="resetMC(3); timerResetOne(3);">Neu starten</button>
+        </div>
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Wähle die richtige Antwort.
+        </div>
+        <div id="mc-container-3"></div>
+      </div>
+
+      <!-- TAB 4: Satzbau -->
+      <div class="tab" id="tab4">
+        <div class="timer-row">
+          ⏱ <span class="timer-display" id="timer4">0:00</span>
+          <span class="best-time" id="best4"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="resetSatzbau(4); timerResetOne(4);">Neu starten</button>
+        </div>
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Ordne die Satzteile in die richtige Reihenfolge.
+        </div>
+        <div id="satzbau-container-4"></div>
+      </div>
+
+    </div>
+    <div class="author-footer">
+      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+  </div>
+
+  <script>
+    var TIMER_PREFIX = 'B2_3013R_';
+    var timerStarted = [false, false, false, false, false];
+    var timerRunning = [false, false, false, false, false];
+    var timerSeconds = [0, 0, 0, 0, 0];
+    var timerIntervals = [null, null, null, null, null];
+    var draggedChip = null;
+
+    function showTab(n) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab' + n).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      event.target.closest('.nav-btn').classList.add('active');
+    }
+
+    function liveCheck(inp) {
+      var val = inp.value.trim().toLowerCase();
+      var ans = (inp.dataset.answer || '').toLowerCase();
+      inp.classList.remove('correct', 'wrong');
+      if (val.length === 0) return;
+      if (val === ans) {
+        inp.classList.add('correct');
+      } else if (ans.indexOf(val) === 0) {
+        // gültiger Präfix
+      } else {
+        inp.classList.add('wrong');
+      }
+    }
+
+    function showHint(inp) {
+      var next = inp.nextElementSibling;
+      if (next && next.classList.contains('correction-hint')) next.remove();
+      if (!inp.classList.contains('correct')) {
+        var hint = document.createElement('span');
+        hint.className = 'correction-hint';
+        hint.textContent = inp.dataset.answer;
+        inp.insertAdjacentElement('afterend', hint);
+      }
+      inp.value = inp.dataset.answer;
+      inp.classList.add('correct');
+      inp.classList.remove('wrong');
+    }
+
+    function timerAutoStart(n) {
+      if (timerStarted[n]) return;
+      timerStarted[n] = true;
+      timerRunning[n] = true;
+      timerIntervals[n] = setInterval(() => {
+        timerSeconds[n]++;
+        var el = document.getElementById('timer-' + n);
+        if (el) el.textContent = fmtTime(timerSeconds[n]);
+      }, 1000);
+    }
+
+    function timerStop(n) {
+      if (!timerRunning[n]) return;
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+      var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
+      if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
+        localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
+        var el = document.getElementById('best-' + n);
+        if (el) el.textContent = '🏆 ' + fmtTime(timerSeconds[n]);
+      }
+    }
+
+    function timerResetOne(n) {
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+      timerStarted[n] = false;
+      timerSeconds[n] = 0;
+      var el = document.getElementById('timer-' + n);
+      if (el) el.textContent = '0:00';
+    }
+
+    function fmtTime(s) {
+      return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+    }
+
+    function loadBestTimes() {
+      for (var i = 2; i <= 4; i++) {
+        var v = localStorage.getItem(TIMER_PREFIX + i);
+        if (v) {
+          var el = document.getElementById('best-' + i);
+          if (el) el.textContent = '🏆 ' + fmtTime(parseInt(v));
+        }
+      }
+    }
+
+    var LUECKEN_DATA = [
+      { segs: [{t: 'Mythen entstehen, um '}, {b: 'Naturphänomene', s: 'm'}, {t: ' zu erklären.'}], hint: 'Nomen' },
+      { segs: [{t: 'Die bekanntesten Mythen stammen aus der '}, {b: 'griechischen', s: 'm'}, {t: ' Zivilisation.'}], hint: 'Adjektiv' },
+      { segs: [{t: 'Die Götter der Griechen lebten auf dem '}, {b: 'Olymp', s: 's'}, {t: '.'}], hint: 'Berg' },
+      { segs: [{t: 'Die nordischen Mythen der Wikinger erzählen von Göttern wie '}, {b: 'Odin', s: 'm'}, {t: ' und Thor.'}], hint: 'Gott' },
+      { segs: [{t: 'Psychologen sagen, dass Mythen unserer '}, {b: 'Psyche', s: 'm'}, {t: ' helfen.'}], hint: 'Bewusstsein' },
+      { segs: [{t: 'Mythen sind kulturelle '}, {b: 'Werkzeuge', s: 'l'}, {t: '.'}], hint: 'Plural' },
+      { segs: [{t: 'Die Geschichte des '}, {b: 'Prometheus', s: 'm'}, {t: ' zeigt, dass Ungehorsam Konsequenzen hat.'}], hint: 'antiker Held' },
+      { segs: [{t: 'Wissenschaft erklärt durch '}, {b: 'Beobachtung', s: 'l'}, {t: ' und Experiment.'}], hint: 'Nomen' }
+    ];
+
+    function lueckeInit() {
+      var cont = document.getElementById('luecke-container-2');
+      cont.innerHTML = '';
+      LUECKEN_DATA.forEach((item, idx) => {
+        var sent = document.createElement('div');
+        sent.style.marginBottom = '14px';
+        item.segs.forEach(seg => {
+          if (seg.t) {
+            sent.appendChild(document.createTextNode(seg.t));
+          } else {
+            var inp = document.createElement('input');
+            inp.className = 'blank';
+            inp.type = 'text';
+            inp.dataset.answer = seg.b;
+            inp.style.width = (seg.s === 's' ? '50px' : seg.s === 'm' ? '90px' : '150px');
+            inp.addEventListener('input', function() {
+              timerAutoStart(2);
+              liveCheck(this);
+              checkLueckeAllOk(2);
+            });
+            sent.appendChild(inp);
+          }
+        });
+        cont.appendChild(sent);
+      });
+    }
+
+    function checkLueckeAllOk(n) {
+      var inputs = document.querySelectorAll('#luecke-container-' + n + ' input.blank');
+      var allOk = inputs.length > 0 && Array.from(inputs).every(i => i.classList.contains('correct'));
+      if (allOk) timerStop(n);
+    }
+
+    function showLueckeLoesung(n) {
+      document.querySelectorAll('#luecke-container-' + n + ' input.blank').forEach(inp => {
+        showHint(inp);
+      });
+      timerStop(n);
+    }
+
+    function resetLuecke(n) {
+      document.querySelectorAll('#luecke-container-' + n + ' input.blank').forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+        var hint = inp.nextElementSibling;
+        if (hint && hint.classList.contains('correction-hint')) hint.remove();
+      });
+    }
+
+    var MC_DATA = [
+      { question: 'Warum entstehen Mythen?', options: [
+        { text: 'Um Naturphänomene und existenzielle Fragen zu erklären', correct: true },
+        { text: 'Um Wissenschaftler zu verwirren', correct: false },
+        { text: 'Weil Menschen zu viel Freizeit haben', correct: false }
+      ]},
+      { question: 'Welcher Gott ist nordisch?', options: [
+        { text: 'Zeus', correct: false },
+        { text: 'Odin', correct: true },
+        { text: 'Ra', correct: false }
+      ]},
+      { question: 'Was ist der Unterschied zwischen Mythos und Wissenschaft?', options: [
+        { text: 'Mythse erklären durch Geschichten, Wissenschaft durch Beobachtung', correct: true },
+        { text: 'Mythen sind immer wahr, Wissenschaft ist falsch', correct: false },
+        { text: 'Mythen nutzen nur Zahlen', correct: false }
+      ]},
+      { question: 'Was zeigt die Geschichte des Prometheus?', options: [
+        { text: 'Dass Ungehorsam gegen Autorität Konsequenzen hat', correct: true },
+        { text: 'Dass Menschen fliegen können', correct: false },
+        { text: 'Dass Feuer gut ist', correct: false }
+      ]},
+      { question: 'Warum sind Mythen heute noch bedeutsam?', options: [
+        { text: 'Sie zeigen, wer wir sind und was wir wertschätzen', correct: true },
+        { text: 'Weil sie literal wahr sind', correct: false },
+        { text: 'Sie haben keine Bedeutung mehr', correct: false }
+      ]}
+    ];
+
+    function mcInit() {
+      var cont = document.getElementById('mc-container-3');
+      cont.innerHTML = '';
+      MC_DATA.forEach((item, idx) => {
+        var sect = document.createElement('div');
+        sect.style.marginBottom = '20px';
+        var q = document.createElement('div');
+        q.style.fontWeight = '600';
+        q.style.marginBottom = '10px';
+        q.style.color = '#3949ab';
+        q.textContent = (idx + 1) + '. ' + item.question;
+        sect.appendChild(q);
+        item.options.forEach(opt => {
+          var btn = document.createElement('button');
+          btn.className = 'mc-option';
+          btn.textContent = opt.text;
+          btn.onclick = function() {
+            mcCheck(this, idx, opt.correct);
+          };
+          sect.appendChild(btn);
+        });
+        cont.appendChild(sect);
+      });
+    }
+
+    function mcCheck(btn, idx, correct) {
+      timerAutoStart(3);
+      if (correct) {
+        btn.classList.add('correct');
+        btn.disabled = true;
+        setTimeout(() => checkMcAllOk(3), 800);
+      } else {
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 1200);
+      }
+    }
+
+    function checkMcAllOk(n) {
+      var allBtns = document.querySelectorAll('#mc-container-' + n + ' .mc-option');
+      var answered = Array.from(allBtns).filter(b => b.classList.contains('correct'));
+      if (answered.length === MC_DATA.length) timerStop(n);
+    }
+
+    function resetMC(n) {
+      mcInit();
+    }
+
+    var SB_DATA = [
+      { words: ['Mythen', 'entstehen', ',', 'um', 'Naturphänomene', 'zu', 'erklären', '.'], answer: ['mythen', 'entstehen', ',', 'um', 'naturphänomene', 'zu', 'erklären', '.'] },
+      { words: ['Die', 'Götter', 'der', 'Griechen', 'lebten', 'auf', 'dem', 'Olymp', '.'], answer: ['die', 'götter', 'der', 'griechen', 'lebten', 'auf', 'dem', 'olymp', '.'] },
+      { words: ['Mythen', 'vermitteln', 'Werte', ',', 'Normen', 'und', 'Moral', '.'], answer: ['mythen', 'vermitteln', 'werte', ',', 'normen', 'und', 'moral', '.'] },
+      { words: ['Wissenschaft', 'erklärt', 'durch', 'Beobachtung', 'und', 'Experiment', '.'], answer: ['wissenschaft', 'erklärt', 'durch', 'beobachtung', 'und', 'experiment', '.'] },
+      { words: ['Die', 'Wahrheit', 'in', 'den', 'Mythen', 'bleibt', 'bedeutsam', '.'], answer: ['die', 'wahrheit', 'in', 'den', 'mythen', 'bleibt', 'bedeutsam', '.'] }
+    ];
+
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function sbInit() {
+      var cont = document.getElementById('satzbau-container-4');
+      cont.innerHTML = '';
+      SB_DATA.forEach((item, idx) => {
+        var sect = document.createElement('div');
+        sect.style.marginBottom = '20px';
+        var bank = document.createElement('div');
+        bank.className = 'chip-bank';
+        var shuffled = shuffle(item.words);
+        shuffled.forEach(word => {
+          var chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.dataset.orig = word;
+          chip.textContent = word;
+          chip.draggable = true;
+          chip.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', '');
+            draggedChip = chip;
+          });
+          chip.addEventListener('dragend', () => colorSbRow(idx));
+          bank.appendChild(chip);
+        });
+        sect.appendChild(bank);
+        var row = document.createElement('div');
+        row.id = 'row-' + idx;
+        row.className = 'drop-row';
+        row.addEventListener('dragover', e => { e.preventDefault(); row.classList.add('dragover'); });
+        row.addEventListener('dragleave', () => row.classList.remove('dragover'));
+        row.addEventListener('drop', e => {
+          e.preventDefault();
+          row.classList.remove('dragover');
+          if (draggedChip) row.appendChild(draggedChip);
+          draggedChip = null;
+          colorSbRow(idx);
+        });
+        sect.appendChild(row);
+        cont.appendChild(sect);
+      });
+    }
+
+    function colorSbRow(idx) {
+      var row = document.getElementById('row-' + idx);
+      var data = SB_DATA[idx];
+      Array.from(row.querySelectorAll('.chip')).forEach((chip, i) => {
+        chip.classList.remove('correct', 'wrong');
+        if (i < data.answer.length) {
+          chip.classList.add(chip.dataset.orig.toLowerCase() === data.answer[i] ? 'correct' : 'wrong');
+        } else {
+          chip.classList.add('wrong');
+        }
+      });
+      timerAutoStart(4);
+      checkSbAllOk(4);
+    }
+
+    function checkSbAllOk(n) {
+      var allRows = document.querySelectorAll('#satzbau-container-4 .drop-row');
+      var allOk = Array.from(allRows).every(row => {
+        var chips = row.querySelectorAll('.chip');
+        return chips.length > 0 && Array.from(chips).every(c => c.classList.contains('correct'));
+      });
+      if (allOk) timerStop(n);
+    }
+
+    function resetSatzbau(n) {
+      var cont = document.getElementById('satzbau-container-' + n);
+      cont.innerHTML = '';
+      sbInit();
+    }
+
+    // INIT
+    lueckeInit();
+    mcInit();
+    sbInit();
+    loadBestTimes();
+  </script>
+</body>
+</html>

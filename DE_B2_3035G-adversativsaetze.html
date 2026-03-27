@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2.3 · Einheit 3 · Adversativsätze (G)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 { font-size: 28px; margin-bottom: 5px; }
+        header p { font-size: 14px; opacity: 0.9; }
+        nav {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            background: #fafafa;
+            overflow-x: auto;
+        }
+        nav button {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        nav button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        nav button:hover:not(.active) {
+            background: #f5f5f5;
+        }
+        nav .emoji { font-size: 24px; }
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(100vh - 400px);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        .discovery-box {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .comp-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        .comp-item h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .comp-item p {
+            line-height: 1.6;
+            color: #333;
+            font-size: 13px;
+        }
+        .rule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+        .rule-table th, .rule-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .rule-table th {
+            background: #667eea;
+            color: white;
+        }
+        .rule-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .exercise {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .exercise label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .exercise input, .exercise textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .exercise textarea { min-height: 60px; resize: vertical; }
+        .exercise input:focus, .exercise textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        .feedback {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            min-height: 20px;
+        }
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .vocab-item {
+            display: grid;
+            grid-template-columns: 2fr 2fr 2fr;
+            gap: 15px;
+            align-items: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .vocab-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+        .vocab-german {
+            font-weight: 600;
+            color: #333;
+        }
+        .vocab-plural {
+            color: #667eea;
+            font-size: 14px;
+        }
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #fafafa;
+            border-top: 2px solid #f0f0f0;
+        }
+        .buttons { display: flex; gap: 10px; }
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        .timer {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        footer {
+            background: #333;
+            color: #ccc;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+            .vocab-item { grid-template-columns: 1fr; }
+            nav button { min-width: 120px; font-size: 12px; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚖️ Adversativsätze</h1>
+            <p>B2.3 · Einheit 3 · Gegensätze ausdrücken</p>
+        </header>
+
+        <nav id="tabNav">
+            <button class="tab-btn active" data-tab="0">
+                <span class="emoji">🔍</span>
+                <span>Entdecken</span>
+            </button>
+            <button class="tab-btn" data-tab="1">
+                <span class="emoji">📖</span>
+                <span>Regel</span>
+            </button>
+            <button class="tab-btn" data-tab="2">
+                <span class="emoji">✏️</span>
+                <span>Lückentext</span>
+            </button>
+            <button class="tab-btn" data-tab="3">
+                <span class="emoji">🔀</span>
+                <span>Satzbau</span>
+            </button>
+            <button class="tab-btn" data-tab="4">
+                <span class="emoji">📚</span>
+                <span>Wortschatz</span>
+            </button>
+        </nav>
+
+        <div class="content">
+            <!-- TAB 0: Entdecken -->
+            <div class="tab-content active">
+                <h2>🔍 Entdecken: Gegensätze ausdrücken</h2>
+                <div class="comparison">
+                    <div class="comp-item">
+                        <h4>❌ Einfach</h4>
+                        <p>"Der Mars ist kalt. Die Erde ist warm."</p>
+                    </div>
+                    <div class="comp-item">
+                        <h4>✓ Mit Adversativ</h4>
+                        <p>"Während der Mars kalt ist, ist die Erde warm."</p>
+                    </div>
+                </div>
+                <div class="comparison">
+                    <div class="comp-item">
+                        <h4>❌ Einfach</h4>
+                        <p>"Das Universum ist riesig. Wir sind klein."</p>
+                    </div>
+                    <div class="comp-item">
+                        <h4>✓ Mit Adversativ</h4>
+                        <p>"Das Universum ist riesig, wohingegen wir klein sind."</p>
+                    </div>
+                </div>
+                <div class="discovery-box">
+                    <strong>Beobachtung:</strong> Adversativsätze drücken einen Gegensatz oder Kontrast zwischen zwei Ideen aus. Sie machen die Aussage interessanter und präziser.
+                </div>
+            </div>
+
+            <!-- TAB 1: Regel -->
+            <div class="tab-content">
+                <h2>📖 Adversativsätze (B2 Niveau)</h2>
+                <table class="rule-table">
+                    <thead>
+                        <tr>
+                            <th>Konnektor</th>
+                            <th>Position</th>
+                            <th>Beispiel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>während</strong></td>
+                            <td>Nebensatz</td>
+                            <td>"Während der Mars kalt ist, ist die Erde warm."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>wohingegen</strong></td>
+                            <td>Nebensatz</td>
+                            <td>"Das Teleskop entdeckt Galaxien, wohingegen das Auge begrenzt ist."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>aber</strong></td>
+                            <td>Hauptsatz</td>
+                            <td>"Das All ist dunkel, aber voller Sterne."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>jedoch</strong></td>
+                            <td>Hauptsatz</td>
+                            <td>"Das Leben existiert hier, jedoch nicht überall."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>dagegen</strong></td>
+                            <td>Hauptsatz (pos. 1 oder 3)</td>
+                            <td>"Im Weltall ist es kalt. Auf der Erde dagegen ist es warm."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>im Gegensatz dazu</strong></td>
+                            <td>Adverbial (Satzanfang)</td>
+                            <td>"Das All breitet sich aus. Im Gegensatz dazu zieht sich... zusammen."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>einerseits ... andererseits</strong></td>
+                            <td>Parallelstruktur</td>
+                            <td>"Einerseits ist das Weltall unendlich, andererseits können wir es nie ganz erforschen."</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TAB 2: Lückentext -->
+            <div class="tab-content">
+                <h2>✏️ Lückentext: Adversativsätze</h2>
+                <div class="exercise">
+                    <label>1. "Der Saturn ist gasförmig, _____________ die Erde ist fest."</label>
+                    <input type="text" class="luekentext" data-answer="wohingegen" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>2. "_____________ sich die Galaxien ausbreiten, bleibt die Sternenkarte unverändert."</label>
+                    <input type="text" class="luekentext" data-answer="waehrend" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>3. "Das All ist alt und groß, _____________ wir sind jung und klein."</label>
+                    <input type="text" class="luekentext" data-answer="dagegen" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>4. "Der Mars könnte Leben beherbergen, _____________ gibt es dort keine Beweise."</label>
+                    <input type="text" class="luekentext" data-answer="jedoch" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>5. "Schwarze Löcher sind zerstörerisch. _____________ sind Neutronensterne stabil."</label>
+                    <input type="text" class="luekentext" data-answer="dagegen" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>6. "_____________ die Sonne scheint, _____________ die Nacht ist dunkel."</label>
+                    <input type="text" class="luekentext" data-answer="einerseits...andererseits" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>7. "Exoplaneten sind häufig, _____________ sind Habitate selten."</label>
+                    <input type="text" class="luekentext" data-answer="aber" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>8. "In unserem Sonnensystem gibt es 8 Planeten. _____________ könnten andere Systeme 100 haben."</label>
+                    <input type="text" class="luekentext" data-answer="im gegensatz dazu" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Satzbau -->
+            <div class="tab-content">
+                <h2>🔀 Satzbau: Sätze ordnen</h2>
+                <p style="margin-bottom: 20px; color: #666;">Ordne die Wörter zu vollständigen Sätzen:</p>
+                <div id="sbContainer"></div>
+            </div>
+
+            <!-- TAB 4: Wortschatz -->
+            <div class="tab-content">
+                <h2>📚 Wortschatz: Adversativ-Konnektoren</h2>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Konnektor</div>
+                        <div class="vocab-german">während</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Bedeutung</div>
+                        <div class="vocab-german">Im Kontrast dazu</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Beispiel</div>
+                        <div class="vocab-plural">Während A ist, ist B</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Konnektor</div>
+                        <div class="vocab-german">wohingegen</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Bedeutung</div>
+                        <div class="vocab-german">Im Gegensatz zu</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Beispiel</div>
+                        <div class="vocab-plural">A, wohingegen B</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Konnektor</div>
+                        <div class="vocab-german">aber</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Bedeutung</div>
+                        <div class="vocab-german">Einschränkung</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Beispiel</div>
+                        <div class="vocab-plural">A, aber B</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Konnektor</div>
+                        <div class="vocab-german">jedoch</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Bedeutung</div>
+                        <div class="vocab-german">Aber (formal)</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Beispiel</div>
+                        <div class="vocab-plural">A, jedoch B</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Konnektor</div>
+                        <div class="vocab-german">dagegen</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Bedeutung</div>
+                        <div class="vocab-german">Dafür / Stattdessen</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Beispiel</div>
+                        <div class="vocab-plural">A. B dagegen</div>
+                    </div>
+                </div>
+                <div class="vocab-item">
+                    <div>
+                        <div class="vocab-label">Konnektor</div>
+                        <div class="vocab-german">einerseits...andererseits</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Bedeutung</div>
+                        <div class="vocab-german">Auf der einen Seite...auf der anderen</div>
+                    </div>
+                    <div>
+                        <div class="vocab-label">Beispiel</div>
+                        <div class="vocab-plural">Einerseits A, andererseits B</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-bar">
+            <div class="buttons">
+                <button class="btn-secondary" onclick="resetTab()">Zurücksetzen</button>
+            </div>
+            <div class="timer" id="timer">⏱️ 0:00</div>
+        </div>
+
+        <footer>
+            © Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com
+        </footer>
+    </div>
+
+    <script>
+        let currentTab = 0;
+        let timerInterval;
+        let seconds = 0;
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => switchTab(idx));
+        });
+
+        function switchTab(idx) {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tabButtons[idx].classList.add('active');
+            tabContents[idx].classList.add('active');
+            currentTab = idx;
+
+            if (idx === 3) initSatzbau();
+            if (idx === 4) startTimer();
+        }
+
+        function checkAnswer(el) {
+            const answer = el.dataset.answer.toLowerCase();
+            const input = el.value.toLowerCase().trim();
+            const feedback = el.nextElementSibling;
+
+            if (input === answer || input === answer.replace(/\.\.\./g, '')) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✓ Richtig!';
+            } else if (input.length > 0) {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '✗ Versuchen Sie es nochmal.';
+            } else {
+                feedback.className = 'feedback';
+                feedback.textContent = '';
+            }
+        }
+
+        function initSatzbau() {
+            const container = document.getElementById('sbContainer');
+            if (container.innerHTML) return;
+
+            const sentences = [
+                { words: ['Während', 'der', 'Mond', 'weiß', 'ist,', 'ist', 'die', 'Erde', 'blau.'], correct: [0,1,2,3,4,5,6,7,8] },
+                { words: ['Der', 'Mars', 'ist', 'klein,', 'wohingegen', 'Jupiter', 'riesig', 'ist.'], correct: [0,1,2,3,4,5,6,7] },
+                { words: ['Das', 'All', 'breitet', 'sich', 'aus,', 'aber', 'wir', 'verstehen', 'es.'], correct: [0,1,2,3,4,5,6,7,8] },
+                { words: ['Die', 'Sterne', 'sind', 'heiß,', 'dagegen', 'sind', 'schwarze', 'Löcher', 'dunkel.'], correct: [0,1,2,3,4,5,6,7,8] },
+                { words: ['Einerseits', 'gibt', 'es', 'Leben', 'auf', 'der', 'Erde,', 'andererseits', 'könnte', 'es', 'überall', 'sein.'], correct: [0,1,2,3,4,5,6,7,8,9,10,11] }
+            ];
+
+            sentences.forEach((sent, idx) => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '20px';
+
+                const label = document.createElement('p');
+                label.textContent = `Satz ${idx + 1}:`;
+                label.style.fontWeight = '600';
+                label.style.marginBottom = '10px';
+                div.appendChild(label);
+
+                const chips = document.createElement('div');
+                chips.style.display = 'flex';
+                chips.style.flexWrap = 'wrap';
+                chips.style.gap = '8px';
+                chips.style.minHeight = '50px';
+                chips.style.padding = '10px';
+                chips.style.background = '#f9f9f9';
+                chips.style.borderRadius = '6px';
+
+                sent.words.forEach((word) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'punct-chip';
+                    chip.textContent = word;
+                    chip.style.padding = '8px 12px';
+                    chip.style.background = '#667eea';
+                    chip.style.color = 'white';
+                    chip.style.borderRadius = '4px';
+                    chip.style.cursor = 'pointer';
+                    chip.style.userSelect = 'none';
+                    chip.addEventListener('click', () => toggleWord(chip));
+                    chips.appendChild(chip);
+                });
+
+                div.appendChild(chips);
+                container.appendChild(div);
+            });
+        }
+
+        function toggleWord(el) {
+            el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
+        }
+
+        function resetTab() {
+            location.reload();
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timer').textContent =
+                    `⏱️ ${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

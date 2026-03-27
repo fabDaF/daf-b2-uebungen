@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprachfamilien — Deutsch Lernen fabDaF B2.3</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; min-height: 100vh; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+    .header h1 { font-size: 1.8rem; margin-bottom: 5px; }
+    .header p { font-size: 0.95rem; opacity: 0.95; }
+    .nav { display: flex; background: #f8f9fa; border-bottom: 2px solid #f0f2f5; overflow-x: auto; }
+    .nav-btn { flex: 1; padding: 15px; border: none; background: #f8f9fa; cursor: pointer; font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.3s; border-bottom: 3px solid transparent; }
+    .nav-btn:hover { background: #f0f2f5; }
+    .nav-btn.active { background: white; border-bottom-color: #667eea; }
+    .nav-emoji { font-size: 1.4rem; }
+    .nav-label { font-weight: 600; color: #333; }
+    .content { padding: 30px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .help-box { background: #e8f4fd; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; border-left: 4px solid #0288d1; font-size: 0.9rem; color: #01579b; }
+    .timer-row { display: flex; align-items: center; gap: 12px; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); font-size: 0.85rem; color: #666; }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .best-time { color: #f39c12; font-weight: 600; }
+    .btn-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .btn { padding: 9px 16px; border: none; border-radius: 8px; background: #667eea; color: white; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+    .btn:hover { background: #764ba2; }
+    input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 3px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s, background 0.2s; background: white; margin: 0 2px; }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .correction-hint { font-size: 0.78rem; color: #27ae60; font-weight: 700; margin-left: 4px; white-space: nowrap; }
+    .chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform 0.15s, opacity 0.15s; white-space: nowrap; }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .chip.comma-chip { padding: 8px 8px; min-width: 24px; font-weight: 700; font-size: 1.1em; }
+    .drop-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 2px dashed #c5cae9; background: #fafbff; margin-bottom: 12px; }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
+    .drop-row .chip.comma-chip { margin-left: -4px; }
+    .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 14px; min-height: 54px; }
+    .mc-option { padding: 10px; background: #fafbff; border: 2px solid #c5cae9; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; margin-bottom: 8px; }
+    .mc-option:hover { border-color: #667eea; background: #f3f4ff; }
+    .mc-option.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+    .mc-option.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .vorentlastung { background: #f3e5f5; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .vorentlastung h4 { color: #6a1b9a; margin-bottom: 10px; }
+    .lesetext { background: #fafbff; padding: 16px; border-radius: 8px; border-left: 4px solid #667eea; line-height: 1.8; font-size: 0.95rem; margin-bottom: 16px; }
+    .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; text-decoration: none; }
+    .author-name { font-weight: 700; }
+    @media (max-width: 600px) { body { padding: 10px; } .header h1 { font-size: 1.2rem; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🌍 Sprachfamilien</h1>
+    <p>B2.3 · Einheit 4 · R</p>
+  </div>
+
+  <div class="nav" id="nav">
+    <button class="nav-btn active" onclick="showTab(0)"><span class="nav-emoji">🌅</span><span class="nav-label">Vorentlastung</span></button>
+    <button class="nav-btn" onclick="showTab(1)"><span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span></button>
+    <button class="nav-btn" onclick="showTab(2)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button>
+    <button class="nav-btn" onclick="showTab(3)"><span class="nav-emoji">❓</span><span class="nav-label">Multiple Choice</span></button>
+    <button class="nav-btn" onclick="showTab(4)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></button>
+  </div>
+
+  <div class="content">
+    <div class="tab active" id="tab0">
+      <div class="vorentlastung">
+        <h4>📚 Wichtige Vokabeln</h4>
+        <div style="margin-top: 12px; font-size: 0.9rem; line-height: 1.8;">
+          <div><b>verwandt</b> = ähnlich, stammend von derselben Quelle</div>
+          <div><b>die Sprachfamilie</b> = eine Gruppe von verwandten Sprachen</div>
+          <div><b>indoeuropäisch</b> = zu einer großen Sprachfamilie gehörend</div>
+          <div><b>Ur-Indoeuropäisch</b> = die ursprüngliche Ursprache</div>
+          <div><b>germanisch</b> = zu der germanischen Sprachgruppe gehörend</div>
+          <div><b>romanisch</b> = zu der romanischen Sprachgruppe gehörend</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab" id="tab1">
+      <div class="lesetext">
+        <h3 style="margin-bottom: 12px;">Sprachfamilien der Welt</h3>
+        <p>Linguisten teilen die Sprachen der Welt in verschiedene Sprachfamilien ein. Die größte und am weitesten verbreitete ist die indoeuropäische Sprachfamilie, der etwa 50% der Weltbevölkerung angehört. Die indoeuropäische Sprachfamilie wird unterteilt in mehrere Untergruppen, darunter die germanischen, romanischen und slawischen Sprachen.</p>
+        <p>Die germanischen Sprachen umfassen Deutsch, Englisch, Niederländisch, Skandinavische Sprachen und Friesisch. Diese Sprachen zeigen viele Gemeinsamkeiten in Grammatik und Wortschatz. Das Deutsche und das Englische sind beispielsweise enge Verwandte, obwohl sie sich in der Aussprache und einigen Wörtern unterscheiden.</p>
+        <p>Die romanischen Sprachen stammen vom Lateinischen ab und werden hauptsächlich in südeuropäischen Ländern gesprochen. Dazu gehören Französisch, Spanisch, Italienisch, Portugiesisch und Rumänisch. Diese Sprachen zeigen starke Ähnlichkeiten in ihren Grundstrukturen.</p>
+        <p>Wissenschaftler vermuten, dass alle indoeuropäischen Sprachen von einer gemeinsamen Ursprache stammen, dem sogenannten Ur-Indoeuropäisch. Diese Sprache wurde etwa 6000 Jahre vor Christus von nomadischen Völkern gesprochen, die später in verschiedene Regionen auswanderten und ihre Sprache mit sich nahmen.</p>
+        <p>Es gibt auch andere Sprachfamilien, die nicht indoeuropäisch sind. Dazu gehören die finno-ugrischen Sprachen (wie Finnisch und Ungarisch) und die türkischen Sprachen. Diese Sprachen zeigen völlig andere grammatikalische Strukturen und können nicht zur indoeuropäischen Familie gezählt werden.</p>
+      </div>
+    </div>
+
+    <div class="tab" id="tab2">
+      <div class="timer-row">⏱ <span class="timer-display" id="timer2">0:00</span><span class="best-time" id="best2"></span></div>
+      <div class="btn-row">
+        <button class="btn" onclick="showHintLuecke(2)">💡 Hinweis</button>
+        <button class="btn" onclick="resetLuecken(2);">🔄 Neu starten</button>
+      </div>
+      <div class="help-box"><strong>Aufgabe:</strong> Ergänze die Lücken im Text über Sprachfamilien!</div>
+      <div id="luecke-container-2"></div>
+    </div>
+
+    <div class="tab" id="tab3">
+      <div class="timer-row">⏱ <span class="timer-display" id="timer3">0:00</span><span class="best-time" id="best3"></span></div>
+      <div class="btn-row"><button class="btn" onclick="resetMC(3);">🔄 Neu starten</button></div>
+      <div class="help-box"><strong>Aufgabe:</strong> Beantworte die Fragen zum Text!</div>
+      <div id="mc-container-3"></div>
+    </div>
+
+    <div class="tab" id="tab4">
+      <div class="timer-row">⏱ <span class="timer-display" id="timer4">0:00</span><span class="best-time" id="best4"></span></div>
+      <div class="btn-row"><button class="btn" onclick="resetSatzbau(4);">🔄 Neu starten</button></div>
+      <div class="help-box"><strong>Aufgabe:</strong> Ordne die Wörter korrekt!</div>
+      <div id="sb-container-4"></div>
+    </div>
+  </div>
+
+  <div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+  </div>
+</div>
+
+<script>
+var TIMER_PREFIX = 'B2_3046R_';
+var timerStarted = [false, false, false, false, false];
+var timerRunning = [false, false, false, false, false];
+var timerSeconds = [0, 0, 0, 0, 0];
+var timerIntervals = [null, null, null, null, null];
+var draggedChip = null;
+var mcAnswers = {};
+
+function showTab(n) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab' + n).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  event.target.closest('.nav-btn').classList.add('active');
+}
+
+function fmtTime(s) { return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60); }
+function timerAutoStart(n) {
+  if (timerStarted[n]) return;
+  timerStarted[n] = true;
+  timerRunning[n] = true;
+  timerIntervals[n] = setInterval(function() {
+    timerSeconds[n]++;
+    var el = document.getElementById('timer' + n);
+    if (el) el.textContent = fmtTime(timerSeconds[n]);
+  }, 1000);
+}
+function timerStop(n) {
+  if (!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]);
+  timerRunning[n] = false;
+  var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
+  if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
+    localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
+    var el = document.getElementById('best' + n);
+    if (el) el.textContent = 'Best: ' + fmtTime(timerSeconds[n]);
+  }
+}
+function timerResetOne(n) {
+  clearInterval(timerIntervals[n]);
+  timerRunning[n] = false;
+  timerStarted[n] = false;
+  timerSeconds[n] = 0;
+  var el = document.getElementById('timer' + n);
+  if (el) el.textContent = '0:00';
+}
+function loadBestTimes() {
+  for (var i = 2; i <= 4; i++) {
+    var v = localStorage.getItem(TIMER_PREFIX + i);
+    if (v) {
+      var el = document.getElementById('best' + i);
+      if (el) el.textContent = 'Best: ' + fmtTime(parseInt(v));
+    }
+  }
+}
+
+function liveCheck(inp) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (val === ans) { inp.classList.add('correct'); }
+  else if (ans.indexOf(val) === 0) { }
+  else { inp.classList.add('wrong'); }
+}
+
+function showHint(inp) {
+  var next = inp.nextElementSibling;
+  if (next && next.classList.contains('correction-hint')) next.remove();
+  if (!inp.classList.contains('correct')) {
+    var hint = document.createElement('span');
+    hint.className = 'correction-hint';
+    hint.textContent = inp.dataset.answer;
+    inp.insertAdjacentElement('afterend', hint);
+  }
+  inp.value = inp.dataset.answer;
+  inp.classList.add('correct');
+}
+
+var LUECKEN_DATA_2 = [
+  { segs: [{t: 'Die größte ist die '}, {b: 'indoeuropäische', s: 'l'}, {t: ' Sprachfamilie.'}] },
+  { segs: [{t: 'Das Englische ist ein enge '}, {b: 'Verwandte', s: 'l'}, {t: ' des Deutschen.'}] },
+  { segs: [{t: 'Die romanischen Sprachen stammen vom '}, {b: 'Lateinischen', s: 'l'}, {t: ' ab.'}] },
+  { segs: [{t: 'Das Finnische ist eine '}, {b: 'finno-ugrische', s: 'l'}, {t: ' Sprache.'}] },
+  { segs: [{t: 'Linguisten vermuten ein gemeinsames '}, {b: 'Ur-Indoeuropäisch', s: 'xl'}, {t: '.'}] }
+];
+
+function lueckeInit() {
+  var container = document.getElementById('luecke-container-2');
+  container.innerHTML = '';
+  LUECKEN_DATA_2.forEach(function(item) {
+    var div = document.createElement('div');
+    div.style.marginBottom = '16px';
+    var p = document.createElement('p');
+    p.style.lineHeight = '1.8';
+    item.segs.forEach(function(seg) {
+      if (seg.t) {
+        p.appendChild(document.createTextNode(seg.t));
+      } else {
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'blank';
+        inp.dataset.answer = seg.b;
+        inp.style.width = (seg.s === 's' ? '50px' : seg.s === 'l' ? '150px' : '200px');
+        inp.oninput = function() { timerAutoStart(2); liveCheck(this); checkLueckeAllOk(2); };
+        p.appendChild(inp);
+      }
+    });
+    div.appendChild(p);
+    container.appendChild(div);
+  });
+}
+
+function checkLueckeAllOk(n) {
+  var inputs = document.querySelectorAll('#luecke-container-' + n + ' input.blank');
+  var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) { return i.classList.contains('correct'); });
+  if (allOk) timerStop(n);
+}
+
+function showHintLuecke(n) {
+  document.querySelectorAll('#luecke-container-' + n + ' input.blank').forEach(function(inp) {
+    if (!inp.classList.contains('correct')) showHint(inp);
+  });
+}
+
+function resetLuecken(n) {
+  document.querySelectorAll('#luecke-container-' + n + ' input.blank').forEach(function(inp) {
+    inp.value = '';
+    inp.classList.remove('correct', 'wrong');
+    var next = inp.nextElementSibling;
+    if (next && next.classList.contains('correction-hint')) next.remove();
+  });
+  timerResetOne(n);
+}
+
+var MC_DATA_3 = [
+  { q: 'Welche Sprachfamilie ist am größten?', opts: ['Slawisch', 'Indoeuropäisch', 'Sino-Tibetisch'], ans: 1 },
+  { q: 'Von welcher Sprache stammen die romanischen Sprachen ab?', opts: ['Griechisch', 'Lateinisch', 'Arabisch'], ans: 1 },
+  { q: 'Welche Sprache ist germanisch?', opts: ['Italienisch', 'Finnisch', 'Deutsch'], ans: 2 },
+  { q: 'Wie hieß die gemeinsame Ursprache?', opts: ['Proto-Indoeuropäisch', 'Ur-Indoeuropäisch', 'Alt-Indoeuropäisch'], ans: 1 }
+];
+
+function mcInit() {
+  var container = document.getElementById('mc-container-3');
+  container.innerHTML = '';
+  MC_DATA_3.forEach(function(item, idx) {
+    var qDiv = document.createElement('div');
+    qDiv.style.marginBottom = '20px';
+    var qTitle = document.createElement('h4');
+    qTitle.textContent = 'Frage ' + (idx + 1) + ': ' + item.q;
+    qTitle.style.marginBottom = '12px';
+    qDiv.appendChild(qTitle);
+    item.opts.forEach(function(opt, oIdx) {
+      var btn = document.createElement('div');
+      btn.className = 'mc-option';
+      btn.textContent = opt;
+      btn.onclick = function() {
+        timerAutoStart(3);
+        mcCheck(idx, btn, oIdx === item.ans);
+      };
+      qDiv.appendChild(btn);
+    });
+    container.appendChild(qDiv);
+  });
+}
+
+function mcCheck(qIdx, btn, correct) {
+  var qDiv = btn.closest('div[style*="marginBottom: 20px"]');
+  var opts = qDiv.querySelectorAll('.mc-option');
+  opts.forEach(function(o) { o.style.pointerEvents = 'none'; });
+  if (correct) {
+    btn.classList.add('correct');
+    mcAnswers[qIdx] = true;
+    setTimeout(function() {
+      if (Object.keys(mcAnswers).length === MC_DATA_3.length) timerStop(3);
+    }, 300);
+  } else {
+    btn.classList.add('wrong');
+    setTimeout(function() {
+      opts.forEach(function(o) { o.style.pointerEvents = 'auto'; });
+      btn.classList.remove('wrong');
+    }, 1200);
+  }
+}
+
+function resetMC(n) {
+  mcAnswers = {};
+  timerResetOne(n);
+  document.getElementById('mc-container-' + n).innerHTML = '';
+  mcInit();
+}
+
+var SATZBAU_DATA_4 = [
+  { parts: ['Die', 'germanischen', 'Sprachen', 'zeigen', 'viele', 'Gemeinsamkeiten', '.'], answer: ['Die', 'germanischen', 'Sprachen', 'zeigen', 'viele', 'Gemeinsamkeiten', '.'] },
+  { parts: ['Das', 'Englische', 'ist', 'enge', 'Verwandte', 'des', 'Deutschen', '.'], answer: ['Das', 'Englische', 'ist', 'enge', 'Verwandte', 'des', 'Deutschen', '.'] }
+];
+
+function sbInit() {
+  var container = document.getElementById('sb-container-4');
+  container.innerHTML = '';
+  SATZBAU_DATA_4.forEach(function(item, idx) {
+    var div = document.createElement('div');
+    div.style.marginBottom = '20px';
+    var chipBank = document.createElement('div');
+    chipBank.className = 'chip-bank';
+    var shuffled = shuffle(item.parts);
+    shuffled.forEach(function(part) {
+      var chip = document.createElement('div');
+      chip.className = 'chip';
+      if (part === ',' || part === '.') chip.className += ' comma-chip';
+      chip.textContent = part;
+      chip.dataset.orig = part;
+      chip.draggable = true;
+      chip.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', '');
+        draggedChip = chip;
+      });
+      chip.addEventListener('dragend', function() { colorSbRow(idx); });
+      chipBank.appendChild(chip);
+    });
+    div.appendChild(chipBank);
+    var dropRow = document.createElement('div');
+    dropRow.className = 'drop-row';
+    dropRow.id = 'row-' + idx;
+    dropRow.addEventListener('dragover', function(e) { e.preventDefault(); dropRow.classList.add('dragover'); });
+    dropRow.addEventListener('dragleave', function() { dropRow.classList.remove('dragover'); });
+    dropRow.addEventListener('drop', function(e) {
+      e.preventDefault();
+      dropRow.classList.remove('dragover');
+      if (draggedChip) { dropRow.appendChild(draggedChip); draggedChip = null; }
+      colorSbRow(idx);
+    });
+    div.appendChild(dropRow);
+    container.appendChild(div);
+  });
+}
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function colorSbRow(idx) {
+  var row = document.getElementById('row-' + idx);
+  var data = SATZBAU_DATA_4[idx];
+  Array.from(row.querySelectorAll('.chip')).forEach(function(chip, i) {
+    chip.classList.remove('correct', 'wrong');
+    if (i < data.answer.length) {
+      chip.classList.add(chip.dataset.orig.toLowerCase() === data.answer[i].toLowerCase() ? 'correct' : 'wrong');
+    } else {
+      chip.classList.add('wrong');
+    }
+  });
+  timerAutoStart(4);
+  checkSbAllOk(4);
+}
+
+function checkSbAllOk(n) {
+  var rows = document.querySelectorAll('#sb-container-' + n + ' .drop-row');
+  var allOk = rows.length > 0 && Array.from(rows).every(function(row) {
+    var chips = row.querySelectorAll('.chip');
+    return chips.length > 0 && Array.from(chips).every(function(c) { return c.classList.contains('correct'); });
+  });
+  if (allOk) timerStop(n);
+}
+
+function resetSatzbau(n) {
+  timerResetOne(n);
+  document.getElementById('sb-container-' + n).innerHTML = '';
+  sbInit();
+}
+
+lueckeInit();
+mcInit();
+sbInit();
+loadBestTimes();
+</script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2.3 · Einheit 3 · Gibt es Leben im Weltall? (R)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 { font-size: 28px; margin-bottom: 5px; }
+        header p { font-size: 14px; opacity: 0.9; }
+        nav {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            background: #fafafa;
+            overflow-x: auto;
+        }
+        nav button {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        nav button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        nav button:hover:not(.active) {
+            background: #f5f5f5;
+        }
+        nav .emoji { font-size: 24px; }
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(100vh - 400px);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        .vocab-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .vocab-card {
+            padding: 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        .vocab-card strong {
+            color: #667eea;
+        }
+        .vocab-card .meaning {
+            color: #666;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .reading-text {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.8;
+            color: #333;
+            margin: 20px 0;
+        }
+        .reading-text p {
+            margin-bottom: 15px;
+        }
+        .exercise {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .exercise label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .exercise input, .exercise textarea, .exercise select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .exercise textarea { min-height: 80px; resize: vertical; }
+        .exercise input:focus, .exercise textarea:focus, .exercise select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        .feedback {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            min-height: 20px;
+        }
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .mc-option {
+            display: block;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .mc-option:hover {
+            border-color: #667eea;
+        }
+        .mc-option.selected {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+        .mc-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .mc-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #fafafa;
+            border-top: 2px solid #f0f0f0;
+        }
+        .buttons { display: flex; gap: 10px; }
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        .timer {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        footer {
+            background: #333;
+            color: #ccc;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .vocab-list { grid-template-columns: 1fr; }
+            nav button { min-width: 100px; font-size: 11px; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌌 Gibt es Leben im Weltall?</h1>
+            <p>B2.3 · Einheit 3 · Lesen und Verstehen</p>
+        </header>
+
+        <nav id="tabNav">
+            <button class="tab-btn active" data-tab="0">
+                <span class="emoji">🌅</span>
+                <span>Vorentlastung</span>
+            </button>
+            <button class="tab-btn" data-tab="1">
+                <span class="emoji">📖</span>
+                <span>Lesetext</span>
+            </button>
+            <button class="tab-btn" data-tab="2">
+                <span class="emoji">✏️</span>
+                <span>Lückentext</span>
+            </button>
+            <button class="tab-btn" data-tab="3">
+                <span class="emoji">❓</span>
+                <span>Multiple Choice</span>
+            </button>
+            <button class="tab-btn" data-tab="4">
+                <span class="emoji">🔀</span>
+                <span>Satzbau</span>
+            </button>
+        </nav>
+
+        <div class="content">
+            <!-- TAB 0: Vorentlastung -->
+            <div class="tab-content active">
+                <h2>🌅 Vorentlastung: Wichtige Vokabeln</h2>
+                <p style="margin-bottom: 20px; color: #666;">Lerne die Schlüsselvokabeln zum Thema "Leben im Weltall":</p>
+                <div class="vocab-list">
+                    <div class="vocab-card">
+                        <strong>extraterrestrisch</strong>
+                        <div class="meaning">von außerhalb der Erde stammend</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die Drake-Gleichung</strong>
+                        <div class="meaning">Formel zur Berechnung intelligenter Zivilisationen</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>das SETI-Projekt</strong>
+                        <div class="meaning">Suche nach außerirdischer Intelligenz</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die habitable Zone</strong>
+                        <div class="meaning">Bereich, wo Leben möglich ist</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>der Exoplanet</strong>
+                        <div class="meaning">Planet außerhalb unseres Sonnensystems</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>das Fermi-Paradoxon</strong>
+                        <div class="meaning">Widerspruch zwischen möglichem und beobachtetem Leben</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die Mikrobe</strong>
+                        <div class="meaning">winziges Lebewesen</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>das Wassereis</strong>
+                        <div class="meaning">gefrorenes Wasser auf Planeten/Monden</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: Lesetext -->
+            <div class="tab-content">
+                <h2>📖 Lesetext: Die Suche nach Leben im Universum</h2>
+                <div class="reading-text">
+                    <p>Seit Jahrzehnten stellt die Menschheit die Frage: "Sind wir allein im Universum?" Die Suche nach extraterrestrischem Leben ist eine der faszinierendsten wissenschaftlichen Aufgaben unserer Zeit. Wissenschaftler nutzen verschiedene Methoden, um diese Frage zu beantworten.</p>
+
+                    <p>Die Drake-Gleichung, entwickelt 1961 vom Astronomen Frank Drake, versucht mathematisch zu berechnen, wie viele intelligente Zivilisationen in unserer Galaxie existieren könnten. Sie berücksichtigt Faktoren wie die Anzahl der Sterne, die Wahrscheinlichkeit von Planeten und die Lebenserwartung von Zivilisationen. Nach dieser Gleichung sollte es Millionen intelligenter Leben geben.</p>
+
+                    <p>Das SETI-Projekt (Search for Extraterrestrial Intelligence) versucht seit 1960, Radiosignale aus dem All zu empfangen, die von intelligenten Wesen stammen könnten. Bisher war die Suche erfolglos, was das Fermi-Paradoxon aufwirft: Wenn so viele intelligente Zivilisationen existieren sollten, warum haben wir noch keine gefunden?</p>
+
+                    <p>Wissenschaftler konzentrieren sich auch auf die Suche nach Mikroben auf anderen Welten. Der Mars ist ein Hauptziel, da dort Wassereis und möglicherweise organische Stoffe existieren. Roboterrover wie Curiosity und Perseverance untersuchen den Mars auf Spuren ehemaliger oder aktueller Leben.</p>
+
+                    <p>Exoplaneten in der habitablen Zone — der Region um einen Stern, wo flüssiges Wasser existieren könnte — sind ebenfalls Forschungsprioritäten. Mit dem James Webb Space Telescope können Astronomen nun die Atmosphären dieser Planeten analysieren und nach Biosignaturen suchen, die auf Leben hindeuten könnten.</p>
+
+                    <p>Obwohl wir noch keine direkte Evidenz für außerirdisches Leben gefunden haben, zeigen neue Entdeckungen, dass die Bedingungen für Leben wahrscheinlicher sind als früher angenommen. Vielleicht ist die Antwort auf unsere Frage nicht mehr weit entfernt.</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: Lückentext -->
+            <div class="tab-content">
+                <h2>✏️ Lückentext: Verständnis überprüfen</h2>
+                <div class="exercise">
+                    <label>1. Die Drake-Gleichung wurde 1961 von _____________ entwickelt.</label>
+                    <input type="text" class="luekentext" data-answer="frank drake" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>2. Das SETI-Projekt versucht, _____________ aus dem All zu empfangen.</label>
+                    <input type="text" class="luekentext" data-answer="radiosignale" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>3. Das _____________ ist ein Widerspruch zwischen erwarteter und beobachteter Häufigkeit von Leben.</label>
+                    <input type="text" class="luekentext" data-answer="fermi-paradoxon" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>4. Der Mars ist ein Hauptziel, weil dort _____________ existieren könnte.</label>
+                    <input type="text" class="luekentext" data-answer="leben" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>5. Die habitable Zone ist die Region, wo _____________ existieren könnte.</label>
+                    <input type="text" class="luekentext" data-answer="fluessiges wasser" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Multiple Choice -->
+            <div class="tab-content">
+                <h2>❓ Multiple Choice: Verständnisfragen</h2>
+                <div class="exercise">
+                    <label><strong>1. Wann wurde die Drake-Gleichung entwickelt?</strong></label>
+                    <div onclick="selectMC(this, 'a')">
+                        <label class="mc-option" data-correct="yes">
+                            <input type="radio" name="q1"> a) 1961
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'b')">
+                        <label class="mc-option">
+                            <input type="radio" name="q1"> b) 1980
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'c')">
+                        <label class="mc-option">
+                            <input type="radio" name="q1"> c) 1960
+                        </label>
+                    </div>
+                </div>
+                <div class="exercise">
+                    <label><strong>2. Worauf konzentrieren sich moderne Mars-Missionen?</strong></label>
+                    <div onclick="selectMC(this, 'a')">
+                        <label class="mc-option">
+                            <input type="radio" name="q2"> a) Bau einer Kolonie
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'b')">
+                        <label class="mc-option" data-correct="yes">
+                            <input type="radio" name="q2"> b) Suche nach Spuren von Leben
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'c')">
+                        <label class="mc-option">
+                            <input type="radio" name="q2"> c) Abbau von Mineralien
+                        </label>
+                    </div>
+                </div>
+                <div class="exercise">
+                    <label><strong>3. Was ist die habitable Zone?</strong></label>
+                    <div onclick="selectMC(this, 'a')">
+                        <label class="mc-option">
+                            <input type="radio" name="q3"> a) Ein Observatorium auf der Erde
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'b')">
+                        <label class="mc-option" data-correct="yes">
+                            <input type="radio" name="q3"> b) Region um einen Stern, wo Leben möglich ist
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'c')">
+                        <label class="mc-option">
+                            <input type="radio" name="q3"> c) Ein Labor zur Züchtung von Mikroben
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Satzbau -->
+            <div class="tab-content">
+                <h2>🔀 Satzbau: Sätze ordnen</h2>
+                <p style="margin-bottom: 20px; color: #666;">Ordne die Wörter zu vollständigen Sätzen:</p>
+                <div id="sbContainer"></div>
+            </div>
+        </div>
+
+        <div class="control-bar">
+            <div class="buttons">
+                <button class="btn-secondary" onclick="resetTab()">Zurücksetzen</button>
+            </div>
+            <div class="timer" id="timer">⏱️ 0:00</div>
+        </div>
+
+        <footer>
+            © Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com
+        </footer>
+    </div>
+
+    <script>
+        let currentTab = 0;
+        let timerInterval;
+        let seconds = 0;
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => switchTab(idx));
+        });
+
+        function switchTab(idx) {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tabButtons[idx].classList.add('active');
+            tabContents[idx].classList.add('active');
+            currentTab = idx;
+
+            if (idx === 4) initSatzbau();
+        }
+
+        function checkAnswer(el) {
+            const answer = el.dataset.answer.toLowerCase();
+            const input = el.value.toLowerCase().trim();
+            const feedback = el.nextElementSibling;
+
+            if (input === answer) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✓ Richtig!';
+            } else if (input.length > 0) {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '✗ Versuchen Sie es nochmal.';
+            } else {
+                feedback.className = 'feedback';
+                feedback.textContent = '';
+            }
+        }
+
+        function selectMC(el, answer) {
+            const parent = el.parentElement;
+            parent.querySelectorAll('.mc-option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            el.classList.add('selected');
+
+            if (el.dataset.correct === 'yes') {
+                el.classList.add('correct');
+                el.style.borderColor = '#28a745';
+            }
+        }
+
+        function initSatzbau() {
+            const container = document.getElementById('sbContainer');
+            if (container.innerHTML) return;
+
+            const sentences = [
+                { words: ['Die', 'Drake-Gleichung', 'berechnet,', 'wie', 'viele', 'intelligente', 'Zivilisationen', 'existieren', 'könnten.'], correct: [0,1,2,3,4,5,6,7,8] },
+                { words: ['Das', 'SETI-Projekt', 'sucht', 'nach', 'Radiosignalen', 'von', 'intelligenten', 'Wesen.'], correct: [0,1,2,3,4,5,6,7] },
+                { words: ['Der', 'Mars', 'enthält', 'Wassereis', 'und', 'könnte', 'Leben', 'haben.'], correct: [0,1,2,3,4,5,6,7] },
+                { words: ['Das', 'James', 'Webb', 'Teleskop', 'analysiert', 'die', 'Atmosphären', 'von', 'Exoplaneten.'], correct: [0,1,2,3,4,5,6,7,8] },
+                { words: ['Biosignaturen', 'könnten', 'auf', 'außerirdisches', 'Leben', 'hindeuten.'], correct: [0,1,2,3,4,5] }
+            ];
+
+            sentences.forEach((sent, idx) => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '20px';
+
+                const label = document.createElement('p');
+                label.textContent = `Satz ${idx + 1}:`;
+                label.style.fontWeight = '600';
+                label.style.marginBottom = '10px';
+                div.appendChild(label);
+
+                const chips = document.createElement('div');
+                chips.style.display = 'flex';
+                chips.style.flexWrap = 'wrap';
+                chips.style.gap = '8px';
+                chips.style.minHeight = '50px';
+                chips.style.padding = '10px';
+                chips.style.background = '#f9f9f9';
+                chips.style.borderRadius = '6px';
+
+                sent.words.forEach((word) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'punct-chip';
+                    chip.textContent = word;
+                    chip.style.padding = '8px 12px';
+                    chip.style.background = '#667eea';
+                    chip.style.color = 'white';
+                    chip.style.borderRadius = '4px';
+                    chip.style.cursor = 'pointer';
+                    chip.style.userSelect = 'none';
+                    chip.addEventListener('click', () => toggleWord(chip));
+                    chips.appendChild(chip);
+                });
+
+                div.appendChild(chips);
+                container.appendChild(div);
+            });
+        }
+
+        function toggleWord(el) {
+            el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
+        }
+
+        function resetTab() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
