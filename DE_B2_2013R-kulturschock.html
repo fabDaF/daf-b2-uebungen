@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kulturschock im Büro – B2.2 · 2013R</title>
+<style>
+/* ── GLOBAL ──────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+/* ── NAVIGATION ──────────────────────────────────────────── */
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+/* ── SECTIONS ────────────────────────────────────────────── */
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 28px 30px; }
+
+/* ── TAB-BANNER ──────────────────────────────────────────── */
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+@media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+
+/* ── CONTROL-BAR ─────────────────────────────────────────── */
+.timer-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { border-color: #667eea; color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* ── HILFE-BOX ───────────────────────────────────────────── */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+/* ── VORENTLASTUNG: VOCAB PREVIEW ────────────────────────── */
+.vocab-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.vocab-preview-card { background: #f8f9ff; border-radius: 10px; padding: 14px 16px; border-left: 4px solid #667eea; }
+.vocab-preview-card .de { font-weight: 700; color: #333; font-size: 0.95rem; margin-bottom: 6px; }
+.vocab-preview-card .en { font-size: 0.85rem; color: #888; font-style: italic; }
+
+/* ── LESETEXT ────────────────────────────────────────────── */
+.story-text { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05rem; line-height: 1.8; text-align: justify; color: #333; margin-bottom: 18px; padding: 0 4px; }
+
+/* ── RICHTIG/FALSCH ──────────────────────────────────────── */
+.rf-item { background: #f8f9ff; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; border-left: 4px solid #667eea; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.rf-text { flex: 1; font-size: 0.95rem; color: #333; min-width: 200px; }
+.rf-buttons { display: flex; gap: 8px; }
+.rf-btn { padding: 5px 12px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-size: 0.82em; font-weight: 500; transition: all .2s; }
+.rf-btn.r { color: #666; }
+.rf-btn.f { color: #666; }
+.rf-btn:hover { border-color: #667eea; color: #667eea; }
+.rf-item.correct .rf-btn.r { background: #c8e6c9; border-color: #43a047; color: #1b5e20; }
+.rf-item.wrong .rf-btn.f { background: #ffcdd2; border-color: #e53935; color: #b71c1c; }
+
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+.wordbox { background: #f3e5f5; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.9em; color: #555; line-height: 1.8; }
+.wordbox strong { color: #6a1b9a; }
+.luecken-item { margin-bottom: 14px; font-size: 0.97rem; line-height: 2; color: #333; }
+.luecken-inp { border: none; border-bottom: 2px solid #9c27b0; padding: 2px 6px; font-size: 0.95em; font-family: inherit; outline: none; min-width: 140px; text-align: center; background: transparent; transition: border-color .2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #43a047; background: #e8f5e9; color: #1b5e20; border-radius: 4px 4px 0 0; }
+.luecken-inp.no { border-bottom-color: #e53935; background: #ffebee; color: #b71c1c; border-radius: 4px 4px 0 0; }
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.sb-item { margin-bottom: 28px; }
+.sb-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; padding: 10px; background: #f3f4ff; border-radius: 8px; margin-bottom: 10px; }
+.sb-zone { display: flex; flex-wrap: wrap; gap: 8px; min-height: 50px; padding: 10px; background: #fff; border: 2px dashed #c5cae9; border-radius: 8px; }
+.sb-zone.drag-over { border-color: #667eea; background: #f0f4ff; }
+.chip { display: inline-flex; align-items: center; padding: 6px 12px; background: #e8eaf6; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; transition: all .15s; border: 2px solid transparent; color: #283593; font-weight: 500; }
+.chip:hover { background: #c5cae9; transform: translateY(-1px); }
+.chip.selected { border-color: #667eea; background: #c5cae9; }
+.chip.correct { background: #c8e6c9; color: #1b5e20; border-color: #43a047; }
+.chip.wrong { background: #ffcdd2; color: #b71c1c; border-color: #e53935; }
+.sb-fb { font-size: 0.88rem; margin-top: 6px; min-height: 20px; color: #43a047; font-weight: 600; }
+
+/* ── WORTSCHATZ ──────────────────────────────────────────── */
+.vocab-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.vocab-card { border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); transition: box-shadow .2s; }
+.vocab-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+.vocab-img { width: 100%; height: 120px; object-fit: cover; }
+.vocab-body { padding: 12px 14px; }
+.vocab-eng { font-size: 0.82em; color: #888; margin-bottom: 6px; }
+.vocab-row { display: flex; gap: 6px; margin-bottom: 5px; flex-wrap: wrap; }
+.vocab-inp { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; font-size: 0.82em; font-family: inherit; outline: none; flex: 1; min-width: 60px; transition: border-color .2s; }
+.vocab-inp.art { max-width: 68px; }
+.vocab-inp.plural { max-width: 130px; }
+.vocab-inp:focus { border-color: #667eea; }
+.vocab-inp.correct { border-color: #43a047; background: #e8f5e9; color: #1b5e20; }
+.vocab-inp.wrong { border-color: #e53935; background: #ffebee; }
+.vocab-bsp { font-size: 0.78em; color: #999; margin-top: 5px; font-style: italic; border-top: 1px solid #f0f0f0; padding-top: 5px; line-height: 1.4; }
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .rf-item { flex-direction: column; align-items: flex-start; }
+    .rf-buttons { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <span class="big-emoji">🌍</span>
+  <h1>Kulturschock im Büro</h1>
+  <p>B2 · Einheit 2 · 2013R · Lesen</p>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSection(0)">
+    <span class="nav-emoji">🔑</span><span class="nav-label">Vorentlastung</span>
+  </button>
+  <button class="nav-btn" onclick="showSection(1)">
+    <span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span>
+  </button>
+  <button class="nav-btn" onclick="showSection(2)">
+    <span class="nav-emoji">❓</span><span class="nav-label">Verständnis</span>
+  </button>
+  <button class="nav-btn" onclick="showSection(3)">
+    <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+  </button>
+  <button class="nav-btn" onclick="showSection(4)">
+    <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+  </button>
+  <button class="nav-btn" onclick="showSection(5)">
+    <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
+  </button>
+</nav>
+
+<!-- TAB 0: VORENTLASTUNG -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Vorstellungsgespräch im modernen Büro">
+  <div class="sec-inner">
+    <h2>🔑 Vorentlastung</h2>
+    <div class="vocab-preview-grid">
+      <div class="vocab-preview-card">
+        <div class="de">das Vorstellungsgespräch</div>
+        <div class="en">job interview</div>
+      </div>
+      <div class="vocab-preview-card">
+        <div class="de">das Erscheinungsbild</div>
+        <div class="en">appearance / image</div>
+      </div>
+      <div class="vocab-preview-card">
+        <div class="de">der erste Eindruck</div>
+        <div class="en">first impression</div>
+      </div>
+      <div class="vocab-preview-card">
+        <div class="de">die Kleiderordnung</div>
+        <div class="en">dress code</div>
+      </div>
+      <div class="vocab-preview-card">
+        <div class="de">der Ehrgeiz</div>
+        <div class="en">ambition</div>
+      </div>
+      <div class="vocab-preview-card">
+        <div class="de">die Stärke</div>
+        <div class="en">strength</div>
+      </div>
+      <div class="vocab-preview-card">
+        <div class="de">die Schwäche</div>
+        <div class="en">weakness</div>
+      </div>
+      <div class="vocab-preview-card">
+        <div class="de">der Ruf</div>
+        <div class="en">reputation</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 1: LESETEXT -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Modernes Büro mit lockerer Atmosphäre">
+  <div class="sec-inner">
+    <h2>📖 Lesetext</h2>
+    <div class="story-text">
+      Mia kommt aus Südkorea und bewirbt sich bei X-Media, einem IT-Start-up in Berlin. Sie ist überrascht: Die Büroatmosphäre ist sehr locker. Beim Vorstellungsgespräch trägt der Chef Jeans und ein T-Shirt. Die Kleiderordnung ist leger. Alle duzen sich. Mia macht einen professionellen Eindruck mit ihrem Erscheinungsbild – Kostüm, Krawatte, perfektes Makeup. Trotzdem fragt der Chef: „Wie heißt du?" Sie beantwortet Fragen über ihre Stärken, ihren Ehrgeiz und ihre Schwächen. Am Ende bekommt sie die Stelle. Das Büro hat einen guten Ruf für Kreativität und Offenheit.
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: VERSTÄNDNIS -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/6292009/pexels-photo-6292009.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Frau in professioneller Umgebung">
+  <div class="sec-inner">
+    <h2>❓ Verständnis</h2>
+    <div class="hilfe-box">
+      <strong>Aufgabe:</strong> Entscheide: Richtig (R) oder Falsch (F)?
+    </div>
+    <div class="rf-item" id="rf-1">
+      <div class="rf-text">1. Mia kommt aus Japan.</div>
+      <div class="rf-buttons">
+        <button class="rf-btn r" onclick="checkRF(1,'f')">R</button>
+        <button class="rf-btn f" onclick="checkRF(1,'t')">F</button>
+      </div>
+    </div>
+    <div class="rf-item" id="rf-2">
+      <div class="rf-text">2. Der Chef trägt beim Gespräch einen Anzug.</div>
+      <div class="rf-buttons">
+        <button class="rf-btn r" onclick="checkRF(2,'f')">R</button>
+        <button class="rf-btn f" onclick="checkRF(2,'t')">F</button>
+      </div>
+    </div>
+    <div class="rf-item" id="rf-3">
+      <div class="rf-text">3. Bei X-Media duzen sich alle.</div>
+      <div class="rf-buttons">
+        <button class="rf-btn r" onclick="checkRF(3,'t')">R</button>
+        <button class="rf-btn f" onclick="checkRF(3,'f')">F</button>
+      </div>
+    </div>
+    <div class="rf-item" id="rf-4">
+      <div class="rf-text">4. Mia macht einen professionellen Eindruck.</div>
+      <div class="rf-buttons">
+        <button class="rf-btn r" onclick="checkRF(4,'t')">R</button>
+        <button class="rf-btn f" onclick="checkRF(4,'f')">F</button>
+      </div>
+    </div>
+    <div class="rf-item" id="rf-5">
+      <div class="rf-text">5. Mia bekommt die Stelle nicht.</div>
+      <div class="rf-buttons">
+        <button class="rf-btn r" onclick="checkRF(5,'f')">R</button>
+        <button class="rf-btn f" onclick="checkRF(5,'t')">F</button>
+      </div>
+    </div>
+    <div class="rf-item" id="rf-6">
+      <div class="rf-text">6. Das Unternehmen hat einen guten Ruf.</div>
+      <div class="rf-buttons">
+        <button class="rf-btn r" onclick="checkRF(6,'t')">R</button>
+        <button class="rf-btn f" onclick="checkRF(6,'f')">F</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: LÜCKENTEXT -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreibtisch mit Stift und Papier">
+  <div class="sec-inner">
+    <h2>✏️ Lückentext</h2>
+    <div class="wordbox">
+      <strong>Wortkasten:</strong> Vorstellungsgespräch · Eindruck · Kleiderordnung · Ehrgeiz · Stärke · Ruf · formell · leger · Erscheinungsbild · Vorstellungsgespräch
+    </div>
+    <div class="hilfe-box">
+      <strong>Aufgabe:</strong> Ergänze die fehlenden Wörter. Live-Feedback beim Eingeben!
+    </div>
+    <div class="luecken-item">
+      1. Sie hatte ein erfolgreiches <input class="luecken-inp" type="text" placeholder="" data-answer="Vorstellungsgespräch" oninput="lueckenCheck(this)"> und bekommt den Job.
+    </div>
+    <div class="luecken-item">
+      2. Der erste <input class="luecken-inp" type="text" placeholder="" data-answer="Eindruck" oninput="lueckenCheck(this)"> ist sehr wichtig in einem Bewerbungsgespräch.
+    </div>
+    <div class="luecken-item">
+      3. Die Firma hat eine lockere <input class="luecken-inp" type="text" placeholder="" data-answer="Kleiderordnung" oninput="lueckenCheck(this)"> – Jeans sind erlaubt.
+    </div>
+    <div class="luecken-item">
+      4. Sein <input class="luecken-inp" type="text" placeholder="" data-answer="Ehrgeiz" oninput="lueckenCheck(this)"> hat ihm geholfen, schnell Karriere zu machen.
+    </div>
+    <div class="luecken-item">
+      5. Bitte nenne eine <input class="luecken-inp" type="text" placeholder="" data-answer="Stärke" oninput="lueckenCheck(this)"> und eine Schwäche von dir.
+    </div>
+    <div class="luecken-item">
+      6. Ein <input class="luecken-inp" type="text" placeholder="" data-answer="Ruf" oninput="lueckenCheck(this)"> als zuverlässiger Mitarbeiter ist sehr wertvoll.
+    </div>
+    <div class="luecken-item">
+      7. Das Büro wirkt <input class="luecken-inp" type="text" placeholder="" data-answer="formell" oninput="lueckenCheck(this)">, weil alle Anzüge tragen.
+    </div>
+    <div class="luecken-item">
+      8. Die Atmosphäre ist sehr <input class="luecken-inp" type="text" placeholder="" data-answer="leger" oninput="lueckenCheck(this)">, alle duzen sich.
+    </div>
+    <div class="luecken-item">
+      9. Ihr <input class="luecken-inp" type="text" placeholder="" data-answer="Erscheinungsbild" oninput="lueckenCheck(this)"> war perfekt – sie sah sehr professionell aus.
+    </div>
+    <div class="luecken-item">
+      10. Bei dem <input class="luecken-inp" type="text" placeholder="" data-answer="Vorstellungsgespräch" oninput="lueckenCheck(this)"> musste sie viele schwierige Fragen beantworten.
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: SATZBAU -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Puzzle-Teile zusammensetzen">
+  <div class="sec-inner">
+    <h2>🧩 Satzbau</h2>
+    <div class="hilfe-box">
+      <strong>Aufgabe:</strong> Sortiere die Satzteile in die richtige Reihenfolge. Ziehe die Chips oder klicke sie!
+    </div>
+    <div id="sbContainer"></div>
+  </div>
+</div>
+
+<!-- TAB 5: WORTSCHATZ -->
+<div class="section" id="sec-5">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bücher und Wörterbuch">
+  <div class="sec-inner">
+    <h2>🔠 Wortschatz</h2>
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="resetVocab()">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span class="current-time">⏱ <span id="timer-5">00:00</span></span>
+        <span class="best-time">🏆 <span id="best-5">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">
+      <strong>Aufgabe:</strong> Für Nomen: Artikel + Wort + Plural. Für Verben/Adjektive: nur Deutsch eingeben!
+    </div>
+    <div id="vocabContainer"></div>
+  </div>
+</div>
+
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─────────────────────────────────────────────────────────
+// SECTION NAVIGATION
+// ─────────────────────────────────────────────────────────
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+}
+
+// ─────────────────────────────────────────────────────────
+// RICHTIG/FALSCH (Tab 2)
+// ─────────────────────────────────────────────────────────
+function checkRF(itemId, answer) {
+    var item = document.getElementById('rf-' + itemId);
+    var isCorrect = answer === 't'; // 't' = true/richtig, 'f' = false/falsch
+    if (isCorrect) {
+        item.classList.add('correct');
+        item.classList.remove('wrong');
+    } else {
+        item.classList.add('wrong');
+        item.classList.remove('correct');
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// LÜCKENTEXT (Tab 3)
+// ─────────────────────────────────────────────────────────
+function lueckenCheck(inp) {
+    var answer = inp.getAttribute('data-answer').toLowerCase();
+    var val = inp.value.toLowerCase().trim();
+    if (val === '') {
+        inp.classList.remove('ok', 'no');
+    } else if (val === answer || answer.startsWith(val)) {
+        inp.classList.add('ok');
+        inp.classList.remove('no');
+    } else {
+        inp.classList.add('no');
+        inp.classList.remove('ok');
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// SATZBAU (Tab 4)
+// ─────────────────────────────────────────────────────────
+var satzbauDaten = [
+    ['Sie', 'hat', 'ein', 'tolles', 'Vorstellungsgespräch', 'gehabt', 'und', 'die', 'Stelle', 'bekommen.'],
+    ['Der', 'erste', 'Eindruck', 'ist', 'sehr', 'wichtig', 'bei', 'einem', 'Bewerbungsgespräch.'],
+    ['In', 'vielen', 'Start-ups', 'ist', 'die', 'Kleiderordnung', 'sehr', 'leger.'],
+    ['Sie', 'nennt', 'ihre', 'Stärken', 'und', 'erklärt,', 'wie', 'sie', 'zum', 'Team', 'passt.'],
+    ['Ein', 'guter', 'Ruf', 'hilft', 'dabei,', 'neue', 'Kunden', 'zu', 'gewinnen.'],
+    ['Beim', 'Gespräch', 'duzte', 'der', 'Chef', 'alle', 'Bewerber', 'sofort.'],
+    ['Ihr', 'Ehrgeiz', 'hat', 'sie', 'bis', 'an', 'die', 'Spitze', 'gebracht.']
+];
+
+function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = a[i]; a[i] = a[j]; a[j] = temp;
+    }
+    return a;
+}
+
+var sbDragged = null;
+
+function initSatzbau() {
+    var container = document.getElementById('sbContainer');
+    container.innerHTML = '';
+    satzbauDaten.forEach(function(satz, idx) {
+        var shuffled = shuffleArray(satz);
+        var item = document.createElement('div');
+        item.className = 'sb-item';
+        var bank = document.createElement('div');
+        bank.className = 'sb-bank';
+        shuffled.forEach(function(word) {
+            var chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = word;
+            chip.draggable = true;
+            chip.setAttribute('data-correct-idx', satz.indexOf(word));
+            chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
+            chip.addEventListener('click', function() { sbChipClick(chip); });
+            bank.appendChild(chip);
+        });
+        var zone = document.createElement('div');
+        zone.className = 'sb-zone';
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (sbDragged) {
+                sbChipDrop(sbDragged, zone);
+            }
+        });
+        item.appendChild(bank);
+        item.appendChild(zone);
+        var fb = document.createElement('div');
+        fb.className = 'sb-fb';
+        item.appendChild(fb);
+        container.appendChild(item);
+    });
+}
+
+function sbChipClick(chip) {
+    var zone = chip.parentElement.parentElement.querySelector('.sb-zone');
+    if (chip.parentElement.classList.contains('sb-bank')) {
+        sbChipDrop(chip, zone);
+    }
+}
+
+function sbChipDrop(chip, zone) {
+    if (chip.parentElement.classList.contains('sb-zone')) {
+        chip.parentElement.appendChild(chip);
+    } else {
+        zone.appendChild(chip);
+    }
+    sbCheckOrder(zone);
+}
+
+function sbCheckOrder(zone) {
+    var satzIdx = 0;
+    var items = zone.parentElement.querySelectorAll('.sb-zone');
+    for (var i = 0; i < items.length; i++) {
+        if (items[i] === zone) { satzIdx = i; break; }
+    }
+    var correctSatz = satzbauDaten[satzIdx];
+    var chips = zone.querySelectorAll('.chip');
+    var correct = true;
+    chips.forEach(function(c, idx) {
+        var shouldBe = parseInt(c.getAttribute('data-correct-idx'));
+        if (shouldBe === idx) {
+            c.classList.add('correct');
+            c.classList.remove('wrong');
+        } else {
+            c.classList.add('wrong');
+            c.classList.remove('correct');
+            correct = false;
+        }
+    });
+    var fb = zone.parentElement.querySelector('.sb-fb');
+    if (correct && chips.length === correctSatz.length) {
+        fb.textContent = '✓ Richtig!';
+        fb.style.color = '#43a047';
+    } else if (chips.length === 0) {
+        fb.textContent = '';
+    } else {
+        fb.textContent = '';
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// WORTSCHATZ (Tab 5)
+// ─────────────────────────────────────────────────────────
+var WORTSCHATZ = [
+    { id:1, type:"n", en:"job interview", artikel:"das", de:"Vorstellungsgespräch", plural:"Vorstellungsgespräche" },
+    { id:2, type:"n", en:"appearance/image", artikel:"das", de:"Erscheinungsbild", plural:"Erscheinungsbilder" },
+    { id:3, type:"n", en:"impression", artikel:"der", de:"Eindruck", plural:"Eindrücke" },
+    { id:4, type:"n", en:"dress code", artikel:"die", de:"Kleiderordnung", plural:"Kleiderordnungen" },
+    { id:5, type:"n", en:"ambition", artikel:"der", de:"Ehrgeiz", plural:"—" },
+    { id:6, type:"n", en:"strength", artikel:"die", de:"Stärke", plural:"Stärken" },
+    { id:7, type:"n", en:"weakness", artikel:"die", de:"Schwäche", plural:"Schwächen" },
+    { id:8, type:"n", en:"reputation", artikel:"der", de:"Ruf", plural:"Rufe" },
+    { id:9, type:"v", en:"formal", de:"formell" },
+    { id:10, type:"v", en:"casual", de:"leger" }
+];
+
+function initVocab() {
+    var c = document.getElementById('vocabContainer');
+    c.innerHTML = '';
+    var shuffled = WORTSCHATZ.slice().sort(() => Math.random() - 0.5);
+    shuffled.forEach(function(v) {
+        var card = document.createElement('div');
+        card.className = 'vocab-card';
+        var img = document.createElement('img');
+        img.className = 'vocab-img';
+        img.src = getPexelsUrl(v.id);
+        img.alt = v.de;
+        card.appendChild(img);
+        var body = document.createElement('div');
+        body.className = 'vocab-body';
+        var en = document.createElement('div');
+        en.className = 'vocab-eng';
+        en.textContent = v.en;
+        body.appendChild(en);
+        if (v.type === 'n') {
+            var r1 = document.createElement('div');
+            r1.className = 'vocab-row';
+            var artInp = document.createElement('input');
+            artInp.className = 'vocab-inp art';
+            artInp.placeholder = 'Artikel';
+            artInp.dataset.id = v.id;
+            artInp.dataset.type = 'art';
+            artInp.dataset.correct = v.artikel;
+            artInp.oninput = vocabLiveCheck;
+            r1.appendChild(artInp);
+            var wInp = document.createElement('input');
+            wInp.className = 'vocab-inp';
+            wInp.placeholder = 'Deutsch';
+            wInp.dataset.id = v.id;
+            wInp.dataset.type = 'wort';
+            wInp.dataset.correct = v.de;
+            wInp.oninput = vocabLiveCheck;
+            r1.appendChild(wInp);
+            body.appendChild(r1);
+            var r2 = document.createElement('div');
+            r2.className = 'vocab-row';
+            var pInp = document.createElement('input');
+            pInp.className = 'vocab-inp plural';
+            pInp.placeholder = 'Plural';
+            pInp.dataset.id = v.id;
+            pInp.dataset.type = 'plural';
+            pInp.dataset.correct = v.plural;
+            pInp.oninput = vocabLiveCheck;
+            if (v.plural !== '—') {
+                r2.appendChild(pInp);
+            }
+            if (r2.children.length > 0) body.appendChild(r2);
+        } else {
+            var rV = document.createElement('div');
+            rV.className = 'vocab-row';
+            var vInp = document.createElement('input');
+            vInp.className = 'vocab-inp';
+            vInp.placeholder = 'Deutsch';
+            vInp.dataset.id = v.id;
+            vInp.dataset.type = 'wort';
+            vInp.dataset.correct = v.de;
+            vInp.oninput = vocabLiveCheck;
+            rV.appendChild(vInp);
+            body.appendChild(rV);
+        }
+        card.appendChild(body);
+        c.appendChild(card);
+    });
+}
+
+function getPexelsUrl(id) {
+    var pexels = [3184465, 3184338, 3184291, 1181671, 3184339, 3183197, 3184292, 6292009, 1181406, 1709003];
+    return 'https://images.pexels.com/photos/' + pexels[id-1] + '/pexels-photo-' + pexels[id-1] + '.jpeg?auto=compress&cs=tinysrgb&w=200';
+}
+
+function vocabLiveCheck() {
+    var v = this.dataset.correct.toLowerCase();
+    var inp = this.value.toLowerCase().trim();
+    if (inp === '') {
+        this.classList.remove('correct', 'wrong');
+    } else if (inp === v || v.startsWith(inp)) {
+        this.classList.add('correct');
+        this.classList.remove('wrong');
+    } else {
+        this.classList.add('wrong');
+        this.classList.remove('correct');
+    }
+}
+
+function resetVocab() {
+    initVocab();
+}
+
+// ─────────────────────────────────────────────────────────
+// INIT ON LOAD
+// ─────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+    initSatzbau();
+    initVocab();
+});
+</script>
+</body>
+</html>
