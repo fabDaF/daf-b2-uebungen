@@ -171,6 +171,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .lese-text  { max-width: 600px; margin: 0 auto; }
 .rf-list    { max-width: 650px; margin: 0 auto; }
 /* ──────────────────────────────── */
+.vocab-hl { background: #ffe066; border-radius: 3px; padding: 0 2px; cursor: help; }
 </style>
 </head>
 <body>
@@ -654,12 +655,30 @@ function resetVocab() {
     initVocab();
 }
 
+
+// ─────────────────────────────────────────────────────────
+// VOCAB-HL: Vokabeln im Lesetext gelb markieren
+// ─────────────────────────────────────────────────────────
+function highlightVocabInText() {
+    var textEl = document.querySelector('.story-text') || document.querySelector('.lese-text');
+    if (!textEl) return;
+    var words = WORTSCHATZ.map(function(v) { return v.de; }).filter(Boolean);
+    var html = textEl.innerHTML;
+    words.forEach(function(word) {
+        var escaped = word.replace(/[-\/\^+?.()|[\]{}]/g, '\$&');
+        var re = new RegExp('(?<![>\w])(' + escaped + ')(?![<\w])', 'gi');
+        html = html.replace(re, '<span class="vocab-hl" title="' + word + '"></span>');
+    });
+    textEl.innerHTML = html;
+}
+
 // ─────────────────────────────────────────────────────────
 // INIT ON LOAD
 // ─────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function() {
     initSatzbau();
     initVocab();
+    highlightVocabInText();
 });
 </script>
 </body>
