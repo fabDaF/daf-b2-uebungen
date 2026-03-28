@@ -97,55 +97,6 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 /* ── FOOTER ──────────────────────────────────────────────── */
 .footer { background: #f8f9fa; border-top: 1px solid #eee; text-align: center; padding: 12px 20px; font-size: 0.78em; color: #aaa; }
 
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
@@ -159,20 +110,20 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 </div>
 
 <!-- NAV -->
-<nav class="nav">
-  <button class="nav-btn active" onclick="showSection(0)">
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
     <span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(1)">
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
     <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(2)">
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
     <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(3)">
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
     <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
-  </button>
-</nav>
+  </div>
+</div>
 
 <!-- TAB 0: VORENTLASTUNG -->
 <div class="section active" id="sec-0">
@@ -295,49 +246,50 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 
 <script>
 /* ── TIMER ───────────────────────────────────────────────── */
-var TIMER_PREFIX = 'B2_1011X_';
-var _timers = {}, _bests = {};
-function fmtTime(s){ var m=Math.floor(s/60); return m+':'+(s%60<10?'0':'')+s%60; }
+var TIMER_PREFIX='B2_1011X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
 function timerAutoStart(n){
-  if(_timers[n]) return;
-  var el=document.getElementById('timer-'+n);
-  if(!el) return;
-  var s=0;
-  _timers[n]=setInterval(function(){ el.textContent=fmtTime(++s); },1000);
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
 function timerStop(n){
-  if(!_timers[n]) return;
-  clearInterval(_timers[n]); _timers[n]=null;
-  var el=document.getElementById('timer-'+n);
-  var best=document.getElementById('best-'+n);
-  if(!el||!best) return;
-  var cur=parseInt(el.textContent.replace(':',''));
-  var key=TIMER_PREFIX+'best'+n;
-  var stored=localStorage.getItem(key);
-  if(!stored||cur<parseInt(stored)){ localStorage.setItem(key,cur); best.textContent=el.textContent; }
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
 function timerResetOne(n){
-  clearInterval(_timers[n]); _timers[n]=null;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
   var el=document.getElementById('timer-'+n);
   if(el) el.textContent='0:00';
 }
-function loadBestTimes(){
-  [1,2,3].forEach(function(n){
-    var key=TIMER_PREFIX+'best'+n;
-    var stored=localStorage.getItem(key);
-    var best=document.getElementById('best-'+n);
-    if(stored&&best){ var s=parseInt(stored); best.textContent=fmtTime(s); }
-  });
-}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  var b1=localStorage.getItem(TIMER_PREFIX+1); if(b1){ var el1=document.getElementById('best-1'); if(el1) el1.textContent=fmtTime(parseInt(b1)); }
+  var b2=localStorage.getItem(TIMER_PREFIX+2); if(b2){ var el2=document.getElementById('best-2'); if(el2) el2.textContent=fmtTime(parseInt(b2)); }
+  var b3=localStorage.getItem(TIMER_PREFIX+3); if(b3){ var el3=document.getElementById('best-3'); if(el3) el3.textContent=fmtTime(parseInt(b3)); }
+});
 
 /* ── NAVIGATION ──────────────────────────────────────────── */
 function showSection(n){
   document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
   document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
   [1,2,3].forEach(function(i){ timerStop(i); });
-  if(n===1) timerAutoStart(1);
-  if(n===2) timerAutoStart(2);
-  if(n===3) timerAutoStart(3);
 }
 
 /* ── LÜCKENTEXT ──────────────────────────────────────────── */
@@ -357,6 +309,7 @@ var lueckenData = [
 ];
 
 function liveCheck(inp){
+  timerAutoStart(1);
   var ans = inp.dataset.answer;
   var v = inp.value.trim();
   if(!v){ inp.classList.remove('ok','no'); return; }
@@ -411,6 +364,7 @@ function sbMakeChip(word){
   c.addEventListener('dragstart', function(e){ sbDragged=c; c.style.opacity='0.5'; });
   c.addEventListener('dragend', function(){ c.style.opacity=''; sbDragged=null; });
   c.addEventListener('click', function(){
+    timerAutoStart(2);
     if(c.classList.contains('selected')){ c.classList.remove('selected'); return; }
     document.querySelectorAll('.chip.selected').forEach(function(s){ s.classList.remove('selected'); });
     c.classList.add('selected');
@@ -548,6 +502,7 @@ var vocabData = [
 ];
 
 function vocabLiveCheck(inp){
+  timerAutoStart(3);
   var ans = inp.dataset.answer;
   var v = inp.value.trim();
   if(!v){ inp.classList.remove('correct','wrong'); return; }
@@ -593,8 +548,6 @@ function vocabReset(){
 /* ── INIT ────────────────────────────────────────────────── */
 buildLuecken();
 buildSatzbau();
-buildVocab();
-loadBestTimes();
-</script>
+buildVocab();</script>
 </body>
 </html>
