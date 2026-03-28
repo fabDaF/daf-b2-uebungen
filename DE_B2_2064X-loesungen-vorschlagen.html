@@ -48,5 +48,240 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-</style></head><body><div class="container"><header><h1>Lösungen vorschlagen</h1><p>B2.2 · Einheit 6 · Extra-Übungen</p></header><nav class="nav"><button class="nav-btn active" onclick="showTab('einstieg',this)"><span class="nav-emoji">💡</span><span class="nav-label">Einstieg</span></button><button class="nav-btn" onclick="showTab('lueckentext',this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button><button class="nav-btn" onclick="showTab('satzbau',this)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></button><button class="nav-btn" onclick="showTab('wortschatz',this)"><span class="nav-emoji">📖</span><span class="nav-label">Wortschatz</span></button></nav><div id="tab-einstieg" class="tab active"><img src="https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg?auto=compress&w=900" class="tab-banner" alt="Lösungen"><h2>Redemittel zum Lösungen vorschlagen</h2><div class="rm-card"><div class="rm-title">Vorschläge machen</div><ul><li>Ich schlage vor, dass...</li><li>Wäre es nicht sinnvoll, wenn...?</li><li>Eine Möglichkeit wäre...</li><li>Man könnte zumindest...</li></ul></div><div class="rm-card"><div class="rm-title">Lösungen anbieten</div><ul><li>Wie wäre es mit...?</li><li>Vielleicht sollten wir...</li><li>Es wäre besser, wenn...</li><li>Ich würde... vorschlagen.</li></ul></div><div class="rm-card"><div class="rm-title">Zustimmung/Ablehnung</div><ul><li>Das ist eine gute Idee.</li><li>Das könnte funktionieren.</li><li>Das sehe ich anders.</li><li>Das ist leider nicht möglich.</li></ul></div><div class="rm-card"><div class="rm-title">Vorteile/Nachteile</div><ul><li>Der Vorteil wäre...</li><li>Der Nachteil ist...</li><li>Das hätte zur Folge...</li><li>Damit würde sich...</li></ul></div></div><div id="tab-lueckentext" class="tab"><img src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&w=900" class="tab-banner" alt="Texte"><h2>Lückentext: Lösungen vorschlagen</h2><div class="control-bar"><button class="btn" onclick="showLueckenLoesung()">Lösung zeigen</button><button class="btn" onclick="resetLuecken()">Zurücksetzen</button><span class="timer-display">Zeit: <span id="timer-lt">00:00</span></span></div><div class="uebung-block"><p>1. Ich <input class="gap" data-ans="schlage vor">, dass wir die Arbeit teilen.</p><p>2. <input class="gap" data-ans="Wäre"> es nicht besser, wenn wir früher anfangen?</p><p>3. Eine <input class="gap" data-ans="Möglichkeit">> wäre, online zu arbeiten.</p><p>4. Man <input class="gap" data-ans="könnte">> zumindest versuchen.</p><p>5. Der <input class="gap" data-ans="Vorteil">> wäre, dass wir Zeit sparen.</p><p>6. Der <input class="gap" data-ans="Nachteil">> ist, dass nicht alle einverstanden sind.</p><p>7. Das <input class="gap" data-ans="könnte">> funktionieren.</p><p>8. Damit <input class="gap" data-ans="würde">> sich viel verbessern.</p></div></div><div id="tab-satzbau" class="tab"><img src="https://images.pexels.com/photos/2004161/pexels-photo-2004161.jpeg?auto=compress&w=900" class="tab-banner" alt="Sätze"><h2>Satzbau: Lösungsvorschläge</h2><div class="control-bar"><button class="btn" onclick="sbShowAll()">Alle lösen</button><span class="timer-display">Zeit: <span id="timer-sb">00:00</span></span></div><div id="satzbauContainer"></div></div><div id="tab-wortschatz" class="tab"><img src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&w=900" class="tab-banner" alt="Wörter"><h2>Wortschatz</h2><div class="control-bar"><button class="btn" onclick="showWsLoesung()">Lösung zeigen</button><button class="btn" onclick="resetWs()">Zurücksetzen</button><span class="timer-display">Zeit: <span id="timer-ws">00:00</span></span></div><div id="wsContainer" class="ws-grid"></div></div><footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer></div><script>function showTab(id,btn){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');}var timers={lt:{s:0,int:null,best:null},sb:{s:0,int:null,best:null},ws:{s:0,int:null,best:null}};function fmtTime(s){var m=Math.floor(s/60),sec=s%60;return(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}function timerStart(k){if(timers[k].int)return;timers[k].int=setInterval(function(){timers[k].s++;document.getElementById('timer-'+k).textContent=fmtTime(timers[k].s);},1000);}function timerStop(k){if(!timers[k].int)return;clearInterval(timers[k].int);timers[k].int=null;if(!timers[k].best||timers[k].s<timers[k].best){timers[k].best=timers[k].s;document.getElementById('best-'+k).textContent=fmtTime(timers[k].best);}}function timerReset(k){clearInterval(timers[k].int);timers[k].int=null;timers[k].s=0;document.getElementById('timer-'+k).textContent='00:00';}function ltCheck(inp){timerStart('lt');var ans=inp.dataset.ans;var val=inp.value.trim();inp.classList.remove('correct','wrong');if(!val)return;var cmp=ans.charAt(0)===ans.charAt(0).toUpperCase()&&ans.charAt(0)!==ans.charAt(0).toLowerCase();var v=cmp?val:val.toLowerCase();var a=cmp?ans:ans.toLowerCase();if(v===a){inp.classList.add('correct');checkLtAllDone();return;}if(a.indexOf(v)===0)return;inp.classList.add('wrong');}function checkLtAllDone(){var all=Array.from(document.querySelectorAll('#tab-lueckentext input.gap'));if(all.length&&all.every(function(i){return i.classList.contains('correct');}))timerStop('lt');}function showLueckenLoesung(){timerStop('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value=inp.dataset.ans;inp.classList.add('correct');inp.classList.remove('wrong');});}function resetLuecken(){timerReset('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong');});}var satzbauData=[{parts:['Ich','schlage','vor',',','dass','wir','zusammenarbeiten','sollten','.'],valid:[['Ich','schlage','vor',',','dass','wir','zusammenarbeiten','sollten','.']]},{parts:['Man','könnte','zumindest','versuchen',',','die','Kosten','zu','senken','.'],valid:[['Man','könnte','zumindest','versuchen',',','die','Kosten','zu','senken','.']]},{parts:['Wäre','es','nicht','besser',',','wenn','wir','früher','anfangen','?'],valid:[['Wäre','es','nicht','besser',',','wenn','wir','früher','anfangen','?']]},{parts:['Eine','Möglichkeit','wäre',',','das','System','zu','ändern','.'],valid:[['Eine','Möglichkeit','wäre',',','das','System','zu','ändern','.']]}];function sbCapitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}function sbUpdateCapitalization(row){var chips=Array.from(row.querySelectorAll('.chip'));chips.forEach(function(c,i){var orig=c.dataset.orig;if(orig===','||orig===';')return;var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);});}var sbDragged=null;function getSbCursor(){var c=document.getElementById('sb-insert-cursor');if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}return c;}function getSbInsertPos(zone,cx){var chips=Array.from(zone.querySelectorAll('.chip'));for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(cx<r.left+r.width/2)return chips[i];}return null;}function sbMakeChip(word){var chip=document.createElement('div');chip.className='chip'+(word===','||word===';'?' punct-chip':'');chip.textContent=word;chip.dataset.orig=word;chip.draggable=true;chip.addEventListener('dragstart',function(e){sbDragged=chip;timerStart('sb');e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});chip.addEventListener('dragend',function(){chip.style.opacity='';sbDragged=null;var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);});return chip;}function sbRegisterZone(zone,idx){zone.addEventListener('dragover',function(e){e.preventDefault();if(!sbDragged)return;var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);});zone.addEventListener('dragleave',function(e){if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}});zone.addEventListener('drop',function(e){e.preventDefault();if(!sbDragged)return;var cursor=document.getElementById('sb-insert-cursor');if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}sbDragged=null;var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);});}function sbColorRow(idx){var row=document.getElementById('sb-row-'+idx);var chips=Array.from(row.querySelectorAll('.chip'));var order=chips.map(function(c){return c.dataset.orig;});var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});var ex=row.querySelector('.sb-punkt');if(ex)ex.parentNode.removeChild(ex);if(ok){var p=document.createElement('span');p.className='sb-punkt';p.textContent='.';row.appendChild(p);}return ok;}function sbCheckAuto(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);if(bank.querySelectorAll('.chip').length>0){row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});row.classList.remove('correct','incorrect');fb.textContent='';return;}setTimeout(function(){timerStart('sb');var ok=sbColorRow(idx);if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';}},500);}function sbCheckAllDone(){var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});if(allOk)timerStop('sb');}function sbShowSolution(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);var sol=satzbauData[idx].valid[0];var allChips={};Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);sol.forEach(function(word,i){var chip=allChips[word];if(chip){if(word!==','&&word!==';')chip.textContent=(i===0)?sbCapitalize(word):word;chip.classList.remove('correct','incorrect');row.appendChild(chip);}});fb.textContent='';setTimeout(function(){sbCheckAuto(idx);},100);}function sbResetOne(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';var parts=satzbauData[idx].parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});}function initSatzbau(){timerReset('sb');var container=document.getElementById('satzbauContainer');container.innerHTML='';satzbauData.forEach(function(ex,idx){var item=document.createElement('div');item.className='sb-item';var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;var parts=ex.parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});sbRegisterZone(bank,idx);sbRegisterZone(row,idx);var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';var solveBtn=document.createElement('button');solveBtn.className='btn';solveBtn.textContent='Lösen';solveBtn.setAttribute('data-idx',idx);solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});var resetBtn=document.createElement('button');resetBtn.className='btn';resetBtn.textContent='↺';resetBtn.setAttribute('data-idx',idx);resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});btnRow.appendChild(solveBtn);btnRow.appendChild(resetBtn);item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);container.appendChild(item);});}function sbShowAll(){satzbauData.forEach(function(_,i){sbShowSolution(i);});}var WORTSCHATZ=[{en:'solution',de:'Lösung',type:'v'},{en:'proposal',de:'Vorschlag',type:'v'},{en:'advantage',de:'Vorteil',type:'v'},{en:'disadvantage',de:'Nachteil',type:'v'},{en:'alternative',de:'Alternative',type:'v'},{en:'to improve',de:'verbessern',type:'v'},{en:'to reduce',de:'senken',type:'v'},{en:'to change',de:'ändern',type:'v'}];function initWs(){var c=document.getElementById('wsContainer');c.innerHTML='';WORTSCHATZ.forEach(function(item){var row=document.createElement('div');row.className='ws-item';var en=document.createElement('div');en.className='ws-en';en.textContent=item.en;row.appendChild(en);var fields=document.createElement('div');fields.className='ws-inputs';var vi=document.createElement('input');vi.className='verb';vi.placeholder='Deutsch';vi.dataset.answer=item.de;vi.dataset.field='word';vi.oninput=function(){wsCheck(this);timerStart('ws');checkWsAllOk();};fields.appendChild(vi);row.appendChild(fields);c.appendChild(row);});}function wsCheck(inp){var user=inp.value;var answer=inp.dataset.answer;inp.classList.remove('correct','wrong');if(!user)return;var cu=user.trim();var ca=answer;if(cu===ca){inp.classList.add('correct');}else if(ca.indexOf(cu)===0){}else{inp.classList.add('wrong');}}function checkWsAllOk(){var inputs=Array.from(document.querySelectorAll('#tab-wortschatz input'));if(inputs.length&&inputs.every(function(i){return i.classList.contains('correct');}))timerStop('ws');}function showWsLoesung(){timerStop('ws');document.querySelectorAll('#tab-wortschatz input').forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');});}function resetWs(){timerReset('ws');document.querySelectorAll('#tab-wortschatz input').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong');});}window.addEventListener('load',function(){initSatzbau();initWs();});
+</style></head><body><div class="container"><header><h1>Lösungen vorschlagen</h1><p>B2.2 · Einheit 6 · Extra-Übungen</p></header><nav class="nav"><button class="nav-btn active" onclick="showTab('einstieg',this)"><span class="nav-emoji">💡</span><span class="nav-label">Einstieg</span></button><button class="nav-btn" onclick="showTab('lueckentext',this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button><button class="nav-btn" onclick="showTab('satzbau',this)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></button><button class="nav-btn" onclick="showTab('wortschatz',this)"><span class="nav-emoji">📖</span><span class="nav-label">Wortschatz</span></button></nav><div id="tab-einstieg" class="tab active"><img src="https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg?auto=compress&w=900" class="tab-banner" alt="Lösungen"><h2>Redemittel zum Lösungen vorschlagen</h2><div class="rm-card"><div class="rm-title">Vorschläge machen</div><ul><li>Ich schlage vor, dass...</li><li>Wäre es nicht sinnvoll, wenn...?</li><li>Eine Möglichkeit wäre...</li><li>Man könnte zumindest...</li></ul></div><div class="rm-card"><div class="rm-title">Lösungen anbieten</div><ul><li>Wie wäre es mit...?</li><li>Vielleicht sollten wir...</li><li>Es wäre besser, wenn...</li><li>Ich würde... vorschlagen.</li></ul></div><div class="rm-card"><div class="rm-title">Zustimmung/Ablehnung</div><ul><li>Das ist eine gute Idee.</li><li>Das könnte funktionieren.</li><li>Das sehe ich anders.</li><li>Das ist leider nicht möglich.</li></ul></div><div class="rm-card"><div class="rm-title">Vorteile/Nachteile</div><ul><li>Der Vorteil wäre...</li><li>Der Nachteil ist...</li><li>Das hätte zur Folge...</li><li>Damit würde sich...</li></ul></div></div><div id="tab-lueckentext" class="tab"><img src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&w=900" class="tab-banner" alt="Texte"><h2>Lückentext: Lösungen vorschlagen</h2><div class="control-bar"><button class="btn" onclick="showLueckenLoesung()">Lösung zeigen</button><button class="btn" onclick="resetLuecken()">Zurücksetzen</button><span class="timer-display">Zeit: <span id="timer-lt">00:00</span></span></div><div class="uebung-block"><p>1. Ich <input class="gap" data-ans="schlage vor">, dass wir die Arbeit teilen.</p><p>2. <input class="gap" data-ans="Wäre"> es nicht besser, wenn wir früher anfangen?</p><p>3. Eine <input class="gap" data-ans="Möglichkeit">> wäre, online zu arbeiten.</p><p>4. Man <input class="gap" data-ans="könnte">> zumindest versuchen.</p><p>5. Der <input class="gap" data-ans="Vorteil">> wäre, dass wir Zeit sparen.</p><p>6. Der <input class="gap" data-ans="Nachteil">> ist, dass nicht alle einverstanden sind.</p><p>7. Das <input class="gap" data-ans="könnte">> funktionieren.</p><p>8. Damit <input class="gap" data-ans="würde">> sich viel verbessern.</p></div></div><div id="tab-satzbau" class="tab"><img src="https://images.pexels.com/photos/2004161/pexels-photo-2004161.jpeg?auto=compress&w=900" class="tab-banner" alt="Sätze"><h2>Satzbau: Lösungsvorschläge</h2><div class="control-bar"><button class="btn" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i);})">Alle lösen</button><span class="timer-display">Zeit: <span id="timer-sb">00:00</span></span></div><div id="satzbauContainer"></div></div><div id="tab-wortschatz" class="tab"><img src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&w=900" class="tab-banner" alt="Wörter"><h2>Wortschatz</h2><div class="control-bar"><button class="btn" onclick="showWsLoesung()">Lösung zeigen</button><button class="btn" onclick="resetWs()">Zurücksetzen</button><span class="timer-display">Zeit: <span id="timer-ws">00:00</span></span></div><div id="wsContainer" class="ws-grid"></div></div><footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer></div><script>function showTab(id,btn){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');}var timers={lt:{s:0,int:null,best:null},sb:{s:0,int:null,best:null},ws:{s:0,int:null,best:null}};function fmtTime(s){var m=Math.floor(s/60),sec=s%60;return(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}function timerStart(k){if(timers[k].int)return;timers[k].int=setInterval(function(){timers[k].s++;document.getElementById('timer-'+k).textContent=fmtTime(timers[k].s);},1000);}function timerStop(k){if(!timers[k].int)return;clearInterval(timers[k].int);timers[k].int=null;if(!timers[k].best||timers[k].s<timers[k].best){timers[k].best=timers[k].s;document.getElementById('best-'+k).textContent=fmtTime(timers[k].best);}}function timerReset(k){clearInterval(timers[k].int);timers[k].int=null;timers[k].s=0;document.getElementById('timer-'+k).textContent='00:00';}function ltCheck(inp){timerStart('lt');var ans=inp.dataset.ans;var val=inp.value.trim();inp.classList.remove('correct','wrong');if(!val)return;var cmp=ans.charAt(0)===ans.charAt(0).toUpperCase()&&ans.charAt(0)!==ans.charAt(0).toLowerCase();var v=cmp?val:val.toLowerCase();var a=cmp?ans:ans.toLowerCase();if(v===a){inp.classList.add('correct');checkLtAllDone();return;}if(a.indexOf(v)===0)return;inp.classList.add('wrong');}function checkLtAllDone(){var all=Array.from(document.querySelectorAll('#tab-lueckentext input.gap'));if(all.length&&all.every(function(i){return i.classList.contains('correct');}))timerStop('lt');}function showLueckenLoesung(){timerStop('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value=inp.dataset.ans;inp.classList.add('correct');inp.classList.remove('wrong');});}function resetLuecken(){timerReset('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong');});}
+
+
+
+var satzbauData = [
+    { parts: ['Ich', 'schlage', 'vor', ',', 'dass', 'wir', 'zusammenarbeiten', 'sollten'],
+      valid: [
+        ['Ich', 'schlage', 'vor', ',', 'dass', 'wir', 'zusammenarbeiten', 'sollten']],
+      punct: '.' },
+    { parts: ['Man', 'könnte', 'zumindest', 'versuchen', ',', 'die', 'Kosten', 'zu', 'senken'],
+      valid: [
+        ['Man', 'könnte', 'zumindest', 'versuchen', ',', 'die', 'Kosten', 'zu', 'senken']],
+      punct: '.' },
+    { parts: ['Wäre', 'es', 'nicht', 'besser', ',', 'wenn', 'wir', 'früher', 'anfangen'],
+      valid: [
+        ['Wäre', 'es', 'nicht', 'besser', ',', 'wenn', 'wir', 'früher', 'anfangen']],
+      punct: '?' },
+    { parts: ['Eine', 'Möglichkeit', 'wäre', ',', 'das', 'System', 'zu', 'ändern'],
+      valid: [
+        ['Eine', 'Möglichkeit', 'wäre', ',', 'das', 'System', 'zu', 'ändern']],
+      punct: '.' }
+];
+
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(4);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
+
+
+
 </script></body></html>

@@ -293,6 +293,21 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
+
+/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
+.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
 </style>
 </head>
 <body>
@@ -412,295 +427,246 @@
       { text: 'Der <input class="blank" data-answer="medienkonsum" oninput="liveCheck1(this)"> ist in den letzten Jahren deutlich gestiegen.', answer: 'medienkonsum' }
     ];
 
-    var satzbauData = [
-      { words: ['Die', 'App', 'ermöglicht', 'es,', 'jederzeit', 'Nachrichten', 'zu', 'lesen.'], correct: 'Die App ermöglicht es, jederzeit Nachrichten zu lesen.' },
-      { words: ['Während', 'ich', 'jogge,', 'höre', 'ich', 'einen', 'Podcast.'], correct: 'Während ich jogge, höre ich einen Podcast.' },
-      { words: ['Der', 'Newsletter', 'wird', 'jeden', 'Morgen', 'versendet.'], correct: 'Der Newsletter wird jeden Morgen versendet.' },
-      { words: ['Manche', 'Menschen', 'verlassen', 'sich', 'auf', 'Algorithmen.'], correct: 'Manche Menschen verlassen sich auf Algorithmen.' },
-      { words: ['Die', 'Nachrichtenportale', 'aktualisieren', 'ihre', 'Inhalte', 'ständig.'], correct: 'Die Nachrichtenportale aktualisieren ihre Inhalte ständig.' }
-    ];
+    
 
-    var vocabData = [
-      { en: 'the message (plural: messages)', art: 'die', word: 'Nachricht', plural: 'Nachrichten' },
-      { en: 'the podcast (plural: podcasts)', art: 'der', word: 'Podcast', plural: 'Podcasts' },
-      { en: 'the newsletter (plural: newsletters)', art: 'der', word: 'Newsletter', plural: 'Newsletter' },
-      { en: 'the source (plural: sources)', art: 'die', word: 'Quelle', plural: 'Quellen' },
-      { en: 'the algorithm (plural: algorithms)', art: 'der', word: 'Algorithmus', plural: 'Algorithmen' },
-      { en: 'the subscription (plural: subscriptions)', art: 'das', word: 'Abonnement', plural: 'Abonnements' }
-    ];
 
-    function switchTab(n) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('tab' + n).classList.add('active');
-      document.querySelectorAll('.nav-btn')[n].classList.add('active');
+
+var satzbauData = [
+    { parts: ['Die', 'App', 'ermöglicht', 'es', ',', 'jederzeit', 'Nachrichten', 'zu', 'lesen'],
+      valid: [
+        ['Die', 'App', 'ermöglicht', 'es', ',', 'jederzeit', 'Nachrichten', 'zu', 'lesen']],
+      punct: '.' },
+    { parts: ['Während', 'ich', 'jogge', ',', 'höre', 'ich', 'einen', 'Podcast'],
+      valid: [
+        ['Während', 'ich', 'jogge', ',', 'höre', 'ich', 'einen', 'Podcast']],
+      punct: '.' },
+    { parts: ['Der', 'Newsletter', 'wird', 'jeden', 'Morgen', 'versendet'],
+      valid: [
+        ['Der', 'Newsletter', 'wird', 'jeden', 'Morgen', 'versendet']],
+      punct: '.' },
+    { parts: ['Manche', 'Menschen', 'verlassen', 'sich', 'auf', 'Algorithmen'],
+      valid: [
+        ['Manche', 'Menschen', 'verlassen', 'sich', 'auf', 'Algorithmen']],
+      punct: '.' },
+    { parts: ['Die', 'Nachrichtenportale', 'aktualisieren', 'ihre', 'Inhalte', 'ständig'],
+      valid: [
+        ['Die', 'Nachrichtenportale', 'aktualisieren', 'ihre', 'Inhalte', 'ständig']],
+      punct: '.' }
+];
+
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
     }
-
-    function fmtTime(s) {
-      return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+    return c;
+}
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
     }
-
-    function timerAutoStart(n) {
-      if (timerStarted[n]) return;
-      timerStarted[n] = true;
-      timerRunning[n] = true;
-      timerIntervals[n] = setInterval(function() {
-        timerSeconds[n]++;
-        var el = document.getElementById('timer' + n);
-        if (el) el.textContent = fmtTime(timerSeconds[n]);
-      }, 1000);
+    return null;
+}
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
     }
-
-    function timerStop(n) {
-      if (!timerRunning[n]) return;
-      clearInterval(timerIntervals[n]);
-      timerRunning[n] = false;
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
     }
-
-    function timerReset(n) {
-      clearInterval(timerIntervals[n]);
-      timerRunning[n] = false;
-      timerStarted[n] = false;
-      timerSeconds[n] = 0;
-      var el = document.getElementById('timer' + n);
-      if (el) el.textContent = '0:00';
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(4);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
     }
-
-    // Lückentext
-    function liveCheck1(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // valid prefix
-      } else {
-        inp.classList.add('wrong');
-      }
-      timerAutoStart(1);
-      checkLuecke1();
-    }
-
-    function checkLuecke1() {
-      var inputs = document.querySelectorAll('#tab1 input.blank');
-      if (inputs.length === 0) return;
-      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
-      if (allOk) timerStop(1);
-    }
-
-    function showSolution1() {
-      document.querySelectorAll('#tab1 input.blank').forEach(inp => {
-        inp.value = inp.dataset.answer;
-        inp.classList.add('correct');
-      });
-      checkLuecke1();
-    }
-
-    function resetTab1() {
-      document.querySelectorAll('#tab1 input.blank').forEach(inp => {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-      });
-      timerReset(1);
-    }
-
-    // Satzbau
-    function shuffleArr(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function renderSatzbau() {
-      var cont = document.getElementById('satzbauContainer2');
-      cont.innerHTML = '';
-      satzbauData.forEach((item, idx) => {
-        var div = document.createElement('div');
-        div.style.marginBottom = '20px';
-        var label = document.createElement('div');
-        label.style.fontSize = '0.85rem';
-        label.style.color = '#666';
-        label.style.marginBottom = '8px';
-        label.style.fontWeight = '500';
-        div.appendChild(label);
-
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
         var bank = document.createElement('div');
-        bank.className = 'chip-bank';
-        var shuffled = shuffleArr([...item.words]);
-        shuffled.forEach(word => {
-          var chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.textContent = word;
-          chip.draggable = true;
-          chip.dataset.idx = idx;
-          chip.dataset.word = word;
-          chip.addEventListener('dragstart', function(e) {
-            e.dataTransfer.setData('text/plain', '');
-            sbDragged = chip;
-          });
-          chip.addEventListener('dragend', function() {
-            colorSbChips(idx);
-          });
-          bank.appendChild(chip);
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
         });
-        div.appendChild(bank);
-
-        var zone = document.createElement('div');
-        zone.className = 'drop-zone';
-        zone.dataset.idx = idx;
-        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-        zone.addEventListener('drop', function(e) {
-          e.preventDefault();
-          zone.classList.remove('dragover');
-          if (sbDragged) {
-            zone.appendChild(sbDragged);
-            colorSbChips(idx);
-          }
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
         });
-        div.appendChild(zone);
-        cont.appendChild(div);
-      });
-    }
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
 
-    function colorSbChips(idx) {
-      timerAutoStart(2);
-      var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
-      if (!zone) return;
-      var chips = zone.querySelectorAll('.chip');
-      var text = Array.from(chips).map(c => c.textContent).join(' ');
-      satzbauData[idx].words.forEach(word => {
-        var chip = zone.querySelector('.chip[data-word="' + word + '"]');
-        if (chip) chip.classList.remove('correct', 'wrong');
-      });
-      if (text === satzbauData[idx].correct) {
-        chips.forEach(c => c.classList.add('correct'));
-      }
-      checkSatzbau2();
-    }
 
-    function checkSatzbau2() {
-      var allOk = true;
-      satzbauData.forEach((_, idx) => {
-        var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
-        var text = Array.from(zone.querySelectorAll('.chip')).map(c => c.textContent).join(' ');
-        if (text !== satzbauData[idx].correct) allOk = false;
-      });
-      if (allOk) timerStop(2);
-    }
 
-    function resetTab2() {
-      renderSatzbau();
-      timerReset(2);
-    }
-
-    // Wortschatz
-    function renderVocab3() {
-      var cont = document.getElementById('vocabContainer3');
-      cont.innerHTML = '';
-      vocabData.forEach((item, idx) => {
-        var div = document.createElement('div');
-        div.className = 'vocab-item';
-
-        var en = document.createElement('div');
-        en.className = 'vocab-en';
-        en.textContent = item.en;
-
-        var arrow = document.createElement('div');
-        arrow.className = 'vocab-arrow';
-        arrow.textContent = '→';
-
-        var inputs = document.createElement('div');
-        inputs.className = 'vocab-inputs';
-
-        var artInp = document.createElement('input');
-        artInp.className = 'art';
-        artInp.dataset.answer = item.art;
-        artInp.placeholder = 'Art.';
-        artInp.addEventListener('input', function() { liveCheckVocab(this, 'art', idx); });
-
-        var wortInp = document.createElement('input');
-        wortInp.className = 'wort';
-        wortInp.dataset.answer = item.word;
-        wortInp.placeholder = 'Wort';
-        wortInp.addEventListener('input', function() { liveCheckVocab(this, 'word', idx); });
-
-        var pluralInp = document.createElement('input');
-        pluralInp.className = 'plural';
-        pluralInp.dataset.answer = item.plural;
-        pluralInp.placeholder = 'Plural';
-        pluralInp.addEventListener('input', function() { liveCheckVocab(this, 'plural', idx); });
-
-        inputs.appendChild(artInp);
-        inputs.appendChild(wortInp);
-        inputs.appendChild(pluralInp);
-
-        div.appendChild(en);
-        div.appendChild(arrow);
-        div.appendChild(inputs);
-        cont.appendChild(div);
-      });
-    }
-
-    function liveCheckVocab(inp, field, idx) {
-      timerAutoStart(3);
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // valid prefix
-      } else {
-        inp.classList.add('wrong');
-      }
-      checkVocab3();
-    }
-
-    function checkVocab3() {
-      var inputs = document.querySelectorAll('#tab3 input');
-      if (inputs.length === 0) return;
-      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
-      if (allOk) timerStop(3);
-    }
-
-    function showVocabSolution3() {
-      document.querySelectorAll('#tab3 input').forEach(inp => {
-        inp.value = inp.dataset.answer;
-        inp.classList.add('correct');
-      });
-      checkVocab3();
-    }
-
-    function resetTab3() {
-      document.querySelectorAll('#tab3 input').forEach(inp => {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-      });
-      timerReset(3);
-    }
-
-    // Init
-    function initPage() {
-      var lueckeCont = document.getElementById('lueckenContainer1');
-      lueckeCont.innerHTML = '';
-      lueckenData.forEach(item => {
-        var div = document.createElement('div');
-        div.className = 'sentence-block';
-        div.innerHTML = item.text;
-        div.querySelector('input').addEventListener('input', function() { liveCheck1(this); });
-        lueckeCont.appendChild(div);
-      });
-      renderSatzbau();
-      renderVocab3();
-    }
-
-    document.addEventListener('DOMContentLoaded', initPage);
-  </script>
+</script>
 </body>
 </html>

@@ -278,21 +278,6 @@
     .chip.wrong {
       background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
     }
-    .drop-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 44px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 2px dashed #c5cae9;
-      background: #fafbff;
-      margin-bottom: 12px;
-    }
-    .drop-row.dragover {
-      background: #e8eaff;
-      border-color: #667eea;
-    }
     .chip-bank {
       display: flex;
       flex-wrap: wrap;
@@ -375,6 +360,21 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
+
+/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
+.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
 </style>
 </head>
 <body>
@@ -475,7 +475,7 @@
         <div class="help-box">
           <strong>Aufgabe:</strong> Ordne die Wörter in die richtige Reihenfolge.
         </div>
-        <div id="sb-container"></div>
+        <div id="satzbauContainer"></div>
       </div>
 
       <!-- Tab 3: Wortschatz -->
@@ -527,266 +527,249 @@
       { segs: [{t: 'Das Rednerpult steht am Anfang des Saales neben dem '}, {b: 'Rednerpult', s: 'm'}, {t: ' vorne im Saal.'}], hint: 'Nomen' }
     ];
 
-    var SB_DATA = [
-      { words: ['Die', 'Konferenz', 'beginnt', 'pünktlich', 'um', 'neun', 'Uhr', 'morgens.'], answer: ['die', 'konferenz', 'beginnt', 'pünktlich', 'um', 'neun', 'uhr', 'morgens.'] },
-      { words: ['Er', 'bereitet', 'seinen', 'Vortrag', 'sorgfältig', 'vor', 'und', 'übt', 'ihn', 'mehrmals.'], answer: ['er', 'bereitet', 'seinen', 'vortrag', 'sorgfältig', 'vor', 'und', 'übt', 'ihn', 'mehrmals.'] },
-      { words: ['Das', 'Kollegium', 'trifft', 'sich', 'einmal', 'im', 'Monat', 'zur', 'Sitzung', '.'], answer: ['das', 'kollegium', 'trifft', 'sich', 'einmal', 'im', 'monat', 'zur', 'sitzung', '.'] },
-      { words: ['Bitte', 'nehmen', 'Sie', 'Platz', ',', 'die', 'Präsentation', 'beginnt', 'gleich', '.'], answer: ['bitte', 'nehmen', 'sie', 'platz', ',', 'die', 'präsentation', 'beginnt', 'gleich', '.'] },
-      { words: ['Sie', 'steht', 'am', 'Rednerpult', 'und', 'spricht', 'klar', 'und', 'überzeugend', '.'], answer: ['sie', 'steht', 'am', 'rednerpult', 'und', 'spricht', 'klar', 'und', 'überzeugend', '.'] },
-      { words: ['Nach', 'dem', 'Vortrag', 'gibt', 'es', 'eine', 'offene', 'Diskussionsrunde', '.'], answer: ['nach', 'dem', 'vortrag', 'gibt', 'es', 'eine', 'offene', 'diskussionsrunde', '.'] },
-      { words: ['Das', 'Protokoll', 'wird', 'nach', 'der', 'Sitzung', 'an', 'alle', 'verschickt', '.'], answer: ['das', 'protokoll', 'wird', 'nach', 'der', 'sitzung', 'an', 'alle', 'verschickt', '.'] }
-    ];
+    
+var satzbauData = [
+    { parts: ['Die', 'Konferenz', 'beginnt', 'pünktlich', 'um', 'neun', 'Uhr', 'morgens'],
+      valid: [
+        ['Die', 'Konferenz', 'beginnt', 'pünktlich', 'um', 'neun', 'Uhr', 'morgens']],
+      punct: '.' },
+    { parts: ['Er', 'bereitet', 'seinen', 'Vortrag', 'sorgfältig', 'vor', 'und', 'übt', 'ihn', 'mehrmals'],
+      valid: [
+        ['Er', 'bereitet', 'seinen', 'Vortrag', 'sorgfältig', 'vor', 'und', 'übt', 'ihn', 'mehrmals']],
+      punct: '.' },
+    { parts: ['Das', 'Kollegium', 'trifft', 'sich', 'einmal', 'im', 'Monat', 'zur', 'Sitzung'],
+      valid: [
+        ['Das', 'Kollegium', 'trifft', 'sich', 'einmal', 'im', 'Monat', 'zur', 'Sitzung']],
+      punct: '.' },
+    { parts: ['Bitte', 'nehmen', 'Sie', 'Platz', ',', 'die', 'Präsentation', 'beginnt', 'gleich'],
+      valid: [
+        ['Bitte', 'nehmen', 'Sie', 'Platz', ',', 'die', 'Präsentation', 'beginnt', 'gleich']],
+      punct: '.' },
+    { parts: ['Sie', 'steht', 'am', 'Rednerpult', 'und', 'spricht', 'klar', 'und', 'überzeugend'],
+      valid: [
+        ['Sie', 'steht', 'am', 'Rednerpult', 'und', 'spricht', 'klar', 'und', 'überzeugend']],
+      punct: '.' },
+    { parts: ['Nach', 'dem', 'Vortrag', 'gibt', 'es', 'eine', 'offene', 'Diskussionsrunde'],
+      valid: [
+        ['Nach', 'dem', 'Vortrag', 'gibt', 'es', 'eine', 'offene', 'Diskussionsrunde']],
+      punct: '.' },
+    { parts: ['Das', 'Protokoll', 'wird', 'nach', 'der', 'Sitzung', 'an', 'alle', 'verschickt'],
+      valid: [
+        ['Das', 'Protokoll', 'wird', 'nach', 'der', 'Sitzung', 'an', 'alle', 'verschickt']],
+      punct: '.' }
+];
 
-    var WORTSCHATZ = [
-      { id:1, type:'n', en:'conference', artikel:'die', de:'Konferenz', plural:'Konferenzen' },
-      { id:2, type:'n', en:'conference room', artikel:'der', de:'Konferenzraum', plural:'Konferenzräume' },
-      { id:3, type:'n', en:'staff/colleagues', artikel:'das', de:'Kollegium', plural:'Kollegien' },
-      { id:4, type:'n', en:'presentation', artikel:'die', de:'Präsentation', plural:'Präsentationen' },
-      { id:5, type:'n', en:'lectern/podium', artikel:'das', de:'Rednerpult', plural:'Rednerpulte' },
-      { id:6, type:'n', en:'meeting/session', artikel:'die', de:'Sitzung', plural:'Sitzungen' },
-      { id:7, type:'n', en:'lecture/talk', artikel:'der', de:'Vortrag', plural:'Vorträge' },
-      { id:8, type:'n', en:'minutes/protocol', artikel:'das', de:'Protokoll', plural:'Protokolle' },
-      { id:9, type:'n', en:'agenda', artikel:'die', de:'Tagesordnung', plural:'Tagesordnungen' },
-      { id:10, type:'v', en:'to prepare', de:'vorbereiten' },
-      { id:11, type:'v', en:'to structure', de:'strukturieren' },
-      { id:12, type:'v', en:'to open/inaugurate', de:'eröffnen' }
-    ];
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
 
-    function switchTab(n) {
-      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
-      document.getElementById('tab' + n).classList.add('active');
-      document.querySelectorAll('.nav-item')[n].classList.add('active');
-      if (n >= 1) loadBestTimes();
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
     }
-
-    function fmtTime(s) {
-      return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+    return c;
+}
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
     }
-
-    function timerAutoStart(n) {
-      if (timerStarted[n]) return;
-      timerStarted[n] = true;
-      timerRunning[n] = true;
-      timerIntervals[n] = setInterval(function() {
-        timerSeconds[n]++;
-        var el = document.getElementById('timer' + n);
-        if (el) el.textContent = fmtTime(timerSeconds[n]);
-      }, 1000);
-    }
-
-    function timerStop(n) {
-      if (!timerRunning[n]) return;
-      clearInterval(timerIntervals[n]);
-      timerRunning[n] = false;
-      var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
-      if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
-        localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
-        var el = document.getElementById('best' + n);
-        if (el) el.textContent = fmtTime(timerSeconds[n]);
-      }
-    }
-
-    function timerResetOne(n) {
-      clearInterval(timerIntervals[n]);
-      timerRunning[n] = false;
-      timerStarted[n] = false;
-      timerSeconds[n] = 0;
-      var el = document.getElementById('timer' + n);
-      if (el) el.textContent = '0:00';
-    }
-
-    function loadBestTimes() {
-      for (var i = 1; i <= 3; i++) {
-        var v = localStorage.getItem(TIMER_PREFIX + i);
-        if (v) {
-          var el = document.getElementById('best' + i);
-          if (el) el.textContent = fmtTime(parseInt(v));
+    return null;
+}
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(2);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
         }
-      }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
     }
-
-    function liveCheck(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // gültiger Präfix
-      } else {
-        inp.classList.add('wrong');
-      }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
     }
-
-    function showHint(inp) {
-      var next = inp.nextElementSibling;
-      if (next && next.classList.contains('correction-hint')) next.remove();
-      if (!inp.classList.contains('correct')) {
-        var hint = document.createElement('span');
-        hint.className = 'correction-hint';
-        hint.textContent = inp.dataset.answer;
-        inp.insertAdjacentElement('afterend', hint);
-      }
-      inp.value = inp.dataset.answer;
-      inp.classList.add('correct');
-      inp.classList.remove('wrong');
-    }
-
-    function lueckeInit() {
-      var container = document.getElementById('luecke-container');
-      container.innerHTML = '';
-      LUECKEN_DATA.forEach(function(item, idx) {
-        var sentDiv = document.createElement('div');
-        sentDiv.className = 'luecke-sentence';
-        item.segs.forEach(function(seg) {
-          if (seg.t) {
-            sentDiv.appendChild(document.createTextNode(seg.t));
-          } else {
-            var inp = document.createElement('input');
-            inp.className = 'gap-input';
-            inp.dataset.answer = seg.b;
-            inp.dataset.size = seg.s;
-            var widths = {s: '50px', m: '90px', l: '150px', xl: '200px'};
-            inp.style.width = widths[seg.s] || '90px';
-            inp.addEventListener('input', function() {
-              timerAutoStart(1);
-              liveCheck(inp);
-              checkLueckeAllOk(1);
-            });
-            sentDiv.appendChild(inp);
-          }
-        });
-        container.appendChild(sentDiv);
-      });
-    }
-
-    function checkLueckeAllOk(n) {
-      var inputs = document.querySelectorAll('#luecke-container input.gap-input');
-      var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) { return i.classList.contains('correct'); });
-      if (allOk) timerStop(n);
-    }
-
-    function showLueckeLoesung(n) {
-      document.querySelectorAll('#luecke-container input.gap-input').forEach(function(inp) {
-        var next = inp.nextElementSibling;
-        if (next && next.classList.contains('correction-hint')) next.remove();
-        if (inp.value.trim().toLowerCase() !== inp.dataset.answer.toLowerCase()) {
-          var hint = document.createElement('span');
-          hint.className = 'correction-hint';
-          hint.textContent = inp.dataset.answer;
-          inp.insertAdjacentElement('afterend', hint);
-        }
-        inp.value = inp.dataset.answer;
-        inp.classList.add('correct');
-        inp.classList.remove('wrong');
-      });
-      timerStop(n);
-    }
-
-    function resetLuecke(n) {
-      document.querySelectorAll('#luecke-container input.gap-input').forEach(function(inp) {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-        var next = inp.nextElementSibling;
-        if (next && next.classList.contains('correction-hint')) next.remove();
-      });
-      timerResetOne(n);
-    }
-
-    function sbInit() {
-      var container = document.getElementById('sb-container');
-      container.innerHTML = '';
-      SB_DATA.forEach(function(item, idx) {
-        var sentDiv = document.createElement('div');
-        sentDiv.style.marginBottom = '16px';
-
-        var dropRow = document.createElement('div');
-        dropRow.className = 'drop-row';
-        dropRow.id = 'row-' + idx;
-        dropRow.addEventListener('dragover', function(e) { e.preventDefault(); dropRow.classList.add('dragover'); });
-        dropRow.addEventListener('dragleave', function() { dropRow.classList.remove('dragover'); });
-        dropRow.addEventListener('drop', function(e) {
-          e.preventDefault();
-          dropRow.classList.remove('dragover');
-          if (draggedChip) {
-            dropRow.appendChild(draggedChip);
-            draggedChip = null;
-          }
-          colorSbRow(idx);
-        });
-
-        var chipBank = document.createElement('div');
-        chipBank.className = 'chip-bank';
-        chipBank.id = 'bank-' + idx;
-        chipBank.addEventListener('dragover', function(e) { e.preventDefault(); chipBank.classList.add('dragover'); });
-        chipBank.addEventListener('dragleave', function() { chipBank.classList.remove('dragover'); });
-        chipBank.addEventListener('drop', function(e) {
-          e.preventDefault();
-          chipBank.classList.remove('dragover');
-          if (draggedChip) {
-            chipBank.appendChild(draggedChip);
-            draggedChip = null;
-          }
-          colorSbRow(idx);
-        });
-
-        var shuffled = shuffle(item.words);
-        shuffled.forEach(function(word) {
-          var chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.textContent = word.charAt(0).toUpperCase() + word.slice(1);
-          chip.dataset.orig = word;
-          chip.draggable = true;
-          chip.addEventListener('dragstart', function(e) {
-            e.dataTransfer.setData('text/plain', '');
-            draggedChip = chip;
-          });
-          chip.addEventListener('dragend', function() {
-            colorSbRow(idx);
-          });
-          chipBank.appendChild(chip);
-        });
-
-        sentDiv.appendChild(dropRow);
-        sentDiv.appendChild(document.createTextNode('Wörter: '));
-        sentDiv.appendChild(chipBank);
-        container.appendChild(sentDiv);
-      });
-    }
-
-    function colorSbRow(idx) {
-      var row = document.getElementById('row-' + idx);
-      var data = SB_DATA[idx];
-      Array.from(row.querySelectorAll('.chip')).forEach(function(chip, i) {
-        chip.classList.remove('correct', 'wrong');
-        if (i < data.answer.length) {
-          chip.classList.add(chip.dataset.orig.toLowerCase() === data.answer[i] ? 'correct' : 'wrong');
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(2);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
         } else {
-          chip.classList.add('wrong');
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
         }
-      });
-      timerAutoStart(2);
-      checkSbAllOk(2);
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(2);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
     }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
 
-    function checkSbAllOk(n) {
-      var rows = document.querySelectorAll('#sb-container .drop-row');
-      var allOk = rows.length > 0 && Array.from(rows).every(function(row) {
-        var chips = row.querySelectorAll('.chip');
-        return chips.length > 0 && Array.from(chips).every(function(c) { return c.classList.contains('correct'); });
-      });
-      if (allOk) timerStop(n);
-    }
-
-    function resetSatzbau(n) {
-      document.querySelectorAll('#sb-container .chip').forEach(function(chip) {
-        document.getElementById('bank-' + SB_DATA.findIndex(function(d) { return d.words.includes(chip.dataset.orig); })).appendChild(chip);
-      });
-      timerResetOne(n);
-      sbInit();
-    }
 
     function shuffle(arr) {
       var a = arr.slice();
@@ -908,7 +891,7 @@
 
     // Initialisierung
     lueckeInit();
-    sbInit();
+    initSatzbau();
     initVocab();
     loadBestTimes();
   </script>

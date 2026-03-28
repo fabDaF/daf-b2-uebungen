@@ -250,7 +250,7 @@ footer a{color:#aaa}
 <img src="https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg?auto=compress&w=900" class="tab-banner" alt="Aufbau">
 <h2>Satzbau: Physikalische Sätze</h2>
 <div class="control-bar">
-<button class="btn" onclick="sbShowAll()">Alle lösen</button>
+<button class="btn" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i);})">Alle lösen</button>
 <span class="timer-display">Zeit: <span id="timer-sb">00:00</span> | Bestzeit: <span id="best-sb">—</span></span>
 </div>
 <div id="satzbauContainer"></div>
@@ -269,96 +269,242 @@ function checkLtAllDone(){var all=Array.from(document.querySelectorAll('#tab-lue
 function showLueckenLoesung(){timerStop('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value=inp.dataset.ans;inp.classList.add('correct');inp.classList.remove('wrong');});}
 function resetLuecken(){timerReset('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong');});}
 function mcCheck(btn,isCorrect){var opts=btn.closest('.mc-opts').querySelectorAll('.mc-opt');opts.forEach(function(o){o.disabled=true;});btn.classList.add(isCorrect?'correct':'wrong');}
-var satzbauData=[
-{parts:['Das','Higgs-Boson','ist','das','Quant','des','Higgs-Feldes','.'],valid:[['Das','Higgs-Boson','ist','das','Quant','des','Higgs-Feldes','.']]},
-{parts:['Ohne','das','Higgs-Feld','würde','das','Universum','nicht','existieren','.'],valid:[['Ohne','das','Higgs-Feld','würde','das','Universum','nicht','existieren','.']]},
-{parts:['Der','LHC','beschleunigt','Protonen','auf','fast','Lichtgeschwindigkeit','.'],valid:[['Der','LHC','beschleunigt','Protonen','auf','fast','Lichtgeschwindigkeit','.']]},
-{parts:['Peter','Higgs','und','François','Englert','sagten','das','Teilchen','1964','vorher','.'],valid:[['Peter','Higgs','und','François','Englert','sagten','das','Teilchen','1964','vorher','.']]}
+
+
+
+
+var satzbauData = [
+    { parts: ['Das', 'Higgs-Boson', 'ist', 'das', 'Quant', 'des', 'Higgs-Feldes'],
+      valid: [
+        ['Das', 'Higgs-Boson', 'ist', 'das', 'Quant', 'des', 'Higgs-Feldes']],
+      punct: '.' },
+    { parts: ['Ohne', 'das', 'Higgs-Feld', 'würde', 'das', 'Universum', 'nicht', 'existieren'],
+      valid: [
+        ['Ohne', 'das', 'Higgs-Feld', 'würde', 'das', 'Universum', 'nicht', 'existieren']],
+      punct: '.' },
+    { parts: ['Der', 'LHC', 'beschleunigt', 'Protonen', 'auf', 'fast', 'Lichtgeschwindigkeit'],
+      valid: [
+        ['Der', 'LHC', 'beschleunigt', 'Protonen', 'auf', 'fast', 'Lichtgeschwindigkeit']],
+      punct: '.' },
+    { parts: ['Peter', 'Higgs', 'und', 'François', 'Englert', 'sagten', 'das', 'Teilchen', '1964', 'vorher'],
+      valid: [
+        ['Peter', 'Higgs', 'und', 'François', 'Englert', 'sagten', 'das', 'Teilchen', '1964', 'vorher']],
+      punct: '.' }
 ];
-function sbCapitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
-function sbUpdateCapitalization(row){var chips=Array.from(row.querySelectorAll('.chip'));chips.forEach(function(c,i){var orig=c.dataset.orig;if(orig===','||orig===';')return;var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);});}
-var sbDragged=null;
-function getSbCursor(){var c=document.getElementById('sb-insert-cursor');if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}return c;}
-function getSbInsertPos(zone,cx){var chips=Array.from(zone.querySelectorAll('.chip'));for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(cx<r.left+r.width/2)return chips[i];}return null;}
-function sbMakeChip(word){var chip=document.createElement('div');chip.className='chip'+(word===','||word===';'?' punct-chip':'');chip.textContent=word;chip.dataset.orig=word;chip.draggable=true;chip.addEventListener('dragstart',function(e){sbDragged=chip;timerStart('sb');e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});chip.addEventListener('dragend',function(){chip.style.opacity='';sbDragged=null;var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);});return chip;}
-function sbRegisterZone(zone,idx){zone.addEventListener('dragover',function(e){e.preventDefault();if(!sbDragged)return;var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);});zone.addEventListener('dragleave',function(e){if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}});zone.addEventListener('drop',function(e){e.preventDefault();if(!sbDragged)return;var cursor=document.getElementById('sb-insert-cursor');if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}sbDragged=null;var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);});}
-function sbColorRow(idx){var row=document.getElementById('sb-row-'+idx);var chips=Array.from(row.querySelectorAll('.chip'));var order=chips.map(function(c){return c.dataset.orig;});var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});var ex=row.querySelector('.sb-punkt');if(ex)ex.parentNode.removeChild(ex);if(ok){var p=document.createElement('span');p.className='sb-punkt';p.textContent='.';row.appendChild(p);}return ok;}
-function sbCheckAuto(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);if(bank.querySelectorAll('.chip').length>0){row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});row.classList.remove('correct','incorrect');fb.textContent='';return;}setTimeout(function(){timerStart('sb');var ok=sbColorRow(idx);if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';}},500);}
-function sbCheckAllDone(){var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});if(allOk)timerStop('sb');}
-function sbShowSolution(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);var sol=satzbauData[idx].valid[0];var allChips={};Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);sol.forEach(function(word,i){var chip=allChips[word];if(chip){if(word!==','&&word!==';')chip.textContent=(i===0)?sbCapitalize(word):word;chip.classList.remove('correct','incorrect');row.appendChild(chip);}});fb.textContent='';setTimeout(function(){sbCheckAuto(idx);},100);}
-function sbResetOne(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';var parts=satzbauData[idx].parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});}
-function initSatzbau(){timerReset('sb');var container=document.getElementById('satzbauContainer');container.innerHTML='';satzbauData.forEach(function(ex,idx){var item=document.createElement('div');item.className='sb-item';var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;var parts=ex.parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});sbRegisterZone(bank,idx);sbRegisterZone(row,idx);var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';var solveBtn=document.createElement('button');solveBtn.className='btn';solveBtn.textContent='Lösen';solveBtn.setAttribute('data-idx',idx);solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});var resetBtn=document.createElement('button');resetBtn.className='btn';resetBtn.textContent='↺';resetBtn.setAttribute('data-idx',idx);resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});btnRow.appendChild(solveBtn);btnRow.appendChild(resetBtn);item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);container.appendChild(item);});}
-function sbShowAll(){satzbauData.forEach(function(_,i){sbShowSolution(i);});}
-window.addEventListener('load',function(){initSatzbau();});
 
-var VOCAB_HL_WORDS = ['Boson', 'CERN', 'LHC', 'Massefeld', 'Standardmodell', 'Teilchen'];
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
 
-// ===== VOKABEL-HIGHLIGHTING IM LESETEXT =====
-function highlightVocabInText() {
-    var storyText = document.querySelector('.story-text') ||
-                    document.querySelector('.lese-text') ||
-                    document.querySelector('.lesetext') ||
-                    document.querySelector('.reading-text') ||
-                    document.querySelector('.text-content') ||
-                    document.querySelector('.rf-text');
-    if (!storyText) return;
-    var words = [];
-    if (typeof VOCAB_HL_WORDS !== 'undefined' && VOCAB_HL_WORDS.length) {
-        words = VOCAB_HL_WORDS;
-    } else if (typeof VORENTLASTUNG !== 'undefined' && VORENTLASTUNG.length) {
-        words = VORENTLASTUNG.map(function(item) {
-            var term = item.term.replace(/^(der|die|das)\s+/i, '');
-            return term.split(',')[0].trim();
-        });
-    } else if (typeof WORTSCHATZ !== 'undefined' && WORTSCHATZ.length) {
-        words = WORTSCHATZ.map(function(item) { return item.de; });
-    } else if (typeof VOCAB !== 'undefined' && VOCAB.length) {
-        words = VOCAB.map(function(item) { return item.word; });
-    } else {
-        // DOM-Fallback: .vocab-item .de oder strong-Tags
-        var deEls = document.querySelectorAll('.vocab-item .de, .vi-de, .vocab-mini-de');
-        deEls.forEach(function(el) {
-            var t = el.textContent.replace(/^(der|die|das)\s+/i, '').split(',')[0].trim();
-            if (t.length > 3) words.push(t);
-        });
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
     }
-    words = words.filter(function(w) { return w && w.length > 3; });
-    if (words.length === 0) return;
-    function walkAndHighlight(node) {
-        if (node.nodeType === 3) {
-            var text = node.nodeValue;
-            var replaced = text;
-            words.forEach(function(word) {
-                var escaped = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                var regex = new RegExp('(?<![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])(' + escaped + ')(?![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])', 'g');
-                replaced = replaced.replace(regex, '\x01$1\x02');
-            });
-            if (replaced !== text) {
-                var span = document.createElement('span');
-                var parts = replaced.split(/\x01|\x02/);
-                var isHighlight = false;
-                parts.forEach(function(part) {
-                    if (!part) { isHighlight = !isHighlight; return; }
-                    if (isHighlight) {
-                        var hl = document.createElement('span');
-                        hl.className = 'vocab-hl';
-                        hl.title = '\ud83d\udcd6 Vokabel aus der Vorentlastung';
-                        hl.textContent = part;
-                        span.appendChild(hl);
-                    } else {
-                        span.appendChild(document.createTextNode(part));
-                    }
-                    isHighlight = !isHighlight;
-                });
-                node.parentNode.replaceChild(span, node);
-            }
-        } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT') {
-            Array.from(node.childNodes).forEach(walkAndHighlight);
-        }
-    }
-    walkAndHighlight(storyText);
+    return c;
 }
-highlightVocabInText();
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(5);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(5);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(5);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
+
+
+
 </script>
 </body>
 </html>

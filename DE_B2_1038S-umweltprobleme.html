@@ -274,6 +274,21 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
+
+/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
+.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
 </style>
 </head>
 <body>
@@ -526,7 +541,7 @@ function showTab(n) {
   document.getElementById('tab-' + n).classList.add('active');
   document.querySelectorAll('.nav-btn')[n].classList.add('active');
   if (n === 1) timerAutoStart(1);
-  if (n === 2) { sbInit(); timerAutoStart(2); }
+  if (n === 2) { initSatzbau(); timerAutoStart(2); }
   if (n === 3) { renderVocab(); timerAutoStart(3); }
 }
 
@@ -556,199 +571,254 @@ function resetGaps() {
 }
 
 // --- SATZBAU ---
+
+
+
+
 var satzbauData = [
-  { words: ['Die', 'Erderwärmung', 'bedroht', 'die', 'Artenvielfalt', 'auf', 'unserem', 'Planeten', '.'],
-    valid: 'Die Erderwärmung bedroht die Artenvielfalt auf unserem Planeten.' },
-  { words: ['Viele', 'Regenwaldgebiete', 'werden', 'durch', 'die', 'Waldrodung', 'unwiederbringlich', 'zerstört', '.'],
-    valid: 'Viele Regenwaldgebiete werden durch die Waldrodung unwiederbringlich zerstört.' },
-  { words: ['Der', 'Klimawandel', 'hat', 'sich', 'zu', 'einem', 'der', 'dringlichsten', 'Probleme', 'unserer', 'Zeit', 'entwickelt', '.'],
-    valid: 'Der Klimawandel hat sich zu einem der dringlichsten Probleme unserer Zeit entwickelt.' },
-  { words: ['Umweltschutzvereine', 'setzen', 'sich', 'weltweit', 'für', 'die', 'Bewahrung', 'der', 'Biodiversität', 'ein', '.'],
-    valid: 'Umweltschutzvereine setzen sich weltweit für die Bewahrung der Biodiversität ein.' },
-  { words: ['Wenn', 'wir', 'nicht', 'handeln', ',', 'werden', 'viele', 'Tierarten', 'in', 'den', 'nächsten', 'Jahrzehnten', 'ausgestorben', 'sein', '.'],
-    valid: 'Wenn wir nicht handeln , werden viele Tierarten in den nächsten Jahrzehnten ausgestorben sein .' },
-  { words: ['Die', 'Entwaldung', 'zerstört', 'nicht', 'nur', 'Lebensräume', ',', 'sondern', 'trägt', 'auch', 'zur', 'Klimaerwärmung', 'bei', '.'],
-    valid: 'Die Entwaldung zerstört nicht nur Lebensräume , sondern trägt auch zur Klimaerwärmung bei .' },
-  { words: ['Es', 'liegt', 'in', 'der', 'Verantwortung', 'jedes', 'Einzelnen', ',', 'einen', 'Beitrag', 'zum', 'Umweltschutz', 'zu', 'leisten', '.'],
-    valid: 'Es liegt in der Verantwortung jedes Einzelnen , einen Beitrag zum Umweltschutz zu leisten .' }
+    { parts: ['Die', 'Erderwärmung', 'bedroht', 'die', 'Artenvielfalt', 'auf', 'unserem', 'Planeten'],
+      valid: [
+        ['Die', 'Erderwärmung', 'bedroht', 'die', 'Artenvielfalt', 'auf', 'unserem', 'Planeten']],
+      punct: '.' },
+    { parts: ['Viele', 'Regenwaldgebiete', 'werden', 'durch', 'die', 'Waldrodung', 'unwiederbringlich', 'zerstört'],
+      valid: [
+        ['Viele', 'Regenwaldgebiete', 'werden', 'durch', 'die', 'Waldrodung', 'unwiederbringlich', 'zerstört']],
+      punct: '.' },
+    { parts: ['Der', 'Klimawandel', 'hat', 'sich', 'zu', 'einem', 'der', 'dringlichsten', 'Probleme', 'unserer', 'Zeit', 'entwickelt'],
+      valid: [
+        ['Der', 'Klimawandel', 'hat', 'sich', 'zu', 'einem', 'der', 'dringlichsten', 'Probleme', 'unserer', 'Zeit', 'entwickelt']],
+      punct: '.' },
+    { parts: ['Umweltschutzvereine', 'setzen', 'sich', 'weltweit', 'für', 'die', 'Bewahrung', 'der', 'Biodiversität', 'ein'],
+      valid: [
+        ['Umweltschutzvereine', 'setzen', 'sich', 'weltweit', 'für', 'die', 'Bewahrung', 'der', 'Biodiversität', 'ein']],
+      punct: '.' },
+    { parts: ['Wenn', 'wir', 'nicht', 'handeln', ',', 'werden', 'viele', 'Tierarten', 'in', 'den', 'nächsten', 'Jahrzehnten', 'ausgestorben', 'sein'],
+      valid: [
+        ['Wenn', 'wir', 'nicht', 'handeln', ',', 'werden', 'viele', 'Tierarten', 'in', 'den', 'nächsten', 'Jahrzehnten', 'ausgestorben', 'sein']],
+      punct: '.' },
+    { parts: ['Die', 'Entwaldung', 'zerstört', 'nicht', 'nur', 'Lebensräume', ',', 'sondern', 'trägt', 'auch', 'zur', 'Klimaerwärmung', 'bei'],
+      valid: [
+        ['Die', 'Entwaldung', 'zerstört', 'nicht', 'nur', 'Lebensräume', ',', 'sondern', 'trägt', 'auch', 'zur', 'Klimaerwärmung', 'bei']],
+      punct: '.' },
+    { parts: ['Es', 'liegt', 'in', 'der', 'Verantwortung', 'jedes', 'Einzelnen', ',', 'einen', 'Beitrag', 'zum', 'Umweltschutz', 'zu', 'leisten'],
+      valid: [
+        ['Es', 'liegt', 'in', 'der', 'Verantwortung', 'jedes', 'Einzelnen', ',', 'einen', 'Beitrag', 'zum', 'Umweltschutz', 'zu', 'leisten']],
+      punct: '.' }
 ];
 
-var sbCurrent = 0;
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
+
 var sbDragged = null;
 
-function shuffleArr(arr) {
-  var a = arr.slice();
-  for (var i = a.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
-  }
-  return a;
-}
-
-function sbInit() { sbCurrent = 0; sbRender(); }
-
-function sbRender() {
-  var data = satzbauData[sbCurrent];
-  document.getElementById('sbCounter').textContent = 'Aufgabe ' + (sbCurrent + 1) + ' von ' + satzbauData.length;
-  document.getElementById('sbZone').innerHTML = '';
-  document.getElementById('sbFeedback').className = 'sb-feedback';
-  document.getElementById('sbFeedback').textContent = '';
-  var shuffled = shuffleArr(data.words);
-  var bank = document.getElementById('sbBank');
-  bank.innerHTML = '';
-  shuffled.forEach(function(w) { bank.appendChild(createChip(w)); });
-  setupDropZone(document.getElementById('sbZone'));
-  setupDropZone(bank);
-}
-
-function createChip(text) {
-  var chip = document.createElement('div');
-  chip.className = 'sb-chip' + (/^[.,!?]$/.test(text) ? ' punct' : '');
-  chip.textContent = text;
-  chip.draggable = true;
-  chip.addEventListener('dragstart', function() { sbDragged = chip; chip.classList.add('dragging'); });
-  chip.addEventListener('dragend', function() { chip.classList.remove('dragging'); });
-  return chip;
-}
-
-function setupDropZone(zone) {
-  zone.addEventListener('dragover', function(e) { e.preventDefault(); });
-  zone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    if (!sbDragged) return;
-    var after = getDragAfterElement(zone, e.clientX);
-    if (after === null) zone.appendChild(sbDragged);
-    else zone.insertBefore(sbDragged, after);
-    sbDragged = null;
-    sbCheck();
-  });
-}
-
-function getDragAfterElement(zone, x) {
-  var els = [].slice.call(zone.querySelectorAll('.sb-chip:not(.dragging)'));
-  var res = null; var minDist = Infinity;
-  els.forEach(function(el) {
-    var box = el.getBoundingClientRect();
-    var mid = box.left + box.width / 2;
-    var dist = x - mid;
-    if (dist < 0 && Math.abs(dist) < minDist) { minDist = Math.abs(dist); res = el; }
-  });
-  return res;
-}
-
-function sbCheck() {
-  var chips = document.getElementById('sbZone').querySelectorAll('.sb-chip');
-  var result = [].map.call(chips, function(c) { return c.textContent; }).join(' ');
-  var data = satzbauData[sbCurrent];
-  var fb = document.getElementById('sbFeedback');
-  if (result.trim() === data.valid.trim()) {
-    fb.className = 'sb-feedback correct';
-    fb.textContent = '✓ Richtig!';
-    if (sbCurrent === satzbauData.length - 1) timerStop(2);
-  } else {
-    fb.className = 'sb-feedback wrong';
-    fb.textContent = '✗ Noch nicht ganz richtig – probiere es weiter!';
-  }
-}
-
-function sbReset() {
-  sbRender();
-  timerResetOne(2); timerAutoStart(2);
-}
-
-function sbNext() {
-  if (sbCurrent < satzbauData.length - 1) { sbCurrent++; sbRender(); }
-}
-function sbPrev() {
-  if (sbCurrent > 0) { sbCurrent--; sbRender(); }
-}
-
-// --- WORTSCHATZ ---
-var WORTSCHATZ = [
-  { id: 1,  type: 'n', en: 'deforestation',                    artikel: 'die', de: 'Entwaldung',         plural: 'Entwaldungen',      pexels: '957024',  example: 'Die Entwaldung zerstört das Gleichgewicht in der Natur.' },
-  { id: 2,  type: 'n', en: 'forest clearing',                  artikel: 'die', de: 'Waldrodung',          plural: 'Waldrodungen',       pexels: '338936',  example: 'Die Waldrodung trägt auch zur Klimawandlung bei.' },
-  { id: 3,  type: 'n', en: 'global warming',                   artikel: 'die', de: 'Erderwärmung',        plural: '—',                  pexels: '2559941', example: 'Die Erderwärmung ist zu einem globalen Problem geworden.' },
-  { id: 4,  type: 'n', en: 'destruction / annihilation',       artikel: 'die', de: 'Vernichtung',         plural: 'Vernichtungen',      pexels: '2449452', example: 'Die Vernichtung von Ökosystemen bedroht die Biodiversität.' },
-  { id: 5,  type: 'n', en: 'environmental protection org.',    artikel: 'der', de: 'Umweltschutzverein',  plural: 'Umweltschutzvereine',pexels: '1108572', example: 'Greenpeace ist ein bekannter Umweltschutzverein.' },
-  { id: 6,  type: 'n', en: 'climate change',                   artikel: 'der', de: 'Klimawandel',         plural: '—',                  pexels: '4033148', example: 'Der Klimawandel erfordert globales Handeln.' },
-  { id: 7,  type: 'n', en: 'extinction of species',            artikel: 'das', de: 'Artensterben',        plural: '—',                  pexels: '133459',  example: 'Das Artensterben nimmt erschreckend schnell zu.' },
-  { id: 8,  type: 'n', en: 'humanism',                         artikel: 'der', de: 'Humanismus',          plural: '—',                  pexels: '1370295', example: 'Humanismus ist ein Ideal, das die Würde aller achtet.' },
-  { id: 9,  type: 'n', en: 'abuse / maltreatment',             artikel: 'die', de: 'Misshandlung',        plural: 'Misshandlungen',     pexels: '209037',  example: 'Die Misshandlung von Tieren ist in vielen Ländern strafbar.' },
-  { id: 10, type: 'n', en: 'biodiversity',                     artikel: 'die', de: 'Biodiversität',       plural: '—',                  pexels: '145685',  example: 'Die Biodiversität ist die Grundlage allen Lebens auf der Erde.' },
-  { id: 11, type: 'n', en: 'sustainability',                   artikel: 'die', de: 'Nachhaltigkeit',      plural: '—',                  pexels: '960145',  example: 'Nachhaltigkeit bedeutet, die Bedürfnisse zukünftiger Generationen zu achten.' },
-  { id: 12, type: 'v', en: 'to be endangered',                 de: 'gefährdet sein',                                                    pexels: '133459',  example: 'Viele Tierarten sind durch Lebensraumverlust gefährdet.' }
-];
-
-var vocabRendered = false;
-
-function renderVocab() {
-  if (vocabRendered) return;
-  vocabRendered = true;
-  var container = document.getElementById('vocabContainer');
-  var shuffled = shuffleArr(WORTSCHATZ);
-  container.innerHTML = '';
-  shuffled.forEach(function(item) {
-    var card = document.createElement('div');
-    card.className = 'vocab-card';
-    var imgUrl = 'https://images.pexels.com/photos/' + item.pexels + '/pexels-photo-' + item.pexels + '.jpeg?auto=compress&cs=tinysrgb&w=400';
-    var fieldsHtml = '';
-    if (item.type === 'n') {
-      fieldsHtml = '<input type="text" placeholder="Artikel" data-answer="' + item.artikel + '" oninput="vcCheck(this)" class="vc-art">' +
-                   '<input type="text" placeholder="Deutsch" data-answer="' + item.de + '" oninput="vcCheck(this)">' +
-                   (item.plural !== '—' ? '<input type="text" placeholder="Plural" data-answer="' + item.plural + '" oninput="vcCheck(this)">' : '<input type="text" placeholder="kein Plural" data-answer="—" oninput="vcCheck(this)">');
-    } else {
-      fieldsHtml = '<input type="text" placeholder="Deutsch" data-answer="' + item.de + '" oninput="vcCheck(this)">';
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
     }
-    card.innerHTML = '<img src="' + imgUrl + '" alt="' + item.en + '" onerror="this.style.display=\'none\'">' +
-      '<div class="vocab-body">' +
-        '<div class="vocab-en">' + item.en + '</div>' +
-        '<div class="vocab-fields">' + fieldsHtml + '</div>' +
-        '<div class="vocab-example">' + item.example + '</div>' +
-      '</div>';
-    container.appendChild(card);
-  });
+    return c;
 }
-
-function vcCheck(inp) {
-  var ans = (inp.dataset.answer || '').trim().toLowerCase();
-  var val = inp.value.trim().toLowerCase();
-  inp.classList.remove('correct', 'wrong');
-  if (val.length === 0) return;
-  if (ans === '—') {
-    if (val === '—' || val === '-' || val === 'kein plural') { inp.classList.add('correct'); checkVocabDone(); }
-    else { inp.classList.add('wrong'); }
-    return;
-  }
-  if (ans.startsWith(val)) {
-    if (val === ans) { inp.classList.add('correct'); checkVocabDone(); }
-  } else {
-    inp.classList.add('wrong');
-  }
-}
-
-function checkVocabDone() {
-  var all = document.querySelectorAll('#vocabContainer input');
-  if ([].every.call(all, function(i) { return i.classList.contains('correct'); })) timerStop(3);
-}
-
-function showVocabLoesung() {
-  document.querySelectorAll('#vocabContainer input').forEach(function(inp) {
-    if (!inp.classList.contains('correct')) {
-      inp.value = inp.dataset.answer;
-      inp.classList.remove('wrong');
-      inp.classList.add('correct');
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
     }
-  });
+    return null;
 }
-
-function resetVocab() {
-  vocabRendered = false;
-  renderVocab();
-  timerResetOne(3); timerAutoStart(3);
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
 }
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(4);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
 
-// Init
-loadBestTimes();
+
+
 </script>
 </body>
 </html>
