@@ -36,7 +36,6 @@ h3{color:#764ba2;margin:16px 0 10px;font-size:1rem}
 .mc-feedback.err{color:#c62828}
 /* Satzbau */
 .sb-task{margin-bottom:28px;padding:18px;background:#f9f9ff;border-radius:10px}
-.chips-src{display:flex;flex-wrap:wrap;gap:8px;min-height:42px;padding:8px;background:#eee;border-radius:8px;margin-bottom:10px}
 .chip{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:6px 12px;border-radius:20px;cursor:grab;font-size:.9rem;user-select:none;transition:transform .15s,opacity .15s;font-weight:600}
 .chip:active{cursor:grabbing;transform:scale(1.04)}
 .chip.correct{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
@@ -204,7 +203,7 @@ footer{text-align:center;padding:16px;font-size:.78rem;color:#aaa;border-top:1px
   <div class="ctrl">
     <span class="timer-display" id="timer-4">⏱ 0:00</span>
   </div>
-  <div id="sb-container"></div>
+  <div id="satzbauContainer"></div>
 </div>
 
 <div class="author-footer"><span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot; <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a></div>
@@ -261,19 +260,236 @@ function mcCheck(qi,oi,correct){timerAutoStart(3);var opts=document.querySelecto
 function mcReset(){timerResetOne(3);document.querySelectorAll('.mc-item').forEach(m=>m.classList.remove('correct','wrong'));document.querySelectorAll('input[type="radio"]').forEach(i=>{i.checked=false;i.disabled=false})}
 
 var sbDragged=null;
-var sbSaetze=[
-  ['Die','EU','besteht','aus','27','Mitgliedstaaten','.'],
-  ['Die','Kommission','setzt','die','Gesetze','um','.'],
-  ['Migration','ist','eine','der','größten','Herausforderungen','.'],
-  ['Der','Brexit','zeigte','Risse','in','der','Union','.'],
-  ['Der','Euro','ist','die','gemeinsame','Währung','.']
+
+var satzbauData = [
+    { parts: ['Die', 'EU', 'besteht', 'aus', '27', 'Mitgliedstaaten'],
+      valid: [['Die', 'EU', 'besteht', 'aus', '27', 'Mitgliedstaaten']],
+      punct: '.' },
+    { parts: ['Die', 'Kommission', 'setzt', 'die', 'Gesetze', 'um'],
+      valid: [['Die', 'Kommission', 'setzt', 'die', 'Gesetze', 'um']],
+      punct: '.' },
+    { parts: ['Migration', 'ist', 'eine', 'der', 'größten', 'Herausforderungen'],
+      valid: [['Migration', 'ist', 'eine', 'der', 'größten', 'Herausforderungen']],
+      punct: '.' },
+    { parts: ['Der', 'Brexit', 'zeigte', 'Risse', 'in', 'der', 'Union'],
+      valid: [['Der', 'Brexit', 'zeigte', 'Risse', 'in', 'der', 'Union']],
+      punct: '.' },
+    { parts: ['Der', 'Euro', 'ist', 'die', 'gemeinsame', 'Währung'],
+      valid: [['Der', 'Euro', 'ist', 'die', 'gemeinsame', 'Währung']],
+      punct: '.' }
 ];
 
-function sbInit(){var cont=document.getElementById('sb-container');cont.innerHTML='';sbSaetze.forEach((satz,idx)=>{var task=document.createElement('div');task.className='sb-task';task.innerHTML='<div class="chips-src" id="bank-'+idx+'"></div><div class="drop-zone" id="row-'+idx+'"></div>';cont.appendChild(task);var bank=document.getElementById('bank-'+idx);var shuffled=shuffle(satz);shuffled.forEach(wort=>{var chip=document.createElement('span');chip.className='chip';if(wort==='.')chip.className='chip comma-chip';chip.textContent=wort;chip.dataset.orig=wort;chip.draggable=true;chip.addEventListener('dragstart',function(e){e.dataTransfer.setData('text/plain','');sbDragged=chip});chip.addEventListener('dragend',function(){sbColorRow(idx)});bank.appendChild(chip)})})}
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
 
-function sbColorRow(idx){var row=document.getElementById('row-'+idx);var data=sbSaetze[idx];Array.from(row.querySelectorAll('.chip')).forEach(function(chip,i){chip.classList.remove('correct','wrong');if(i<data.length){chip.classList.add(chip.dataset.orig.toLowerCase()===data[i].toLowerCase()?'correct':'wrong')}else{chip.classList.add('wrong')}});timerAutoStart(4);checkSbAllOk(4)}
+var sbDragged = null;
 
-function checkSbAllOk(n){var rows=document.querySelectorAll('#tab-satzbau .drop-zone');var allOk=rows.length>0&&Array.from(rows).every(function(row){var chips=row.querySelectorAll('.chip');return chips.length>0&&Array.from(chips).every(function(c){return c.classList.contains('correct')})});if(allOk)timerStop(n)}
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(4);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
+
 
 document.addEventListener('dragover',function(e){if(e.target.classList.contains('drop-zone')){e.preventDefault();e.target.classList.add('dragover')}});
 document.addEventListener('dragleave',function(e){if(e.target.classList.contains('drop-zone'))e.target.classList.remove('dragover')});

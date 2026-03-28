@@ -603,7 +603,7 @@
         <div class="timer-box" id="timer3">⏱ 00:00</div>
       </div>
       <p style="margin-bottom:20px; color:#555; font-size:0.9rem;">Ordnen Sie die Chips in der richtigen TKML-Reihenfolge. Satzzeichen gehören in die Lösung.</p>
-      <div id="sb-container"></div>
+      <div id="satzbauContainer"></div>
     </div>
   </div>
 
@@ -671,107 +671,242 @@ function resetGaps() {
 }
 
 // ─── Satzbau ─────────────────────────────────────────────────────────────────
-const sentences = [
-  ["Wir", "sind", "gestern", "trotz", "des", "schlechten", "Wetters", "schnell", "dorthin", "gegangen", "."],
-  ["Sie", "fährt", "jeden", "Morgen", "wegen", "der", "kurzen", "Strecke", "mit", "dem", "Fahrrad", "zur", "Schule", "."],
-  ["Er", "ist", "morgen", "früh", "wegen", "des", "Termins", "sehr", "schnell", "ins", "Büro", "gefahren", "."],
-  ["Das", "Kind", "hat", "gestern", "vor", "Freude", "laut", "auf", "dem", "Spielplatz", "gejubelt", "."],
-  ["Ich", "gehe", "täglich", "für", "meine", "Gesundheit", "gerne", "in", "den", "Park", "."],
-  ["Sie", "hat", "seit", "Jahren", "trotz", "vieler", "Schwierigkeiten", "sehr", "fleißig", "dort", "gearbeitet", "."],
-  ["Er", "kommt", "morgen", "wegen", "des", "Arztbesuchs", "etwas", "später", "ins", "Büro", "."]
+
+var satzbauData = [
+    { parts: ['Wir', 'sind', 'gestern', 'trotz', 'des', 'schlechten', 'Wetters', 'schnell', 'dorthin', 'gegangen'],
+      valid: [['Wir', 'sind', 'gestern', 'trotz', 'des', 'schlechten', 'Wetters', 'schnell', 'dorthin', 'gegangen']],
+      punct: '.' },
+    { parts: ['Sie', 'fährt', 'jeden', 'Morgen', 'wegen', 'der', 'kurzen', 'Strecke', 'mit', 'dem', 'Fahrrad', 'zur', 'Schule'],
+      valid: [['Sie', 'fährt', 'jeden', 'Morgen', 'wegen', 'der', 'kurzen', 'Strecke', 'mit', 'dem', 'Fahrrad', 'zur', 'Schule']],
+      punct: '.' },
+    { parts: ['Er', 'ist', 'morgen', 'früh', 'wegen', 'des', 'Termins', 'sehr', 'schnell', 'ins', 'Büro', 'gefahren'],
+      valid: [['Er', 'ist', 'morgen', 'früh', 'wegen', 'des', 'Termins', 'sehr', 'schnell', 'ins', 'Büro', 'gefahren']],
+      punct: '.' },
+    { parts: ['Das', 'Kind', 'hat', 'gestern', 'vor', 'Freude', 'laut', 'auf', 'dem', 'Spielplatz', 'gejubelt'],
+      valid: [['Das', 'Kind', 'hat', 'gestern', 'vor', 'Freude', 'laut', 'auf', 'dem', 'Spielplatz', 'gejubelt']],
+      punct: '.' },
+    { parts: ['Ich', 'gehe', 'täglich', 'für', 'meine', 'Gesundheit', 'gerne', 'in', 'den', 'Park'],
+      valid: [['Ich', 'gehe', 'täglich', 'für', 'meine', 'Gesundheit', 'gerne', 'in', 'den', 'Park']],
+      punct: '.' },
+    { parts: ['Sie', 'hat', 'seit', 'Jahren', 'trotz', 'vieler', 'Schwierigkeiten', 'sehr', 'fleißig', 'dort', 'gearbeitet'],
+      valid: [['Sie', 'hat', 'seit', 'Jahren', 'trotz', 'vieler', 'Schwierigkeiten', 'sehr', 'fleißig', 'dort', 'gearbeitet']],
+      punct: '.' },
+    { parts: ['Er', 'kommt', 'morgen', 'wegen', 'des', 'Arztbesuchs', 'etwas', 'später', 'ins', 'Büro'],
+      valid: [['Er', 'kommt', 'morgen', 'wegen', 'des', 'Arztbesuchs', 'etwas', 'später', 'ins', 'Büro']],
+      punct: '.' }
 ];
 
-let sbDragged = null;
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
 
-function fisher_yates(arr) {
-  for (let i = arr.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
-}
+var sbDragged = null;
 
-function buildSatzbau() {
-  const container = document.getElementById('sb-container');
-  container.innerHTML = '';
-  sentences.forEach((words, idx) => {
-    const div = document.createElement('div');
-    div.className = 'sb-exercise';
-    div.innerHTML = `<div class="sb-sentence-nr">${idx+1}.</div>`;
-
-    const pool = document.createElement('div');
-    pool.className = 'chip-pool';
-    pool.dataset.idx = idx;
-
-    const zone = document.createElement('div');
-    zone.className = 'drop-zone';
-    zone.dataset.idx = idx;
-
-    const result = document.createElement('div');
-    result.className = 'sb-result';
-
-    const shuffled = fisher_yates([...words]);
-    shuffled.forEach(w => pool.appendChild(createChip(w, idx)));
-
-    setupDropZone(pool, idx, result, words);
-    setupDropZone(zone, idx, result, words);
-
-    div.appendChild(pool);
-    div.appendChild(zone);
-    div.appendChild(result);
-    container.appendChild(div);
-  });
-}
-
-function createChip(word, idx) {
-  const chip = document.createElement('div');
-  const isPunct = /^[.,!?;:]$/.test(word);
-  chip.className = isPunct ? 'chip punct' : 'chip';
-  chip.textContent = word;
-  chip.draggable = true;
-  chip.addEventListener('dragstart', e => {
-    sbDragged = chip;
-    e.dataTransfer.effectAllowed = 'move';
-  });
-  chip.addEventListener('click', () => {
-    const pool = document.querySelector(`.chip-pool[data-idx="${idx}"]`);
-    const zone = document.querySelector(`.drop-zone[data-idx="${idx}"]`);
-    const result = zone.nextElementSibling;
-    if (chip.parentNode === pool) zone.appendChild(chip);
-    else pool.appendChild(chip);
-    checkSatzbau(zone, sentences[idx], result);
-  });
-  return chip;
-}
-
-function setupDropZone(zone, idx, result, correct) {
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
-    if (sbDragged) {
-      zone.appendChild(sbDragged);
-      sbDragged = null;
-      const dz = document.querySelector(`.drop-zone[data-idx="${idx}"]`);
-      checkSatzbau(dz, correct, result);
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
     }
-  });
+    return c;
 }
-
-function checkSatzbau(zone, correct, result) {
-  const chips = [...zone.children].map(c => c.textContent);
-  if (!chips.length) { result.textContent = ''; return; }
-  if (JSON.stringify(chips) === JSON.stringify(correct)) {
-    result.className = 'sb-result ok';
-    result.textContent = '✓ Richtig! TKML-Reihenfolge korrekt.';
-  } else {
-    result.className = 'sb-result err';
-    result.textContent = '';
-  }
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
 }
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(4);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
 
-function resetSatzbau() { buildSatzbau(); }
 buildSatzbau();
 
 // ─── Wortschatz ──────────────────────────────────────────────────────────────
