@@ -271,7 +271,16 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-</style>
+
+    /* Vokabel-Hervorhebung im Lesetext */
+    .vocab-hl {
+        background: #ffe9a0;
+        border-radius: 3px;
+        padding: 1px 3px;
+        font-weight: 600;
+        cursor: help;
+    }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -580,6 +589,75 @@
         function resetTab() {
             location.reload();
         }
-    </script>
+    
+var VOCAB_HL_WORDS = ['Drake-Gleichung', 'Exoplanet', 'Fermi-Paradoxon', 'Mikrobe', 'SETI-Projekt', 'Wassereis', 'extraterrestrisch', 'habitable Zone'];
+
+// ===== VOKABEL-HIGHLIGHTING IM LESETEXT =====
+function highlightVocabInText() {
+    var storyText = document.querySelector('.story-text') ||
+                    document.querySelector('.lese-text') ||
+                    document.querySelector('.lesetext') ||
+                    document.querySelector('.reading-text') ||
+                    document.querySelector('.text-content') ||
+                    document.querySelector('.rf-text');
+    if (!storyText) return;
+    var words = [];
+    if (typeof VOCAB_HL_WORDS !== 'undefined' && VOCAB_HL_WORDS.length) {
+        words = VOCAB_HL_WORDS;
+    } else if (typeof VORENTLASTUNG !== 'undefined' && VORENTLASTUNG.length) {
+        words = VORENTLASTUNG.map(function(item) {
+            var term = item.term.replace(/^(der|die|das)\s+/i, '');
+            return term.split(',')[0].trim();
+        });
+    } else if (typeof WORTSCHATZ !== 'undefined' && WORTSCHATZ.length) {
+        words = WORTSCHATZ.map(function(item) { return item.de; });
+    } else if (typeof VOCAB !== 'undefined' && VOCAB.length) {
+        words = VOCAB.map(function(item) { return item.word; });
+    } else {
+        // DOM-Fallback: .vocab-item .de oder strong-Tags
+        var deEls = document.querySelectorAll('.vocab-item .de, .vi-de, .vocab-mini-de');
+        deEls.forEach(function(el) {
+            var t = el.textContent.replace(/^(der|die|das)\s+/i, '').split(',')[0].trim();
+            if (t.length > 3) words.push(t);
+        });
+    }
+    words = words.filter(function(w) { return w && w.length > 3; });
+    if (words.length === 0) return;
+    function walkAndHighlight(node) {
+        if (node.nodeType === 3) {
+            var text = node.nodeValue;
+            var replaced = text;
+            words.forEach(function(word) {
+                var escaped = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                var regex = new RegExp('(?<![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])(' + escaped + ')(?![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])', 'g');
+                replaced = replaced.replace(regex, '\x01$1\x02');
+            });
+            if (replaced !== text) {
+                var span = document.createElement('span');
+                var parts = replaced.split(/\x01|\x02/);
+                var isHighlight = false;
+                parts.forEach(function(part) {
+                    if (!part) { isHighlight = !isHighlight; return; }
+                    if (isHighlight) {
+                        var hl = document.createElement('span');
+                        hl.className = 'vocab-hl';
+                        hl.title = '\ud83d\udcd6 Vokabel aus der Vorentlastung';
+                        hl.textContent = part;
+                        span.appendChild(hl);
+                    } else {
+                        span.appendChild(document.createTextNode(part));
+                    }
+                    isHighlight = !isHighlight;
+                });
+                node.parentNode.replaceChild(span, node);
+            }
+        } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT') {
+            Array.from(node.childNodes).forEach(walkAndHighlight);
+        }
+    }
+    walkAndHighlight(storyText);
+}
+highlightVocabInText();
+</script>
 </body>
 </html>
