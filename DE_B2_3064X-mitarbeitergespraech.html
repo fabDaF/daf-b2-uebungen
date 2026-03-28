@@ -108,6 +108,47 @@
 }
 /* ──────────────────────────────────────────────────────────── */
 </style>
+<script>
+var TIMER_PREFIX='B2_3064X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
 </head>
 <body>
   <div class="container">
@@ -151,7 +192,7 @@
       <!-- Tab 1: Lückentext -->
       <div class="tab" id="tab1">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-1">0:00</span>
+          ⏱ <span id="timer-1">0:00</span><span>🏆 <span id="best-1">--:--</span></span></span></span>
           <span style="color: #f39c12; font-weight: 600;" id="best-1"></span>
         </div>
         <div class="btn-row">
@@ -165,7 +206,7 @@
       <!-- Tab 2: Satzbau -->
       <div class="tab" id="tab2">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-2">0:00</span>
+          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
           <span style="color: #f39c12; font-weight: 600;" id="best-2"></span>
         </div>
         <div class="btn-row">
@@ -179,7 +220,7 @@
       <!-- Tab 3: Wortschatz -->
       <div class="tab" id="tab3">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-3">0:00</span>
+          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
           <span style="color: #f39c12; font-weight: 600;" id="best-3"></span>
         </div>
         <div class="btn-row">
@@ -197,327 +238,6 @@
     </div>
   </div>
 
-  <script>
-    var timerState = [false, false, false, false];
-    var timerIntervals = [null, null, null, null];
-    var TIMER_PREFIX='B2_3064X_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [1,2,3].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-
-    function liveCheck(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (!val) return;
-      timerAutoStart(1);
-      if (val === ans) {
-        inp.classList.add('correct');
-        checkAllOk();
-      } else if (ans.indexOf(val) === 0) {
-        // OK
-      } else {
-        inp.classList.add('wrong');
-      }
-    }
-
-    function showHint(inp) {
-      var next = inp.nextElementSibling;
-      if (next && next.classList.contains('correction-hint')) next.remove();
-      var hint = document.createElement('span');
-      hint.className = 'correction-hint';
-      hint.textContent = inp.dataset.answer;
-      inp.insertAdjacentElement('afterend', hint);
-      inp.value = inp.dataset.answer;
-      inp.classList.add('correct');
-    }
-
-    var lueckenData = [
-      { text: 'Das <input class="blank" data-answer="Mitarbeitergespräch" oninput="liveCheck(this)" /> findet einmal jährlich statt.', ans: 'mitarbeitergespräch' },
-      { text: 'Die <input class="blank" data-answer="Zielvereinbarung" oninput="liveCheck(this)" /> legt fest, was im nächsten Jahr erreicht werden soll.', ans: 'zielvereinbarung' },
-      { text: 'Das <input class="blank" data-answer="Feedback" oninput="liveCheck(this)" /> vom Vorgesetzten ist wichtig für die Entwicklung.', ans: 'feedback' },
-      { text: 'Die <input class="blank" data-answer="Leistungsbeurteilung" oninput="liveCheck(this)" /> bewertet die Arbeit des Mitarbeiters.', ans: 'leistungsbeurteilung' },
-      { text: 'Der <input class="blank" data-answer="Vorgesetzte" oninput="liveCheck(this)" /> führt das Gespräch.', ans: 'vorgesetzte' }
-    ];
-
-    function initLuecken() {
-      var cont = document.getElementById('luecke-container');
-      cont.innerHTML = '';
-      lueckenData.forEach(function(item) {
-        var div = document.createElement('div');
-        div.className = 'luecke-satz';
-        div.innerHTML = item.text;
-        cont.appendChild(div);
-      });
-    }
-
-    function showLuecken() {
-      var cont = document.getElementById('luecke-container');
-      var inps = cont.querySelectorAll('input.blank');
-      inps.forEach(function(inp) { showHint(inp); });
-    }
-
-    function resetLuecken() {
-      initLuecken();
-    }
-
-    function checkAllOk() {
-      var cont = document.getElementById('luecke-container');
-      var inps = cont.querySelectorAll('input.blank');
-      var all = Array.from(inps).every(function(i) { return i.classList.contains('correct'); });
-      if (all) timerStop(1);
-    }
-
-    var sbData = [
-      {
-        chips: ['Im', 'Mitarbeitergespräch', 'werden', 'Ziele', 'vereinbart', '.'],
-        correct: ['Im', 'Mitarbeitergespräch', 'werden', 'Ziele', 'vereinbart', '.']
-      },
-      {
-        chips: ['Der', 'Vorgesetzte', 'gibt', 'dem', 'Mitarbeiter', 'wichtiges', 'Feedback', '.'],
-        correct: ['Der', 'Vorgesetzte', 'gibt', 'dem', 'Mitarbeiter', 'wichtiges', 'Feedback', '.']
-      },
-      {
-        chips: ['Die', 'Leistungsbeurteilung', 'ist', 'ein', 'wichtiger', 'Teil', 'des', 'Gesprächs', '.'],
-        correct: ['Die', 'Leistungsbeurteilung', 'ist', 'ein', 'wichtiger', 'Teil', 'des', 'Gesprächs', '.']
-      }
-    ];
-
-    var sbDragged = null;
-
-    function initSB() {
-      var cont = document.getElementById('sb-container');
-      cont.innerHTML = '';
-      sbData.forEach(function(item, idx) {
-        var div = document.createElement('div');
-        div.className = 'sb-satz';
-        var bank = document.createElement('div');
-        bank.className = 'chip-bank';
-        var shuffled = item.chips.slice().sort(function() { return Math.random() - 0.5; });
-        shuffled.forEach(function(word) {
-          var chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.textContent = word;
-          chip.draggable = true;
-          chip.dataset.idx = idx;
-          chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
-          chip.addEventListener('dragend', colorAllSB);
-          bank.appendChild(chip);
-        });
-        div.appendChild(bank);
-
-        var dropzone = document.createElement('div');
-        dropzone.className = 'drop-row';
-        dropzone.dataset.idx = idx;
-        dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
-        dropzone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
-        dropzone.addEventListener('drop', function(e) { e.preventDefault(); this.classList.remove('dragover'); if (sbDragged) this.appendChild(sbDragged); });
-        div.appendChild(dropzone);
-        cont.appendChild(div);
-      });
-    }
-
-    function colorAllSB() {
-      sbData.forEach(function(_, idx) { colorSB(idx); });
-      timerAutoStart(2);
-      if (checkAllSB()) timerStop(2);
-    }
-
-    function colorSB(idx) {
-      var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
-      if (!dropz) return;
-      var chips = dropz.querySelectorAll('.chip');
-      var isOk = chips.length === sbData[idx].correct.length && Array.from(chips).every(function(c, i) { return c.textContent === sbData[idx].correct[i]; });
-      chips.forEach(function(c) { c.classList.remove('correct', 'wrong'); if (isOk) c.classList.add('correct'); else if (chips.length > 0) c.classList.add('wrong'); });
-    }
-
-    function checkAllSB() {
-      var allOk = true;
-      sbData.forEach(function(_, idx) {
-        var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
-        if (!dropz || !dropz.querySelectorAll('.chip.correct').length) allOk = false;
-      });
-      return allOk;
-    }
-
-    function showSB() {
-      sbData.forEach(function(item, idx) {
-        var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
-        dropz.innerHTML = '';
-        item.correct.forEach(function(word) {
-          var chip = document.createElement('div');
-          chip.className = 'chip correct';
-          chip.textContent = word;
-          dropz.appendChild(chip);
-        });
-      });
-    }
-
-    function resetSB() {
-      initSB();
-    }
-
-    var vocabData = [
-      { en: 'meeting', art: 'das', wort: 'Gespräch', plural: 'Gespräche' },
-      { en: 'goal', art: 'das', wort: 'Ziel', plural: 'Ziele' },
-      { en: 'feedback', art: 'das', wort: 'Feedback', plural: 'Feedbacks' },
-      { en: 'performance', art: 'die', wort: 'Leistung', plural: 'Leistungen' },
-      { en: 'supervisor', art: 'der', wort: 'Vorgesetzte', plural: 'Vorgesetzten' },
-      { en: 'salary negotiation', art: 'die', wort: 'Gehaltsverhandlung', plural: 'Gehaltsverhandlungen' }
-    ];
-
-    function initVocab() {
-      var cont = document.getElementById('vocab-container');
-      cont.innerHTML = '';
-      vocabData.forEach(function(item) {
-        var div = document.createElement('div');
-        div.style.background = '#f8f9ff';
-        div.style.padding = '14px 18px';
-        div.style.marginBottom = '12px';
-        div.style.borderRadius = '10px';
-        div.style.borderLeft = '4px solid #667eea';
-        div.style.display = 'flex';
-        div.style.alignItems = 'center';
-        div.style.gap = '12px';
-        div.style.flexWrap = 'wrap';
-
-        var en = document.createElement('div');
-        en.style.fontWeight = '600';
-        en.style.color = '#764ba2';
-        en.style.minWidth = '120px';
-        en.textContent = item.en;
-
-        var arr = document.createElement('div');
-        arr.style.color = '#ccc';
-        arr.style.fontSize = '1.2em';
-        arr.textContent = '→';
-
-        var artinp = document.createElement('input');
-        artinp.style.border = 'none';
-        artinp.style.borderBottom = '2px solid #667eea';
-        artinp.style.background = '#fff';
-        artinp.style.padding = '4px 8px';
-        artinp.style.width = '70px';
-        artinp.dataset.answer = item.art;
-        artinp.oninput = function() { liveCheckVocab(this); };
-
-        var wortinp = document.createElement('input');
-        wortinp.style.border = 'none';
-        wortinp.style.borderBottom = '2px solid #667eea';
-        wortinp.style.background = '#fff';
-        wortinp.style.padding = '4px 8px';
-        wortinp.style.width = '120px';
-        wortinp.dataset.answer = item.wort.toLowerCase();
-        wortinp.oninput = function() { liveCheckVocab(this); };
-
-        var pluralinp = document.createElement('input');
-        pluralinp.style.border = 'none';
-        pluralinp.style.borderBottom = '2px solid #667eea';
-        pluralinp.style.background = '#fff';
-        pluralinp.style.padding = '4px 8px';
-        pluralinp.style.width = '140px';
-        pluralinp.dataset.answer = item.plural.toLowerCase();
-        pluralinp.oninput = function() { liveCheckVocab(this); };
-
-        div.appendChild(en);
-        div.appendChild(arr);
-        div.appendChild(artinp);
-        div.appendChild(wortinp);
-        div.appendChild(pluralinp);
-        cont.appendChild(div);
-      });
-    }
-
-    function liveCheckVocab(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.style.borderBottomColor = '#667eea';
-      inp.style.background = '#fff';
-      if (!val) return;
-      timerAutoStart(3);
-      if (val === ans) {
-        inp.style.borderBottomColor = '#27ae60';
-        inp.style.background = '#e8f5e9';
-        checkAllVocab();
-      } else if (ans.indexOf(val) === 0) {
-        // OK
-      } else {
-        inp.style.borderBottomColor = '#e74c3c';
-        inp.style.background = '#ffebee';
-      }
-    }
-
-    function checkAllVocab() {
-      var cont = document.getElementById('vocab-container');
-      var inps = cont.querySelectorAll('input');
-      var all = Array.from(inps).every(function(i) { return i.style.borderBottomColor === 'rgb(39, 174, 96)'; });
-      if (all) timerStop(3);
-    }
-
-    function showVocab() {
-      var cont = document.getElementById('vocab-container');
-      var inps = cont.querySelectorAll('input');
-      inps.forEach(function(inp) {
-        inp.value = inp.dataset.answer;
-        inp.style.borderBottomColor = '#27ae60';
-        inp.style.background = '#e8f5e9';
-      });
-    }
-
-    function resetVocab() {
-      initVocab();
-    }
-
-    function switchTab(idx) {
-      var tabs = document.querySelectorAll('.tab');
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      document.getElementById('tab' + idx).classList.add('active');
-      var navs = document.querySelectorAll('.nav-tab');
-      navs.forEach(function(n) { n.classList.remove('active'); });
-      event.target.classList.add('active');
-      if (idx === 1 && !document.getElementById('luecke-container').children.length) initLuecken();
-      if (idx === 2 && !document.getElementById('sb-container').children.length) initSB();
-      if (idx === 3 && !document.getElementById('vocab-container').children.length) initVocab();
-    }
-
-    initLuecken();
-    initSB();
-    initVocab();
-  </script>
+  
 </body>
 </html>

@@ -323,24 +323,24 @@ footer {
     <p>B2.1 · Einheit 5 · Kommunikation · Lektion 1054X</p>
   </div>
 
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Vorentlastung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
       <span class="nav-emoji">✏️</span>
       <span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
       <span class="nav-emoji">🔀</span>
       <span class="nav-label">Satzbau</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
       <span class="nav-emoji">📚</span>
       <span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════════════
        TAB 0 — Vorentlastung
@@ -393,10 +393,10 @@ footer {
     <img src="https://images.pexels.com/photos/265667/pexels-photo-265667.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Lückentext Blogs">
     <div class="ctrl-bar">
       <div class="btns">
-        <button class="btn btn-secondary" onclick="resetGap()">↺ Zurücksetzen</button>
+        <div class="btn btn-secondary" onclick="resetGap()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-display"><span>⏱ <span id="timer-1">0:00</span></span><span>🏆 <span id="best-1">--:--</span></span></div>
-    </div>
+      
+</div>
     <ul class="gap-list" id="gapList">
       <li class="gap-item">
         <span class="gap-num">1</span>
@@ -481,10 +481,10 @@ footer {
     <img src="https://images.pexels.com/photos/1591060/pexels-photo-1591060.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Satzbau Blogs">
     <div class="ctrl-bar">
       <div class="btns">
-        <button class="btn btn-secondary" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+        <div class="btn btn-secondary" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
       </div>
-      <div class="timer-display"><span>⏱ <span id="timer-2">0:00</span></span><span>🏆 <span id="best-2">--:--</span></span></div>
-    </div>
+      
+</div>
     <div id="sbContainer"></div>
   </div>
 
@@ -495,10 +495,10 @@ footer {
     <img src="https://images.pexels.com/photos/267569/pexels-photo-267569.jpeg?auto=compress&cs=tinysrgb&w=1000&h=400&fit=crop" class="tab-banner" alt="Wortschatz">
     <div class="ctrl-bar">
       <div class="btns">
-        <button class="btn btn-secondary" onclick="resetVocab()">↺ Zurücksetzen</button>
+        <div class="btn btn-secondary" onclick="resetVocab()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-display"><span>⏱ <span id="timer-3">0:00</span></span><span>🏆 <span id="best-3">--:--</span></span></div>
-    </div>
+      
+</div>
     <div class="vocab-grid" id="vocabContainer">
       <!-- Noun cards (type n): Artikel + Wort + Plural -->
       <!-- Verb cards (type v): Deutsch only -->
@@ -526,12 +526,18 @@ function timerStart(id) {
   st.running = true;
   st.interval = setInterval(() => { st.secs++; updateTimerDisp(id); }, 1000);
 }
-function timerStop(id) {
-  const st = timerState[id]; if (!st) return;
-  clearInterval(st.interval); st.running = false; st.done = true;
-  const best = loadBestTime(id);
-  if (best === null || st.secs < best) saveBestTime(id, st.secs);
-  updateTimerDisp(id);
+function timerStop(id){
+  if(!timerRunning[id]) return;
+  clearInterval(timerIntervals[id]); timerRunning[id]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+id)||'999999');
+  if(timerSeconds[id]>0&&timerSeconds[id]<best){
+    localStorage.setItem(TIMER_PREFIX+id,timerSeconds[id]);
+    var el=document.getElementById('best-'+id);
+    if(el) el.textContent=fmtTime(timerSeconds[id]);
+  }
+  timerSeconds[id]=0; timerStarted[id]=false;
+  var td=document.getElementById('timer-'+id);
+  if(td) td.textContent='0:00';
 }
 function updateTimerDisp(id) {
   const el = document.getElementById('timerDisp'+id); if (!el) return;
@@ -751,7 +757,6 @@ function resetVocab() {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 [1,2,3].forEach(updateTimerDisp);
-var TIMER_PREFIX='B2_1054X_';
 var timerStarted=[false,false,false,false,false,false,false];
 var timerRunning=[false,false,false,false,false,false,false];
 var timerSeconds=[0,0,0,0,0,0,0];
@@ -765,25 +770,11 @@ function timerAutoStart(n){
     if(el) el.textContent=fmtTime(timerSeconds[n]);
   },1000);
 }
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
 function timerResetOne(n){
   clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
   var el=document.getElementById('timer-'+n);
   if(el) el.textContent='0:00';
 }
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
 document.addEventListener('DOMContentLoaded',function(){
   [1,2,3].forEach(function(n){
     var b=localStorage.getItem(TIMER_PREFIX+n);

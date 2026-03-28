@@ -163,20 +163,20 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 </div>
 
 <!-- NAV -->
-<nav class="nav">
-  <button class="nav-btn active" onclick="showSection(0)">
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
     <span class="nav-emoji">💬</span><span class="nav-label">Redemittel</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(1)">
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
     <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(2)">
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
     <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(3)">
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
     <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
-  </button>
-</nav>
+  </div>
+</div>
 
 <!-- TAB 0: REDEMITTEL -->
 <div class="section active" id="sec-0">
@@ -291,7 +291,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
     <h2>🔠 Wortschatz</h2>
     <div class="timer-controls">
       <div class="btn-row">
-        <button class="btn" onclick="resetVocab()">Neu starten</button>
+        <div class="btn" onclick="resetVocab()">Neu starten</button>
       </div>
       <div class="timer-display">
         <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
@@ -399,7 +399,6 @@ function initSatzbau() {
         item.appendChild(fb);
         container.appendChild(item);
     });
-}
 
 function sbChipClick(chip) {
     var zone = chip.parentElement.parentElement.querySelector('.sb-zone');
@@ -533,7 +532,6 @@ function initVocab() {
         card.appendChild(body);
         c.appendChild(card);
     });
-}
 
 function getPexelsUrl(id) {
     var pexels = [3184291, 3184338, 3184292, 3184339, 1181671, 1181406, 3183197, 3184465, 6292009, 1709003, 3184360, 1181690];
@@ -565,6 +563,46 @@ window.addEventListener('DOMContentLoaded', function() {
     initSatzbau();
     initVocab();
 });
-</script>
+var TIMER_PREFIX='B2_2014X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});
+}}</script>
 </body>
 </html>

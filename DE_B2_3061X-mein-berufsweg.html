@@ -228,6 +228,47 @@
 }
 /* ──────────────────────────────────────────────────────────── */
 </style>
+<script>
+var TIMER_PREFIX='B2_3061X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
 </head>
 <body>
   <div class="container">
@@ -316,7 +357,7 @@
       <!-- Tab 1: Lückentext -->
       <div class="tab" id="tab1">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer1">0:00</span>
+          ⏱ <span id="timer-1">0:00</span><span>🏆 <span id="best-1">--:--</span></span>
           <span class="best-time" id="best1"></span>
         </div>
         <div class="btn-row">
@@ -332,7 +373,7 @@
       <!-- Tab 2: Satzbau -->
       <div class="tab" id="tab2">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer2">0:00</span>
+          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span>
           <span class="best-time" id="best2"></span>
         </div>
         <div class="btn-row">
@@ -348,7 +389,7 @@
       <!-- Tab 3: Wortschatz -->
       <div class="tab" id="tab3">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-3">0:00</span>
+          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
           <span class="best-time" id="best-3"></span>
         </div>
         <div class="btn-row">
@@ -368,356 +409,6 @@
     </div>
   </div>
 
-  <script>
-    // MC-System
-    var mcDone = [false, false, false, false];
-    function mcCheck(step, btn, correct) {
-      var btns = btn.parentElement.querySelectorAll('.mc-btn');
-      btns.forEach(function(b) { b.disabled = true; b.classList.remove('correct','wrong'); });
-      var fb = document.getElementById('mcfb' + step);
-      if (correct) {
-        btn.classList.add('correct');
-        fb.textContent = '\u2713 Richtig! Weiter zum nächsten Schritt.';
-        fb.className = 'mc-feedback ok';
-        mcDone[step] = true;
-        document.getElementById('pdot' + step).classList.add('done');
-        setTimeout(function() {
-          var next = document.getElementById('mc-step' + (step + 1));
-          if (next) { next.classList.add('active'); }
-          else { document.getElementById('regelkarte').style.display = 'block'; }
-        }, 700);
-      } else {
-        btn.classList.add('wrong');
-        fb.textContent = '\u2717 Nicht ganz — schau nochmal genau hin und versuche es erneut.';
-        fb.className = 'mc-feedback err';
-        setTimeout(function() {
-          btns.forEach(function(b) { b.disabled = false; b.classList.remove('wrong','correct'); });
-          fb.textContent = '';
-          fb.className = 'mc-feedback';
-        }, 1400);
-      }
-    }
-
-    // Direct Feedback: liveCheck
-    function liveCheck(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-        checkLueckenAllOk(inp.dataset.tabidx);
-      } else if (ans.indexOf(val) === 0) {
-        // gültiger Präfix — neutral
-      } else {
-        inp.classList.add('wrong');
-      }
-    }
-
-    function showHint(inp) {
-      var next = inp.nextElementSibling;
-      if (next && next.classList.contains('correction-hint')) next.remove();
-      if (!inp.classList.contains('correct')) {
-        var hint = document.createElement('span');
-        hint.className = 'correction-hint';
-        hint.textContent = inp.dataset.answer;
-        inp.insertAdjacentElement('afterend', hint);
-      }
-      inp.value = inp.dataset.answer;
-      inp.classList.add('correct');
-      inp.classList.remove('wrong');
-    }
-
-    // Lückentext
-    var lueckenData = {
-      1: [
-        { text: 'Nach der Schule habe ich eine Ausbildung als Kauffrau <input class="blank" data-answer="begonnen" data-tabidx="1" oninput="liveCheck(this)" />.', ans: 'begonnen' },
-        { text: 'Ich bin <input class="blank" data-answer="aufgestiegen" data-tabidx="1" oninput="liveCheck(this)" /> und habe schon Teamleiter-Erfahrung.', ans: 'aufgestiegen' },
-        { text: 'Seit fünf Jahren <input class="blank" data-answer="arbeite" data-tabidx="1" oninput="liveCheck(this)" /> ich in diesem Unternehmen.', ans: 'arbeite' },
-        { text: 'Ich bin zur Projektmanagerin <input class="blank" data-answer="befördert" data-tabidx="1" oninput="liveCheck(this)" /> worden.', ans: 'befördert' },
-        { text: 'Eine <input class="blank" data-answer="Weiterbildung" data-tabidx="1" oninput="liveCheck(this)" /> im Marketing hat mir neue Chancen eröffnet.', ans: 'weiterbildung' },
-        { text: 'Der <input class="blank" data-answer="Berufswechsel" data-tabidx="1" oninput="liveCheck(this)" /> war für mich sehr wichtig.', ans: 'berufswechsel' },
-        { text: 'Ich habe meine <input class="blank" data-answer="Qualifikationen" data-tabidx="1" oninput="liveCheck(this)" /> durch verschiedene Kurse verbessert.', ans: 'qualifikationen' },
-        { text: 'Meine erste <input class="blank" data-answer="Arbeitsstelle" data-tabidx="1" oninput="liveCheck(this)" /> war bei einer kleinen Firma.', ans: 'arbeitsstelle' }
-      ]
-    };
-
-    function initLuecken() {
-      var cont = document.getElementById('luecke-container1');
-      cont.innerHTML = '';
-      lueckenData[1].forEach(function(item) {
-        var div = document.createElement('div');
-        div.className = 'luecke-satz';
-        div.innerHTML = item.text;
-        cont.appendChild(div);
-      });
-    }
-
-    function showLueckenLoesung(tabidx) {
-      var cont = document.getElementById('luecke-container' + tabidx);
-      var inputs = cont.querySelectorAll('input.blank');
-      inputs.forEach(function(inp) {
-        showHint(inp);
-      });
-    }
-
-    function resetLuecken(tabidx) {
-      initLuecken();
-    }
-
-    function checkLueckenAllOk(tabidx) {
-      var cont = document.getElementById('luecke-container' + tabidx);
-      if (!cont) return;
-      var inputs = cont.querySelectorAll('input.blank');
-      var all = Array.from(inputs).every(function(inp) { return inp.classList.contains('correct'); });
-      if (all) stopTimer(tabidx);
-    }
-
-    // Satzbau
-    var sbData = {
-      2: [
-        {
-          satz: 'Ich bin in der Firma aufgestiegen und habe neue Verantwortung übernommen .',
-          chips: ['Ich', 'bin', 'in', 'der', 'Firma', 'aufgestiegen', 'und', 'habe', 'neue', 'Verantwortung', 'übernommen', '.'],
-          correct: ['Ich', 'bin', 'in', 'der', 'Firma', 'aufgestiegen', 'und', 'habe', 'neue', 'Verantwortung', 'übernommen', '.']
-        },
-        {
-          satz: 'Nach meiner Ausbildung habe ich sofort angefangen zu arbeiten .',
-          chips: ['Nach', 'meiner', 'Ausbildung', 'habe', 'ich', 'sofort', 'angefangen', 'zu', 'arbeiten', '.'],
-          correct: ['Nach', 'meiner', 'Ausbildung', 'habe', 'ich', 'sofort', 'angefangen', 'zu', 'arbeiten', '.']
-        },
-        {
-          satz: 'Eine Weiterbildung hat mir geholfen in meinen Karriereziele zu erreichen .',
-          chips: ['Eine', 'Weiterbildung', 'hat', 'mir', 'geholfen', 'in', 'meinen', 'Karriereziele', 'zu', 'erreichen', '.'],
-          correct: ['Eine', 'Weiterbildung', 'hat', 'mir', 'geholfen', 'in', 'meinen', 'Karriereziele', 'zu', 'erreichen', '.']
-        },
-        {
-          satz: 'Mein Vorgesetzter hat mir ein besseres Gehalt angeboten .',
-          chips: ['Mein', 'Vorgesetzter', 'hat', 'mir', 'ein', 'besseres', 'Gehalt', 'angeboten', '.'],
-          correct: ['Mein', 'Vorgesetzter', 'hat', 'mir', 'ein', 'besseres', 'Gehalt', 'angeboten', '.']
-        },
-        {
-          satz: 'Ich bin zur Leiterin befördert worden weil ich gute Ergebnisse erreicht habe .',
-          chips: ['Ich', 'bin', 'zur', 'Leiterin', 'befördert', 'worden', 'weil', 'ich', 'gute', 'Ergebnisse', 'erreicht', 'habe', '.'],
-          correct: ['Ich', 'bin', 'zur', 'Leiterin', 'befördert', 'worden', 'weil', 'ich', 'gute', 'Ergebnisse', 'erreicht', 'habe', '.']
-        }
-      ]
-    };
-
-    var sbDragged = null;
-
-    function initSatzbau() {
-      var cont = document.getElementById('sb-container2');
-      cont.innerHTML = '';
-      sbData[2].forEach(function(item, idx) {
-        var div = document.createElement('div');
-        div.className = 'sb-satz';
-        var bank = document.createElement('div');
-        bank.className = 'chip-bank';
-        var shuffled = item.chips.slice().sort(function() { return Math.random() - 0.5; });
-        shuffled.forEach(function(word) {
-          var chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.textContent = word;
-          chip.draggable = true;
-          chip.dataset.satzidx = idx;
-          chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
-          chip.addEventListener('dragend', colorAllSbChips);
-          bank.appendChild(chip);
-        });
-        div.appendChild(bank);
-
-        var dropzone = document.createElement('div');
-        dropzone.className = 'drop-row';
-        dropzone.dataset.satzidx = idx;
-        dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
-        dropzone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
-        dropzone.addEventListener('drop', function(e) { e.preventDefault(); this.classList.remove('dragover'); if (sbDragged) { this.appendChild(sbDragged); } });
-        div.appendChild(dropzone);
-        cont.appendChild(div);
-      });
-    }
-
-    function colorAllSbChips() {
-      var szs = document.querySelectorAll('[data-satzidx]');
-      szs.forEach(function(sz) { colorSbChips(sz.dataset.satzidx); });
-    }
-
-    function colorSbChips(satzidx) {
-      var dropz = document.querySelector('.drop-row[data-satzidx="' + satzidx + '"]');
-      if (!dropz) return;
-      var chips = dropz.querySelectorAll('.chip');
-      var chipTexts = Array.from(chips).map(function(c) { return c.textContent; });
-      var correctTexts = sbData[2][satzidx].correct.map(function(c) { return c; });
-      var isCorrect = chipTexts.length === correctTexts.length && chipTexts.every(function(t, i) { return t === correctTexts[i]; });
-      chips.forEach(function(chip) {
-        chip.classList.remove('correct', 'wrong');
-        if (isCorrect) chip.classList.add('correct');
-        else if (chips.length > 0) chip.classList.add('wrong');
-      });
-      if (isCorrect) timerStop(2);
-    }
-
-    function showSatzbauLoesung(tabidx) {
-      sbData[tabidx].forEach(function(item, idx) {
-        var dropz = document.querySelector('.drop-row[data-satzidx="' + idx + '"]');
-        dropz.innerHTML = '';
-        item.correct.forEach(function(word) {
-          var chip = document.createElement('div');
-          chip.className = 'chip correct';
-          chip.textContent = word;
-          dropz.appendChild(chip);
-        });
-      });
-    }
-
-    function resetSatzbau(tabidx) {
-      initSatzbau();
-    }
-
-    // Wortschatz
-    var vocabData = [
-      { en: 'career', type: 'n', art: 'die', wort: 'Karriere', plural: 'Karrieren' },
-      { en: 'qualification', type: 'n', art: 'die', wort: 'Qualifikation', plural: 'Qualifikationen' },
-      { en: 'experience', type: 'n', art: 'die', wort: 'Erfahrung', plural: 'Erfahrungen' },
-      { en: 'internship', type: 'n', art: 'das', wort: 'Praktikum', plural: 'Praktika' },
-      { en: 'training', type: 'n', art: 'die', wort: 'Weiterbildung', plural: 'Weiterbildungen' },
-      { en: 'career step', type: 'n', art: 'der', wort: 'Karriereschritt', plural: 'Karriereschritte' }
-    ];
-
-    function initVocab() {
-      var cont = document.getElementById('vocabContainer');
-      cont.innerHTML = '';
-      vocabData.forEach(function(item, idx) {
-        var div = document.createElement('div');
-        div.className = 'vocab-item';
-        div.dataset.vocidx = idx;
-
-        var en = document.createElement('div');
-        en.className = 'vocab-en';
-        en.textContent = item.en;
-
-        var arr = document.createElement('div');
-        arr.className = 'vocab-arrow';
-        arr.textContent = '→';
-
-        var inputs = document.createElement('div');
-        inputs.className = 'vocab-inputs';
-
-        if (item.type === 'n') {
-          var artinp = document.createElement('input');
-          artinp.className = 'art';
-          artinp.dataset.answer = item.art;
-          artinp.dataset.vocidx = idx;
-          artinp.oninput = function() { liveCheck(this); };
-          inputs.appendChild(artinp);
-
-          var wortinp = document.createElement('input');
-          wortinp.className = 'wort';
-          wortinp.dataset.answer = item.wort.toLowerCase();
-          wortinp.dataset.vocidx = idx;
-          wortinp.oninput = function() { liveCheck(this); };
-          inputs.appendChild(wortinp);
-
-          var plurinp = document.createElement('input');
-          plurinp.className = 'plural';
-          plurinp.dataset.answer = item.plural.toLowerCase();
-          plurinp.dataset.vocidx = idx;
-          plurinp.oninput = function() { liveCheck(this); };
-          inputs.appendChild(plurinp);
-        } else {
-          var wortinp = document.createElement('input');
-          wortinp.className = 'wort';
-          wortinp.dataset.answer = item.wort.toLowerCase();
-          wortinp.dataset.vocidx = idx;
-          wortinp.oninput = function() { liveCheck(this); };
-          inputs.appendChild(wortinp);
-        }
-
-        div.appendChild(en);
-        div.appendChild(arr);
-        div.appendChild(inputs);
-        cont.appendChild(div);
-      });
-    }
-
-    function showVocabLoesung() {
-      var cont = document.getElementById('vocabContainer');
-      var inps = cont.querySelectorAll('input');
-      inps.forEach(function(inp) {
-        showHint(inp);
-      });
-    }
-
-    function resetVocab() {
-      initVocab();
-    }
-
-    function checkVocabAllOk() {
-      var cont = document.getElementById('vocabContainer');
-      var inps = cont.querySelectorAll('input');
-      var all = Array.from(inps).every(function(inp) { return inp.classList.contains('correct'); });
-      if (all) timerStop(3);
-    }
-
-    // Tab Switching
-    function switchTab(tabidx, _) {
-      var tabs = document.querySelectorAll('.tab');
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      document.getElementById('tab' + tabidx).classList.add('active');
-
-      var navs = document.querySelectorAll('.nav-tab');
-      navs.forEach(function(n) { n.classList.remove('active'); });
-      event.target.classList.add('active');
-
-      if (tabidx === 1 && !document.getElementById('luecke-container1').children.length) initLuecken();
-      if (tabidx === 2 && !document.getElementById('sb-container2').children.length) initSatzbau();
-      if (tabidx === 3 && !document.getElementById('vocabContainer').children.length) initVocab();
-    }
-
-    // Timer System
-    var timerState = [false, false, false, false];
-    var timerIntervals = [null, null, null, null];
-    var bestTimes = [null, null, null, null];
-    var TIMER_PREFIX='B2_3061X_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [3].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-  </script>
+  
 </body>
 </html>

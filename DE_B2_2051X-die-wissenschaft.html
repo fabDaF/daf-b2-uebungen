@@ -129,12 +129,12 @@ footer a{color:#aaa}
   <h1>Die Wissenschaft</h1>
   <p>B2.2 · Einheit 5 · Extra-Übungen · 2051X</p>
 </header>
-<nav class="nav">
-  <button class="nav-btn active" onclick="showTab('einstieg',this)"><span class="nav-emoji">🔬</span><span class="nav-label">Einstieg</span></button>
-  <button class="nav-btn" onclick="showTab('lueckentext',this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button>
-  <button class="nav-btn" onclick="showTab('satzbau',this)"><span class="nav-emoji">🔧</span><span class="nav-label">Satzbau</span></button>
-  <button class="nav-btn" onclick="showTab('wortschatz',this)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></button>
-</nav>
+<div class="nav">
+  <div class="nav-btn active" onclick="showTab('einstieg',this)"><span class="nav-emoji">🔬</span><span class="nav-label">Einstieg</span></div>
+  <div class="nav-btn" onclick="showTab('lueckentext',this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+  <div class="nav-btn" onclick="showTab('satzbau',this)"><span class="nav-emoji">🔧</span><span class="nav-label">Satzbau</span></div>
+  <div class="nav-btn" onclick="showTab('wortschatz',this)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+</div>
 
 <!-- Tab 1: Einstieg -->
 <div id="tab-einstieg" class="tab active">
@@ -168,11 +168,11 @@ footer a{color:#aaa}
   <h2>✏️ Lückentext: Wissenschaftliche Methode</h2>
   <div class="control-bar">
     <div style="display:flex;gap:6px">
-      <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
-      <button class="btn" onclick="resetLuecken()">Neu starten</button>
+      <div class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+      <div class="btn" onclick="resetLuecken()">Neu starten</button>
     </div>
-    <div class="timer-display">⏱ <span id="timer-lt">00:00</span> &nbsp; 🏆 <span id="best-lt">--:--</span></div>
-  </div>
+    
+</div>
   <div class="info-box" style="font-size:.88rem">Setzen Sie das passende Wort in die Lücken ein. Live-Feedback bei jeder Eingabe.</div>
 
   <div class="uebung-block">
@@ -207,11 +207,11 @@ footer a{color:#aaa}
   <h2>🔧 Satzbau: Wissenschaftliche Formulierungen</h2>
   <div class="control-bar">
     <div style="display:flex;gap:6px">
-      <button class="btn" onclick="sbShowAll()">Alle lösen</button>
-      <button class="btn" onclick="initSatzbau()">Neu starten</button>
+      <div class="btn" onclick="sbShowAll()">Alle lösen</button>
+      <div class="btn" onclick="initSatzbau()">Neu starten</button>
     </div>
-    <div class="timer-display">⏱ <span id="timer-sb">00:00</span> &nbsp; 🏆 <span id="best-sb">--:--</span></div>
-  </div>
+    
+</div>
   <div id="satzbauContainer"></div>
 </div>
 
@@ -221,11 +221,11 @@ footer a{color:#aaa}
   <h2>📚 Wortschatz: Wissenschaft &amp; Forschung</h2>
   <div class="control-bar">
     <div style="display:flex;gap:6px">
-      <button class="btn" onclick="showWsLoesung()">Lösungen</button>
-      <button class="btn" onclick="resetWs()">Neu starten</button>
+      <div class="btn" onclick="showWsLoesung()">Lösungen</button>
+      <div class="btn" onclick="resetWs()">Neu starten</button>
     </div>
-    <div class="timer-display">⏱ <span id="timer-ws">00:00</span> &nbsp; 🏆 <span id="best-ws">--:--</span></div>
-  </div>
+    
+</div>
   <div class="info-box" style="font-size:.88rem">Übersetzen Sie die Wörter. Bei Nomen: Artikel + Wort + Plural eingeben.</div>
   <div id="wsContainer" class="ws-grid"></div>
 </div>
@@ -256,12 +256,17 @@ function timerStart(k){
   },1000);
 }
 function timerStop(k){
-  if(!timers[k].int) return;
-  clearInterval(timers[k].int); timers[k].int=null;
-  if(!timers[k].best || timers[k].s < timers[k].best){
-    timers[k].best = timers[k].s;
-    document.getElementById('best-'+k).textContent = fmtTime(timers[k].best);
+  if(!timerRunning[k]) return;
+  clearInterval(timerIntervals[k]); timerRunning[k]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+k)||'999999');
+  if(timerSeconds[k]>0&&timerSeconds[k]<best){
+    localStorage.setItem(TIMER_PREFIX+k,timerSeconds[k]);
+    var el=document.getElementById('best-'+k);
+    if(el) el.textContent=fmtTime(timerSeconds[k]);
   }
+  timerSeconds[k]=0; timerStarted[k]=false;
+  var td=document.getElementById('timer-'+k);
+  if(td) td.textContent='0:00';
 }
 function timerReset(k){ clearInterval(timers[k].int); timers[k].int=null; timers[k].s=0; document.getElementById('timer-'+k).textContent='00:00'; }
 
@@ -356,31 +361,17 @@ function timerAutoStart(n){
     if(el) el.textContent=fmtTime(timerSeconds[n]);
   },1000);
 }
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
 function timerResetOne(n){
   clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
   var el=document.getElementById('timer-'+n);
   if(el) el.textContent='0:00';
 }
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
 document.addEventListener('DOMContentLoaded',function(){
   [1,2,3].forEach(function(n){
     var b=localStorage.getItem(TIMER_PREFIX+n);
     if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
-});
-</script>
+
+});</script>
 </body>
 </html>

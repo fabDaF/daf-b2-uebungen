@@ -380,24 +380,24 @@ nav{
   </div>
 
   <!-- NAV -->
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Vorentlastung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
       <span class="nav-emoji">📝</span>
       <span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
       <span class="nav-emoji">🧩</span>
       <span class="nav-label">Satzbau</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
       <span class="nav-emoji">📚</span>
       <span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- TAB 1: VORENTLASTUNG -->
   <div class="section active" id="tab-0">
@@ -453,10 +453,10 @@ nav{
 
     <div class="control-bar">
       <div class="btns">
-        <button class="ctrl-btn btn-reset" onclick="resetLuecken()">↺ Reset</button>
+        <div class="ctrl-btn btn-reset" onclick="resetLuecken()">↺ Reset</button>
       </div>
       <div class="timer-box">
-        ⏱ <span id="timer-1" class="timer-display">0:00</span>
+        ⏱ <span id="timer-1" class="timer-display">0:00<span>🏆 <span id="best-1">--:--</span></span></span>
         🏆 <span id="best-1" class="best-display">–</span>
       </div>
     </div>
@@ -560,11 +560,11 @@ nav{
 
     <div class="control-bar">
       <div class="btns">
-        <button class="ctrl-btn btn-reset" onclick="sbReset()">↺ Reset</button>
-        <button class="ctrl-btn btn-next" onclick="sbNext()">→ Nächste</button>
+        <div class="ctrl-btn btn-reset" onclick="sbReset()">↺ Reset</button>
+        <div class="ctrl-btn btn-next" onclick="sbNext()">→ Nächste</button>
       </div>
       <div class="timer-box">
-        ⏱ <span id="timer-2" class="timer-display">0:00</span>
+        ⏱ <span id="timer-2" class="timer-display">0:00<span>🏆 <span id="best-2">--:--</span></span></span>
         🏆 <span id="best-2" class="best-display">–</span>
       </div>
     </div>
@@ -585,10 +585,10 @@ nav{
 
     <div class="control-bar">
       <div class="btns">
-        <button class="ctrl-btn btn-reset" onclick="vocabReset()">↺ Reset</button>
+        <div class="ctrl-btn btn-reset" onclick="vocabReset()">↺ Reset</button>
       </div>
       <div class="timer-box">
-        ⏱ <span id="timer-3" class="timer-display">0:00</span>
+        ⏱ <span id="timer-3" class="timer-display">0:00<span>🏆 <span id="best-3">--:--</span></span></span>
         🏆 <span id="best-3" class="best-display">–</span>
       </div>
     </div>
@@ -603,8 +603,45 @@ nav{
 
 <script>
 /* ===== TIMER SYSTEM ===== */
-const TIMER_PREFIX = 'B2_1014X_';
-const timers = {};
+var TIMER_PREFIX='B2_1014X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+      var b1=localStorage.getItem(TIMER_PREFIX+1); if(b1){ var el1=document.getElementById('best-'+1); if(el1) el1.textContent=fmtTime(parseInt(b1)); }
+      var b2=localStorage.getItem(TIMER_PREFIX+2); if(b2){ var el2=document.getElementById('best-'+2); if(el2) el2.textContent=fmtTime(parseInt(b2)); }
+      var b3=localStorage.getItem(TIMER_PREFIX+3); if(b3){ var el3=document.getElementById('best-'+3); if(el3) el3.textContent=fmtTime(parseInt(b3)); }
+});
+
 
 function timerTick(n) {
   if (!timers[n] || !timers[n].running) return;
@@ -614,28 +651,6 @@ function timerTick(n) {
   const el = document.getElementById('timer-' + n);
   if (el) el.textContent = m + ':' + String(s).padStart(2, '0');
   timers[n].handle = setTimeout(() => timerTick(n), 1000);
-}
-function timerAutoStart(n) {
-  if (!timers[n]) timers[n] = { elapsed: 0, running: false, handle: null };
-  if (timers[n].running) return;
-  timers[n].running = true;
-  timerTick(n);
-}
-function timerStop(n) {
-  if (!timers[n] || !timers[n].running) return;
-  timers[n].running = false;
-  clearTimeout(timers[n].handle);
-  const key = TIMER_PREFIX + n;
-  const prev = localStorage.getItem(key);
-  if (!prev || timers[n].elapsed < parseInt(prev)) {
-    localStorage.setItem(key, timers[n].elapsed);
-    loadBestTimes();
-  }
-}
-function timerResetOne(n) {
-  if (timers[n]) { timers[n].running = false; clearTimeout(timers[n].handle); timers[n].elapsed = 0; }
-  const el = document.getElementById('timer-' + n);
-  if (el) el.textContent = '0:00';
 }
 function loadBestTimes() {
   [1, 2, 3].forEach(n => {
@@ -653,9 +668,8 @@ loadBestTimes();
 function showTab(n) {
   document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === n));
   document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === n));
-  if (n === 1) timerAutoStart(1);
-  if (n === 2) { sbInit(); timerAutoStart(2); }
-  if (n === 3) { renderVocab(); timerAutoStart(3); }
+if (n === 2) { sbInit(); }
+  if (n === 3) { renderVocab(); }
 }
 
 /* ===== LÜCKENTEXT ===== */
@@ -872,7 +886,6 @@ function renderVocab() {
       </div>`;
     grid.appendChild(card);
   });
-}
 
 function vocabLiveCheck(inp) {
   const ans = inp.dataset.answer;
@@ -901,6 +914,7 @@ function vocabReset() {
   timerResetOne(3);
   timerAutoStart(3);
 }
-</script>
+
+}}</script>
 </body>
 </html>
