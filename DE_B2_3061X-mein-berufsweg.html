@@ -124,7 +124,14 @@
       padding: 12px; background: #f8f9fa;
       border-radius: 10px; margin-bottom: 14px; min-height: 54px;
     }
+    .drop-row {
+      display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px;
+      padding: 8px 10px; border-radius: 8px;
+      border: 2px dashed #c5cae9; background: #fafbff;
+    }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
     .chip.comma-chip { padding: 8px 8px; min-width: 24px; font-weight: 700; font-size: 1.1em; }
+    .drop-row .chip.comma-chip { margin-left: -4px; }
 
     /* Timer & Buttons */
     .timer-row {
@@ -220,21 +227,6 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-
-/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
-.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
-.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
-.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
-.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
-.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
-.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
-.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
-.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
-.satzbau-feedback.correct { color: #27ae60; }
-.satzbau-feedback.incorrect { color: #e74c3c; }
-.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
-.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
-.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
 </style>
 </head>
 <body>
@@ -329,7 +321,7 @@
         </div>
         <div class="btn-row">
           <button class="btn btn-show" onclick="showLueckenLoesung(1)">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetLuecken(1); resetTimer(1);">Neu starten</button>
+          <button class="btn btn-reset" onclick="resetLuecken(1); timerResetOne(1);">Neu starten</button>
         </div>
         <div class="help-box">
           <strong>Aufgabe:</strong> Fülle die Lücken aus. Nutze Verben und Ausdrücke zum Berufsweg!
@@ -344,24 +336,24 @@
           <span class="best-time" id="best2"></span>
         </div>
         <div class="btn-row">
-          <button class="btn btn-show" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i);})">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetSatzbau(2); resetTimer(2);">Neu starten</button>
+          <button class="btn btn-show" onclick="showSatzbauLoesung(2)">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetSatzbau(2); timerResetOne(2);">Neu starten</button>
         </div>
         <div class="help-box">
           <strong>Aufgabe:</strong> Ordne die Satzteile in die richtige Reihenfolge!
         </div>
-        <div id="satzbauContainer"></div>
+        <div id="sb-container2"></div>
       </div>
 
       <!-- Tab 3: Wortschatz -->
       <div class="tab" id="tab3">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer3">0:00</span>
-          <span class="best-time" id="best3"></span>
+          ⏱ <span class="timer-display" id="timer-3">0:00</span>
+          <span class="best-time" id="best-3"></span>
         </div>
         <div class="btn-row">
           <button class="btn btn-show" onclick="showVocabLoesung()">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetVocab(); resetTimer(3);">Neu starten</button>
+          <button class="btn btn-reset" onclick="resetVocab(); timerResetOne(3);">Neu starten</button>
         </div>
         <div class="help-box">
           <strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche. Bei Nomen: Artikel + Wort + Plural!
@@ -481,236 +473,107 @@
       if (all) stopTimer(tabidx);
     }
 
-    
-var satzbauData = [
-    { parts: ['Ich', 'bin', 'in', 'der', 'Firma', 'aufgestiegen', 'und', 'habe', 'neue', 'Verantwortung', 'übernommen'],
-      valid: [['Ich', 'bin', 'in', 'der', 'Firma', 'aufgestiegen', 'und', 'habe', 'neue', 'Verantwortung', 'übernommen']],
-      punct: '.' },
-    { parts: ['Nach', 'meiner', 'Ausbildung', 'habe', 'ich', 'sofort', 'angefangen', 'zu', 'arbeiten'],
-      valid: [['Nach', 'meiner', 'Ausbildung', 'habe', 'ich', 'sofort', 'angefangen', 'zu', 'arbeiten']],
-      punct: '.' },
-    { parts: ['Eine', 'Weiterbildung', 'hat', 'mir', 'geholfen', 'in', 'meinen', 'Karriereziele', 'zu', 'erreichen'],
-      valid: [['Eine', 'Weiterbildung', 'hat', 'mir', 'geholfen', 'in', 'meinen', 'Karriereziele', 'zu', 'erreichen']],
-      punct: '.' },
-    { parts: ['Mein', 'Vorgesetzter', 'hat', 'mir', 'ein', 'besseres', 'Gehalt', 'angeboten'],
-      valid: [['Mein', 'Vorgesetzter', 'hat', 'mir', 'ein', 'besseres', 'Gehalt', 'angeboten']],
-      punct: '.' },
-    { parts: ['Ich', 'bin', 'zur', 'Leiterin', 'befördert', 'worden', 'weil', 'ich', 'gute', 'Ergebnisse', 'erreicht', 'habe'],
-      valid: [['Ich', 'bin', 'zur', 'Leiterin', 'befördert', 'worden', 'weil', 'ich', 'gute', 'Ergebnisse', 'erreicht', 'habe']],
-      punct: '.' }
-];
-
-/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
-
-var sbDragged = null;
-
-function getSbCursor() {
-    var c = document.getElementById('sb-insert-cursor');
-    if (!c) {
-        c = document.createElement('div');
-        c.id = 'sb-insert-cursor';
-        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
-    }
-    return c;
-}
-function getSbInsertPos(zone, clientX) {
-    var chips = Array.from(zone.querySelectorAll('.chip'));
-    for (var i = 0; i < chips.length; i++) {
-        var r = chips[i].getBoundingClientRect();
-        if (clientX < r.left + r.width / 2) return chips[i];
-    }
-    return null;
-}
-function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-function sbUpdateCapitalization(row) {
-    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
-        var orig = c.dataset.orig;
-        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
-                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
-        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
-    });
-}
-function sbMakeChip(word) {
-    var chip = document.createElement('div');
-    chip.className = 'chip';
-    chip.textContent = word;
-    chip.dataset.orig = word;
-    chip.draggable = true;
-    chip.addEventListener('dragstart', function(e) {
-        sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
-        e.dataTransfer.setData('text/plain', '');
-        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
-    });
-    chip.addEventListener('dragend', function() {
-        chip.style.opacity = '';
-        sbDragged = null;
-        var c = document.getElementById('sb-insert-cursor');
-        if (c && c.parentNode) c.parentNode.removeChild(c);
-    });
-    return chip;
-}
-function sbRegisterZone(zone, idx) {
-    zone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        if (!sbDragged) return;
-        var cursor = getSbCursor();
-        var before = getSbInsertPos(zone, e.clientX);
-        if (before) zone.insertBefore(cursor, before);
-        else zone.appendChild(cursor);
-    });
-    zone.addEventListener('dragleave', function(e) {
-        if (!zone.contains(e.relatedTarget)) {
-            var c = document.getElementById('sb-insert-cursor');
-            if (c && c.parentNode === zone) zone.removeChild(c);
+    // Satzbau
+    var sbData = {
+      2: [
+        {
+          satz: 'Ich bin in der Firma aufgestiegen und habe neue Verantwortung übernommen .',
+          chips: ['Ich', 'bin', 'in', 'der', 'Firma', 'aufgestiegen', 'und', 'habe', 'neue', 'Verantwortung', 'übernommen', '.'],
+          correct: ['Ich', 'bin', 'in', 'der', 'Firma', 'aufgestiegen', 'und', 'habe', 'neue', 'Verantwortung', 'übernommen', '.']
+        },
+        {
+          satz: 'Nach meiner Ausbildung habe ich sofort angefangen zu arbeiten .',
+          chips: ['Nach', 'meiner', 'Ausbildung', 'habe', 'ich', 'sofort', 'angefangen', 'zu', 'arbeiten', '.'],
+          correct: ['Nach', 'meiner', 'Ausbildung', 'habe', 'ich', 'sofort', 'angefangen', 'zu', 'arbeiten', '.']
+        },
+        {
+          satz: 'Eine Weiterbildung hat mir geholfen in meinen Karriereziele zu erreichen .',
+          chips: ['Eine', 'Weiterbildung', 'hat', 'mir', 'geholfen', 'in', 'meinen', 'Karriereziele', 'zu', 'erreichen', '.'],
+          correct: ['Eine', 'Weiterbildung', 'hat', 'mir', 'geholfen', 'in', 'meinen', 'Karriereziele', 'zu', 'erreichen', '.']
+        },
+        {
+          satz: 'Mein Vorgesetzter hat mir ein besseres Gehalt angeboten .',
+          chips: ['Mein', 'Vorgesetzter', 'hat', 'mir', 'ein', 'besseres', 'Gehalt', 'angeboten', '.'],
+          correct: ['Mein', 'Vorgesetzter', 'hat', 'mir', 'ein', 'besseres', 'Gehalt', 'angeboten', '.']
+        },
+        {
+          satz: 'Ich bin zur Leiterin befördert worden weil ich gute Ergebnisse erreicht habe .',
+          chips: ['Ich', 'bin', 'zur', 'Leiterin', 'befördert', 'worden', 'weil', 'ich', 'gute', 'Ergebnisse', 'erreicht', 'habe', '.'],
+          correct: ['Ich', 'bin', 'zur', 'Leiterin', 'befördert', 'worden', 'weil', 'ich', 'gute', 'Ergebnisse', 'erreicht', 'habe', '.']
         }
-    });
-    zone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        if (!sbDragged) return;
-        var cursor = document.getElementById('sb-insert-cursor');
-        if (cursor && cursor.parentNode === zone) {
-            zone.insertBefore(sbDragged, cursor);
-            zone.removeChild(cursor);
-        } else { zone.appendChild(sbDragged); }
-        sbDragged = null;
-        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
-        sbCheckAuto(idx);
-    });
-}
-function sbColorRow(idx) {
-    var row = document.getElementById('sb-row-' + idx);
-    var chips = Array.from(row.querySelectorAll('.chip'));
-    var order = chips.map(function(c) { return c.dataset.orig; });
-    var ok = satzbauData[idx].valid.some(function(v) {
-        return JSON.stringify(v) === JSON.stringify(order);
-    });
-    chips.forEach(function(c) {
-        c.classList.remove('correct', 'incorrect');
-        c.classList.add(ok ? 'correct' : 'incorrect');
-    });
-    var existing = row.querySelector('.sb-punkt');
-    if (existing) existing.parentNode.removeChild(existing);
-    if (ok) {
-        var punkt = document.createElement('span');
-        punkt.className = 'sb-punkt';
-        punkt.textContent = satzbauData[idx].punct || '.';
-        row.appendChild(punkt);
-    }
-    return ok;
-}
-function sbCheckAuto(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-' + idx);
-    var fb   = document.getElementById('sb-fb-' + idx);
-    if (bank.querySelectorAll('.chip').length > 0) {
-        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
-        row.classList.remove('correct', 'incorrect');
-        fb.textContent = '';
-        return;
-    }
-    setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
-        var ok = sbColorRow(idx);
-        if (ok) {
-            row.classList.add('correct'); row.classList.remove('incorrect');
-            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
-            sbCheckAllDone();
-        } else {
-            row.classList.add('incorrect'); row.classList.remove('correct');
-            fb.className = 'satzbau-feedback incorrect';
-            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
-        }
-    }, 500);
-}
-function sbCheckAllDone() {
-    var allOk = satzbauData.every(function(_, i) {
-        var row = document.getElementById('sb-row-' + i);
-        return row && row.classList.contains('correct');
-    });
-    if (allOk && typeof timerStop === 'function') timerStop(3);
-}
-function sbShowSolution(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-' + idx);
-    var fb   = document.getElementById('sb-fb-' + idx);
-    var solution = satzbauData[idx].valid[0];
-    var allChips = {};
-    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
-    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
-    while (bank.firstChild) bank.removeChild(bank.firstChild);
-    while (row.firstChild)  row.removeChild(row.firstChild);
-    solution.forEach(function(word, i) {
-        var chip = allChips[word];
-        if (chip) {
-            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
-            chip.classList.remove('correct', 'incorrect');
-            row.appendChild(chip);
-        }
-    });
-    fb.textContent = '';
-    setTimeout(function() { sbCheckAuto(idx); }, 100);
-}
-function sbResetOne(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-'  + idx);
-    var fb   = document.getElementById('sb-fb-'   + idx);
-    while (bank.firstChild) bank.removeChild(bank.firstChild);
-    while (row.firstChild)  row.removeChild(row.firstChild);
-    row.classList.remove('correct', 'incorrect');
-    fb.textContent = ''; fb.className = 'satzbau-feedback';
-    var existing = row.querySelector('.sb-punkt');
-    if (existing) existing.parentNode.removeChild(existing);
-    var parts = satzbauData[idx].parts.slice();
-    for (var i = parts.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-    }
-    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
-}
-function initSatzbau() {
-    var container = document.getElementById('satzbauContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    satzbauData.forEach(function(ex, idx) {
-        var item = document.createElement('div');
-        item.className = 'satzbau-item';
+      ]
+    };
+
+    var sbDragged = null;
+
+    function initSatzbau() {
+      var cont = document.getElementById('sb-container2');
+      cont.innerHTML = '';
+      sbData[2].forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'sb-satz';
         var bank = document.createElement('div');
-        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
-        var row = document.createElement('div');
-        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
-        var fb = document.createElement('div');
-        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
-        var parts = ex.parts.slice();
-        for (var i = parts.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-        }
-        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
-        sbRegisterZone(bank, idx);
-        sbRegisterZone(row, idx);
-        var btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
-        var solveBtn = document.createElement('button');
-        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
-        solveBtn.setAttribute('data-idx', idx);
-        solveBtn.addEventListener('click', function() {
-            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        bank.className = 'chip-bank';
+        var shuffled = item.chips.slice().sort(function() { return Math.random() - 0.5; });
+        shuffled.forEach(function(word) {
+          var chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = word;
+          chip.draggable = true;
+          chip.dataset.satzidx = idx;
+          chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
+          chip.addEventListener('dragend', colorAllSbChips);
+          bank.appendChild(chip);
         });
-        var resetBtn = document.createElement('button');
-        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
-        resetBtn.setAttribute('data-idx', idx);
-        resetBtn.addEventListener('click', function() {
-            sbResetOne(parseInt(this.getAttribute('data-idx')));
-        });
-        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-        item.appendChild(bank); item.appendChild(row);
-        item.appendChild(fb); item.appendChild(btnRow);
-        container.appendChild(item);
-    });
-}
-function resetSatzbau() { initSatzbau(); }
+        div.appendChild(bank);
 
+        var dropzone = document.createElement('div');
+        dropzone.className = 'drop-row';
+        dropzone.dataset.satzidx = idx;
+        dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
+        dropzone.addEventListener('drop', function(e) { e.preventDefault(); this.classList.remove('dragover'); if (sbDragged) { this.appendChild(sbDragged); } });
+        div.appendChild(dropzone);
+        cont.appendChild(div);
+      });
+    }
+
+    function colorAllSbChips() {
+      var szs = document.querySelectorAll('[data-satzidx]');
+      szs.forEach(function(sz) { colorSbChips(sz.dataset.satzidx); });
+    }
+
+    function colorSbChips(satzidx) {
+      var dropz = document.querySelector('.drop-row[data-satzidx="' + satzidx + '"]');
+      if (!dropz) return;
+      var chips = dropz.querySelectorAll('.chip');
+      var chipTexts = Array.from(chips).map(function(c) { return c.textContent; });
+      var correctTexts = sbData[2][satzidx].correct.map(function(c) { return c; });
+      var isCorrect = chipTexts.length === correctTexts.length && chipTexts.every(function(t, i) { return t === correctTexts[i]; });
+      chips.forEach(function(chip) {
+        chip.classList.remove('correct', 'wrong');
+        if (isCorrect) chip.classList.add('correct');
+        else if (chips.length > 0) chip.classList.add('wrong');
+      });
+      if (isCorrect) timerStop(2);
+    }
+
+    function showSatzbauLoesung(tabidx) {
+      sbData[tabidx].forEach(function(item, idx) {
+        var dropz = document.querySelector('.drop-row[data-satzidx="' + idx + '"]');
+        dropz.innerHTML = '';
+        item.correct.forEach(function(word) {
+          var chip = document.createElement('div');
+          chip.className = 'chip correct';
+          chip.textContent = word;
+          dropz.appendChild(chip);
+        });
+      });
+    }
+
+    function resetSatzbau(tabidx) {
+      initSatzbau();
+    }
 
     // Wortschatz
     var vocabData = [
@@ -794,7 +657,7 @@ function resetSatzbau() { initSatzbau(); }
       var cont = document.getElementById('vocabContainer');
       var inps = cont.querySelectorAll('input');
       var all = Array.from(inps).every(function(inp) { return inp.classList.contains('correct'); });
-      if (all) stopTimer(3);
+      if (all) timerStop(3);
     }
 
     // Tab Switching
@@ -808,7 +671,7 @@ function resetSatzbau() { initSatzbau(); }
       event.target.classList.add('active');
 
       if (tabidx === 1 && !document.getElementById('luecke-container1').children.length) initLuecken();
-      if (tabidx === 2 && !document.getElementById('satzbauContainer').children.length) initSatzbau();
+      if (tabidx === 2 && !document.getElementById('sb-container2').children.length) initSatzbau();
       if (tabidx === 3 && !document.getElementById('vocabContainer').children.length) initVocab();
     }
 
@@ -816,68 +679,45 @@ function resetSatzbau() { initSatzbau(); }
     var timerState = [false, false, false, false];
     var timerIntervals = [null, null, null, null];
     var bestTimes = [null, null, null, null];
-    var TIMER_PREFIX = '3061X';
-
-    function loadBestTimes() {
-      for (var i = 1; i < 4; i++) {
-        var key = TIMER_PREFIX + '_best' + i;
-        var val = localStorage.getItem(key);
-        if (val) {
-          bestTimes[i] = parseInt(val);
-          document.getElementById('best' + i).textContent = '🏆 ' + formatTime(bestTimes[i]);
-        }
-      }
-    }
-
-    function startTimer(tabidx) {
-      if (timerState[tabidx]) return;
-      timerState[tabidx] = true;
-      var secs = 0;
-      timerIntervals[tabidx] = setInterval(function() {
-        secs++;
-        document.getElementById('timer' + tabidx).textContent = formatTime(secs);
-      }, 1000);
-    }
-
-    function stopTimer(tabidx) {
-      if (!timerState[tabidx]) return;
-      clearInterval(timerIntervals[tabidx]);
-      timerState[tabidx] = false;
-      var secs = parseInt(document.getElementById('timer' + tabidx).textContent.split(':').reduce(function(a, b) { return a * 60 + parseInt(b); }));
-      if (!bestTimes[tabidx] || secs < bestTimes[tabidx]) {
-        bestTimes[tabidx] = secs;
-        var key = TIMER_PREFIX + '_best' + tabidx;
-        localStorage.setItem(key, secs);
-        document.getElementById('best' + tabidx).textContent = '🏆 ' + formatTime(secs);
-      }
-    }
-
-    function resetTimer(tabidx) {
-      clearInterval(timerIntervals[tabidx]);
-      timerState[tabidx] = false;
-      document.getElementById('timer' + tabidx).textContent = '0:00';
-    }
-
-    function formatTime(secs) {
-      var m = Math.floor(secs / 60);
-      var s = secs % 60;
-      return m + ':' + (s < 10 ? '0' : '') + s;
-    }
-
-    // On input for all tabs
-    document.addEventListener('oninput', function(e) {
-      if (e.target.classList.contains('blank')) { startTimer(parseInt(e.target.dataset.tabidx)); }
-      else if (e.target.classList.contains('vocab-inputs')) { startTimer(3); checkVocabAllOk(); }
-    });
-
-    // Patch for input event
-    document.addEventListener('input', function(e) {
-      if (e.target.classList.contains('blank')) { startTimer(parseInt(e.target.dataset.tabidx)); }
-      else if (e.target.classList.contains('art') || e.target.classList.contains('wort') || e.target.classList.contains('plural')) { startTimer(3); checkVocabAllOk(); }
-    });
-
-    // INIT
-    loadBestTimes();
+    var TIMER_PREFIX='B2_3061X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
   </script>
 </body>
 </html>

@@ -267,30 +267,6 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-
-    /* Vokabel-Hervorhebung im Lesetext */
-    .vocab-hl {
-        background: #ffe9a0;
-        border-radius: 3px;
-        padding: 1px 3px;
-        font-weight: 600;
-        cursor: help;
-    }
-    
-/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
-.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
-.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
-.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
-.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
-.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
-.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
-.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
-.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
-.satzbau-feedback.correct { color: #27ae60; }
-.satzbau-feedback.incorrect { color: #e74c3c; }
-.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
-.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
-.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
 </style>
 </head>
 <body>
@@ -473,7 +449,7 @@
             <div class="tab-content">
                 <h2>🔀 Satzbau: Sätze ordnen</h2>
                 <p style="margin-bottom: 20px; color: #666;">Ordne die Wörter zu vollständigen Sätzen:</p>
-                <div id="satzbauContainer"></div>
+                <div id="sbContainer"></div>
             </div>
         </div>
 
@@ -541,240 +517,56 @@
             }
         }
 
-            
-var satzbauData = [
-    { parts: ['Ein', 'Wurmloch', 'könnte', 'zwei', 'entfernte', 'Punkte', 'verbinden'],
-      valid: [
-        ['Ein', 'Wurmloch', 'könnte', 'zwei', 'entfernte', 'Punkte', 'verbinden']],
-      punct: '.' },
-    { parts: ['Einstein', 'und', 'Rosen', 'beschrieben', 'die', 'mathematische', 'Lösung'],
-      valid: [
-        ['Einstein', 'und', 'Rosen', 'beschrieben', 'die', 'mathematische', 'Lösung']],
-      punct: '.' },
-    { parts: ['Zeitreisen', 'könnten', 'theoretisch', 'durch', 'Wurmlöcher', 'möglich', 'sein'],
-      valid: [
-        ['Zeitreisen', 'könnten', 'theoretisch', 'durch', 'Wurmlöcher', 'möglich', 'sein']],
-      punct: '.' },
-    { parts: ['Exotische', 'Materie', 'könnte', 'das', 'Wurmloch', 'stabil', 'halten'],
-      valid: [
-        ['Exotische', 'Materie', 'könnte', 'das', 'Wurmloch', 'stabil', 'halten']],
-      punct: '.' },
-    { parts: ['Für', 'jetzt', 'bleiben', 'Wurmlöcher', 'science-fiction'],
-      valid: [
-        ['Für', 'jetzt', 'bleiben', 'Wurmlöcher', 'science-fiction']],
-      punct: '.' }
-];
+        function initSatzbau() {
+            const container = document.getElementById('sbContainer');
+            if (container.innerHTML) return;
 
-/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
+            const sentences = [
+                { words: ['Ein', 'Wurmloch', 'könnte', 'zwei', 'entfernte', 'Punkte', 'verbinden.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Einstein', 'und', 'Rosen', 'beschrieben', 'die', 'mathematische', 'Lösung.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Zeitreisen', 'könnten', 'theoretisch', 'durch', 'Wurmlöcher', 'möglich', 'sein.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Exotische', 'Materie', 'könnte', 'das', 'Wurmloch', 'stabil', 'halten.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Für', 'jetzt', 'bleiben', 'Wurmlöcher', 'science-fiction.'], correct: [0,1,2,3,4] }
+            ];
 
-var sbDragged = null;
+            sentences.forEach((sent, idx) => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '20px';
 
-function getSbCursor() {
-    var c = document.getElementById('sb-insert-cursor');
-    if (!c) {
-        c = document.createElement('div');
-        c.id = 'sb-insert-cursor';
-        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
-    }
-    return c;
-}
-function getSbInsertPos(zone, clientX) {
-    var chips = Array.from(zone.querySelectorAll('.chip'));
-    for (var i = 0; i < chips.length; i++) {
-        var r = chips[i].getBoundingClientRect();
-        if (clientX < r.left + r.width / 2) return chips[i];
-    }
-    return null;
-}
-function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-function sbUpdateCapitalization(row) {
-    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
-        var orig = c.dataset.orig;
-        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
-                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
-        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
-    });
-}
-function sbMakeChip(word) {
-    var chip = document.createElement('div');
-    chip.className = 'chip';
-    chip.textContent = word;
-    chip.dataset.orig = word;
-    chip.draggable = true;
-    chip.addEventListener('dragstart', function(e) {
-        sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(5);
-        e.dataTransfer.setData('text/plain', '');
-        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
-    });
-    chip.addEventListener('dragend', function() {
-        chip.style.opacity = '';
-        sbDragged = null;
-        var c = document.getElementById('sb-insert-cursor');
-        if (c && c.parentNode) c.parentNode.removeChild(c);
-    });
-    return chip;
-}
-function sbRegisterZone(zone, idx) {
-    zone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        if (!sbDragged) return;
-        var cursor = getSbCursor();
-        var before = getSbInsertPos(zone, e.clientX);
-        if (before) zone.insertBefore(cursor, before);
-        else zone.appendChild(cursor);
-    });
-    zone.addEventListener('dragleave', function(e) {
-        if (!zone.contains(e.relatedTarget)) {
-            var c = document.getElementById('sb-insert-cursor');
-            if (c && c.parentNode === zone) zone.removeChild(c);
+                const label = document.createElement('p');
+                label.textContent = `Aufgabe ${idx + 1}:`;
+                label.style.fontWeight = '600';
+                label.style.marginBottom = '10px';
+                div.appendChild(label);
+
+                const chips = document.createElement('div');
+                chips.style.display = 'flex';
+                chips.style.flexWrap = 'wrap';
+                chips.style.gap = '8px';
+                chips.style.minHeight = '50px';
+                chips.style.padding = '10px';
+                chips.style.background = '#f9f9f9';
+                chips.style.borderRadius = '6px';
+
+                sent.words.forEach((word) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'punct-chip';
+                    chip.textContent = word;
+                    chip.style.padding = '8px 12px';
+                    chip.style.background = '#667eea';
+                    chip.style.color = 'white';
+                    chip.style.borderRadius = '4px';
+                    chip.style.cursor = 'pointer';
+                    chip.style.userSelect = 'none';
+                    chip.addEventListener('click', () => toggleWord(chip));
+                    chips.appendChild(chip);
+                });
+
+                div.appendChild(chips);
+                container.appendChild(div);
+            });
         }
-    });
-    zone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        if (!sbDragged) return;
-        var cursor = document.getElementById('sb-insert-cursor');
-        if (cursor && cursor.parentNode === zone) {
-            zone.insertBefore(sbDragged, cursor);
-            zone.removeChild(cursor);
-        } else { zone.appendChild(sbDragged); }
-        sbDragged = null;
-        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
-        sbCheckAuto(idx);
-    });
-}
-function sbColorRow(idx) {
-    var row = document.getElementById('sb-row-' + idx);
-    var chips = Array.from(row.querySelectorAll('.chip'));
-    var order = chips.map(function(c) { return c.dataset.orig; });
-    var ok = satzbauData[idx].valid.some(function(v) {
-        return JSON.stringify(v) === JSON.stringify(order);
-    });
-    chips.forEach(function(c) {
-        c.classList.remove('correct', 'incorrect');
-        c.classList.add(ok ? 'correct' : 'incorrect');
-    });
-    var existing = row.querySelector('.sb-punkt');
-    if (existing) existing.parentNode.removeChild(existing);
-    if (ok) {
-        var punkt = document.createElement('span');
-        punkt.className = 'sb-punkt';
-        punkt.textContent = satzbauData[idx].punct || '.';
-        row.appendChild(punkt);
-    }
-    return ok;
-}
-function sbCheckAuto(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-' + idx);
-    var fb   = document.getElementById('sb-fb-' + idx);
-    if (bank.querySelectorAll('.chip').length > 0) {
-        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
-        row.classList.remove('correct', 'incorrect');
-        fb.textContent = '';
-        return;
-    }
-    setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(5);
-        var ok = sbColorRow(idx);
-        if (ok) {
-            row.classList.add('correct'); row.classList.remove('incorrect');
-            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
-            sbCheckAllDone();
-        } else {
-            row.classList.add('incorrect'); row.classList.remove('correct');
-            fb.className = 'satzbau-feedback incorrect';
-            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
-        }
-    }, 500);
-}
-function sbCheckAllDone() {
-    var allOk = satzbauData.every(function(_, i) {
-        var row = document.getElementById('sb-row-' + i);
-        return row && row.classList.contains('correct');
-    });
-    if (allOk && typeof timerStop === 'function') timerStop(5);
-}
-function sbShowSolution(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-' + idx);
-    var fb   = document.getElementById('sb-fb-' + idx);
-    var solution = satzbauData[idx].valid[0];
-    var allChips = {};
-    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
-    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
-    while (bank.firstChild) bank.removeChild(bank.firstChild);
-    while (row.firstChild)  row.removeChild(row.firstChild);
-    solution.forEach(function(word, i) {
-        var chip = allChips[word];
-        if (chip) {
-            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
-            chip.classList.remove('correct', 'incorrect');
-            row.appendChild(chip);
-        }
-    });
-    fb.textContent = '';
-    setTimeout(function() { sbCheckAuto(idx); }, 100);
-}
-function sbResetOne(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-'  + idx);
-    var fb   = document.getElementById('sb-fb-'   + idx);
-    while (bank.firstChild) bank.removeChild(bank.firstChild);
-    while (row.firstChild)  row.removeChild(row.firstChild);
-    row.classList.remove('correct', 'incorrect');
-    fb.textContent = ''; fb.className = 'satzbau-feedback';
-    var existing = row.querySelector('.sb-punkt');
-    if (existing) existing.parentNode.removeChild(existing);
-    var parts = satzbauData[idx].parts.slice();
-    for (var i = parts.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-    }
-    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
-}
-function initSatzbau() {
-    var container = document.getElementById('satzbauContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    satzbauData.forEach(function(ex, idx) {
-        var item = document.createElement('div');
-        item.className = 'satzbau-item';
-        var bank = document.createElement('div');
-        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
-        var row = document.createElement('div');
-        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
-        var fb = document.createElement('div');
-        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
-        var parts = ex.parts.slice();
-        for (var i = parts.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-        }
-        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
-        sbRegisterZone(bank, idx);
-        sbRegisterZone(row, idx);
-        var btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
-        var solveBtn = document.createElement('button');
-        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
-        solveBtn.setAttribute('data-idx', idx);
-        solveBtn.addEventListener('click', function() {
-            sbShowSolution(parseInt(this.getAttribute('data-idx')));
-        });
-        var resetBtn = document.createElement('button');
-        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
-        resetBtn.setAttribute('data-idx', idx);
-        resetBtn.addEventListener('click', function() {
-            sbResetOne(parseInt(this.getAttribute('data-idx')));
-        });
-        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-        item.appendChild(bank); item.appendChild(row);
-        item.appendChild(fb); item.appendChild(btnRow);
-        container.appendChild(item);
-    });
-}
-function resetSatzbau() { initSatzbau(); }
+
         function toggleWord(el) {
             el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
         }
@@ -782,75 +574,6 @@ function resetSatzbau() { initSatzbau(); }
         function resetTab() {
             location.reload();
         }
-    
-var VOCAB_HL_WORDS = ['Einstein-Rosen-Brücke', 'Kontinuum', 'Raumzeit', 'Schwarze Loch', 'Stabilität', 'Wurmloch', 'Zeitreise', 'exotische Materie'];
-
-// ===== VOKABEL-HIGHLIGHTING IM LESETEXT =====
-function highlightVocabInText() {
-    var storyText = document.querySelector('.story-text') ||
-                    document.querySelector('.lese-text') ||
-                    document.querySelector('.lesetext') ||
-                    document.querySelector('.reading-text') ||
-                    document.querySelector('.text-content') ||
-                    document.querySelector('.rf-text');
-    if (!storyText) return;
-    var words = [];
-    if (typeof VOCAB_HL_WORDS !== 'undefined' && VOCAB_HL_WORDS.length) {
-        words = VOCAB_HL_WORDS;
-    } else if (typeof VORENTLASTUNG !== 'undefined' && VORENTLASTUNG.length) {
-        words = VORENTLASTUNG.map(function(item) {
-            var term = item.term.replace(/^(der|die|das)\s+/i, '');
-            return term.split(',')[0].trim();
-        });
-    } else if (typeof WORTSCHATZ !== 'undefined' && WORTSCHATZ.length) {
-        words = WORTSCHATZ.map(function(item) { return item.de; });
-    } else if (typeof VOCAB !== 'undefined' && VOCAB.length) {
-        words = VOCAB.map(function(item) { return item.word; });
-    } else {
-        // DOM-Fallback: .vocab-item .de oder strong-Tags
-        var deEls = document.querySelectorAll('.vocab-item .de, .vi-de, .vocab-mini-de');
-        deEls.forEach(function(el) {
-            var t = el.textContent.replace(/^(der|die|das)\s+/i, '').split(',')[0].trim();
-            if (t.length > 3) words.push(t);
-        });
-    }
-    words = words.filter(function(w) { return w && w.length > 3; });
-    if (words.length === 0) return;
-    function walkAndHighlight(node) {
-        if (node.nodeType === 3) {
-            var text = node.nodeValue;
-            var replaced = text;
-            words.forEach(function(word) {
-                var escaped = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                var regex = new RegExp('(?<![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])(' + escaped + ')(?![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])', 'g');
-                replaced = replaced.replace(regex, '\x01$1\x02');
-            });
-            if (replaced !== text) {
-                var span = document.createElement('span');
-                var parts = replaced.split(/\x01|\x02/);
-                var isHighlight = false;
-                parts.forEach(function(part) {
-                    if (!part) { isHighlight = !isHighlight; return; }
-                    if (isHighlight) {
-                        var hl = document.createElement('span');
-                        hl.className = 'vocab-hl';
-                        hl.title = '\ud83d\udcd6 Vokabel aus der Vorentlastung';
-                        hl.textContent = part;
-                        span.appendChild(hl);
-                    } else {
-                        span.appendChild(document.createTextNode(part));
-                    }
-                    isHighlight = !isHighlight;
-                });
-                node.parentNode.replaceChild(span, node);
-            }
-        } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT') {
-            Array.from(node.childNodes).forEach(walkAndHighlight);
-        }
-    }
-    walkAndHighlight(storyText);
-}
-highlightVocabInText();
-</script>
+    </script>
 </body>
 </html>
