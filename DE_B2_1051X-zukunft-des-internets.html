@@ -407,10 +407,8 @@ footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; bord
       </div>
       <div class="timer-display" id="timer2-display">⏱ 00:00</div>
     </div>
-    <div class="score-box">Richtige Sätze: <span id="sb-score">0</span> / 7</div>
-    <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Ziehe die Wörter in die richtige Reihenfolge.</p>
-    <div id="satzbauContainer"></div>
-  </div>
+      <div id="satzbauContainer"></div>
+    </div>
 
   <!-- TAB 3: WORTSCHATZ -->
   <div class="tab-content" id="tab-3">
@@ -610,7 +608,7 @@ function showTab(idx) {
   document.querySelectorAll('.tab-content').forEach((t,i) => t.classList.toggle('active', i===idx));
   document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
   if (idx === 1 && !timers[1]) timerAutoStart(1);
-  if (idx === 2 && !timers[2]) { initSatzbau(); timerAutoStart(2); }
+  if (idx === 2 && !timers[2]) { buildSatzbau(); timerAutoStart(2); }
   if (idx === 3 && !timers[3]) timerAutoStart(3);
 }
 
@@ -650,35 +648,29 @@ function resetLuecke() {
 }
 
 // ─── SATZBAU ──────────────────────────────────────────────────────────────────
+let sbDragged = null;
 
 var satzbauData = [
     { parts: ['Man', 'sollte', 'immer', 'zu', 'seiner', 'Meinung', 'stehen'],
-      valid: [
-        ['Man', 'sollte', 'immer', 'zu', 'seiner', 'Meinung', 'stehen']],
+      valid: [['Man', 'sollte', 'immer', 'zu', 'seiner', 'Meinung', 'stehen']],
       punct: '.' },
     { parts: ['Kritisch', 'betrachtet', 'sind', 'deine', 'Argumente', 'nicht', 'ganz', 'logisch'],
-      valid: [
-        ['Kritisch', 'betrachtet', 'sind', 'deine', 'Argumente', 'nicht', 'ganz', 'logisch']],
+      valid: [['Kritisch', 'betrachtet', 'sind', 'deine', 'Argumente', 'nicht', 'ganz', 'logisch']],
       punct: '.' },
     { parts: ['Wie', 'soll', 'ich', 'das', 'jetzt', 'einschätzen'],
-      valid: [
-        ['Wie', 'soll', 'ich', 'das', 'jetzt', 'einschätzen']],
+      valid: [['Wie', 'soll', 'ich', 'das', 'jetzt', 'einschätzen']],
       punct: '?' },
     { parts: ['Das', 'Internet', 'bietet', 'viele', 'Möglichkeiten'],
-      valid: [
-        ['Das', 'Internet', 'bietet', 'viele', 'Möglichkeiten']],
+      valid: [['Das', 'Internet', 'bietet', 'viele', 'Möglichkeiten']],
       punct: '.' },
     { parts: ['Der', 'Datenschutz', 'verfolgt', 'die', 'Sicherheit', 'aller', 'persönlichen', 'Daten'],
-      valid: [
-        ['Der', 'Datenschutz', 'verfolgt', 'die', 'Sicherheit', 'aller', 'persönlichen', 'Daten']],
+      valid: [['Der', 'Datenschutz', 'verfolgt', 'die', 'Sicherheit', 'aller', 'persönlichen', 'Daten']],
       punct: '.' },
     { parts: ['Für', 'meine', 'Kinder', 'würde', 'ich', 'jedes', 'Risiko', 'eingehen'],
-      valid: [
-        ['Für', 'meine', 'Kinder', 'würde', 'ich', 'jedes', 'Risiko', 'eingehen']],
+      valid: [['Für', 'meine', 'Kinder', 'würde', 'ich', 'jedes', 'Risiko', 'eingehen']],
       punct: '.' },
     { parts: ['Niederlagen', 'können', 'manchmal', 'auch', 'positive', 'Folgen', 'haben'],
-      valid: [
-        ['Niederlagen', 'können', 'manchmal', 'auch', 'positive', 'Folgen', 'haben']],
+      valid: [['Niederlagen', 'können', 'manchmal', 'auch', 'positive', 'Folgen', 'haben']],
       punct: '.' }
 ];
 
@@ -720,7 +712,7 @@ function sbMakeChip(word) {
     chip.draggable = true;
     chip.addEventListener('dragstart', function(e) {
         sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        if (typeof timerAutoStart === 'function') timerAutoStart(2);
         e.dataTransfer.setData('text/plain', '');
         setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
     });
@@ -792,7 +784,7 @@ function sbCheckAuto(idx) {
         return;
     }
     setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        if (typeof timerAutoStart === 'function') timerAutoStart(2);
         var ok = sbColorRow(idx);
         if (ok) {
             row.classList.add('correct'); row.classList.remove('incorrect');
@@ -810,7 +802,7 @@ function sbCheckAllDone() {
         var row = document.getElementById('sb-row-' + i);
         return row && row.classList.contains('correct');
     });
-    if (allOk && typeof timerStop === 'function') timerStop(4);
+    if (allOk && typeof timerStop === 'function') timerStop(2);
 }
 function sbShowSolution(idx) {
     var bank = document.getElementById('sb-bank-' + idx);
@@ -892,3 +884,42 @@ function initSatzbau() {
     });
 }
 function resetSatzbau() { initSatzbau(); }
+initSatzbau();
+
+
+// ─── WORTSCHATZ ───────────────────────────────────────────────────────────────
+function vocabLiveCheck(inp) {
+  const answer = inp.dataset.answer.toLowerCase().trim();
+  const val = inp.value.toLowerCase().trim();
+  if (!val) { inp.className = inp.className.replace(' correct','').replace(' wrong',''); return; }
+  const base = inp.className.replace(' correct','').replace(' wrong','');
+  if (val === answer) {
+    inp.className = base + ' correct';
+  } else if (answer.startsWith(val)) {
+    inp.className = base;
+  } else {
+    inp.className = base + ' wrong';
+  }
+  updateVocabScore();
+}
+function updateVocabScore() {
+  const inputs = document.querySelectorAll('.vocab-inp');
+  let correct = 0;
+  inputs.forEach(inp => { if (inp.value.toLowerCase().trim() === inp.dataset.answer.toLowerCase().trim()) correct++; });
+  document.getElementById('vocab-score').textContent = correct;
+  if (correct === inputs.length) timerStop(3);
+}
+function resetVocab() {
+  document.querySelectorAll('.vocab-inp').forEach(inp => {
+    inp.value = '';
+    inp.className = inp.className.replace(' correct','').replace(' wrong','');
+  });
+  document.getElementById('vocab-score').textContent = '0';
+  timerResetOne(3); timerAutoStart(3);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+loadBestTimes();
+</script>
+</body>
+</html>

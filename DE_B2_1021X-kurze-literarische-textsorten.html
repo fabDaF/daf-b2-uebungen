@@ -402,15 +402,7 @@
           <span class="best-display" id="best-2"></span>
         </div>
       </div>
-      <h2>Satzbau – Sätze neu ordnen</h2>
-      <p class="sb-counter" id="sbCounter">Aufgabe 1 von 7</p>
-      <div id="sbZone"></div>
-      <div id="sbBank"></div>
-      <div class="sb-feedback" id="sbFeedback"></div>
-      <div class="sb-nav">
-        <button class="btn btn-sb" onclick="sbPrev()">◀ Zurück</button>
-        <button class="btn btn-sb" onclick="sbNext()">Weiter ▶</button>
-      </div>
+      <div id="satzbauContainer"></div>
     </div>
 
     <!-- TAB 3: WORTSCHATZ -->
@@ -490,7 +482,7 @@ function showTab(n) {
   document.getElementById('tab-'+n).classList.add('active');
   document.querySelectorAll('.nav-btn')[n].classList.add('active');
   if(n===1) timerAutoStart(1);
-  if(n===2) { initSatzbau(); timerAutoStart(2); }
+  if(n===2) { sbInit(); timerAutoStart(2); }
   if(n===3) { renderVocab(); timerAutoStart(3); }
 }
 
@@ -521,37 +513,27 @@ function resetGaps() {
 
 // --- SATZBAU ---
 
-
-let sbCurrent = 0;
-
 var satzbauData = [
-    { parts: ['Es gibt', 'verschiedene Textsorten', ',', 'zum Beispiel', 'Märchen, Gedichte', 'und Kurzgeschichten'],
-      valid: [
-        ['Es gibt', 'verschiedene Textsorten', ',', 'zum Beispiel', 'Märchen, Gedichte', 'und Kurzgeschichten']],
+    { parts: ['Es gibt', 'verschiedene Textsorten,', 'zum Beispiel', 'Märchen, Gedichte', 'und Kurzgeschichten'],
+      valid: [['Es gibt', 'verschiedene Textsorten,', 'zum Beispiel', 'Märchen, Gedichte', 'und Kurzgeschichten']],
       punct: '.' },
-    { parts: ['In der Fabel', 'interagieren Tiere', ',', 'die menschliche Eigenschaften', 'haben'],
-      valid: [
-        ['In der Fabel', 'interagieren Tiere', ',', 'die menschliche Eigenschaften', 'haben']],
+    { parts: ['In der Fabel', 'interagieren Tiere,', 'die menschliche Eigenschaften', 'haben'],
+      valid: [['In der Fabel', 'interagieren Tiere,', 'die menschliche Eigenschaften', 'haben']],
       punct: '.' },
     { parts: ['Ein Nebencharakter', 'hat', 'eine weniger wichtige Rolle', 'als der Hauptcharakter'],
-      valid: [
-        ['Ein Nebencharakter', 'hat', 'eine weniger wichtige Rolle', 'als der Hauptcharakter']],
+      valid: [['Ein Nebencharakter', 'hat', 'eine weniger wichtige Rolle', 'als der Hauptcharakter']],
       punct: '.' },
     { parts: ['Die Metapher', 'kann', 'die Aussage', 'dem Leser', 'besser verständlich machen'],
-      valid: [
-        ['Die Metapher', 'kann', 'die Aussage', 'dem Leser', 'besser verständlich machen']],
+      valid: [['Die Metapher', 'kann', 'die Aussage', 'dem Leser', 'besser verständlich machen']],
       punct: '.' },
-    { parts: ['Bei der Personifikation', 'erhält etwas', ',', 'das kein Mensch ist', ',', 'menschliche Eigenschaften'],
-      valid: [
-        ['Bei der Personifikation', 'erhält etwas', ',', 'das kein Mensch ist', ',', 'menschliche Eigenschaften']],
+    { parts: ['Bei der Personifikation', 'erhält etwas,', 'das kein Mensch ist,', 'menschliche Eigenschaften'],
+      valid: [['Bei der Personifikation', 'erhält etwas,', 'das kein Mensch ist,', 'menschliche Eigenschaften']],
       punct: '.' },
     { parts: ['Die rhetorische Frage', 'soll', 'den Leser', 'aufmerksam machen'],
-      valid: [
-        ['Die rhetorische Frage', 'soll', 'den Leser', 'aufmerksam machen']],
+      valid: [['Die rhetorische Frage', 'soll', 'den Leser', 'aufmerksam machen']],
       punct: '.' },
-    { parts: ['Legenden', 'erzählen Geschichten', ',', 'die seit Langem erzählt werden', ',', 'aber historisch', 'nicht nachweisbar sind'],
-      valid: [
-        ['Legenden', 'erzählen Geschichten', ',', 'die seit Langem erzählt werden', ',', 'aber historisch', 'nicht nachweisbar sind']],
+    { parts: ['Legenden', 'erzählen Geschichten,', 'die seit Langem erzählt werden,', 'aber historisch', 'nicht nachweisbar sind'],
+      valid: [['Legenden', 'erzählen Geschichten,', 'die seit Langem erzählt werden,', 'aber historisch', 'nicht nachweisbar sind']],
       punct: '.' }
 ];
 
@@ -593,7 +575,7 @@ function sbMakeChip(word) {
     chip.draggable = true;
     chip.addEventListener('dragstart', function(e) {
         sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        if (typeof timerAutoStart === 'function') timerAutoStart(1);
         e.dataTransfer.setData('text/plain', '');
         setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
     });
@@ -665,7 +647,7 @@ function sbCheckAuto(idx) {
         return;
     }
     setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        if (typeof timerAutoStart === 'function') timerAutoStart(1);
         var ok = sbColorRow(idx);
         if (ok) {
             row.classList.add('correct'); row.classList.remove('incorrect');
@@ -683,7 +665,7 @@ function sbCheckAllDone() {
         var row = document.getElementById('sb-row-' + i);
         return row && row.classList.contains('correct');
     });
-    if (allOk && typeof timerStop === 'function') timerStop(3);
+    if (allOk && typeof timerStop === 'function') timerStop(1);
 }
 function sbShowSolution(idx) {
     var bank = document.getElementById('sb-bank-' + idx);
@@ -765,3 +747,76 @@ function initSatzbau() {
     });
 }
 function resetSatzbau() { initSatzbau(); }
+initSatzbau();
+
+
+function sbReset() { sbRender(); }
+function sbNext() { if(sbCurrent < satzbauData.length-1) { sbCurrent++; sbRender(); } }
+function sbPrev() { if(sbCurrent > 0) { sbCurrent--; sbRender(); } }
+
+// --- WORTSCHATZ ---
+const vocabData = [
+  { type:'n', en:'text type / genre', artikel:'die', wort:'Textsorte', plural:'Textsorten', img:'694740', example:'Es gibt verschiedene Textsorten, zum Beispiel Märchen und Gedichte.' },
+  { type:'n', en:'fairy tale', artikel:'das', wort:'Märchen', plural:'Märchen', img:'1545743', example:'Rotkäppchen, Schneewittchen und Aschenputtel sind bekannte Märchen.' },
+  { type:'n', en:'fable', artikel:'die', wort:'Fabel', plural:'Fabeln', img:'3184338', example:'Am Ende jeder Fabel gibt es eine Moral.' },
+  { type:'n', en:'legend', artikel:'die', wort:'Legende', plural:'Legenden', img:'1496373', example:'Legenden erzählen Geschichten, die historisch nicht nachweisbar sind.' },
+  { type:'n', en:'poem', artikel:'das', wort:'Gedicht', plural:'Gedichte', img:'1130980', example:'Ein Gedicht reimt sich meistens und verwendet viele Stilmittel.' },
+  { type:'n', en:'parable', artikel:'die', wort:'Parabel', plural:'Parabeln', img:'256450', example:'Aus einer Parabel soll der Leser eine Lehre für sein Leben ziehen.' },
+  { type:'n', en:'stylistic device', artikel:'das', wort:'Stilmittel', plural:'Stilmittel', img:'3747463', example:'Metaphern und Alliterationen sind bekannte Stilmittel.' },
+  { type:'n', en:'metaphor', artikel:'die', wort:'Metapher', plural:'Metaphern', img:'1545756', example:'„Warteschlange" ist eine Metapher – Menschen stehen wie Schlangen.' },
+  { type:'n', en:'alliteration', artikel:'die', wort:'Alliteration', plural:'Alliterationen', img:'4065899', example:'„Milch macht müde Männer munter" ist eine Alliteration.' },
+  { type:'n', en:'rhyme', artikel:'der', wort:'Reim', plural:'Reime', img:'3747468', example:'Reime geben einem Gedicht eine zusätzliche Tiefe.' },
+  { type:'n', en:'personification', artikel:'die', wort:'Personifikation', plural:'Personifikationen', img:'3747464', example:'„Die Sonne lacht" ist eine Personifikation.' },
+  { type:'n', en:'hyperbole / exaggeration', artikel:'die', wort:'Hyperbel', plural:'Hyperbeln', img:'4065898', example:'„Ich habe dir das hundertmal gesagt!" ist eine Hyperbel.' }
+];
+
+function renderVocab() {
+  const container = document.getElementById('vocabContainer');
+  if(container.children.length > 0) return;
+  vocabData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    const imgSrc = `https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400`;
+    card.innerHTML = `
+      <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+      <div class="vocab-body">
+        <div class="vocab-en">${v.en}</div>
+        <div class="vocab-fields">
+          <input data-answer="${v.artikel}" oninput="vocabLiveCheck(this)" placeholder="Artikel">
+          <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+          <input data-answer="${v.plural}" oninput="vocabLiveCheck(this)" placeholder="Plural">
+        </div>
+        <div class="vocab-example">${v.example}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function vocabLiveCheck(inp) {
+  const ans = (inp.dataset.answer||'').trim().toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val.length === 0) return;
+  if(ans.startsWith(val)) {
+    if(val === ans) { inp.classList.add('correct'); checkAllVocab(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllVocab() {
+  const inputs = document.querySelectorAll('#vocabContainer input');
+  if([...inputs].every(i => i.classList.contains('correct'))) timerStop(3);
+}
+
+function resetVocab() {
+  document.querySelectorAll('#vocabContainer input').forEach(i => {
+    i.value=''; i.classList.remove('correct','wrong');
+  });
+  timerResetOne(3); timerAutoStart(3);
+}
+
+loadBestTimes();
+</script>
+</body>
+</html>

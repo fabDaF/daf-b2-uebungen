@@ -426,15 +426,7 @@
           <span class="best-display" id="best-2"></span>
         </div>
       </div>
-      <h2>Satzbau – Sätze neu ordnen</h2>
-      <p class="sb-counter" id="sbCounter">Aufgabe 1 von 7</p>
-      <div id="sbZone"></div>
-      <div id="sbBank"></div>
-      <div class="sb-feedback" id="sbFeedback"></div>
-      <div class="sb-nav">
-        <button class="btn btn-sb" onclick="sbPrev()">◀ Zurück</button>
-        <button class="btn btn-sb" onclick="sbNext()">Weiter ▶</button>
-      </div>
+      <div id="satzbauContainer"></div>
     </div>
 
     <!-- TAB 3: WORTSCHATZ -->
@@ -514,7 +506,7 @@ function showTab(n) {
   document.getElementById('tab-'+n).classList.add('active');
   document.querySelectorAll('.nav-btn')[n].classList.add('active');
   if(n===1) timerAutoStart(1);
-  if(n===2) { initSatzbau(); timerAutoStart(2); }
+  if(n===2) { sbInit(); timerAutoStart(2); }
   if(n===3) { renderVocab(); timerAutoStart(3); }
 }
 
@@ -551,37 +543,27 @@ function resetGaps() {
 
 // --- SATZBAU ---
 
-
-let sbCurrent = 0;
-
 var satzbauData = [
-    { parts: ['Wer', 'nach Deutschland zieht', ',', 'muss sich', 'beim Einwohnermeldeamt', 'anmelden'],
-      valid: [
-        ['Wer', 'nach Deutschland zieht', ',', 'muss sich', 'beim Einwohnermeldeamt', 'anmelden']],
+    { parts: ['Wer', 'nach Deutschland zieht,', 'muss sich', 'beim Einwohnermeldeamt', 'anmelden'],
+      valid: [['Wer', 'nach Deutschland zieht,', 'muss sich', 'beim Einwohnermeldeamt', 'anmelden']],
       punct: '.' },
-    { parts: ['Könnten Sie', 'mir bitte sagen', ',', 'wo ich', 'das Bürgeramt', 'finde'],
-      valid: [
-        ['Könnten Sie', 'mir bitte sagen', ',', 'wo ich', 'das Bürgeramt', 'finde']],
+    { parts: ['Könnten Sie', 'mir bitte sagen,', 'wo ich', 'das Bürgeramt', 'finde'],
+      valid: [['Könnten Sie', 'mir bitte sagen,', 'wo ich', 'das Bürgeramt', 'finde']],
       punct: '?' },
     { parts: ['Die Meldebescheinigung', 'kann man', 'nur persönlich', 'beantragen'],
-      valid: [
-        ['Die Meldebescheinigung', 'kann man', 'nur persönlich', 'beantragen']],
+      valid: [['Die Meldebescheinigung', 'kann man', 'nur persönlich', 'beantragen']],
       punct: '.' },
-    { parts: ['Mir ist', 'nicht ganz klar', ',', 'welche Unterlagen', 'ich', 'benötige'],
-      valid: [
-        ['Mir ist', 'nicht ganz klar', ',', 'welche Unterlagen', 'ich', 'benötige']],
+    { parts: ['Mir ist', 'nicht ganz klar,', 'welche Unterlagen', 'ich', 'benötige'],
+      valid: [['Mir ist', 'nicht ganz klar,', 'welche Unterlagen', 'ich', 'benötige']],
       punct: '.' },
     { parts: ['Das Anmeldeformular', 'muss', 'vollständig ausgefüllt', 'und unterschrieben', 'werden'],
-      valid: [
-        ['Das Anmeldeformular', 'muss', 'vollständig ausgefüllt', 'und unterschrieben', 'werden']],
+      valid: [['Das Anmeldeformular', 'muss', 'vollständig ausgefüllt', 'und unterschrieben', 'werden']],
       punct: '.' },
-    { parts: ['Außerdem würde ich', 'gern wissen', ',', 'ob mein Reisepass', 'für die Einreise', 'ausreicht'],
-      valid: [
-        ['Außerdem würde ich', 'gern wissen', ',', 'ob mein Reisepass', 'für die Einreise', 'ausreicht']],
+    { parts: ['Außerdem würde ich', 'gern wissen,', 'ob mein Reisepass', 'für die Einreise', 'ausreicht'],
+      valid: [['Außerdem würde ich', 'gern wissen,', 'ob mein Reisepass', 'für die Einreise', 'ausreicht']],
       punct: '.' },
     { parts: ['Nach der Anmeldung', 'bekommt man', 'sofort', 'eine Meldebescheinigung'],
-      valid: [
-        ['Nach der Anmeldung', 'bekommt man', 'sofort', 'eine Meldebescheinigung']],
+      valid: [['Nach der Anmeldung', 'bekommt man', 'sofort', 'eine Meldebescheinigung']],
       punct: '.' }
 ];
 
@@ -623,7 +605,7 @@ function sbMakeChip(word) {
     chip.draggable = true;
     chip.addEventListener('dragstart', function(e) {
         sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        if (typeof timerAutoStart === 'function') timerAutoStart(1);
         e.dataTransfer.setData('text/plain', '');
         setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
     });
@@ -695,7 +677,7 @@ function sbCheckAuto(idx) {
         return;
     }
     setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        if (typeof timerAutoStart === 'function') timerAutoStart(1);
         var ok = sbColorRow(idx);
         if (ok) {
             row.classList.add('correct'); row.classList.remove('incorrect');
@@ -713,7 +695,7 @@ function sbCheckAllDone() {
         var row = document.getElementById('sb-row-' + i);
         return row && row.classList.contains('correct');
     });
-    if (allOk && typeof timerStop === 'function') timerStop(3);
+    if (allOk && typeof timerStop === 'function') timerStop(1);
 }
 function sbShowSolution(idx) {
     var bank = document.getElementById('sb-bank-' + idx);
@@ -795,3 +777,103 @@ function initSatzbau() {
     });
 }
 function resetSatzbau() { initSatzbau(); }
+initSatzbau();
+
+
+function sbReset() {
+  sbRender();
+}
+
+function sbNext() {
+  if(sbCurrent < satzbauData.length-1) { sbCurrent++; sbRender(); }
+}
+
+function sbPrev() {
+  if(sbCurrent > 0) { sbCurrent--; sbRender(); }
+}
+
+// --- WORTSCHATZ ---
+const vocabData = [
+  { type:'n', en:'registration office', artikel:'das', wort:'Einwohnermeldeamt', plural:'Einwohnermeldeämter', img:'7516363', example:'Das Einwohnermeldeamt ist für die An-, Um- und Abmeldung zuständig.' },
+  { type:'n', en:'registration certificate', artikel:'die', wort:'Meldebescheinigung', plural:'Meldebescheinigungen', img:'6863254', example:'Die Meldebescheinigung können Sie nur persönlich beantragen.' },
+  { type:'n', en:'registration form', artikel:'das', wort:'Anmeldeformular', plural:'Anmeldeformulare', img:'95916', example:'Würden Sie bitte das Anmeldeformular ausfüllen?' },
+  { type:'n', en:'residence permit', artikel:'die', wort:'Aufenthaltsgenehmigung', plural:'Aufenthaltsgenehmigungen', img:'6863210', example:'Nicht-EU-Bürger brauchen eine Aufenthaltsgenehmigung.' },
+  { type:'n', en:'ID card', artikel:'der', wort:'Personalausweis', plural:'Personalausweise', img:'5668858', example:'Der Personalausweis ist ein offizielles Identifikationsdokument.' },
+  { type:'n', en:'nationality', artikel:'die', wort:'Staatsangehörigkeit', plural:'Staatsangehörigkeiten', img:'7968985', example:'Bitte tragen Sie Ihre Staatsangehörigkeit ins Formular ein.' },
+  { type:'n', en:'civil servant', artikel:'der', wort:'Beamte', plural:'Beamten', img:'3184360', example:'Die Beamten arbeiten im öffentlichen Dienst.' },
+  { type:'n', en:'passport', artikel:'der', wort:'Reisepass', plural:'Reisepässe', img:'1051073', example:'Für Reisen außerhalb der EU benötigt man einen gültigen Reisepass.' },
+  { type:'n', en:'bureaucracy', artikel:'die', wort:'Bürokratie', plural:'Bürokratien', img:'3760790', example:'Die deutsche Bürokratie kann manchmal kompliziert wirken.' },
+  { type:'n', en:'visa', artikel:'das', wort:'Visum', plural:'Visa', img:'2767814', example:'Für die Einreise nach Deutschland brauchen manche Länder ein Visum.' },
+  { type:'v', en:'to register (at an address)', wort:'sich anmelden', img:'4439425', example:'Ich muss mich beim Einwohnermeldeamt anmelden.' },
+  { type:'v', en:'to re-register (change of address)', wort:'sich ummelden', img:'1546039', example:'Wer umzieht, muss sich innerhalb von zwei Wochen ummelden.' }
+];
+
+function renderVocab() {
+  const container = document.getElementById('vocabContainer');
+  if(container.children.length > 0) return;
+  vocabData.forEach((v,i) => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    const imgSrc = `https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400`;
+    if(v.type === 'n') {
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+        <div class="vocab-body">
+          <div class="vocab-en">${v.en}</div>
+          <div class="vocab-fields">
+            <input data-answer="${v.artikel}" oninput="vocabLiveCheck(this)" placeholder="Artikel">
+            <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+            <input data-answer="${v.plural}" oninput="vocabLiveCheck(this)" placeholder="Plural">
+          </div>
+          <div class="vocab-example">${v.example}</div>
+        </div>`;
+    } else {
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+        <div class="vocab-body">
+          <div class="vocab-en">${v.en}</div>
+          <div class="vocab-fields">
+            <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+          </div>
+          <div class="vocab-example">${v.example}</div>
+        </div>`;
+    }
+    container.appendChild(card);
+  });
+}
+
+function vocabLiveCheck(inp) {
+  const ans = (inp.dataset.answer||'').trim().toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val.length === 0) return;
+  if(ans.startsWith(val)) {
+    if(val === ans) {
+      inp.classList.add('correct');
+      checkAllVocab();
+    }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllVocab() {
+  const inputs = document.querySelectorAll('#vocabContainer input');
+  const allDone = [...inputs].every(i => i.classList.contains('correct'));
+  if(allDone) timerStop(3);
+}
+
+function resetVocab() {
+  document.querySelectorAll('#vocabContainer input').forEach(i => {
+    i.value = '';
+    i.classList.remove('correct','wrong');
+  });
+  timerResetOne(3);
+  timerAutoStart(3);
+}
+
+// Init
+loadBestTimes();
+</script>
+</body>
+</html>

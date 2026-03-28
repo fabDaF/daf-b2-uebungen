@@ -392,15 +392,7 @@
           <span class="best-display" id="best-2"></span>
         </div>
       </div>
-      <h2>Satzbau – Sätze neu ordnen</h2>
-      <p class="sb-counter" id="sbCounter">Aufgabe 1 von 7</p>
-      <div id="sbZone"></div>
-      <div id="sbBank"></div>
-      <div class="sb-feedback" id="sbFeedback"></div>
-      <div class="sb-nav">
-        <button class="btn btn-sb" onclick="sbPrev()">◀ Zurück</button>
-        <button class="btn btn-sb" onclick="sbNext()">Weiter ▶</button>
-      </div>
+      <div id="satzbauContainer"></div>
     </div>
 
     <!-- TAB 3: WORTSCHATZ -->
@@ -480,7 +472,7 @@ function showTab(n) {
   document.getElementById('tab-'+n).classList.add('active');
   document.querySelectorAll('.nav-btn')[n].classList.add('active');
   if(n===1) timerAutoStart(1);
-  if(n===2) { initSatzbau(); timerAutoStart(2); }
+  if(n===2) { sbInit(); timerAutoStart(2); }
   if(n===3) { renderVocab(); timerAutoStart(3); }
 }
 
@@ -511,37 +503,27 @@ function resetGaps() {
 
 // --- SATZBAU ---
 
-
-let sbCurrent = 0;
-
 var satzbauData = [
     { parts: ['Ein Auslandssemester', 'verbessert', 'die Sprachkenntnisse', 'und steigert', 'die Karrierechancen'],
-      valid: [
-        ['Ein Auslandssemester', 'verbessert', 'die Sprachkenntnisse', 'und steigert', 'die Karrierechancen']],
+      valid: [['Ein Auslandssemester', 'verbessert', 'die Sprachkenntnisse', 'und steigert', 'die Karrierechancen']],
       punct: '.' },
     { parts: ['Für die Bewerbung', 'beim Erasmus-Programm', 'braucht man', 'ein Motivationsschreiben'],
-      valid: [
-        ['Für die Bewerbung', 'beim Erasmus-Programm', 'braucht man', 'ein Motivationsschreiben']],
+      valid: [['Für die Bewerbung', 'beim Erasmus-Programm', 'braucht man', 'ein Motivationsschreiben']],
       punct: '.' },
-    { parts: ['Das Stipendium', 'ermöglicht es', 'vielen Studierenden', ',', 'im Ausland', 'zu studieren'],
-      valid: [
-        ['Das Stipendium', 'ermöglicht es', 'vielen Studierenden', ',', 'im Ausland', 'zu studieren']],
+    { parts: ['Das Stipendium', 'ermöglicht es', 'vielen Studierenden,', 'im Ausland', 'zu studieren'],
+      valid: [['Das Stipendium', 'ermöglicht es', 'vielen Studierenden,', 'im Ausland', 'zu studieren']],
       punct: '.' },
     { parts: ['Im Ausland', 'sammelt man', 'wertvolle praktische Erfahrungen', 'für den späteren Beruf'],
-      valid: [
-        ['Im Ausland', 'sammelt man', 'wertvolle praktische Erfahrungen', 'für den späteren Beruf']],
+      valid: [['Im Ausland', 'sammelt man', 'wertvolle praktische Erfahrungen', 'für den späteren Beruf']],
       punct: '.' },
     { parts: ['Beim Vorstellungsgespräch', 'sollte man', 'seinen Lebenslauf', 'gut kennen'],
-      valid: [
-        ['Beim Vorstellungsgespräch', 'sollte man', 'seinen Lebenslauf', 'gut kennen']],
+      valid: [['Beim Vorstellungsgespräch', 'sollte man', 'seinen Lebenslauf', 'gut kennen']],
       punct: '.' },
-    { parts: ['Man kann sich', 'in einem Auslandsjahr', 'nicht nur fachlich', ',', 'sondern auch', 'persönlich weiterentwickeln'],
-      valid: [
-        ['Man kann sich', 'in einem Auslandsjahr', 'nicht nur fachlich', ',', 'sondern auch', 'persönlich weiterentwickeln']],
+    { parts: ['Man kann sich', 'in einem Auslandsjahr', 'nicht nur fachlich,', 'sondern auch', 'persönlich weiterentwickeln'],
+      valid: [['Man kann sich', 'in einem Auslandsjahr', 'nicht nur fachlich,', 'sondern auch', 'persönlich weiterentwickeln']],
       punct: '.' },
     { parts: ['Die Anerkennung', 'ausländischer Abschlüsse', 'kann', 'manchmal', 'kompliziert sein'],
-      valid: [
-        ['Die Anerkennung', 'ausländischer Abschlüsse', 'kann', 'manchmal', 'kompliziert sein']],
+      valid: [['Die Anerkennung', 'ausländischer Abschlüsse', 'kann', 'manchmal', 'kompliziert sein']],
       punct: '.' }
 ];
 
@@ -583,7 +565,7 @@ function sbMakeChip(word) {
     chip.draggable = true;
     chip.addEventListener('dragstart', function(e) {
         sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        if (typeof timerAutoStart === 'function') timerAutoStart(1);
         e.dataTransfer.setData('text/plain', '');
         setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
     });
@@ -655,7 +637,7 @@ function sbCheckAuto(idx) {
         return;
     }
     setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        if (typeof timerAutoStart === 'function') timerAutoStart(1);
         var ok = sbColorRow(idx);
         if (ok) {
             row.classList.add('correct'); row.classList.remove('incorrect');
@@ -673,7 +655,7 @@ function sbCheckAllDone() {
         var row = document.getElementById('sb-row-' + i);
         return row && row.classList.contains('correct');
     });
-    if (allOk && typeof timerStop === 'function') timerStop(3);
+    if (allOk && typeof timerStop === 'function') timerStop(1);
 }
 function sbShowSolution(idx) {
     var bank = document.getElementById('sb-bank-' + idx);
@@ -755,3 +737,89 @@ function initSatzbau() {
     });
 }
 function resetSatzbau() { initSatzbau(); }
+initSatzbau();
+
+
+function sbReset() { sbRender(); }
+function sbNext() { if(sbCurrent < satzbauData.length-1) { sbCurrent++; sbRender(); } }
+function sbPrev() { if(sbCurrent > 0) { sbCurrent--; sbRender(); } }
+
+// --- WORTSCHATZ ---
+const vocabData = [
+  { type:'n', en:'scholarship / grant', artikel:'das', wort:'Stipendium', plural:'Stipendien', img:'1438072', example:'Das Erasmus-Programm vergibt ein Stipendium an Studierende.' },
+  { type:'n', en:'timetable / schedule', artikel:'der', wort:'Stundenplan', plural:'Stundenpläne', img:'1545756', example:'Am Anfang des Semesters stellt man seinen Stundenplan zusammen.' },
+  { type:'n', en:'semester ticket (transit pass)', artikel:'das', wort:'Semesterticket', plural:'Semestertickets', img:'1427577', example:'Mit dem Semesterticket kann man den Nahverkehr kostenlos nutzen.' },
+  { type:'n', en:'motivation letter', artikel:'das', wort:'Motivationsschreiben', plural:'Motivationsschreiben', img:'590016', example:'Das Motivationsschreiben ist Teil der Erasmus-Bewerbung.' },
+  { type:'n', en:'job interview', artikel:'das', wort:'Vorstellungsgespräch', plural:'Vorstellungsgespräche', img:'3184611', example:'Beim Vorstellungsgespräch fragt man nach Erfahrungen und Stärken.' },
+  { type:'n', en:'CV, curriculum vitae', artikel:'der', wort:'Lebenslauf', plural:'Lebensläufe', img:'590016', example:'Der Lebenslauf sollte alle relevanten Erfahrungen enthalten.' },
+  { type:'n', en:'application portfolio / folder', artikel:'die', wort:'Bewerbungsmappe', plural:'Bewerbungsmappen', img:'4065899', example:'Die Bewerbungsmappe enthält Lebenslauf und Motivationsschreiben.' },
+  { type:'n', en:'recognition (of qualifications)', artikel:'die', wort:'Anerkennung', plural:'Anerkennungen', img:'1181533', example:'Die Anerkennung ausländischer Abschlüsse kann Zeit in Anspruch nehmen.' },
+  { type:'n', en:'vocational guidance', artikel:'die', wort:'Berufsberatung', plural:'Berufsberatungen', img:'3184360', example:'Die Berufsberatung hilft dir, eine Stelle im Ausland zu finden.' },
+  { type:'n', en:'credit point (ECTS)', artikel:'der', wort:'Leistungspunkt', plural:'Leistungspunkte', img:'1438073', example:'Für jede Lehrveranstaltung bekommt man Leistungspunkte.' },
+  { type:'v', en:'to borrow specialist literature', wort:'Fachliteratur ausleihen', img:'694740', example:'Ich habe für meine Hausarbeit Fachliteratur ausgeliehen.' },
+  { type:'v', en:'to gain practical experience', wort:'praktische Erfahrungen sammeln', img:'3184338', example:'Im Ausland kann man wertvolle praktische Erfahrungen sammeln.' }
+];
+
+function renderVocab() {
+  const container = document.getElementById('vocabContainer');
+  if(container.children.length > 0) return;
+  vocabData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    const imgSrc = `https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400`;
+    if(v.type === 'n') {
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+        <div class="vocab-body">
+          <div class="vocab-en">${v.en}</div>
+          <div class="vocab-fields">
+            <input data-answer="${v.artikel}" oninput="vocabLiveCheck(this)" placeholder="Artikel">
+            <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+            <input data-answer="${v.plural}" oninput="vocabLiveCheck(this)" placeholder="Plural">
+          </div>
+          <div class="vocab-example">${v.example}</div>
+        </div>`;
+    } else {
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${v.wort}" onerror="this.style.display='none'">
+        <div class="vocab-body">
+          <div class="vocab-en">${v.en}</div>
+          <div class="vocab-fields">
+            <input data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="Deutsch">
+          </div>
+          <div class="vocab-example">${v.example}</div>
+        </div>`;
+    }
+    container.appendChild(card);
+  });
+}
+
+function vocabLiveCheck(inp) {
+  const ans = (inp.dataset.answer||'').trim().toLowerCase();
+  const val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val.length === 0) return;
+  if(ans.startsWith(val)) {
+    if(val === ans) { inp.classList.add('correct'); checkAllVocab(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllVocab() {
+  const inputs = document.querySelectorAll('#vocabContainer input');
+  if([...inputs].every(i => i.classList.contains('correct'))) timerStop(3);
+}
+
+function resetVocab() {
+  document.querySelectorAll('#vocabContainer input').forEach(i => {
+    i.value=''; i.classList.remove('correct','wrong');
+  });
+  timerResetOne(3); timerAutoStart(3);
+}
+
+// Init
+loadBestTimes();
+</script>
+</body>
+</html>

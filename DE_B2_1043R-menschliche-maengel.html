@@ -560,10 +560,8 @@ body { padding: 20px; }
       </div>
       <div class="timer-display" id="timer4-display">⏱ 00:00</div>
     </div>
-    <div class="score-box">Ergebnis: <span id="sb-score">0</span> / 7 richtig</div>
-    <p style="font-size:0.9rem;color:#666;margin-bottom:18px;">Ziehe die Wörter in die richtige Reihenfolge.</p>
-    <div id="satzbauContainer"></div>
-  </div>
+      <div id="satzbauContainer"></div>
+    </div>
 
   <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
 </div>
@@ -630,7 +628,7 @@ function showTab(idx) {
   document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
   if (idx === 2 && !timers[2]) timerAutoStart(2);
   if (idx === 3 && !timers[3]) timerAutoStart(3);
-  if (idx === 4 && !timers[4]) { initSatzbau(); timerAutoStart(4); }
+  if (idx === 4 && !timers[4]) { buildSatzbau(); timerAutoStart(4); }
 }
 
 // ─── LÜCKENTEXT ───────────────────────────────────────────────────────────────
@@ -714,35 +712,29 @@ function resetRF() {
 }
 
 // ─── SATZBAU ──────────────────────────────────────────────────────────────────
+let sbDragged = null;
 
 var satzbauData = [
     { parts: ['Irren', 'ist', 'menschlich'],
-      valid: [
-        ['Irren', 'ist', 'menschlich']],
+      valid: [['Irren', 'ist', 'menschlich']],
       punct: '.' },
     { parts: ['Die', 'Algorithmen', 'lernen', 'immer', 'mehr', 'dazu'],
-      valid: [
-        ['Die', 'Algorithmen', 'lernen', 'immer', 'mehr', 'dazu']],
+      valid: [['Die', 'Algorithmen', 'lernen', 'immer', 'mehr', 'dazu']],
       punct: '.' },
     { parts: ['Er', 'ist', 'ein', 'selbstsüchtiger', 'Mensch'],
-      valid: [
-        ['Er', 'ist', 'ein', 'selbstsüchtiger', 'Mensch']],
+      valid: [['Er', 'ist', 'ein', 'selbstsüchtiger', 'Mensch']],
       punct: '.' },
     { parts: ['Die', 'Ängste', 'können', 'das', 'Leben', 'der', 'Angsthasen', 'beeinträchtigen'],
-      valid: [
-        ['Die', 'Ängste', 'können', 'das', 'Leben', 'der', 'Angsthasen', 'beeinträchtigen']],
+      valid: [['Die', 'Ängste', 'können', 'das', 'Leben', 'der', 'Angsthasen', 'beeinträchtigen']],
       punct: '.' },
     { parts: ['Manche', 'drücken', 'sich', 'vor', 'ihren', 'Verantwortungen'],
-      valid: [
-        ['Manche', 'drücken', 'sich', 'vor', 'ihren', 'Verantwortungen']],
+      valid: [['Manche', 'drücken', 'sich', 'vor', 'ihren', 'Verantwortungen']],
       punct: '.' },
     { parts: ['Viele', 'Menschen', 'lernen', 'aus', 'ihren', 'Fehlern', 'und', 'arbeiten', 'an', 'sich'],
-      valid: [
-        ['Viele', 'Menschen', 'lernen', 'aus', 'ihren', 'Fehlern', 'und', 'arbeiten', 'an', 'sich']],
+      valid: [['Viele', 'Menschen', 'lernen', 'aus', 'ihren', 'Fehlern', 'und', 'arbeiten', 'an', 'sich']],
       punct: '.' },
     { parts: ['Wir', 'sind', 'keine', 'Maschinen', ',', 'und', 'das', 'ist', 'auch', 'gut', 'so'],
-      valid: [
-        ['Wir', 'sind', 'keine', 'Maschinen', ',', 'und', 'das', 'ist', 'auch', 'gut', 'so']],
+      valid: [['Wir', 'sind', 'keine', 'Maschinen', ',', 'und', 'das', 'ist', 'auch', 'gut', 'so']],
       punct: '.' }
 ];
 
@@ -784,7 +776,7 @@ function sbMakeChip(word) {
     chip.draggable = true;
     chip.addEventListener('dragstart', function(e) {
         sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(5);
+        if (typeof timerAutoStart === 'function') timerAutoStart(3);
         e.dataTransfer.setData('text/plain', '');
         setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
     });
@@ -856,7 +848,7 @@ function sbCheckAuto(idx) {
         return;
     }
     setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(5);
+        if (typeof timerAutoStart === 'function') timerAutoStart(3);
         var ok = sbColorRow(idx);
         if (ok) {
             row.classList.add('correct'); row.classList.remove('incorrect');
@@ -874,7 +866,7 @@ function sbCheckAllDone() {
         var row = document.getElementById('sb-row-' + i);
         return row && row.classList.contains('correct');
     });
-    if (allOk && typeof timerStop === 'function') timerStop(5);
+    if (allOk && typeof timerStop === 'function') timerStop(3);
 }
 function sbShowSolution(idx) {
     var bank = document.getElementById('sb-bank-' + idx);
@@ -956,3 +948,12 @@ function initSatzbau() {
     });
 }
 function resetSatzbau() { initSatzbau(); }
+initSatzbau();
+
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+loadBestTimes();
+timerAutoStart(2);
+</script>
+</body>
+</html>
