@@ -32,9 +32,8 @@ body {
   border-bottom: 2px solid #e0e0e0;
   background: #f8f8f8;
 }
-.nav-btn {
+.nav-btn{
   flex: 1;
-  border: none;
   background: none;
   padding: 12px 8px;
   cursor: pointer;
@@ -154,6 +153,56 @@ body {
 .sb-fb.ok { color: #43a047; }
 .sb-fb.err { color: #e53935; }
 .footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; border-top: 1px solid #f0f0f0; }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
@@ -162,12 +211,12 @@ body {
     <h1>Vergleichssätze</h1>
     <p>B2 · Einheit 4 · Grammatik · 1045G</p>
   </div>
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showTab(0,this)"><span class="nav-emoji">📖</span><span class="nav-label">Grammatik</span></button>
-    <button class="nav-btn" onclick="showTab(1,this)"><span class="nav-emoji">🎯</span><span class="nav-label">Zuordnung</span></button>
-    <button class="nav-btn" onclick="showTab(2,this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></button>
-    <button class="nav-btn" onclick="showTab(3,this)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></button>
-  </nav>
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0,this)"><span class="nav-emoji">📖</span><span class="nav-label">Grammatik</span></div>
+    <div class="nav-btn" onclick="showTab(1,this)"><span class="nav-emoji">🎯</span><span class="nav-label">Zuordnung</span></div>
+    <div class="nav-btn" onclick="showTab(2,this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+    <div class="nav-btn" onclick="showTab(3,this)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></div>
+  </div>
 
   <!-- TAB 0: GRAMMATIK -->
   <div class="tab active" id="tab0">
@@ -233,8 +282,8 @@ body {
       <div class="buttons">
         <button class="btn btn-reset" onclick="resetZuordnung()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-wrap">⏱ <span id="timer1-display">00:00</span></div>
-    </div>
+      
+</div>
     <p style="font-size:0.9rem;color:#555;margin-bottom:16px;">Wähle den richtigen Konnektor: <strong>als ob / als wenn</strong> (→ Verb am Ende) oder <strong>als</strong> (→ Verb an Position 2).</p>
     <div class="score-bar">Richtig: <span class="score-val" id="zuord-score">0</span> / 8</div>
     <ul class="zuord-list" id="zuord-list"></ul>
@@ -246,8 +295,8 @@ body {
       <div class="buttons">
         <button class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-wrap">⏱ <span id="timer2-display">00:00</span></div>
-    </div>
+      
+</div>
     <p style="font-size:0.9rem;color:#555;margin-bottom:16px;">Setze die richtige Konjunktiv-II-Form ein. <em>(Hinweis in Klammern)</em></p>
     <div class="score-bar">Richtig: <span class="score-val" id="luecke-score">0</span> / 12</div>
     <ul class="luecke-list" id="luecke-list">
@@ -272,8 +321,8 @@ body {
       <div class="buttons">
         <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
       </div>
-      <div class="timer-wrap">⏱ <span id="timer3-display">00:00</span></div>
-    </div>
+      
+</div>
     <div id="sb-container"></div>
   </div>
 
@@ -282,44 +331,54 @@ body {
 
 <script>
 // === TIMER ===
-const TIMER_PREFIX = 'B2_1045G_';
-const timers = {};
-function timerAutoStart(n) {
-  if (timers[n]) return;
-  const start = Date.now();
-  const el = document.getElementById('timer' + n + '-display');
-  if (!el) return;
-  timers[n] = {
-    start, stopped: false,
-    interval: setInterval(() => {
-      const s = Math.floor((Date.now() - start) / 1000);
-      el.textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-    }, 1000)
-  };
+var TIMER_PREFIX='B2_1045G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-function timerStop(n) {
-  if (!timers[n] || timers[n].stopped) return;
-  clearInterval(timers[n].interval);
-  timers[n].stopped = true;
-  const s = Math.floor((Date.now() - timers[n].start) / 1000);
-  const key = TIMER_PREFIX + 'T' + n;
-  const prev = localStorage.getItem(key);
-  if (!prev || s < parseInt(prev)) localStorage.setItem(key, s);
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
-function timerResetOne(n) {
-  if (timers[n]) { clearInterval(timers[n].interval); delete timers[n]; }
-  const el = document.getElementById('timer' + n + '-display');
-  if (el) el.textContent = '00:00';
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
 
 // === TAB NAVIGATION ===
 function showTab(idx, btn) {
   document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (idx === 1 && !timers[1]) timerAutoStart(1);
-  if (idx === 2 && !timers[2]) timerAutoStart(2);
-  if (idx === 3 && !timers[3]) timerAutoStart(3);
+  if (idx === 1 && !timerStarted[1]) timerAutoStart(1);
+  if (idx === 2 && !timerStarted[2]) timerAutoStart(2);
+  if (idx === 3 && !timerStarted[3]) timerAutoStart(3);
 }
 
 // === ZUORDNUNG ===
@@ -461,7 +520,7 @@ function buildSb() {
     const sec = document.createElement('div');
     sec.className = 'sb-section';
     sec.dataset.idx = idx;
-    sec.innerHTML = `<div class="sb-sentence-label">Satz ${idx + 1}</div>
+    sec.innerHTML = `<div class="sb-sentence-label">${idx + 1}.</div>
       <div class="sb-chips-src"></div>
       <div class="sb-drop-zone"></div>
       <div class="sb-fb"></div>`;

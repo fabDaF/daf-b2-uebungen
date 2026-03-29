@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1058S · Das Internet und ich</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px 30px 16px;
+  }
+  header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  header p { opacity: 0.85; font-size: 0.95rem; }
+  nav {
+    display: flex;
+    background: #f0f0f0;
+    border-bottom: 2px solid #ddd;
+    overflow-x: auto;
+  }
+  nav button {
+    flex: 1;
+    min-width: 90px;
+    padding: 10px 8px;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    background: #e8e8e8;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: background 0.2s;
+    color: #555;
+  }
+  nav button .nav-emoji { font-size: 1.3rem; }
+  nav button .nav-label { font-size: 0.72rem; }
+  nav button.active {
+    background: white;
+    color: #667eea;
+    font-weight: 600;
+    border-bottom: 3px solid #667eea;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  @media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+  .sec-inner { padding: 24px 28px; }
+  .control-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .control-bar .btn-group { display: flex; gap: 8px; }
+  .btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn-reset { background: #e0e0e0; color: #555; }
+  .btn-reset:hover { background: #ccc; }
+  .timer-box {
+    font-size: 0.85rem;
+    color: #666;
+    font-variant-numeric: tabular-nums;
+    background: #f5f5f5;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+  }
+
+  /* Vorentlastung */
+  .intro-box {
+    background: #f8f6ff;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .intro-box h3 { color: #667eea; margin-bottom: 10px; font-size: 1rem; }
+  .intro-box ul { padding-left: 20px; }
+  .intro-box li { margin-bottom: 6px; font-size: 0.95rem; line-height: 1.5; }
+  .adverb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .adverb-card {
+    background: #667eea;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(102,126,234,0.4);
+  }
+  .adverb-card small {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-top: 3px;
+  }
+  .discuss-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  @media (max-width: 600px) { .discuss-grid { grid-template-columns: 1fr; } }
+  .discuss-card {
+    background: #f0f4ff;
+    border: 1px solid #c8d4f8;
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .discuss-card h4 { color: #667eea; margin-bottom: 8px; font-size: 0.9rem; }
+  .discuss-card p { font-size: 0.88rem; line-height: 1.5; color: #444; }
+
+  /* Lückentext */
+  .gap-list { list-style: none; }
+  .gap-list li {
+    background: #fafafa;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .gap-list li .nr {
+    font-weight: 700;
+    color: #667eea;
+    margin-right: 8px;
+  }
+  input.gap {
+    border: none;
+    border-bottom: 2px solid #999;
+    outline: none;
+    font-size: 0.95rem;
+    width: 160px;
+    padding: 1px 4px;
+    background: transparent;
+    transition: border-color 0.2s;
+  }
+  input.gap:focus { border-bottom-color: #667eea; }
+  input.gap.correct { border-bottom-color: #4CAF50; background: #e8f5e9; color: #2e7d32; }
+  input.gap.wrong { border-bottom-color: #f44336; background: #ffebee; }
+  .hint { font-size: 0.78rem; color: #888; margin-left: 6px; font-style: italic; }
+
+  /* Satzbau */
+  .sb-exercise { margin-bottom: 28px; }
+  .sb-sentence-nr { font-weight: 700; color: #667eea; margin-bottom: 8px; font-size: 0.9rem; }
+  .chip-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-height: 44px;
+    background: #f0f4ff;
+    border: 2px dashed #c8d4f8;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+  .drop-zone {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-height: 44px;
+    background: #f9f9f9;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px;
+    transition: background 0.2s;
+  }
+  .drop-zone.drag-over { background: #e8f0fe; border-color: #667eea; }
+  .chip {
+    background: #667eea;
+    color: white;
+    padding: 5px 11px;
+    border-radius: 20px;
+    cursor: grab;
+    font-size: 0.88rem;
+    user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+    white-space: nowrap;
+  }
+  .chip:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .chip.punct { background: #888; }
+  .sb-result {
+    font-size: 0.83rem;
+    font-weight: 600;
+    margin-top: 4px;
+    min-height: 20px;
+  }
+  .sb-result.ok { color: #4CAF50; }
+  .sb-result.err { color: #f44336; }
+
+  /* Wortschatz */
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .vocab-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .vocab-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+  }
+  .vocab-body { padding: 12px 14px; }
+  .vocab-de {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  .vocab-en {
+    font-size: 0.82rem;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .vocab-example {
+    font-size: 0.8rem;
+    color: #555;
+    font-style: italic;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .vocab-inputs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .vocab-inputs input {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-size: 0.83rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .vocab-inputs input:focus { border-color: #667eea; }
+  .vocab-inputs input.correct { border-color: #4CAF50; background: #e8f5e9; }
+  .vocab-inputs input.wrong { border-color: #f44336; background: #ffebee; }
+
+  footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.78rem;
+    color: #888;
+    border-top: 1px solid #eee;
+  }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+<script>
+var TIMER_PREFIX='B2_1058S_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [0,1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Das Internet und ich</h1>
+    <p>B2 · Lektion 1058S · Soziale Medien und Kommunikation</p>
+  </header>
+  <div class="nav">
+    <button class="active" onclick="showTab(0)">
+      <span class="nav-emoji">🌐</span><span class="nav-label">Einstieg</span>
+    </div>
+    <button onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+    </div>
+    <button onclick="showTab(2)">
+      <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+    </div>
+    <button onclick="showTab(3)">
+      <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
+
+  <!-- TAB 0: Vorentlastung -->
+  <div class="section active" id="sec0">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Soziale Medien auf Smartphone">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"></div>
+        
+</div>
+      <div class="intro-box">
+        <h3>💬 Das Internet im Alltag — Diskussionsimpulse</h3>
+        <ul>
+          <li>Wie oft nutzen Sie täglich soziale Medien? Was tun Sie dabei?</li>
+          <li>Schreiben Sie Blogeinträge oder Kommentare? Worüber?</li>
+          <li>Welche Vor- und Nachteile hat das Internet für Sie persönlich?</li>
+          <li>Wie gehen Sie mit Sarkasmus oder Missverständnissen online um?</li>
+        </ul>
+      </div>
+
+      <div class="discuss-grid">
+        <div class="discuss-card">
+          <h4>✅ Vorteile des Internets</h4>
+          <p>Informationen sofort finden · mit Lernplattformen Wissen ausschöpfen · Kontakte pflegen · höchst effektive Suchmaschinen nutzen · Stellungnahmen einfach teilen</p>
+        </div>
+        <div class="discuss-card">
+          <h4>⚠️ Nachteile und Risiken</h4>
+          <p>Realitätsferne Blickwinkel · Sarkasmus wird missverstanden · Folgen des Handelns schwer abschätzbar · Ablenkung · Abhängigkeit vom digitalen Status</p>
+        </div>
+      </div>
+
+      <h3 style="margin: 20px 0 12px; color: #667eea; font-size: 0.95rem;">🎯 Modale Adverbien — wie stark ist meine Aussage?</h3>
+      <div class="adverb-grid">
+        <div class="adverb-card">absolut<small>100 % Zustimmung</small></div>
+        <div class="adverb-card">außerordentlich<small>außergewöhnlich</small></div>
+        <div class="adverb-card">höchst<small>sehr stark</small></div>
+        <div class="adverb-card">besonders<small>hervorgehoben</small></div>
+        <div class="adverb-card">ziemlich<small>recht / relativ</small></div>
+        <div class="adverb-card">einigermaßen<small>halbwegs</small></div>
+        <div class="adverb-card">relativ<small>im Vergleich</small></div>
+        <div class="adverb-card">ganz<small>vollständig / etwas</small></div>
+        <div class="adverb-card">überhaupt (nicht)<small>gar nicht / keineswegs</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Lückentext -->
+  <div class="section" id="sec1">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/5082579/pexels-photo-5082579.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Person tippt auf Laptop">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group">
+          <button class="btn btn-reset" onclick="resetGaps()">↺ Zurücksetzen</button>
+        </div>
+        <div class="timer-box" id="timer-1">⏱ 00:00</div><div class="timer-box-best" id="best-1">--:--</div>
+      </div>
+      <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Ergänzen Sie die fehlenden Wörter. Sie erhalten sofort Rückmeldung.</p>
+      <ol class="gap-list">
+        <li><span class="nr">1.</span> Dieser Blogeintrag ist <input class="gap" data-answer="außerordentlich" oninput="checkGap(this)"> gut geschrieben und sehr informativ. <span class="hint">(außergewöhnlich)</span></li>
+        <li><span class="nr">2.</span> Ob etwas Sarkasmus ist, bleibt <input class="gap" data-answer="Ansichtssache" oninput="checkGap(this)"> — nicht jeder versteht dieselbe Ironie. <span class="hint">(Meinungsfrage)</span></li>
+        <li><span class="nr">3.</span> Auf dieser <input class="gap" data-answer="Lernplattform" oninput="checkGap(this)"> können Nutzer eigene Beiträge veröffentlichen und kommentieren.</li>
+        <li><span class="nr">4.</span> Ich kann die Folgen meiner Online-Aussagen nur <input class="gap" data-answer="halbwegs" oninput="checkGap(this)"> abschätzen. <span class="hint">(mehr oder weniger)</span></li>
+        <li><span class="nr">5.</span> Sie verfolgt den <input class="gap" data-answer="Status" oninput="checkGap(this)"> ihrer Bestellung täglich auf der Website des Versandhauses.</li>
+        <li><span class="nr">6.</span> Diese Stellungnahme ist <input class="gap" data-answer="absolut" oninput="checkGap(this)"> nachvollziehbar — ich stimme ihr vollständig zu. <span class="hint">(100 %)</span></li>
+        <li><span class="nr">7.</span> Diese Suchmaschine ist <input class="gap" data-answer="höchst" oninput="checkGap(this)"> effektiv und findet auch seltene Quellen. <span class="hint">(sehr)</span></li>
+        <li><span class="nr">8.</span> Realitätsferne Blickwinkel können uns schnell <input class="gap" data-answer="vereinnahmen" oninput="checkGap(this)"> und unser Urteilsvermögen trüben.</li>
+        <li><span class="nr">9.</span> Er hat sofort auf den Kommentar <input class="gap" data-answer="reagiert" oninput="checkGap(this)"> und eine kurze Erklärung gepostet. <span class="hint">(geantwortet)</span></li>
+        <li><span class="nr">10.</span> Sie hat die Antwort schnell in das Suchfeld <input class="gap" data-answer="eingetippt" oninput="checkGap(this)"> und auf Enter gedrückt. <span class="hint">(getippt)</span></li>
+        <li><span class="nr">11.</span> Man sollte die Möglichkeiten des Internets voll <input class="gap" data-answer="ausschöpfen" oninput="checkGap(this)"> und kritisch damit umgehen. <span class="hint">(nutzen)</span></li>
+        <li><span class="nr">12.</span> Die Polizei konnte den Absender der anonymen Drohung nicht <input class="gap" data-answer="identifizieren" oninput="checkGap(this)">. <span class="hint">(feststellen)</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- TAB 2: Satzbau -->
+  <div class="section" id="sec2">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/163064/play-stone-network-networked-163064.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Puzzle-Netzwerk">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group">
+          <button class="btn btn-reset" onclick="resetSatzbau()">↺ Zurücksetzen</button>
+        </div>
+        <div class="timer-box" id="timer-2">⏱ 00:00</div><div class="timer-box-best" id="best-2">--:--</div>
+      </div>
+      <p style="margin-bottom:20px; color:#555; font-size:0.9rem;">Ziehen Sie die Chips in die richtige Reihenfolge. Satzzeichen gehören ebenfalls in die Lösung.</p>
+      <div id="sb-container"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Wortschatz -->
+  <div class="section" id="sec3">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/159751/book-address-book-learning-read-159751.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Bücher und Wörterbuch">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group">
+          <button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
+        </div>
+        <div class="timer-box" id="timer-3">⏱ 00:00</div><div class="timer-box-best" id="best-3">--:--</div>
+      </div>
+      <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Tippen Sie das deutsche Wort (mit Artikel wenn nötig). Grün = richtig.</p>
+      <div class="vocab-grid" id="vocab-grid"></div>
+    </div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+
+</body>
+</html>

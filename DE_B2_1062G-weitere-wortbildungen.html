@@ -180,6 +180,56 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
 @media (max-width: 600px) {
     .zuo-layout-3 { grid-template-columns: 1fr; }
 }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
@@ -323,7 +373,7 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
         <button onclick="t1SolveAll()">&#128161; L&#246;sungen</button>
       </div>
       <div class="timer-display-row">
-        <span>&#9201; <span class="timer-display" id="timer-1">0:00</span></span>
+        <span>&#9201; <span id="timer-1">0:00</span><span>🏆 <span id="best-1">--:--</span></span></span></span></span>
         <span>&#127942; <span class="best-display" id="best-1">&#8211;</span></span>
       </div>
     </div>
@@ -401,7 +451,7 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
         <button onclick="t3SolveAll()">&#128161; L&#246;sungen</button>
       </div>
       <div class="timer-display-row">
-        <span>&#9201; <span class="timer-display" id="timer-3">0:00</span></span>
+        <span>&#9201; <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span></span>
         <span>&#127942; <span class="best-display" id="best-3">&#8211;</span></span>
       </div>
     </div>
@@ -478,7 +528,7 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
         <button onclick="t5SolveAll()">&#128161; L&#246;sungen</button>
       </div>
       <div class="timer-display-row">
-        <span>&#9201; <span class="timer-display" id="timer-5">0:00</span></span>
+        <span>&#9201; <span id="timer-5">0:00</span><span>🏆 <span id="best-5">--:--</span></span></span></span></span>
         <span>&#127942; <span class="best-display" id="best-5">&#8211;</span></span>
       </div>
     </div>
@@ -508,7 +558,7 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
   <div style="padding: 28px 30px;">
     <h2 class="sec-title">Satzbau — Wörter in die richtige Reihenfolge bringen</h2>
     <div class="timer-bar">
-      <span>&#9201; <span class="timer-display" id="timer-6">0:00</span></span>
+      <span>&#9201; <span id="timer-6">0:00</span><span>🏆 <span id="best-6">--:--</span></span></span></span></span>
       <span>&#127942; <span class="best-display" id="best-6">&#8211;</span></span>
     </div>
     <div class="btn-row">
@@ -553,16 +603,18 @@ function timerAutoStart(n) {
     if (el) el.textContent = fmtTime(timerSeconds[n]);
   }, 1000);
 }
-function timerStop(n) {
-  if (!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]);
-  timerRunning[n] = false;
-  var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
-  if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
-    localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
-    var el = document.getElementById('best-' + n);
-    if (el) el.textContent = fmtTime(timerSeconds[n]);
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
   }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
 function timerResetOne(n) {
   clearInterval(timerIntervals[n]);
@@ -575,6 +627,12 @@ function timerResetOne(n) {
 function fmtTime(s) {
   return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
 }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3,4,5,6].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
 function loadBestTimes() {
   for (var i = 1; i <= 6; i++) {
     var v = localStorage.getItem(TIMER_PREFIX + i);
@@ -727,7 +785,6 @@ function t1SolveAll() {
     inp.value = inp.dataset.answer;
     t1LiveCheck(inp);
   });
-}
 
 function buildT1() {
   var pool = document.getElementById('t1-pool');
@@ -784,7 +841,6 @@ function buildT1() {
 
     cont.appendChild(card);
   });
-}
 
 function buildLuecke1() { buildT1(); }
 function resetTab1() { timerResetOne(1); buildT1(); }
@@ -982,7 +1038,6 @@ function t3SolveAll() {
     inp.value = inp.dataset.answer;
     t3LiveCheck(inp);
   });
-}
 
 function buildT3() {
   var cont = document.getElementById('t3-container');
@@ -1037,7 +1092,6 @@ function buildT3() {
 
     cont.appendChild(card);
   });
-}
 
 function buildLuecke3() { buildT3(); }
 function resetTab3() { timerResetOne(3); buildT3(); }
@@ -1228,7 +1282,6 @@ function t5SolveAll() {
     inp.value = inp.dataset.answer;
     t5LiveCheck(inp);
   });
-}
 
 function buildT5() {
   var pool = document.getElementById('t5-pool');
@@ -1295,7 +1348,6 @@ function buildT5() {
 
     cont.appendChild(card);
   });
-}
 
 function buildLuecke5() { buildT5(); }
 function resetTab5() { timerResetOne(5); buildT5(); }
@@ -1598,7 +1650,6 @@ function initSatzbau() {
     item.appendChild(btnRow);
     container.appendChild(item);
   });
-}
 
 function resetSatzbau() { timerResetOne(6); initSatzbau(); }
 function resetTab6() { resetSatzbau(); }
@@ -1611,6 +1662,7 @@ initZuo4();
 buildLuecke5();
 initSatzbau();
 loadBestTimes();
-</script>
+
+}}}}}}}</script>
 </body>
 </html>

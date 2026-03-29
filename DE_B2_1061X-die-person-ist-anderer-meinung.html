@@ -33,14 +33,13 @@
     border-bottom: 2px solid #e9ecef;
     overflow-x: auto;
   }
-  .nav-btn {
+  .nav-btn{
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 12px 8px;
-    border: none;
     background: transparent;
     cursor: pointer;
     font-size: 0.78rem;
@@ -272,6 +271,56 @@
     border-top: 1px solid #e9ecef;
     margin-top: 10px;
   }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
@@ -282,24 +331,24 @@
     <p>B2 · Einheit 6 · Lektion 1061 · Kommunikation</p>
   </div>
 
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Vorentlastung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
       <span class="nav-emoji">✏️</span>
       <span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
       <span class="nav-emoji">🔀</span>
       <span class="nav-label">Satzbau</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
       <span class="nav-emoji">📚</span>
       <span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- TAB 0: VORENTLASTUNG -->
   <div class="tab-content active" id="tab-0">
@@ -360,10 +409,10 @@
 
     <div class="control-bar">
       <div class="btn-group">
-        <button class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
+        <div class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-display" id="timer1-display">⏱ 00:00</div>
-    </div>
+      
+</div>
 
     <div class="luecke-text">
       <p>1. &nbsp;Wie jemand die Welt ansieht und beurteilt, definiert seine <input class="gap-input" data-answer="weltanschauung" oninput="liveCheck(this)" placeholder="">.</p>
@@ -388,10 +437,10 @@
 
     <div class="control-bar">
       <div class="btn-group">
-        <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+        <div class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
       </div>
-      <div class="timer-display" id="timer2-display">⏱ 00:00</div>
-    </div>
+      
+</div>
 
     <div class="sb-sentences" id="sb-container"></div>
     <div id="sb-score-row">Richtig: <span id="sb-score">0</span> / 7</div>
@@ -403,10 +452,10 @@
 
     <div class="control-bar">
       <div class="btn-group">
-        <button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
+        <div class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-display" id="timer3-display">⏱ 00:00</div>
-    </div>
+      
+</div>
 
     <div class="vocab-section-title">📌 Nomen</div>
     <div class="vocab-container" id="vocab-container"></div>
@@ -424,38 +473,45 @@ function showTab(n) {
 }
 
 // ─── TIMER SYSTEM ─────────────────────────────────────────────────
-const TIMER_PREFIX = 'B2_1061X_';
-const timers = {};
-
-function timerStart(n) {
-  if (timers[n] && timers[n].running) return;
-  const t = timers[n] || (timers[n] = {secs:0, running:false, interval:null});
-  t.running = true;
-  t.interval = setInterval(() => { t.secs++; updateTimerDisplay(n); }, 1000);
+var TIMER_PREFIX='B2_1061X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-
-function timerStop(n) {
-  const t = timers[n];
-  if (!t || !t.running) return;
-  clearInterval(t.interval);
-  t.running = false;
-  const best = loadBestTime(n);
-  if (best === null || t.secs < best) saveBestTime(n, t.secs);
-  updateTimerDisplay(n, true);
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
-
-function timerReset(n) {
-  const t = timers[n];
-  if (!t) return;
-  clearInterval(t.interval);
-  t.secs = 0;
-  t.running = false;
-  updateTimerDisplay(n);
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
-
-function fmtTime(s) {
-  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
 
 function updateTimerDisplay(n, done=false) {
   const el = document.getElementById('timer'+n+'-display');
@@ -504,7 +560,7 @@ function resetLuecke() {
     i.value = '';
     i.classList.remove('correct','wrong');
   });
-  timerReset(1);
+  timerResetOne(1);
   lueckeStarted = false;
   updateLueckeScore();
 }
@@ -593,7 +649,6 @@ function buildSb() {
     item.appendChild(feedback);
     container.appendChild(item);
   });
-}
 
 function checkSb(idx) {
   const zone = document.querySelector('.sb-drop-zone[data-idx="'+idx+'"]');
@@ -623,7 +678,7 @@ function updateSbScore() {
 function resetAllSb() {
   sbStarted = false;
   document.getElementById('sb-score').textContent = '0';
-  timerReset(2);
+  timerResetOne(2);
   buildSb();
 }
 
@@ -741,7 +796,7 @@ function resetVocab() {
     i.value = '';
     i.classList.remove('correct','wrong');
   });
-  timerReset(3);
+  timerResetOne(3);
   vocabStarted = false;
   updateVocabScore();
 }
@@ -752,6 +807,7 @@ buildVocab();
 updateTimerDisplay(1);
 updateTimerDisplay(2);
 updateTimerDisplay(3);
-</script>
+
+}</script>
 </body>
 </html>

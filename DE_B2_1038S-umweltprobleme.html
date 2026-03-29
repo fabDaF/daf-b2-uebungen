@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1038S · Umweltprobleme | B2.1</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 30px 40px 25px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2rem; font-family: Georgia, serif; margin-bottom: 6px; border: none; padding: 0; }
+    .header .subtitle { opacity: 0.9; font-size: 1rem; font-family: Georgia, serif; }
+    .header .big-emoji { font-size: 2.4rem; display: block; margin-top: 8px; }
+
+    .nav {
+      display: flex;
+      flex-wrap: nowrap;
+      background: #f8f9fa;
+      border-top: 1px solid #ddd;
+      border-left: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+    }
+    .nav-btn{
+      flex: 1;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      background: transparent;
+      font-size: 0.92em;
+      font-weight: 500;
+      color: #666;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .nav-btn:last-child { border-right: none; }
+    .nav-btn:hover { background: #e8ecff; color: #667eea; }
+    .nav-btn.active { background: #fff; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+    .nav-emoji { font-size: 1.3em; line-height: 1.2; }
+    .nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .tab-banner {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 0;
+      margin-bottom: 0;
+    }
+
+    .sec-inner { padding: 28px 36px; }
+
+    /* Control-bar */
+    .control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding: 6px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .btn-row { display: flex; gap: 6px; }
+    .btn {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.82em;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .btn:hover { border-color: #667eea; color: #667eea; }
+    .btn-sb { background: #764ba2; color: #fff; border: none; }
+    .btn-sb:hover { background: #5a3782; color: #fff; }
+    .btn-sb-check { background: #667eea; color: #fff; border: none; }
+    .btn-sb-check:hover { background: #4a5fd4; color: #fff; }
+    .timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+    h2 { color: #333; margin-bottom: 16px; font-size: 1.2rem; }
+    p { color: #555; margin-bottom: 12px; font-size: 0.92rem; line-height: 1.6; }
+
+    /* Hilfe-Box */
+    .hilfe-box {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      font-size: 0.9em;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    /* Vorentlastung */
+    .info-block { background: #f0f2ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 16px 20px; margin-bottom: 18px; }
+    .info-block h3 { color: #667eea; margin-bottom: 10px; font-size: 1rem; }
+    .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+    .vocab-group { background: #f8f9ff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e0e4ff; }
+    .vocab-group h4 { color: #764ba2; font-size: 0.9rem; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e0e4ff; }
+    .vocab-group ul { list-style: none; }
+    .vocab-group li { padding: 4px 0; font-size: 0.88rem; color: #333; border-bottom: 1px solid #eee; }
+    .vocab-group li:last-child { border-bottom: none; }
+    .vocab-group li .art { color: #667eea; font-weight: 700; }
+    .speaking-box { background: #fff7f0; border-left: 4px solid #e67e22; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; }
+    .speaking-box h3 { color: #e67e22; margin-bottom: 8px; font-size: 0.95rem; }
+    .speaking-q { list-style: none; }
+    .speaking-q li { padding: 6px 0; border-bottom: 1px solid #ffe0c4; font-size: 0.9rem; color: #333; }
+    .speaking-q li:last-child { border-bottom: none; }
+    .speaking-q li::before { content: "🗣️ "; }
+    .redemittel-box { background: #f0fff4; border-left: 4px solid #27ae60; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; }
+    .redemittel-box h3 { color: #27ae60; margin-bottom: 8px; font-size: 0.95rem; }
+    .redemittel-list { list-style: none; }
+    .redemittel-list li { padding: 5px 0; border-bottom: 1px solid #d4edda; font-size: 0.88rem; color: #333; }
+    .redemittel-list li:last-child { border-bottom: none; }
+    .tag { display: inline-block; background: #e8ecff; color: #667eea; border-radius: 12px; padding: 2px 10px; font-size: 0.78rem; font-weight: 600; margin-bottom: 12px; }
+
+    /* Lückentext */
+    .gap-sentence { margin-bottom: 14px; line-height: 1.9; font-size: 0.95rem; color: #333; }
+    .gap-sentence input {
+      border: none;
+      border-bottom: 2px solid #667eea;
+      outline: none;
+      font-size: 0.92rem;
+      padding: 2px 6px;
+      width: 190px;
+      background: transparent;
+      transition: border-color 0.2s;
+    }
+    .gap-sentence input.correct { border-bottom-color: #27ae60; color: #27ae60; }
+    .gap-sentence input.wrong  { border-bottom-color: #e74c3c; color: #e74c3c; }
+    .gap-num { display: inline-block; background: #667eea; color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 0.72rem; font-weight: 700; text-align: center; line-height: 22px; margin-right: 6px; }
+
+    /* Satzbau */
+    .chips-container{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;background:#fff;border:2px dashed #c7d2fe;border-radius:8px;padding:10px;margin-bottom:6px}
+    .sentence-builder{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:44px;background:#f0f4ff;border:2px dashed #667eea;border-radius:8px;padding:8px}
+    .chip{background:#fff;color:#4c1d95;border:2px solid #7c3aed;padding:6px 12px;border-radius:16px;cursor:grab;font-size:.9rem;user-select:none;transition:background .15s,color .15s}
+    .chip.correct{background:#d1fae5;color:#065f46;border-color:#059669;cursor:default}
+    .chip.incorrect{background:#fee2e2;color:#991b1b;border-color:#dc2626}
+    .sb-punkt{font-size:1.1rem;font-weight:700;color:#4c1d95;margin-left:2px}
+    .satzbau-feedback{margin-top:6px;font-size:.9rem;font-weight:600;min-height:1.4em}
+    .sb-insert-cursor{display:inline-block;width:3px;min-height:28px;background:#7c3aed;border-radius:2px;margin:0 2px;pointer-events:none}
+
+    /* Wortschatz */
+    #vocabContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .vocab-card { border: 1px solid #e0e4ff; border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s; }
+    .vocab-card:hover { box-shadow: 0 4px 16px rgba(102,126,234,0.15); }
+    .vocab-card img { width: 100%; height: 110px; object-fit: cover; }
+    .vocab-body { padding: 12px 14px; }
+    .vocab-en { font-size: 0.8rem; color: #888; margin-bottom: 6px; }
+    .vocab-fields { display: flex; flex-direction: column; gap: 6px; }
+    .vocab-fields input {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .vocab-fields input:focus { border-color: #667eea; }
+    .vocab-fields input.correct { border-color: #27ae60; background: #f0fff4; color: #27ae60; }
+    .vocab-fields input.wrong   { border-color: #e74c3c; background: #fff5f5; color: #e74c3c; }
+    .vocab-example { font-size: 0.78rem; color: #888; margin-top: 6px; font-style: italic; }
+
+    .author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; }
+    .author-name { font-weight: 700; }
+
+    @media (max-width: 600px) {
+      .sec-inner { padding: 18px 16px; }
+      .vocab-grid { grid-template-columns: 1fr; }
+      .nav { flex-wrap: wrap; }
+      .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+      .nav-btn:last-child { border-right: 1px solid #ddd; }
+      .tab-banner { max-height: 120px; }
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Umweltprobleme</h1>
+    <p class="subtitle" style="font-family: Georgia, serif;">B2.1 · Einheit 3 · Sprechen &amp; Wortschatz</p>
+    <div class="big-emoji">🌍</div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </button>
+  </div>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="section active" id="tab-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Erde aus dem All">
+    <div class="sec-inner">
+      <h2>Der Planet gehört uns allen</h2>
+      <span class="tag">Sprechen</span>
+      <p>Umweltschutz, natürliche Selektion, Reproduktion – der Mensch greift tief in die Natur ein. Werden in 100.000 Jahren viele Spezies schon ausgerottet sein? Hier lernst du den Wortschatz, um über Umweltprobleme zu sprechen und deine Meinung zu begründen.</p>
+
+      <div class="vocab-grid">
+        <div class="vocab-group">
+          <h4>🌿 Umweltprobleme</h4>
+          <ul>
+            <li><span class="art">die</span> Entwaldung, -en</li>
+            <li><span class="art">die</span> Waldrodung, -en</li>
+            <li><span class="art">die</span> Erderwärmung (kein Pl.)</li>
+            <li><span class="art">die</span> Vernichtung, -en</li>
+            <li><span class="art">der</span> Umweltschutzverein, -e</li>
+            <li><span class="art">der</span> Klimawandel (kein Pl.)</li>
+            <li><span class="art">das</span> Artensterben (kein Pl.)</li>
+            <li>gefährdet sein</li>
+          </ul>
+        </div>
+        <div class="vocab-group">
+          <h4>💡 Gesellschaft &amp; Werte</h4>
+          <ul>
+            <li><span class="art">der</span> Humanismus (kein Pl.)</li>
+            <li><span class="art">die</span> Misshandlung, -en</li>
+            <li><span class="art">die</span> Biodiversität (kein Pl.)</li>
+            <li><span class="art">die</span> Nachhaltigkeit (kein Pl.)</li>
+            <li><span class="art">der</span> Treibhauseffekt, -e</li>
+            <li><span class="art">die</span> Naturkatastrophe, -n</li>
+            <li>zur Klimaerwärmung beitragen</li>
+            <li>das Gleichgewicht zerstören</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>📖 Beispielsätze</h3>
+        <p style="font-size:0.9rem; margin-bottom:8px; color:#333;">Die <strong>Entwaldung</strong> zerstört das Gleichgewicht in der Natur. · Die <strong>Erderwärmung</strong> ist zu einem globalen Problem geworden. · Greenpeace ist ein bekannter <strong>Umweltschutzverein</strong>. · Die <strong>Waldrodung</strong> trägt auch zur Klimawandlung bei. · Es stellt sich die Frage, ob auch die Existenz der Menschheit <strong>gefährdet</strong> ist.</p>
+      </div>
+
+      <div class="speaking-box">
+        <h3>🗣️ Sprechanlässe – Umweltprobleme benennen</h3>
+        <ul class="speaking-q">
+          <li>Man spricht heute so viel über Umweltprobleme. Welche kennst du? Nenne mindestens drei und begründe deine Wahl!</li>
+          <li>Wähle eines der Umweltprobleme und erläutere es detaillierter. Was kann man dagegen unternehmen?</li>
+          <li>Glaubst du, dass der Einzelne etwas bewirken kann – oder liegt die Verantwortung bei Regierungen und Konzernen?</li>
+          <li>Werden in 100.000 Jahren viele Tierarten schon ausgerottet sein? Gilt dann noch die Evolutionstheorie?</li>
+          <li>Welche Umweltschutzmaßnahmen hältst du für besonders wirksam? Warum?</li>
+        </ul>
+      </div>
+
+      <div class="redemittel-box">
+        <h3>💡 Redemittel – Meinung äußern &amp; argumentieren</h3>
+        <ul class="redemittel-list">
+          <li>Ich denke, dass … das größte Problem ist, weil …</li>
+          <li>Meiner Meinung nach müssen wir dringend …</li>
+          <li>Auf der einen Seite …, auf der anderen Seite …</li>
+          <li>Es lässt sich nicht leugnen, dass …</li>
+          <li>Ein weiterer wichtiger Aspekt ist, dass …</li>
+          <li>Wenn wir jetzt nicht handeln, wird … in Zukunft …</li>
+          <li>Ich bin fest davon überzeugt, dass …</li>
+        </ul>
+      </div>
+
+      <div class="speaking-box">
+        <h3>🗣️ Rollenspiel: Podiumsdiskussion</h3>
+        <ul class="speaking-q">
+          <li>Vertreter einer Umweltschutzorganisation: Welche drei Maßnahmen fordern Sie sofort?</li>
+          <li>Wirtschaftsvertreter: Warum ist unbeschränktes Wirtschaftswachstum mit Umweltschutz unvereinbar?</li>
+          <li>Privatperson: Was tun Sie persönlich für die Umwelt? Reicht das?</li>
+          <li>Politiker: Welche gesetzlichen Regelungen würden Sie einführen, um den Klimawandel zu bremsen?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: LÜCKENTEXT -->
+  <div class="section" id="tab-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/4145190/pexels-photo-4145190.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Lernen">
+    <div class="sec-inner">
+      <h2>✏️ Lückentext – Umweltprobleme</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="resetGaps()">🔄 Zurücksetzen</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-1">0:00</span></span>
+          <span id="best-1"></span>
+        </div>
+      </div>
+      <div class="hilfe-box">
+        <strong>Aufgabe:</strong> Setze das passende Wort ein. Das Feedback erscheint sofort beim Tippen.
+      </div>
+      <div id="gapContainer">
+        <div class="gap-sentence"><span class="gap-num">1</span>Die massive <input data-answer="Entwaldung" oninput="liveCheck(this)" placeholder=""> tropischer Regenwälder verändert das globale Klima.</div>
+        <div class="gap-sentence"><span class="gap-num">2</span>Greenpeace gilt als einer der bekanntesten <input data-answer="Umweltschutzvereine" oninput="liveCheck(this)" placeholder=""> der Welt.</div>
+        <div class="gap-sentence"><span class="gap-num">3</span>Die <input data-answer="Waldrodung" oninput="liveCheck(this)" placeholder=""> in Südamerika schreitet trotz internationaler Proteste voran.</div>
+        <div class="gap-sentence"><span class="gap-num">4</span>Die <input data-answer="Erderwärmung" oninput="liveCheck(this)" placeholder=""> führt zu häufigeren und intensiveren Naturkatastrophen.</div>
+        <div class="gap-sentence"><span class="gap-num">5</span>Viele Tierarten sind durch den Verlust ihres Lebensraums stark <input data-answer="gefährdet" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">6</span>Die <input data-answer="Vernichtung" oninput="liveCheck(this)" placeholder=""> natürlicher Ökosysteme bedroht das Gleichgewicht unseres Planeten.</div>
+        <div class="gap-sentence"><span class="gap-num">7</span><input data-answer="Humanismus" oninput="liveCheck(this)" placeholder=""> bedeutet, die Würde aller Lebewesen zu achten – auch die der Tiere.</div>
+        <div class="gap-sentence"><span class="gap-num">8</span>Die <input data-answer="Misshandlung" oninput="liveCheck(this)" placeholder=""> von Tieren in der Massentierhaltung ist ein weiteres drängendes Problem.</div>
+        <div class="gap-sentence"><span class="gap-num">9</span>Das <input data-answer="Artensterben" oninput="liveCheck(this)" placeholder=""> nimmt mit erschreckender Geschwindigkeit zu.</div>
+        <div class="gap-sentence"><span class="gap-num">10</span>Der <input data-answer="Treibhauseffekt" oninput="liveCheck(this)" placeholder=""> wird durch den massiven Ausstoß von CO₂ verstärkt.</div>
+        <div class="gap-sentence"><span class="gap-num">11</span>Die Bewahrung der <input data-answer="Biodiversität" oninput="liveCheck(this)" placeholder=""> ist eine der zentralen Aufgaben unserer Generation.</div>
+        <div class="gap-sentence"><span class="gap-num">12</span>Jeder Mensch kann durch bewusstes Konsumverhalten zur <input data-answer="Nachhaltigkeit" oninput="liveCheck(this)" placeholder=""> beitragen.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SATZBAU -->
+  <div class="section" id="tab-2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1111304/pexels-photo-1111304.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau – Puzzle">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="ctrl-btn btn-reset" onclick="sbResetAll()">↺ Neustart</button>
+        </div>
+        <div class="timer-box">
+          ⏱ <span id="timer-2" class="timer-display">0:00</span>
+          🏆 <span id="best-2" class="best-display">–</span>
+        </div>
+      </div>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: WORTSCHATZ -->
+  <div class="section" id="tab-3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/2559941/pexels-photo-2559941.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Natur und Umwelt">
+    <div class="sec-inner">
+      <h2>📚 Wortschatz</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showVocabLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetVocab()">🔄 Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-3">0:00</span></span>
+          <span id="best-3"></span>
+        </div>
+      </div>
+      <div class="hilfe-box">
+        <strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche. Bei Nomen: Artikel + Wort + Plural!
+      </div>
+      <div id="vocabContainer"></div>
+    </div>
+  </div>
+
+  <div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+const TIMER_PREFIX = 'B2_1038S_';
+const timerIntervals = {};
+const timerSeconds = {};
+
+function timerAutoStart(n) {
+  if (timerIntervals[n]) return;
+  timerSeconds[n] = 0;
+  timerIntervals[n] = setInterval(function() {
+    timerSeconds[n]++;
+    var m = Math.floor(timerSeconds[n] / 60);
+    var s = timerSeconds[n] % 60;
+    var el = document.getElementById('timer-' + n);
+    if (el) el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }, 1000);
+}
+
+function timerStop(n) {
+  if (!timerIntervals[n]) return;
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  var key = TIMER_PREFIX + 'timer' + n;
+  var prev = localStorage.getItem(key);
+  if (!prev || timerSeconds[n] < parseInt(prev)) {
+    localStorage.setItem(key, timerSeconds[n]);
+    loadBestTimes();
+  }
+}
+
+function timerResetOne(n) {
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  timerSeconds[n] = 0;
+  var el = document.getElementById('timer-' + n);
+  if (el) el.textContent = '0:00';
+}
+
+function loadBestTimes() {
+  [1, 2, 3].forEach(function(n) {
+    var key = TIMER_PREFIX + 'timer' + n;
+    var val = localStorage.getItem(key);
+    var el = document.getElementById('best-' + n);
+    if (el && val) {
+      var m = Math.floor(parseInt(val) / 60);
+      var s = parseInt(val) % 60;
+      el.textContent = '(Bestzeit: ' + m + ':' + (s < 10 ? '0' : '') + s + ')';
+    }
+  });
+}
+
+function showTab(n) {
+  document.querySelectorAll('.section').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + n).classList.add('active');
+  document.querySelectorAll('.nav-btn')[n].classList.add('active');
+  if (n === 1) timerAutoStart(1);
+  
+  if (n === 3) { renderVocab(); timerAutoStart(3); }
+}
+
+// --- LÜCKENTEXT ---
+function liveCheck(inp) {
+  var ans = (inp.dataset.answer || '').trim().toLowerCase();
+  var val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (ans.startsWith(val)) {
+    if (val === ans) { inp.classList.add('correct'); checkAllGaps(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllGaps() {
+  var inputs = document.querySelectorAll('#gapContainer input');
+  if ([].every.call(inputs, function(i) { return i.classList.contains('correct'); })) timerStop(1);
+}
+
+function resetGaps() {
+  document.querySelectorAll('#gapContainer input').forEach(function(i) {
+    i.value = ''; i.classList.remove('correct', 'wrong');
+  });
+  timerResetOne(1); timerAutoStart(1);
+}
+
+// --- SATZBAU ---
+/* ===== SATZBAU ===== */
+var satzbauData = [
+  { parts: ['Die', 'Erderwärmung', 'bedroht', 'die', 'Artenvielfalt', 'auf', 'unserem', 'Planeten'],
+    valid: [['Die', 'Erderwärmung', 'bedroht', 'die', 'Artenvielfalt', 'auf', 'unserem', 'Planeten']], punct: '.' },
+  { parts: ['Viele', 'Regenwaldgebiete', 'werden', 'durch', 'die', 'Waldrodung', 'unwiederbringlich', 'zerstört'],
+    valid: [['Viele', 'Regenwaldgebiete', 'werden', 'durch', 'die', 'Waldrodung', 'unwiederbringlich', 'zerstört']], punct: '.' },
+  { parts: ['Der', 'Klimawandel', 'hat', 'sich', 'zu', 'einem', 'der', 'dringlichsten', 'Probleme', 'unserer', 'Zeit', 'entwickelt'],
+    valid: [['Der', 'Klimawandel', 'hat', 'sich', 'zu', 'einem', 'der', 'dringlichsten', 'Probleme', 'unserer', 'Zeit', 'entwickelt']], punct: '.' },
+  { parts: ['Umweltschutzvereine', 'setzen', 'sich', 'weltweit', 'für', 'die', 'Bewahrung', 'der', 'Biodiversität', 'ein'],
+    valid: [['Umweltschutzvereine', 'setzen', 'sich', 'weltweit', 'für', 'die', 'Bewahrung', 'der', 'Biodiversität', 'ein']], punct: '.' },
+  { parts: ['Wenn', 'wir', 'nicht', 'handeln', ',', 'werden', 'viele', 'Tierarten', 'in', 'den', 'nächsten', 'Jahrzehnten', 'ausgestorben', 'sein'],
+    valid: [['Wenn', 'wir', 'nicht', 'handeln', ',', 'werden', 'viele', 'Tierarten', 'in', 'den', 'nächsten', 'Jahrzehnten', 'ausgestorben', 'sein']], punct: '.' },
+  { parts: ['Die', 'Entwaldung', 'zerstört', 'nicht', 'nur', 'Lebensräume', ',', 'sondern', 'trägt', 'auch', 'zur', 'Klimaerwärmung', 'bei'],
+    valid: [['Die', 'Entwaldung', 'zerstört', 'nicht', 'nur', 'Lebensräume', ',', 'sondern', 'trägt', 'auch', 'zur', 'Klimaerwärmung', 'bei']], punct: '.' },
+  { parts: ['Es', 'liegt', 'in', 'der', 'Verantwortung', 'jedes', 'Einzelnen', ',', 'einen', 'Beitrag', 'zum', 'Umweltschutz', 'zu', 'leisten'],
+    valid: [['Es', 'liegt', 'in', 'der', 'Verantwortung', 'jedes', 'Einzelnen', ',', 'einen', 'Beitrag', 'zum', 'Umweltschutz', 'zu', 'leisten']], punct: '.' }
+];
+var sbDragged = null;
+function sbMakeChip(word) {
+  var ch = document.createElement('span');
+  ch.className = 'chip'; ch.textContent = word; ch.dataset.orig = word; ch.draggable = true;
+  ch.addEventListener('dragstart', function() { sbDragged = ch; setTimeout(function(){ ch.style.opacity='.4'; },0); timerAutoStart(2); });
+  ch.addEventListener('dragend', function() { ch.style.opacity = '1'; });
+  ch.addEventListener('click', function() {
+    var builder = ch.closest('.sentence-builder');
+    var si = parseInt(builder ? builder.dataset.si : ch.closest('.chips-container').dataset.si);
+    var pool = document.getElementById('sb-bank-' + si);
+    var row = document.getElementById('sb-row-' + si);
+    if (ch.parentElement === row) { pool.appendChild(ch); }
+    else { var cursor = row.querySelector('.sb-insert-cursor'); row.insertBefore(ch, cursor || null); timerAutoStart(2); }
+    sbUpdateCapitalization(si); sbCheckAuto(si);
+  });
+  return ch;
+}
+function sbRegisterZone(row, si) {
+  row.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    var cursor = row.querySelector('.sb-insert-cursor');
+    var chips = [...row.querySelectorAll('.chip')]; var mouseX = e.clientX; var after = null;
+    chips.forEach(function(c){ var r=c.getBoundingClientRect(); if(mouseX>r.left+r.width/2) after=c; });
+    row.insertBefore(cursor, after ? after.nextSibling : (chips[0]||null));
+  });
+  row.addEventListener('drop', function(e) {
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor = row.querySelector('.sb-insert-cursor');
+    row.insertBefore(sbDragged, cursor||null); sbDragged=null;
+    sbUpdateCapitalization(si); sbCheckAuto(si);
+  });
+  row.addEventListener('dragleave', function(e) {
+    if(!row.contains(e.relatedTarget)){ var cur=row.querySelector('.sb-insert-cursor'); if(cur) row.appendChild(cur); }
+  });
+}
+function sbUpdateCapitalization(si) {
+  var chips = [...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+  chips.forEach(function(ch, idx) {
+    if(ch.dataset.orig===','||ch.dataset.orig===';') return;
+    var w=ch.dataset.orig; ch.textContent=(idx===0)?w.charAt(0).toUpperCase()+w.slice(1):w;
+  });
+}
+function sbColorRow(si) {
+  var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+  var placed=chips.map(function(c){return c.dataset.orig;});
+  var ok=satzbauData[si].valid.some(function(v){ return v.length===placed.length&&v.every(function(w,i){return w===placed[i];}); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  return ok;
+}
+function sbCheckAuto(si) {
+  var pool=document.getElementById('sb-bank-'+si);
+  if(pool.querySelectorAll('.chip').length>0) return;
+  var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+  if(chips.length!==satzbauData[si].parts.length) return;
+  var ok=sbColorRow(si);
+  var fb=document.getElementById('sb-fb-'+si);
+  fb.textContent=ok?'✓ Korrekt!':'✗ Noch nicht ganz richtig.';
+  fb.style.color=ok?'#2e7d32':'#c62828';
+  if(ok) sbCheckAllDone();
+}
+function sbCheckAllDone() {
+  var allOk=satzbauData.every(function(_,si){
+    var pool=document.getElementById('sb-bank-'+si);
+    if(pool.querySelectorAll('.chip').length>0) return false;
+    var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+    if(chips.length!==satzbauData[si].parts.length) return false;
+    return satzbauData[si].valid.some(function(v){ return v.length===chips.length&&v.every(function(w,i){return w===chips[i].dataset.orig;}); });
+  });
+  if(allOk) timerStop(2);
+}
+function sbShowSolution(si) {
+  var row=document.getElementById('sb-row-'+si); var pool=document.getElementById('sb-bank-'+si);
+  var allChips=[...row.querySelectorAll('.chip'),...pool.querySelectorAll('.chip')];
+  var byOrig={}; allChips.forEach(function(c){ byOrig[c.dataset.orig]=c; });
+  var cursor=row.querySelector('.sb-insert-cursor');
+  satzbauData[si].valid[0].forEach(function(w){ var c=byOrig[w]; if(c){row.insertBefore(c,cursor||null);delete byOrig[w];} });
+  sbUpdateCapitalization(si); sbColorRow(si);
+}
+function sbResetAll() {
+  timerResetOne(2);
+  satzbauData.forEach(function(_,si){
+    var row=document.getElementById('sb-row-'+si); var pool=document.getElementById('sb-bank-'+si);
+    var all=[...row.querySelectorAll('.chip'),...pool.querySelectorAll('.chip')];
+    pool.innerHTML=''; var cur=document.createElement('span'); cur.className='sb-insert-cursor'; cur.id='sb-insert-cursor';
+    row.innerHTML=''; row.appendChild(cur);
+    all.sort(function(){return Math.random()-.5;}).forEach(function(c){c.textContent=c.dataset.orig;c.classList.remove('correct','incorrect');pool.appendChild(c);});
+    document.getElementById('sb-fb-'+si).textContent='';
+  });
+}
+function initSatzbau() {
+  var container=document.getElementById('satzbauContainer'); container.innerHTML='';
+  satzbauData.forEach(function(s,si){
+    var wrap=document.createElement('div'); wrap.style.marginBottom='24px';
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+si; row.dataset.si=si;
+    var cursor=document.createElement('span'); cursor.className='sb-insert-cursor'; cursor.id='sb-insert-cursor'; row.appendChild(cursor);
+    var punkt=document.createElement('span'); punkt.className='sb-punkt'; punkt.textContent=s.punct;
+    var pool=document.createElement('div'); pool.className='chips-container'; pool.id='sb-bank-'+si; pool.dataset.si=si;
+    var btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;margin-top:4px;align-items:center';
+    var btnL=document.createElement('button'); btnL.className='ctrl-btn'; btnL.style.fontSize='.78rem'; btnL.textContent='Lösen';
+    btnL.onclick=(function(i){return function(){sbShowSolution(i);};})(si);
+    var btnR=document.createElement('button'); btnR.className='ctrl-btn'; btnR.style.fontSize='.78rem'; btnR.textContent='↺ Neustart';
+    btnR.onclick=(function(i){return function(){
+      var r=document.getElementById('sb-row-'+i),p=document.getElementById('sb-bank-'+i);
+      var all=[...r.querySelectorAll('.chip'),...p.querySelectorAll('.chip')];
+      p.innerHTML=''; var cur=document.createElement('span'); cur.className='sb-insert-cursor'; cur.id='sb-insert-cursor';
+      r.innerHTML=''; r.appendChild(cur);
+      all.sort(function(){return Math.random()-.5;}).forEach(function(c){c.textContent=c.dataset.orig;c.classList.remove('correct','incorrect');p.appendChild(c);});
+      document.getElementById('sb-fb-'+i).textContent='';
+    };})(si);
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+si;
+    btns.appendChild(btnL); btns.appendChild(btnR);
+    var shuffled=[...s.parts].sort(function(){return Math.random()-.5;});
+    shuffled.forEach(function(w){pool.appendChild(sbMakeChip(w));});
+    sbRegisterZone(row, si);
+    var rowWrap=document.createElement('div'); rowWrap.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px';
+    rowWrap.appendChild(row); rowWrap.appendChild(punkt);
+    wrap.appendChild(rowWrap); wrap.appendChild(pool); wrap.appendChild(btns); wrap.appendChild(fb);
+    container.appendChild(wrap);
+  });
+}
+initSatzbau();
+
+// --- WORTSCHATZ ---
+var WORTSCHATZ = [
+  { id: 1,  type: 'n', en: 'deforestation',                    artikel: 'die', de: 'Entwaldung',         plural: 'Entwaldungen',      pexels: '957024',  example: 'Die Entwaldung zerstört das Gleichgewicht in der Natur.' },
+  { id: 2,  type: 'n', en: 'forest clearing',                  artikel: 'die', de: 'Waldrodung',          plural: 'Waldrodungen',       pexels: '338936',  example: 'Die Waldrodung trägt auch zur Klimawandlung bei.' },
+  { id: 3,  type: 'n', en: 'global warming',                   artikel: 'die', de: 'Erderwärmung',        plural: '—',                  pexels: '2559941', example: 'Die Erderwärmung ist zu einem globalen Problem geworden.' },
+  { id: 4,  type: 'n', en: 'destruction / annihilation',       artikel: 'die', de: 'Vernichtung',         plural: 'Vernichtungen',      pexels: '2449452', example: 'Die Vernichtung von Ökosystemen bedroht die Biodiversität.' },
+  { id: 5,  type: 'n', en: 'environmental protection org.',    artikel: 'der', de: 'Umweltschutzverein',  plural: 'Umweltschutzvereine',pexels: '1108572', example: 'Greenpeace ist ein bekannter Umweltschutzverein.' },
+  { id: 6,  type: 'n', en: 'climate change',                   artikel: 'der', de: 'Klimawandel',         plural: '—',                  pexels: '4033148', example: 'Der Klimawandel erfordert globales Handeln.' },
+  { id: 7,  type: 'n', en: 'extinction of species',            artikel: 'das', de: 'Artensterben',        plural: '—',                  pexels: '133459',  example: 'Das Artensterben nimmt erschreckend schnell zu.' },
+  { id: 8,  type: 'n', en: 'humanism',                         artikel: 'der', de: 'Humanismus',          plural: '—',                  pexels: '1370295', example: 'Humanismus ist ein Ideal, das die Würde aller achtet.' },
+  { id: 9,  type: 'n', en: 'abuse / maltreatment',             artikel: 'die', de: 'Misshandlung',        plural: 'Misshandlungen',     pexels: '209037',  example: 'Die Misshandlung von Tieren ist in vielen Ländern strafbar.' },
+  { id: 10, type: 'n', en: 'biodiversity',                     artikel: 'die', de: 'Biodiversität',       plural: '—',                  pexels: '145685',  example: 'Die Biodiversität ist die Grundlage allen Lebens auf der Erde.' },
+  { id: 11, type: 'n', en: 'sustainability',                   artikel: 'die', de: 'Nachhaltigkeit',      plural: '—',                  pexels: '960145',  example: 'Nachhaltigkeit bedeutet, die Bedürfnisse zukünftiger Generationen zu achten.' },
+  { id: 12, type: 'v', en: 'to be endangered',                 de: 'gefährdet sein',                                                    pexels: '133459',  example: 'Viele Tierarten sind durch Lebensraumverlust gefährdet.' }
+];
+
+var vocabRendered = false;
+
+function renderVocab() {
+  if (vocabRendered) return;
+  vocabRendered = true;
+  var container = document.getElementById('vocabContainer');
+  var shuffled = shuffleArr(WORTSCHATZ);
+  container.innerHTML = '';
+  shuffled.forEach(function(item) {
+    var card = document.createElement('div');
+    card.className = 'vocab-card';
+    var imgUrl = 'https://images.pexels.com/photos/' + item.pexels + '/pexels-photo-' + item.pexels + '.jpeg?auto=compress&cs=tinysrgb&w=400';
+    var fieldsHtml = '';
+    if (item.type === 'n') {
+      fieldsHtml = '<input type="text" placeholder="Artikel" data-answer="' + item.artikel + '" oninput="vcCheck(this)" class="vc-art">' +
+                   '<input type="text" placeholder="Deutsch" data-answer="' + item.de + '" oninput="vcCheck(this)">' +
+                   (item.plural !== '—' ? '<input type="text" placeholder="Plural" data-answer="' + item.plural + '" oninput="vcCheck(this)">' : '<input type="text" placeholder="kein Plural" data-answer="—" oninput="vcCheck(this)">');
+    } else {
+      fieldsHtml = '<input type="text" placeholder="Deutsch" data-answer="' + item.de + '" oninput="vcCheck(this)">';
+    }
+    card.innerHTML = '<img src="' + imgUrl + '" alt="' + item.en + '" onerror="this.style.display=\'none\'">' +
+      '<div class="vocab-body">' +
+        '<div class="vocab-en">' + item.en + '</div>' +
+        '<div class="vocab-fields">' + fieldsHtml + '</div>' +
+        '<div class="vocab-example">' + item.example + '</div>' +
+      '</div>';
+    container.appendChild(card);
+  });
+}
+
+function vcCheck(inp) {
+  var ans = (inp.dataset.answer || '').trim().toLowerCase();
+  var val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (ans === '—') {
+    if (val === '—' || val === '-' || val === 'kein plural') { inp.classList.add('correct'); checkVocabDone(); }
+    else { inp.classList.add('wrong'); }
+    return;
+  }
+  if (ans.startsWith(val)) {
+    if (val === ans) { inp.classList.add('correct'); checkVocabDone(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkVocabDone() {
+  var all = document.querySelectorAll('#vocabContainer input');
+  if ([].every.call(all, function(i) { return i.classList.contains('correct'); })) timerStop(3);
+}
+
+function showVocabLoesung() {
+  document.querySelectorAll('#vocabContainer input').forEach(function(inp) {
+    if (!inp.classList.contains('correct')) {
+      inp.value = inp.dataset.answer;
+      inp.classList.remove('wrong');
+      inp.classList.add('correct');
+    }
+  });
+}
+
+function resetVocab() {
+  vocabRendered = false;
+  renderVocab();
+  timerResetOne(3); timerAutoStart(3);
+}
+
+// Init
+loadBestTimes();
+</script>
+</body>
+</html>

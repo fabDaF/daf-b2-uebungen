@@ -32,13 +32,12 @@ nav {
   border-bottom: 2px solid #e8e8e8;
   background: #f9f9f9;
 }
-.nav-btn {
+.nav-btn{
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px 4px;
-  border: none;
   border-bottom: 3px solid transparent;
   background: transparent;
   cursor: pointer;
@@ -258,6 +257,56 @@ footer {
   border-top: 1px solid #eee;
   margin-top: 8px;
 }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
@@ -267,24 +316,24 @@ footer {
     <p>B2.1 · Einheit 5 · Grammatik · Lektion 1055G</p>
   </div>
 
-  <nav>
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
       <span class="nav-emoji">📖</span>
       <span class="nav-label">Grammatik</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
       <span class="nav-emoji">🎯</span>
       <span class="nav-label">Zuordnung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
       <span class="nav-emoji">✏️</span>
       <span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
       <span class="nav-emoji">🔀</span>
       <span class="nav-label">Satzbau</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════════════
        TAB 0 — Grammatik
@@ -371,8 +420,8 @@ footer {
       <div class="btns">
         <button class="btn btn-secondary" onclick="resetZuord()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-disp" id="timerDisp1">⏱ 00:00</div>
-    </div>
+      
+</div>
     <p style="font-size:0.88rem;color:#666;margin-bottom:14px;">Wähle: Welches Pronomen passt? <strong>es</strong>, <strong>das</strong> oder <strong>beides</strong>?</p>
     <ul class="zuord-list" id="zuordList">
       <!-- checkZuord(btn, answer, correct) -->
@@ -497,8 +546,8 @@ footer {
       <div class="btns">
         <button class="btn btn-secondary" onclick="resetGap()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-disp" id="timerDisp2">⏱ 00:00</div>
-    </div>
+      
+</div>
     <p style="font-size:0.88rem;color:#666;margin-bottom:14px;">
       Oma Hilde schreibt ihrer Enkeltochter Anna eine E-Mail. Fülle die Lücken mit <strong>es</strong> oder <strong>das</strong>:
     </p>
@@ -588,8 +637,8 @@ footer {
       <div class="btns">
         <button class="btn btn-secondary" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
       </div>
-      <div class="timer-disp" id="timerDisp3">⏱ 00:00</div>
-    </div>
+      
+</div>
     <div id="sbContainer"></div>
   </div>
 
@@ -598,28 +647,46 @@ footer {
 
 <script>
 'use strict';
-const TIMER_PREFIX = 'B2_1055G_';
-
-// ─── Timer System ─────────────────────────────────────────────────────────────
-const timerState = {};
-function saveBestTime(id,s){try{localStorage.setItem(TIMER_PREFIX+id,s);}catch(e){}}
-function loadBestTime(id){try{const v=localStorage.getItem(TIMER_PREFIX+id);return v!==null?parseInt(v):null;}catch(e){return null;}}
-function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
-function timerInit(id){if(!timerState[id])timerState[id]={secs:0,running:false,done:false};}
-function timerStart(id){
-  timerInit(id);const st=timerState[id];
-  if(st.running||st.done)return;
-  st.running=true;
-  st.interval=setInterval(()=>{st.secs++;updateTimerDisp(id);},1000);
+var TIMER_PREFIX='B2_1055G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-function timerStop(id){
-  const st=timerState[id];if(!st)return;
-  clearInterval(st.interval);st.running=false;st.done=true;
-  const best=loadBestTime(id);
-  if(best===null||st.secs<best)saveBestTime(id,st.secs);
-  updateTimerDisp(id);
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
-function updateTimerDisp(id){
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+function updateTimerDisp(id) {
   const el=document.getElementById('timerDisp'+id);if(!el)return;
   const st=timerState[id];
   if(!st){el.textContent='⏱ 00:00';return;}
@@ -633,9 +700,9 @@ let zuordBuilt=false;
 function showTab(idx){
   document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('active',i===idx));
   document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
-  if(idx===1){if(!zuordBuilt){zuordBuilt=true;}if(!(timerState[1]&&timerState[1].done))timerStart(1);}
-  if(idx===2&&!(timerState[2]&&timerState[2].done))timerStart(2);
-  if(idx===3){buildSb();if(!(timerState[3]&&timerState[3].done))timerStart(3);}
+  if(idx===1){if(!zuordBuilt){zuordBuilt=true;}}
+  if(idx===2&&!(timerState[2]&&timerState[2].done))
+  if(idx===3){buildSb();}
   [1,2,3].forEach(updateTimerDisp);
 }
 
@@ -722,22 +789,20 @@ function buildSb(){
   sbSentences.forEach((sent,idx)=>{
     const taskDiv=document.createElement('div');
     taskDiv.className='sb-task';
-    taskDiv.innerHTML='<div class="sb-sentence-num">Satz '+(idx+1)+'</div>';
+    taskDiv.innerHTML='';
     const dz=document.createElement('div');dz.className='sb-drop-zone';
     dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
     dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
-    dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(!sbDragged||parseInt(sbDragged.dataset.sb)!==idx)return;dz.appendChild(sbDragged);});
+    dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(!sbDragged||parseInt(sbDragged.dataset.sb)!==idx)return;dz.appendChild(sbDragged);sbDragged=null;checkSb(idx,dz,sent.parts,fb);});
     const tray=document.createElement('div');tray.className='chip-tray';
     tray.addEventListener('dragover',e=>e.preventDefault());
     tray.addEventListener('drop',e=>{e.preventDefault();if(!sbDragged||parseInt(sbDragged.dataset.sb)!==idx)return;tray.appendChild(sbDragged);});
     shuffle(sent.parts).forEach(w=>tray.appendChild(makeChip(w,idx)));
     const fb=document.createElement('div');fb.className='sb-feedback';
     const btnRow=document.createElement('div');btnRow.className='sb-btn-row';
-    const chk=document.createElement('button');chk.className='btn btn-primary';chk.style.fontSize='0.8rem';
-    chk.textContent='✓ Prüfen';chk.onclick=()=>checkSb(idx,dz,sent.parts,fb);
     const rst=document.createElement('button');rst.className='btn btn-secondary';rst.style.fontSize='0.8rem';
     rst.textContent='↺';rst.onclick=()=>resetSb(dz,tray,fb);
-    btnRow.appendChild(chk);btnRow.appendChild(rst);
+    btnRow.appendChild(rst);
     taskDiv.appendChild(dz);taskDiv.appendChild(tray);taskDiv.appendChild(fb);taskDiv.appendChild(btnRow);
     cont.appendChild(taskDiv);
   });

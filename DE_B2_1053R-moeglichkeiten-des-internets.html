@@ -32,13 +32,12 @@ nav {
   border-bottom: 2px solid #e8e8e8;
   background: #f9f9f9;
 }
-.nav-btn {
+.nav-btn{
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px 4px;
-  border: none;
   border-bottom: 3px solid transparent;
   background: transparent;
   cursor: pointer;
@@ -302,6 +301,63 @@ footer {
   border-top: 1px solid #eee;
   margin-top: 8px;
 }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
@@ -311,28 +367,28 @@ footer {
     <p>B2.1 · Einheit 5 · Lesen · Lektion 1053R</p>
   </div>
 
-  <nav>
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Vorentlastung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
       <span class="nav-emoji">📖</span>
       <span class="nav-label">Lesetext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
       <span class="nav-emoji">✏️</span>
       <span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
       <span class="nav-emoji">🔘</span>
       <span class="nav-label">Richtig/Falsch</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(4)">
+    </div>
+    <div class="nav-btn" onclick="showTab(4)">
       <span class="nav-emoji">🔀</span>
       <span class="nav-label">Satzbau</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════════════
        TAB 0 — Vorentlastung
@@ -435,8 +491,8 @@ footer {
       <div class="btns">
         <button class="btn btn-secondary" onclick="resetGap()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-disp" id="timerDisp2">⏱ 00:00</div>
-    </div>
+      
+</div>
     <ul class="gap-list" id="gapList">
       <li class="gap-item">
         <span class="gap-num">1</span>
@@ -598,19 +654,48 @@ footer {
 
 <script>
 'use strict';
-const TIMER_PREFIX = 'B2_1053R_';
+var TIMER_PREFIX='B2_1053R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+      var b2=localStorage.getItem(TIMER_PREFIX+2); if(b2){ var el2=document.getElementById('best-'+2); if(el2) el2.textContent=fmtTime(parseInt(b2)); }
+});
 
-// ─── Timer System ─────────────────────────────────────────────────────────────
-const timerState = {};
 function saveBestTime(id, secs) {
   try { localStorage.setItem(TIMER_PREFIX + id, secs); } catch(e) {}
 }
 function loadBestTime(id) {
   try { const v = localStorage.getItem(TIMER_PREFIX + id); return v !== null ? parseInt(v) : null; } catch(e) { return null; }
-}
-function fmtTime(s) {
-  const m = Math.floor(s / 60), sec = s % 60;
-  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
 }
 function timerInit(id) {
   if (!timerState[id]) timerState[id] = { secs: 0, running: false, done: false };
@@ -622,16 +707,6 @@ function timerStart(id) {
   st.running = true;
   st.interval = setInterval(() => { st.secs++; updateTimerDisp(id); }, 1000);
 }
-function timerStop(id) {
-  const st = timerState[id];
-  if (!st) return;
-  clearInterval(st.interval);
-  st.running = false;
-  st.done = true;
-  const best = loadBestTime(id);
-  if (best === null || st.secs < best) saveBestTime(id, st.secs);
-  updateTimerDisp(id);
-}
 function updateTimerDisp(id) {
   const el = document.getElementById('timerDisp' + id);
   if (!el) return;
@@ -641,11 +716,6 @@ function updateTimerDisp(id) {
   const bestStr = best !== null ? ' · Best: ' + fmtTime(best) : '';
   el.textContent = (st.done ? '✅ ' : '⏱ ') + fmtTime(st.secs) + bestStr;
 }
-function timerAutoStart(id) {
-  timerInit(id);
-  timerStart(id);
-}
-
 // ─── Tab Navigation ───────────────────────────────────────────────────────────
 function showTab(idx) {
   document.querySelectorAll('.tab-content').forEach((t, i) => t.classList.toggle('active', i === idx));
@@ -773,7 +843,7 @@ function buildSb() {
   sbSentences.forEach((sent, idx) => {
     const taskDiv = document.createElement('div');
     taskDiv.className = 'sb-task';
-    taskDiv.innerHTML = '<div class="sb-sentence-num">Satz ' + (idx + 1) + '</div>';
+    taskDiv.innerHTML = '<div class="sb-sentence-num">' + (idx + 1) + '.</div>';
 
     // Drop zone
     const dz = document.createElement('div');
@@ -784,7 +854,7 @@ function buildSb() {
       e.preventDefault();
       dz.classList.remove('drag-over');
       if (!sbDragged || parseInt(sbDragged.dataset.sb) !== idx) return;
-      dz.appendChild(sbDragged);
+      dz.appendChild(sbDragged);sbDragged=null;checkSb(idx, dz, sent.parts, fb);
     });
 
     // Chip tray
@@ -806,20 +876,11 @@ function buildSb() {
     // Buttons
     const btnRow = document.createElement('div');
     btnRow.className = 'sb-btn-row';
-
-    const checkBtn = document.createElement('button');
-    checkBtn.className = 'btn btn-primary';
-    checkBtn.style.fontSize = '0.8rem';
-    checkBtn.textContent = '✓ Prüfen';
-    checkBtn.onclick = () => checkSb(idx, dz, sent.parts, fb);
-
     const resetBtn = document.createElement('button');
     resetBtn.className = 'btn btn-secondary';
     resetBtn.style.fontSize = '0.8rem';
     resetBtn.textContent = '↺';
     resetBtn.onclick = () => resetSb(dz, tray, fb);
-
-    btnRow.appendChild(checkBtn);
     btnRow.appendChild(resetBtn);
 
     taskDiv.appendChild(dz);
@@ -828,7 +889,6 @@ function buildSb() {
     taskDiv.appendChild(btnRow);
     cont.appendChild(taskDiv);
   });
-}
 
 function checkSb(idx, dz, correctParts, fb) {
   const placed = Array.from(dz.children).map(c => c.dataset.word);
@@ -861,6 +921,7 @@ function resetAllSb() {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 timerAutoStart(2);
 [2, 3, 4].forEach(updateTimerDisp);
-</script>
+
+}</script>
 </body>
 </html>

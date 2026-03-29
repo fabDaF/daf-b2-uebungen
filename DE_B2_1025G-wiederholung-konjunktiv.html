@@ -14,7 +14,7 @@
     .header p{opacity:.85;font-size:1em;}
 
     .nav{display:flex;background:#f8f9fa;border-bottom:1px solid #e0e0e0;}
-    .nav-btn{flex:1;padding:14px 6px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;border-bottom:3px solid transparent;transition:all .2s;}
+    .nav-btn{flex:1;padding:14px 6px;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;border-bottom:3px solid transparent;transition:all .2s;}
     .nav-btn:hover{background:#f0f0f0;color:#333;}
     .nav-btn.active{background:white;color:#667eea;border-bottom:3px solid #667eea;font-weight:600;}
     .nav-emoji{font-size:1.3em;}
@@ -74,15 +74,18 @@
     .gap-input.wrong{border-bottom-color:#dc3545;color:#dc3545;}
 
     /* Satzbau */
-    .satzbau-item{margin-bottom:28px;}
-    .sentence-num{font-weight:700;color:#667eea;font-size:.88em;margin-bottom:8px;}
-    .chip-pool{display:flex;flex-wrap:wrap;gap:8px;min-height:46px;padding:8px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;}
-    .drop-zone{display:flex;flex-wrap:wrap;gap:8px;min-height:46px;padding:8px;background:#f0f4ff;border:2px dashed #667eea;border-radius:8px;}
-    .chip{background:#667eea;color:white;border-radius:16px;padding:6px 14px;font-size:.88em;cursor:grab;user-select:none;transition:all .2s;}
-    .chip:hover{background:#5a6fd6;transform:translateY(-1px);}
-    .chip.punct{background:#764ba2;}
-    .chip.correct-chip{background:#28a745!important;}
-    .satzbau-feedback{font-size:.88em;margin-top:4px;min-height:20px;}
+    .satzbau-item { margin-bottom: 28px; }
+    .chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+    .sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+    .sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+    .sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+    .chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+    .chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+    .chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+    .sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+    .satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+    .satzbau-feedback.correct { color: #27ae60; }
+    .satzbau-feedback.incorrect { color: #e74c3c; }
 
     /* Wortschatz */
     .vocab-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
@@ -99,7 +102,57 @@
 
     .footer{background:#f8f9fa;border-top:1px solid #e0e0e0;padding:14px 30px;text-align:center;font-size:.8em;color:#888;}
     @media(max-width:600px){.vocab-cards{grid-template-columns:repeat(2,1fr);}.nav-label{font-size:.68em;}}
-  </style>
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
 </head>
 <body>
 <div class="container">
@@ -109,23 +162,23 @@
     <p>B2.1 · Einheit 2 · Grammatik · Lektion 1025G</p>
   </div>
 
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
       <span class="nav-emoji">🔍</span><span class="nav-label">Entdecken</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
       <span class="nav-emoji">📋</span><span class="nav-label">Regel</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
       <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
       <span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(4)">
+    </div>
+    <div class="nav-btn" onclick="showTab(4)">
       <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- ═══ Tab 0: Entdecken ═══ -->
   <div class="tab active" id="tab0">
@@ -211,7 +264,7 @@
     <img class="tab-banner" src="https://images.pexels.com/photos/3184347/pexels-photo-3184347.jpeg?auto=compress&w=1000" alt="Schreiben Lückentext">
     <div class="control-bar">
       <button class="btn btn-reset" onclick="resetLuecke()">🔄 Zurücksetzen</button>
-      <div class="timer-display" id="timer2">00:00&nbsp;<span class="best-time" id="best2"></span></div>
+      <div class="timer-display" id="timer-2">00:00&nbsp;<span class="best-time" id="best-2"></span></div>
     </div>
 
     <p class="section-title">Konjunktiv I oder II? Ergänze die richtige Verbform.</p>
@@ -237,7 +290,7 @@
     <div class="control-bar">
       <button class="btn btn-reset" onclick="resetSatzbau()">🔄 Zurücksetzen</button>
       <button class="btn btn-shuffle" onclick="shuffleSatzbau()">🔀 Mischen</button>
-      <div class="timer-display" id="timer3">00:00&nbsp;<span class="best-time" id="best3"></span></div>
+      <div class="timer-display" id="timer-3">00:00&nbsp;<span class="best-time" id="best-3"></span></div>
     </div>
 
     <p class="section-title">Satzbau: Bring die Chips in die richtige Reihenfolge!</p>
@@ -249,7 +302,7 @@
     <img class="tab-banner" src="https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg?auto=compress&w=1000" alt="Wortschatz Verben">
     <div class="control-bar">
       <button class="btn btn-reset" onclick="resetVocab()">🔄 Zurücksetzen</button>
-      <div class="timer-display" id="timer4">00:00&nbsp;<span class="best-time" id="best4"></span></div>
+      <div class="timer-display" id="timer-4">00:00&nbsp;<span class="best-time" id="best-4"></span></div>
     </div>
 
     <p class="section-title">Wortschatz: Einleitende Verben &amp; Grammatikbegriffe</p>
@@ -260,37 +313,46 @@
 </div>
 
 <script>
-const TIMER_PREFIX = 'B2_1025G_';
-
-// ── Timer ────────────────────────────────────────────────────────
-const timers={}, intervals={};
-function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+var TIMER_PREFIX='B2_1025G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
 function timerAutoStart(n){
-  if(timers[n]!==undefined) return;
-  timers[n]=0;
-  intervals[n]=setInterval(()=>{
-    timers[n]++;
-    const el=document.getElementById('timer'+n);
-    if(el) el.childNodes[0].textContent=fmtTime(timers[n])+'\u00a0';
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
   },1000);
 }
 function timerStop(n){
-  if(!intervals[n]) return;
-  clearInterval(intervals[n]); intervals[n]=null;
-  const best=localStorage.getItem(TIMER_PREFIX+n);
-  if(!best||timers[n]<parseInt(best)){
-    localStorage.setItem(TIMER_PREFIX+n,timers[n]);
-    const el=document.getElementById('best'+n);
-    if(el) el.textContent='⭐ '+fmtTime(timers[n]);
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
   }
-  timers[n]=undefined;
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
 function timerResetOne(n){
-  if(intervals[n]){clearInterval(intervals[n]);intervals[n]=null;}
-  timers[n]=undefined;
-  const el=document.getElementById('timer'+n);
-  if(el) el.childNodes[0].textContent='00:00\u00a0';
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
 function loadBestTimes(){
   [2,3,4].forEach(n=>{
     const v=localStorage.getItem(TIMER_PREFIX+n);
@@ -302,9 +364,7 @@ function loadBestTimes(){
 function showTab(n){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
   document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===n));
-  if(n===2&&timers[2]===undefined) timerAutoStart(2);
-  if(n===3&&timers[3]===undefined) timerAutoStart(3);
-  if(n===4&&timers[4]===undefined) timerAutoStart(4);
+  if(n>=2) timerAutoStart(n);
 }
 
 // ── Entdecken ────────────────────────────────────────────────────
@@ -338,92 +398,278 @@ function resetLuecke(){
 }
 
 // ── Satzbau ──────────────────────────────────────────────────────
-const satzbauData=[
-  {parts:['Die Lehrerin sagt,','die Stunde','werde','heute Spaß machen','.'],
-   valid:'Die Lehrerin sagt, die Stunde werde heute Spaß machen .'},
-  {parts:['Timo','wünscht,','er könnte','trotzdem','dabei sein','.'],
-   valid:'Timo wünscht, er könnte trotzdem dabei sein .'},
-  {parts:['Eva äußert,','sie möge','Pizza','.'],
-   valid:'Eva äußert, sie möge Pizza .'},
-  {parts:['Könnten','Sie mir bitte','den Weg','erklären','?'],
-   valid:'Könnten Sie mir bitte den Weg erklären ?'},
-  {parts:['Man nehme','500g Mehl,','125ml Wasser','und 250g Butter','.'],
-   valid:'Man nehme 500g Mehl, 125ml Wasser und 250g Butter .'},
-  {parts:['Wenn ich Geld hätte,','würde ich','mir die Schuhe','kaufen','.'],
-   valid:'Wenn ich Geld hätte, würde ich mir die Schuhe kaufen .'},
-  {parts:['Laura erzählt,','dass sie','auf dem Markt','gewesen sei','.'],
-   valid:'Laura erzählt, dass sie auf dem Markt gewesen sei .'},
+var satzbauData = [
+  { parts: ['die', 'Lehrerin', 'sagt', ',', 'die', 'Stunde', 'werde', 'heute', 'Spaß', 'machen'],
+    valid: [['die', 'Lehrerin', 'sagt', ',', 'die', 'Stunde', 'werde', 'heute', 'Spaß', 'machen']], punct: '.' },
+  { parts: ['Timo', 'wünscht', ',', 'er', 'könnte', 'trotzdem', 'dabei', 'sein'],
+    valid: [['Timo', 'wünscht', ',', 'er', 'könnte', 'trotzdem', 'dabei', 'sein']], punct: '.' },
+  { parts: ['Eva', 'äußert', ',', 'sie', 'möge', 'Pizza'],
+    valid: [['Eva', 'äußert', ',', 'sie', 'möge', 'Pizza']], punct: '.' },
+  { parts: ['könnten', 'Sie', 'mir', 'bitte', 'den', 'Weg', 'erklären'],
+    valid: [['könnten', 'Sie', 'mir', 'bitte', 'den', 'Weg', 'erklären']], punct: '?' },
+  { parts: ['man', 'nehme', '500g', 'Mehl', ',', '125ml', 'Wasser', 'und', '250g', 'Butter'],
+    valid: [['man', 'nehme', '500g', 'Mehl', ',', '125ml', 'Wasser', 'und', '250g', 'Butter']], punct: '.' },
+  { parts: ['wenn', 'ich', 'Geld', 'hätte', ',', 'würde', 'ich', 'mir', 'die', 'Schuhe', 'kaufen'],
+    valid: [['wenn', 'ich', 'Geld', 'hätte', ',', 'würde', 'ich', 'mir', 'die', 'Schuhe', 'kaufen']], punct: '.' },
+  { parts: ['Laura', 'erzählt', ',', 'dass', 'sie', 'auf', 'dem', 'Markt', 'gewesen', 'sei'],
+    valid: [['Laura', 'erzählt', ',', 'dass', 'sie', 'auf', 'dem', 'Markt', 'gewesen', 'sei']], punct: '.' }
 ];
 
-let sbDragged=null;
+var sbDragged = null;
 
-function fisherYates(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
   }
-  return arr;
+  return c;
 }
 
-function buildSatzbau(){
-  const c=document.getElementById('satzbauContainer');
-  c.innerHTML='';
-  satzbauData.forEach((s,idx)=>{
-    const shuffled=fisherYates([...s.parts]);
-    const div=document.createElement('div');
-    div.className='satzbau-item';
-    const chipsHTML=shuffled.map(p=>{
-      const isPunct=(p==='.'||p==='?');
-      return `<div class="chip${isPunct?' punct':''}" draggable="true"
-        ondragstart="sbDragged=this">${p}</div>`;
-    }).join('');
-    div.innerHTML=`
-      <div class="sentence-num">Satz ${idx+1}</div>
-      <div class="chip-pool" id="pool${idx}"
-        ondragover="event.preventDefault()"
-        ondrop="drop(event,'pool${idx}',${idx})">${chipsHTML}</div>
-      <div class="drop-zone" id="zone${idx}"
-        ondragover="event.preventDefault()"
-        ondrop="drop(event,'zone${idx}',${idx})"></div>
-      <div class="satzbau-feedback" id="fb${idx}"></div>`;
-    c.appendChild(div);
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
+
+function sbCapitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    if (orig === ',' || orig === ';') return;
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    if (isProper) {
+      c.textContent = orig;
+    } else {
+      c.textContent = (i === 0) ? sbCapitalize(orig) : orig;
+    }
   });
 }
 
-function drop(e,targetId,idx){
-  e.preventDefault();
-  if(!sbDragged) return;
-  document.getElementById(targetId).appendChild(sbDragged);
-  sbDragged=null;
-  checkSentence(idx);
-}
-
-function checkSentence(idx){
-  const zone=document.getElementById('zone'+idx);
-  const chips=[...zone.querySelectorAll('.chip')].map(c=>c.textContent.trim());
-  const fb=document.getElementById('fb'+idx);
-  if(!chips.length){fb.textContent='';return;}
-  if(chips.join(' ')===satzbauData[idx].valid){
-    fb.innerHTML='<span style="color:#28a745">✓ Richtig!</span>';
-    zone.querySelectorAll('.chip').forEach(c=>c.classList.add('correct-chip'));
-    checkAllSatzbau();
-  } else {
-    fb.innerHTML='<span style="color:#dc3545">✗ Noch nicht richtig.</span>';
-    zone.querySelectorAll('.chip').forEach(c=>c.classList.remove('correct-chip'));
-  }
-}
-
-function checkAllSatzbau(){
-  const all=satzbauData.every((_,i)=>{
-    const zone=document.getElementById('zone'+i);
-    const chips=[...zone.querySelectorAll('.chip')].map(c=>c.textContent.trim());
-    return chips.join(' ')===satzbauData[i].valid;
+function sbMakeChip(word) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  if (word === ',' || word === ';') chip.classList.add('punct-chip');
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip;
+    timerAutoStart(3);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
   });
-  if(all) timerStop(3);
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = '';
+    sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
 }
 
-function resetSatzbau(){buildSatzbau();timerResetOne(3);timerAutoStart(3);}
-function shuffleSatzbau(){buildSatzbau();}
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+}
+
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) {
+    return JSON.stringify(v) === JSON.stringify(order);
+  });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-' + idx);
+  var fb   = document.getElementById('sb-fb-' + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) {
+      c.classList.remove('correct', 'incorrect');
+    });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(3);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) timerStop(3);
+}
+
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-' + idx);
+  var fb   = document.getElementById('sb-fb-' + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var chip = allChips[word];
+    if (chip) {
+      if (word !== ',' && word !== ';') {
+        chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+      }
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = '';
+  fb.className = 'satzbau-feedback';
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+
+    var bank = document.createElement('div');
+    bank.className = 'chips-container';
+    bank.id = 'sb-bank-' + idx;
+
+    var row = document.createElement('div');
+    row.className = 'sentence-builder';
+    row.id = 'sb-row-' + idx;
+
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback';
+    fb.id = 'sb-fb-' + idx;
+
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn';
+    solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() {
+      sbShowSolution(parseInt(this.getAttribute('data-idx')));
+    });
+
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() {
+      sbResetOne(parseInt(this.getAttribute('data-idx')));
+    });
+
+    btnRow.appendChild(solveBtn);
+    btnRow.appendChild(resetBtn);
+
+    item.appendChild(bank);
+    item.appendChild(row);
+    item.appendChild(fb);
+    item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+
+function resetSatzbau() { initSatzbau(); }
 
 // ── Wortschatz ───────────────────────────────────────────────────
 const vocabData=[
@@ -500,7 +746,7 @@ function resetVocab(){
 }
 
 // ── Init ─────────────────────────────────────────────────────────
-buildSatzbau();
+initSatzbau();
 buildVocab();
 loadBestTimes();
 </script>
