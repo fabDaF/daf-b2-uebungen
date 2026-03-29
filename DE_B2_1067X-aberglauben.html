@@ -370,7 +370,9 @@ function showTab(n){document.querySelectorAll('.section').forEach((s,i)=>s.class
 function updateTimer(n){const m=Math.floor(elapsed[n]/60),s=elapsed[n]%60;document.querySelectorAll('.timer').forEach((el,i)=>{if(i===n)el.textContent=m+':'+(s<10?'0':'')+s;});}
 
 // ── LÜCKENTEXT ───────────────────────────────────────────────────
-function checkGap(inp){const val=inp.value.trim(),ans=inp.dataset.answer;if(!val){inp.className='gap-input';return;}inp.classList.toggle('correct',val.toLowerCase()===ans.toLowerCase());inp.classList.toggle('wrong',val.toLowerCase()!==ans.toLowerCase());}
+  if (val.toLowerCase() === ans.toLowerCase()) { inp.classList.add('correct'); inp.classList.remove('wrong'); }
+  else if (ans.toLowerCase().startsWith(val.toLowerCase())) { inp.classList.remove('correct', 'wrong'); }
+  else { inp.classList.add('wrong'); inp.classList.remove('correct'); }
 function resetLuecken(){document.querySelectorAll('.gap-input').forEach(i=>{i.value='';i.className='gap-input';});document.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('used'));}
 function showLueckenAnswers(){document.querySelectorAll('.gap-input').forEach(i=>{i.value=i.dataset.answer;i.className='gap-input correct';});}
 function chipClick(chip){if(chip.classList.contains('used'))return;for(let inp of document.querySelectorAll('.gap-input')){if(!inp.value){inp.value=chip.textContent;checkGap(inp);chip.classList.add('used');break;}}}
@@ -603,6 +605,16 @@ document.addEventListener('DOMContentLoaded',function(){
     if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
 
-});</script>
+});
+function checkGap(inp) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (!val) return;
+  if (val === ans) { inp.classList.add('correct'); }
+  else if (ans.startsWith(val)) { /* valid prefix — wait */ }
+  else { inp.classList.add('wrong'); }
+}
+</script>
 </body>
 </html>
