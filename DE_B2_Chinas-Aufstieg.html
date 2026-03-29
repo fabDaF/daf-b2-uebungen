@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2 · Chinas Aufstieg – Interaktive DaF-Übung</title>
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.0em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* Vorentlastung */
+.ve-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.ve-table td { padding: 10px 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+.ve-table td:first-child { font-weight: 600; color: #4a148c; white-space: nowrap; width: 35%; }
+.ve-table td:last-child { color: #555; line-height: 1.5; }
+
+/* Originaltext / Dialog */
+.text-block { line-height: 1.8; color: #333; font-size: 1.0em; font-family: Georgia, 'Times New Roman', serif; }
+.text-block p { margin-bottom: 14px; text-align: justify; }
+.source { margin-top: 20px; font-size: 0.8em; color: #999; font-style: italic; }
+.dialog { margin-bottom: 16px; }
+.dialog .speaker { font-weight: 700; color: #4a148c; margin-bottom: 2px; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+.dialog .speaker.host { color: #2c3e50; }
+.dialog .speaker.guest { color: #4a148c; }
+.dialog .utterance { margin-left: 0; margin-bottom: 14px; line-height: 1.75; text-align: justify; }
+
+/* Genus */
+.genus-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 16px; }
+.genus-chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.genus-chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.genus-chip.wrong { background: #e74c3c; border-color: #e74c3c; color: white; }
+.genus-zones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.drop-zone { min-height: 100px; padding: 12px; border: 2px dashed #ccc; border-radius: 10px; text-align: center; transition: all 0.2s; }
+.drop-zone h3 { color: #667eea; margin-bottom: 8px; font-size: 1.1em; }
+.drop-zone.dragover { background: #f0f4ff; border-color: #667eea; }
+.drop-zone .genus-chip { margin: 4px; display: inline-block; }
+
+/* Lückentext */
+.luecke-item { margin-bottom: 18px; line-height: 1.7; }
+.luecke-item input { border: 2px solid #ccc; border-radius: 6px; padding: 4px 8px; font-size: 0.95em; transition: border-color 0.2s; outline: none; }
+.luecke-item input.correct { border-color: #27ae60; background: #f0fff4; }
+.luecke-item input.wrong { border-color: #e74c3c; background: #fff5f5; }
+.luecke-item input:focus { border-color: #667eea; }
+.inp-s { width: 80px; } .inp-m { width: 140px; } .inp-l { width: 200px; } .inp-xl { width: 260px; }
+
+/* Multiple Choice */
+.mc-item { margin-bottom: 22px; }
+.mc-item p { font-weight: 600; margin-bottom: 8px; color: #333; }
+.mc-opt { display: block; padding: 10px 16px; margin: 4px 0; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.mc-opt:hover { background: #f0f4ff; border-color: #667eea; }
+.mc-opt.correct { background: #f0fff4; border-color: #27ae60; color: #27ae60; font-weight: 600; }
+.mc-opt.wrong { background: #fff5f5; border-color: #e74c3c; color: #e74c3c; }
+.mc-opt.disabled { pointer-events: none; opacity: 0.6; }
+
+/* Satzbau */
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+
+/* Buttons */
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #eee; color: #444; }
+
+/* Timer */
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* Footer */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* Hilfe-Box */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .genus-zones { grid-template-columns: repeat(2, 1fr); }
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Chinas Aufstieg</h1>
+        <p style="font-family: Georgia, serif;">B2 &middot; Podcast-Interview &middot; Geopolitik</p>
+        <div class="big-emoji">🇨🇳</div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+        <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📄</span><span class="nav-label">Originaltext</span></div>
+        <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔤</span><span class="nav-label">Genus</span></div>
+        <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+        <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">☑️</span><span class="nav-label">Multiple Choice</span></div>
+        <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+    </div>
+
+    <!-- ═══════ TAB 0: VORENTLASTUNG ═══════ -->
+    <div class="section active" id="sec-0">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">📖 Vorentlastung</h2>
+            <p style="margin-bottom:14px; color:#555;">Lies die Begriffe und ihre Erklärungen, bevor du den Text liest.</p>
+            <table class="ve-table">
+                <tr><td>die Supermacht, -&#x308;e</td><td>ein Staat, der weltweit die stärkste militärische und wirtschaftliche Macht hat</td></tr>
+                <tr><td>der Machtwechsel, -</td><td>wenn eine Supermacht durch eine andere ersetzt wird (hegemonischer Wandel)</td></tr>
+                <tr><td>der Zoll, -&#x308;e (Pl.: die Zölle)</td><td>eine Steuer auf importierte Waren (engl.: tariff)</td></tr>
+                <tr><td>die Charmeoffensive, -n</td><td>eine Strategie, bei der man durch Freundlichkeit Verbündete gewinnt</td></tr>
+                <tr><td>die Cluster, -</td><td>eine Ansammlung von Firmen und Forschungseinrichtungen an einem Ort</td></tr>
+                <tr><td>der Rostgürtel (nur Sg.)</td><td>ehemalige Industrieregionen, in denen viele Fabriken geschlossen haben (engl.: Rust Belt)</td></tr>
+                <tr><td>der Sumpf, -&#x308;e (fig.)</td><td>eine schwierige Situation, aus der man nicht herauskommt (engl.: quagmire)</td></tr>
+                <tr><td>die Vorherrschaft (nur Sg.)</td><td>die dominierende Position eines Staates in der Welt (Primacy)</td></tr>
+                <tr><td>die Präzisionswaffe, -n</td><td>eine Waffe, die ihr Ziel mit hoher Genauigkeit trifft</td></tr>
+                <tr><td>die Ablenkung, -en</td><td>etwas, das die Aufmerksamkeit von einem wichtigeren Problem ablenkt</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 1: ORIGINALTEXT ═══════ -->
+    <div class="section" id="sec-1">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">📄 Originaltext</h2>
+            <p style="margin-bottom:14px; color:#555; font-size:0.9em;"><em>Podcast-Interview mit Prof. Robert Pape (University of Chicago). Moderator: Steven Bartlett. Übersetzt und leicht gekürzt.</em></p>
+            <div class="text-block">
+                <p><strong>Chinas Aufstieg — Warum Amerika sich selbst schadet</strong></p>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Sie haben 2009 eine ziemlich berühmte Vorhersage gemacht. Sie sagten, Amerikas Ära als einzige Supermacht der Welt gehe zu Ende.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Oh ja. Und ich denke, das stimmt. Wir haben noch nicht über China gesprochen, aber ich glaube, dass Trump seit seinem Amtsantritt China zur Nummer eins macht. Seine Zölle haben nichts anderes getan, als China zu helfen. China ist auf Charmeoffensive, seit die Zölle kommen, und sie sammeln die Scherben auf.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Ich war gerade zwei Wochen in China im Juni. Während wir den Iran bombardiert haben. Ich habe zwei volle Wochen lang fortschrittliche Industrien in China besichtigt. Eine der erstaunlichsten Reisen meiner ganzen Karriere. Steven, seit Covid war fast niemand mehr in China. Und wenn doch, sind sie nach Peking oder Shanghai gefahren. Sie sind nicht nach Wuhan gefahren. Sie sind nicht nach Shenzhen gefahren, haben nicht die BYD-Elektroautofabriken besucht, haben nicht die Roboter gesehen, die jetzt die Metallurgie machen. Und man kann das im Internet nicht gut sehen, weil China es für sich behält. Die wollen nicht damit angeben. Die machen einfach weiter.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Wuhan — um ein Beispiel zu geben. Wuhan ist so etwas wie Pittsburgh. Eine größere Version von Pittsburgh. Eine alte Stahlstadt. Aber das ist nicht das Wuhan von heute. Wuhan heute ist KI. Es entwickelt nicht nur eine Roboterfirma. Sie heben 9 Millionen Menschen an. Die Medizin ist besser, die Infrastruktur ist besser, sie haben mehr Baujobs als je zuvor, weil sie so viel bauen müssen, um diese 9 Millionen Menschen mitzunehmen. Das ist das, was Pittsburgh hätte werden sollen — und nicht geworden ist. Und ich weiß das, ich komme aus West-Pennsylvania. Es bricht mir das Herz zu sehen, was mit Pittsburgh in den letzten 30 oder 40 Jahren passiert ist. Wuhan, exakt dieselbe Ausgangslage — eine alte Stahlstadt — ist jetzt einer der führenden Standorte. Die haben dort ein Robotik-Silicon-Valley, das ich besucht habe.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Warum ist das wichtig? Warum ist es wichtig, wenn die USA nicht mehr die Supermacht der Welt sind? Was sagt die Geschichte über die Konsequenzen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Die Konsequenz ist: Zuerst bekommt man enorme Spannungen und Gewalt. Wenn man große hegemonische Verschiebungen sieht — das bedeutet, wenn die Nummer eins von einer anderen Macht ersetzt wird — passieren schlimme Dinge. So sind die Kriege zwischen Großbritannien und Frankreich entstanden. So ist im Grunde der Erste Weltkrieg entstanden — wegen des Aufstiegs und Falls von Deutschland, Russland und Großbritannien. Das einzige Mal, als es friedlich war, war als Amerika Großbritannien als Nummer eins ersetzte. Denken Sie mal darüber nach. Aber sonst war es immer sehr angespannt.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Und wie fühlt sich China dabei, dass die USA jetzt Krieg im Nahen Osten führen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Meine Einschätzung ist: China ist wahrscheinlich begeistert. Begeistert, dass wir kurz davor sind, in einen weiteren Sumpf im Nahen Osten zu geraten. Und sie würden gerne das gesamte nahöstliche Öl aufgeben, um uns in einen weiteren ewigen Krieg mit dem Iran zu ziehen, der Jahre und Jahre dauern würde. Denn sie sehen sich als wachsend in Asien. Und uns im Nahen Osten festgenagelt zu haben, mit einem noch größeren Problem als dem Irak — das ist Manna vom Himmel für China.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Wenn ich Putin oder China wäre — ich würde wirklich wollen, dass dieser Krieg lange weitergeht.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Auf jeden Fall. Und denken Sie an Präsident Xi. Ich glaube nicht, dass die Chinesen in den Kampf einsteigen wollen. Im Moment, wenn ich das richtig einschätze, wollen sie einem Feind, der sich gerade selbst in beide Füße schießt, nicht im Weg stehen. Amerika schadet sich gerade selbst mehr, als China es könnte. Uns gehen die sogenannten Standoff-Präzisionswaffen aus. Und wenn wir Taiwan verteidigen wollen, brauchen wir genau diese Waffen. Xi leckt sich die Finger und denkt: Mein Gott, wie viel besser kann das noch werden?</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Was ist die wirkliche langfristige Konsequenz von dem, was Trump tut?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Das wirklich Große — was wir am Ende erst angesprochen haben — ist die echte Konsequenz von dem, was Präsident Trump seit seinem Amtsantritt getan hat. Die Zölle, die Aggressivität gegenüber Grönland, Venezuela — das alles bedroht Amerikas Vorherrschaft. Ich glaube fest daran, dass Amerika der stärkste und sicherste Staat auf dem Planeten sein sollte. Aber dafür muss man die Nummer-eins-Wirtschaft der Welt sein. Und mit 40 Billionen Dollar Schulden, während wir unsere Handelspartner wegstoßen, während wir feindliche Aktionen machen, die den Rest der Welt verschrecken — China marschiert bei der KI-Revolution voran. Wir reden über KI? Aber machen wir wirklich Wuhan? Sind wir auf dem Niveau von Wuhan? Fahren Sie nach Wuhan, nach Shenzhen, nach Hangzhou. Sehen Sie, wo Alibaba ist. Es ist nicht nur eine Firma, es ist nicht nur DeepSeek — es sind Cluster, die 10 Millionen Menschen auf einmal anheben. Und meine Güte, warum machen wir das nicht in Amerika? Wir brauchen das im Rostgürtel.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Wir sind zu abgelenkt.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Wir sind zu abgelenkt. Und genau das ist es, was ich sagen will — das ist zu Chinas Vorteil. Und ich denke, das ist der eigentliche langfristige Preis: Erodieren wir tatsächlich unsere Position als Nummer eins der Welt? Und ich glaube, unsere Vorherrschaft ist in Gefahr.</p></div>
+
+            </div>
+            <p class="source">Quelle: „The Diary of a CEO" Podcast mit Steven Bartlett, Interview mit Prof. Robert Pape (University of Chicago), 2025/26. Übersetzt und für den DaF-Unterricht bearbeitet.</p>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 2: GENUS ═══════ -->
+    <div class="section" id="sec-genus">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">🔤 Genus</h2>
+            <p style="margin-bottom:14px; color:#555;">Ziehe die Nomen in die richtige Kategorie.</p>
+            <div class="genus-bank" id="genus-bank"></div>
+            <div class="genus-zones">
+                <div class="drop-zone" data-cat="der"><h3>der</h3></div>
+                <div class="drop-zone" data-cat="die"><h3>die</h3></div>
+                <div class="drop-zone" data-cat="das"><h3>das</h3></div>
+                <div class="drop-zone" data-cat="pl"><h3>Plural</h3></div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showGenusLoesungen()">Lösungen</button>
+                <button class="btn btn-reset" onclick="initGenus()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-2">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 3: LÜCKENTEXT ═══════ -->
+    <div class="section" id="sec-luecken">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">✏️ Lückentext</h2>
+            <p style="margin-bottom:14px; color:#555;">Ergänze die fehlenden Wörter aus dem Text.</p>
+            <div id="luecken-area"></div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showLueckenLoesungen()">Lösungen</button>
+                <button class="btn btn-reset" onclick="initLuecken()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-3">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 4: MULTIPLE CHOICE ═══════ -->
+    <div class="section" id="sec-mc">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">☑️ Multiple Choice</h2>
+            <p style="margin-bottom:14px; color:#555;">Wähle die richtige Antwort.</p>
+            <div id="mc-area"></div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showMcLoesungen()">Lösungen</button>
+                <button class="btn btn-reset" onclick="initMc()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-4">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 5: SATZBAU ═══════ -->
+    <div class="section" id="sec-satzbau">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">🧩 Satzbau</h2>
+            <p style="margin-bottom:14px; color:#555;">Ordne die Wörter zu einem korrekten Satz.</p>
+            <div id="satzbauContainer"></div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i);})">Lösungen</button>
+                <button class="btn btn-reset" onclick="initSatzbau()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-5">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-5">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="author-footer">
+        <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+        <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB-NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════════════════════
+var timers = {};
+function initTimer(idx) {
+    if (!timers[idx]) timers[idx] = { running: false, seconds: 0, interval: null };
+    timers[idx].running = false;
+    timers[idx].seconds = 0;
+    clearInterval(timers[idx].interval);
+    var el = document.getElementById('timer-' + idx);
+    if (el) el.textContent = '00:00';
+    var best = document.getElementById('best-' + idx);
+    if (best) best.textContent = '--:--';
+}
+function fmtTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+function timerAutoStart(idx) {
+    if (!timers[idx]) initTimer(idx);
+    if (timers[idx].running) return;
+    timers[idx].running = true;
+    timers[idx].interval = setInterval(function() {
+        timers[idx].seconds++;
+        var el = document.getElementById('timer-' + idx);
+        if (el) el.textContent = fmtTime(timers[idx].seconds);
+    }, 1000);
+}
+function timerStop(idx) {
+    if (!timers[idx]) return;
+    timers[idx].running = false;
+    clearInterval(timers[idx].interval);
+    var best = document.getElementById('best-' + idx);
+    if (best) best.textContent = fmtTime(timers[idx].seconds);
+}
+function timerReset(idx) { initTimer(idx); }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 2: GENUS
+// ═══════════════════════════════════════════════════════════════════════
+var GENUS_DATA = [
+    { word: '🏭 Rostgürtel', cat: 'der' },
+    { word: '🔧 Machtwechsel', cat: 'der' },
+    { word: '💰 Zoll', cat: 'der' },
+    { word: '🏗️ Standort', cat: 'der' },
+    { word: '🇨🇳 Vorherrschaft', cat: 'die' },
+    { word: '🤝 Charmeoffensive', cat: 'die' },
+    { word: '🏙️ Stahlstadt', cat: 'die' },
+    { word: '💡 Ablenkung', cat: 'die' },
+    { word: '🤖 Silicon Valley', cat: 'das' },
+    { word: '🧮 Bruttoinlandsprodukt', cat: 'das' },
+    { word: '⚡ Cluster', cat: 'das' },
+    { word: '🎯 Niveau', cat: 'das' },
+    { word: '💣 Präzisionswaffen', cat: 'pl' },
+    { word: '📊 Schulden', cat: 'pl' },
+    { word: '🏭 Industrien', cat: 'pl' }
+];
+
+var draggedChip = null;
+
+function colorGenusChip(chip) {
+    var zone = chip.closest('.drop-zone');
+    if (zone && zone.dataset.cat) {
+        chip.classList.remove('correct', 'wrong');
+        chip.classList.add(chip.dataset.cat === zone.dataset.cat ? 'correct' : 'wrong');
+    } else {
+        chip.classList.remove('correct', 'wrong');
+    }
+}
+function colorAllGenusChips() {
+    document.querySelectorAll('#sec-genus .genus-chip').forEach(colorGenusChip);
+    checkGenusAllOk();
+}
+function checkGenusAllOk() {
+    var all = document.querySelectorAll('#sec-genus .genus-chip');
+    var bank = document.getElementById('genus-bank');
+    if (bank.querySelectorAll('.genus-chip').length > 0) return;
+    var allOk = true;
+    all.forEach(function(c) { if (!c.classList.contains('correct')) allOk = false; });
+    if (allOk) timerStop(2);
+}
+
+function initGenus() {
+    timerReset(2);
+    var bank = document.getElementById('genus-bank');
+    bank.innerHTML = '';
+    document.querySelectorAll('.drop-zone').forEach(function(z) {
+        z.querySelectorAll('.genus-chip').forEach(function(c) { c.remove(); });
+    });
+    var shuffled = GENUS_DATA.slice();
+    for (var i = shuffled.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t;
+    }
+    shuffled.forEach(function(item) {
+        var chip = document.createElement('div');
+        chip.className = 'genus-chip';
+        chip.textContent = item.word;
+        chip.dataset.cat = item.cat;
+        chip.draggable = true;
+        chip.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', '');
+            draggedChip = chip;
+        });
+        chip.addEventListener('dragend', function() { colorAllGenusChips(); });
+        chip.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (draggedChip && draggedChip !== chip) { draggedChip.style.outline = ''; }
+            if (draggedChip === chip) { draggedChip = null; chip.style.outline = ''; }
+            else { draggedChip = chip; chip.style.outline = '3px solid #e67e22'; }
+        });
+        bank.appendChild(chip);
+    });
+
+    document.querySelectorAll('.drop-zone').forEach(function(zone) {
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault(); zone.classList.remove('dragover');
+            if (draggedChip) { zone.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; }
+            timerAutoStart(2);
+            colorAllGenusChips();
+        });
+        zone.addEventListener('click', function() {
+            if (draggedChip) { zone.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; timerAutoStart(2); colorAllGenusChips(); }
+        });
+    });
+
+    bank.addEventListener('click', function() {
+        if (draggedChip) { bank.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; colorAllGenusChips(); }
+    });
+}
+
+function showGenusLoesungen() {
+    var bank = document.getElementById('genus-bank');
+    bank.innerHTML = '';
+    GENUS_DATA.forEach(function(item) {
+        var zone = document.querySelector('.drop-zone[data-cat="' + item.cat + '"]');
+        var chip = document.createElement('div');
+        chip.className = 'genus-chip correct';
+        chip.textContent = item.word;
+        chip.dataset.cat = item.cat;
+        zone.appendChild(chip);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 3: LÜCKENTEXT
+// ═══════════════════════════════════════════════════════════════════════
+var LUECKEN_DATA = [
+    { pre: 'Pape glaubt, dass Trump seit seinem Amtsantritt China zur Nummer ', answer: 'eins', post: ' macht.', size: 's' },
+    { pre: 'Trumps Zölle haben nichts anderes getan, als China zu ', answer: 'helfen', post: '.', size: 'm' },
+    { pre: 'Wuhan war früher eine alte ', answer: 'Stahlstadt', post: ' — so wie Pittsburgh.', size: 'l' },
+    { pre: 'Wuhan heute ist KI — sie heben 9 Millionen Menschen ', answer: 'an', post: '.', size: 's' },
+    { pre: 'Wenn die Nummer eins von einer anderen Macht ersetzt wird, passieren schlimme ', answer: 'Dinge', post: '.', size: 'm' },
+    { pre: 'China ist wahrscheinlich begeistert, dass die USA in einen weiteren ', answer: 'Sumpf', post: ' im Nahen Osten geraten.', size: 'm' },
+    { pre: 'Amerika schadet sich gerade selbst mehr, als ', answer: 'China', post: ' es könnte.', size: 'm' },
+    { pre: 'Uns gehen die sogenannten Standoff-', answer: 'Präzisionswaffen', post: ' aus.', size: 'xl' },
+    { pre: 'China marschiert bei der KI-', answer: 'Revolution', post: ' voran.', size: 'l' },
+    { pre: 'Pape glaubt, Amerikas ', answer: 'Vorherrschaft', post: ' ist in Gefahr.', size: 'l' }
+];
+
+function liveCheck(inp) {
+    var answer = inp.dataset.answer;
+    var val = inp.value.trim();
+    inp.classList.remove('correct', 'wrong');
+    if (val.length === 0) return;
+    if (val.toLowerCase() === answer.toLowerCase()) {
+        inp.classList.add('correct');
+    } else if (answer.toLowerCase().indexOf(val.toLowerCase()) !== 0) {
+        inp.classList.add('wrong');
+    }
+}
+
+function checkAllLuecken() {
+    var inputs = document.querySelectorAll('#luecken-area input');
+    var allOk = true;
+    inputs.forEach(function(inp) { if (!inp.classList.contains('correct')) allOk = false; });
+    if (allOk) timerStop(3);
+}
+
+function initLuecken() {
+    timerReset(3);
+    var area = document.getElementById('luecken-area');
+    area.innerHTML = '';
+    LUECKEN_DATA.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'luecke-item';
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'inp-' + item.size;
+        inp.dataset.answer = item.answer;
+        inp.placeholder = '…';
+        inp.autocomplete = 'off';
+        inp.oninput = function() { timerAutoStart(3); liveCheck(this); checkAllLuecken(); };
+        div.innerHTML = '<strong>' + (idx + 1) + '.</strong> ';
+        div.appendChild(document.createTextNode(item.pre));
+        div.appendChild(inp);
+        div.appendChild(document.createTextNode(item.post));
+        area.appendChild(div);
+    });
+}
+
+function showLueckenLoesungen() {
+    document.querySelectorAll('#luecken-area input').forEach(function(inp) {
+        inp.value = inp.dataset.answer;
+        inp.classList.remove('wrong');
+        inp.classList.add('correct');
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 4: MULTIPLE CHOICE
+// ═══════════════════════════════════════════════════════════════════════
+var MC_DATA = [
+    { q: '1. Was hat Pape 2009 vorhergesagt?', opts: ['Dass China die USA militärisch angreifen wird.', 'Dass Amerikas Ära als einzige Supermacht zu Ende geht.', 'Dass die USA den Iran bombardieren werden.', 'Dass Europa zur neuen Supermacht wird.'], correct: 1 },
+    { q: '2. Was haben Trumps Zölle laut Pape bewirkt?', opts: ['Sie haben die amerikanische Wirtschaft gestärkt.', 'Sie haben China geschadet.', 'Sie haben China geholfen.', 'Sie hatten keine Wirkung.'], correct: 2 },
+    { q: '3. Was hat Pape in Wuhan beeindruckt?', opts: ['Die traditionelle chinesische Architektur', 'Die militärischen Anlagen', 'Die KI-Cluster, Robotik und die Anhebung von 9 Millionen Menschen', 'Die billigen Arbeitskräfte in den Fabriken'], correct: 2 },
+    { q: '4. Warum vergleicht Pape Wuhan mit Pittsburgh?', opts: ['Beide sind berühmt für ihre Sportteams.', 'Beide waren alte Stahlstädte — aber Wuhan hat sich transformiert, Pittsburgh nicht.', 'Beide haben dieselbe Einwohnerzahl.', 'Beide werden von der KI-Revolution bedroht.'], correct: 1 },
+    { q: '5. Was passiert laut Pape bei großen hegemonischen Verschiebungen?', opts: ['Es gibt immer einen friedlichen Übergang.', 'Die alte Supermacht wird automatisch stärker.', 'Es kommt oft zu enormen Spannungen und Gewalt.', 'Die Wirtschaft beider Länder wächst.'], correct: 2 },
+    { q: '6. Warum ist China laut Pape über den Krieg im Nahen Osten „begeistert"?', opts: ['Weil China billiges Öl aus dem Iran bekommt.', 'Weil die USA dort festgenagelt werden und China in Asien wachsen kann.', 'Weil China selbst im Nahen Osten expandieren will.', 'Weil der Krieg Chinas Militär testet.'], correct: 1 },
+    { q: '7. Was sagt Pape über die Standoff-Präzisionswaffen?', opts: ['Die USA haben genug davon für jeden Konflikt.', 'Sie werden nicht mehr gebraucht.', 'Den USA gehen sie aus — und sie brauchen sie für Taiwan.', 'China hat sie den USA gestohlen.'], correct: 2 },
+    { q: '8. Was meint Pape mit „Amerika schießt sich selbst in beide Füße"?', opts: ['Die USA testen neue Waffen an sich selbst.', 'Amerika schadet sich durch den Iran-Krieg und die Zölle mehr als China es könnte.', 'Amerikanische Soldaten verletzen sich beim Training.', 'Die USA haben ein Problem mit Waffengewalt im Inland.'], correct: 1 },
+    { q: '9. Was sind laut Pape die „Cluster" in China?', opts: ['Militärbasen entlang der Küste', 'Ansammlungen von Firmen und Forschungseinrichtungen, die Millionen Menschen anheben', 'Geheime Atomwaffenlager', 'Traditionelle Dorfgemeinschaften'], correct: 1 },
+    { q: '10. Was ist laut Pape der eigentliche langfristige Preis von Trumps Politik?', opts: ['Höhere Benzinpreise in Amerika', 'Der Verlust von Arbeitsplätzen in der Autoindustrie', 'Die Erosion von Amerikas Position als Nummer eins der Welt', 'Ein Handelskrieg nur mit Europa'], correct: 2 }
+];
+
+function initMc() {
+    timerReset(4);
+    var area = document.getElementById('mc-area');
+    area.innerHTML = '';
+    MC_DATA.forEach(function(item, qIdx) {
+        var div = document.createElement('div');
+        div.className = 'mc-item';
+        var p = document.createElement('p');
+        p.textContent = item.q;
+        div.appendChild(p);
+        item.opts.forEach(function(opt, oIdx) {
+            var btn = document.createElement('div');
+            btn.className = 'mc-opt';
+            btn.textContent = opt;
+            btn.addEventListener('click', function() {
+                timerAutoStart(4);
+                var siblings = div.querySelectorAll('.mc-opt');
+                siblings.forEach(function(s) { s.classList.add('disabled'); });
+                if (oIdx === item.correct) {
+                    btn.classList.add('correct');
+                } else {
+                    btn.classList.add('wrong');
+                    siblings[item.correct].classList.add('correct');
+                }
+                checkAllMc();
+            });
+            div.appendChild(btn);
+        });
+        area.appendChild(div);
+    });
+}
+
+function checkAllMc() {
+    var items = document.querySelectorAll('.mc-item');
+    var allDone = true;
+    items.forEach(function(item) {
+        if (!item.querySelector('.mc-opt.correct') && !item.querySelector('.mc-opt.wrong')) allDone = false;
+    });
+    if (allDone) {
+        var allCorrect = true;
+        items.forEach(function(item) { if (item.querySelector('.mc-opt.wrong')) allCorrect = false; });
+        if (allCorrect) timerStop(4);
+    }
+}
+
+function showMcLoesungen() {
+    MC_DATA.forEach(function(item, qIdx) {
+        var mcItem = document.querySelectorAll('.mc-item')[qIdx];
+        var opts = mcItem.querySelectorAll('.mc-opt');
+        opts.forEach(function(o, i) {
+            o.classList.add('disabled');
+            if (i === item.correct) o.classList.add('correct');
+        });
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 5: SATZBAU
+// ═══════════════════════════════════════════════════════════════════════
+var satzbauData = [
+    { parts: ['seine', 'Zölle', 'haben', 'nichts', 'anderes', 'getan', ',', 'als', 'China', 'zu', 'helfen'], valid: [['seine', 'Zölle', 'haben', 'nichts', 'anderes', 'getan', ',', 'als', 'China', 'zu', 'helfen']], punct: '.' },
+    { parts: ['Wuhan', 'war', 'früher', 'eine', 'alte', 'Stahlstadt'], valid: [['Wuhan', 'war', 'früher', 'eine', 'alte', 'Stahlstadt']], punct: '.' },
+    { parts: ['sie', 'heben', '9', 'Millionen', 'Menschen', 'an'], valid: [['sie', 'heben', '9', 'Millionen', 'Menschen', 'an']], punct: '.' },
+    { parts: ['bei', 'großen', 'hegemonischen', 'Verschiebungen', 'passieren', 'schlimme', 'Dinge'], valid: [['bei', 'großen', 'hegemonischen', 'Verschiebungen', 'passieren', 'schlimme', 'Dinge']], punct: '.' },
+    { parts: ['China', 'ist', 'wahrscheinlich', 'begeistert', 'über', 'den', 'Krieg', 'im', 'Nahen', 'Osten'], valid: [['China', 'ist', 'wahrscheinlich', 'begeistert', 'über', 'den', 'Krieg', 'im', 'Nahen', 'Osten']], punct: '.' },
+    { parts: ['Amerika', 'schadet', 'sich', 'selbst', 'mehr', ',', 'als', 'China', 'es', 'könnte'], valid: [['Amerika', 'schadet', 'sich', 'selbst', 'mehr', ',', 'als', 'China', 'es', 'könnte']], punct: '.' },
+    { parts: ['uns', 'gehen', 'die', 'Präzisionswaffen', 'aus'], valid: [['uns', 'gehen', 'die', 'Präzisionswaffen', 'aus']], punct: '.' },
+    { parts: ['China', 'marschiert', 'bei', 'der', 'KI-Revolution', 'voran'], valid: [['China', 'marschiert', 'bei', 'der', 'KI-Revolution', 'voran']], punct: '.' },
+    { parts: ['wir', 'sind', 'zu', 'abgelenkt'], valid: [['wir', 'sind', 'zu', 'abgelenkt']], punct: '.' },
+    { parts: ['unsere', 'Vorherrschaft', 'ist', 'in', 'Gefahr'], valid: [['unsere', 'Vorherrschaft', 'ist', 'in', 'Gefahr']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function sbUpdateCapitalization(row) {
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase() && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        if (isProper) { c.textContent = orig; }
+        else { c.textContent = (i === 0) ? sbCapitalize(orig) : orig; }
+    });
+}
+
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) { zone.insertBefore(sbDragged, cursor); zone.removeChild(cursor); }
+        else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        var row = document.getElementById('sb-row-' + idx);
+        sbUpdateCapitalization(row);
+        sbCheckAuto(idx);
+    });
+}
+
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) { return JSON.stringify(v) === JSON.stringify(order); });
+    chips.forEach(function(c) { c.classList.remove('correct', 'incorrect'); c.classList.add(ok ? 'correct' : 'incorrect'); });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        timerAutoStart(5);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct';
+            fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk) timerStop(5);
+}
+
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild) row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function initSatzbau() {
+    timerReset(5);
+    var area = document.getElementById('satzbauContainer');
+    area.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var label = document.createElement('p');
+        label.style.cssText = 'font-weight:600;color:#4a148c;margin:16px 0 8px;';
+        label.textContent = (idx + 1) + '. Satz';
+        area.appendChild(label);
+        var bank = document.createElement('div'); bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div'); row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div'); fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        area.appendChild(bank);
+        area.appendChild(row);
+        area.appendChild(fb);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════════
+initGenus();
+initLuecken();
+initMc();
+initSatzbau();
+</script>
+</body>
+</html>
