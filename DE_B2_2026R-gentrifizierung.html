@@ -8,7 +8,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
   .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
-  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 30px 16px; }
+  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 30px 16px;
+  text-align: center;
+}
   header h1 { font-size: 1.6rem; margin-bottom: 4px; }
   header p { opacity: 0.85; font-size: 0.95rem; }
   .nav{ display: flex; background: #f0f0f0;  overflow-x: auto; ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
@@ -52,10 +54,10 @@
   .drop-zone { min-height: 44px; border: 2px dashed #b0bcf0; border-radius: 8px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; background: #f0f4ff; transition: background 0.2s; }
   .drop-zone.drag-over { background: #e0e8ff; }
   .chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-  .chip { background: #667eea; color: white; padding: 6px 13px; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; border: none; transition: background 0.2s, opacity 0.2s; }
-  .chip:hover { background: #5a6fd6; }
-  .chip.placed { background: #764ba2; }
+  .chip { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 6px 13px; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; border: none; transition: background 0.2s, opacity 0.2s; }
   .chip.ghost { opacity: 0.4; }
+  .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+  .chip.wrong   { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
   .sb-feedback { font-size: 0.82rem; color: #666; min-height: 1.2em; }
   .sb-feedback.ok { color: #4caf50; font-weight: 600; }
   .sb-feedback.err { color: #e53935; }
@@ -205,14 +207,14 @@
         <div class="timer-display"><span>⏱ <span id="timer-3">0:00</span></span><span>🏆 <span id="best-3">--:--</span></span></div>
       </div>
       <ul class="gap-list" id="gapList1">
-        <li>1. Bei der Gentrifizierung kommt es zur <input class="gap-input" data-ans="Verdrängung" placeholder=""> ärmerer Bevölkerungsgruppen.</li>
-        <li>2. Die <input class="gap-input" data-ans="Mietpreiserhöhung" placeholder=""> macht das Viertel für viele unerschwinglich.</li>
-        <li>3. Künstler bringen ihre <input class="gap-input" data-ans="Subkultur" placeholder=""> in das neue Viertel.</li>
-        <li>4. Ein <input class="gap-input" data-ans="Gentrifier" placeholder=""> ist jemand, der in ein aufgewertetes Viertel zieht.</li>
-        <li>5. Durch Renovierungen findet eine <input class="gap-input" data-ans="Aufwertung" placeholder=""> der Gebäude statt.</li>
-        <li>6. <input class="gap-input" data-ans="Sanieren" placeholder=""> bedeutet, ein Gebäude grundlegend zu renovieren.</li>
-        <li>7. Die <input class="gap-input" data-ans="Mittelschicht" placeholder=""> profitiert oft am meisten von der Gentrifizierung.</li>
-        <li>8. Eine <input class="gap-input" data-ans="Immobilienfirma" placeholder=""> kauft Häuser und saniert sie als Geldanlage.</li>
+        <li>Bei der Gentrifizierung kommt es zur <input class="gap-input" data-ans="Verdrängung" placeholder=""> ärmerer Bevölkerungsgruppen.</li>
+        <li>Die <input class="gap-input" data-ans="Mietpreiserhöhung" placeholder=""> macht das Viertel für viele unerschwinglich.</li>
+        <li>Künstler bringen ihre <input class="gap-input" data-ans="Subkultur" placeholder=""> in das neue Viertel.</li>
+        <li>Ein <input class="gap-input" data-ans="Gentrifier" placeholder=""> ist jemand, der in ein aufgewertetes Viertel zieht.</li>
+        <li>Durch Renovierungen findet eine <input class="gap-input" data-ans="Aufwertung" placeholder=""> der Gebäude statt.</li>
+        <li><input class="gap-input" data-ans="Sanieren" placeholder=""> bedeutet, ein Gebäude grundlegend zu renovieren.</li>
+        <li>Die <input class="gap-input" data-ans="Mittelschicht" placeholder=""> profitiert oft am meisten von der Gentrifizierung.</li>
+        <li>Eine <input class="gap-input" data-ans="Immobilienfirma" placeholder=""> kauft Häuser und saniert sie als Geldanlage.</li>
       </ul>
     </div>
   </div>
@@ -293,12 +295,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
 });
-document.querySelectorAll('.section').forEach((sec, i) => {
-  const obs = new MutationObserver(() => {
-    if (sec.classList.contains('active')) startTimer('timer'+(i+1));
-  });
-  obs.observe(sec, {attributes: true});
-});
+
 
 // R/F Questions
 const rfQuestions = [
@@ -364,8 +361,7 @@ function initSatzbau() {
   area.innerHTML = '';
   sbSentences.forEach((s,si) => {
     const div = document.createElement('div'); div.className='sb-task';
-    div.innerHTML=`<p>Aufgabe ${si+1}: Bringe die Wörter in die richtige Reihenfolge.</p>
-      <div class="drop-zone" id="dz${si}" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event,${si})"></div>
+    div.innerHTML=`<div class="drop-zone" id="dz${si}" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event,${si})"></div>
       <div class="chip-pool" id="pool${si}"></div>
       <div class="sb-feedback" id="fb${si}"></div>`;
     area.appendChild(div);
@@ -448,7 +444,6 @@ function checkVocabInput(inp) {
 function resetVocab() { document.querySelectorAll('.vocab-inputs input').forEach(i=>{i.value='';i.className='';}); }
 buildVocab();
 
-startTimer('timer1');
 </script>
 </body>
 </html>
