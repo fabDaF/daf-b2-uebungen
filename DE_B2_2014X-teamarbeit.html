@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teamarbeit – B2.2 · 2014X</title>
+<style>
+/* ── GLOBAL ──────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+/* ── NAVIGATION ──────────────────────────────────────────── */
+.nav{ display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; ;}
+.nav-btn{ flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+/* ── SECTIONS ────────────────────────────────────────────── */
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 28px 30px; }
+
+/* ── TAB-BANNER ──────────────────────────────────────────── */
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+@media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+
+/* ── CONTROL-BAR ─────────────────────────────────────────── */
+.timer-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { border-color: #667eea; color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* ── HILFE-BOX ───────────────────────────────────────────── */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+/* ── REDEMITTEL / PHRASES ────────────────────────────────── */
+.phrase-section { background: #f8f9ff; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid #667eea; }
+.phrase-section h4 { color: #667eea; font-size: 0.95rem; margin-bottom: 10px; font-weight: 700; }
+.phrase-list { list-style: none; }
+.phrase-list li { margin-bottom: 8px; font-size: 0.9rem; color: #333; padding-left: 16px; position: relative; line-height: 1.5; }
+.phrase-list li:before { content: "→"; position: absolute; left: 0; color: #667eea; font-weight: bold; }
+
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+.wordbox { background: #f3e5f5; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.9em; color: #555; line-height: 1.8; }
+.wordbox strong { color: #6a1b9a; }
+.luecken-item { margin-bottom: 14px; font-size: 0.97rem; line-height: 2; color: #333; }
+.luecken-inp { border: none; border-bottom: 2px solid #9c27b0; padding: 2px 6px; font-size: 0.95em; font-family: inherit; outline: none; min-width: 140px; text-align: center; background: transparent; transition: border-color .2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #43a047; background: #e8f5e9; color: #1b5e20; border-radius: 4px 4px 0 0; }
+.luecken-inp.no { border-bottom-color: #e53935; background: #ffebee; color: #b71c1c; border-radius: 4px 4px 0 0; }
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.sb-item { margin-bottom: 28px; }
+.sb-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; padding: 10px; background: #f3f4ff; border-radius: 8px; margin-bottom: 10px; }
+.sb-zone { display: flex; flex-wrap: wrap; gap: 8px; min-height: 50px; padding: 10px; background: #fff; border: 2px dashed #c5cae9; border-radius: 8px; }
+.sb-zone.drag-over { border-color: #667eea; background: #f0f4ff; }
+.chip { display: inline-flex; align-items: center; padding: 6px 12px; background: #e8eaf6; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; transition: all .15s; border: 2px solid transparent; color: #283593; font-weight: 500; }
+.chip:hover { background: #c5cae9; transform: translateY(-1px); }
+.chip.selected { border-color: #667eea; background: #c5cae9; }
+.chip.correct { background: #c8e6c9; color: #1b5e20; border-color: #43a047; }
+.chip.wrong { background: #ffcdd2; color: #b71c1c; border-color: #e53935; }
+.sb-fb { font-size: 0.88rem; margin-top: 6px; min-height: 20px; color: #43a047; font-weight: 600; }
+
+/* ── WORTSCHATZ ──────────────────────────────────────────── */
+.vocab-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.vocab-card { border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); transition: box-shadow .2s; }
+.vocab-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+.vocab-img { width: 100%; height: 120px; object-fit: cover; }
+.vocab-body { padding: 12px 14px; }
+.vocab-eng { font-size: 0.82em; color: #888; margin-bottom: 6px; }
+.vocab-row { display: flex; gap: 6px; margin-bottom: 5px; flex-wrap: wrap; }
+.vocab-inp { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; font-size: 0.82em; font-family: inherit; outline: none; flex: 1; min-width: 60px; transition: border-color .2s; }
+.vocab-inp.art { max-width: 68px; }
+.vocab-inp.plural { max-width: 130px; }
+.vocab-inp:focus { border-color: #667eea; }
+.vocab-inp.correct { border-color: #43a047; background: #e8f5e9; color: #1b5e20; }
+.vocab-inp.wrong { border-color: #e53935; background: #ffebee; }
+.vocab-bsp { font-size: 0.78em; color: #999; margin-top: 5px; font-style: italic; border-top: 1px solid #f0f0f0; padding-top: 5px; line-height: 1.4; }
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav{ flex-wrap: wrap; ;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+    .nav-btn{ flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; border-bottom:1px solid #ddd;}
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <span class="big-emoji">👥</span>
+  <h1>Teamarbeit</h1>
+  <p>B2 · Einheit 2 · 2014X · Kommunikation &amp; Wortschatz</p>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
+    <span class="nav-emoji">💬</span><span class="nav-label">Redemittel</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
+    <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
+    <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
+    <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
+  </div>
+</div>
+
+<!-- TAB 0: REDEMITTEL -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Diskussionsrunde mit mehreren Personen">
+  <div class="sec-inner">
+    <h2>💬 Redemittel</h2>
+    <div class="phrase-section">
+      <h4>Einen Beitrag leisten</h4>
+      <ul class="phrase-list">
+        <li>Ich kann dazu beitragen, indem ich …</li>
+        <li>Ich übernehme gerne die Aufgabe, …</li>
+        <li>Mein Beitrag zum Projekt ist …</li>
+        <li>Darf ich diesen Teil übernehmen?</li>
+      </ul>
+    </div>
+    <div class="phrase-section">
+      <h4>Meinungen im Team äußern</h4>
+      <ul class="phrase-list">
+        <li>Ich finde, wir sollten …</li>
+        <li>Aus meiner Sicht wäre es besser, …</li>
+        <li>Was haltet ihr davon, wenn wir …?</li>
+        <li>Ich stimme dir zu, dass …</li>
+      </ul>
+    </div>
+    <div class="phrase-section">
+      <h4>Aufgaben verteilen</h4>
+      <ul class="phrase-list">
+        <li>Ich schlage vor, dass du … übernimmst.</li>
+        <li>Können wir die Aufgaben gleichmäßig verteilen?</li>
+        <li>Wer kümmert sich um …?</li>
+        <li>Bitte denk an die Deadline.</li>
+      </ul>
+    </div>
+    <div class="phrase-section">
+      <h4>Gruppenarbeit vs. Einzelarbeit</h4>
+      <ul class="phrase-list">
+        <li>Ich arbeite lieber im Team, weil …</li>
+        <li>Als Einzelkämpfer erledige ich manche Aufgaben lieber allein.</li>
+        <li>Teamarbeit erfordert gegenseitiges Vertrauen.</li>
+        <li>Jedes Teammitglied hat besondere Stärken.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 1: LÜCKENTEXT -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Team beim gemeinsamen Projekt">
+  <div class="sec-inner">
+    <h2>✏️ Lückentext</h2>
+    <div class="wordbox">
+      <strong>Wortkasten:</strong> Teamarbeit · verteilen · Kompetenz · Teamgeist · Pflichtbewusstsein · Gruppenarbeit · Einzelarbeit · Projekt · Zusammenarbeit · Ziele · Qualifikation · Partnerarbeit
+    </div>
+    <div class="hilfe-box">
+      <strong>Aufgabe:</strong> Ergänze die fehlenden Wörter. Live-Feedback beim Eingeben!
+    </div>
+    <div class="luecken-item">
+      1. Gute <input class="luecken-inp" type="text" placeholder="" data-answer="Teamarbeit" oninput="lueckenCheck(this)"> erfordert Kommunikation und gegenseitiges Vertrauen.
+    </div>
+    <div class="luecken-item">
+      2. Wir müssen die Aufgaben fair im Team <input class="luecken-inp" type="text" placeholder="" data-answer="verteilen" oninput="lueckenCheck(this)">.
+    </div>
+    <div class="luecken-item">
+      3. Soziale <input class="luecken-inp" type="text" placeholder="" data-answer="Kompetenz" oninput="lueckenCheck(this)"> ist eine wichtige Schlüsselqualifikation im Beruf.
+    </div>
+    <div class="luecken-item">
+      4. Der <input class="luecken-inp" type="text" placeholder="" data-answer="Teamgeist" oninput="lueckenCheck(this)"> in unserer Abteilung ist sehr gut.
+    </div>
+    <div class="luecken-item">
+      5. Eine Voraussetzung für gute Zusammenarbeit ist <input class="luecken-inp" type="text" placeholder="" data-answer="Pflichtbewusstsein" oninput="lueckenCheck(this)">.
+    </div>
+    <div class="luecken-item">
+      6. In der <input class="luecken-inp" type="text" placeholder="" data-answer="Gruppenarbeit" oninput="lueckenCheck(this)"> lernen wir voneinander.
+    </div>
+    <div class="luecken-item">
+      7. Er bevorzugt die <input class="luecken-inp" type="text" placeholder="" data-answer="Einzelarbeit" oninput="lueckenCheck(this)">, weil er sich besser konzentrieren kann.
+    </div>
+    <div class="luecken-item">
+      8. Das <input class="luecken-inp" type="text" placeholder="" data-answer="Projekt" oninput="lueckenCheck(this)"> muss bis Freitag fertig sein.
+    </div>
+    <div class="luecken-item">
+      9. Die <input class="luecken-inp" type="text" placeholder="" data-answer="Zusammenarbeit" oninput="lueckenCheck(this)"> zwischen den Abteilungen funktioniert gut.
+    </div>
+    <div class="luecken-item">
+      10. Wir brauchen klare <input class="luecken-inp" type="text" placeholder="" data-answer="Ziele" oninput="lueckenCheck(this)">, damit das Team effizient arbeiten kann.
+    </div>
+    <div class="luecken-item">
+      11. Die Schlüssel<input class="luecken-inp" type="text" placeholder="" data-answer="qualifikation" oninput="lueckenCheck(this)"> für diese Stelle ist Teamfähigkeit.
+    </div>
+    <div class="luecken-item">
+      12. Eine gute <input class="luecken-inp" type="text" placeholder="" data-answer="Partnerarbeit" oninput="lueckenCheck(this)"> setzt Vertrauen voraus.
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: SATZBAU -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Teambuilding und Zusammenarbeit">
+  <div class="sec-inner">
+    <h2>🧩 Satzbau</h2>
+    <div class="hilfe-box">
+      <strong>Aufgabe:</strong> Sortiere die Satzteile in die richtige Reihenfolge. Ziehe die Chips oder klicke sie!
+    </div>
+    <div id="sbContainer"></div>
+  </div>
+</div>
+
+<!-- TAB 3: WORTSCHATZ -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bücher und Wörterbuch zum Thema Arbeit">
+  <div class="sec-inner">
+    <h2>🔠 Wortschatz</h2>
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="resetVocab()">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+        <span class="best-time">🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">
+      <strong>Aufgabe:</strong> Für Nomen: Artikel + Wort + Plural. Für Verben/Adjektive: nur Deutsch eingeben!
+    </div>
+    <div id="vocabContainer"></div>
+  </div>
+</div>
+
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─────────────────────────────────────────────────────────
+// SECTION NAVIGATION
+// ─────────────────────────────────────────────────────────
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+}
+
+// ─────────────────────────────────────────────────────────
+// LÜCKENTEXT (Tab 1)
+// ─────────────────────────────────────────────────────────
+function lueckenCheck(inp) {
+    var answer = inp.getAttribute('data-answer').toLowerCase();
+    var val = inp.value.toLowerCase().trim();
+    if (val === '') {
+        inp.classList.remove('ok', 'no');
+    } else if (val === answer || answer.startsWith(val)) {
+        inp.classList.add('ok');
+        inp.classList.remove('no');
+    } else {
+        inp.classList.add('no');
+        inp.classList.remove('ok');
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// SATZBAU (Tab 2)
+// ─────────────────────────────────────────────────────────
+var satzbauDaten = [
+    ['Gute', 'Teamarbeit', 'erfordert', 'Vertrauen', 'und', 'offene', 'Kommunikation.'],
+    ['wir', 'müssen', 'die', 'Aufgaben', 'gleichmäßig', 'im', 'Team', 'verteilen.'],
+    ['Soziale', 'Kompetenz', 'ist', 'eine', 'wichtige', 'Voraussetzung', 'für', 'diesen', 'Job.'],
+    ['der', 'Teamgeist', 'in', 'unserem', 'Unternehmen', 'ist', 'sehr', 'stark.'],
+    ['jedes', 'Teammitglied', 'bringt', 'besondere', 'Fähigkeiten', 'mit.'],
+    ['Pflichtbewusstsein', 'zeigt,', 'dass', 'man', 'seine', 'Aufgaben', 'ernst', 'nimmt.'],
+    ['in', 'der', 'Gruppenarbeit', 'lernen', 'wir', 'voneinander', 'und', 'wachsen', 'zusammen.']
+];
+
+function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = a[i]; a[i] = a[j]; a[j] = temp;
+    }
+    return a;
+}
+
+var sbDragged = null;
+
+function initSatzbau() {
+    var container = document.getElementById('sbContainer');
+    container.innerHTML = '';
+    satzbauDaten.forEach(function(satz, idx) {
+        var shuffled = shuffleArray(satz);
+        var item = document.createElement('div');
+        item.className = 'sb-item';
+        var bank = document.createElement('div');
+        bank.className = 'sb-bank';
+        shuffled.forEach(function(word) {
+            var chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = word;
+            chip.draggable = true;
+            chip.setAttribute('data-correct-idx', satz.indexOf(word));
+            chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
+            chip.addEventListener('click', function() { sbChipClick(chip); });
+            bank.appendChild(chip);
+        });
+        var zone = document.createElement('div');
+        zone.className = 'sb-zone';
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (sbDragged) {
+                sbChipDrop(sbDragged, zone);
+            }
+        });
+        item.appendChild(bank);
+        item.appendChild(zone);
+        var fb = document.createElement('div');
+        fb.className = 'sb-fb';
+        item.appendChild(fb);
+        container.appendChild(item);
+    });
+
+function sbChipClick(chip) {
+    var zone = chip.parentElement.parentElement.querySelector('.sb-zone');
+    if (chip.parentElement.classList.contains('sb-bank')) {
+        sbChipDrop(chip, zone);
+    }
+}
+
+function sbChipDrop(chip, zone) {
+    if (chip.parentElement.classList.contains('sb-zone')) {
+        chip.parentElement.appendChild(chip);
+    } else {
+        zone.appendChild(chip);
+    }
+    sbCheckOrder(zone);
+}
+
+function sbCheckOrder(zone) {
+    var satzIdx = 0;
+    var items = zone.parentElement.querySelectorAll('.sb-zone');
+    for (var i = 0; i < items.length; i++) {
+        if (items[i] === zone) { satzIdx = i; break; }
+    }
+    var correctSatz = satzbauDaten[satzIdx];
+    var chips = zone.querySelectorAll('.chip');
+    var correct = true;
+    chips.forEach(function(c, idx) {
+        var shouldBe = parseInt(c.getAttribute('data-correct-idx'));
+        if (shouldBe === idx) {
+            c.classList.add('correct');
+            c.classList.remove('wrong');
+        } else {
+            c.classList.add('wrong');
+            c.classList.remove('correct');
+            correct = false;
+        }
+    });
+    var fb = zone.parentElement.querySelector('.sb-fb');
+    if (correct && chips.length === correctSatz.length) {
+        fb.textContent = '✓ Richtig!';
+        fb.style.color = '#43a047';
+    } else if (chips.length === 0) {
+        fb.textContent = '';
+    } else {
+        fb.textContent = '';
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// WORTSCHATZ (Tab 3)
+// ─────────────────────────────────────────────────────────
+var WORTSCHATZ = [
+    { id:1, type:"n", en:"teamwork", artikel:"die", de:"Teamarbeit", plural:"—" },
+    { id:2, type:"n", en:"collaboration", artikel:"die", de:"Zusammenarbeit", plural:"—" },
+    { id:3, type:"n", en:"team spirit", artikel:"der", de:"Teamgeist", plural:"—" },
+    { id:4, type:"n", en:"group work", artikel:"die", de:"Gruppenarbeit", plural:"Gruppenarbeiten" },
+    { id:5, type:"n", en:"individual work", artikel:"die", de:"Einzelarbeit", plural:"—" },
+    { id:6, type:"n", en:"partner work", artikel:"die", de:"Partnerarbeit", plural:"Partnerarbeiten" },
+    { id:7, type:"n", en:"prerequisite", artikel:"die", de:"Voraussetzung", plural:"Voraussetzungen" },
+    { id:8, type:"n", en:"key qualification", artikel:"die", de:"Schlüsselqualifikation", plural:"Schlüsselqualifikationen" },
+    { id:9, type:"n", en:"sense of duty", artikel:"das", de:"Pflichtbewusstsein", plural:"—" },
+    { id:10, type:"n", en:"social competence", artikel:"die", de:"Kompetenz", plural:"Kompetenzen" },
+    { id:11, type:"n", en:"project", artikel:"das", de:"Projekt", plural:"Projekte" },
+    { id:12, type:"n", en:"goal", artikel:"das", de:"Ziel", plural:"Ziele" }
+];
+
+function initVocab() {
+    var c = document.getElementById('vocabContainer');
+    c.innerHTML = '';
+    var shuffled = WORTSCHATZ.slice().sort(() => Math.random() - 0.5);
+    shuffled.forEach(function(v) {
+        var card = document.createElement('div');
+        card.className = 'vocab-card';
+        var img = document.createElement('img');
+        img.className = 'vocab-img';
+        img.src = getPexelsUrl(v.id);
+        img.alt = v.de;
+        card.appendChild(img);
+        var body = document.createElement('div');
+        body.className = 'vocab-body';
+        var en = document.createElement('div');
+        en.className = 'vocab-eng';
+        en.textContent = v.en;
+        body.appendChild(en);
+        if (v.type === 'n') {
+            var r1 = document.createElement('div');
+            r1.className = 'vocab-row';
+            var artInp = document.createElement('input');
+            artInp.className = 'vocab-inp art';
+            artInp.placeholder = 'Artikel';
+            artInp.dataset.id = v.id;
+            artInp.dataset.type = 'art';
+            artInp.dataset.correct = v.artikel;
+            artInp.oninput = vocabLiveCheck;
+            r1.appendChild(artInp);
+            var wInp = document.createElement('input');
+            wInp.className = 'vocab-inp';
+            wInp.placeholder = 'Deutsch';
+            wInp.dataset.id = v.id;
+            wInp.dataset.type = 'wort';
+            wInp.dataset.correct = v.de;
+            wInp.oninput = vocabLiveCheck;
+            r1.appendChild(wInp);
+            body.appendChild(r1);
+            var r2 = document.createElement('div');
+            r2.className = 'vocab-row';
+            var pInp = document.createElement('input');
+            pInp.className = 'vocab-inp plural';
+            pInp.placeholder = 'Plural';
+            pInp.dataset.id = v.id;
+            pInp.dataset.type = 'plural';
+            pInp.dataset.correct = v.plural;
+            pInp.oninput = vocabLiveCheck;
+            if (v.plural !== '—') {
+                r2.appendChild(pInp);
+            }
+            if (r2.children.length > 0) body.appendChild(r2);
+        } else {
+            var rV = document.createElement('div');
+            rV.className = 'vocab-row';
+            var vInp = document.createElement('input');
+            vInp.className = 'vocab-inp';
+            vInp.placeholder = 'Deutsch';
+            vInp.dataset.id = v.id;
+            vInp.dataset.type = 'wort';
+            vInp.dataset.correct = v.de;
+            vInp.oninput = vocabLiveCheck;
+            rV.appendChild(vInp);
+            body.appendChild(rV);
+        }
+        card.appendChild(body);
+        c.appendChild(card);
+    });
+
+function getPexelsUrl(id) {
+    var pexels = [3184291, 3184338, 3184292, 3184339, 1181671, 1181406, 3183197, 3184465, 6292009, 1709003, 3184360, 1181690];
+    return 'https://images.pexels.com/photos/' + pexels[id-1] + '/pexels-photo-' + pexels[id-1] + '.jpeg?auto=compress&cs=tinysrgb&w=200';
+}
+
+function vocabLiveCheck() {
+    var v = this.dataset.correct.toLowerCase();
+    var inp = this.value.toLowerCase().trim();
+    if (inp === '') {
+        this.classList.remove('correct', 'wrong');
+    } else if (inp === v || v.startsWith(inp)) {
+        this.classList.add('correct');
+        this.classList.remove('wrong');
+    } else {
+        this.classList.add('wrong');
+        this.classList.remove('correct');
+    }
+}
+
+function resetVocab() {
+    initVocab();
+}
+
+// ─────────────────────────────────────────────────────────
+// INIT ON LOAD
+// ─────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+    initSatzbau();
+    initVocab();
+});
+var TIMER_PREFIX='B2_2014X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});
+}}</script>
+</body>
+</html>

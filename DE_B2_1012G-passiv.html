@@ -127,7 +127,8 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fff0ef; }
 .vocab-inputs input.art { width: 70px; }
 .vocab-inputs input.wort { width: 150px; }
 .vocab-inputs input.plural { width: 160px; }
-.vocab-hint { color: #27ae60; font-weight: 600; font-size: 0.8em; margin-left: 6px; }
+input.correct + .vocab-hint { display: inline; }
+  .vocab-hint { color: #27ae60; font-weight: 600; font-size: 0.8em; margin-left: 6px; }
 @media (max-width: 600px) { .vocab-item { flex-direction: column; align-items: flex-start; } }
 
 /* ── FOOTER ──────────────────────────────────────────────── */
@@ -143,6 +144,56 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fff0ef; }
   .nav-btn:last-child { border-right: 1px solid #ddd; }
   .sec-inner { padding: 16px 14px; }
 }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
@@ -420,53 +471,39 @@ function showSection(idx) {
 // ═══════════════════════════════════════════════════════════════
 //  TIMER-SYSTEM (Tabs 2, 3, 4)
 // ═══════════════════════════════════════════════════════════════
-var TIMER_PREFIX = 'B2_1012G_';
-var timerStarted  = [false, false, false, false, false];
-var timerRunning  = [false, false, false, false, false];
-var timerSeconds  = [0, 0, 0, 0, 0];
-var timerIntervals = [null, null, null, null, null];
-
-function timerAutoStart(n) {
-  if (timerStarted[n]) return;
-  timerStarted[n] = true;
-  timerRunning[n] = true;
-  timerIntervals[n] = setInterval(function() {
+var TIMER_PREFIX='B2_1012G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
     timerSeconds[n]++;
-    var el = document.getElementById('timer-' + n);
-    if (el) el.textContent = fmtTime(timerSeconds[n]);
-  }, 1000);
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-function timerStop(n) {
-  if (!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]);
-  timerRunning[n] = false;
-  var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
-  if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
-    localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
-    var el = document.getElementById('best-' + n);
-    if (el) el.textContent = fmtTime(timerSeconds[n]);
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
   }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
-function timerResetOne(n) {
-  clearInterval(timerIntervals[n]);
-  timerRunning[n] = false;
-  timerStarted[n] = false;
-  timerSeconds[n] = 0;
-  var el = document.getElementById('timer-' + n);
-  if (el) el.textContent = '0:00';
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
-function fmtTime(s) {
-  return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
-}
-function loadBestTimes() {
-  [2, 3, 4].forEach(function(i) {
-    var v = localStorage.getItem(TIMER_PREFIX + i);
-    if (v) {
-      var el = document.getElementById('best-' + i);
-      if (el) el.textContent = fmtTime(parseInt(v));
-    }
-  });
-}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
 
 // ═══════════════════════════════════════════════════════════════
 //  MC-SYSTEM (Entdeckungs-Tab)
@@ -491,16 +528,16 @@ function mcCheck(step, btn, correct) {
       }
     }, 700);
     var msgs = [
-      '\u2713 Richtig! \u201EWerden + Partizip\u00A0II\u201C = Vorgangspassiv.',
-      '\u2713 Korrekt! Das Vorgangspassiv = werden + Partizip\u00A0II.',
-      '\u2713 Genau! \u201ESein + Partizip\u00A0II\u201C beschreibt das Ergebnis \u2014 das Zustandspassiv.',
-      '\u2713 Richtig! Modalverb + Partizip\u00A0II + werden \u2014 das ist das Passiv mit Modalverb.'
+      '✓ Richtig! „Werden + Partizip II“ = Vorgangspassiv.',
+      '✓ Korrekt! Das Vorgangspassiv = werden + Partizip II.',
+      '✓ Genau! „Sein + Partizip II“ beschreibt das Ergebnis — das Zustandspassiv.',
+      '✓ Richtig! Modalverb + Partizip II + werden — das ist das Passiv mit Modalverb.'
     ];
     fb.textContent = msgs[step];
   } else {
     btn.classList.add('wrong');
     fb.className = 'mc-feedback err';
-    fb.textContent = '\u2717 Nicht ganz \u2014 schau nochmal genau hin und versuche es erneut.';
+    fb.textContent = '✗ Nicht ganz — schau nochmal genau hin und versuche es erneut.';
     setTimeout(function() {
       btns.forEach(function(b) { b.disabled = false; b.classList.remove('wrong', 'correct'); });
       fb.textContent = '';
@@ -513,21 +550,18 @@ function mcCheck(step, btn, correct) {
 //  LÜCKENTEXT (Tab 2)
 // ═══════════════════════════════════════════════════════════════
 var LUECK_DATA = [
-  // Vorgangspassiv (werden + Partizip II)
-  { pre: 'Das Stipendium wird j\u00e4hrlich von der Stiftung', blank: 'vergeben', post: '.' },
-  { pre: 'Alle Bewerbungen werden sorgf\u00e4ltig', blank: 'gepr\u00fcft', post: '.' },
+  { pre: 'Das Stipendium wird jährlich von der Stiftung', blank: 'vergeben', post: '.' },
+  { pre: 'Alle Bewerbungen werden sorgfältig', blank: 'geprüft', post: '.' },
   { pre: 'Der Austausch wird vom Studentenwerk', blank: 'organisiert', post: '.' },
-  { pre: 'Das Programm wird von der EU', blank: 'gef\u00f6rdert', post: '.' },
-  { pre: 'Die Studierenden werden \u00fcber das Ergebnis', blank: 'informiert', post: '.' },
-  { pre: 'Die Unterkunft wird fr\u00fch', blank: 'gebucht', post: '.' },
-  // Zustandspassiv (sein + Partizip II)
-  { pre: 'Das Formular ist bereits korrekt', blank: 'ausgef\u00fcllt', post: '.' },
+  { pre: 'Das Programm wird von der EU', blank: 'gefördert', post: '.' },
+  { pre: 'Die Studierenden werden über das Ergebnis', blank: 'informiert', post: '.' },
+  { pre: 'Die Unterkunft wird früh', blank: 'gebucht', post: '.' },
+  { pre: 'Das Formular ist bereits korrekt', blank: 'ausgefüllt', post: '.' },
   { pre: 'Der Reiseplan ist schon', blank: 'erstellt', post: '.' },
-  { pre: 'Die Unterlagen sind vollst\u00e4ndig', blank: 'vorbereitet', post: '.' },
+  { pre: 'Die Unterlagen sind vollständig', blank: 'vorbereitet', post: '.' },
   { pre: 'Der Antrag ist seit gestern', blank: 'eingereicht', post: '.' },
-  // Passiv mit Modalverb
-  { pre: 'Der Kurs muss bis Freitag', blank: 'abgesagt', post: '\u00a0werden.' },
-  { pre: 'Das Visum soll rechtzeitig', blank: 'beantragt', post: '\u00a0werden.' }
+  { pre: 'Der Kurs muss bis Freitag', blank: 'abgesagt', post: ' werden.' },
+  { pre: 'Das Visum soll rechtzeitig', blank: 'beantragt', post: ' werden.' }
 ];
 
 function initLuecke() {
@@ -536,7 +570,7 @@ function initLuecke() {
   LUECK_DATA.forEach(function(item, i) {
     var div = document.createElement('div');
     div.className = 'lueck-satz';
-    div.innerHTML = item.pre + ' <input class="blank" type="text" data-idx="' + i + '" data-answer="' + item.blank + '" placeholder="" autocomplete="off"> ' + item.post;
+    div.innerHTML = item.pre + ' <input class="blank" type="text" data-idx="' + i + '" data-answer="' + item.blank + '" placeholder="" autocomplete="off" oninput="liveCheck(this)"> ' + item.post;
     container.appendChild(div);
     var inp = div.querySelector('input.blank');
     inp.addEventListener('input', function() {
@@ -599,41 +633,20 @@ function resetLuecke() {
 var sbDragged = null;
 
 var satzbauData = [
-  {
-    parts: ['das', 'Stipendium', 'wird', 'j\u00e4hrlich', 'von', 'der', 'Stiftung', 'vergeben'],
-    valid: [['das', 'Stipendium', 'wird', 'j\u00e4hrlich', 'von', 'der', 'Stiftung', 'vergeben']],
-    punct: '.'
-  },
-  {
-    parts: ['alle', 'Bewerbungen', 'werden', 'sorgf\u00e4ltig', 'vom', 'Hochschulamt', 'gepr\u00fcft'],
-    valid: [['alle', 'Bewerbungen', 'werden', 'sorgf\u00e4ltig', 'vom', 'Hochschulamt', 'gepr\u00fcft']],
-    punct: '.'
-  },
-  {
-    parts: ['die', 'Bewerbung', 'muss', 'bis', 'Ende', 'M\u00e4rz', 'eingereicht', 'werden'],
-    valid: [['die', 'Bewerbung', 'muss', 'bis', 'Ende', 'M\u00e4rz', 'eingereicht', 'werden']],
-    punct: '.'
-  },
-  {
-    parts: ['das', 'Erasmus-Programm', 'wird', 'seit', 'Jahren', 'von', 'der', 'EU', 'gef\u00f6rdert'],
-    valid: [['das', 'Erasmus-Programm', 'wird', 'seit', 'Jahren', 'von', 'der', 'EU', 'gef\u00f6rdert']],
-    punct: '.'
-  },
-  {
-    parts: ['die', 'Unterkunft', 'ist', 'schon', 'vor', 'dem', 'Aufenthalt', 'gebucht'],
-    valid: [['die', 'Unterkunft', 'ist', 'schon', 'vor', 'dem', 'Aufenthalt', 'gebucht']],
-    punct: '.'
-  },
-  {
-    parts: ['neue', 'Partneruniversit\u00e4ten', 'werden', 'regelm\u00e4\u00dfig', 'aufgenommen'],
-    valid: [['neue', 'Partneruniversit\u00e4ten', 'werden', 'regelm\u00e4\u00dfig', 'aufgenommen']],
-    punct: '.'
-  },
-  {
-    parts: ['das', 'Visum', 'soll', 'rechtzeitig', 'von', 'der', 'Botschaft', 'ausgestellt', 'werden'],
-    valid: [['das', 'Visum', 'soll', 'rechtzeitig', 'von', 'der', 'Botschaft', 'ausgestellt', 'werden']],
-    punct: '.'
-  }
+  { parts: ['das', 'Stipendium', 'wird', 'jährlich', 'vergeben', ',', 'obwohl', 'viele', 'Bewerber', 'abgelehnt', 'werden'],
+    valid: [['das', 'Stipendium', 'wird', 'jährlich', 'vergeben', ',', 'obwohl', 'viele', 'Bewerber', 'abgelehnt', 'werden']], punct: '.' },
+  { parts: ['die', 'Bewerbung', 'muss', 'bis', 'Ende', 'März', 'eingereicht', 'werden', ',', 'weil', 'die', 'Frist', 'nicht', 'verlängert', 'wird'],
+    valid: [['die', 'Bewerbung', 'muss', 'bis', 'Ende', 'März', 'eingereicht', 'werden', ',', 'weil', 'die', 'Frist', 'nicht', 'verlängert', 'wird']], punct: '.' },
+  { parts: ['das', 'Erasmus-Programm', 'wird', 'von', 'der', 'EU', 'gefördert', ',', 'damit', 'Studierende', 'im', 'Ausland', 'studieren', 'können'],
+    valid: [['das', 'Erasmus-Programm', 'wird', 'von', 'der', 'EU', 'gefördert', ',', 'damit', 'Studierende', 'im', 'Ausland', 'studieren', 'können']], punct: '.' },
+  { parts: ['nachdem', 'alle', 'Unterlagen', 'geprüft', 'worden', 'waren', ',', 'wurde', 'das', 'Stipendium', 'vergeben'],
+    valid: [['nachdem', 'alle', 'Unterlagen', 'geprüft', 'worden', 'waren', ',', 'wurde', 'das', 'Stipendium', 'vergeben']], punct: '.' },
+  { parts: ['es', 'ist', 'bekannt', ',', 'dass', 'neue', 'Partneruniversitäten', 'regelmäßig', 'aufgenommen', 'werden'],
+    valid: [['es', 'ist', 'bekannt', ',', 'dass', 'neue', 'Partneruniversitäten', 'regelmäßig', 'aufgenommen', 'werden']], punct: '.' },
+  { parts: ['die', 'Unterkunft', 'wird', 'gebucht', ',', 'sobald', 'der', 'Studienplatz', 'bestätigt', 'worden', 'ist'],
+    valid: [['die', 'Unterkunft', 'wird', 'gebucht', ',', 'sobald', 'der', 'Studienplatz', 'bestätigt', 'worden', 'ist']], punct: '.' },
+  { parts: ['das', 'Visum', 'soll', 'rechtzeitig', 'beantragt', 'werden', ',', 'da', 'es', 'mehrere', 'Wochen', 'bearbeitet', 'wird'],
+    valid: [['das', 'Visum', 'soll', 'rechtzeitig', 'beantragt', 'werden', ',', 'da', 'es', 'mehrere', 'Wochen', 'bearbeitet', 'wird']], punct: '.' }
 ];
 
 function getSbCursor() {
@@ -725,13 +738,11 @@ function sbRegisterZone(zone, idx) {
     sbUpdateCapitalization(row);
     sbCheckAuto(idx);
   });
-  // Click-to-place: click chip in zone → select; click row → place selected
   zone.addEventListener('click', function(e) {
     var chip = e.target.closest('.chip');
     if (chip) {
       var selected = document.querySelector('.chip.selected');
       if (selected && selected !== chip) {
-        // place selected chip before clicked chip
         zone.insertBefore(selected, chip);
         selected.classList.remove('selected');
         var row = document.getElementById('sb-row-' + idx);
@@ -741,7 +752,6 @@ function sbRegisterZone(zone, idx) {
         chip.classList.toggle('selected');
       }
     } else {
-      // click in empty zone area → move selected chip here
       var selected = document.querySelector('.chip.selected');
       if (selected) {
         zone.appendChild(selected);
@@ -792,12 +802,12 @@ function sbCheckAuto(idx) {
     if (ok) {
       row.classList.add('correct'); row.classList.remove('incorrect');
       fb.className = 'satzbau-feedback correct';
-      fb.textContent = '\u2713 Korrekt!';
+      fb.textContent = '✓ Korrekt!';
       sbCheckAllDone();
     } else {
       row.classList.add('incorrect'); row.classList.remove('correct');
       fb.className = 'satzbau-feedback incorrect';
-      fb.textContent = '\u2717 Falsche Reihenfolge \u2013 verschiebe die Chips!';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
     }
   }, 500);
 }
@@ -834,8 +844,8 @@ function sbShowSolution(idx) {
 
 function sbResetOne(idx) {
   var bank = document.getElementById('sb-bank-' + idx);
-  var row  = document.getElementById('sb-row-'  + idx);
-  var fb   = document.getElementById('sb-fb-'   + idx);
+  var row  = document.getElementById('sb-row-' + idx);
+  var fb   = document.getElementById('sb-fb-' + idx);
   while (bank.firstChild) bank.removeChild(bank.firstChild);
   while (row.firstChild)  row.removeChild(row.firstChild);
   row.classList.remove('correct', 'incorrect');
@@ -885,13 +895,13 @@ function initSatzbau() {
 
     var solveBtn = document.createElement('button');
     solveBtn.className = 'btn';
-    solveBtn.textContent = 'L\u00f6sen';
+    solveBtn.textContent = 'Lösen';
     solveBtn.setAttribute('data-idx', idx);
     solveBtn.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
 
     var resetBtn = document.createElement('button');
     resetBtn.className = 'btn';
-    resetBtn.textContent = '\u21ba Neustart';
+    resetBtn.textContent = '↺ Neustart';
     resetBtn.setAttribute('data-idx', idx);
     resetBtn.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
 
@@ -916,14 +926,14 @@ var WORTSCHATZ = [
   { id:1,  type:'n', en:'scholarship',          artikel:'das', de:'Stipendium',      plural:'Stipendien' },
   { id:2,  type:'n', en:'application',          artikel:'die', de:'Bewerbung',       plural:'Bewerbungen' },
   { id:3,  type:'n', en:'stay / sojourn',        artikel:'der', de:'Aufenthalt',      plural:'Aufenthalte' },
-  { id:4,  type:'n', en:'exchange',              artikel:'der', de:'Austausch',       plural:'\u2014' },
+  { id:4,  type:'n', en:'exchange',              artikel:'der', de:'Austausch',       plural:'—' },
   { id:5,  type:'n', en:'invitation',            artikel:'die', de:'Einladung',       plural:'Einladungen' },
   { id:6,  type:'n', en:'experience',            artikel:'die', de:'Erfahrung',       plural:'Erfahrungen' },
-  { id:7,  type:'n', en:'accommodation',         artikel:'die', de:'Unterkunft',      plural:'Unterk\u00fcnfte' },
+  { id:7,  type:'n', en:'accommodation',         artikel:'die', de:'Unterkunft',      plural:'Unterkünfte' },
   { id:8,  type:'n', en:'form / document',       artikel:'das', de:'Formular',        plural:'Formulare' },
   { id:9,  type:'v', en:'to submit / hand in',                  de:'einreichen' },
   { id:10, type:'v', en:'to award / grant',                     de:'vergeben' },
-  { id:11, type:'v', en:'to fund / support',                    de:'f\u00f6rdern' },
+  { id:11, type:'v', en:'to fund / support',                    de:'fördern' },
   { id:12, type:'v', en:'to inform',                            de:'informieren' }
 ];
 
@@ -935,7 +945,7 @@ function initVocab() {
     var div = document.createElement('div');
     div.className = 'vocab-item';
     var enSpan = '<span class="vocab-en">' + item.en + '</span>';
-    var arrow  = '<span class="vocab-arrow">\u2192</span>';
+    var arrow  = '<span class="vocab-arrow">→</span>';
     var inputs = '';
     if (item.type === 'n') {
       inputs = '<div class="vocab-inputs">'
@@ -945,7 +955,7 @@ function initVocab() {
         + '<input class="wort" type="text" placeholder="Deutsch" autocomplete="off" '
         + 'data-answer="' + item.de + '" '
         + 'oninput="vocabLiveCheck(this); checkVocabAllDone();">';
-      if (item.plural !== '\u2014') {
+      if (item.plural !== '—') {
         inputs += '<input class="plural" type="text" placeholder="Plural" autocomplete="off" '
           + 'data-answer="' + item.plural + '" '
           + 'oninput="vocabLiveCheck(this); checkVocabAllDone();">';
@@ -1018,10 +1028,15 @@ function resetVocab() {
 // ═══════════════════════════════════════════════════════════════
 //  INITIALISIERUNG
 // ═══════════════════════════════════════════════════════════════
-initLuecke();
-initSatzbau();
-initVocab();
-loadBestTimes();
+document.addEventListener('DOMContentLoaded', function() {
+  initLuecke();
+  initSatzbau();
+  initVocab();
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
 </script>
 </body>
 </html>

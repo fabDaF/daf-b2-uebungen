@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2.3 · Einheit 6 · Das Mitarbeitergespräch</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; min-height: 100vh; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+    .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+    .header p { font-size: 0.95rem; opacity: 0.9; }
+    .nav-tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e0e0e0; overflow-x: auto; }
+    .nav-tab { flex: 1; padding: 14px 16px; border: none; background: transparent; cursor: pointer; font-size: 0.9rem; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; text-align: center; white-space: nowrap; font-weight: 600; min-width: 120px; }
+    .nav-tab.active { color: #667eea; background: white; border-bottom-color: #667eea; }
+    .content { padding: 30px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .entdeck-intro { background: #f3e5f5; border-radius: 12px; padding: 18px 22px; margin-bottom: 20px; border-left: 5px solid #9c27b0; font-size: 0.97rem; line-height: 1.75; }
+    .entdeck-intro h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.05rem; }
+    .help-box { background: #e8f4fd; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #0288d1; font-size: 0.9rem; color: #01579b; }
+    .luecke-satz { background: #fafbff; padding: 12px 14px; margin-bottom: 12px; border-radius: 8px; border-left: 3px solid #667eea; line-height: 1.75; font-size: 0.95rem; }
+    input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 3px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color .2s; background: white; margin: 0 2px; }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform .15s; white-space: nowrap; }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .sb-satz { margin-bottom: 14px; background: #fafbff; padding: 12px; border-radius: 8px; border-left: 3px solid #667eea; }
+    .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 14px; min-height: 54px; }
+    .drop-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 2px dashed #c5cae9; background: #fafbff; }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
+    .timer-row { display: flex; align-items: center; gap: 12px; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); font-size: 0.85rem; color: #666; }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .btn-row { display: flex; gap: 12px; margin-bottom: 14px; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+    .btn-show { background: #e8eaff; color: #3949ab; }
+    .btn-show:hover { background: #d0d7ff; }
+    .btn-reset { background: #f0f2f5; color: #666; }
+    .btn-reset:hover { background: #e0e0e0; }
+    .correction-hint { font-size: 0.78rem; color: #27ae60; font-weight: 700; margin-left: 4px; }
+    .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; text-decoration: none; }
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+<script>
+function switchTab(n){
+  var tabs=document.querySelectorAll('.tab-content');
+  if(!tabs.length)tabs=document.querySelectorAll('.tab');
+  tabs.forEach(function(t,i){t.classList.toggle('active',i===n);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+}
+
+var TIMER_PREFIX='B2_3064X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 Das Mitarbeitergespräch</h1>
+      <p>B2.3 · Einheit 6 · X</p>
+    </div>
+
+    <div class="nav-tabs nav">
+      <button class="nav-tab active" onclick="switchTab(0)">🚀 Einstieg</button>
+      <button class="nav-tab" onclick="switchTab(1)">✏️ Lückentext</button>
+      <button class="nav-tab" onclick="switchTab(2)">🔀 Satzbau</button>
+      <button class="nav-tab" onclick="switchTab(3)">📚 Wortschatz</button>
+    </div>
+
+    <div class="content">
+      <!-- Tab 0: Einstieg -->
+      <div class="tab active" id="tab0">
+        <div class="entdeck-intro">
+          <h3>Das Jahresgespräch mit dem Vorgesetzten</h3>
+          <p>Ein Mitarbeitergespräch (auch Jahresgespräch) ist ein formales Gespräch zwischen Mitarbeiter und Vorgesetztem. Themen: Leistung, Ziele, Feedback und manchmal Gehaltsverhandlung.</p>
+        </div>
+
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px;">
+          <h3 style="color: #6a1b9a; margin-bottom: 15px;">Tipps für das Mitarbeitergespräch</h3>
+
+          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">Vorbereitung:</strong> Sammle deine Erfolge, Projekte und Ziele. Mach dir Notizen zu bisherigen Leistungen.
+          </div>
+
+          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">Zielvereinbarungen:</strong> Klare Ziele für das nächste Jahr definieren. SMART: Spezifisch, Messbar, Attraktiv, Realistisch, Terminiert.
+          </div>
+
+          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">Feedback geben und nehmen:</strong> Offen für Kritik sein, aber auch eigenes Feedback formulieren.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 1: Lückentext -->
+      <div class="tab" id="tab1">
+        <div class="timer-row">
+          ⏱ <span id="timer-1">0:00</span><span>🏆 <span id="best-1">--:--</span></span></span></span>
+          <span style="color: #f39c12; font-weight: 600;" id="best-1"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showLuecken()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetLuecken(); timerResetOne(1);">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Ergänze die HR-Fachbegriffe!</div>
+        <div id="luecke-container"></div>
+      </div>
+
+      <!-- Tab 2: Satzbau -->
+      <div class="tab" id="tab2">
+        <div class="timer-row">
+          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
+          <span style="color: #f39c12; font-weight: 600;" id="best-2"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showSB()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetSB(); timerResetOne(2);">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Ordne die Satzteile!</div>
+        <div id="sb-container"></div>
+      </div>
+
+      <!-- Tab 3: Wortschatz -->
+      <div class="tab" id="tab3">
+        <div class="timer-row">
+          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
+          <span style="color: #f39c12; font-weight: 600;" id="best-3"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showVocab()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetVocab(); timerResetOne(3);">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche!</div>
+        <div id="vocab-container"></div>
+      </div>
+    </div>
+
+    <div class="author-footer">
+      <span style="font-weight: 700;">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+  </div>
+
+  
+</body>
+</html>

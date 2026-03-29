@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.2 – Alles über Musikkulturen</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 28px 32px 20px;
+}
+.header h1 { font-size: 1.6rem; font-weight: 700; }
+.header p { font-size: 0.95rem; opacity: 0.85; margin-top: 4px; }
+.badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.78rem;
+  margin-top: 8px;
+}
+.nav{
+  display: flex;
+  background: #f8f9fa;
+  
+  overflow-x: auto;
+;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 18px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  color: #666;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+nav button:hover { background: #e9ecef; color: #667eea; }
+nav button.active {
+  background: white;
+  color: #667eea;
+  border-bottom: 3px solid #667eea;
+  font-weight: 600;
+}
+.nav-emoji { font-size: 1.3rem; }
+.nav-label { font-size: 0.72rem; margin-top: 2px; }
+.tab-content { display: none; padding: 0 0 24px; }
+.tab-content.active { display: block; }
+.tab-banner {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  display: block;
+}
+.content-area { padding: 24px 32px; }
+h2 { color: #333; font-size: 1.25rem; margin-bottom: 16px; }
+h3 { color: #667eea; font-size: 1rem; margin: 18px 0 10px; }
+p { color: #555; line-height: 1.6; margin-bottom: 12px; }
+
+/* Info box */
+.info-box {
+  background: #f0f0ff;
+  border-left: 4px solid #667eea;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 18px;
+  color: #444;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* Musik-Kultur-Karten */
+.kultur-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.kultur-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 14px 10px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.kultur-card:hover { transform: scale(1.05); }
+.kultur-card.selected { opacity: 0.6; transform: scale(0.97); }
+
+/* Adjektiv-Karten */
+.adj-container { margin: 14px 0; }
+.adj-groups {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.adj-group {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px;
+  min-height: 80px;
+}
+.adj-group h4 {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.adj-group.pos h4 { color: #28a745; }
+.adj-group.neg h4 { color: #dc3545; }
+.adj-group.neu h4 { color: #6c757d; }
+.adj-group.pos { border-color: #28a745; background: #f8fff9; }
+.adj-group.neg { border-color: #dc3545; background: #fff8f8; }
+.adj-group.neu { border-color: #6c757d; background: #f8f9fa; }
+.adj-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.adj-chip {
+  background: #667eea;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.87rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.adj-chip:hover { background: #5570d4; }
+.adj-chip.placed { background: #28a745; cursor: default; }
+.adj-placed {
+  display: inline-block;
+  background: rgba(255,255,255,0.8);
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  margin: 2px;
+  color: #333;
+}
+.adj-result { font-size: 0.85rem; color: #667eea; margin-top: 8px; }
+
+/* Diskussionsfragen */
+.frage-cards { margin: 14px 0; }
+.frage-card {
+  background: #f8f9ff;
+  border: 1px solid #e0e0ff;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.frage-num {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.frage-text { color: #444; line-height: 1.5; font-size: 0.95rem; }
+
+/* Zufällige Frage */
+.random-box {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px 0;
+  text-align: center;
+  color: white;
+}
+.random-question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-height: 40px;
+  margin-bottom: 12px;
+}
+.btn-dice {
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.btn-dice:hover { transform: scale(1.05); }
+
+/* Event-Typen */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.event-card {
+  background: #f8f9ff;
+  border: 2px solid #e0e0ff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.event-card:hover { border-color: #667eea; background: #eef0ff; }
+.event-card.matched { border-color: #28a745; background: #d4edda; }
+.event-card.wrong-match { border-color: #dc3545; background: #f8d7da; }
+.event-name { font-weight: 700; color: #667eea; margin-bottom: 4px; font-size: 0.92rem; }
+.event-desc { font-size: 0.85rem; color: #666; }
+
+/* Lückentext */
+.luecken-text {
+  background: #f9f9ff;
+  border: 1px solid #e0e0ff;
+  border-radius: 8px;
+  padding: 20px;
+  line-height: 2.4;
+  font-size: 0.97rem;
+  color: #444;
+  margin-bottom: 16px;
+}
+.luecke-input {
+  border: none;
+  border-bottom: 2px solid #667eea;
+  background: transparent;
+  font-size: 0.97rem;
+  padding: 2px 4px;
+  width: 160px;
+  text-align: center;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.luecke-input.correct { border-bottom-color: #28a745; background: #d4edda; border-radius: 4px; }
+.luecke-input.wrong { border-bottom-color: #dc3545; background: #f8d7da; border-radius: 4px; }
+
+/* Control bar */
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 32px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  margin-top: 16px;
+}
+.btn-group { display: flex; gap: 10px; }
+.btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.87rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-primary { background: #667eea; color: white; }
+.btn-primary:hover { background: #5570d4; }
+.btn-secondary { background: #e9ecef; color: #555; }
+.btn-secondary:hover { background: #dee2e6; }
+.timer-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+.timer-display { font-size: 1rem; font-weight: 700; color: #667eea; font-family: monospace; }
+
+/* Wortschatz */
+.vocab-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 8px; }
+.vocab-item { background: #f8f9ff; border-radius: 8px; padding: 14px 16px; }
+.vocab-item .inputs-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.vocab-input {
+  border: 1.5px solid #c5c9f0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 80px;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.vocab-input:focus { border-color: #667eea; }
+.vocab-input.correct { border-color: #28a745; background: #d4edda; }
+.vocab-input.wrong { border-color: #dc3545; background: #f8d7da; }
+input.correct + .vocab-hint { display: inline; }
+  .vocab-hint { font-size: 0.78rem; color: #888; margin-top: 4px; }
+.vocab-english { font-weight: 600; color: #333; font-size: 0.95rem; }
+
+.footer {
+  text-align: center;
+  padding: 14px;
+  font-size: 0.78rem;
+  color: #999;
+  border-top: 1px solid #f0f0f0;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+<script>
+function showTab(n){
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===n);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+}
+
+var TIMER_PREFIX='B2_2038S_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});
+function checkLuecke(inp) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (val === ans) { inp.classList.add('correct'); }
+  else if (ans.startsWith(val)) { /* valid prefix */ }
+  else { inp.classList.add('wrong'); }
+}
+</script>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">B2.2 · Einheit 3 · Sprechen</div>
+    <h1>Alles über Musikkulturen</h1>
+    <p>Musikkulturen · Konzerte beschreiben · Event-Typen</p>
+  </div>
+
+  <div class="nav">
+    <button class="active" onclick="showTab('gespraech',this)">
+      <span class="nav-emoji">🗣️</span><span class="nav-label">Gesprächsanlässe</span>
+    </div>
+    <button onclick="showTab('rollenspiele',this)">
+      <span class="nav-emoji">🎭</span><span class="nav-label">Rollenspiele</span>
+    </div>
+    <button onclick="showTab('beschreiben',this)">
+      <span class="nav-emoji">📊</span><span class="nav-label">Musik beschreiben</span>
+    </div>
+    <button onclick="showTab('wortschatz',this)">
+      <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
+
+  <!-- TAB 1: GESPRÄCHSANLÄSSE -->
+  <div id="tab-gespraech" class="tab-content active">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Konzert">
+    <div class="content-area">
+      <h2>Gesprächsanlässe: Musikkulturen</h2>
+      <div class="info-box">
+        „Weißt du was? Gestern habe ich das beste <strong>Konzert</strong> meines Lebens erlebt! Alles war ideal: meine <strong>Lieblingsband</strong>, meine <strong>Lieblingslieder</strong>… Und sie haben ihr neues <strong>Album</strong> präsentiert! Kann man so viel Glück haben?"
+      </div>
+
+      <h3>Welche Musikkulturen kennst du?</h3>
+      <p style="font-size:0.88rem;color:#888;">Klicke auf die Karten und erzähle, was du mit der Musikkultur verbindest.</p>
+      <div class="kultur-grid">
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Pop</div>
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Techno</div>
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Gothic</div>
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Punk</div>
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Hip-Hop</div>
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Hippie</div>
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Metal</div>
+        <div class="kultur-card" onclick="this.classList.toggle('selected')">Klassik</div>
+      </div>
+
+      <h3>Diskussionsfragen</h3>
+      <div class="frage-cards">
+        <div class="frage-card">
+          <div class="frage-num">1</div>
+          <div class="frage-text">Welche Musikkultur bevorzugst du und warum? <em>„Ich bevorzuge …, weil …"</em></div>
+        </div>
+        <div class="frage-card">
+          <div class="frage-num">2</div>
+          <div class="frage-text">Was verbindest du mit Gothic / Hip-Hop / Punk etc.? Beschreibe die typischen Merkmale.</div>
+        </div>
+        <div class="frage-card">
+          <div class="frage-num">3</div>
+          <div class="frage-text">Wie hat sich dein Musikgeschmack im Laufe der Zeit verändert?</div>
+        </div>
+      </div>
+
+      <h3>So kann man Musik beschreiben</h3>
+      <div class="adj-container">
+        <div class="adj-pool" id="adjPool">
+          <span class="adj-chip" onclick="adjClick(this,'pos')">bewegend</span>
+          <span class="adj-chip" onclick="adjClick(this,'neg')">erregend</span>
+          <span class="adj-chip" onclick="adjClick(this,'neg')">traurig</span>
+          <span class="adj-chip" onclick="adjClick(this,'pos')">fesselnd</span>
+          <span class="adj-chip" onclick="adjClick(this,'pos')">tänzerisch</span>
+          <span class="adj-chip" onclick="adjClick(this,'pos')">tröstend</span>
+          <span class="adj-chip" onclick="adjClick(this,'pos')">abwechslungsreich</span>
+          <span class="adj-chip" onclick="adjClick(this,'neg')">hektisch</span>
+          <span class="adj-chip" onclick="adjClick(this,'neg')">eintönig</span>
+          <span class="adj-chip" onclick="adjClick(this,'pos')">geheimnisvoll</span>
+          <span class="adj-chip" onclick="adjClick(this,'pos')">vielfältig</span>
+          <span class="adj-chip" onclick="adjClick(this,'pos')">zauberhaft</span>
+        </div>
+        <p style="font-size:0.83rem;color:#888;margin-bottom:10px;">Klicke auf ein Adjektiv und ordne es zu: Positiv / Negativ / Neutral</p>
+        <div class="adj-groups">
+          <div class="adj-group pos" id="grp-pos" onclick="adjDrop(this,'pos')">
+            <h4>😊 Positiv</h4>
+            <div id="pos-items"></div>
+          </div>
+          <div class="adj-group neg" id="grp-neg" onclick="adjDrop(this,'neg')">
+            <h4>😔 Negativ</h4>
+            <div id="neg-items"></div>
+          </div>
+          <div class="adj-group neu" id="grp-neu" onclick="adjDrop(this,'neu')">
+            <h4>😐 Neutral</h4>
+            <div id="neu-items"></div>
+          </div>
+        </div>
+        <div class="adj-result" id="adjResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: ROLLENSPIELE -->
+  <div id="tab-rollenspiele" class="tab-content">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Konzert Rollenspiel">
+    <div class="content-area">
+      <h2>Mein bestes Konzert</h2>
+      <h3>Beantworte folgende Fragen!</h3>
+      <div class="frage-cards">
+        <div class="frage-card">
+          <div class="frage-num">1</div>
+          <div class="frage-text">Welche Musik wurde gespielt?</div>
+        </div>
+        <div class="frage-card">
+          <div class="frage-num">2</div>
+          <div class="frage-text">Warum hast du dich für diese Musikrichtung entschieden?</div>
+        </div>
+        <div class="frage-card">
+          <div class="frage-num">3</div>
+          <div class="frage-text">Wie war die Musik? Beschreibe sie detailliert!</div>
+        </div>
+        <div class="frage-card">
+          <div class="frage-num">4</div>
+          <div class="frage-text">Was hat dich an dem Konzert besonders beeindruckt?</div>
+        </div>
+        <div class="frage-card">
+          <div class="frage-num">5</div>
+          <div class="frage-text">Würdest du diesen Künstler / diese Band weiterempfehlen?</div>
+        </div>
+        <div class="frage-card">
+          <div class="frage-num">6</div>
+          <div class="frage-text">Vergleiche das Konzert mit anderen, die du erlebt hast.</div>
+        </div>
+      </div>
+
+      <h3>🎲 Zufällige Sprechübung</h3>
+      <div class="random-box">
+        <div class="random-question" id="randomQ">Klicke auf den Button für eine zufällige Frage!</div>
+        <button class="btn-dice" onclick="randomQuestion()">🎲 Zufällige Frage</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: MUSIK BESCHREIBEN -->
+  <div id="tab-beschreiben" class="tab-content">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?w=1000" alt="Musik Event">
+    <div class="content-area">
+      <h2>Event-Typen und Musik beschreiben</h2>
+
+      <h3>Mögliche Event-Typen — Zuordnung</h3>
+      <p style="font-size:0.88rem;color:#888;margin-bottom:12px;">Klicke auf die Karten, um sie zu markieren. Dann klicke auf die passende Beschreibung.</p>
+
+      <div class="event-grid">
+        <div class="event-card" data-id="abschieds" onclick="matchEvent(this)">
+          <div class="event-name">das Abschiedskonzert</div>
+          <div class="event-desc" id="ev-abschieds">Ein Konzert zum Abschluss einer Tour</div>
+        </div>
+        <div class="event-card" data-id="wohl" onclick="matchEvent(this)">
+          <div class="event-name">das Wohltätigkeitskonzert</div>
+          <div class="event-desc" id="ev-wohl">Geld für einen guten Zweck sammeln</div>
+        </div>
+        <div class="event-card" data-id="openair" onclick="matchEvent(this)">
+          <div class="event-name">das Open-Air-Konzert</div>
+          <div class="event-desc" id="ev-openair">Findet draußen in der Natur statt</div>
+        </div>
+        <div class="event-card" data-id="jubilaeum" onclick="matchEvent(this)">
+          <div class="event-name">das Jubiläumskonzert</div>
+          <div class="event-desc" id="ev-jubilaeum">Zu einem runden Jahrestag</div>
+        </div>
+        <div class="event-card" data-id="promo" onclick="matchEvent(this)">
+          <div class="event-name">das Promo-Konzert</div>
+          <div class="event-desc" id="ev-promo">Zur Vermarktung eines neuen Albums</div>
+        </div>
+        <div class="event-card" data-id="festival" onclick="matchEvent(this)">
+          <div class="event-name">das Festival</div>
+          <div class="event-desc" id="ev-festival">Mehrere Bands, oft mehrere Tage</div>
+        </div>
+        <div class="event-card" data-id="spenden" onclick="matchEvent(this)">
+          <div class="event-name">der Spendenmarathon</div>
+          <div class="event-desc" id="ev-spenden">Lange Übertragung zum Spenden sammeln</div>
+        </div>
+        <div class="event-card" data-id="konzert" onclick="matchEvent(this)">
+          <div class="event-name">das Konzert</div>
+          <div class="event-desc" id="ev-konzert">Ein Auftritt eines Musikers / einer Band</div>
+        </div>
+      </div>
+
+      <h3>Musik-Adjektive — Lückentext</h3>
+      <div class="luecken-text">
+        Die Musik bei dem Konzert war sehr
+        <input class="luecke-input" data-answer="bewegend" data-alt="tröstend" oninput="checkLuecke(this)">
+        — sie hat mich zu Tränen gerührt.<br><br>
+        Der Techno-DJ spielte sehr
+        <input class="luecke-input" data-answer="tänzerisch" data-alt="erregend" oninput="checkLuecke(this)">
+        Musik — man konnte nicht aufhören zu tanzen.<br><br>
+        Das Klassikkonzert war
+        <input class="luecke-input" data-answer="abwechslungsreich" data-alt="vielfältig" oninput="checkLuecke(this)">
+        — jedes Stück klang anders.
+      </div>
+    </div>
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetLuecken()">🔄 Zurücksetzen</button>
+      </div>
+      <div class="timer-box">
+        <span>⏱</span>
+        <span id="timer-3">00:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
+        <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: WORTSCHATZ -->
+  <div id="tab-wortschatz" class="tab-content">
+    <img class="tab-banner" src="https://images.pexels.com/photos/2078076/pexels-photo-2078076.jpeg?w=1000" alt="Wortschatz Musik">
+    <div class="content-area">
+      <h2>Wortschatz: Musikkulturen</h2>
+      <p style="font-size:0.88rem;color:#888;margin-bottom:16px;">Tippe Artikel, deutsches Wort und Plural (bei Nomen) oder die deutsche Übersetzung.</p>
+      <div class="vocab-grid" id="vocabGrid"></div>
+    </div>
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetVocab()">🔄 Zurücksetzen</button>
+      </div>
+      <div class="timer-box">
+        <span>⏱</span>
+        <span id="timer-4">00:00</span><span>🏆 <span id="best-4">--:--</span></span></span></span>
+        <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
+
+
+</body>
+</html>

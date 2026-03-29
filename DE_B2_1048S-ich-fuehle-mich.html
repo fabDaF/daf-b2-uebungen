@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1048S · Ich fühle mich… | B2.1</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 30px 40px 25px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2rem; font-family: Georgia, serif; margin-bottom: 6px; border: none; padding: 0; }
+    .header .subtitle { opacity: 0.9; font-size: 1rem; font-family: Georgia, serif; }
+    .header .big-emoji { font-size: 2.4rem; display: block; margin-top: 8px; }
+
+    .nav {
+      display: flex;
+      flex-wrap: nowrap;
+      background: #f8f9fa;
+      border-top: 1px solid #ddd;
+      border-left: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+    }
+    .nav-btn{
+      flex: 1;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      background: transparent;
+      font-size: 0.92em;
+      font-weight: 500;
+      color: #666;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .nav-btn:last-child { border-right: none; }
+    .nav-btn:hover { background: #e8ecff; color: #667eea; }
+    .nav-btn.active { background: #fff; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+    .nav-emoji { font-size: 1.3em; line-height: 1.2; }
+    .nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .tab-banner {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 0;
+      margin-bottom: 0;
+    }
+
+    .sec-inner { padding: 28px 36px; }
+
+    /* Control-bar */
+    .control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding: 6px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .btn-row { display: flex; gap: 6px; }
+    .btn {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.82em;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .btn:hover { border-color: #667eea; color: #667eea; }
+    .btn-sb { background: #764ba2; color: #fff; border: none; }
+    .btn-sb:hover { background: #5a3782; color: #fff; }
+    .btn-sb-check { background: #667eea; color: #fff; border: none; }
+    .btn-sb-check:hover { background: #4a5fd4; color: #fff; }
+    .timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+    h2 { color: #333; margin-bottom: 16px; font-size: 1.2rem; }
+    p { color: #555; margin-bottom: 12px; font-size: 0.92rem; line-height: 1.6; }
+
+    /* Hilfe-Box */
+    .hilfe-box {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      font-size: 0.9em;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    /* Vorentlastung */
+    .info-block { background: #f0f2ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 16px 20px; margin-bottom: 18px; }
+    .info-block h3 { color: #667eea; margin-bottom: 10px; font-size: 1rem; }
+    .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+    .vocab-group { background: #f8f9ff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e0e4ff; }
+    .vocab-group h4 { color: #764ba2; font-size: 0.9rem; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e0e4ff; }
+    .vocab-group ul { list-style: none; }
+    .vocab-group li { padding: 4px 0; font-size: 0.88rem; color: #333; border-bottom: 1px solid #eee; }
+    .vocab-group li:last-child { border-bottom: none; }
+    .speaking-box { background: #fff7f0; border-left: 4px solid #e67e22; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; }
+    .speaking-box h3 { color: #e67e22; margin-bottom: 8px; font-size: 0.95rem; }
+    .speaking-q { list-style: none; }
+    .speaking-q li { padding: 6px 0; border-bottom: 1px solid #ffe0c4; font-size: 0.9rem; color: #333; }
+    .speaking-q li:last-child { border-bottom: none; }
+    .speaking-q li::before { content: "🗣️ "; }
+    .redemittel-box { background: #f0fff4; border-left: 4px solid #27ae60; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; }
+    .redemittel-box h3 { color: #27ae60; margin-bottom: 8px; font-size: 0.95rem; }
+    .redemittel-list { list-style: none; }
+    .redemittel-list li { padding: 5px 0; border-bottom: 1px solid #d4edda; font-size: 0.88rem; color: #333; }
+    .redemittel-list li:last-child { border-bottom: none; }
+    .tag { display: inline-block; background: #e8ecff; color: #667eea; border-radius: 12px; padding: 2px 10px; font-size: 0.78rem; font-weight: 600; margin-bottom: 12px; }
+
+    /* Lückentext */
+    .gap-sentence { margin-bottom: 14px; line-height: 1.9; font-size: 0.95rem; color: #333; }
+    .gap-sentence input {
+      border: none;
+      border-bottom: 2px solid #667eea;
+      outline: none;
+      font-size: 0.92rem;
+      padding: 2px 6px;
+      width: 180px;
+      background: transparent;
+      transition: border-color 0.2s;
+    }
+    .gap-sentence input.correct { border-bottom-color: #27ae60; color: #27ae60; }
+    .gap-sentence input.wrong  { border-bottom-color: #e74c3c; color: #e74c3c; }
+    .gap-num { display: inline-block; background: #667eea; color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 0.72rem; font-weight: 700; text-align: center; line-height: 22px; margin-right: 6px; }
+
+    /* Satzbau */
+    .chips-container{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;background:#fff;border:2px dashed #c7d2fe;border-radius:8px;padding:10px;margin-bottom:6px}
+    .sentence-builder{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:44px;background:#f0f4ff;border:2px dashed #667eea;border-radius:8px;padding:8px}
+    .chip{background:#fff;color:#4c1d95;border:2px solid #7c3aed;padding:6px 12px;border-radius:16px;cursor:grab;font-size:.9rem;user-select:none;transition:background .15s,color .15s}
+    .chip.correct{background:#d1fae5;color:#065f46;border-color:#059669;cursor:default}
+    .chip.incorrect{background:#fee2e2;color:#991b1b;border-color:#dc2626}
+    .sb-punkt{font-size:1.1rem;font-weight:700;color:#4c1d95;margin-left:2px}
+    .satzbau-feedback{margin-top:6px;font-size:.9rem;font-weight:600;min-height:1.4em}
+    .sb-insert-cursor{display:inline-block;width:3px;min-height:28px;background:#7c3aed;border-radius:2px;margin:0 2px;pointer-events:none}
+
+    /* Wortschatz */
+    #vocabContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .vocab-card { border: 1px solid #e0e4ff; border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s; }
+    .vocab-card:hover { box-shadow: 0 4px 16px rgba(102,126,234,0.15); }
+    .vocab-card img { width: 100%; height: 110px; object-fit: cover; }
+    .vocab-body { padding: 12px 14px; }
+    .vocab-en { font-size: 0.8rem; color: #888; margin-bottom: 6px; }
+    .vocab-fields { display: flex; flex-direction: column; gap: 6px; }
+    .vocab-fields input {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .vocab-fields input:focus { border-color: #667eea; }
+    .vocab-fields input.correct { border-color: #27ae60; background: #f0fff4; color: #27ae60; }
+    .vocab-fields input.wrong   { border-color: #e74c3c; background: #fff5f5; color: #e74c3c; }
+    .vocab-example { font-size: 0.78rem; color: #888; margin-top: 6px; font-style: italic; }
+
+    .author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; }
+    .author-name { font-weight: 700; }
+
+    @media (max-width: 600px) {
+      .sec-inner { padding: 18px 16px; }
+      .vocab-grid { grid-template-columns: 1fr; }
+      .nav { flex-wrap: wrap; }
+      .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+      .nav-btn:last-child { border-right: 1px solid #ddd; }
+      .tab-banner { max-height: 120px; }
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Ich fühle mich…</h1>
+    <p class="subtitle" style="font-family: Georgia, serif;">B2.1 · Einheit 4 · Sprechen &amp; Wortschatz</p>
+    <div class="big-emoji">💛</div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showSection(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showSection(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showSection(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+    <button class="nav-btn" onclick="showSection(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </button>
+  </div>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="section active" id="sec-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Emotionen und Empathie">
+    <div class="sec-inner">
+      <h2>Gefühle zeigen — Empathie &amp; Emotionen</h2>
+      <span class="tag">Sprechen</span>
+      <p>Ist künstliche Intelligenz <strong>empathiefähig</strong>? Wollen wir das überhaupt? Kann sie <strong>himmelhochjauchzend</strong> oder <strong>todtraurig</strong> sein? Neue Technologien werfen neue Fragen auf — und zwingen uns, über unsere eigenen Gefühle nachzudenken.</p>
+
+      <div class="vocab-grid">
+        <div class="vocab-group">
+          <h4>🤝 Empathie zeigen</h4>
+          <ul>
+            <li>Gefühle zeigen</li>
+            <li>Empathie empfinden</li>
+            <li>Interesse zeigen</li>
+            <li>nachempfinden</li>
+            <li>nachfragen</li>
+            <li>einwenden</li>
+            <li>das Gesicht verlieren</li>
+            <li>verstehen</li>
+          </ul>
+        </div>
+        <div class="vocab-group">
+          <h4>😊 Wie fühle ich mich?</h4>
+          <ul>
+            <li>zufrieden</li>
+            <li>quicklebendig</li>
+            <li>quietschvergnügt</li>
+            <li>verliebt</li>
+            <li>todtraurig</li>
+            <li>verärgert</li>
+            <li>sorgenvoll</li>
+            <li>empathiefähig</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>💡 Einstiegsfragen</h3>
+        <p style="font-size:0.9rem; margin-bottom:0; color:#333;">
+          Wie viel Empathie zeigst du im Alltag? Gibt es Situationen, in denen du deine Gefühle lieber verbirgst? Und: Kann eine Maschine wirklich <strong>nachempfinden</strong>, was ein Mensch fühlt — oder bleibt das dem Menschen vorbehalten?
+        </p>
+      </div>
+
+      <div class="speaking-box">
+        <h3>🗣️ Sprechanlässe – Über Gefühle &amp; Empathie sprechen</h3>
+        <ul class="speaking-q">
+          <li>Was bedeutet Empathie für dich? Kennst du ein Synonym?</li>
+          <li>Wie viel Empathie sollte man seinen Mitmenschen entgegenbringen? Gibt es eine Grenze?</li>
+          <li>In welchen Situationen bist du besonders empathisch — in welchen fällt es dir schwer?</li>
+          <li>Wie fühlst du dich heute? Nutze so viele Adjektive wie möglich!</li>
+          <li>Kann künstliche Intelligenz echte Empathie entwickeln? Was wäre der Unterschied zu menschlicher Empathie?</li>
+        </ul>
+      </div>
+
+      <div class="redemittel-box">
+        <h3>💡 Redemittel – Gefühle ausdrücken &amp; nachfragen</h3>
+        <ul class="redemittel-list">
+          <li>Ich fühle mich …, weil …</li>
+          <li>Ehrlich gesagt bin ich gerade etwas …</li>
+          <li>Ich kann gut nachempfinden, dass du …</li>
+          <li>Darf ich kurz nachfragen — meinst du, dass …?</li>
+          <li>Ich möchte einwenden, dass …</li>
+          <li>Das kann ich gut verstehen, aber …</li>
+          <li>Es ist wichtig, Interesse zu zeigen, indem man …</li>
+        </ul>
+      </div>
+
+      <div class="speaking-box">
+        <h3>🗣️ Rollenspiel: Ein einfühlsames Gespräch</h3>
+        <ul class="speaking-q">
+          <li>Person A erzählt von einem Problem. Person B zeigt echtes Interesse, fragt nach und empfindet mit.</li>
+          <li>Zwei Kollegen diskutieren: Soll man am Arbeitsplatz Gefühle zeigen oder lieber professionell bleiben?</li>
+          <li>Ein Roboter versucht, Empathie zu simulieren. Wie klingt das? Was fehlt?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: LÜCKENTEXT -->
+  <div class="section" id="sec-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/4145190/pexels-photo-4145190.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Lernen">
+    <div class="sec-inner">
+      <h2>✏️ Lückentext – Gefühle &amp; Empathie</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="resetGaps()">🔄 Zurücksetzen</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-1">0:00</span></span>
+          <span id="best-1"></span>
+        </div>
+      </div>
+      <div class="hilfe-box">
+        <strong>Aufgabe:</strong> Setze das passende Wort ein. Das Feedback erscheint sofort beim Tippen.
+      </div>
+      <div id="gapContainer">
+        <div class="gap-sentence"><span class="gap-num">1</span>Wenn jemand Hilfe braucht, sollte man sofort <input data-answer="nachfragen" oninput="liveCheck(this)" placeholder="">, wie man helfen kann.</div>
+        <div class="gap-sentence"><span class="gap-num">2</span>Es fällt manchmal schwer, die Gefühle eines anderen Menschen wirklich zu <input data-answer="nachempfinden" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">3</span>Wer keine Gefühle zeigt, riskiert in manchen Kulturen, das <input data-answer="Gesicht" oninput="liveCheck(this)" placeholder=""> zu verlieren.</div>
+        <div class="gap-sentence"><span class="gap-num">4</span>Gute Führungskräfte zeigen stets <input data-answer="Interesse" oninput="liveCheck(this)" placeholder=""> an den Problemen ihrer Mitarbeiter.</div>
+        <div class="gap-sentence"><span class="gap-num">5</span>Er <input data-answer="wandte" oninput="liveCheck(this)" placeholder=""> ein, dass die Sitzung viel zu lange dauere und niemand mehr konzentriert sei.</div>
+        <div class="gap-sentence"><span class="gap-num">6</span>Man braucht viel Übung und Erfahrung, um echte <input data-answer="Empathie" oninput="liveCheck(this)" placeholder=""> zu entwickeln.</div>
+        <div class="gap-sentence"><span class="gap-num">7</span>Nach dem Urlaub fühlt sie sich <input data-answer="quicklebendig" oninput="liveCheck(this)" placeholder=""> und voller Energie.</div>
+        <div class="gap-sentence"><span class="gap-num">8</span>Die Nachricht, dass er das Spiel verloren hatte, stimmte ihn <input data-answer="todtraurig" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">9</span>Er ist seit Wochen <input data-answer="verliebt" oninput="liveCheck(this)" placeholder=""> und denkt ständig an sie.</div>
+        <div class="gap-sentence"><span class="gap-num">10</span>Über die Fehler des Teams war die Managerin sichtlich <input data-answer="verärgert" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">11</span>Mit dem Ergebnis der Verhandlungen war die gesamte Abteilung sehr <input data-answer="zufrieden" oninput="liveCheck(this)" placeholder="">.</div>
+        <div class="gap-sentence"><span class="gap-num">12</span>Die Kinder kamen <input data-answer="quietschvergnügt" oninput="liveCheck(this)" placeholder=""> aus dem Schwimmbad gelaufen.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SATZBAU -->
+  <div class="section" id="sec-2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1111304/pexels-photo-1111304.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau – Puzzle">
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btns">
+          <button class="ctrl-btn btn-reset" onclick="sbResetAll()">↺ Neustart</button>
+        </div>
+        <div class="timer-box">
+          ⏱ <span id="timer-2" class="timer-display">0:00</span>
+          🏆 <span id="best-2" class="best-display">–</span>
+        </div>
+      </div>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: WORTSCHATZ -->
+  <div class="section" id="sec-3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3807571/pexels-photo-3807571.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Emotionen und Gefühle">
+    <div class="sec-inner">
+      <h2>📚 Wortschatz</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showVocabLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetVocab()">🔄 Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-3">0:00</span></span>
+          <span id="best-3"></span>
+        </div>
+      </div>
+      <div class="hilfe-box">
+        <strong>Aufgabe:</strong> Übersetze die Ausdrücke ins Deutsche.
+      </div>
+      <div id="vocabContainer"></div>
+    </div>
+  </div>
+
+  <div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+const TIMER_PREFIX = 'B2_1048S_';
+const timerIntervals = {};
+const timerSeconds = {};
+
+function timerAutoStart(n) {
+  if (timerIntervals[n]) return;
+  timerSeconds[n] = 0;
+  timerIntervals[n] = setInterval(function() {
+    timerSeconds[n]++;
+    var m = Math.floor(timerSeconds[n] / 60);
+    var s = timerSeconds[n] % 60;
+    var el = document.getElementById('timer-' + n);
+    if (el) el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }, 1000);
+}
+
+function timerStop(n) {
+  if (!timerIntervals[n]) return;
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  var key = TIMER_PREFIX + 'timer' + n;
+  var prev = localStorage.getItem(key);
+  if (!prev || timerSeconds[n] < parseInt(prev)) {
+    localStorage.setItem(key, timerSeconds[n]);
+    loadBestTimes();
+  }
+}
+
+function timerResetOne(n) {
+  clearInterval(timerIntervals[n]);
+  timerIntervals[n] = null;
+  timerSeconds[n] = 0;
+  var el = document.getElementById('timer-' + n);
+  if (el) el.textContent = '0:00';
+}
+
+function loadBestTimes() {
+  [1, 2, 3].forEach(function(n) {
+    var key = TIMER_PREFIX + 'timer' + n;
+    var val = localStorage.getItem(key);
+    var el = document.getElementById('best-' + n);
+    if (el && val) {
+      var m = Math.floor(parseInt(val) / 60);
+      var s = parseInt(val) % 60;
+      el.textContent = '(Bestzeit: ' + m + ':' + (s < 10 ? '0' : '') + s + ')';
+    }
+  });
+}
+
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [1,2,3].forEach(function(i){ timerStop(i); });
+  if(n===3) renderVocab();
+  document.getElementById('tab-' + n).classList.add('active');
+  document.querySelectorAll('.nav-btn')[n].classList.add('active');
+  if (n === 1) timerAutoStart(1);
+  
+  if (n === 3) { renderVocab(); timerAutoStart(3); }
+}
+
+// --- LÜCKENTEXT ---
+function liveCheck(inp) {
+  var ans = (inp.dataset.answer || '').trim().toLowerCase();
+  var val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (ans.startsWith(val)) {
+    if (val === ans) { inp.classList.add('correct'); checkAllGaps(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkAllGaps() {
+  var inputs = document.querySelectorAll('#gapContainer input');
+  if ([].every.call(inputs, function(i) { return i.classList.contains('correct'); })) timerStop(1);
+}
+
+function resetGaps() {
+  document.querySelectorAll('#gapContainer input').forEach(function(i) {
+    i.value = ''; i.classList.remove('correct', 'wrong');
+  });
+  timerResetOne(1); timerAutoStart(1);
+}
+
+// --- SATZBAU ---
+/* ===== SATZBAU ===== */
+var satzbauData = [
+  { parts: ['Empathie', 'zu', 'zeigen', 'erfordert', 'Mut', 'und', 'die', 'Bereitschaft', ',', 'sich', 'in', 'andere', 'hineinzuversetzen'],
+    valid: [['Empathie', 'zu', 'zeigen', 'erfordert', 'Mut', 'und', 'die', 'Bereitschaft', ',', 'sich', 'in', 'andere', 'hineinzuversetzen']], punct: '.' },
+  { parts: ['Ist', 'künstliche', 'Intelligenz', 'wirklich', 'in', 'der', 'Lage', ',', 'echte', 'Gefühle', 'zu', 'empfinden'],
+    valid: [['Ist', 'künstliche', 'Intelligenz', 'wirklich', 'in', 'der', 'Lage', ',', 'echte', 'Gefühle', 'zu', 'empfinden']], punct: '?' },
+  { parts: ['Wer', 'das', 'Gesicht', 'verliert', ',', 'leidet', 'oft', 'mehr', 'unter', 'dem', 'Schamgefühl', 'als', 'unter', 'dem', 'Fehler', 'selbst'],
+    valid: [['Wer', 'das', 'Gesicht', 'verliert', ',', 'leidet', 'oft', 'mehr', 'unter', 'dem', 'Schamgefühl', 'als', 'unter', 'dem', 'Fehler', 'selbst']], punct: '.' },
+  { parts: ['Sie', 'hörte', 'aufmerksam', 'zu', 'und', 'fragte', 'mehrmals', 'nach', ',', 'um', 'wirklich', 'zu', 'verstehen'],
+    valid: [['Sie', 'hörte', 'aufmerksam', 'zu', 'und', 'fragte', 'mehrmals', 'nach', ',', 'um', 'wirklich', 'zu', 'verstehen']], punct: '.' },
+  { parts: ['es', 'ist', 'nicht', 'leicht', ',', 'die', 'Gefühle', 'eines', 'anderen', 'Menschen', 'wirklich', 'nachzuempfinden'],
+    valid: [['es', 'ist', 'nicht', 'leicht', ',', 'die', 'Gefühle', 'eines', 'anderen', 'Menschen', 'wirklich', 'nachzuempfinden']], punct: '.' },
+  { parts: ['Gute', 'Kommunikation', 'bedeutet', ',', 'Interesse', 'zu', 'zeigen', 'und', 'aktiv', 'zuzuhören'],
+    valid: [['Gute', 'Kommunikation', 'bedeutet', ',', 'Interesse', 'zu', 'zeigen', 'und', 'aktiv', 'zuzuhören']], punct: '.' },
+  { parts: ['Himmelhochjauchzend', 'oder', 'todtraurig', '–', 'Emotionen', 'bestimmen', ',', 'wie', 'wir', 'die', 'Welt', 'wahrnehmen'],
+    valid: [['Himmelhochjauchzend', 'oder', 'todtraurig', '–', 'Emotionen', 'bestimmen', ',', 'wie', 'wir', 'die', 'Welt', 'wahrnehmen']], punct: '.' }
+];
+var sbDragged = null;
+function sbMakeChip(word) {
+  var ch = document.createElement('span');
+  ch.className = 'chip'; ch.textContent = word; ch.dataset.orig = word; ch.draggable = true;
+  ch.addEventListener('dragstart', function() { sbDragged = ch; setTimeout(function(){ ch.style.opacity='.4'; },0); timerAutoStart(2); });
+  ch.addEventListener('dragend', function() { ch.style.opacity = '1'; });
+  ch.addEventListener('click', function() {
+    var builder = ch.closest('.sentence-builder');
+    var si = parseInt(builder ? builder.dataset.si : ch.closest('.chips-container').dataset.si);
+    var pool = document.getElementById('sb-bank-' + si);
+    var row = document.getElementById('sb-row-' + si);
+    if (ch.parentElement === row) { pool.appendChild(ch); }
+    else { var cursor = row.querySelector('.sb-insert-cursor'); row.insertBefore(ch, cursor || null); timerAutoStart(2); }
+    sbUpdateCapitalization(si); sbCheckAuto(si);
+  });
+  return ch;
+}
+function sbRegisterZone(row, si) {
+  row.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    var cursor = row.querySelector('.sb-insert-cursor');
+    var chips = [...row.querySelectorAll('.chip')]; var mouseX = e.clientX; var after = null;
+    chips.forEach(function(c){ var r=c.getBoundingClientRect(); if(mouseX>r.left+r.width/2) after=c; });
+    row.insertBefore(cursor, after ? after.nextSibling : (chips[0]||null));
+  });
+  row.addEventListener('drop', function(e) {
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor = row.querySelector('.sb-insert-cursor');
+    row.insertBefore(sbDragged, cursor||null); sbDragged=null;
+    sbUpdateCapitalization(si); sbCheckAuto(si);
+  });
+  row.addEventListener('dragleave', function(e) {
+    if(!row.contains(e.relatedTarget)){ var cur=row.querySelector('.sb-insert-cursor'); if(cur) row.appendChild(cur); }
+  });
+}
+function sbUpdateCapitalization(si) {
+  var chips = [...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+  chips.forEach(function(ch, idx) {
+    if(ch.dataset.orig===','||ch.dataset.orig===';') return;
+    var w=ch.dataset.orig; ch.textContent=(idx===0)?w.charAt(0).toUpperCase()+w.slice(1):w;
+  });
+}
+function sbColorRow(si) {
+  var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+  var placed=chips.map(function(c){return c.dataset.orig;});
+  var ok=satzbauData[si].valid.some(function(v){ return v.length===placed.length&&v.every(function(w,i){return w===placed[i];}); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  return ok;
+}
+function sbCheckAuto(si) {
+  var pool=document.getElementById('sb-bank-'+si);
+  if(pool.querySelectorAll('.chip').length>0) return;
+  var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+  if(chips.length!==satzbauData[si].parts.length) return;
+  var ok=sbColorRow(si);
+  var fb=document.getElementById('sb-fb-'+si);
+  fb.textContent=ok?'✓ Korrekt!':'✗ Noch nicht ganz richtig.';
+  fb.style.color=ok?'#2e7d32':'#c62828';
+  if(ok) sbCheckAllDone();
+}
+function sbCheckAllDone() {
+  var allOk=satzbauData.every(function(_,si){
+    var pool=document.getElementById('sb-bank-'+si);
+    if(pool.querySelectorAll('.chip').length>0) return false;
+    var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
+    if(chips.length!==satzbauData[si].parts.length) return false;
+    return satzbauData[si].valid.some(function(v){ return v.length===chips.length&&v.every(function(w,i){return w===chips[i].dataset.orig;}); });
+  });
+  if(allOk) timerStop(2);
+}
+function sbShowSolution(si) {
+  var row=document.getElementById('sb-row-'+si); var pool=document.getElementById('sb-bank-'+si);
+  var allChips=[...row.querySelectorAll('.chip'),...pool.querySelectorAll('.chip')];
+  var byOrig={}; allChips.forEach(function(c){ byOrig[c.dataset.orig]=c; });
+  var cursor=row.querySelector('.sb-insert-cursor');
+  satzbauData[si].valid[0].forEach(function(w){ var c=byOrig[w]; if(c){row.insertBefore(c,cursor||null);delete byOrig[w];} });
+  sbUpdateCapitalization(si); sbColorRow(si);
+}
+function sbResetAll() {
+  timerResetOne(2);
+  satzbauData.forEach(function(_,si){
+    var row=document.getElementById('sb-row-'+si); var pool=document.getElementById('sb-bank-'+si);
+    var all=[...row.querySelectorAll('.chip'),...pool.querySelectorAll('.chip')];
+    pool.innerHTML=''; var cur=document.createElement('span'); cur.className='sb-insert-cursor'; cur.id='sb-insert-cursor';
+    row.innerHTML=''; row.appendChild(cur);
+    all.sort(function(){return Math.random()-.5;}).forEach(function(c){c.textContent=c.dataset.orig;c.classList.remove('correct','incorrect');pool.appendChild(c);});
+    document.getElementById('sb-fb-'+si).textContent='';
+  });
+}
+function initSatzbau() {
+  var container=document.getElementById('satzbauContainer'); container.innerHTML='';
+  satzbauData.forEach(function(s,si){
+    var wrap=document.createElement('div'); wrap.style.marginBottom='24px';
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+si; row.dataset.si=si;
+    var cursor=document.createElement('span'); cursor.className='sb-insert-cursor'; cursor.id='sb-insert-cursor'; row.appendChild(cursor);
+    var punkt=document.createElement('span'); punkt.className='sb-punkt'; punkt.textContent=s.punct;
+    var pool=document.createElement('div'); pool.className='chips-container'; pool.id='sb-bank-'+si; pool.dataset.si=si;
+    var btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;margin-top:4px;align-items:center';
+    var btnL=document.createElement('button'); btnL.className='ctrl-btn'; btnL.style.fontSize='.78rem'; btnL.textContent='Lösen';
+    btnL.onclick=(function(i){return function(){sbShowSolution(i);};})(si);
+    var btnR=document.createElement('button'); btnR.className='ctrl-btn'; btnR.style.fontSize='.78rem'; btnR.textContent='↺ Neustart';
+    btnR.onclick=(function(i){return function(){
+      var r=document.getElementById('sb-row-'+i),p=document.getElementById('sb-bank-'+i);
+      var all=[...r.querySelectorAll('.chip'),...p.querySelectorAll('.chip')];
+      p.innerHTML=''; var cur=document.createElement('span'); cur.className='sb-insert-cursor'; cur.id='sb-insert-cursor';
+      r.innerHTML=''; r.appendChild(cur);
+      all.sort(function(){return Math.random()-.5;}).forEach(function(c){c.textContent=c.dataset.orig;c.classList.remove('correct','incorrect');p.appendChild(c);});
+      document.getElementById('sb-fb-'+i).textContent='';
+    };})(si);
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+si;
+    btns.appendChild(btnL); btns.appendChild(btnR);
+    var shuffled=[...s.parts].sort(function(){return Math.random()-.5;});
+    shuffled.forEach(function(w){pool.appendChild(sbMakeChip(w));});
+    sbRegisterZone(row, si);
+    var rowWrap=document.createElement('div'); rowWrap.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px';
+    rowWrap.appendChild(row); rowWrap.appendChild(punkt);
+    wrap.appendChild(rowWrap); wrap.appendChild(pool); wrap.appendChild(btns); wrap.appendChild(fb);
+    container.appendChild(wrap);
+  });
+}
+initSatzbau();
+
+// --- WORTSCHATZ ---
+var WORTSCHATZ = [
+  { id: 1,  type: 'v', en: 'to show feelings',           de: 'Gefühle zeigen',       pexels: '3807517', example: 'Wer Gefühle zeigt, wirkt nicht schwach — sondern authentisch.' },
+  { id: 2,  type: 'v', en: 'to feel empathy / empathize', de: 'Empathie empfinden',   pexels: '3184291', example: 'Sie empfand tiefe Empathie für ihre trauernde Freundin.' },
+  { id: 3,  type: 'v', en: 'to show interest',           de: 'Interesse zeigen',      pexels: '3184339', example: 'Er zeigte echtes Interesse an ihren Problemen.' },
+  { id: 4,  type: 'v', en: 'to empathize / feel with',   de: 'nachempfinden',         pexels: '1181690', example: 'Ich kann gut nachempfinden, wie schwierig das für dich ist.' },
+  { id: 5,  type: 'v', en: 'to ask follow-up questions', de: 'nachfragen',            pexels: '3184292', example: 'Wenn du etwas nicht verstehst, frag einfach nach.' },
+  { id: 6,  type: 'v', en: 'to object / raise an objection', de: 'einwenden',         pexels: '3760263', example: 'Er wandte ein, dass der Plan zu teuer sei.' },
+  { id: 7,  type: 'v', en: 'to lose face',               de: 'das Gesicht verlieren', pexels: '2379004', example: 'In manchen Kulturen ist es schlimm, das Gesicht zu verlieren.' },
+  { id: 8,  type: 'v', en: 'full of life / lively',      de: 'quicklebendig',         pexels: '3807571', example: 'Nach dem Kaffee fühlte er sich quicklebendig.' },
+  { id: 9,  type: 'v', en: 'chirpy / in high spirits',   de: 'quietschvergnügt',      pexels: '1024993', example: 'Die Kinder kamen quietschvergnügt aus dem Vergnügungspark.' },
+  { id: 10, type: 'v', en: 'terribly sad / heartbroken', de: 'todtraurig',            pexels: '897817',  example: 'Sie war todtraurig, als sie die schlechte Nachricht hörte.' },
+  { id: 11, type: 'v', en: 'worried / full of worry',    de: 'sorgenvoll',            pexels: '3807571', example: 'Mit sorgenvollen Augen schaute er auf die Nachrichten.' },
+  { id: 12, type: 'v', en: 'capable of empathy',         de: 'empathiefähig',         pexels: '3184291', example: 'Ist eine KI wirklich empathiefähig — oder simuliert sie nur Gefühle?' }
+];
+
+var vocabRendered = false;
+
+function renderVocab() {
+  if (vocabRendered) return;
+  vocabRendered = true;
+  var container = document.getElementById('vocabContainer');
+  var shuffled = shuffleArr(WORTSCHATZ);
+  container.innerHTML = '';
+  shuffled.forEach(function(item) {
+    var card = document.createElement('div');
+    card.className = 'vocab-card';
+    var imgUrl = 'https://images.pexels.com/photos/' + item.pexels + '/pexels-photo-' + item.pexels + '.jpeg?auto=compress&cs=tinysrgb&w=400';
+    card.innerHTML =
+      '<img src="' + imgUrl + '" alt="' + item.en + '" onerror="this.style.display=\'none\'">' +
+      '<div class="vocab-body">' +
+        '<div class="vocab-en">' + item.en + '</div>' +
+        '<div class="vocab-fields"><input type="text" placeholder="Deutsch" data-answer="' + item.de + '" oninput="vcCheck(this)"></div>' +
+        '<div class="vocab-example">' + item.example + '</div>' +
+      '</div>';
+    container.appendChild(card);
+  });
+}
+
+function vcCheck(inp) {
+  var ans = (inp.dataset.answer || '').trim().toLowerCase();
+  var val = inp.value.trim().toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (ans.startsWith(val)) {
+    if (val === ans) { inp.classList.add('correct'); checkVocabDone(); }
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkVocabDone() {
+  var all = document.querySelectorAll('#vocabContainer input');
+  if ([].every.call(all, function(i) { return i.classList.contains('correct'); })) timerStop(3);
+}
+
+function showVocabLoesung() {
+  document.querySelectorAll('#vocabContainer input').forEach(function(inp) {
+    if (!inp.classList.contains('correct')) {
+      inp.value = inp.dataset.answer;
+      inp.classList.remove('wrong');
+      inp.classList.add('correct');
+    }
+  });
+}
+
+function resetVocab() {
+  vocabRendered = false;
+  renderVocab();
+  timerResetOne(3); timerAutoStart(3);
+}
+
+// Init
+loadBestTimes();
+</script>
+</body>
+</html>

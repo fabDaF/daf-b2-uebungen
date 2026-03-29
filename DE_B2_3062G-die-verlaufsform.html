@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2.3 · Einheit 6 · Die Verlaufsform</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+    .header p { font-size: 0.95rem; opacity: 0.9; }
+    .nav-tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e0e0e0;
+      overflow-x: auto;
+    }
+    .nav-tab {
+      flex: 1;
+      padding: 14px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      text-align: center;
+      white-space: nowrap;
+      font-weight: 600;
+      min-width: 110px;
+    }
+    .nav-tab.active {
+      color: #667eea;
+      background: white;
+      border-bottom-color: #667eea;
+    }
+    .content { padding: 30px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .entdeck-intro { background: #f3e5f5; border-radius: 12px; padding: 18px 22px; margin-bottom: 20px; border-left: 5px solid #9c27b0; font-size: 0.97rem; line-height: 1.75; }
+    .hl { background: #e1bee7; border-radius: 4px; padding: 0 4px; color: #4a148c; font-weight: 700; }
+    .mc-step { display: none; background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; border: 1px solid #c5cae9; }
+    .mc-step.active { display: block; }
+    .mc-step h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; }
+    .mc-options { display: flex; flex-direction: column; gap: 8px; }
+    .mc-btn { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.92rem; transition: all .2s; }
+    .mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
+    .mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+    .mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .mc-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 1.3em; }
+    .mc-feedback.ok { color: #2e7d32; font-weight: 700; }
+    .mc-feedback.err { color: #c62828; }
+    .progress-dots { display: flex; gap: 8px; margin-bottom: 20px; }
+    .pdot { width: 14px; height: 14px; border-radius: 50%; background: #c5cae9; transition: background .3s; }
+    .pdot.done { background: #667eea; }
+    .regel-karte { display: none; background: linear-gradient(135deg, #e8eaf6, #ede7f6); border-radius: 14px; padding: 22px 26px; border-left: 5px solid #3949ab; margin-top: 10px; }
+    .regel-karte h3 { color: #1a237e; margin-bottom: 12px; font-size: 1.05rem; }
+    .regel-karte ul { margin-left: 18px; }
+    .regel-karte li { color: #333; line-height: 1.8; font-size: 0.95rem; }
+    .luecke-satz { background: #fafbff; padding: 12px 14px; margin-bottom: 12px; border-radius: 8px; border-left: 3px solid #667eea; line-height: 1.75; font-size: 0.95rem; }
+    input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 3px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color .2s, background .2s; background: white; margin: 0 2px; }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .correction-hint { font-size: 0.78rem; color: #27ae60; font-weight: 700; margin-left: 4px; white-space: nowrap; }
+    .chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform .15s, opacity .15s; white-space: nowrap; }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .sb-satz { margin-bottom: 14px; background: #fafbff; padding: 12px; border-radius: 8px; border-left: 3px solid #667eea; }
+    .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 14px; min-height: 54px; }
+    .drop-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 2px dashed #c5cae9; background: #fafbff; }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
+    .timer-row { display: flex; align-items: center; gap: 12px; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); font-size: 0.85rem; color: #666; }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .btn-row { display: flex; gap: 12px; margin-bottom: 14px; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+    .btn-show { background: #e8eaff; color: #3949ab; }
+    .btn-show:hover { background: #d0d7ff; }
+    .btn-reset { background: #f0f2f5; color: #666; }
+    .btn-reset:hover { background: #e0e0e0; }
+    .help-box { background: #e8f4fd; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #0288d1; font-size: 0.9rem; color: #01579b; }
+    .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; text-decoration: none; }
+    .author-name { font-weight: 700; }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.2rem; }
+      .content { padding: 20px; }
+      .nav-tab { font-size: 0.8rem; padding: 10px 8px; min-width: 90px; }
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+<script>
+function switchTab(n){
+  var tabs=document.querySelectorAll('.tab-content');
+  if(!tabs.length)tabs=document.querySelectorAll('.tab');
+  tabs.forEach(function(t,i){t.classList.toggle('active',i===n);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+}
+
+var TIMER_PREFIX='B2_3062G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔍 Die Verlaufsform</h1>
+      <p>B2.3 · Einheit 6 · G</p>
+    </div>
+
+    <div class="nav-tabs nav">
+      <button class="nav-tab active" onclick="switchTab(0, 0)">🔍 Entdecken</button>
+      <button class="nav-tab" onclick="switchTab(1, 0)">📖 Regel</button>
+      <button class="nav-tab" onclick="switchTab(2, 0)">✏️ Lückentext</button>
+      <button class="nav-tab" onclick="switchTab(3, 0)">🔀 Satzbau</button>
+      <button class="nav-tab" onclick="switchTab(4, 0)">📚 Wortschatz</button>
+    </div>
+
+    <div class="content">
+      <!-- Tab 0: Entdeckung -->
+      <div class="tab active" id="tab0">
+        <div class="entdeck-intro">
+          <h3>Progressive Aspekt im Englischen vs. Deutsche Umschreibungen</h3>
+          <p>Das Englische hat die Progressive-Form: „I am working" (Verlaufsform). Das Deutsche hat das nicht standardmäßig, nutzt aber verschiedene Umschreibungen, um Handlungen „in Aktion" auszudrücken:</p>
+        </div>
+
+        <div class="progress-dots">
+          <div class="pdot" id="pdot0"></div>
+          <div class="pdot" id="pdot1"></div>
+          <div class="pdot" id="pdot2"></div>
+          <div class="pdot" id="pdot3"></div>
+        </div>
+
+        <div class="mc-step active" id="mc-step0">
+          <h4>Welche Umschreibung ist NICHT richtig für die Verlaufsform?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(0, this, false)">A) Ich bin am Arbeiten</button>
+            <button class="mc-btn" onclick="mcCheck(0, this, false)">B) Ich bin gerade dabei zu arbeiten</button>
+            <button class="mc-btn" onclick="mcCheck(0, this, true)">C) Ich arbeite sehr hart immer</button>
+            <button class="mc-btn" onclick="mcCheck(0, this, false)">D) Ich bin beim Arbeiten</button>
+          </div>
+          <div class="mc-feedback" id="mcfb0"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step1">
+          <h4>Welches Beispiel zeigt die „gerade"-Umschreibung?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(1, this, true)">A) Er ist gerade am Essen</button>
+            <button class="mc-btn" onclick="mcCheck(1, this, false)">B) Er isst gerne Äpfel</button>
+            <button class="mc-btn" onclick="mcCheck(1, this, false)">C) Er hat gegessen</button>
+            <button class="mc-btn" onclick="mcCheck(1, this, false)">D) Er wird essen</button>
+          </div>
+          <div class="mc-feedback" id="mcfb1"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step2">
+          <h4>Was bedeutet „Sie ist beim Einkaufen"?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(2, this, false)">A) Sie kauft normalerweise ein</button>
+            <button class="mc-btn" onclick="mcCheck(2, this, true)">B) Sie ist gerade beim Einkaufen (aktuelle Aktion)</button>
+            <button class="mc-btn" onclick="mcCheck(2, this, false)">C) Sie wird einkaufen gehen</button>
+            <button class="mc-btn" onclick="mcCheck(2, this, false)">D) Sie hat eingekauft</button>
+          </div>
+          <div class="mc-feedback" id="mcfb2"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step3">
+          <h4>Welche Konjuktion leitet die zu-Infinitiv-Umschreibung ein?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(3, this, true)">A) dabei + zu (Ich bin dabei zu lernen)</button>
+            <button class="mc-btn" onclick="mcCheck(3, this, false)">B) weil + zu</button>
+            <button class="mc-btn" onclick="mcCheck(3, this, false)">C) obwohl + zu</button>
+            <button class="mc-btn" onclick="mcCheck(3, this, false)">D) wenn + zu</button>
+          </div>
+          <div class="mc-feedback" id="mcfb3"></div>
+        </div>
+
+        <div class="regel-karte" id="regelkarte">
+          <h3>Deutschen Verlaufsformen — 3 Möglichkeiten</h3>
+          <ul>
+            <li><strong>„gerade + Infinitiv":</strong> „Ich bin gerade am Arbeiten" (am = Präposition + Artikel)</li>
+            <li><strong>„beim + Verb als Nomen":</strong> „Ich bin beim Arbeiten" (beim = bei + dem Arbeiten)</li>
+            <li><strong>„dabei + zu-Infinitiv":</strong> „Ich bin dabei zu arbeiten" (geplante oder aktuelle Handlung)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab 1: Regel -->
+      <div class="tab" id="tab1">
+        <div class="help-box">
+          <strong>Regel:</strong> Die deutsche Sprache kennt KEINE standardisierte Verlaufsform wie Englisch („is working"). Stattdessen verwendet sie Umschreibungen mit „sein" + Infinitiv oder Gerundium.
+        </div>
+
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px;">
+          <h3 style="color: #6a1b9a; margin-bottom: 15px;">Die drei Umschreibungen</h3>
+
+          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+            <h4 style="color: #667eea; margin-bottom: 8px;">1. sein + am + [Infinitiv]</h4>
+            <p style="margin: 8px 0;">Beispiele: Ich bin am Arbeiten. Sie ist am Einkaufen.</p>
+            <p style="margin: 8px 0; font-size: 0.9rem; color: #666;">Diese Form ist häufig im gesprochenen Deutsch.</p>
+          </div>
+
+          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+            <h4 style="color: #667eea; margin-bottom: 8px;">2. sein + beim + [Nominalisierung]</h4>
+            <p style="margin: 8px 0;">Beispiele: Ich bin beim Arbeiten. Sie ist beim Einkaufen.</p>
+            <p style="margin: 8px 0; font-size: 0.9rem; color: #666;">Hier wird das Verb zum Nomen: arbeiten → das Arbeiten.</p>
+          </div>
+
+          <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+            <h4 style="color: #667eea; margin-bottom: 8px;">3. sein + dabei + zu + [Infinitiv]</h4>
+            <p style="margin: 8px 0;">Beispiele: Ich bin dabei zu arbeiten. Sie ist dabei einzukaufen.</p>
+            <p style="margin: 8px 0; font-size: 0.9rem; color: #666;">Diese Form betont, dass etwas gerade oder bald beginnt/läuft.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Lückentext -->
+      <div class="tab" id="tab2">
+        <div class="timer-row">
+          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
+          <span class="best-time" id="best-2"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showLueckenLoesung(2)">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetLuecken(2); timerResetOne(2);">Neu starten</button>
+        </div>
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Ergänze die richtige Verlaufsform-Umschreibung!
+        </div>
+        <div class="luecke-container" id="luecke-container2"></div>
+      </div>
+
+      <!-- Tab 3: Satzbau -->
+      <div class="tab" id="tab3">
+        <div class="timer-row">
+          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
+          <span class="best-time" id="best-3"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showSatzbauLoesung(3)">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetSatzbau(3); timerResetOne(3);">Neu starten</button>
+        </div>
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Ordne die Satzteile korrekt!
+        </div>
+        <div id="sb-container3"></div>
+      </div>
+
+      <!-- Tab 4: Wortschatz -->
+      <div class="tab" id="tab4">
+        <div class="timer-row">
+          ⏱ <span id="timer-4">0:00</span><span>🏆 <span id="best-4">--:--</span></span></span></span>
+          <span class="best-time" id="best-4"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="timerResetOne(4); showVocabLoesung()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetVocab(); timerResetOne(4);">Neu starten</button>
+        </div>
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche!
+        </div>
+        <div id="vocabContainer"></div>
+      </div>
+    </div>
+
+    <div class="author-footer">
+      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+  </div>
+
+  
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2.3 · Einheit 6 · Arbeit und Burnout</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; min-height: 100vh; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+    .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+    .header p { font-size: 0.95rem; opacity: 0.9; }
+    .nav-tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e0e0e0; overflow-x: auto; }
+    .nav-tab { flex: 1; padding: 14px 16px; border: none; background: transparent; cursor: pointer; font-size: 0.9rem; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; text-align: center; white-space: nowrap; font-weight: 600; min-width: 120px; }
+    .nav-tab.active { color: #667eea; background: white; border-bottom-color: #667eea; }
+    .content { padding: 30px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .story-text { font-family: Georgia, serif; line-height: 1.8; font-size: 0.97rem; color: #333; margin: 0 auto; max-width: 700px; text-align: justify; background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .help-box { background: #e8f4fd; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #0288d1; font-size: 0.9rem; color: #01579b; }
+    .luecke-satz { background: #fafbff; padding: 12px 14px; margin-bottom: 12px; border-radius: 8px; border-left: 3px solid #667eea; line-height: 1.75; font-size: 0.95rem; }
+    input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 3px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color .2s; background: white; margin: 0 2px; }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .mc-container { background: #fafbff; padding: 12px; margin-bottom: 12px; border-radius: 8px; border-left: 3px solid #667eea; }
+    .mc-q { font-weight: 600; color: #3949ab; margin-bottom: 10px; font-size: 0.95rem; }
+    .mc-opts { display: flex; flex-direction: column; gap: 6px; }
+    .mc-opt { padding: 8px 12px; background: white; border: 1px solid #c5cae9; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .mc-opt:hover { background: #f3f4ff; }
+    .mc-opt.correct { background: #e8f5e9; border-color: #27ae60; color: #2e7d32; font-weight: 600; }
+    .mc-opt.wrong { background: #ffebee; border-color: #e74c3c; color: #c62828; }
+    .chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform .15s; white-space: nowrap; }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .sb-satz { margin-bottom: 14px; background: #fafbff; padding: 12px; border-radius: 8px; border-left: 3px solid #667eea; }
+    .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 14px; min-height: 54px; }
+    .drop-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 2px dashed #c5cae9; background: #fafbff; }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
+    .timer-row { display: flex; align-items: center; gap: 12px; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); font-size: 0.85rem; color: #666; }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .btn-row { display: flex; gap: 12px; margin-bottom: 14px; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+    .btn-show { background: #e8eaff; color: #3949ab; }
+    .btn-reset { background: #f0f2f5; color: #666; }
+    .correction-hint { font-size: 0.78rem; color: #27ae60; font-weight: 700; margin-left: 4px; }
+    .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; text-decoration: none; }
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── daf-html-layout Extra-Fixes ─── */
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────── */
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌅 Arbeit und Burnout</h1>
+      <p>B2.3 · Einheit 6 · R</p>
+    </div>
+
+    <div class="nav-tabs nav">
+      <button class="nav-tab active" onclick="switchTab(0)">🌅 Vorentlastung</button>
+      <button class="nav-tab" onclick="switchTab(1)">📖 Lesetext</button>
+      <button class="nav-tab" onclick="switchTab(2)">✏️ Lückentext</button>
+      <button class="nav-tab" onclick="switchTab(3)">❓ Multiple Choice</button>
+      <button class="nav-tab" onclick="switchTab(4)">🔀 Satzbau</button>
+    </div>
+
+    <div class="content">
+      <!-- Tab 0: Vorentlastung -->
+      <div class="tab active" id="tab0">
+        <div class="help-box"><strong>Wortschatz-Vorbereitung:</strong> Wichtige Begriffe zum Thema Burnout.</div>
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px;">
+          <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">das Burnout / der Burnout</strong> — körperliches und psychisches Erschöpfungssyndrom
+          </div>
+          <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">die Überstunden</strong> — Arbeitszeit über die vereinbarten Stunden hinaus
+          </div>
+          <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">die Erreichbarkeit</strong> — Verfügbarkeit, immer erreichbar sein
+          </div>
+          <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">die Prävention</strong> — Vorbeugung, Verhütung von etwas Negativem
+          </div>
+          <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+            <strong style="color: #667eea;">das Recht auf Abschalten</strong> — Right to disconnect, arbeitsfreie Zeit garantieren
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 1: Lesetext -->
+      <div class="tab" id="tab1">
+        <div class="story-text">
+          <p><strong>Burnout in modernen Arbeitswelten</strong></p>
+          <p><span style="background: #fff59d;">Burnout</span> ist ein Phänomen unserer Zeit. Viele Menschen leiden unter körperlicher und psychischer Erschöpfung wegen ihrer Arbeit.</p>
+          <p>Die <span style="background: #fff59d;">Ursachen</span> sind vielfältig: Häufig arbeiten Menschen zu viele <span style="background: #fff59d;">Überstunden</span>, sind immer erreichbar (digitale <span style="background: #fff59d;">Erreichbarkeit</span>), und bekommen zu wenig Anerkennung für ihre Leistung. Besonders in Berufen mit viel Verantwortung ist das Problem groß.</p>
+          <p>Die <span style="background: #fff59d;">Symptome</span> von Burnout sind: ständige Müdigkeit, Konzentrationsprobleme, Reizbarkeit, Kopfschmerzen und das Gefühl, nicht mehr leisten zu können.</p>
+          <p><span style="background: #fff59d;">Maßnahmen der Prävention</span> sind wichtig: Unternehmen sollten klare Arbeitszeiten garantieren, <span style="background: #fff59d;">Betriebliches Gesundheitsmanagement</span> anbieten und eine Kultur schaffen, die Pausen respektiert. Auch das <span style="background: #fff59d;">"Right to Disconnect"</span> — das Recht auf Abschalten — wird immer wichtiger. Arbeitnehmer sollten nach Feierabend nicht erreichbar sein müssen.</p>
+          <p>Psychologische Unterstützung und Achtsamkeitstraining helfen vielen Menschen, wieder ins Gleichgewicht zu kommen. Eine gute Work-Life-Balance ist essentiell für Gesundheit und Zufriedenheit.</p>
+        </div>
+      </div>
+
+      <!-- Tab 2: Lückentext -->
+      <div class="tab" id="tab2">
+        <div class="timer-row">
+          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showLuecken()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetLuecken(); timerResetOne(2);">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Ergänze die Lücken!</div>
+        <div id="luecke-container"></div>
+      </div>
+
+      <!-- Tab 3: Multiple Choice -->
+      <div class="tab" id="tab3">
+        <div class="timer-row">
+          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="resetMC()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Wähle die richtige Antwort!</div>
+        <div id="mc-container"></div>
+      </div>
+
+      <!-- Tab 4: Satzbau -->
+      <div class="tab" id="tab4">
+        <div class="timer-row">
+          ⏱ <span id="timer-4">0:00</span><span>🏆 <span id="best-4">--:--</span></span></span></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-show" onclick="showSB()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetSB(); timerResetOne(4);">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Ordne die Satzteile!</div>
+        <div id="sb-container"></div>
+      </div>
+    </div>
+
+    <div class="author-footer">
+      <span style="font-weight: 700;">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+  </div>
+
+  <script>
+    var TIMER_PREFIX='B2_3066R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
+    function liveCheck(inp) {
+      var val = inp.value.trim().toLowerCase();
+      var ans = (inp.dataset.answer || '').toLowerCase();
+      inp.classList.remove('correct', 'wrong');
+      if (!val) return;
+      timerAutoStart(2);
+      if (val === ans) {
+        inp.classList.add('correct');
+      } else if (ans.indexOf(val) === 0) {
+        // OK
+      } else {
+        inp.classList.add('wrong');
+      }
+    }
+
+    function showHint(inp) {
+      var next = inp.nextElementSibling;
+      if (next && next.classList.contains('correction-hint')) next.remove();
+      var hint = document.createElement('span');
+      hint.className = 'correction-hint';
+      hint.textContent = inp.dataset.answer;
+      inp.insertAdjacentElement('afterend', hint);
+      inp.value = inp.dataset.answer;
+      inp.classList.add('correct');
+    }
+
+    var lueckenData = [
+      { text: 'Das <input class="blank" data-answer="Burnout" oninput="liveCheck(this)" /> ist ein Zeichen von Überbelastung.', ans: 'burnout' },
+      { text: 'Viele Menschen arbeiten zu viele <input class="blank" data-answer="Überstunden" oninput="liveCheck(this)" />.', ans: 'überstunden' },
+      { text: 'Die digitale <input class="blank" data-answer="Erreichbarkeit" oninput="liveCheck(this)" /> ist problematisch.', ans: 'erreichbarkeit' },
+      { text: 'Das <input class="blank" data-answer="Betriebliche Gesundheitsmanagement" oninput="liveCheck(this)" /> ist wichtig.', ans: 'betriebliche gesundheitsmanagement' },
+      { text: 'Das „<input class="blank" data-answer="Right to Disconnect" oninput="liveCheck(this)" />" garantiert Erholung.', ans: 'right to disconnect' }
+    ];
+
+    function initLuecken() {
+      var cont = document.getElementById('luecke-container');
+      cont.innerHTML = '';
+      lueckenData.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'luecke-satz';
+        div.innerHTML = item.text;
+        cont.appendChild(div);
+      });
+
+    function showLuecken() {
+      var cont = document.getElementById('luecke-container');
+      var inps = cont.querySelectorAll('input.blank');
+      inps.forEach(function(inp) { showHint(inp); });
+
+    function resetLuecken() { initLuecken(); }
+
+    var mcData = [
+      { q: 'Welche ist KEINE typische Ursache von Burnout?', opts: ['Überstunden', 'Ständige Erreichbarkeit', 'Mangelnde Anerkennung', 'Regelmäßige Pausen'], correct: 3 },
+      { q: 'Was bedeutet „Right to Disconnect"?', opts: ['Recht auf Internet-Pause', 'Recht auf arbeitsfreie Zeit außerhalb der Arbeitszeiten', 'Recht zu kündigen', 'Recht auf Homeoffice'], correct: 1 },
+      { q: 'Was hilft bei Burnout-Prävention?', opts: ['Mehr Arbeit', 'Klare Arbeitszeiten und Gesundheitsmanagement', 'Weniger Gehalt', 'Häufigere Meetings'], correct: 1 }
+    ];
+
+    function initMC() {
+      var cont = document.getElementById('mc-container');
+      cont.innerHTML = '';
+      mcData.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'mc-container';
+        var q = document.createElement('div');
+        q.className = 'mc-q';
+        q.textContent = item.q;
+        div.appendChild(q);
+        var opts = document.createElement('div');
+        opts.className = 'mc-opts';
+        item.opts.forEach(function(opt, oidx) {
+          var opt_btn = document.createElement('div');
+          opt_btn.className = 'mc-opt';
+          opt_btn.textContent = opt;
+          opt_btn.onclick = function() { checkMC(idx, oidx, this); };
+          opts.appendChild(opt_btn);
+        });
+        div.appendChild(opts);
+        cont.appendChild(div);
+      });
+
+    function checkMC(qidx, oidx, elem) {
+      timerAutoStart(3);
+      var opts = elem.parentElement.querySelectorAll('.mc-opt');
+      opts.forEach(function(o) { o.classList.remove('correct', 'wrong'); });
+      if (oidx === mcData[qidx].correct) {
+        elem.classList.add('correct');
+      } else {
+        elem.classList.add('wrong');
+        opts[mcData[qidx].correct].classList.add('correct');
+      }
+    }
+
+    function resetMC() { initMC(); }
+
+    var sbData = [
+      { chips: ['Burnout', 'ist', 'ein', 'Zeichen', 'von', 'Überbelastung', '.'], correct: ['Burnout', 'ist', 'ein', 'Zeichen', 'von', 'Überbelastung', '.'] },
+      { chips: ['Das', '"Right', 'to', 'Disconnect"', 'garantiert', 'arbeitsfreie', 'Zeit', '.'], correct: ['Das', '"Right', 'to', 'Disconnect"', 'garantiert', 'arbeitsfreie', 'Zeit', '.'] }
+    ];
+
+    var sbDragged = null;
+
+    function initSB() {
+      var cont = document.getElementById('sb-container');
+      cont.innerHTML = '';
+      sbData.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'sb-satz';
+        var bank = document.createElement('div');
+        bank.className = 'chip-bank';
+        var shuffled = item.chips.slice().sort(function() { return Math.random() - 0.5; });
+        shuffled.forEach(function(word) {
+          var chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = word;
+          chip.draggable = true;
+          chip.dataset.idx = idx;
+          chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
+          chip.addEventListener('dragend', colorAllSB);
+          bank.appendChild(chip);
+        });
+        div.appendChild(bank);
+
+        var dropzone = document.createElement('div');
+        dropzone.className = 'drop-row';
+        dropzone.dataset.idx = idx;
+        dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
+        dropzone.addEventListener('drop', function(e) { e.preventDefault(); this.classList.remove('dragover'); if (sbDragged) { this.appendChild(sbDragged); colorAllSB(); } });
+        div.appendChild(dropzone);
+        cont.appendChild(div);
+      });
+
+    function colorAllSB() {
+      sbData.forEach(function(_, idx) { colorSB(idx); });
+      timerAutoStart(4);
+    }
+
+    function colorSB(idx) {
+      var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+      if (!dropz) return;
+      var chips = dropz.querySelectorAll('.chip');
+      var isOk = chips.length === sbData[idx].correct.length && Array.from(chips).every(function(c, i) { return c.textContent === sbData[idx].correct[i]; });
+      chips.forEach(function(c) { c.classList.remove('correct', 'wrong'); if (isOk) c.classList.add('correct'); else if (chips.length > 0) c.classList.add('wrong'); });
+
+    function showSB() {
+      sbData.forEach(function(item, idx) {
+        var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+        dropz.innerHTML = '';
+        item.correct.forEach(function(word) {
+          var chip = document.createElement('div');
+          chip.className = 'chip correct';
+          chip.textContent = word;
+          dropz.appendChild(chip);
+        });
+      });
+
+    function resetSB() { initSB(); }
+
+    function switchTab(idx) {
+      var tabs = document.querySelectorAll('.tab');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      document.getElementById('tab' + idx).classList.add('active');
+      var navs = document.querySelectorAll('.nav-tab');
+      navs.forEach(function(n) { n.classList.remove('active'); });
+      event.target.classList.add('active');
+      if (idx === 2 && !document.getElementById('luecke-container').children.length) initLuecken();
+      if (idx === 3 && !document.getElementById('mc-container').children.length) initMC();
+      if (idx === 4 && !document.getElementById('sb-container').children.length) initSB();
+    }
+
+    initLuecken();
+    initMC();
+    initSB();
+  
+}}}}}}</script>
+</body>
+</html>
