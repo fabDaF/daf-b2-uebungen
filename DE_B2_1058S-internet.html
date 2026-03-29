@@ -178,34 +178,7 @@
   input.gap:focus { border-bottom-color: #667eea; }
   input.gap.correct { border-bottom-color: #4CAF50; background: #e8f5e9; color: #2e7d32; }
   input.gap.wrong { border-bottom-color: #f44336; background: #ffebee; }
-  .hint { font-size: 0.78rem; color: #888; margin-left: 6px; font-style: italic; }
-
-  /* Satzbau */
-  .sb-exercise { margin-bottom: 28px; }
-  .sb-sentence-nr { font-weight: 700; color: #667eea; margin-bottom: 8px; font-size: 0.9rem; }
-  .chip-pool {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    min-height: 44px;
-    background: #f0f4ff;
-    border: 2px dashed #c8d4f8;
-    border-radius: 8px;
-    padding: 8px;
-    margin-bottom: 8px;
-  }
-  .drop-zone {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    min-height: 44px;
-    background: #f9f9f9;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 8px;
-    transition: background 0.2s;
-  }
-  .drop-zone.drag-over { background: #e8f0fe; border-color: #667eea; }
+  .hint { font-size: 0.78rem; color: #888; margin-left: 6px; font-style: italic; }  .sb-exercise { margin-bottom: 28px; }
   .chip {
     background: #667eea;
     color: white;
@@ -336,7 +309,20 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-</style>
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }</style>
 <script>
 function showSection(n){
   document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
@@ -395,6 +381,166 @@ function checkGap(inp) {
   else if (ans.startsWith(val)) { /* valid prefix */ }
   else { inp.classList.add('wrong'); }
 }
+
+/* ── SATZBAU ── */
+var satzbauData = [
+  { parts: ['obwohl', 'das', 'Internet', 'praktisch', 'ist', ',', 'sollte', 'man', 'es', 'bewusst', 'nutzen'],
+    valid: [['obwohl', 'das', 'Internet', 'praktisch', 'ist', ',', 'sollte', 'man', 'es', 'bewusst', 'nutzen']], punct: '.' },
+  { parts: ['weil', 'Fake', 'News', 'gefährlich', 'sind', ',', 'muss', 'man', 'Quellen', 'prüfen'],
+    valid: [['weil', 'Fake', 'News', 'gefährlich', 'sind', ',', 'muss', 'man', 'Quellen', 'prüfen']], punct: '.' },
+  { parts: ['ich', 'nutze', 'das', 'Internet', 'täglich', ',', 'obwohl', 'ich', 'Pausen', 'einplane'],
+    valid: [['ich', 'nutze', 'das', 'Internet', 'täglich', ',', 'obwohl', 'ich', 'Pausen', 'einplane']], punct: '.' },
+  { parts: ['nachdem', 'er', 'das', 'Passwort', 'geändert', 'hatte', ',', 'war', 'sein', 'Konto', 'sicher'],
+    valid: [['nachdem', 'er', 'das', 'Passwort', 'geändert', 'hatte', ',', 'war', 'sein', 'Konto', 'sicher']], punct: '.' },
+  { parts: ['damit', 'Kinder', 'sicher', 'surfen', ',', 'brauchen', 'sie', 'Begleitung', 'durch', 'Erwachsene'],
+    valid: [['damit', 'Kinder', 'sicher', 'surfen', ',', 'brauchen', 'sie', 'Begleitung', 'durch', 'Erwachsene']], punct: '.' },
+  { parts: ['das', 'Internet', 'ist', 'nützlich', ',', 'wenn', 'man', 'es', 'kritisch', 'und', 'reflektiert', 'benutzt'],
+    valid: [['das', 'Internet', 'ist', 'nützlich', ',', 'wenn', 'man', 'es', 'kritisch', 'und', 'reflektiert', 'benutzt']], punct: '.' },
+  { parts: ['wer', 'im', 'Netz', 'recherchiert', ',', 'sollte', 'immer', 'mehrere', 'Quellen', 'vergleichen'],
+    valid: [['wer', 'im', 'Netz', 'recherchiert', ',', 'sollte', 'immer', 'mehrere', 'Quellen', 'vergleichen']], punct: '.' },
+];
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
+  return null;
+}
+function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+function sbUpdateCapitalization(row){
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word){
+  var chip=document.createElement('div');
+  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(2);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){ chip.style.opacity='0.4'; },0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity=''; sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');
+    if(c&&c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=getSbCursor();
+    var before=getSbInsertPos(zone,e.clientX);
+    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){
+      var c=document.getElementById('sb-insert-cursor');
+      if(c&&c.parentNode===zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
+    else zone.appendChild(sbDragged);
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);
+    sbUpdateCapitalization(row); sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){ return c.dataset.orig; });
+  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
+  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
+  }
+  setTimeout(function(){
+    var ok=sbColorRow(idx);
+    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
+    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
+  if(allOk) timerStop(2);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx); var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
+  fb.textContent=''; setTimeout(function(){ sbCheckAuto(idx); },100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');
+  if(!container) return;
+  container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div'); item.className='satzbau-item';
+    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
+    bank.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      timerAutoStart(2); row.appendChild(chip); chip.classList.remove('correct','incorrect');
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    row.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
+      chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
+    solveBtn.setAttribute('data-idx',idx);
+    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
+    resetBtn.setAttribute('data-idx',idx);
+    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+initSatzbau();
 </script>
 </head>
 <body>
@@ -424,10 +570,7 @@ function checkGap(inp) {
       src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=800"
       alt="Soziale Medien auf Smartphone">
     <div class="sec-inner">
-      <div class="control-bar">
-        <div class="btn-group"></div>
-        
-</div>
+      </div>
       <div class="intro-box">
         <h3>💬 Das Internet im Alltag — Diskussionsimpulse</h3>
         <ul>
@@ -470,11 +613,7 @@ function checkGap(inp) {
       src="https://images.pexels.com/photos/5082579/pexels-photo-5082579.jpeg?auto=compress&cs=tinysrgb&w=800"
       alt="Person tippt auf Laptop">
     <div class="sec-inner">
-      <div class="control-bar">
-        <div class="btn-group">
-          <button class="btn btn-reset" onclick="resetGaps()">↺ Zurücksetzen</button>
-        </div>
-        <div class="timer-box" id="timer-1">⏱ 00:00</div><div class="timer-box-best" id="best-1">--:--</div>
+      <div class="timer-box" id="timer-1">⏱ 00:00</div><div class="timer-box-best" id="best-1">--:--</div>
       </div>
       <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Ergänzen Sie die fehlenden Wörter. Sie erhalten sofort Rückmeldung.</p>
       <ol class="gap-list">
@@ -500,14 +639,9 @@ function checkGap(inp) {
       src="https://images.pexels.com/photos/163064/play-stone-network-networked-163064.jpeg?auto=compress&cs=tinysrgb&w=800"
       alt="Puzzle-Netzwerk">
     <div class="sec-inner">
-      <div class="control-bar">
-        <div class="btn-group">
-          <button class="btn btn-reset" onclick="resetSatzbau()">↺ Zurücksetzen</button>
-        </div>
-        <div class="timer-box" id="timer-2">⏱ 00:00</div><div class="timer-box-best" id="best-2">--:--</div>
+      <div class="timer-box" id="timer-2">⏱ 00:00</div><div class="timer-box-best" id="best-2">--:--</div>
       </div>
-      <p style="margin-bottom:20px; color:#555; font-size:0.9rem;">Ziehen Sie die Chips in die richtige Reihenfolge. Satzzeichen gehören ebenfalls in die Lösung.</p>
-      <div id="sb-container"></div>
+      <div id="satzbauContainer"></div>
     </div>
   </div>
 
@@ -517,11 +651,7 @@ function checkGap(inp) {
       src="https://images.pexels.com/photos/159751/book-address-book-learning-read-159751.jpeg?auto=compress&cs=tinysrgb&w=800"
       alt="Bücher und Wörterbuch">
     <div class="sec-inner">
-      <div class="control-bar">
-        <div class="btn-group">
-          <button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
-        </div>
-        <div class="timer-box" id="timer-3">⏱ 00:00</div><div class="timer-box-best" id="best-3">--:--</div>
+      <div class="timer-box" id="timer-3">⏱ 00:00</div><div class="timer-box-best" id="best-3">--:--</div>
       </div>
       <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Tippen Sie das deutsche Wort (mit Artikel wenn nötig). Grün = richtig.</p>
       <div class="vocab-grid" id="vocab-grid"></div>
