@@ -24,8 +24,7 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 24px 30px 16px;
-  text-align: center;
-}
+  }
   header h1 { font-size: 1.6rem; margin-bottom: 4px; }
   header p { opacity: 0.85; font-size: 0.95rem; }
   nav {
@@ -200,7 +199,7 @@
   }
   .drop-zone.drag-over { background: #e8f0fe; border-color: #667eea; }
   .chip {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #667eea;
     color: white;
     padding: 5px 11px;
     border-radius: 20px;
@@ -329,10 +328,48 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-
-  .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-  .chip.wrong   { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
 </style>
+<script>
+var TIMER_PREFIX='B2_1068S_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [0,1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
 </head>
 <body>
 <div class="container">
@@ -340,20 +377,20 @@
     <h1>Verschiedene Ansichten</h1>
     <p>B2 · Lektion 1068S · Meinungen äußern und widersprechen</p>
   </header>
-  <nav class="nav">
+  <div class="nav">
     <button class="active" onclick="showTab(0)">
       <span class="nav-emoji">💬</span><span class="nav-label">Redemittel</span>
-    </button>
+    </div>
     <button onclick="showTab(1)">
       <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
-    </button>
+    </div>
     <button onclick="showTab(2)">
       <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
-    </button>
+    </div>
     <button onclick="showTab(3)">
       <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- TAB 0: Redemittel -->
   <div class="section active" id="sec0">
@@ -363,8 +400,8 @@
     <div class="sec-inner">
       <div class="control-bar">
         <div class="btn-group"></div>
-        <div class="timer-display"><span>⏱ <span id="timer-0">0:00</span></span><span>🏆 <span id="best-0">--:--</span></span></div>
-      </div>
+        
+</div>
 
       <div class="phrase-section">
         <h3>🗣️ Eigene Meinung äußern</h3>
@@ -425,7 +462,7 @@
         <div class="btn-group">
           <button class="btn btn-reset" onclick="resetGaps()">↺ Zurücksetzen</button>
         </div>
-        <div class="timer-box" id="timer1">⏱ 00:00</div>
+        <div class="timer-box" id="timer-1">⏱ 00:00</div><div class="timer-box-best" id="best-1">--:--</div>
       </div>
       <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Ergänzen Sie die fehlenden Wörter. Sie erhalten sofort Rückmeldung.</p>
       <ol class="gap-list">
@@ -455,7 +492,7 @@
         <div class="btn-group">
           <button class="btn btn-reset" onclick="resetSatzbau()">↺ Zurücksetzen</button>
         </div>
-        <div class="timer-box" id="timer2">⏱ 00:00</div>
+        <div class="timer-box" id="timer-2">⏱ 00:00</div><div class="timer-box-best" id="best-2">--:--</div>
       </div>
       <p style="margin-bottom:20px; color:#555; font-size:0.9rem;">Ziehen Sie die Chips in die richtige Reihenfolge. Satzzeichen gehören ebenfalls in die Lösung.</p>
       <div id="sb-container"></div>
@@ -472,7 +509,7 @@
         <div class="btn-group">
           <button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
         </div>
-        <div class="timer-box" id="timer3">⏱ 00:00</div>
+        <div class="timer-box" id="timer-3">⏱ 00:00</div><div class="timer-box-best" id="best-3">--:--</div>
       </div>
       <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Tippen Sie das deutsche Wort (mit Artikel wenn nötig). Grün = richtig.</p>
       <div class="vocab-grid" id="vocab-grid"></div>
@@ -482,264 +519,6 @@
   <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
 </div>
 
-<script>
-// ─── Tab Navigation ───────────────────────────────────────────────────────────
-const sections = document.querySelectorAll('.section');
-const navBtns  = document.querySelectorAll('nav button');
-let timers = [null, null, null, null];
-let seconds = [0, 0, 0, 0];
-let activeTab = 0;
 
-function showTab(i) {
-  sections.forEach((s, j) => s.classList.toggle('active', i === j));
-  navBtns.forEach((b, j) => b.classList.toggle('active', i === j));
-  activeTab = i;
-  if (!timers[i]) startTimer(i);
-}
-
-function startTimer(i) {
-  timers[i] = setInterval(() => {
-    seconds[i]++;
-    const m = String(Math.floor(seconds[i] / 60)).padStart(2,'0');
-    const s = String(seconds[i] % 60).padStart(2,'0');
-    const el = document.getElementById('timer' + i);
-    if (el) el.textContent = `⏱ ${m}:${s}`;
-  }, 1000);
-}
-timerAutoStart(0);
-
-// ─── Lückentext ───────────────────────────────────────────────────────────────
-function normalize(s) {
-  return s.trim().toLowerCase()
-    .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
-}
-function checkGap(inp) {
-  const ans = inp.dataset.answer;
-  const val = inp.value;
-  if (!val) { inp.className = 'gap'; return; }
-  if (normalize(val) === normalize(ans)) {
-    inp.className = 'gap correct';
-    inp.value = ans;
-  } else {
-    inp.className = 'gap wrong';
-  }
-}
-function resetGaps() {
-  document.querySelectorAll('input.gap').forEach(i => { i.value = ''; i.className = 'gap'; });
-}
-
-// ─── Satzbau ─────────────────────────────────────────────────────────────────
-const sentences = [
-  ["Aus", "persönlicher", "Erfahrung", "heraus", "kann", "ich", "sagen", ",", "dass", "Zen-Meditation", "sehr", "heilsam", "ist", "."],
-  ["Ehrlich", "gesagt", ",", "bin", "ich", "davon", "überzeugt", ",", "dass", "man", "Überzeugungen", "anderer", "respektieren", "sollte", "."],
-  ["Ich", "glaube", ",", "dass", "du", "da", "falsch", "liegst", "—", "Zen", "ist", "keine", "Religion", "im", "traditionellen", "Sinne", "."],
-  ["Deiner", "Meinung", "kann", "ich", "leider", "nicht", "zustimmen", ",", "weil", "ich", "andere", "Erfahrungen", "gemacht", "habe", "."],
-  ["Ich", "denke", ",", "man", "darf", "da", "nicht", "voreilig", "urteilen", ",", "ohne", "die", "Philosophie", "wirklich", "zu", "kennen", "."],
-  ["In", "meinem", "Umfeld", "ist", "mir", "so", "etwas", "noch", "nie", "passiert", "—", "das", "ist", "sehr", "ungewöhnlich", "."],
-  ["Ich", "glaube", ",", "das", "muss", "man", "anders", "sehen", "—", "Zen", "ist", "keine", "Flucht", ",", "sondern", "eine", "Praxis", "."]
-];
-
-let sbDragged = null;
-
-function fisher_yates(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function buildSatzbau() {
-  const container = document.getElementById('sb-container');
-  container.innerHTML = '';
-  sentences.forEach((words, idx) => {
-    const div = document.createElement('div');
-    div.className = 'sb-exercise';
-    div.innerHTML = `<div class="sb-sentence-nr">${idx+1}.</div>`;
-
-    const pool = document.createElement('div');
-    pool.className = 'chip-pool';
-    pool.dataset.idx = idx;
-
-    const zone = document.createElement('div');
-    zone.className = 'drop-zone';
-    zone.dataset.idx = idx;
-
-    const result = document.createElement('div');
-    result.className = 'sb-result';
-
-    const shuffled = fisher_yates([...words]);
-    shuffled.forEach(w => {
-      const chip = createChip(w, idx);
-      pool.appendChild(chip);
-    });
-
-    setupDropZone(pool, idx, result, words);
-    setupDropZone(zone, idx, result, words);
-
-    div.appendChild(pool);
-    div.appendChild(zone);
-    div.appendChild(result);
-    container.appendChild(div);
-  });
-}
-
-function createChip(word, idx) {
-  const chip = document.createElement('div');
-  const isPunct = /^[.,!?;:\-—]$/.test(word);
-  chip.className = isPunct ? 'chip punct' : 'chip';
-  chip.textContent = word;
-  chip.draggable = true;
-  chip.addEventListener('dragstart', e => {
-    sbDragged = chip;
-    e.dataTransfer.effectAllowed = 'move';
-  });
-  chip.addEventListener('click', () => {
-    const pool = document.querySelector(`.chip-pool[data-idx="${idx}"]`);
-    const zone = document.querySelector(`.drop-zone[data-idx="${idx}"]`);
-    const result = zone.nextElementSibling;
-    if (chip.parentNode === pool) {
-      zone.appendChild(chip);
-    } else {
-      pool.appendChild(chip);
-    }
-    checkSatzbau(zone, sentences[idx], result);
-  });
-  return chip;
-}
-
-function setupDropZone(zone, idx, result, correct) {
-  zone.addEventListener('dragover', e => {
-    e.preventDefault();
-    zone.classList.add('drag-over');
-  });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
-    if (sbDragged) {
-      zone.appendChild(sbDragged);
-      sbDragged = null;
-      const dropZone = document.querySelector(`.drop-zone[data-idx="${idx}"]`);
-      checkSatzbau(dropZone, correct, result);
-    }
-  });
-}
-
-function checkSatzbau(zone, correct, result) {
-  const chips = [...zone.children].map(c => c.textContent);
-  if (chips.length === 0) { result.textContent = ''; return; }
-  if (JSON.stringify(chips) === JSON.stringify(correct)) {
-    result.className = 'sb-result ok';
-    result.textContent = '✓ Richtig!';
-  } else {
-    result.className = 'sb-result err';
-    result.textContent = '';
-  }
-}
-
-function resetSatzbau() { buildSatzbau(); }
-buildSatzbau();
-
-// ─── Wortschatz ──────────────────────────────────────────────────────────────
-const vocab = [
-  { de: "die Erfahrung", en: "experience", type: "n", plural: "-en", example: "Aus persönlicher Erfahrung weiß ich, dass Meditation hilft.", img: "3807571" },
-  { de: "überzeugt", en: "convinced", type: "adj", plural: "", example: "Er ist fest davon überzeugt, dass er richtig liegt.", img: "3184296" },
-  { de: "die Meinung", en: "opinion", type: "n", plural: "-en", example: "Ihrer Meinung kann ich leider nicht zustimmen.", img: "3184338" },
-  { de: "zustimmen", en: "to agree", type: "v", plural: "", example: "Kannst du dieser Einschätzung zustimmen?", img: "1181671" },
-  { de: "bezweifeln", en: "to doubt", type: "v", plural: "", example: "Ich bezweifle, dass das so einfach zu lösen ist.", img: "2582937" },
-  { de: "voreilig", en: "premature / rash", type: "adj", plural: "", example: "Man sollte nicht voreilig urteilen, bevor man alle Fakten kennt.", img: "5208926" },
-  { de: "das Umfeld", en: "environment / surroundings", type: "n", plural: "-er", example: "In meinem Umfeld gibt es viele verschiedene Meinungen.", img: "1267338" },
-  { de: "die Überzeugung", en: "conviction / belief", type: "n", plural: "-en", example: "Sie hält fest an ihrer Überzeugung.", img: "3184360" },
-  { de: "widersprechen", en: "to contradict", type: "v", plural: "", example: "Er widerspricht ihr in diesem Punkt sehr deutlich.", img: "3184291" },
-  { de: "die Ansicht", en: "view / opinion", type: "n", plural: "-en", example: "Verschiedene Ansichten führen zu einem besseren Verständnis.", img: "1181244" },
-  { de: "urteilen", en: "to judge", type: "v", plural: "", example: "Man sollte nicht zu schnell und nicht voreilig urteilen.", img: "3807517" },
-  { de: "das Argument", en: "argument", type: "n", plural: "-e", example: "Das ist ein starkes Argument für diese Position.", img: "3183197" }
-];
-
-function buildVocab() {
-  const grid = document.getElementById('vocab-grid');
-  grid.innerHTML = '';
-  vocab.forEach((w, i) => {
-    const card = document.createElement('div');
-    card.className = 'vocab-card';
-    const imgUrl = `https://images.pexels.com/photos/${w.img}/pexels-photo-${w.img}.jpeg?auto=compress&cs=tinysrgb&w=400`;
-    let inputsHtml = '';
-    if (w.type === 'n') {
-      inputsHtml = `
-        <input placeholder="" data-answer="${w.de.split(' ')[0]}" oninput="checkVocab(this)" title="Artikel">
-        <input placeholder="" data-answer="${w.de.split(' ').slice(1).join(' ')}" oninput="checkVocab(this)" title="Nomen" style="flex:2">
-        <input placeholder="" data-answer="${w.plural}" oninput="checkVocab(this)" title="Plural">
-      `;
-    } else {
-      inputsHtml = `<input placeholder="" data-answer="${w.de}" oninput="checkVocab(this)" title="Deutsch">`;
-    }
-    card.innerHTML = `
-      <img class="vocab-img" src="${imgUrl}" alt="${w.en}" onerror="this.style.display='none'">
-      <div class="vocab-body">
-        <div class="vocab-en">${w.en}</div>
-        <div class="vocab-example">${w.example}</div>
-        <div class="vocab-inputs">${inputsHtml}</div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-function checkVocab(inp) {
-  const ans = inp.dataset.answer;
-  const val = inp.value;
-  if (!val) { inp.className = ''; return; }
-  if (normalize(val) === normalize(ans)) {
-    inp.className = 'correct';
-    inp.value = ans;
-  } else {
-    inp.className = 'wrong';
-  }
-}
-function resetVocab() {
-  document.querySelectorAll('.vocab-inputs input').forEach(i => { i.value = ''; i.className = ''; });
-}
-buildVocab();
-var TIMER_PREFIX='B2_1068S_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [0].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-</script>
 </body>
 </html>

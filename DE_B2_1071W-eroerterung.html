@@ -24,8 +24,7 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 24px 30px 16px;
-  text-align: center;
-}
+  }
   header h1 { font-size: 1.6rem; margin-bottom: 4px; }
   header p { opacity: 0.85; font-size: 0.95rem; }
   nav {
@@ -321,10 +320,48 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-
-  .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-  .chip.wrong   { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
 </style>
+<script>
+var TIMER_PREFIX='B2_1071W_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [0,1,2].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
 </head>
 <body>
 <div class="container">
@@ -332,17 +369,17 @@
     <h1>Eine Erörterung schreiben</h1>
     <p>B2 · Lektion 1071W · Struktur, Argumente und Sprache</p>
   </header>
-  <nav class="nav">
+  <div class="nav">
     <button class="active" onclick="showTab(0)">
       <span class="nav-emoji">📋</span><span class="nav-label">Struktur</span>
-    </button>
+    </div>
     <button onclick="showTab(1)">
       <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
-    </button>
+    </div>
     <button onclick="showTab(2)">
       <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- TAB 0: Struktur -->
   <div class="section active" id="sec0">
@@ -352,8 +389,8 @@
     <div class="sec-inner">
       <div class="control-bar">
         <div class="btn-group"></div>
-        <div class="timer-display"><span>⏱ <span id="timer-0">0:00</span></span><span>🏆 <span id="best-0">--:--</span></span></div>
-      </div>
+        
+</div>
 
       <div class="theory-box">
         <h3>📝 Was ist eine Erörterung?</h3>
@@ -462,7 +499,7 @@
         <div class="btn-group">
           <button class="btn btn-reset" onclick="resetGaps()">↺ Zurücksetzen</button>
         </div>
-        <div class="timer-box" id="timer1">⏱ 00:00</div>
+        <div class="timer-box" id="timer-1">⏱ 00:00</div><div class="timer-box-best" id="best-1">--:--</div>
       </div>
       <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Ergänzen Sie die fehlenden Wörter. Sie erhalten sofort Rückmeldung.</p>
       <ol class="gap-list">
@@ -492,7 +529,7 @@
         <div class="btn-group">
           <button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
         </div>
-        <div class="timer-box" id="timer2">⏱ 00:00</div>
+        <div class="timer-box" id="timer-2">⏱ 00:00</div><div class="timer-box-best" id="best-2">--:--</div>
       </div>
       <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Tippen Sie das deutsche Wort (mit Artikel wenn nötig). Grün = richtig.</p>
       <div class="vocab-grid" id="vocab-grid"></div>
@@ -502,151 +539,6 @@
   <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
 </div>
 
-<script>
-// ─── Tab Navigation ───────────────────────────────────────────────────────────
-const sections = document.querySelectorAll('.section');
-const navBtns  = document.querySelectorAll('nav button');
-let timers = [null, null, null];
-let seconds = [0, 0, 0];
-let activeTab = 0;
 
-function showTab(i) {
-  sections.forEach((s, j) => s.classList.toggle('active', i === j));
-  navBtns.forEach((b, j) => b.classList.toggle('active', i === j));
-  activeTab = i;
-  if (!timers[i]) startTimer(i);
-}
-
-function startTimer(i) {
-  timers[i] = setInterval(() => {
-    seconds[i]++;
-    const m = String(Math.floor(seconds[i] / 60)).padStart(2,'0');
-    const s = String(seconds[i] % 60).padStart(2,'0');
-    const el = document.getElementById('timer' + i);
-    if (el) el.textContent = `⏱ ${m}:${s}`;
-  }, 1000);
-}
-timerAutoStart(0);
-
-// ─── Lückentext ───────────────────────────────────────────────────────────────
-function normalize(s) {
-  return s.trim().toLowerCase()
-    .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
-}
-function checkGap(inp) {
-  const ans = inp.dataset.answer;
-  const val = inp.value;
-  if (!val) { inp.className = 'gap'; return; }
-  if (normalize(val) === normalize(ans)) {
-    inp.className = 'gap correct';
-    inp.value = ans;
-  } else {
-    inp.className = 'gap wrong';
-  }
-}
-function resetGaps() {
-  document.querySelectorAll('input.gap').forEach(i => { i.value = ''; i.className = 'gap'; });
-}
-
-// ─── Wortschatz ──────────────────────────────────────────────────────────────
-const vocab = [
-  { de: "der Käfig", en: "cage", type: "n", plural: "-e", example: "Das Tier sitzt den ganzen Tag im Käfig — das ist kein artgerechtes Leben.", img: "162140" },
-  { de: "die Tierhaltung", en: "keeping of animals", type: "n", plural: "nur Sg.", example: "Die artgerechte Tierhaltung ist im Tierschutzgesetz geregelt.", img: "2835486" },
-  { de: "artgerecht", en: "species-appropriate", type: "adj", plural: "", example: "Artgerechte Haltung bedeutet, die natürlichen Bedürfnisse zu erfüllen.", img: "1108099" },
-  { de: "einsperren", en: "to lock up / imprison", type: "v", plural: "", example: "Dürfen wir wilde Tiere dauerhaft einsperren?", img: "1661179" },
-  { de: "der Lebensraum", en: "habitat / living space", type: "n", plural: "¨-e", example: "Der natürliche Lebensraum der Elefanten ist die afrikanische Savanne.", img: "1054655" },
-  { de: "moralisch", en: "moral / ethical", type: "adj", plural: "", example: "Ist es moralisch vertretbar, Tiere für unsere Zwecke zu halten?", img: "3184296" },
-  { de: "rechtfertigen", en: "to justify", type: "v", plural: "", example: "Wie lässt sich die Haltung wilder Tiere im Zoo rechtfertigen?", img: "3183197" },
-  { de: "das Privileg", en: "privilege", type: "n", plural: "-ien", example: "Es ist ein Privileg des Menschen, über andere Arten zu entscheiden.", img: "1181671" },
-  { de: "die Ethik", en: "ethics", type: "n", plural: "nur Sg.", example: "Die Ethik fragt, was richtig und falsch ist.", img: "1550337" },
-  { de: "die Spezies", en: "species", type: "n", plural: "Spezies", example: "Viele Spezies sind vom Aussterben bedroht.", img: "1108099" },
-  { de: "sich vermehren", en: "to reproduce", type: "v", plural: "", example: "In Zoos können bedrohte Tiere sich sicher vermehren.", img: "2835486" },
-  { de: "die Misshandlung", en: "maltreatment / abuse", type: "n", plural: "-en", example: "Jede Misshandlung von Tieren ist gesetzlich verboten.", img: "3807571" }
-];
-
-function buildVocab() {
-  const grid = document.getElementById('vocab-grid');
-  grid.innerHTML = '';
-  vocab.forEach((w, i) => {
-    const card = document.createElement('div');
-    card.className = 'vocab-card';
-    const imgUrl = `https://images.pexels.com/photos/${w.img}/pexels-photo-${w.img}.jpeg?auto=compress&cs=tinysrgb&w=400`;
-    let inputsHtml = '';
-    if (w.type === 'n') {
-      inputsHtml = `
-        <input placeholder="" data-answer="${w.de.split(' ')[0]}" oninput="checkVocab(this)" title="Artikel">
-        <input placeholder="" data-answer="${w.de.split(' ').slice(1).join(' ')}" oninput="checkVocab(this)" title="Nomen" style="flex:2">
-        <input placeholder="" data-answer="${w.plural}" oninput="checkVocab(this)" title="Plural">
-      `;
-    } else {
-      inputsHtml = `<input placeholder="" data-answer="${w.de}" oninput="checkVocab(this)" title="Deutsch">`;
-    }
-    card.innerHTML = `
-      <img class="vocab-img" src="${imgUrl}" alt="${w.en}" onerror="this.style.display='none'">
-      <div class="vocab-body">
-        <div class="vocab-en">${w.en}</div>
-        <div class="vocab-example">${w.example}</div>
-        <div class="vocab-inputs">${inputsHtml}</div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-function checkVocab(inp) {
-  const ans = inp.dataset.answer;
-  const val = inp.value;
-  if (!val) { inp.className = ''; return; }
-  if (normalize(val) === normalize(ans)) {
-    inp.className = 'correct';
-    inp.value = ans;
-  } else {
-    inp.className = 'wrong';
-  }
-}
-function resetVocab() {
-  document.querySelectorAll('.vocab-inputs input').forEach(i => { i.value = ''; i.className = ''; });
-}
-buildVocab();
-var TIMER_PREFIX='B2_1071W_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [0].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-</script>
 </body>
 </html>

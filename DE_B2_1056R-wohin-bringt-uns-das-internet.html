@@ -24,8 +24,7 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 24px 30px;
-  text-align: center;
-}
+  }
   .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
   .header p { font-size: 0.9rem; opacity: 0.85; }
   .nav {
@@ -332,9 +331,6 @@ body { padding: 20px; }
 .lese-text  { max-width: 600px; margin: 0 auto; }
 .rf-list    { max-width: 650px; margin: 0 auto; }
 /* ──────────────────────────────────────────────────────── */
-
-  .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-  .chip.wrong   { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
 </style>
 </head>
 <body>
@@ -345,28 +341,28 @@ body { padding: 20px; }
     <p>B2 · Einheit 5 · Lektion 1056 · Lesen</p>
   </div>
 
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Vorentlastung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
       <span class="nav-emoji">📖</span>
       <span class="nav-label">Lesetext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
       <span class="nav-emoji">✏️</span>
       <span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
       <span class="nav-emoji">🔘</span>
       <span class="nav-label">Richtig/Falsch</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(4)">
+    </div>
+    <div class="nav-btn" onclick="showTab(4)">
       <span class="nav-emoji">🔀</span>
       <span class="nav-label">Satzbau</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- TAB 0: VORENTLASTUNG -->
   <div class="tab-content active" id="tab-0">
@@ -467,8 +463,8 @@ body { padding: 20px; }
       <div class="btn-group">
         <button class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-display"><span>⏱ <span id="timer-2">0:00</span></span><span>🏆 <span id="best-2">--:--</span></span></div>
-    </div>
+      
+</div>
 
     <div class="luecke-text">
       <p>1. &nbsp;Der <input class="gap-input" data-answer="einfluss" oninput="liveCheck(this)" placeholder=""> der Medien auf unser Leben nimmt ständig zu.</p>
@@ -495,8 +491,8 @@ body { padding: 20px; }
       <div class="btn-group">
         <button class="btn btn-reset" onclick="resetRF()">↺ Zurücksetzen</button>
       </div>
-      <div class="timer-display" id="timer3-display">⏱ 00:00</div>
-    </div>
+      
+</div>
 
     <ul class="rf-list">
       <li class="rf-item">
@@ -553,8 +549,8 @@ body { padding: 20px; }
       <div class="btn-group">
         <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
       </div>
-      <div class="timer-display" id="timer4-display">⏱ 00:00</div>
-    </div>
+      
+</div>
 
     <div class="sb-sentences" id="sb-container"></div>
     <div id="sb-score-row">Richtig: <span id="sb-score">0</span> / 7</div>
@@ -605,15 +601,11 @@ function timerResetOne(n){
 }
 function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
 document.addEventListener('DOMContentLoaded',function(){
-  [2].forEach(function(n){
+  [2,3,4].forEach(function(n){
     var b=localStorage.getItem(TIMER_PREFIX+n);
     if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
 });
-
-function fmtTime(s) {
-  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-}
 
 function updateTimerDisplay(n, done=false) {
   const el = document.getElementById('timer'+n+'-display');
@@ -662,7 +654,7 @@ function resetLuecke() {
     i.value = '';
     i.classList.remove('correct','wrong');
   });
-  timerReset(2);
+  timerResetOne(2);
   lueckeStarted = false;
   updateLueckeScore();
 }
@@ -702,7 +694,7 @@ function resetRF() {
       b.classList.remove('correct','wrong');
     });
   });
-  timerReset(3);
+  timerResetOne(3);
 }
 
 // ─── SATZBAU ──────────────────────────────────────────────────────
@@ -793,7 +785,6 @@ function buildSb() {
     item.appendChild(feedback);
     container.appendChild(item);
   });
-}
 
 function checkSb(idx) {
   const zone = document.querySelector('.sb-drop-zone[data-idx="'+idx+'"]');
@@ -824,7 +815,7 @@ function updateSbScore() {
 function resetAllSb() {
   sbScore = 0; sbStarted = false;
   document.getElementById('sb-score').textContent = '0';
-  timerReset(4);
+  timerResetOne(4);
   buildSb();
 }
 
@@ -835,9 +826,7 @@ updateTimerDisplay(3);
 updateTimerDisplay(4);
 timerAutoStart(2);
 
-function timerAutoStart(n) {
-  timerStart(n);
-}
-</script>
+
+}</script>
 </body>
 </html>
