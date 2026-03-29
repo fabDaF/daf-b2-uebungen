@@ -277,14 +277,6 @@ table.grammar-table tr:nth-child(even) td { background: #f9f9f9; }
 .gap-inp:focus { border-color: #667eea; }
 .gap-inp.correct { border-color: #27ae60; color: #27ae60; }
 .gap-inp.wrong { border-color: #e74c3c; color: #e74c3c; }
-
-/* Satzbau */
-.sb-sentence {
-  margin-bottom: 24px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  padding: 14px;
-}
 .sb-label { font-size: .8rem; color: #888; margin-bottom: 8px; }
 .sb-drop-zone {
   min-height: 44px;
@@ -300,24 +292,6 @@ table.grammar-table tr:nth-child(even) td { background: #f9f9f9; }
 }
 .sb-drop-zone.drag-over { border-color: #667eea; background: #f0eeff; }
 .sb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.sb-chip {
-  padding: 6px 12px;
-  background: #667eea;
-  color: #fff;
-  border-radius: 6px;
-  cursor: grab;
-  font-size: .88rem;
-  font-weight: 600;
-  user-select: none;
-  transition: opacity .2s;
-}
-.sb-chip.punct { background: #764ba2; min-width: 28px; text-align: center; }
-.sb-chip.correct-chip { background: #27ae60; }
-.sb-chip.wrong-chip { background: #e74c3c; }
-.sb-chip:active { opacity: .7; cursor: grabbing; }
-.sb-feedback { font-size: .85rem; font-weight: 700; min-height: 1.2em; }
-.sb-feedback.ok { color: #27ae60; }
-.sb-feedback.err { color: #e74c3c; }
 
 /* Verben */
 .verb-grid {
@@ -436,12 +410,22 @@ footer {
     .nav-btn:last-child { border-right: 1px solid #ddd; }
     .tab-banner { max-height: 120px; }
 }
-/* ──────────────────────────────────────────────────────────── */
-
-/* Satzbau chip coloring */
-.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
+/* ──────────────────────────────────────────────────────────── */.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
 .chip.wrong   { background: #e74c3c !important; border-color: #e74c3c !important; color: white !important; }
-</style>
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }</style>
 </head>
 <body>
 <div class="container">
@@ -473,7 +457,7 @@ footer {
   </div>
 
   <!-- Tab 0: Entdecken -->
-  <div class="section active" id="sec-0">
+  <div class="tab active" id="sec-0">
     <div class="entdecken-box">
       <span class="highlight-pz2">Gefährdete</span> Tiere gibt es überall auf dieser Welt.
       In 1000 Jahren wird es viele <span class="highlight-pz1">geliebte</span> Tierarten nicht mehr geben.
@@ -512,7 +496,7 @@ footer {
   </div>
 
   <!-- Tab 1: Regel -->
-  <div class="section" id="sec-1">
+  <div class="tab" id="sec-1">
     <div class="regel-section">
       <h2>Partizipien — Überblick</h2>
       <div class="regel-box">
@@ -625,13 +609,8 @@ footer {
   </div>
 
   <!-- Tab 2: Lückentext -->
-  <div class="section" id="sec-2">
-    <div class="control-bar">
-      <div class="buttons">
-        <button class="btn btn-secondary" onclick="resetGaps()">🔄 Zurücksetzen</button>
-        <button class="btn btn-primary" onclick="showAnswers()">💡 Lösungen</button>
-      </div>
-      <div class="timer-display" id="timer-2">⏱ 00:00 | 🏆 –<span>🏆 <span id="best-2">--:--</span></span></div>
+  <div class="tab" id="sec-2">
+    <div class="timer-display" id="timer-2">⏱ 00:00 | 🏆 –<span>🏆 <span id="best-2">--:--</span></span></div>
     </div>
     <div class="score-area" id="gapScore">0 / 12</div>
 
@@ -645,24 +624,16 @@ footer {
   </div>
 
   <!-- Tab 3: Satzbau -->
-  <div class="section" id="sec-3">
-    <div class="control-bar">
-      <div class="buttons">
-        <button class="btn btn-secondary" onclick="resetAllSb()">🔄 Alle zurücksetzen</button>
-      </div>
-      <div class="timer-display" id="timer-3">⏱ 00:00 | 🏆 –<span>🏆 <span id="best-3">--:--</span></span></div>
+  <div class="tab" id="sec-3">
+    <div class="timer-display" id="timer-3">⏱ 00:00 | 🏆 –<span>🏆 <span id="best-3">--:--</span></span></div>
     </div>
-    <div id="sbContainer"></div>
+    <div id="satzbauContainer"></div>
     <div class="best-times" id="best-3"></div>
   </div>
 
   <!-- Tab 4: Verben -->
-  <div class="section" id="sec-4">
-    <div class="control-bar">
-      <div class="buttons">
-        <button class="btn btn-secondary" onclick="resetVerben()">🔄 Zurücksetzen</button>
-      </div>
-      <div class="timer-display" id="timer-4">⏱ 00:00 | 🏆 –<span>🏆 <span id="best-4">--:--</span></span></div>
+  <div class="tab" id="sec-4">
+    <div class="timer-display" id="timer-4">⏱ 00:00 | 🏆 –<span>🏆 <span id="best-4">--:--</span></span></div>
     </div>
     <div class="score-area" id="verbScore">0 / 12</div>
     <div class="verb-grid" id="verbContainer"></div>
@@ -817,130 +788,166 @@ buildGaps();
 // ── Satzbau ─────────────────────────────────────────────────────
 let sbDragged = null;
 
-const satzbauData = [
-  {
-    id:1, hint:'Partizip I als Adjektiv',
-    parts:['Die spielenden', 'Kinder', 'sind', 'sehr glücklich', '.'],
-    valid:['Die spielenden', 'Kinder', 'sind', 'sehr glücklich', '.']
-  },
-  {
-    id:2, hint:'Partizip II als Adjektiv',
-    parts:['Das geöffnete', 'Fenster', 'wurde', 'vom Wind', 'zerschlagen', '.'],
-    valid:['Das geöffnete', 'Fenster', 'wurde', 'vom Wind', 'zerschlagen', '.']
-  },
-  {
-    id:3, hint:'Partizip I neben Verb',
-    parts:['Er steht', 'wartend', 'vor mir', 'und schaut', 'zur Uhr', '.'],
-    valid:['Er steht', 'wartend', 'vor mir', 'und schaut', 'zur Uhr', '.']
-  },
-  {
-    id:4, hint:'Partizip II als Nomen',
-    parts:['Der Verletzte', 'wurde', 'sofort', 'ins Krankenhaus', 'eingewiesen', '.'],
-    valid:['Der Verletzte', 'wurde', 'sofort', 'ins Krankenhaus', 'eingewiesen', '.']
-  },
-  {
-    id:5, hint:'Partizip I neben Substantiv',
-    parts:['Die kochende', 'Suppe', 'steht', 'auf dem Herd', '.'],
-    valid:['Die kochende', 'Suppe', 'steht', 'auf dem Herd', '.']
-  },
-  {
-    id:6, hint:'Partizip II im Perfekt',
-    parts:['ich', 'bin', 'nach Paris', 'geflogen', 'und', 'habe', 'viel', 'erlebt', '.'],
-    valid:['Ich', 'bin', 'nach Paris', 'geflogen', 'und', 'habe', 'viel', 'erlebt', '.']
-  },
-  {
-    id:7, hint:'Partizip II als Nomen (Plural)',
-    parts:['Verheiratete', 'sind', 'laut Statistik', 'glücklicher', 'als Ledige', '.'],
-    valid:['Verheiratete', 'sind', 'laut Statistik', 'glücklicher', 'als Ledige', '.']
-  },
+
+/* ── SATZBAU ── */
+var satzbauData = [
+  { parts: ['das', 'singende', 'Kind', 'sitzt', 'auf', 'der', 'Bank', ',', 'während', 'seine', 'Mutter', 'wartet'],
+    valid: [['das', 'singende', 'Kind', 'sitzt', 'auf', 'der', 'Bank', ',', 'während', 'seine', 'Mutter', 'wartet']], punct: '.' },
+  { parts: ['der', 'gebrochene', 'Stuhl', 'wird', 'repariert', ',', 'bevor', 'die', 'Gäste', 'kommen'],
+    valid: [['der', 'gebrochene', 'Stuhl', 'wird', 'repariert', ',', 'bevor', 'die', 'Gäste', 'kommen']], punct: '.' },
+  { parts: ['der', 'bellende', 'Hund', 'erschreckte', 'die', 'Passanten', ',', 'obwohl', 'er', 'nicht', 'gefährlich', 'war'],
+    valid: [['der', 'bellende', 'Hund', 'erschreckte', 'die', 'Passanten', ',', 'obwohl', 'er', 'nicht', 'gefährlich', 'war']], punct: '.' },
+  { parts: ['das', 'fertiggestellte', 'Projekt', 'wird', 'präsentiert', ',', 'sobald', 'alle', 'anwesend', 'sind'],
+    valid: [['das', 'fertiggestellte', 'Projekt', 'wird', 'präsentiert', ',', 'sobald', 'alle', 'anwesend', 'sind']], punct: '.' },
+  { parts: ['die', 'lächelnde', 'Lehrerin', 'half', 'den', 'Schülern', ',', 'indem', 'sie', 'alles', 'erklärte'],
+    valid: [['die', 'lächelnde', 'Lehrerin', 'half', 'den', 'Schülern', ',', 'indem', 'sie', 'alles', 'erklärte']], punct: '.' },
+  { parts: ['der', 'gewonnene', 'Preis', 'wurde', 'gefeiert', ',', 'weil', 'alle', 'hart', 'gearbeitet', 'hatten'],
+    valid: [['der', 'gewonnene', 'Preis', 'wurde', 'gefeiert', ',', 'weil', 'alle', 'hart', 'gearbeitet', 'hatten']], punct: '.' },
+  { parts: ['das', 'beendete', 'Gespräch', 'hinterließ', 'einen', 'guten', 'Eindruck', ',', 'obwohl', 'es', 'kurz', 'war'],
+    valid: [['das', 'beendete', 'Gespräch', 'hinterließ', 'einen', 'guten', 'Eindruck', ',', 'obwohl', 'es', 'kurz', 'war']], punct: '.' },
 ];
-
-function buildSb() {
-  const c = document.getElementById('sbContainer');
-  c.innerHTML = '';
-  satzbauData.forEach(s => {
-    const shuffled = fisherYates([...s.parts]);
-    const div = document.createElement('div');
-    div.className = 'sb-sentence';
-    div.dataset.id = s.id;
-    div.innerHTML = `
-      <div class="sb-label"><em>${s.hint}</em></div>
-      <div class="sb-drop-zone" ondragover="dzOver(event)" ondrop="dzDrop(event,${s.id})" ondragleave="dzLeave(event)"></div>
-      <div class="sb-chips" id="chips${s.id}"></div>
-      <div class="sb-feedback" id="fb${s.id}"></div>
-    `;
-    c.appendChild(div);
-    const chipsEl = div.querySelector('.sb-chips');
-    shuffled.forEach(p => chipsEl.appendChild(makeChip(p, s.id)));
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
+  return null;
+}
+function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+function sbUpdateCapitalization(row){
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
   });
 }
-function fisherYates(arr) {
-  for (let i = arr.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
+function sbMakeChip(word){
+  var chip=document.createElement('div');
+  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(3);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){ chip.style.opacity='0.4'; },0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity=''; sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');
+    if(c&&c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=getSbCursor();
+    var before=getSbInsertPos(zone,e.clientX);
+    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){
+      var c=document.getElementById('sb-insert-cursor');
+      if(c&&c.parentNode===zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
+    else zone.appendChild(sbDragged);
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);
+    sbUpdateCapitalization(row); sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){ return c.dataset.orig; });
+  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
+  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
   }
-  return arr;
+  setTimeout(function(){
+    var ok=sbColorRow(idx);
+    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
+    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
+  },500);
 }
-function makeChip(text, sid) {
-  const span = document.createElement('span');
-  span.className = 'sb-chip' + (text==='.' || text===',' ? ' punct' : '');
-  span.textContent = text;
-  span.draggable = true;
-  span.dataset.sid = sid;
-  span.addEventListener('dragstart', e => { sbDragged = span; e.dataTransfer.effectAllowed = 'move'; });
-  span.addEventListener('dragend', () => { sbDragged = null; });
-  span.addEventListener('click', () => {
-    const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
-    const pool = document.getElementById('chips' + sid);
-    if (span.parentElement === pool) zone.appendChild(span);
-    else pool.appendChild(span);
-    checkSb(sid);
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
+  if(allOk) timerStop(3);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx); var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
+  fb.textContent=''; setTimeout(function(){ sbCheckAuto(idx); },100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');
+  if(!container) return;
+  container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div'); item.className='satzbau-item';
+    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
+    bank.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      timerAutoStart(3); row.appendChild(chip); chip.classList.remove('correct','incorrect');
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    row.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
+      chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
+    solveBtn.setAttribute('data-idx',idx);
+    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
+    resetBtn.setAttribute('data-idx',idx);
+    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    container.appendChild(item);
   });
-  return span;
 }
-function dzOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
-function dzLeave(e) { e.currentTarget.classList.remove('drag-over'); }
-function dzDrop(e, sid) {
-  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-  if (sbDragged && parseInt(sbDragged.dataset.sid) === sid) {
-    e.currentTarget.appendChild(sbDragged); checkSb(sid);
-  }
-}
-function checkSb(sid) {
-  const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
-  const fb = document.getElementById('fb' + sid);
-  const chips = [...zone.children].map(c => c.textContent);
-  const data = satzbauData.find(s => s.id === sid);
-    [...zone.children].forEach(function(c,i){c.classList.remove('correct','wrong');if(data&&data.valid&&data.valid[i]!==undefined)c.classList.add(c.textContent===data.valid[i]?'correct':'wrong');});
-  if (chips.length < data.valid.length) { fb.textContent = ''; return; }
-  const correct = chips.join(' ') === data.valid.join(' ');
-  fb.className = 'sb-feedback ' + (correct ? 'ok' : 'err');
-  fb.textContent = correct ? '✓ Richtig!' : '✗ Noch nicht richtig.';
-  [...zone.children].forEach(c => {
-    c.classList.remove('correct-chip','wrong-chip');
-    c.classList.add(correct ? 'correct-chip' : 'wrong-chip');
-  });
-  if (allSbDone()) timerStop(3);
-}
-function allSbDone() {
-  return satzbauData.every(s => {
-    const fb = document.getElementById('fb' + s.id);
-    return fb && fb.classList.contains('ok');
-  });
-}
-function resetSb(sid) {
-  const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
-  const pool = document.getElementById('chips' + sid);
-  const fb = document.getElementById('fb' + sid);
-  [...zone.children].forEach(c => { c.classList.remove('correct-chip','wrong-chip'); pool.appendChild(c); });
-  fb.textContent = ''; fb.className = 'sb-feedback';
-}
-function resetAllSb() {
-  satzbauData.forEach(s => resetSb(s.id));
-  timerResetOne(3); timerAutoStart(3);
-}
-buildSb();
-
+initSatzbau();
 // ── Verben ──────────────────────────────────────────────────────
 const verbData = [
   // Partizip I (6 cards)
