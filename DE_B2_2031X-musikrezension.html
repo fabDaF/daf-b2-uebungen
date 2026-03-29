@@ -162,19 +162,6 @@
     .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
     .chip.comma-chip { padding: 8px 8px; min-width: 24px; font-weight: 700; font-size: 1.1em; }
 
-    .drop-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 44px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 2px dashed #c5cae9;
-      background: #fafbff;
-    }
-    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
-    .drop-row .chip.comma-chip { margin-left: -4px; }
-
     .chip-bank {
       display: flex;
       flex-wrap: wrap;
@@ -217,8 +204,7 @@
     .vocab-inputs input.art { width: 70px; }
     .vocab-inputs input.wort { width: 130px; }
     .vocab-inputs input.plural { width: 140px; }
-    input.correct + .vocab-hint { display: inline; }
-  .vocab-hint { color: #27ae60; font-weight: 600; font-size: 0.8em; margin-left: 6px; }
+    .vocab-hint { color: #27ae60; font-weight: 600; font-size: 0.8em; margin-left: 6px; }
 
     /* Timer */
     .timer-row {
@@ -340,6 +326,21 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
+
+/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
+.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
 </style>
 </head>
 <body>
@@ -350,22 +351,22 @@
     </div>
 
     <div class="nav">
-      <div class="nav-btn active" onclick="showTab(0)">
+      <button class="nav-btn active" onclick="showTab(0)">
         <span class="nav-emoji">🎯</span>
         <span class="nav-label">Redemittel</span>
-      </div>
-      <div class="nav-btn" onclick="showTab(1)">
+      </button>
+      <button class="nav-btn" onclick="showTab(1)">
         <span class="nav-emoji">📝</span>
         <span class="nav-label">Lückentext</span>
-      </div>
-      <div class="nav-btn" onclick="showTab(2)">
+      </button>
+      <button class="nav-btn" onclick="showTab(2)">
         <span class="nav-emoji">🔀</span>
         <span class="nav-label">Satzbau</span>
-      </div>
-      <div class="nav-btn" onclick="showTab(3)">
+      </button>
+      <button class="nav-btn" onclick="showTab(3)">
         <span class="nav-emoji">📚</span>
         <span class="nav-label">Wortschatz</span>
-      </div>
+      </button>
     </div>
 
     <div class="content">
@@ -437,8 +438,8 @@
         <img src="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?w=1000" alt="Lückentext" class="tab-banner">
 
         <div class="timer-row">
-          ⏱ <span id="timer-1">0:00</span><span>🏆 <span id="best-1">--:--</span></span></span></span>
-          <span class="best-time" id="best-1"></span>
+          ⏱ <span class="timer-display" id="timer1">0:00</span>
+          <span class="best-time" id="best1"></span>
         </div>
 
         <div class="help-box">
@@ -458,15 +459,15 @@
         <img src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?w=1000" alt="Satzbau" class="tab-banner">
 
         <div class="timer-row">
-          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
-          <span class="best-time" id="best-2"></span>
+          ⏱ <span class="timer-display" id="timer2">0:00</span>
+          <span class="best-time" id="best2"></span>
         </div>
 
         <div class="help-box">
           <strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge. Ziehe die Chips in die richtige Zeile oder klicke sie an.
         </div>
 
-        <div id="sb-container"></div>
+        <div id="satzbauContainer"></div>
 
         <div class="author-footer">
           <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
@@ -479,13 +480,13 @@
         <img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Wortschatz" class="tab-banner">
 
         <div class="timer-row">
-          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
-          <span class="best-time" id="best-3"></span>
+          ⏱ <span class="timer-display" id="timer3">0:00</span>
+          <span class="best-time" id="best3"></span>
         </div>
 
         <div class="btn-row">
-          <div class="btn" onclick="showVocabLoesung(3)">💡 Lösungen</button>
-          <div class="btn" onclick="resetVocab(3); timerResetOne(3);">🔄 Neu starten</button>
+          <button class="btn" onclick="showVocabLoesung(3)">💡 Lösungen</button>
+          <button class="btn" onclick="resetVocab(3); timerResetOne(3);">🔄 Neu starten</button>
         </div>
 
         <div class="help-box">
@@ -504,45 +505,536 @@
 
   <script>
     // ============= KONSTANTEN =============
-    var TIMER_PREFIX='B2_2031X_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
+    var TIMER_PREFIX = 'MUSIK_2031X_';
+    var timerStarted = [false, false, false, false];
+    var timerRunning = [false, false, false, false];
+    var timerSeconds = [0, 0, 0, 0];
+    var timerIntervals = [null, null, null, null];
+    var draggedChip = null;
+
+    // ============= TAB-NAVIGATION =============
+    function showTab(n) {
+      var tabs = document.querySelectorAll('.tab');
+      var btns = document.querySelectorAll('.nav-button');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      btns.forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('tab' + n).classList.add('active');
+      document.querySelectorAll('.nav-button')[n].classList.add('active');
+    }
+
+    // ============= TIMER-SYSTEM =============
+    function timerAutoStart(n) {
+      if (timerStarted[n]) return;
+      timerStarted[n] = true;
+      timerRunning[n] = true;
+      timerIntervals[n] = setInterval(function() {
+        timerSeconds[n]++;
+        var el = document.getElementById('timer' + n);
+        if (el) el.textContent = fmtTime(timerSeconds[n]);
+      }, 1000);
+    }
+
+    function timerStop(n) {
+      if (!timerRunning[n]) return;
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+      var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
+      if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
+        localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
+        var el = document.getElementById('best' + n);
+        if (el) el.textContent = '🏆 ' + fmtTime(timerSeconds[n]);
+      }
+    }
+
+    function timerResetOne(n) {
+      clearInterval(timerIntervals[n]);
+      timerRunning[n] = false;
+      timerStarted[n] = false;
+      timerSeconds[n] = 0;
+      var el = document.getElementById('timer' + n);
+      if (el) el.textContent = '0:00';
+    }
+
+    function fmtTime(s) {
+      return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+    }
+
+    function loadBestTimes() {
+      for (var i = 1; i <= 3; i++) {
+        var v = localStorage.getItem(TIMER_PREFIX + i);
+        if (v) {
+          var el = document.getElementById('best' + i);
+          if (el) el.textContent = '🏆 ' + fmtTime(parseInt(v));
+        }
+      }
+    }
+
+    // ============= LÜCKENTEXT =============
+    var LUECKEN_DATA = [
+      { segs: [{t: 'Das neue Album '}, {b: 'Meisterwerk', s: 'm'}, {t: ' von der Band „Die Toten Hosen" erschien '}], hint: 'Substantiv' },
+      { segs: [{t: ''}, {b: '2023', s: 'm'}, {t: ' und ist bereits ihr zwölftes '}], hint: 'Zahl' },
+      { segs: [{t: ''}, {b: 'Studioalbum', s: 'l'}, {t: '. Die Band stammt aus '}], hint: 'Substantiv' },
+      { segs: [{t: ''}, {b: 'Düsseldorf', s: 'm'}, {t: ' und ist seit über 40 Jahren aktiv. Ihr Vorgängeralbum „Laune der Natur" war ein großer Erfolg. Das aktuelle Album hat als '}], hint: 'Substantiv' },
+      { segs: [{t: ''}, {b: 'Hauptthema', s: 'l'}, {t: ' die Vergänglichkeit des Lebens, was sich wie ein '}], hint: 'Substantiv' },
+      { segs: [{t: ''}, {b: 'Leitmotiv', s: 'l'}, {t: ' durch alle Tracks zieht.'}], hint: 'Substantiv' },
+      { segs: [{t: 'Die größte '}, {b: 'Stärke', s: 'm'}, {t: ' des Albums liegt in den kraftvollen Texten. Als '}], hint: 'Substantiv' },
+      { segs: [{t: ''}, {b: 'Schwäche', s: 'm'}, {t: ' könnte man nennen, dass einige Melodien sehr '}], hint: 'Substantiv' },
+      { segs: [{t: ''}, {b: 'ähnlich', s: 'm'}, {t: ' klingen. Die Band zeigt deutliche '}], hint: 'Adjektiv' },
+      { segs: [{t: ''}, {b: 'Einflüsse', s: 'l'}, {t: ' von britischem Punk. '}], hint: 'Substantiv (Plural)' },
+      { segs: [{t: ''}, {b: 'Parallelen', s: 'l'}, {t: ' zu den Sex Pistols sind unverkennbar.'}], hint: 'Substantiv (Plural)' },
+      { segs: [{t: 'Insgesamt ist dies ein '}, {b: 'überzeugendes', s: 'l'}, {t: ' Album, das die Fans begeistern wird. Ich '}], hint: 'Adjektiv' },
+      { segs: [{t: ''}, {b: 'empfehle', s: 'm'}, {t: ' es besonders Liebhabern von Punkrock.'}], hint: 'Verb' }
+    ];
+
+    function liveCheck(inp) {
+      var val = inp.value.trim().toLowerCase();
+      var ans = (inp.dataset.answer || '').toLowerCase();
+      inp.classList.remove('correct', 'wrong');
+      if (val.length === 0) return;
+      if (val === ans) {
+        inp.classList.add('correct');
+      } else if (ans.indexOf(val) === 0) {
+        // gültiger Präfix → neutral
+      } else {
+        inp.classList.add('wrong');
+      }
+    }
+
+    function checkLueckeAllOk(n) {
+      var inputs = document.querySelectorAll('#luecke-container input.blank');
+      var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) { return i.classList.contains('correct'); });
+      if (allOk) timerStop(n);
+    }
+
+    function lueckeInit() {
+      var container = document.getElementById('luecke-container');
+      container.innerHTML = '';
+      LUECKEN_DATA.forEach(function(item, idx) {
+        var p = document.createElement('p');
+        p.style.marginBottom = '14px';
+        p.style.lineHeight = '1.8';
+        item.segs.forEach(function(seg) {
+          if (seg.t) {
+            p.appendChild(document.createTextNode(seg.t));
+          } else {
+            var inp = document.createElement('input');
+            inp.className = 'blank';
+            inp.type = 'text';
+            inp.placeholder = '';
+            inp.dataset.answer = seg.b;
+            inp.style.width = (seg.s === 's' ? '50px' : seg.s === 'm' ? '90px' : seg.s === 'l' ? '150px' : '200px');
+            inp.addEventListener('input', function() {
+              timerAutoStart(1);
+              liveCheck(inp);
+              checkLueckeAllOk(1);
+            });
+            p.appendChild(inp);
+          }
+        });
+        container.appendChild(p);
+      });
+    }
+
+    
+var satzbauData = [
+    { parts: ['Das Album', 'erschien', 'im Jahr 2023', 'und wurde', 'sofort ein Erfolg'],
+      valid: [
+        ['Das Album', 'erschien', 'im Jahr 2023', 'und wurde', 'sofort ein Erfolg']],
+      punct: '.' },
+    { parts: ['Die Stärken des Albums', 'liegen', 'in den kraftvollen', 'Gitarrenriffs'],
+      valid: [
+        ['Die Stärken des Albums', 'liegen', 'in den kraftvollen', 'Gitarrenriffs']],
+      punct: '.' },
+    { parts: ['Als Schwäche', 'könnte man', 'die monotonen', 'Refrains nennen'],
+      valid: [
+        ['Als Schwäche', 'könnte man', 'die monotonen', 'Refrains nennen']],
+      punct: '.' },
+    { parts: ['Die Band', 'zeigt deutliche', 'Einflüsse', 'von amerikanischem', 'Blues'],
+      valid: [
+        ['Die Band', 'zeigt deutliche', 'Einflüsse', 'von amerikanischem', 'Blues']],
+      punct: '.' },
+    { parts: ['Ich empfehle', 'dieses Album', 'allen Fans', 'von gutem Rock'],
+      valid: [
+        ['Ich empfehle', 'dieses Album', 'allen Fans', 'von gutem Rock']],
+      punct: '.' }
+];
+
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
 }
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
 }
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
 }
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [1,2,3].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-</script>
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(4);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(4);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
+
+
+    // ============= WORTSCHATZ =============
+    var WORTSCHATZ = [
+      { id: 1, type: 'n', en: 'review', artikel: 'die', de: 'Rezension', plural: 'Rezensionen' },
+      { id: 2, type: 'n', en: 'critique', artikel: 'die', de: 'Kritik', plural: 'Kritiken' },
+      { id: 3, type: 'n', en: 'album', artikel: 'das', de: 'Album', plural: 'Alben' },
+      { id: 4, type: 'n', en: 'leitmotif', artikel: 'das', de: 'Leitmotiv', plural: 'Leitmotive' },
+      { id: 5, type: 'n', en: 'main theme', artikel: 'das', de: 'Hauptthema', plural: 'Hauptthemen' },
+      { id: 6, type: 'n', en: 'introduction', artikel: 'die', de: 'Einleitung', plural: 'Einleitungen' },
+      { id: 7, type: 'n', en: 'main part', artikel: 'der', de: 'Hauptteil', plural: 'Hauptteile' },
+      { id: 8, type: 'n', en: 'strength', artikel: 'die', de: 'Stärke', plural: 'Stärken' },
+      { id: 9, type: 'n', en: 'weakness', artikel: 'die', de: 'Schwäche', plural: 'Schwächen' },
+      { id: 10, type: 'v', en: 'to appear, to come out', de: 'erscheinen' },
+      { id: 11, type: 'v', en: 'to recommend', de: 'empfehlen' },
+      { id: 12, type: 'v', en: 'convincing', de: 'überzeugend' }
+    ];
+
+    function initVocab() {
+      var container = document.getElementById('vocabContainer');
+      container.innerHTML = '';
+      var shuffled = WORTSCHATZ.slice().sort(function() { return Math.random() - 0.5; });
+      shuffled.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'vocab-item';
+        var en = document.createElement('span');
+        en.className = 'vocab-en';
+        en.textContent = item.en;
+        div.appendChild(en);
+        var arrow = document.createElement('span');
+        arrow.className = 'vocab-arrow';
+        arrow.textContent = '\u2192';
+        div.appendChild(arrow);
+        var inputs = document.createElement('div');
+        inputs.className = 'vocab-inputs';
+        if (item.type === 'n') {
+          var artInp = document.createElement('input');
+          artInp.className = 'art';
+          artInp.placeholder = 'der/die/das';
+          artInp.dataset.answer = item.artikel;
+          artInp.dataset.field = 'art';
+          artInp.addEventListener('input', function() { timerAutoStart(3); liveCheck(artInp); checkVocabAllOk(3); });
+          inputs.appendChild(artInp);
+          var wordInp = document.createElement('input');
+          wordInp.className = 'wort';
+          wordInp.placeholder = 'Deutsch';
+          wordInp.dataset.answer = item.de;
+          wordInp.dataset.field = 'wort';
+          wordInp.addEventListener('input', function() { timerAutoStart(3); liveCheck(wordInp); checkVocabAllOk(3); });
+          inputs.appendChild(wordInp);
+          var pluralInp = document.createElement('input');
+          pluralInp.className = 'plural';
+          pluralInp.placeholder = 'Plural';
+          pluralInp.dataset.answer = item.plural;
+          pluralInp.dataset.field = 'plural';
+          pluralInp.addEventListener('input', function() { timerAutoStart(3); liveCheck(pluralInp); checkVocabAllOk(3); });
+          inputs.appendChild(pluralInp);
+        } else {
+          var deInp = document.createElement('input');
+          deInp.className = 'wort';
+          deInp.style.width = '200px';
+          deInp.placeholder = 'Deutsch';
+          deInp.dataset.answer = item.de;
+          deInp.dataset.field = 'wort';
+          deInp.addEventListener('input', function() { timerAutoStart(3); liveCheck(deInp); checkVocabAllOk(3); });
+          inputs.appendChild(deInp);
+        }
+        div.appendChild(inputs);
+        container.appendChild(div);
+      });
+    }
+
+    function checkVocabAllOk(n) {
+      var all = document.querySelectorAll('#vocabContainer .vocab-inputs input');
+      var allOk = Array.from(all).every(function(inp) { return inp.classList.contains('correct'); });
+      if (allOk && all.length > 0) timerStop(n);
+    }
+
+    function showVocabLoesung(n) {
+      document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
+        var field = inp.dataset.field;
+        var user = (field === 'art') ? inp.value.trim().toLowerCase() : inp.value.trim();
+        var answer = (field === 'art') ? inp.dataset.answer.toLowerCase() : inp.dataset.answer;
+        var hint = inp.nextElementSibling;
+        if (hint && hint.classList.contains('vocab-hint')) hint.remove();
+        if (user === answer) {
+          inp.classList.remove('wrong');
+          inp.classList.add('correct');
+        } else {
+          inp.classList.add('wrong');
+          var h = document.createElement('span');
+          h.className = 'vocab-hint';
+          h.textContent = inp.dataset.answer;
+          inp.insertAdjacentElement('afterend', h);
+        }
+      });
+      timerStop(n);
+    }
+
+    function resetVocab(n) {
+      document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+        var hint = inp.nextElementSibling;
+        if (hint && hint.classList.contains('vocab-hint')) hint.remove();
+      });
+    }
+
+    // ============= ZUORDNUNG (Tab 0) =============
+    function colorZuordnungChip(chip) {
+      var zone = chip.closest('.drop-zone');
+      if (zone) {
+        chip.classList.remove('correct', 'wrong');
+        chip.classList.add(chip.dataset.cat === zone.dataset.cat ? 'correct' : 'wrong');
+      } else {
+        chip.classList.remove('correct', 'wrong');
+      }
+    }
+
+    function colorAllZuordnungChips() {
+      document.querySelectorAll('#chip-bank-0 .chip').forEach(colorZuordnungChip);
+      document.querySelectorAll('.drop-zone .chip').forEach(colorZuordnungChip);
+    }
+
+    function initZuordnung() {
+      var bank = document.getElementById('chip-bank-0');
+      if (!bank) return;
+      var chips = bank.querySelectorAll('.chip');
+      var zones = document.querySelectorAll('.drop-zone');
+      chips.forEach(function(chip) {
+        chip.addEventListener('dragstart', function(e) {
+          e.dataTransfer.setData('text/plain', '');
+          draggedChip = chip;
+        });
+        chip.addEventListener('dragend', function() {
+          colorAllZuordnungChips();
+        });
+        chip.addEventListener('click', function() {
+          var parent = chip.parentElement;
+          var zone = document.querySelector('.drop-zone[data-cat="' + chip.dataset.cat + '"]');
+          if (parent === bank && zone) {
+            zone.appendChild(chip);
+          } else if (parent.classList.contains('drop-zone')) {
+            bank.appendChild(chip);
+          }
+          colorAllZuordnungChips();
+        });
+      });
+      zones.forEach(function(zone) {
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          zone.classList.remove('dragover');
+          if (draggedChip) { zone.appendChild(draggedChip); draggedChip = null; }
+          colorAllZuordnungChips();
+        });
+      });
+    }
+
+    // ============= INIT =============
+    lueckeInit();
+    initSatzbau();
+    initVocab();
+    initZuordnung();
+    loadBestTimes();
+  </script>
 </body>
 </html>

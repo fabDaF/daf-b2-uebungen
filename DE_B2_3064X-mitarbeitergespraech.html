@@ -31,8 +31,6 @@
     .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
     .sb-satz { margin-bottom: 14px; background: #fafbff; padding: 12px; border-radius: 8px; border-left: 3px solid #667eea; }
     .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 14px; min-height: 54px; }
-    .drop-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 2px dashed #c5cae9; background: #fafbff; }
-    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
     .timer-row { display: flex; align-items: center; gap: 12px; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); font-size: 0.85rem; color: #666; }
     .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
     .btn-row { display: flex; gap: 12px; margin-bottom: 14px; }
@@ -107,48 +105,22 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-</style>
-<script>
-var TIMER_PREFIX='B2_3064X_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [1,2,3].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
 
-});</script>
+/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
+.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+</style>
 </head>
 <body>
   <div class="container">
@@ -192,12 +164,12 @@ document.addEventListener('DOMContentLoaded',function(){
       <!-- Tab 1: Lückentext -->
       <div class="tab" id="tab1">
         <div class="timer-row">
-          ⏱ <span id="timer-1">0:00</span><span>🏆 <span id="best-1">--:--</span></span></span></span>
-          <span style="color: #f39c12; font-weight: 600;" id="best-1"></span>
+          ⏱ <span class="timer-display" id="timer1">0:00</span>
+          <span style="color: #f39c12; font-weight: 600;" id="best1"></span>
         </div>
         <div class="btn-row">
           <button class="btn btn-show" onclick="showLuecken()">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetLuecken(); timerResetOne(1);">Neu starten</button>
+          <button class="btn btn-reset" onclick="resetLuecken(); resetTimer(1);">Neu starten</button>
         </div>
         <div class="help-box"><strong>Aufgabe:</strong> Ergänze die HR-Fachbegriffe!</div>
         <div id="luecke-container"></div>
@@ -206,26 +178,26 @@ document.addEventListener('DOMContentLoaded',function(){
       <!-- Tab 2: Satzbau -->
       <div class="tab" id="tab2">
         <div class="timer-row">
-          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
-          <span style="color: #f39c12; font-weight: 600;" id="best-2"></span>
+          ⏱ <span class="timer-display" id="timer2">0:00</span>
+          <span style="color: #f39c12; font-weight: 600;" id="best2"></span>
         </div>
         <div class="btn-row">
           <button class="btn btn-show" onclick="showSB()">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetSB(); timerResetOne(2);">Neu starten</button>
+          <button class="btn btn-reset" onclick="resetSB(); resetTimer(2);">Neu starten</button>
         </div>
         <div class="help-box"><strong>Aufgabe:</strong> Ordne die Satzteile!</div>
-        <div id="sb-container"></div>
+        <div id="satzbauContainer"></div>
       </div>
 
       <!-- Tab 3: Wortschatz -->
       <div class="tab" id="tab3">
         <div class="timer-row">
-          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
-          <span style="color: #f39c12; font-weight: 600;" id="best-3"></span>
+          ⏱ <span class="timer-display" id="timer3">0:00</span>
+          <span style="color: #f39c12; font-weight: 600;" id="best3"></span>
         </div>
         <div class="btn-row">
           <button class="btn btn-show" onclick="showVocab()">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetVocab(); timerResetOne(3);">Neu starten</button>
+          <button class="btn btn-reset" onclick="resetVocab(); resetTimer(3);">Neu starten</button>
         </div>
         <div class="help-box"><strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche!</div>
         <div id="vocab-container"></div>
@@ -238,6 +210,450 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
   </div>
 
+  <script>
+    var timerState = [false, false, false, false];
+    var timerIntervals = [null, null, null, null];
+    var TIMER_PREFIX = '3064X';
+
+    function startTimer(idx) {
+      if (timerState[idx]) return;
+      timerState[idx] = true;
+      var secs = 0;
+      timerIntervals[idx] = setInterval(function() {
+        secs++;
+        document.getElementById('timer' + idx).textContent = (Math.floor(secs / 60)) + ':' + (secs % 60 < 10 ? '0' : '') + (secs % 60);
+      }, 1000);
+    }
+
+    function stopTimer(idx) {
+      clearInterval(timerIntervals[idx]);
+      timerState[idx] = false;
+    }
+
+    function resetTimer(idx) {
+      clearInterval(timerIntervals[idx]);
+      timerState[idx] = false;
+      document.getElementById('timer' + idx).textContent = '0:00';
+    }
+
+    function liveCheck(inp) {
+      var val = inp.value.trim().toLowerCase();
+      var ans = (inp.dataset.answer || '').toLowerCase();
+      inp.classList.remove('correct', 'wrong');
+      if (!val) return;
+      startTimer(1);
+      if (val === ans) {
+        inp.classList.add('correct');
+        checkAllOk();
+      } else if (ans.indexOf(val) === 0) {
+        // OK
+      } else {
+        inp.classList.add('wrong');
+      }
+    }
+
+    function showHint(inp) {
+      var next = inp.nextElementSibling;
+      if (next && next.classList.contains('correction-hint')) next.remove();
+      var hint = document.createElement('span');
+      hint.className = 'correction-hint';
+      hint.textContent = inp.dataset.answer;
+      inp.insertAdjacentElement('afterend', hint);
+      inp.value = inp.dataset.answer;
+      inp.classList.add('correct');
+    }
+
+    var lueckenData = [
+      { text: 'Das <input class="blank" data-answer="Mitarbeitergespräch" oninput="liveCheck(this)" /> findet einmal jährlich statt.', ans: 'mitarbeitergespräch' },
+      { text: 'Die <input class="blank" data-answer="Zielvereinbarung" oninput="liveCheck(this)" /> legt fest, was im nächsten Jahr erreicht werden soll.', ans: 'zielvereinbarung' },
+      { text: 'Das <input class="blank" data-answer="Feedback" oninput="liveCheck(this)" /> vom Vorgesetzten ist wichtig für die Entwicklung.', ans: 'feedback' },
+      { text: 'Die <input class="blank" data-answer="Leistungsbeurteilung" oninput="liveCheck(this)" /> bewertet die Arbeit des Mitarbeiters.', ans: 'leistungsbeurteilung' },
+      { text: 'Der <input class="blank" data-answer="Vorgesetzte" oninput="liveCheck(this)" /> führt das Gespräch.', ans: 'vorgesetzte' }
+    ];
+
+    function initLuecken() {
+      var cont = document.getElementById('luecke-container');
+      cont.innerHTML = '';
+      lueckenData.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'luecke-satz';
+        div.innerHTML = item.text;
+        cont.appendChild(div);
+      });
+    }
+
+    function showLuecken() {
+      var cont = document.getElementById('luecke-container');
+      var inps = cont.querySelectorAll('input.blank');
+      inps.forEach(function(inp) { showHint(inp); });
+    }
+
+    function resetLuecken() {
+      initLuecken();
+    }
+
+    function checkAllOk() {
+      var cont = document.getElementById('luecke-container');
+      var inps = cont.querySelectorAll('input.blank');
+      var all = Array.from(inps).every(function(i) { return i.classList.contains('correct'); });
+      if (all) stopTimer(1);
+    }
+
+    
+var satzbauData = [
+    { parts: ['Im', 'Mitarbeitergespräch', 'werden', 'Ziele', 'vereinbart'],
+      valid: [['Im', 'Mitarbeitergespräch', 'werden', 'Ziele', 'vereinbart']],
+      punct: '.' },
+    { parts: ['Der', 'Vorgesetzte', 'gibt', 'dem', 'Mitarbeiter', 'wichtiges', 'Feedback'],
+      valid: [['Der', 'Vorgesetzte', 'gibt', 'dem', 'Mitarbeiter', 'wichtiges', 'Feedback']],
+      punct: '.' },
+    { parts: ['Die', 'Leistungsbeurteilung', 'ist', 'ein', 'wichtiger', 'Teil', 'des', 'Gesprächs'],
+      valid: [['Die', 'Leistungsbeurteilung', 'ist', 'ein', 'wichtiger', 'Teil', 'des', 'Gesprächs']],
+      punct: '.' }
+];
+
+/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
+        sbCheckAuto(idx);
+    });
+}
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        if (typeof timerAutoStart === 'function') timerAutoStart(3);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk && typeof timerStop === 'function') timerStop(3);
+}
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+        item.appendChild(bank); item.appendChild(row);
+        item.appendChild(fb); item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+function resetSatzbau() { initSatzbau(); }
+
+
+
+
+    var vocabData = [
+      { en: 'meeting', art: 'das', wort: 'Gespräch', plural: 'Gespräche' },
+      { en: 'goal', art: 'das', wort: 'Ziel', plural: 'Ziele' },
+      { en: 'feedback', art: 'das', wort: 'Feedback', plural: 'Feedbacks' },
+      { en: 'performance', art: 'die', wort: 'Leistung', plural: 'Leistungen' },
+      { en: 'supervisor', art: 'der', wort: 'Vorgesetzte', plural: 'Vorgesetzten' },
+      { en: 'salary negotiation', art: 'die', wort: 'Gehaltsverhandlung', plural: 'Gehaltsverhandlungen' }
+    ];
+
+    function initVocab() {
+      var cont = document.getElementById('vocab-container');
+      cont.innerHTML = '';
+      vocabData.forEach(function(item) {
+        var div = document.createElement('div');
+        div.style.background = '#f8f9ff';
+        div.style.padding = '14px 18px';
+        div.style.marginBottom = '12px';
+        div.style.borderRadius = '10px';
+        div.style.borderLeft = '4px solid #667eea';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '12px';
+        div.style.flexWrap = 'wrap';
+
+        var en = document.createElement('div');
+        en.style.fontWeight = '600';
+        en.style.color = '#764ba2';
+        en.style.minWidth = '120px';
+        en.textContent = item.en;
+
+        var arr = document.createElement('div');
+        arr.style.color = '#ccc';
+        arr.style.fontSize = '1.2em';
+        arr.textContent = '→';
+
+        var artinp = document.createElement('input');
+        artinp.style.border = 'none';
+        artinp.style.borderBottom = '2px solid #667eea';
+        artinp.style.background = '#fff';
+        artinp.style.padding = '4px 8px';
+        artinp.style.width = '70px';
+        artinp.dataset.answer = item.art;
+        artinp.oninput = function() { liveCheckVocab(this); };
+
+        var wortinp = document.createElement('input');
+        wortinp.style.border = 'none';
+        wortinp.style.borderBottom = '2px solid #667eea';
+        wortinp.style.background = '#fff';
+        wortinp.style.padding = '4px 8px';
+        wortinp.style.width = '120px';
+        wortinp.dataset.answer = item.wort.toLowerCase();
+        wortinp.oninput = function() { liveCheckVocab(this); };
+
+        var pluralinp = document.createElement('input');
+        pluralinp.style.border = 'none';
+        pluralinp.style.borderBottom = '2px solid #667eea';
+        pluralinp.style.background = '#fff';
+        pluralinp.style.padding = '4px 8px';
+        pluralinp.style.width = '140px';
+        pluralinp.dataset.answer = item.plural.toLowerCase();
+        pluralinp.oninput = function() { liveCheckVocab(this); };
+
+        div.appendChild(en);
+        div.appendChild(arr);
+        div.appendChild(artinp);
+        div.appendChild(wortinp);
+        div.appendChild(pluralinp);
+        cont.appendChild(div);
+      });
+    }
+
+    function liveCheckVocab(inp) {
+      var val = inp.value.trim().toLowerCase();
+      var ans = (inp.dataset.answer || '').toLowerCase();
+      inp.style.borderBottomColor = '#667eea';
+      inp.style.background = '#fff';
+      if (!val) return;
+      startTimer(3);
+      if (val === ans) {
+        inp.style.borderBottomColor = '#27ae60';
+        inp.style.background = '#e8f5e9';
+        checkAllVocab();
+      } else if (ans.indexOf(val) === 0) {
+        // OK
+      } else {
+        inp.style.borderBottomColor = '#e74c3c';
+        inp.style.background = '#ffebee';
+      }
+    }
+
+    function checkAllVocab() {
+      var cont = document.getElementById('vocab-container');
+      var inps = cont.querySelectorAll('input');
+      var all = Array.from(inps).every(function(i) { return i.style.borderBottomColor === 'rgb(39, 174, 96)'; });
+      if (all) stopTimer(3);
+    }
+
+    function showVocab() {
+      var cont = document.getElementById('vocab-container');
+      var inps = cont.querySelectorAll('input');
+      inps.forEach(function(inp) {
+        inp.value = inp.dataset.answer;
+        inp.style.borderBottomColor = '#27ae60';
+        inp.style.background = '#e8f5e9';
+      });
+    }
+
+    function resetVocab() {
+      initVocab();
+    }
+
+    function switchTab(idx) {
+      var tabs = document.querySelectorAll('.tab');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      document.getElementById('tab' + idx).classList.add('active');
+      var navs = document.querySelectorAll('.nav-tab');
+      navs.forEach(function(n) { n.classList.remove('active'); });
+      event.target.classList.add('active');
+      if (idx === 1 && !document.getElementById('luecke-container').children.length) initLuecken();
+      if (idx === 2 && !document.getElementById('satzbauContainer').children.length) initSatzbau();
+      if (idx === 3 && !document.getElementById('vocab-container').children.length) initVocab();
+    }
+
+    initLuecken();
+    initSB();
+    initVocab();
   
+initSatzbau();
+</script>
 </body>
 </html>
