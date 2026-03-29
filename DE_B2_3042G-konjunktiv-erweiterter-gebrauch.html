@@ -211,20 +211,7 @@
     .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
     .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
     .chip.comma-chip { padding: 8px 8px; min-width: 24px; font-weight: 700; font-size: 1.1em; }
-    .drop-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 44px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 2px dashed #c5cae9;
-      background: #fafbff;
-      margin-bottom: 12px;
-    }
-    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
-    .drop-row .chip.comma-chip { margin-left: -4px; }
-    .chip-bank {
+    .chips-container {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -234,6 +221,42 @@
       margin-bottom: 14px;
       min-height: 54px;
     }
+    .sentence-builder {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 2px dashed #c5cae9;
+      background: #fafbff;
+      margin-bottom: 6px;
+    }
+    .sentence-builder.dragover {
+      background: #e8eaff;
+      border-color: #667eea;
+    }
+    .sb-punkt {
+      align-self: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #333;
+      padding-left: 2px;
+    }
+    .satzbau-feedback {
+      font-size: 0.9rem;
+      min-height: 1.2em;
+      margin-bottom: 10px;
+    }
+    .sb-insert-cursor {
+      width: 3px;
+      height: 32px;
+      background: #667eea;
+      border-radius: 2px;
+      animation: blink 1s infinite;
+      pointer-events: none;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
     .vocab-item { background: #f8f9ff; padding: 14px 18px; margin-bottom: 12px; border-radius: 10px; border-left: 4px solid #667eea; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .vocab-en { font-weight: 600; color: #764ba2; min-width: 140px; font-size: 0.95em; }
     .vocab-arrow { color: #ccc; font-size: 1.2em; }
@@ -472,7 +495,7 @@
       <div class="help-box">
         <strong>Aufgabe:</strong> Ordne die Wörter korrekt! Achte auf die Konjunktiv-Form.
       </div>
-      <div id="sb-container-3"></div>
+      <div id="satzbauContainer"></div>
     </div>
 
     <!-- TAB 4: WORTSCHATZ -->
@@ -650,104 +673,244 @@ function resetLuecken(n) {
   timerResetOne(n);
 }
 
-var SATZBAU_DATA_3 = [
-  { parts: ['Der', 'Sprecher', 'sage', ',', 'dass', 'die', 'Situation', 'sei', 'kritisch', '.'], answer: ['Der', 'Sprecher', 'sage', ',', 'dass', 'die', 'Situation', 'sei', 'kritisch', '.'] },
-  { parts: ['Wenn', 'ich', 'könnte', ',', 'würde', 'ich', 'sofort', 'gehen', '.'], answer: ['Wenn', 'ich', 'könnte', ',', 'würde', 'ich', 'sofort', 'gehen', '.'] },
-  { parts: ['Die', 'Zeitung', 'behauptet', ',', 'der', 'Anstieg', 'sei', 'minimal', '.'], answer: ['Die', 'Zeitung', 'behauptet', ',', 'der', 'Anstieg', 'sei', 'minimal', '.'] },
-  { parts: ['Hätte', 'ich', 'Zeit', ',', 'käme', 'ich', 'zu', 'dir', '.'], answer: ['Hätte', 'ich', 'Zeit', ',', 'käme', 'ich', 'zu', 'dir', '.'] },
-  { parts: ['Das', 'würde', 'mir', 'sehr', 'gut', 'gefallen', '.'], answer: ['Das', 'würde', 'mir', 'sehr', 'gut', 'gefallen', '.'] }
-];
+    var satzbauData = [
+      { parts: ['Der', 'Sprecher', 'sage', ',', 'dass', 'die', 'Situation', 'sei', 'kritisch'],
+        valid: [['Der', 'Sprecher', 'sage', ',', 'dass', 'die', 'Situation', 'sei', 'kritisch']], punct: '.' },
+      { parts: ['Wenn', 'ich', 'könnte', ',', 'würde', 'ich', 'sofort', 'gehen'],
+        valid: [['Wenn', 'ich', 'könnte', ',', 'würde', 'ich', 'sofort', 'gehen']], punct: '.' },
+      { parts: ['Die', 'Zeitung', 'behauptet', ',', 'der', 'Anstieg', 'sei', 'minimal'],
+        valid: [['Die', 'Zeitung', 'behauptet', ',', 'der', 'Anstieg', 'sei', 'minimal']], punct: '.' },
+      { parts: ['Hätte', 'ich', 'Zeit', ',', 'käme', 'ich', 'zu', 'dir'],
+        valid: [['Hätte', 'ich', 'Zeit', ',', 'käme', 'ich', 'zu', 'dir']], punct: '.' },
+      { parts: ['Das', 'würde', 'mir', 'sehr', 'gut', 'gefallen'],
+        valid: [['Das', 'würde', 'mir', 'sehr', 'gut', 'gefallen']], punct: '.' }
+    ];
 
-function sbInit() {
-  var container = document.getElementById('sb-container-3');
-  container.innerHTML = '';
-  SATZBAU_DATA_3.forEach(function(item, idx) {
-    var div = document.createElement('div');
-    div.style.marginBottom = '20px';
-    var chipBank = document.createElement('div');
-    chipBank.className = 'chip-bank';
-    var shuffled = shuffle(item.parts);
-    shuffled.forEach(function(part) {
+    var sbDragged = null;
+
+    function sbMakeChip(word, idx) {
       var chip = document.createElement('div');
       chip.className = 'chip';
-      if (part === ',' || part === '.') chip.className += ' comma-chip';
-      chip.textContent = part;
-      chip.dataset.orig = part;
+      chip.dataset.orig = word;
+      chip.dataset.sentIdx = idx;
       chip.draggable = true;
       chip.addEventListener('dragstart', function(e) {
-        e.dataTransfer.setData('text/plain', '');
         sbDragged = chip;
+        e.dataTransfer.setData('text/plain', '');
+        timerAutoStart(3);
       });
-      chip.addEventListener('dragend', function() {
-        colorSbRow(idx);
+      chip.addEventListener('click', function() {
+        timerAutoStart(3);
+        var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
+        var bank = document.querySelector('#satzbauContainer .chips-container[data-idx="' + idx + '"]');
+        if (chip.parentElement === bank) {
+          var cursor = row.querySelector('.sb-insert-cursor');
+          if (cursor) row.insertBefore(chip, cursor); else row.appendChild(chip);
+        } else {
+          bank.appendChild(chip);
+        }
+        sbUpdateCapitalization(idx);
+        sbCheckAuto(idx);
       });
-      chipBank.appendChild(chip);
-    });
-    div.appendChild(chipBank);
-    var dropRow = document.createElement('div');
-    dropRow.className = 'drop-row';
-    dropRow.id = 'row-' + idx;
-    dropRow.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      dropRow.classList.add('dragover');
-    });
-    dropRow.addEventListener('dragleave', function() {
-      dropRow.classList.remove('dragover');
-    });
-    dropRow.addEventListener('drop', function(e) {
-      e.preventDefault();
-      dropRow.classList.remove('dragover');
-      if (sbDragged) {
-        dropRow.appendChild(sbDragged);
-        sbDragged = null;
-      }
-      colorSbRow(idx);
-    });
-    div.appendChild(dropRow);
-    container.appendChild(div);
-  });
-}
-
-function shuffle(arr) {
-  var a = arr.slice();
-  for (var i = a.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var t = a[i]; a[i] = a[j]; a[j] = t;
-  }
-  return a;
-}
-
-function colorSbRow(idx) {
-  var row = document.getElementById('row-' + idx);
-  var data = SATZBAU_DATA_3[idx];
-  Array.from(row.querySelectorAll('.chip')).forEach(function(chip, i) {
-    chip.classList.remove('correct', 'wrong');
-    if (i < data.answer.length) {
-      chip.classList.add(chip.dataset.orig.toLowerCase() === data.answer[i].toLowerCase() ? 'correct' : 'wrong');
-    } else {
-      chip.classList.add('wrong');
+      return chip;
     }
-  });
-  timerAutoStart(3);
-  checkSbAllOk(3);
-}
 
-function checkSbAllOk(n) {
-  var rows = document.querySelectorAll('#sb-container-' + n + ' .drop-row');
-  var allOk = rows.length > 0 && Array.from(rows).every(function(row) {
-    var chips = row.querySelectorAll('.chip');
-    return chips.length > 0 && Array.from(chips).every(function(c) { return c.classList.contains('correct'); });
-  });
-  if (allOk) timerStop(n);
-}
+    function sbRegisterZone(el, idx) {
+      el.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        el.classList.add('dragover');
+        var cursor = el.querySelector('.sb-insert-cursor');
+        if (cursor) cursor.remove();
+        if (el.classList.contains('sentence-builder')) {
+          var afterEl = sbGetDragAfterElement(el, e.clientX);
+          var newCursor = document.createElement('div');
+          newCursor.className = 'sb-insert-cursor';
+          if (afterEl) el.insertBefore(newCursor, afterEl);
+          else el.appendChild(newCursor);
+        }
+      });
+      el.addEventListener('dragleave', function(e) {
+        if (!el.contains(e.relatedTarget)) {
+          el.classList.remove('dragover');
+          var cursor = el.querySelector('.sb-insert-cursor');
+          if (cursor) cursor.remove();
+        }
+      });
+      el.addEventListener('drop', function(e) {
+        e.preventDefault();
+        el.classList.remove('dragover');
+        var cursor = el.querySelector('.sb-insert-cursor');
+        if (sbDragged && sbDragged.dataset.sentIdx === String(idx)) {
+          if (el.classList.contains('sentence-builder')) {
+            if (cursor) el.insertBefore(sbDragged, cursor);
+            else el.appendChild(sbDragged);
+          } else {
+            el.appendChild(sbDragged);
+          }
+          sbDragged = null;
+          if (cursor) cursor.remove();
+          sbUpdateCapitalization(idx);
+          sbCheckAuto(idx);
+        }
+      });
+    }
 
-function resetSatzbau(n) {
-  timerResetOne(n);
-  document.getElementById('sb-container-' + n).innerHTML = '';
-  sbInit();
-}
+    function sbGetDragAfterElement(container, x) {
+      var els = Array.from(container.querySelectorAll('.chip:not(.dragging)'));
+      return els.reduce(function(closest, child) {
+        var box = child.getBoundingClientRect();
+        var offset = x - box.left - box.width / 2;
+        if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
 
-var WORTSCHATZ = [
+    function sbUpdateCapitalization(idx) {
+      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
+      if (!row) return;
+      var chips = Array.from(row.querySelectorAll('.chip'));
+      chips.forEach(function(chip, i) {
+        var w = chip.dataset.orig;
+        if (w === ',' || w === ';') return;
+        chip.textContent = (i === 0) ? w.charAt(0).toUpperCase() + w.slice(1) : w;
+      });
+    }
+
+    function sbColorRow(idx) {
+      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
+      if (!row) return;
+      var chips = Array.from(row.querySelectorAll('.chip'));
+      var data = satzbauData[idx];
+      var isCorrect = data.valid.some(function(validArr) {
+        if (chips.length !== validArr.length) return false;
+        return chips.every(function(chip, i) {
+          return chip.dataset.orig.toLowerCase() === validArr[i].toLowerCase();
+        });
+      });
+      chips.forEach(function(chip) {
+        chip.classList.remove('correct', 'wrong');
+        chip.classList.add(isCorrect ? 'correct' : 'wrong');
+      });
+      return isCorrect;
+    }
+
+    function sbCheckAuto(idx) {
+      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
+      var data = satzbauData[idx];
+      var chips = Array.from(row.querySelectorAll('.chip'));
+      if (chips.length === data.parts.length) {
+        sbColorRow(idx);
+        sbCheckAllDone(3);
+      }
+    }
+
+    function sbCheckAllDone(n) {
+      var allCorrect = satzbauData.every(function(_, idx) {
+        var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
+        var chips = Array.from(row.querySelectorAll('.chip'));
+        var data = satzbauData[idx];
+        return data.valid.some(function(validArr) {
+          if (chips.length !== validArr.length) return false;
+          return chips.every(function(chip, i) {
+            return chip.dataset.orig.toLowerCase() === validArr[i].toLowerCase();
+          });
+        });
+      });
+      if (allCorrect) timerStop(n);
+    }
+
+    function sbShowSolution(idx) {
+      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
+      var bank = document.querySelector('#satzbauContainer .chips-container[data-idx="' + idx + '"]');
+      var data = satzbauData[idx];
+      var allChips = Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));
+      row.querySelectorAll('.chip').forEach(function(c) { bank.appendChild(c); });
+      data.valid[0].forEach(function(word) {
+        var chip = allChips.find(function(c) { return c.dataset.orig === word && c.parentElement === bank; });
+        if (chip) row.appendChild(chip);
+      });
+      sbUpdateCapitalization(idx);
+      sbColorRow(idx);
+      sbCheckAllDone(3);
+      timerStop(3);
+    }
+
+    function sbResetOne(idx) {
+      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
+      var bank = document.querySelector('#satzbauContainer .chips-container[data-idx="' + idx + '"]');
+      Array.from(row.querySelectorAll('.chip')).forEach(function(c) {
+        c.classList.remove('correct', 'wrong');
+        bank.appendChild(c);
+      });
+      sbUpdateCapitalization(idx);
+    }
+
+    function initSatzbau() {
+      var container = document.getElementById('satzbauContainer');
+      container.innerHTML = '';
+      satzbauData.forEach(function(data, idx) {
+        var wrapper = document.createElement('div');
+        wrapper.style.marginBottom = '18px';
+
+        var row = document.createElement('div');
+        row.className = 'sentence-builder';
+        row.dataset.idx = idx;
+        sbRegisterZone(row, idx);
+
+        var punct = document.createElement('span');
+        punct.className = 'sb-punkt';
+        punct.textContent = data.punct || '.';
+        row.appendChild(punct);
+
+        var bank = document.createElement('div');
+        bank.className = 'chips-container';
+        bank.dataset.idx = idx;
+        sbRegisterZone(bank, idx);
+
+        var shuffled = data.parts.slice().sort(function() { return Math.random() - 0.5; });
+        shuffled.forEach(function(word) {
+          bank.appendChild(sbMakeChip(word, idx));
+        });
+
+        var btnRow = document.createElement('div');
+        btnRow.className = 'btn-row';
+        btnRow.style.marginTop = '4px';
+
+        var btnLösen = document.createElement('button');
+        btnLösen.className = 'btn';
+        btnLösen.textContent = 'Lösen';
+        btnLösen.onclick = (function(i) { return function() { sbShowSolution(i); }; })(idx);
+
+        var btnReset = document.createElement('button');
+        btnReset.className = 'btn';
+        btnReset.textContent = '↺ Neustart';
+        btnReset.onclick = (function(i) { return function() { sbResetOne(i); }; })(idx);
+
+        btnRow.appendChild(btnLösen);
+        btnRow.appendChild(btnReset);
+
+        wrapper.appendChild(row);
+        wrapper.appendChild(bank);
+        wrapper.appendChild(btnRow);
+        container.appendChild(wrapper);
+      });
+    }
+
+    function resetSatzbau(n) {
+      satzbauData.forEach(function(_, idx) { sbResetOne(idx); });
+      timerResetOne(n);
+    }
+
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    var WORTSCHATZ = [
   { id:1, type:"p", en:"to say (indirect speech)", de:"sagen" },
   { id:2, type:"p", en:"to report", de:"berichten" },
   { id:3, type:"p", en:"to claim", de:"behaupten" },
@@ -845,8 +1008,8 @@ function resetVocab(n) {
 }
 
 lueckeInit();
-sbInit();
-initVocab();
+    initSatzbau();
+    initVocab;
 loadBestTimes();
 </script>
 </body>
