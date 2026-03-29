@@ -8,9 +8,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
   .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
-  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 30px 16px;
-  text-align: center;
-}
+  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 30px 16px; }
   header h1 { font-size: 1.6rem; margin-bottom: 4px; }
   header p { opacity: 0.85; font-size: 0.95rem; }
   .nav{ display: flex; background: #f0f0f0;  overflow-x: auto; ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
@@ -45,10 +43,10 @@
   .drop-zone { min-height: 44px; border: 2px dashed #b0bcf0; border-radius: 8px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; background: #f0f4ff; transition: background 0.2s; }
   .drop-zone.drag-over { background: #e0e8ff; }
   .chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-  .chip { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 6px 13px; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; border: none; transition: background 0.2s, opacity 0.2s; }
+  .chip { background: #667eea; color: white; padding: 6px 13px; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; border: none; transition: background 0.2s, opacity 0.2s; }
+  .chip:hover { background: #5a6fd6; }
+  .chip.placed { background: #764ba2; }
   .chip.ghost { opacity: 0.4; }
-  .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-  .chip.wrong   { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
   .sb-feedback { font-size: 0.82rem; color: #666; min-height: 1.2em; }
   .sb-feedback.ok { color: #4caf50; font-weight: 600; }
   .sb-feedback.err { color: #e53935; }
@@ -177,13 +175,13 @@
         
 </div>
       <ul class="gap-list" id="gapList1">
-        <li>Das <input class="gap-input" placeholder="" data-ans="Stadtstrukturmodell"> beschreibt, wie eine Stadt räumlich strukturiert ist.</li>
-        <li>Beim <input class="gap-input" placeholder="" data-ans="Zonenmodell"> liegt das Zentrum in der Mitte, umgeben von konzentrischen Ringen.</li>
-        <li>Das <input class="gap-input" placeholder="" data-ans="Mehrkernemodell"> hat mehrere Zentren, die gleichwertig nebeneinander existieren.</li>
-        <li>Die <input class="gap-input" placeholder="" data-ans="Innenstadt"> ist oft das wirtschaftliche und kulturelle Zentrum einer Stadt.</li>
-        <li>Die <input class="gap-input" placeholder="" data-ans="Urbanisierung"> ist der Prozess, bei dem immer mehr Menschen in Städte ziehen.</li>
-        <li>Die <input class="gap-input" placeholder="" data-ans="Stadtentwicklung"> beschäftigt sich mit der Planung und dem Wachstum von Städten.</li>
-        <li>Das <input class="gap-input" placeholder="" data-ans="Stadtzentrum"> bietet oft die beste Infrastruktur und Anbindung.</li>
+        <li>1. Das <input class="gap-input" placeholder="" data-answer="Stadtstrukturmodell"> beschreibt, wie eine Stadt räumlich strukturiert ist.</li>
+        <li>2. Beim <input class="gap-input" placeholder="" data-answer="Zonenmodell"> liegt das Zentrum in der Mitte, umgeben von konzentrischen Ringen.</li>
+        <li>3. Das <input class="gap-input" placeholder="" data-answer="Mehrkernemodell"> hat mehrere Zentren, die gleichwertig nebeneinander existieren.</li>
+        <li>4. Die <input class="gap-input" placeholder="" data-answer="Innenstadt"> ist oft das wirtschaftliche und kulturelle Zentrum einer Stadt.</li>
+        <li>5. Die <input class="gap-input" placeholder="" data-answer="Urbanisierung"> ist der Prozess, bei dem immer mehr Menschen in Städte ziehen.</li>
+        <li>6. Die <input class="gap-input" placeholder="" data-answer="Stadtentwicklung"> beschäftigt sich mit der Planung und dem Wachstum von Städten.</li>
+        <li>7. Das <input class="gap-input" placeholder="" data-answer="Stadtzentrum"> bietet oft die beste Infrastruktur und Anbindung.</li>
       </ul>
     </div>
   </div>
@@ -268,7 +266,7 @@ document.addEventListener('DOMContentLoaded',function(){
 // Gap inputs — live feedback
 document.querySelectorAll('.gap-input').forEach(inp => {
   inp.addEventListener('input', function() {
-    const ans = this.dataset.ans.toLowerCase().trim();
+    const ans = this.dataset.answer.toLowerCase().trim();
     const val = this.value.toLowerCase().trim();
     if (!val) { this.className='gap-input'; return; }
     this.classList.toggle('correct', val===ans);
@@ -295,7 +293,8 @@ function initSatzbau() {
   area.innerHTML = '';
   sbSentences.forEach((s,si) => {
     const div = document.createElement('div'); div.className='sb-task';
-    div.innerHTML=`<div class="drop-zone" id="dz${si}" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event,${si})"></div>
+    div.innerHTML=`<p>Aufgabe ${si+1}: Bringe die Wörter in die richtige Reihenfolge.</p>
+      <div class="drop-zone" id="dz${si}" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event,${si})"></div>
       <div class="chip-pool" id="pool${si}"></div>
       <div class="sb-feedback" id="fb${si}"></div>`;
     area.appendChild(div);
@@ -357,11 +356,11 @@ function buildVocab() {
     if (v.type==='n') {
       const parts = v.de.split(' ');
       const art = parts[0]; const word = parts.slice(1).join(' ');
-      inputs=`<input type="text" placeholder="Artikel" data-ans="${art}" oninput="checkVocabInput(this)">
-              <input type="text" placeholder="Deutsch" data-ans="${word}" oninput="checkVocabInput(this)">
-              <input type="text" placeholder="Plural" data-ans="${v.pl||''}" oninput="checkVocabInput(this)">`;
+      inputs=`<input type="text" placeholder="Artikel" data-answer="${art}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Deutsch" data-answer="${word}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Plural" data-answer="${v.pl||''}" oninput="checkVocabInput(this)">`;
     } else {
-      inputs=`<input type="text" placeholder="Deutsch" data-ans="${v.de}" oninput="checkVocabInput(this)">`;
+      inputs=`<input type="text" placeholder="Deutsch" data-answer="${v.de}" oninput="checkVocabInput(this)">`;
     }
     card.innerHTML=`<img src="https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400&h=200&fit=crop" alt="${v.en}" loading="lazy">
       <div class="vocab-body"><div class="vocab-en">${v.en}</div><div class="vocab-inputs">${inputs}</div></div>`;
@@ -370,7 +369,7 @@ function buildVocab() {
 }
 function checkVocabInput(inp) {
   const val = inp.value.trim().toLowerCase();
-  const ans = inp.dataset.ans.toLowerCase().trim();
+  const ans = inp.dataset.answer.toLowerCase().trim();
   if (!val) { inp.className=''; return; }
   inp.classList.toggle('correct', val===ans);
   inp.classList.toggle('wrong', val!==ans);
@@ -378,6 +377,7 @@ function checkVocabInput(inp) {
 function resetVocab() { document.querySelectorAll('.vocab-inputs input').forEach(i=>{i.value='';i.className='';}); }
 buildVocab();
 
+startTimer('timer0');
 </script>
 </body>
 </html>

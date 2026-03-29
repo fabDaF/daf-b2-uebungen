@@ -185,26 +185,26 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 </div>
 
 <!-- NAV -->
-<nav class="nav">
-  <button class="nav-btn active" onclick="showSection(0)">
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
     <span class="nav-emoji">🔑</span><span class="nav-label">Vorentlastung</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(1)">
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
     <span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(2)">
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
     <span class="nav-emoji">❓</span><span class="nav-label">Verständnis</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(3)">
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
     <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(4)">
+  </div>
+  <div class="nav-btn" onclick="showSection(4)">
     <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
-  </button>
-  <button class="nav-btn" onclick="showSection(5)">
+  </div>
+  <div class="nav-btn" onclick="showSection(5)">
     <span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span>
-  </button>
-</nav>
+  </div>
+</div>
 
 <!-- TAB 0: VORENTLASTUNG -->
 <div class="section active" id="sec-0">
@@ -498,7 +498,6 @@ function initSatzbau() {
         item.appendChild(fb);
         container.appendChild(item);
     });
-}
 
 function sbChipClick(chip) {
     var zone = chip.parentElement.parentElement.querySelector('.sb-zone');
@@ -630,7 +629,6 @@ function initVocab() {
         card.appendChild(body);
         c.appendChild(card);
     });
-}
 
 function getPexelsUrl(id) {
     var pexels = [3184465, 3184338, 3184291, 1181671, 3184339, 3183197, 3184292, 6292009, 1181406, 1709003];
@@ -680,6 +678,46 @@ window.addEventListener('DOMContentLoaded', function() {
     initVocab();
     highlightVocabInText();
 });
-</script>
+var TIMER_PREFIX='B2_2013R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [5].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});
+}}</script>
 </body>
 </html>

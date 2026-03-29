@@ -24,7 +24,6 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 28px 32px 20px;
-  text-align: center;
 }
 .header h1 { font-size: 1.6rem; font-weight: 700; }
 .header p { font-size: 0.95rem; opacity: 0.85; margin-top: 4px; }
@@ -392,10 +391,48 @@ input.correct + .vocab-hint { display: inline; }
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-
-  .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-  .chip.wrong   { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
 </style>
+<script>
+var TIMER_PREFIX='B2_2038S_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
 </head>
 <body>
 <div class="container">
@@ -405,20 +442,20 @@ input.correct + .vocab-hint { display: inline; }
     <p>Musikkulturen · Konzerte beschreiben · Event-Typen</p>
   </div>
 
-  <nav class="nav">
+  <div class="nav">
     <button class="active" onclick="showTab('gespraech',this)">
       <span class="nav-emoji">🗣️</span><span class="nav-label">Gesprächsanlässe</span>
-    </button>
+    </div>
     <button onclick="showTab('rollenspiele',this)">
       <span class="nav-emoji">🎭</span><span class="nav-label">Rollenspiele</span>
-    </button>
+    </div>
     <button onclick="showTab('beschreiben',this)">
       <span class="nav-emoji">📊</span><span class="nav-label">Musik beschreiben</span>
-    </button>
+    </div>
     <button onclick="showTab('wortschatz',this)">
       <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- TAB 1: GESPRÄCHSANLÄSSE -->
   <div id="tab-gespraech" class="tab-content active">
@@ -598,7 +635,7 @@ input.correct + .vocab-hint { display: inline; }
       </div>
       <div class="timer-box">
         <span>⏱</span>
-        <span class="timer-display" id="timer-3">00:00</span>
+        <span id="timer-3">00:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
         <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
       </div>
     </div>
@@ -618,7 +655,7 @@ input.correct + .vocab-hint { display: inline; }
       </div>
       <div class="timer-box">
         <span>⏱</span>
-        <span class="timer-display" id="timer-4">00:00</span>
+        <span id="timer-4">00:00</span><span>🏆 <span id="best-4">--:--</span></span></span></span>
         <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
       </div>
     </div>
@@ -627,198 +664,6 @@ input.correct + .vocab-hint { display: inline; }
   <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
 </div>
 
-<script>
-// ── TAB ──
-function showTab(name, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
-}
 
-// ── TIMER ──
-let timerInterval = null, timerSec = 0;
-function startTimer() {
-  if (timerInterval) return;
-  timerInterval = setInterval(() => {
-    timerSec++;
-    const m = String(Math.floor(timerSec/60)).padStart(2,'0');
-    const s = String(timerSec%60).padStart(2,'0');
-    document.querySelectorAll('.timer-display').forEach(el => el.textContent = m+':'+s);
-  }, 1000);
-}
-function resetTimer() {
-  clearInterval(timerInterval); timerInterval = null; timerSec = 0;
-  document.querySelectorAll('.timer-display').forEach(el => el.textContent = '00:00');
-}
-document.addEventListener('click', startTimer, {once: true});
-
-// ── ADJEKTIV ZUORDNUNG ──
-let selectedAdj = null;
-function adjClick(chip, correctGroup) {
-  if (chip.classList.contains('placed')) return;
-  selectedAdj = { chip, correctGroup };
-  document.querySelectorAll('.adj-chip').forEach(c => c.style.outline='none');
-  chip.style.outline = '3px solid #f0c040';
-}
-function adjDrop(groupEl, groupId) {
-  if (!selectedAdj) return;
-  const { chip, correctGroup } = selectedAdj;
-  const placed = document.createElement('span');
-  placed.className = 'adj-placed';
-  placed.textContent = chip.textContent;
-  if (groupId === correctGroup || (groupId === 'neu' && correctGroup === 'neu') || (groupId === 'neg' && (correctGroup === 'neg'))) {
-    placed.style.background = '#d4edda';
-    placed.style.color = '#155724';
-  }
-  document.getElementById(groupId + '-items').appendChild(placed);
-  chip.classList.add('placed');
-  chip.style.outline = 'none';
-  chip.style.background = '#28a745';
-  selectedAdj = null;
-  const total = document.querySelectorAll('.adj-chip').length;
-  const done = document.querySelectorAll('.adj-chip.placed').length;
-  if (done === total) document.getElementById('adjResult').textContent = '🎉 Alle Adjektive zugeordnet!';
-}
-
-// ── RANDOM QUESTION ──
-const questions = [
-  'Welche Musik wurde gespielt?',
-  'Warum hast du dich für diese Musikrichtung entschieden?',
-  'Wie war die Musik? Beschreibe sie detailliert!',
-  'Was hat dich an dem Konzert besonders beeindruckt?',
-  'Würdest du diesen Künstler weiterempfehlen?',
-  'Vergleiche das Konzert mit anderen, die du erlebt hast.'
-];
-function randomQuestion() {
-  const q = questions[Math.floor(Math.random() * questions.length)];
-  document.getElementById('randomQ').textContent = q;
-}
-
-// ── EVENT MATCHING ──
-let selectedEvent = null;
-function matchEvent(card) {
-  if (card.classList.contains('matched')) return;
-  if (selectedEvent === card) { card.style.outline='none'; selectedEvent = null; return; }
-  if (selectedEvent) { selectedEvent.style.outline = 'none'; }
-  selectedEvent = card;
-  card.style.outline = '3px solid #667eea';
-}
-
-// ── LÜCKENTEXT ──
-function checkLuecke(inp) {
-  const val = inp.value.trim();
-  const ans = inp.dataset.answer;
-  const alt = inp.dataset.alt;
-  if (!val) { inp.classList.remove('correct','wrong'); return; }
-  if (val.toLowerCase() === ans.toLowerCase() || (alt && val.toLowerCase() === alt.toLowerCase())) {
-    inp.classList.add('correct'); inp.classList.remove('wrong');
-  } else {
-    inp.classList.add('wrong'); inp.classList.remove('correct');
-  }
-}
-function resetLuecken() {
-  document.querySelectorAll('.luecke-input').forEach(i => { i.value=''; i.classList.remove('correct','wrong'); });
-}
-
-// ── VOKABULAR ──
-const vocabData = [
-  { type:'n', en:'the music culture', de:'die Musikkultur', plural:'-en' },
-  { type:'n', en:'the festival', de:'das Festival', plural:'-s' },
-  { type:'n', en:'the concert', de:'das Konzert', plural:'-e' },
-  { type:'n', en:'the favourite band', de:'die Lieblingsband', plural:'-s' },
-  { type:'n', en:'musical taste', de:'der Musikgeschmack', plural:'–' },
-  { type:'n', en:'the favourite song', de:'das Lieblingslied', plural:'uͤ-er' },
-  { type:'n', en:'the charity marathon', de:'der Spendenmarathon', plural:'-s' },
-  { type:'n', en:'the anniversary concert', de:'das Jubiläumskonzert', plural:'-e' },
-  { type:'v', en:'to prefer', de:'bevorzugen' },
-  { type:'v', en:'to describe', de:'beschreiben' },
-  { type:'v', en:'to impress', de:'beeindrucken' },
-  { type:'a', en:'moving / touching', de:'bewegend' },
-  { type:'a', en:'magical / enchanting', de:'zauberhaft' }
-];
-
-function initVocab() {
-  const grid = document.getElementById('vocabGrid');
-  grid.innerHTML = '';
-  vocabData.forEach(v => {
-    const item = document.createElement('div');
-    item.className = 'vocab-item';
-    if (v.type === 'n') {
-      const parts = v.de.split(' ');
-      const art = parts[0], word = parts.slice(1).join(' ');
-      item.innerHTML = `<div class="vocab-english">${v.en}</div>
-        <div class="inputs-row">
-          <input class="vocab-input" placeholder="" data-answer="${art}" oninput="checkVocab(this)" style="max-width:80px">
-          <input class="vocab-input" placeholder="" data-answer="${word}" oninput="checkVocab(this)" style="flex:2">
-          <input class="vocab-input" placeholder="" data-answer="${v.plural}" oninput="checkVocab(this)" style="max-width:90px">
-        </div>
-        <div class="vocab-hint">Artikel · Deutsch · Plural</div>`;
-    } else {
-      item.innerHTML = `<div class="vocab-english">${v.en}</div>
-        <div class="inputs-row">
-          <input class="vocab-input" placeholder="" data-answer="${v.de}" oninput="checkVocab(this)">
-        </div>`;
-    }
-    grid.appendChild(item);
-  });
-}
-
-function checkVocab(inp) {
-  const val = inp.value.trim();
-  const ans = inp.dataset.answer;
-  if (!val) { inp.classList.remove('correct','wrong'); return; }
-  if (val.toLowerCase() === ans.toLowerCase()) {
-    inp.classList.add('correct'); inp.classList.remove('wrong');
-  } else {
-    inp.classList.add('wrong'); inp.classList.remove('correct');
-  }
-}
-function resetVocab() {
-  document.querySelectorAll('.vocab-input').forEach(i => { i.value=''; i.classList.remove('correct','wrong'); });
-}
-
-// ── INIT ──
-initVocab();
-var TIMER_PREFIX='B2_2038S_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [3,4].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-</script>
 </body>
 </html>
