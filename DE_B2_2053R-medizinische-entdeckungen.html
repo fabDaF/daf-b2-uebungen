@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.2 – Neue medizinische Entdeckungen</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:'Segoe UI',sans-serif;padding:20px}
+.container{max-width:1000px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);overflow:hidden}
+header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 32px;text-align:center}
+header h1{font-size:1.7rem;margin-bottom:6px;font-family:Georgia,serif}
+header p{opacity:.85;font-size:.95rem;font-family:Georgia,serif}
+.nav{display:flex;background:#f8f9fa;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;padding:11px 10px;border-right:1px solid #ddd;background:none;cursor:pointer;color:#666;transition:all .2s;gap:3px;flex:1border-bottom:1px solid #ddd;flex:1;}
+.nav-btn .nav-emoji{font-size:1.2rem}
+.nav-btn .nav-label{font-size:.68rem}
+.nav-btn.active{background:white;color:#667eea;border-bottom:3px solid #667eea;font-weight:700}
+.nav-btn:hover:not(.active){background:#f0f0f0}
+.tab{display:none;padding:28px 32px}
+.tab.active{display:block}
+.tab-banner{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:20px}
+h2{color:#667eea;font-size:1.2rem;margin-bottom:14px}
+h3{color:#764ba2;font-size:1rem;margin:16px 0 10px}
+.info-box{background:#f0f0ff;border-left:4px solid #667eea;padding:16px 20px;border-radius:8px;margin-bottom:16px;font-size:.95rem;line-height:1.7}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0}
+.vocab-card{background:#f5f0ff;border:1px solid #c9b8ff;border-radius:8px;padding:12px}
+.vocab-card .word{font-weight:700;color:#5a3e9b;font-size:.93rem;margin-bottom:4px}
+.vocab-card .trans{font-size:.82rem;color:#666;margin-bottom:4px}
+.vocab-card .example{font-size:.8rem;color:#555;font-style:italic;line-height:1.4}
+/* Lesetext */
+.story-text{font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;line-height:1.85;text-align:justify;hyphens:auto;color:#222;max-width:720px;margin:0 auto}
+.story-text p{margin-bottom:1.1em;text-indent:1.5em}
+.story-text p:first-child{text-indent:0}
+.story-img{float:right;margin:0 0 16px 22px;border-radius:8px;max-width:240px;width:40%}
+.story-img img{width:100%;border-radius:8px}
+.story-img figcaption{font-size:.75rem;color:#888;text-align:center;margin-top:4px;font-style:italic}
+/* Lückentext */
+.uebung-block{margin-bottom:20px;padding:16px;background:#fafafa;border-radius:8px;border:1px solid #ede}
+.uebung-block p{font-size:.95rem;line-height:1.7}
+input.gap{border:none;border-bottom:2px solid #999;outline:none;font-size:.95rem;padding:2px 4px;width:140px;text-align:center;background:transparent;transition:border-color .2s}
+input.gap:focus{border-bottom-color:#667eea}
+input.gap.correct{border-bottom:2px solid #4caf50;color:#2e7d32;font-weight:700}
+input.gap.wrong{border-bottom:2px solid #f44336;color:#c62828}
+/* MC */
+.mc-item{margin-bottom:18px;padding:14px;background:#fafafa;border-radius:8px;border:1px solid #ede}
+.mc-question{font-size:1rem;margin-bottom:10px;line-height:1.6;color:#333}
+.mc-opts{display:flex;flex-wrap:wrap;gap:8px}
+.mc-opt{padding:5px 16px;border:1.5px solid #c5cae9;border-radius:20px;background:#fff;cursor:pointer;font-size:11px;letter-spacing:.3px;transition:all .2s}
+.mc-opt:hover{border-color:#667eea;background:#eef0ff}
+.mc-opt.correct{border-color:#27ae60;background:#e8f5e9;color:#2e7d32;font-weight:700}
+.mc-opt.wrong{border-color:#e74c3c;background:#ffebee;color:#c62828}
+.control-bar{display:flex;align-items:center;margin-bottom:16px;gap:10px;background:#f8f9fa;padding:8px 12px;border-radius:8px}
+.btn{padding:6px 16px;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:500;background:#fff;color:#666;transition:all .2s}
+.btn:hover{border-color:#667eea;color:#667eea}
+.timer-display{margin-left:auto;font-size:.85rem;color:#aaa}
+/* Satzbau */
+.sb-item{margin-bottom:22px}
+.chips-container{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#f8f8f8;border-radius:10px;min-height:56px;margin-bottom:10px}
+.sentence-builder{display:flex;flex-wrap:wrap;gap:6px;padding:14px;background:#fff;border:2px dashed #ccc;border-radius:10px;min-height:56px;align-items:center;margin-bottom:6px}
+.sentence-builder.correct{border-color:#27ae60;background:#f0fff4}
+.sentence-builder.incorrect{border-color:#e74c3c;background:#fff5f5}
+.chip{background:#fff;border:2px solid #667eea;color:#667eea;padding:7px 13px;border-radius:20px;cursor:move;font-weight:500;font-size:.9em;user-select:none;white-space:nowrap;transition:all .2s}
+.chip.correct{background:#27ae60;border-color:#27ae60;color:#fff}
+.chip.incorrect{background:#e74c3c;border-color:#e74c3c;color:#fff}
+.chip.punct-chip{font-size:1.2em;min-width:18px;text-align:center;padding:7px 10px}
+.sb-punkt{font-size:1.1em;font-weight:700;color:#27ae60;margin-left:2px;align-self:center}
+.satzbau-feedback{font-size:.9em;font-weight:600;margin-top:4px;min-height:1.2em}
+.satzbau-feedback.correct{color:#27ae60}
+.satzbau-feedback.incorrect{color:#e74c3c}
+/* HL */
+.hl{background:#ffe082;border-radius:3px;padding:0 2px;cursor:help}
+@media(max-width:600px){body{padding:8px}.story-img{float:none;width:100%;max-width:100%;margin:0 0 16px 0}}
+footer{text-align:center;padding:16px;font-size:.78rem;color:#aaa;border-top:1px solid #f0f0f0;margin-top:20px}
+footer a{color:#aaa}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── daf-html-layout Extra-Fixes ─── */
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Neue medizinische Entdeckungen</h1>
+  <p>B2.2 · Einheit 5 · Lesetext · 2053R</p>
+</header>
+<div class="nav">
+  <div class="nav-btn active" onclick="showTab('vorentlastung',this)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+  <div class="nav-btn" onclick="showTab('lesetext',this)"><span class="nav-emoji">📰</span><span class="nav-label">Lesetext</span></div>
+  <div class="nav-btn" onclick="showTab('lueckentext',this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+  <div class="nav-btn" onclick="showTab('mc',this)"><span class="nav-emoji">❓</span><span class="nav-label">Fragen</span></div>
+  <div class="nav-btn" onclick="showTab('satzbau',this)"><span class="nav-emoji">🔧</span><span class="nav-label">Satzbau</span></div>
+</div>
+
+<!-- Tab 1: Vorentlastung -->
+<div id="tab-vorentlastung" class="tab active">
+  <img src="https://images.pexels.com/photos/3825587/pexels-photo-3825587.jpeg?auto=compress&w=900" class="tab-banner" alt="Medizin Labor">
+  <h2>📖 Vorentlastung: Medizin im 21. Jahrhundert</h2>
+  <div class="info-box">
+    Die Medizin macht Fortschritte in einem Tempo, das noch vor wenigen Jahrzehnten undenkbar gewesen wäre. Gentechnik, künstliche Intelligenz und personalisierte Therapien revolutionieren die Behandlung von Krankheiten.
+  </div>
+  <h3>🔑 Schlüsselbegriffe</h3>
+  <div class="vocab-grid">
+    <div class="vocab-card"><div class="word">die Genomsequenzierung</div><div class="trans">genome sequencing</div><div class="example">„Die Genomsequenzierung macht individuelle Therapien möglich."</div></div>
+    <div class="vocab-card"><div class="word">die Immuntherapie, -n</div><div class="trans">immunotherapy</div><div class="example">„Immuntherapien revolutionieren die Krebsbehandlung."</div></div>
+    <div class="vocab-card"><div class="word">das CRISPR-Cas9</div><div class="trans">CRISPR-Cas9 (gene editing tool)</div><div class="example">„Mit CRISPR lassen sich Gene gezielt verändern."</div></div>
+    <div class="vocab-card"><div class="word">die personalisierte Medizin</div><div class="trans">personalised medicine</div><div class="example">„Jeder Patient erhält eine auf ihn zugeschnittene Therapie."</div></div>
+    <div class="vocab-card"><div class="word">das Mikrobiom, -e</div><div class="trans">microbiome</div><div class="example">„Das Darm-Mikrobiom beeinflusst das Immunsystem."</div></div>
+    <div class="vocab-card"><div class="word">die klinische Studie, -n</div><div class="trans">clinical trial</div><div class="example">„Ohne klinische Studien darf kein Medikament zugelassen werden."</div></div>
+  </div>
+  <h3>💬 Zum Nachdenken</h3>
+  <div class="info-box" style="background:#fff8e1;border-color:#ff9800">
+    Stellen Sie sich vor: Ein Arzt analysiert Ihre komplette DNA und entwickelt einen individuellen Therapieplan — schon bei der Geburt. Welche Chancen und Risiken sehen Sie dabei?
+  </div>
+</div>
+
+<!-- Tab 2: Lesetext -->
+<div id="tab-lesetext" class="tab">
+  <img src="https://images.pexels.com/photos/356040/pexels-photo-356040.jpeg?auto=compress&w=900" class="tab-banner" alt="Medizinische Forschung">
+  <h2>📰 Lesetext</h2>
+  <div class="story-text">
+    <figure class="story-img">
+      <img src="https://images.pexels.com/photos/3938023/pexels-photo-3938023.jpeg?auto=compress&w=400" alt="DNA Forschung">
+      <figcaption>Genomforschung verändert die Medizin grundlegend</figcaption>
+    </figure>
+    <p>Im Jahr 2003 feierte die Wissenschaft einen Meilenstein: Das menschliche Genom war vollständig entschlüsselt. Damals glaubten viele, damit würde sich die Medizin schlagartig verändern. Die Realität stellte sich als komplizierter heraus — doch zwei Jahrzehnte später zeigt sich, dass die <span class="hl" title="genome sequencing">Genomsequenzierung</span> tatsächlich eine medizinische Revolution eingeleitet hat, die gerade erst Fahrt aufnimmt.</p>
+    <p>Der vielleicht spektakulärste Durchbruch der jüngsten Vergangenheit ist die Entwicklung der mRNA-Technologie, die durch die COVID-19-Pandemie schlagartig weltbekannt wurde. Was kaum jemand weiß: Diese Technologie wurde bereits in den 1990er-Jahren von der Biochemikerin Katalin Karikó an der Universität Pennsylvania erforscht — jahrelang ohne ausreichende Forschungsgelder, oft belächelt von Fachkollegen. Dass mRNA-Impfstoffe innerhalb weniger Monate gegen SARS-CoV-2 entwickelt werden konnten, war nur möglich, weil Karikó und ihr Kollege Drew Weissman jahrzehntelang auf ein Ziel hingearbeitet hatten. 2023 erhielten sie dafür den Nobelpreis für Physiologie oder Medizin.</p>
+    <p>Parallel dazu verändert die sogenannte <span class="hl" title="personalised medicine">personalisierte Medizin</span> die Krebstherapie von Grund auf. Statt alle Patienten mit derselben Chemotherapie zu behandeln, analysieren Onkologen heute die genetischen Mutationen eines Tumors und wählen gezielt jene Medikamente, die exakt auf dieses Muster wirken. Die Ansprechraten steigen, die Nebenwirkungen sinken. Was noch vor zehn Jahren als Utopie galt, ist heute in spezialisierten Zentren Routinepraxis.</p>
+    <p>Ein weiteres aufstrebendes Feld ist die <span class="hl" title="immunotherapy">Immuntherapie</span>. Das körpereigene Immunsystem wird dabei so umprogrammiert, dass es Krebszellen erkennt und bekämpft — ähnlich wie ein Computerprogramm, das auf neue Bedrohungen aktualisiert wird. Besonders die CAR-T-Zelltherapie, bei der T-Zellen des Patienten im Labor genetisch verändert und zurück in den Körper injiziert werden, hat bei bestimmten Leukämieformen bemerkenswerte Heilungsraten erzielt.</p>
+    <p>Nicht minder aufregend ist die Erforschung des <span class="hl" title="microbiome">Mikrobioms</span>. Die Billionen von Bakterien, Viren und Pilzen, die unseren Darm besiedeln, beeinflussen nicht nur die Verdauung, sondern auch das Immunsystem, die psychische Gesundheit und offenbar sogar das Ansprechen auf Krebstherapien. Forscher aus Heidelberg und Boston haben nachgewiesen, dass Patienten mit einem vielfältigen Mikrobiom deutlich besser auf Immuncheckpoint-Inhibitoren ansprechen.</p>
+    <p>All diese Entwicklungen werfen auch ethische Fragen auf. Wer hat Zugang zu den teuren neuen Therapien? Wem gehören die genetischen Daten, die für personalisierte Behandlungen gesammelt werden? Und wie verhindern wir, dass eine medizinische Zweiklassengesellschaft entsteht — zwischen jenen, die sich Genomanalyse und Immuntherapie leisten können, und jenen, die mit den Mitteln des letzten Jahrhunderts behandelt werden? Diese Fragen werden die Gesundheitspolitik der kommenden Jahrzehnte bestimmen.</p>
+  </div>
+</div>
+
+<!-- Tab 3: Lückentext -->
+<div id="tab-lueckentext" class="tab">
+  <img src="https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&w=900" class="tab-banner" alt="Lesen">
+  <h2>✏️ Lückentext zum Lesetext</h2>
+  <div class="control-bar">
+    <div style="display:flex;gap:6px">
+      <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+      <button class="btn" onclick="resetLuecken()">Neu starten</button>
+    </div>
+    
+</div>
+  <div class="uebung-block"><p>1. Das menschliche Genom wurde im Jahr <input class="gap" data-answer="2003" style="width:70px" oninput="ltCheck(this)"> vollständig entschlüsselt.</p></div>
+  <div class="uebung-block"><p>2. Die mRNA-Technologie wurde von Katalin <input class="gap" data-answer="Karikó" oninput="ltCheck(this)"> an der Universität Pennsylvania entwickelt.</p></div>
+  <div class="uebung-block"><p>3. Bei der personalisierten Medizin werden die genetischen <input class="gap" data-answer="Mutationen" oninput="ltCheck(this)"> eines Tumors analysiert.</p></div>
+  <div class="uebung-block"><p>4. Bei der CAR-T-Zelltherapie werden T-Zellen genetisch <input class="gap" data-answer="verändert" oninput="ltCheck(this)"> und in den Körper zurückinjiziert.</p></div>
+  <div class="uebung-block"><p>5. Das <input class="gap" data-answer="Mikrobiom" oninput="ltCheck(this)"> beeinflusst nicht nur die Verdauung, sondern auch das Immunsystem.</p></div>
+  <div class="uebung-block"><p>6. Patienten mit einem vielfältigen Mikrobiom sprechen besser auf Immuncheckpoint-<input class="gap" data-answer="Inhibitoren" oninput="ltCheck(this)"> an.</p></div>
+  <div class="uebung-block"><p>7. Karikó und Weissman erhielten 2023 den <input class="gap" data-answer="Nobelpreis" oninput="ltCheck(this)"> für Physiologie oder Medizin.</p></div>
+</div>
+
+<!-- Tab 4: MC -->
+<div id="tab-mc" class="tab">
+  <img src="https://images.pexels.com/photos/1301585/pexels-photo-1301585.jpeg?auto=compress&w=900" class="tab-banner" alt="Fragen">
+  <h2>❓ Verständnisfragen</h2>
+  <div class="info-box" style="font-size:.88rem">Wählen Sie die richtige Antwort. Live-Feedback bei jedem Klick.</div>
+  <div class="mc-item">
+    <div class="mc-question">1. Was ermöglichte die schnelle Entwicklung der COVID-19-mRNA-Impfstoffe?</div>
+    <div class="mc-opts">
+      <button class="mc-opt" onclick="mcCheck(this,false)">Staatliche Großprojekte ab 2020</button>
+      <button class="mc-opt" onclick="mcCheck(this,true)">Jahrzehntelange Grundlagenforschung von Karikó und Weissman</button>
+      <button class="mc-opt" onclick="mcCheck(this,false)">Chinesische Technologietransfers</button>
+    </div>
+  </div>
+  <div class="mc-item">
+    <div class="mc-question">2. Was ist das Prinzip der CAR-T-Zelltherapie?</div>
+    <div class="mc-opts">
+      <button class="mc-opt" onclick="mcCheck(this,false)">Chemische Blockade von Tumorzellen</button>
+      <button class="mc-opt" onclick="mcCheck(this,false)">Strahlentherapie mit modifizierten Strahlen</button>
+      <button class="mc-opt" onclick="mcCheck(this,true)">Genetisch veränderte T-Zellen bekämpfen Krebszellen</button>
+    </div>
+  </div>
+  <div class="mc-item">
+    <div class="mc-question">3. Welche ethische Frage wirft der Text auf?</div>
+    <div class="mc-opts">
+      <button class="mc-opt" onclick="mcCheck(this,true)">Wer hat Zugang zu teuren neuen Therapien?</button>
+      <button class="mc-opt" onclick="mcCheck(this,false)">Ob mRNA-Impfstoffe sicher sind</button>
+      <button class="mc-opt" onclick="mcCheck(this,false)">Ob Mikrobiom-Forschung ethisch vertretbar ist</button>
+    </div>
+  </div>
+  <div class="mc-item">
+    <div class="mc-question">4. Wofür erhielten Karikó und Weissman den Nobelpreis?</div>
+    <div class="mc-opts">
+      <button class="mc-opt" onclick="mcCheck(this,false)">Für die Entschlüsselung des menschlichen Genoms</button>
+      <button class="mc-opt" onclick="mcCheck(this,true)">Für die Entwicklung der mRNA-Technologie</button>
+      <button class="mc-opt" onclick="mcCheck(this,false)">Für die Erfindung der CAR-T-Zelltherapie</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 5: Satzbau -->
+<div id="tab-satzbau" class="tab">
+  <img src="https://images.pexels.com/photos/2280549/pexels-photo-2280549.jpeg?auto=compress&w=900" class="tab-banner" alt="Forschung">
+  <h2>🔧 Satzbau: Medizinische Formulierungen</h2>
+  <div class="control-bar">
+    <div style="display:flex;gap:6px">
+      <button class="btn" onclick="sbShowAll()">Alle lösen</button>
+      <button class="btn" onclick="initSatzbau()">Neu starten</button>
+    </div>
+    
+</div>
+  <div id="satzbauContainer"></div>
+</div>
+
+<footer>
+  <span style="font-weight:700">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</footer>
+</div>
+
+<script>
+function showTab(id,btn){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');}
+var timers={lt:{s:0,int:null,best:null},sb:{s:0,int:null,best:null}};
+function fmtTime(s){var m=Math.floor(s/60),sec=s%60;return(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}
+function timerStart(k){if(timers[k].int)return;timers[k].int=setInterval(function(){timers[k].s++;document.getElementById('timer-'+k).textContent=fmtTime(timers[k].s);},1000);}
+function timerStop(k){
+  if(!timerRunning[k]) return;
+  clearInterval(timerIntervals[k]); timerRunning[k]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+k)||'999999');
+  if(timerSeconds[k]>0&&timerSeconds[k]<best){
+    localStorage.setItem(TIMER_PREFIX+k,timerSeconds[k]);
+    var el=document.getElementById('best-'+k);
+    if(el) el.textContent=fmtTime(timerSeconds[k]);
+  }
+  timerSeconds[k]=0; timerStarted[k]=false;
+  var td=document.getElementById('timer-'+k);
+  if(td) td.textContent='0:00';
+}
+function timerReset(k){clearInterval(timers[k].int);timers[k].int=null;timers[k].s=0;document.getElementById('timer-'+k).textContent='00:00';}
+function ltCheck(inp){timerStart('lt');var ans=inp.dataset.answer;var val=inp.value.trim();inp.classList.remove('correct','wrong');if(!val)return;var cmp=ans.charAt(0)===ans.charAt(0).toUpperCase()&&ans.charAt(0)!==ans.charAt(0).toLowerCase();var v=cmp?val:val.toLowerCase();var a=cmp?ans:ans.toLowerCase();if(v===a){inp.classList.add('correct');checkLtAllDone();return;}if(a.indexOf(v)===0)return;inp.classList.add('wrong');}
+function checkLtAllDone(){var all=Array.from(document.querySelectorAll('#tab-lueckentext input.gap'));if(all.length&&all.every(function(i){return i.classList.contains('correct');}))timerStop('lt');}
+function showLueckenLoesung(){timerStop('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');});}
+function resetLuecken(){timerReset('lt');document.querySelectorAll('#tab-lueckentext input.gap').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong');});}
+function mcCheck(btn,isCorrect){var opts=btn.closest('.mc-opts').querySelectorAll('.mc-opt');opts.forEach(function(o){o.disabled=true;});btn.classList.add(isCorrect?'correct':'wrong');}
+var sbDragged=null;
+var satzbauData=[
+  {parts:['die','Genomsequenzierung','hat','eine','medizinische','Revolution','eingeleitet'],valid:[['die','Genomsequenzierung','hat','eine','medizinische','Revolution','eingeleitet']],punct:'.'},
+  {parts:['bei','der','Immuntherapie','wird','das','Immunsystem','so','umprogrammiert',',','dass','es','Krebszellen','bekämpft'],valid:[['bei','der','Immuntherapie','wird','das','Immunsystem','so','umprogrammiert',',','dass','es','Krebszellen','bekämpft']],punct:'.'},
+  {parts:['das','Mikrobiom','beeinflusst','das','Ansprechen','auf','Krebstherapien','erheblich'],valid:[['das','Mikrobiom','beeinflusst','das','Ansprechen','auf','Krebstherapien','erheblich']],punct:'.'},
+  {parts:['mRNA-Impfstoffe','wurden','innerhalb','weniger','Monate','entwickelt'],valid:[['mRNA-Impfstoffe','wurden','innerhalb','weniger','Monate','entwickelt']],punct:'.'}
+];
+function getSbCursor(){var c=document.getElementById('sb-insert-cursor');if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}return c;}
+function getSbInsertPos(zone,cx){var chips=Array.from(zone.querySelectorAll('.chip'));for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(cx<r.left+r.width/2)return chips[i];}return null;}
+function sbCapitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function sbUpdateCapitalization(row){var chips=Array.from(row.querySelectorAll('.chip'));chips.forEach(function(c,i){var orig=c.dataset.orig;if(orig===','||orig===';')return;var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);});}
+function sbMakeChip(word){var chip=document.createElement('div');chip.className='chip'+(word===','||word===';'?' punct-chip':'');chip.textContent=word;chip.dataset.orig=word;chip.draggable=true;chip.addEventListener('dragstart',function(e){sbDragged=chip;timerStart('sb');e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});chip.addEventListener('dragend',function(){chip.style.opacity='';sbDragged=null;var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);});return chip;}
+function sbRegisterZone(zone,idx){zone.addEventListener('dragover',function(e){e.preventDefault();if(!sbDragged)return;var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);});zone.addEventListener('dragleave',function(e){if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}});zone.addEventListener('drop',function(e){e.preventDefault();if(!sbDragged)return;var cursor=document.getElementById('sb-insert-cursor');if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}sbDragged=null;var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);});}
+function sbColorRow(idx){var row=document.getElementById('sb-row-'+idx);var chips=Array.from(row.querySelectorAll('.chip'));var order=chips.map(function(c){return c.dataset.orig;});var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});var ex=row.querySelector('.sb-punkt');if(ex)ex.parentNode.removeChild(ex);if(ok){var p=document.createElement('span');p.className='sb-punkt';p.textContent=satzbauData[idx].punct||'.';row.appendChild(p);}return ok;}
+function sbCheckAuto(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);if(bank.querySelectorAll('.chip').length>0){row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});row.classList.remove('correct','incorrect');fb.textContent='';return;}setTimeout(function(){timerStart('sb');var ok=sbColorRow(idx);if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';}},500);}
+function sbCheckAllDone(){var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});if(allOk)timerStop('sb');}
+function sbShowSolution(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);var sol=satzbauData[idx].valid[0];var allChips={};Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);sol.forEach(function(word,i){var chip=allChips[word];if(chip){if(word!==','&&word!==';')chip.textContent=(i===0)?sbCapitalize(word):word;chip.classList.remove('correct','incorrect');row.appendChild(chip);}});fb.textContent='';setTimeout(function(){sbCheckAuto(idx);},100);}
+function sbResetOne(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';var parts=satzbauData[idx].parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});}
+function initSatzbau(){timerReset('sb');var container=document.getElementById('satzbauContainer');container.innerHTML='';satzbauData.forEach(function(ex,idx){var item=document.createElement('div');item.className='sb-item';var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;var parts=ex.parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});sbRegisterZone(bank,idx);sbRegisterZone(row,idx);var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';var solveBtn=document.createElement('button');solveBtn.className='btn';solveBtn.textContent='Lösen';solveBtn.setAttribute('data-idx',idx);solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});var resetBtn=document.createElement('button');resetBtn.className='btn';resetBtn.textContent='↺';resetBtn.setAttribute('data-idx',idx);resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});btnRow.appendChild(solveBtn);btnRow.appendChild(resetBtn);item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);container.appendChild(item);});}
+function sbShowAll(){satzbauData.forEach(function(_,i){sbShowSolution(i);});}
+initSatzbau();
+var TIMER_PREFIX='B2_2053R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
+</body>
+</html>

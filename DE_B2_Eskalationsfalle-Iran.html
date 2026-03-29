@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2 · Die Eskalationsfalle – Interaktive DaF-Übung</title>
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.0em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* Vorentlastung */
+.ve-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.ve-table td { padding: 10px 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+.ve-table td:first-child { font-weight: 600; color: #4a148c; white-space: nowrap; width: 35%; }
+.ve-table td:last-child { color: #555; line-height: 1.5; }
+
+/* Originaltext / Dialog */
+.text-block { line-height: 1.8; color: #333; font-size: 1.0em; font-family: Georgia, 'Times New Roman', serif; }
+.text-block p { margin-bottom: 14px; text-align: justify; }
+.source { margin-top: 20px; font-size: 0.8em; color: #999; font-style: italic; }
+.dialog { margin-bottom: 16px; }
+.dialog .speaker { font-weight: 700; color: #4a148c; margin-bottom: 2px; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+.dialog .speaker.host { color: #2c3e50; }
+.dialog .speaker.guest { color: #4a148c; }
+.dialog .utterance { margin-left: 0; margin-bottom: 14px; line-height: 1.75; text-align: justify; }
+
+/* Genus */
+.genus-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 16px; }
+.genus-chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.genus-chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.genus-chip.wrong { background: #e74c3c; border-color: #e74c3c; color: white; }
+.genus-zones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.drop-zone { min-height: 100px; padding: 12px; border: 2px dashed #ccc; border-radius: 10px; text-align: center; transition: all 0.2s; }
+.drop-zone h3 { color: #667eea; margin-bottom: 8px; font-size: 1.1em; }
+.drop-zone.dragover { background: #f0f4ff; border-color: #667eea; }
+.drop-zone .genus-chip { margin: 4px; display: inline-block; }
+
+/* Lückentext */
+.luecke-item { margin-bottom: 18px; line-height: 1.7; }
+.luecke-item input { border: 2px solid #ccc; border-radius: 6px; padding: 4px 8px; font-size: 0.95em; transition: border-color 0.2s; outline: none; }
+.luecke-item input.correct { border-color: #27ae60; background: #f0fff4; }
+.luecke-item input.wrong { border-color: #e74c3c; background: #fff5f5; }
+.luecke-item input:focus { border-color: #667eea; }
+.inp-s { width: 80px; } .inp-m { width: 140px; } .inp-l { width: 200px; } .inp-xl { width: 260px; }
+
+/* Multiple Choice */
+.mc-item { margin-bottom: 22px; }
+.mc-item p { font-weight: 600; margin-bottom: 8px; color: #333; }
+.mc-opt { display: block; padding: 10px 16px; margin: 4px 0; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.mc-opt:hover { background: #f0f4ff; border-color: #667eea; }
+.mc-opt.correct { background: #f0fff4; border-color: #27ae60; color: #27ae60; font-weight: 600; }
+.mc-opt.wrong { background: #fff5f5; border-color: #e74c3c; color: #e74c3c; }
+.mc-opt.disabled { pointer-events: none; opacity: 0.6; }
+
+/* Satzbau */
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+
+/* Buttons */
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #eee; color: #444; }
+
+/* Timer */
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* Footer */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* Hilfe-Box */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .genus-zones { grid-template-columns: repeat(2, 1fr); }
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Die Eskalationsfalle</h1>
+        <p style="font-family: Georgia, serif;">B2 &middot; Podcast-Interview &middot; Geopolitik</p>
+        <div class="big-emoji">⚠️</div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+        <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📄</span><span class="nav-label">Originaltext</span></div>
+        <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔤</span><span class="nav-label">Genus</span></div>
+        <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+        <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">☑️</span><span class="nav-label">Multiple Choice</span></div>
+        <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+    </div>
+
+    <!-- ═══════ TAB 0: VORENTLASTUNG ═══════ -->
+    <div class="section active" id="sec-0">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">📖 Vorentlastung</h2>
+            <p style="margin-bottom:14px; color:#555;">Lies die Begriffe und ihre Erklärungen, bevor du den Text liest.</p>
+            <table class="ve-table">
+                <tr><td>die Eskalation, -en</td><td>eine schrittweise Steigerung eines Konflikts oder einer Krise</td></tr>
+                <tr><td>die Simulation, -en</td><td>ein computergestütztes Modell, das eine mögliche Situation durchspielt</td></tr>
+                <tr><td>das Uran (nur Sg.)</td><td>ein radioaktives Material, das für Kernenergie und Atomwaffen benötigt wird</td></tr>
+                <tr><td>die Anreicherung, -en</td><td>der Prozess, bei dem der Anteil eines bestimmten Stoffes erhöht wird</td></tr>
+                <tr><td>die Koalition, -en</td><td>ein Bündnis mehrerer Staaten oder Parteien für ein gemeinsames Ziel</td></tr>
+                <tr><td>der Regimewechsel, -</td><td>der erzwungene Austausch einer Regierung durch eine andere</td></tr>
+                <tr><td>die Drohne, -n</td><td>ein unbemanntes Fluggerät, das ferngesteuert wird</td></tr>
+                <tr><td>die Abschreckung, -en</td><td>eine Strategie, die den Gegner durch die Drohung mit Vergeltung von einem Angriff abhält</td></tr>
+                <tr><td>die Vergeltung, -en</td><td>eine Gegenmaßnahme als Reaktion auf einen Angriff</td></tr>
+                <tr><td>die Resilienz (nur Sg.)</td><td>die Widerstandsfähigkeit eines Systems gegenüber Störungen oder Angriffen</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 1: ORIGINALTEXT ═══════ -->
+    <div class="section" id="sec-1">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">📄 Originaltext</h2>
+            <p style="margin-bottom:14px; color:#555; font-size:0.9em;"><em>Podcast-Interview mit Prof. Robert Pape (University of Chicago). Moderator: Steven Bartlett. Übersetzt und leicht gekürzt.</em></p>
+            <div class="text-block">
+                <p><strong>Die Eskalationsfalle — Warum Bomben Kriege nicht beenden</strong></p>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Sie haben 20 Jahre lang Simulationen über einen Krieg mit dem Iran durchgeführt. Was ist die Schlagzeile, die die Menschen kennen müssen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Dass Bomben nicht nur Ziele treffen — sie verändern die Politik. Bevor die Bomben fallen, konzentrieren wir uns auf den taktischen Erfolg: Haben die Bomben die Ziele getroffen? Und mit den Präzisionswaffen ist das fast hypnotisierend — sie treffen und zerstören das Ziel zu 90 Prozent. Das Problem ist: Kriege drehen sich nicht nur um die Hardware. Sie drehen sich um Politik. Und wenn die Bomben fallen, verändert sich die Politik — beim Feind und beim Angreifer. Diese Schwelle ist der Beginn dessen, was ich die Eskalationsfalle nenne.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Was genau ist im Juni passiert? Für alle, die es nicht mitbekommen haben.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Im Juni haben die USA Natans und Fordo bombardiert. Und was sieht man sofort? Über 90 Prozent — diese B-2-Bomber werden diese Ziele zerstören. Aber wir wissen nicht, wo das Nuklearmaterial ist. Der ganze Sinn war nicht, ein Gebäude zu zerstören. Es ging darum, an das angereicherte Uran zu kommen. Letzten Mai war klar: Sie hatten Material für 16 Atombomben. 1-6. Und nach der Simulation wussten wir nicht, wo eine einzige Unze davon war. Wir haben ein Satellitenbild, das zeigt: Zwei Tage bevor wir Fordo bombardiert haben, fahren Lastwagen Sachen weg. Was transportiert man wohl, wenn Amerika gleich deine Anlage bombardiert? Ich glaube nicht, dass sie das Popcorn rausbringen.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Und dann kamen die Verhandlungen — aber warum verhandelt man überhaupt mit dem Iran, wenn man das Programm angeblich zerstört hat?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Genau. Warum reden wir überhaupt mit ihnen? Wenn wir das Programm wirklich ausgelöscht haben, worüber verhandeln wir dann? Die Öffentlichkeit dachte, es sei vorbei. Aber die Geheimdienste — die Israelis, unsere Defense Intelligence Agency — ihre Berichte sagen alle dasselbe: Wir haben Löcher geschaffen. Wir haben wahrscheinlich die unterirdischen Kammern erschüttert. Aber wir haben keine Ahnung, wo das angereicherte Uran ist.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Und im Februar 2026?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Im Februar greifen wir wieder an, diesmal mit Regimewechsel. Wir gehen nicht mal mehr hinter das physische Material — wir wissen nicht, wo es ist. Also eliminieren wir die Führung. Aber der Oberste Führer, den wir getötet haben — dieser Mann hatte zwei Fatwas erlassen. Das sind religiöse Edikte, so etwas wie ein päpstlicher Erlass. Und diese Fatwas sagten: Der Iran soll keine Atomwaffen haben. Der Mann, den wir getötet haben, war eine der Leitplanken gegen Atomwaffen.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Aber er hat doch das Uran anreichern lassen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Nein, nein — er hat das Anreicherungsmaterial entwickelt. Es war noch nicht zu Atomwaffen verarbeitet worden. Jetzt haben wir die Person eliminiert, die an der Spitze die Falken und die Tauben ausbalanciert hat. Sein Sohn hat übernommen — der neue Oberste Führer. Keine Fatwa. Die Fatwa ist mit dem Vater gestorben. Dieser Sohn ist bekannt dafür, viel aggressiver zu sein. Er war für die Polizei zuständig, die die Demonstranten tötet.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Viele Leute denken: Wenn man den Führer ausschaltet, fällt das Regime wie ein Jenga-Turm zusammen.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Das ist das falsche Bild. Das iranische Regime ist eher wie eine Matrix. Es ist nicht brüchig. Man kann Teile herausziehen, aber die Matrix passt sich an und füllt die Lücken. Und nicht mit einem Schwächling — das System hat Anreize, mit jemandem zurückzuschlagen, der noch aggressiver ist. Als wir versuchten, Gaddafi 1986 zu töten, schlug er zurück und sprengte Pan-Am-Flug 103 — 271 Zivilisten, 190 Amerikaner. Als wir versuchten, Milosevic 1999 zu degradieren, schickte er 30.000 Bodentruppen, um eine Million Zivilisten im Kosovo zu vertreiben. Immer und immer wieder.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Und jetzt greift der Iran die Nachbarländer an?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Ja, das ist Stufe zwei — horizontale Eskalation. Sie benutzen Drohnen, präzisionsgesteuert, gegen Saudi-Arabien, die VAE — die Koalition, die gegen sie gebildet wurde. Sie treffen Hotels, Flughäfen. Der Tourismus macht fünf bis zehn Prozent des BIP dieser Länder aus. Sie wollen, dass diese Länder die Amerikaner aus ihrem Land werfen. Und stellen Sie sich vor: Wir haben 500.000 amerikanische Staatsbürger dort, und das Außenministerium sagt im Fernsehen: Rufen Sie diese Nummer an, wir helfen Ihnen bei der Flucht.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Was ist Stufe drei?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Stufe drei: Der Konflikt wird global. Wir wissen immer noch nicht, wo das Nuklearmaterial ist. Und wir haben jetzt eine viel aggressivere Führung eingesetzt, die jeden Anreiz hat, die Bombe zu bauen. Wir töten sie bereits. Also — was genau ist ihr Anreiz, keine Atomwaffe zu haben? Ihr bester Weg zu überleben ist die Atombombe. Und dann stellt man sich die Fragen: Wird sie an die Hisbollah gehen? An die Huthis? Und das ist es, was uns zu Bodentruppen treiben wird. Die 82. Luftlandedivision — 5.000 Soldaten, die den Raum um Fordo kontrollieren sollen, wochenlang nach Material suchen, das tief vergraben ist.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Wie wahrscheinlich ist das — amerikanische Bodentruppen im Iran?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Mindestens 50 zu 50. Und die Leute erwarten, dass die Eskalation kontinuierlich ist. Wenn es eine Pause gibt, denken sie: Oh, es ist vorbei. Aber so funktioniert Eskalation nicht. Sie kann einen Ratscheneffekt haben — monatelange Pausen, die wie Frieden aussehen, und dann ist man wieder mittendrin. Wir hatten einen Deal — den Obama-Deal. Der Iran hat fast alles angereicherte Uran aus dem Land geschafft. Wir hatten 24-Stunden-Kameras, Vor-Ort-Inspektionen. 2018 hat Trump ihn einfach zerrissen. Und seitdem gibt der Iran Vollgas bei der Anreicherung. Und genau so kam man zu dem Material für 16 Bomben.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Wenn Trump zuhören würde — was würden Sie ihm sagen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Nehmen Sie den Deal an. Hören Sie jetzt auf und tun Sie alles, um so viel angereichertes Uran wie möglich aus dem Land zu bekommen. Mein Ziel wäre: das auf 60 Prozent angereicherte Uran rausschaffen. Aber Sie werden wahrscheinlich keinen so guten Deal bekommen wie vorher, weil der Oberste Führer, mit dem Sie verhandelt haben, tot ist. Und Sie haben jetzt einen viel härteren Gegner. Manchmal ist die beste Lösung, ein Problem für 20 Jahre einzufrieren. Man hat keine hundertprozentige Sicherheit, aber wenn man ein Problem 20 Jahre lang einfrieren kann — das ist verdammt gut. Vielleicht hat man Glück. Vielleicht fällt das System von allein auseinander, wie die Sowjetunion. Diese Suche nach perfekter Sicherheit — so verlieren Großmächte Kriege.</p></div>
+
+            </div>
+            <p class="source">Quelle: „The Diary of a CEO" Podcast mit Steven Bartlett, Interview mit Prof. Robert Pape (University of Chicago), 2025/26. Übersetzt und für den DaF-Unterricht bearbeitet.</p>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 2: GENUS ═══════ -->
+    <div class="section" id="sec-genus">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">🔤 Genus</h2>
+            <p style="margin-bottom:14px; color:#555;">Ziehe die Nomen in die richtige Kategorie.</p>
+            <div class="genus-bank" id="genus-bank"></div>
+            <div class="genus-zones">
+                <div class="drop-zone" data-cat="der"><h3>der</h3></div>
+                <div class="drop-zone" data-cat="die"><h3>die</h3></div>
+                <div class="drop-zone" data-cat="das"><h3>das</h3></div>
+                <div class="drop-zone" data-cat="pl"><h3>Plural</h3></div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showGenusLoesungen()">Lösungen</button>
+                <button class="btn btn-reset" onclick="initGenus()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-2">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 3: LÜCKENTEXT ═══════ -->
+    <div class="section" id="sec-luecken">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">✏️ Lückentext</h2>
+            <p style="margin-bottom:14px; color:#555;">Ergänze die fehlenden Wörter aus dem Text.</p>
+            <div id="luecken-area"></div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showLueckenLoesungen()">Lösungen</button>
+                <button class="btn btn-reset" onclick="initLuecken()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-3">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 4: MULTIPLE CHOICE ═══════ -->
+    <div class="section" id="sec-mc">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">☑️ Multiple Choice</h2>
+            <p style="margin-bottom:14px; color:#555;">Wähle die richtige Antwort.</p>
+            <div id="mc-area"></div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showMcLoesungen()">Lösungen</button>
+                <button class="btn btn-reset" onclick="initMc()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-4">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 5: SATZBAU ═══════ -->
+    <div class="section" id="sec-satzbau">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">🧩 Satzbau</h2>
+            <p style="margin-bottom:14px; color:#555;">Ordne die Wörter zu einem korrekten Satz.</p>
+            <div id="satzbauContainer"></div>
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i);})">Lösungen</button>
+                <button class="btn btn-reset" onclick="initSatzbau()">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-5">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-5">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="author-footer">
+        <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+        <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB-NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════════════════════
+var timers = {};
+function initTimer(idx) {
+    if (!timers[idx]) timers[idx] = { running: false, seconds: 0, interval: null };
+    timers[idx].running = false;
+    timers[idx].seconds = 0;
+    clearInterval(timers[idx].interval);
+    var el = document.getElementById('timer-' + idx);
+    if (el) el.textContent = '00:00';
+    var best = document.getElementById('best-' + idx);
+    if (best) best.textContent = '--:--';
+}
+function fmtTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+function timerAutoStart(idx) {
+    if (!timers[idx]) initTimer(idx);
+    if (timers[idx].running) return;
+    timers[idx].running = true;
+    timers[idx].interval = setInterval(function() {
+        timers[idx].seconds++;
+        var el = document.getElementById('timer-' + idx);
+        if (el) el.textContent = fmtTime(timers[idx].seconds);
+    }, 1000);
+}
+function timerStop(idx) {
+    if (!timers[idx]) return;
+    timers[idx].running = false;
+    clearInterval(timers[idx].interval);
+    var best = document.getElementById('best-' + idx);
+    if (best) best.textContent = fmtTime(timers[idx].seconds);
+}
+function timerReset(idx) { initTimer(idx); }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 2: GENUS
+// ═══════════════════════════════════════════════════════════════════════
+var GENUS_DATA = [
+    { word: '💣 Konflikt', cat: 'der' },
+    { word: '🔄 Regimewechsel', cat: 'der' },
+    { word: '🏨 Tourismus', cat: 'der' },
+    { word: '🎯 Angriff', cat: 'der' },
+    { word: '☢️ Uran', cat: 'das' },
+    { word: '⚙️ Netzwerk', cat: 'das' },
+    { word: '🏛️ Regime', cat: 'das' },
+    { word: '📡 Satellitenbild', cat: 'das' },
+    { word: '📜 Fatwa', cat: 'die' },
+    { word: '✈️ Drohne', cat: 'die' },
+    { word: '🏛️ Koalition', cat: 'die' },
+    { word: '🔬 Anreicherung', cat: 'die' },
+    { word: '💥 Eskalation', cat: 'die' },
+    { word: '🛡️ Bodentruppen', cat: 'pl' },
+    { word: '🎯 Präzisionswaffen', cat: 'pl' }
+];
+
+var draggedChip = null;
+
+function colorGenusChip(chip) {
+    var zone = chip.closest('.drop-zone');
+    if (zone && zone.dataset.cat) {
+        chip.classList.remove('correct', 'wrong');
+        chip.classList.add(chip.dataset.cat === zone.dataset.cat ? 'correct' : 'wrong');
+    } else {
+        chip.classList.remove('correct', 'wrong');
+    }
+}
+function colorAllGenusChips() {
+    document.querySelectorAll('#sec-genus .genus-chip').forEach(colorGenusChip);
+    checkGenusAllOk();
+}
+function checkGenusAllOk() {
+    var all = document.querySelectorAll('#sec-genus .genus-chip');
+    var bank = document.getElementById('genus-bank');
+    if (bank.querySelectorAll('.genus-chip').length > 0) return;
+    var allOk = true;
+    all.forEach(function(c) { if (!c.classList.contains('correct')) allOk = false; });
+    if (allOk) timerStop(2);
+}
+
+function initGenus() {
+    timerReset(2);
+    var bank = document.getElementById('genus-bank');
+    bank.innerHTML = '';
+    document.querySelectorAll('.drop-zone').forEach(function(z) {
+        z.querySelectorAll('.genus-chip').forEach(function(c) { c.remove(); });
+    });
+    var shuffled = GENUS_DATA.slice();
+    for (var i = shuffled.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t;
+    }
+    shuffled.forEach(function(item) {
+        var chip = document.createElement('div');
+        chip.className = 'genus-chip';
+        chip.textContent = item.word;
+        chip.dataset.cat = item.cat;
+        chip.draggable = true;
+        chip.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', '');
+            draggedChip = chip;
+        });
+        chip.addEventListener('dragend', function() { colorAllGenusChips(); });
+        chip.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (draggedChip && draggedChip !== chip) { draggedChip.style.outline = ''; }
+            if (draggedChip === chip) { draggedChip = null; chip.style.outline = ''; }
+            else { draggedChip = chip; chip.style.outline = '3px solid #e67e22'; }
+        });
+        bank.appendChild(chip);
+    });
+
+    document.querySelectorAll('.drop-zone').forEach(function(zone) {
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault(); zone.classList.remove('dragover');
+            if (draggedChip) { zone.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; }
+            timerAutoStart(2);
+            colorAllGenusChips();
+        });
+        zone.addEventListener('click', function() {
+            if (draggedChip) { zone.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; timerAutoStart(2); colorAllGenusChips(); }
+        });
+    });
+
+    bank.addEventListener('click', function() {
+        if (draggedChip) { bank.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; colorAllGenusChips(); }
+    });
+}
+
+function showGenusLoesungen() {
+    var bank = document.getElementById('genus-bank');
+    bank.innerHTML = '';
+    GENUS_DATA.forEach(function(item) {
+        var zone = document.querySelector('.drop-zone[data-cat="' + item.cat + '"]');
+        var chip = document.createElement('div');
+        chip.className = 'genus-chip correct';
+        chip.textContent = item.word;
+        chip.dataset.cat = item.cat;
+        zone.appendChild(chip);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 3: LÜCKENTEXT
+// ═══════════════════════════════════════════════════════════════════════
+var LUECKEN_DATA = [
+    { pre: 'Pape hat 20 Jahre lang ', answer: 'Simulationen', post: ' über einen Krieg mit dem Iran durchgeführt.', size: 'l' },
+    { pre: 'Bomben treffen nicht nur Ziele — sie verändern die ', answer: 'Politik', post: '.', size: 'm' },
+    { pre: 'Der ganze Sinn war nicht, ein Gebäude zu zerstören — es ging darum, an das angereicherte ', answer: 'Uran', post: ' zu kommen.', size: 's' },
+    { pre: 'Zwei Tage bevor wir Fordo bombardiert haben, fahren ', answer: 'Lastwagen', post: ' Sachen weg.', size: 'l' },
+    { pre: 'Der Oberste Führer hatte zwei ', answer: 'Fatwas', post: ' gegen Atomwaffen erlassen.', size: 'm' },
+    { pre: 'Sein Sohn ist bekannt dafür, viel ', answer: 'aggressiver', post: ' zu sein als der Vater.', size: 'l' },
+    { pre: 'Das iranische Regime ist eher wie eine ', answer: 'Matrix', post: ' — es passt sich an und füllt die Lücken.', size: 'm' },
+    { pre: 'Sie benutzen Drohnen gegen Saudi-Arabien und die VAE — das nennt Pape horizontale ', answer: 'Eskalation', post: '.', size: 'l' },
+    { pre: '2018 hat Trump den Obama-Deal einfach ', answer: 'zerrissen', post: '.', size: 'm' },
+    { pre: 'Manchmal ist die beste Lösung, ein Problem für 20 Jahre ', answer: 'einzufrieren', post: '.', size: 'l' }
+];
+
+function liveCheck(inp) {
+    var answer = inp.dataset.answer;
+    var val = inp.value.trim();
+    inp.classList.remove('correct', 'wrong');
+    if (val.length === 0) return;
+    if (val.toLowerCase() === answer.toLowerCase()) {
+        inp.classList.add('correct');
+    } else if (answer.toLowerCase().indexOf(val.toLowerCase()) !== 0) {
+        inp.classList.add('wrong');
+    }
+}
+
+function checkAllLuecken() {
+    var inputs = document.querySelectorAll('#luecken-area input');
+    var allOk = true;
+    inputs.forEach(function(inp) { if (!inp.classList.contains('correct')) allOk = false; });
+    if (allOk) timerStop(3);
+}
+
+function initLuecken() {
+    timerReset(3);
+    var area = document.getElementById('luecken-area');
+    area.innerHTML = '';
+    LUECKEN_DATA.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'luecke-item';
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'inp-' + item.size;
+        inp.dataset.answer = item.answer;
+        inp.placeholder = '…';
+        inp.autocomplete = 'off';
+        inp.oninput = function() { timerAutoStart(3); liveCheck(this); checkAllLuecken(); };
+        div.innerHTML = '<strong>' + (idx + 1) + '.</strong> ';
+        div.appendChild(document.createTextNode(item.pre));
+        div.appendChild(inp);
+        div.appendChild(document.createTextNode(item.post));
+        area.appendChild(div);
+    });
+}
+
+function showLueckenLoesungen() {
+    document.querySelectorAll('#luecken-area input').forEach(function(inp) {
+        inp.value = inp.dataset.answer;
+        inp.classList.remove('wrong');
+        inp.classList.add('correct');
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 4: MULTIPLE CHOICE
+// ═══════════════════════════════════════════════════════════════════════
+var MC_DATA = [
+    { q: '1. Was ist laut Pape das Grundproblem mit Präzisionswaffen?', opts: ['Sie sind zu teuer für einen langen Krieg.', 'Sie treffen die Ziele, aber verändern nicht die Politik.', 'Sie können unterirdische Anlagen nicht zerstören.', 'Sie erfordern zu viele Bodentruppen.'], correct: 1 },
+    { q: '2. Warum verhandeln die USA nach der Bombardierung weiter mit dem Iran?', opts: ['Weil der Iran kapituliert hat und die Bedingungen klären will.', 'Weil die Bomben ihr eigentliches Ziel verfehlt haben — das angereicherte Uran fehlt.', 'Weil die USA einen Friedensvertrag unterzeichnen wollen.', 'Weil die Vereinten Nationen Verhandlungen angeordnet haben.'], correct: 1 },
+    { q: '3. Was zeigten die Satellitenbilder zwei Tage vor dem Angriff auf Fordo?', opts: ['Iranische Truppen in Kampfposition', 'Evakuierung der Zivilbevölkerung', 'Lastwagen, die Material von den Anlagen wegfuhren', 'Neue unterirdische Tunnelbauten'], correct: 2 },
+    { q: '4. Warum war die Fatwa des alten Obersten Führers so wichtig?', opts: ['Sie erlaubte dem Iran, Atomwaffen zu entwickeln.', 'Sie war ein religiöses Edikt gegen iranische Atomwaffen.', 'Sie verbot jede Zusammenarbeit mit dem Westen.', 'Sie rief zum Heiligen Krieg gegen Israel auf.'], correct: 1 },
+    { q: '5. Warum ist das Bild vom Jenga-Turm laut Pape falsch?', opts: ['Weil der Iran gar keine Führungsstruktur hat', 'Weil das Regime wie eine Matrix funktioniert — es passt sich an und füllt Lücken', 'Weil der Iran nur von einer einzigen Person geführt wird', 'Weil Jenga ein amerikanisches Spiel ist, das Iraner nicht kennen'], correct: 1 },
+    { q: '6. Was nennt Pape „horizontale Eskalation"?', opts: ['Die Vergrößerung der iranischen Armee', 'Angriffe auf die Nachbarländer und Verbündeten des Gegners', 'Die Ausweitung des Konflikts auf den Cyberraum', 'Den Einsatz von Bodentruppen statt Luftangriffen'], correct: 1 },
+    { q: '7. Was will der Iran mit den Drohnenangriffen auf die Golfstaaten erreichen?', opts: ['Die Ölproduktion vollständig stoppen', 'Territorien erobern', 'Dass diese Länder die Amerikaner aus ihrem Land werfen', 'Einen Weltkrieg auslösen'], correct: 2 },
+    { q: '8. Was passierte 2018 mit dem Obama-Deal?', opts: ['Obama hat ihn selbst aufgelöst.', 'Der Iran hat den Deal gebrochen.', 'Trump hat ihn einseitig zerrissen.', 'Der Deal lief planmäßig aus.'], correct: 2 },
+    { q: '9. Was ist laut Pape der größte Anreiz für den Iran, jetzt eine Atombombe zu bauen?', opts: ['Wirtschaftliche Vorteile durch Atomenergie', 'Die USA töten sie bereits — eine Bombe ist ihr bester Schutz.', 'China hat sie dazu aufgefordert.', 'Der neue Führer will seinen Vater übertreffen.'], correct: 1 },
+    { q: '10. Was empfiehlt Pape Präsident Trump?', opts: ['Sofort Bodentruppen entsenden.', 'Den Krieg auf China ausweiten.', 'Aufhören und verhandeln — so viel angereichertes Uran wie möglich aus dem Land schaffen.', 'Das iranische Regime durch eine Demokratie ersetzen.'], correct: 2 }
+];
+
+function initMc() {
+    timerReset(4);
+    var area = document.getElementById('mc-area');
+    area.innerHTML = '';
+    MC_DATA.forEach(function(item, qIdx) {
+        var div = document.createElement('div');
+        div.className = 'mc-item';
+        var p = document.createElement('p');
+        p.textContent = item.q;
+        div.appendChild(p);
+        item.opts.forEach(function(opt, oIdx) {
+            var btn = document.createElement('div');
+            btn.className = 'mc-opt';
+            btn.textContent = opt;
+            btn.addEventListener('click', function() {
+                timerAutoStart(4);
+                var siblings = div.querySelectorAll('.mc-opt');
+                siblings.forEach(function(s) { s.classList.add('disabled'); });
+                if (oIdx === item.correct) {
+                    btn.classList.add('correct');
+                } else {
+                    btn.classList.add('wrong');
+                    siblings[item.correct].classList.add('correct');
+                }
+                checkAllMc();
+            });
+            div.appendChild(btn);
+        });
+        area.appendChild(div);
+    });
+}
+
+function checkAllMc() {
+    var items = document.querySelectorAll('.mc-item');
+    var allDone = true;
+    items.forEach(function(item) {
+        if (!item.querySelector('.mc-opt.correct') && !item.querySelector('.mc-opt.wrong')) allDone = false;
+    });
+    if (allDone) {
+        var allCorrect = true;
+        items.forEach(function(item) { if (item.querySelector('.mc-opt.wrong')) allCorrect = false; });
+        if (allCorrect) timerStop(4);
+    }
+}
+
+function showMcLoesungen() {
+    MC_DATA.forEach(function(item, qIdx) {
+        var mcItem = document.querySelectorAll('.mc-item')[qIdx];
+        var opts = mcItem.querySelectorAll('.mc-opt');
+        opts.forEach(function(o, i) {
+            o.classList.add('disabled');
+            if (i === item.correct) o.classList.add('correct');
+        });
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 5: SATZBAU
+// ═══════════════════════════════════════════════════════════════════════
+var satzbauData = [
+    { parts: ['Bomben', 'treffen', 'nicht', 'nur', 'Ziele', ',', 'sie', 'verändern', 'die', 'Politik'], valid: [['Bomben', 'treffen', 'nicht', 'nur', 'Ziele', ',', 'sie', 'verändern', 'die', 'Politik']], punct: '.' },
+    { parts: ['sie', 'hatten', 'Material', 'für', '16', 'Atombomben'], valid: [['sie', 'hatten', 'Material', 'für', '16', 'Atombomben']], punct: '.' },
+    { parts: ['wir', 'wissen', 'nicht', ',', 'wo', 'das', 'Nuklearmaterial', 'ist'], valid: [['wir', 'wissen', 'nicht', ',', 'wo', 'das', 'Nuklearmaterial', 'ist']], punct: '.' },
+    { parts: ['zwei', 'Tage', 'vor', 'dem', 'Angriff', 'fuhren', 'Lastwagen', 'Material', 'weg'], valid: [['zwei', 'Tage', 'vor', 'dem', 'Angriff', 'fuhren', 'Lastwagen', 'Material', 'weg']], punct: '.' },
+    { parts: ['die', 'Fatwa', 'ist', 'mit', 'dem', 'Vater', 'gestorben'], valid: [['die', 'Fatwa', 'ist', 'mit', 'dem', 'Vater', 'gestorben']], punct: '.' },
+    { parts: ['das', 'iranische', 'Regime', 'ist', 'eher', 'wie', 'eine', 'Matrix'], valid: [['das', 'iranische', 'Regime', 'ist', 'eher', 'wie', 'eine', 'Matrix']], punct: '.' },
+    { parts: ['sie', 'wollen', ',', 'dass', 'diese', 'Länder', 'die', 'Amerikaner', 'rauswerfen'], valid: [['sie', 'wollen', ',', 'dass', 'diese', 'Länder', 'die', 'Amerikaner', 'rauswerfen']], punct: '.' },
+    { parts: ['ihr', 'bester', 'Weg', 'zu', 'überleben', 'ist', 'die', 'Atombombe'], valid: [['ihr', 'bester', 'Weg', 'zu', 'überleben', 'ist', 'die', 'Atombombe']], punct: '.' },
+    { parts: ['2018', 'hat', 'Trump', 'den', 'Obama-Deal', 'einfach', 'zerrissen'], valid: [['2018', 'hat', 'Trump', 'den', 'Obama-Deal', 'einfach', 'zerrissen']], punct: '.' },
+    { parts: ['manchmal', 'ist', 'die', 'beste', 'Lösung', ',', 'ein', 'Problem', 'für', '20', 'Jahre', 'einzufrieren'], valid: [['manchmal', 'ist', 'die', 'beste', 'Lösung', ',', 'ein', 'Problem', 'für', '20', 'Jahre', 'einzufrieren']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function sbUpdateCapitalization(row) {
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase() && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        if (isProper) { c.textContent = orig; }
+        else { c.textContent = (i === 0) ? sbCapitalize(orig) : orig; }
+    });
+}
+
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) { zone.insertBefore(sbDragged, cursor); zone.removeChild(cursor); }
+        else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        var row = document.getElementById('sb-row-' + idx);
+        sbUpdateCapitalization(row);
+        sbCheckAuto(idx);
+    });
+}
+
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) { return JSON.stringify(v) === JSON.stringify(order); });
+    chips.forEach(function(c) { c.classList.remove('correct', 'incorrect'); c.classList.add(ok ? 'correct' : 'incorrect'); });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        timerAutoStart(5);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct';
+            fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk) timerStop(5);
+}
+
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild) row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function initSatzbau() {
+    timerReset(5);
+    var area = document.getElementById('satzbauContainer');
+    area.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var label = document.createElement('p');
+        label.style.cssText = 'font-weight:600;color:#4a148c;margin:16px 0 8px;';
+        label.textContent = (idx + 1) + '. Satz';
+        area.appendChild(label);
+        var bank = document.createElement('div'); bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div'); row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div'); fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        area.appendChild(bank);
+        area.appendChild(row);
+        area.appendChild(fb);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════════
+initGenus();
+initLuecken();
+initMc();
+initSatzbau();
+</script>
+</body>
+</html>

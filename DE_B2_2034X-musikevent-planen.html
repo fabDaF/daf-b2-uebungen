@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ein Musikevent planen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            background: white;
+            overflow: hidden;
+        }
+        .nav-tabs {
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            padding: 0;
+        }
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 16px 20px;
+            cursor: pointer;
+            border: none;
+            background: #f5f5f5;
+            font-size: 0.95rem;
+            color: #555;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .nav-tab .nav-emoji { font-size: 1.3rem; }
+        .nav-tab .nav-label { font-size: 0.72rem; }
+        .nav-tab:hover { background: #efefef; }
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-content { display: none; padding: 30px; min-height: 400px; }
+        .tab-content.active { display: block; }
+        .banner { width: 100%; max-height: 180px; object-fit: cover; display: block; margin: -30px -30px 30px -30px; }
+
+        .redemittel-box { background: #f3e5f5; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #9c27b0; }
+        .redemittel-box h4 { color: #667eea; margin-bottom: 10px; font-size: 0.95rem; }
+        .redemittel-list { list-style: none; margin: 10px 0; }
+        .redemittel-list li { padding: 6px 0; font-size: 0.9rem; color: #333; }
+        .redemittel-list li strong { color: #667eea; }
+
+        .category-section { margin-bottom: 20px; }
+        .category-title { color: #667eea; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+        .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .chip { padding: 6px 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 20px; font-size: 0.8rem; cursor: default; }
+
+        .dialog-item { background: #fafbff; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #667eea; }
+        .dialog-speaker { color: #667eea; font-weight: 600; font-size: 0.85rem; }
+        .dialog-text { font-size: 0.9rem; color: #333; margin-top: 4px; }
+        input.dialog-input { padding: 6px 10px; border: 1px solid #c5cae9; border-radius: 4px; margin: 0 4px; min-width: 80px; font-size: 0.9rem; transition: all 0.2s; }
+        input.dialog-input:focus { outline: none; border-color: #667eea; background: #f9f9ff; }
+        input.dialog-input.correct { border-color: #27ae60; background: #e8f5e9; }
+        input.dialog-input.wrong { border-color: #e74c3c; background: #ffebee; }
+
+        .werbeplakat { background: #f3e5f5; padding: 16px; border-radius: 8px; margin-top: 16px; border-left: 5px solid #9c27b0; }
+        .werbeplakat p { font-size: 0.9rem; color: #333; margin: 8px 0; line-height: 1.6; }
+
+        .satzbau-pool { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px; background: #fafbff; border-radius: 8px; margin-bottom: 20px; border: 2px dashed #c5cae9; }
+        .satzbau-item { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 14px; border-radius: 20px; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: all 0.15s; white-space: nowrap; }
+        .satzbau-item:active { cursor: grabbing; transform: scale(1.04); }
+        .satzbau-item.selected { outline: 3px solid #f39c12; }
+        .satzbau-item.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+        .satzbau-item.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+        .drop-zone { min-height: 80px; border-radius: 10px; border: 2px dashed #c5cae9; padding: 10px; background: #fafbff; transition: all 0.2s; margin-bottom: 16px; }
+        .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
+        .drop-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 40px; }
+
+        .wortschatz-item { background: #fafbff; padding: 14px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #c5cae9; }
+        .wortschatz-item p { margin: 0 0 8px 0; font-size: 0.9rem; color: #667eea; font-weight: 600; }
+        .wortschatz-inputs { display: flex; gap: 8px; }
+        .wortschatz-inputs input { flex: 1; padding: 6px 10px; border: 1px solid #c5cae9; border-radius: 4px; font-size: 0.9rem; transition: all 0.2s; }
+        .wortschatz-inputs input:focus { outline: none; border-color: #667eea; background: #f9f9ff; }
+        .wortschatz-inputs input.correct { border-color: #27ae60; background: #e8f5e9; }
+        .wortschatz-inputs input.wrong { border-color: #e74c3c; background: #ffebee; }
+
+        .match-zone { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+        .match-item { background: #fafbff; padding: 10px 12px; border-radius: 6px; border: 1px solid #c5cae9; flex: 1; min-width: 150px; font-size: 0.85rem; }
+        .match-item strong { color: #667eea; }
+
+        .author-footer { border-top: 1px solid #ddd; padding: 16px 30px; font-size: 0.85rem; color: #888; text-align: center; background: #fafafa; }
+        .author-footer a { color: #667eea; text-decoration: none; }
+        .author-footer a:hover { text-decoration: underline; }
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-tabs nav">
+            <button class="nav-tab active" data-tab="0">
+                <span class="nav-emoji">🎯</span>
+                <span class="nav-label">Redemittel</span>
+            </button>
+            <button class="nav-tab" data-tab="1">
+                <span class="nav-emoji">📝</span>
+                <span class="nav-label">Lückentext</span>
+            </button>
+            <button class="nav-tab" data-tab="2">
+                <span class="nav-emoji">🔀</span>
+                <span class="nav-label">Satzbau</span>
+            </button>
+            <button class="nav-tab" data-tab="3">
+                <span class="nav-emoji">📚</span>
+                <span class="nav-label">Wortschatz</span>
+            </button>
+        </div>
+
+        <!-- Tab 0: Redemittel -->
+        <div class="tab-content active" id="tab-0">
+            <img src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Banner" class="banner">
+
+            <div class="redemittel-box">
+                <h4>Eventplanung — Vorgehen:</h4>
+                <ol style="margin-left: 18px; font-size: 0.9rem;">
+                    <li>Eventkonzept erstellen (wie planen, konzipieren, realisieren)</li>
+                    <li>Zielgruppe bestimmen (wichtig für Ticketpreis)</li>
+                    <li>Stil wählen</li>
+                </ol>
+            </div>
+
+            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Event-Typen:</h4>
+            <div class="chip-row">
+                <span class="chip">das Festival</span>
+                <span class="chip">das Open-Air-Konzert</span>
+                <span class="chip">das Konzert</span>
+                <span class="chip">das Wohltätigkeitskonzert</span>
+                <span class="chip">das Abschiedskonzert</span>
+                <span class="chip">das Promo-Konzert</span>
+                <span class="chip">das Jubiläumskonzert</span>
+                <span class="chip">der Spendenmarathon</span>
+            </div>
+
+            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Musikkulturen:</h4>
+            <div class="chip-row">
+                <span class="chip">Pop</span>
+                <span class="chip">Techno</span>
+                <span class="chip">Gothic</span>
+                <span class="chip">Punk</span>
+                <span class="chip">Hippie</span>
+                <span class="chip">Hip-Hop</span>
+                <span class="chip">Metal</span>
+                <span class="chip">Klassik</span>
+            </div>
+
+            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Planungssprache — Etwas vorschlagen:</h4>
+            <div class="redemittel-box">
+                <ul class="redemittel-list">
+                    <li><strong>„Was denkst du?"</strong> (denken)</li>
+                    <li><strong>„Wie wäre es mit...?"</strong> (sein)</li>
+                    <li><strong>„Wie findest du...?"</strong> (finden)</li>
+                    <li><strong>„Was hältst du davon?"</strong> (halten von)</li>
+                    <li><strong>„Wir könnten auch..."</strong> (können)</li>
+                    <li><strong>„Wollen wir...?"</strong> (wollen)</li>
+                </ul>
+            </div>
+
+            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Verb-Formen zuordnen:</h4>
+            <div class="match-zone">
+                <div class="match-item"><strong>denken</strong> → Was denkst du?</div>
+                <div class="match-item"><strong>sein</strong> → Wie wäre es?</div>
+                <div class="match-item"><strong>finden</strong> → Wie findest du?</div>
+                <div class="match-item"><strong>können</strong> → Wir könnten</div>
+                <div class="match-item"><strong>wollen</strong> → Wollen wir?</div>
+            </div>
+        </div>
+
+        <!-- Tab 1: Lückentext -->
+        <div class="tab-content" id="tab-1">
+            <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Banner" class="banner">
+            <h3 style="color: #667eea; margin-bottom: 20px;">Eventplanung-Dialog</h3>
+
+            <div class="dialog-item">
+                <span class="dialog-speaker">A:</span>
+                <div class="dialog-text">
+                    Was <input class="dialog-input" type="text" placeholder="" data-answer="denkst" oninput="liveCheck(this)"> du — sollen wir ein Festival oder ein Open-Air-Konzert organisieren?
+                </div>
+            </div>
+
+            <div class="dialog-item">
+                <span class="dialog-speaker">B:</span>
+                <div class="dialog-text">
+                    Wie <input class="dialog-input" type="text" placeholder="" data-answer="wäre" oninput="liveCheck(this)"> es mit einem Wohltätigkeitskonzert? Das finde ich interessanter.
+                </div>
+            </div>
+
+            <div class="dialog-item">
+                <span class="dialog-speaker">A:</span>
+                <div class="dialog-text">
+                    Gute Idee! Und wie <input class="dialog-input" type="text" placeholder="" data-answer="findest" oninput="liveCheck(this)"> du Pop als Musikrichtung?
+                </div>
+            </div>
+
+            <div class="dialog-item">
+                <span class="dialog-speaker">B:</span>
+                <div class="dialog-text">
+                    Wir <input class="dialog-input" type="text" placeholder="" data-answer="könnten" oninput="liveCheck(this)"> auch Techno und Pop mischen. Für eine größere Zielgruppe.
+                </div>
+            </div>
+
+            <div class="dialog-item">
+                <span class="dialog-speaker">A:</span>
+                <div class="dialog-text">
+                    Was <input class="dialog-input" type="text" placeholder="" data-answer="hältst" oninput="liveCheck(this)"> du davon, ein Jubiläumskonzert zu machen?
+                </div>
+            </div>
+
+            <div class="dialog-item">
+                <span class="dialog-speaker">B:</span>
+                <div class="dialog-text">
+                    <input class="dialog-input" type="text" placeholder="" data-answer="Wollen" oninput="liveCheck(this)"> wir zuerst das Budget festlegen?
+                </div>
+            </div>
+
+            <h4 style="color: #667eea; margin-top: 20px; margin-bottom: 12px;">Werbeplakat-Text vervollständigen:</h4>
+            <div class="werbeplakat">
+                <p>Unser <input class="dialog-input" type="text" placeholder="" data-answer="Festival" oninput="liveCheck(this)"> findet am 15. Juli statt. Die <input class="dialog-input" type="text" placeholder="" data-answer="Zielgruppe" oninput="liveCheck(this)"> ist jung und musikbegeistert. Das <input class="dialog-input" type="text" placeholder="" data-answer="Budget" oninput="liveCheck(this)"> beträgt 50.000 Euro. Als <input class="dialog-input" type="text" placeholder="" data-answer="Location" oninput="liveCheck(this)"> haben wir den Stadtpark gewählt. <input class="dialog-input" type="text" placeholder="" data-answer="Sponsoren" oninput="liveCheck(this)"> werden noch gesucht.</p>
+            </div>
+        </div>
+
+        <!-- Tab 2: Satzbau -->
+        <div class="tab-content" id="tab-2">
+            <img src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?w=1000" alt="Banner" class="banner">
+            <h3 style="color: #667eea; margin-bottom: 20px;">Satzbau: Ordne die Wörter richtig!</h3>
+
+            <div id="sb-section-1">
+                <div class="satzbau-pool" id="sb-pool-1"></div>
+                <div class="drop-zone" id="sb-zone-1">
+                    <div class="drop-row" id="sb-row-1"></div>
+                </div>
+            </div>
+
+            <div id="sb-section-2">
+                <div class="satzbau-pool" id="sb-pool-2"></div>
+                <div class="drop-zone" id="sb-zone-2">
+                    <div class="drop-row" id="sb-row-2"></div>
+                </div>
+            </div>
+
+            <div id="sb-section-3">
+                <div class="satzbau-pool" id="sb-pool-3"></div>
+                <div class="drop-zone" id="sb-zone-3">
+                    <div class="drop-row" id="sb-row-3"></div>
+                </div>
+            </div>
+
+            <div id="sb-section-4">
+                <div class="satzbau-pool" id="sb-pool-4"></div>
+                <div class="drop-zone" id="sb-zone-4">
+                    <div class="drop-row" id="sb-row-4"></div>
+                </div>
+            </div>
+
+            <div id="sb-section-5">
+                <div class="satzbau-pool" id="sb-pool-5"></div>
+                <div class="drop-zone" id="sb-zone-5">
+                    <div class="drop-row" id="sb-row-5"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Wortschatz -->
+        <div class="tab-content" id="tab-3">
+            <img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Banner" class="banner">
+            <h3 style="color: #667eea; margin-bottom: 20px;">Wortschatz: Ergänze die Vokabeln</h3>
+
+            <div class="wortschatz-item">
+                <p>die Zielgruppe (Plural: -n)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="die Zielgruppe" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>das Werbeplakat (Plural: -e)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="das Werbeplakat" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>das Hauptziel (Plural: -e)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="das Hauptziel" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>das Eventkonzept (Plural: -e)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="das Eventkonzept" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>das Budget (Plural: -s)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="das Budget" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>die Location (Plural: -s)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="die Location" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>der Ticketpreis (Plural: -e)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="der Ticketpreis" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>das Programm (Plural: -e)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="das Programm" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>der Sponsor (Plural: -en)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="der Sponsor" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>planen (Verb)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="planen" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>realisieren (Verb)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="realisieren" oninput="liveCheck(this)">
+                </div>
+            </div>
+
+            <div class="wortschatz-item">
+                <p>konzipieren (Verb)</p>
+                <div class="wortschatz-inputs">
+                    <input type="text" placeholder="" data-answer="konzipieren" oninput="liveCheck(this)">
+                </div>
+            </div>
+        </div>
+
+        <div class="author-footer">
+            <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+            <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+        </div>
+    </div>
+
+    <script>
+        var draggedChip = null;
+
+        function switchTab(tabNum) {
+            document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.nav-tab').forEach(function(b) { b.classList.remove('active'); });
+            document.getElementById('tab-' + tabNum).classList.add('active');
+            document.querySelector('[data-tab="' + tabNum + '"]').classList.add('active');
+        }
+        document.querySelectorAll('.nav-tab').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                switchTab(this.dataset.tab);
+            });
+        });
+
+        function liveCheck(inp) {
+            var val = inp.value.trim().toLowerCase();
+            var ans = (inp.dataset.answer || '').toLowerCase();
+            inp.classList.remove('correct', 'wrong');
+            if (val.length === 0) return;
+            if (val === ans) {
+                inp.classList.add('correct');
+            } else if (ans.indexOf(val) === 0) {
+                // gültiger Präfix → neutral
+            } else {
+                inp.classList.add('wrong');
+            }
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        var sbSentences = [
+            { words: ['Was', 'denkst', 'du', '/', 'über', 'die', 'Idee,', '/', 'ein', 'Wohltätigkeitskonzert', '/', 'zu', 'organisieren?'] },
+            { words: ['Wir', 'könnten', '/', 'die', 'Zielgruppe', '/', 'durch', 'ein', '/', 'breiteres', 'Musikprogramm', '/', 'erweitern.'] },
+            { words: ['Wie', 'wäre', 'es,', '/', 'wenn', 'wir', '/', 'einen', 'bekannten', '/', 'Sänger', 'einladen?'] },
+            { words: ['Das', 'Eventkonzept', '/', 'sollte', 'zuerst', '/', 'die', 'Musikkultur', '/', 'und', 'die', 'Zielgruppe', '/', 'definieren.'] },
+            { words: ['Wollen', 'wir', '/', 'das', 'Budget', '/', 'für', 'Werbung', '/', 'und', 'Location', '/', 'aufteilen?'] }
+        ];
+
+        function initSatzbau() {
+            sbSentences.forEach(function(sentence, idx) {
+                var sectionId = idx + 1;
+                var pool = document.getElementById('sb-pool-' + sectionId);
+                var zone = document.getElementById('sb-zone-' + sectionId);
+                var row = document.getElementById('sb-row-' + sectionId);
+
+                var shuffled = shuffleArray(sentence.words.slice());
+                shuffled.forEach(function(word) {
+                    var chip = document.createElement('div');
+                    chip.className = 'satzbau-item';
+                    chip.textContent = word;
+                    chip.draggable = true;
+                    chip.dataset.word = word;
+                    chip.dataset.correct = sentence.words.indexOf(word);
+
+                    chip.addEventListener('dragstart', function(e) {
+                        e.dataTransfer.setData('text/plain', '');
+                        draggedChip = chip;
+                    });
+                    chip.addEventListener('dragend', function() {
+                        colorAllSBChips(sectionId);
+                    });
+                    chip.addEventListener('click', function() {
+                        if (chip.parentElement.id === 'sb-pool-' + sectionId) {
+                            row.appendChild(chip);
+                        } else {
+                            pool.appendChild(chip);
+                        }
+                        colorAllSBChips(sectionId);
+                    });
+
+                    pool.appendChild(chip);
+                });
+
+                zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+                zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    if (draggedChip) {
+                        row.appendChild(draggedChip);
+                        colorAllSBChips(sectionId);
+                    }
+                });
+            });
+
+        function colorAllSBChips(sectionId) {
+            var row = document.getElementById('sb-row-' + sectionId);
+            var chips = row.querySelectorAll('.satzbau-item');
+            chips.forEach(function(chip, idx) {
+                chip.classList.remove('correct', 'wrong');
+                if (parseInt(chip.dataset.correct) === idx) {
+                    chip.classList.add('correct');
+                } else {
+                    chip.classList.add('wrong');
+                }
+            });
+        }
+
+        initSatzbau();
+    
+}</script>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 2026R · Gentrifizierung</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+  .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 30px 16px; }
+  header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  header p { opacity: 0.85; font-size: 0.95rem; }
+  .nav{ display: flex; background: #f0f0f0;  overflow-x: auto; ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+  nav button { flex: 1; min-width: 90px; padding: 10px 8px; border: 1px solid #ccc; border-bottom: none; background: #e8e8e8; cursor: pointer; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: background 0.2s; color: #555; }
+  nav button .nav-emoji { font-size: 1.3rem; }
+  nav button .nav-label { font-size: 0.72rem; }
+  nav button.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  @media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+  .sec-inner { padding: 24px 28px; }
+  .control-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .control-bar .btn-group { display: flex; gap: 8px; }
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+  .btn-reset { background: #e0e0e0; color: #555; }
+  .btn-reset:hover { background: #ccc; }
+  .timer-box { font-size: 0.85rem; color: #666; font-variant-numeric: tabular-nums; background: #f5f5f5; padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd; }
+  .vocab-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .vocab-item { background: #f8f6ff; border: 1px solid #d0d8f8; border-radius: 8px; padding: 14px; }
+  .vocab-item strong { color: #667eea; display: block; margin-bottom: 4px; font-size: 0.95rem; }
+  .vocab-item span { color: #666; font-size: 0.88rem; }
+  .text-content { font-family: Georgia, serif; line-height: 1.8; color: #333; text-align: justify; }
+  .text-content h3 { color: #667eea; margin-top: 20px; margin-bottom: 14px; font-size: 1.1rem; font-family: 'Segoe UI', Arial, sans-serif; }
+  .text-content p { margin-bottom: 14px; font-size: 0.95rem; }
+  .rf-container { margin-top: 12px; }
+  .rf-item { background: #f8f6ff; border: 1px solid #d0d8f8; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .rf-text { flex: 1; font-size: 0.95rem; color: #333; line-height: 1.5; }
+  .rf-buttons { display: flex; gap: 8px; }
+  .btn-rf { padding: 5px 12px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; }
+  .btn-rf.correct { background: #4caf50; color: white; border-color: #4caf50; }
+  .btn-rf.wrong { background: #e53935; color: white; border-color: #e53935; }
+  .gap-list { list-style: none; }
+  .gap-list li { background: #fafafa; border: 1px solid #e8e8e8; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; font-size: 0.95rem; line-height: 1.6; }
+  .gap-input { border: none; border-bottom: 2px solid #667eea; background: transparent; font-size: 0.95rem; padding: 2px 6px; min-width: 140px; outline: none; color: #333; }
+  .gap-input.correct { border-color: #4caf50; background: #e8f5e9; border-radius: 4px; }
+  .gap-input.wrong { border-color: #e53935; background: #ffebee; border-radius: 4px; }
+  .sb-area { margin-top: 8px; }
+  .sb-task { background: #f8f6ff; border: 1px solid #d0d8f8; border-radius: 10px; padding: 16px 18px; margin-bottom: 18px; }
+  .sb-task p { font-size: 0.82rem; color: #888; margin-bottom: 10px; }
+  .drop-zone { min-height: 44px; border: 2px dashed #b0bcf0; border-radius: 8px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; background: #f0f4ff; transition: background 0.2s; }
+  .drop-zone.drag-over { background: #e0e8ff; }
+  .chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { background: #667eea; color: white; padding: 6px 13px; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; border: none; transition: background 0.2s, opacity 0.2s; }
+  .chip:hover { background: #5a6fd6; }
+  .chip.placed { background: #764ba2; }
+  .chip.ghost { opacity: 0.4; }
+  .sb-feedback { font-size: 0.82rem; color: #666; min-height: 1.2em; }
+  .sb-feedback.ok { color: #4caf50; font-weight: 600; }
+  .sb-feedback.err { color: #e53935; }
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .vocab-card { border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+  .vocab-card img { width: 100%; height: 120px; object-fit: cover; }
+  .vocab-body { padding: 12px 14px; }
+  .vocab-en { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+  .vocab-inputs { display: flex; flex-direction: column; gap: 5px; }
+  .vocab-inputs input { border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
+  .vocab-inputs input:focus { border-color: #667eea; }
+  .vocab-inputs input.correct { border-color: #4caf50; background: #e8f5e9; }
+  .vocab-inputs input.wrong { border-color: #e53935; background: #ffebee; }
+  .vocab-inputs input::placeholder { color: #bbb; }
+  footer { text-align: center; padding: 14px; font-size: 0.78rem; color: #999; border-top: 1px solid #eee; }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* Satzbau chip coloring */
+.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
+.chip.wrong   { background: #e74c3c !important; border-color: #e74c3c !important; color: white !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Gentrifizierung</h1>
+    <p>B2 · Einheit 2 · 2026R · Lesen &amp; Verstehen</p>
+  </header>
+  <div class="nav">
+    <button class="active" onclick="showTab(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+    <button onclick="showTab(1)"><span class="nav-emoji">📰</span><span class="nav-label">Lesetext</span></div>
+    <button onclick="showTab(2)"><span class="nav-emoji">✅</span><span class="nav-label">R/F-Fragen</span></div>
+    <button onclick="showTab(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+    <button onclick="showTab(4)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+    <button onclick="showTab(5)"><span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span></div>
+  </div>
+
+  <!-- TAB 0: Vorentlastung -->
+  <div class="section active" id="tab0">
+    <div class="sec-inner">
+      <img class="tab-banner"src="https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Stadtteil">
+      <h3 style="color: #667eea; margin-bottom: 18px;">Wichtiger Wortschatz — Gentrifizierung</h3>
+      <div class="vocab-preview">
+        <div class="vocab-item"><strong>die Gentrifizierung</strong><span>= gentrification</span></div>
+        <div class="vocab-item"><strong>die Verdrängung</strong><span>= displacement</span></div>
+        <div class="vocab-item"><strong>die Aufwertung</strong><span>= upgrading / appreciation</span></div>
+        <div class="vocab-item"><strong>die Mietpreiserhöhung</strong><span>= rent increase</span></div>
+        <div class="vocab-item"><strong>die Subkultur</strong><span>= subculture</span></div>
+        <div class="vocab-item"><strong>der Gentrifier</strong><span>= gentrifier (person moving in)</span></div>
+        <div class="vocab-item"><strong>die Mittelschicht</strong><span>= middle class</span></div>
+        <div class="vocab-item"><strong>das Sanierungsprogramm</strong><span>= renovation program</span></div>
+        <div class="vocab-item"><strong>die Geldanlage</strong><span>= investment / capital investment</span></div>
+        <div class="vocab-item"><strong>die Immobilienfirma</strong><span>= real estate company</span></div>
+        <div class="vocab-item"><strong>gutbürgerlich</strong><span>= upper middle class / bourgeois</span></div>
+        <div class="vocab-item"><strong>sanieren</strong><span>= to renovate</span></div>
+        <div class="vocab-item"><strong>investieren</strong><span>= to invest</span></div>
+        <div class="vocab-item"><strong>die Yuppisierung</strong><span>= yuppification</span></div>
+        <div class="vocab-item"><strong>die Attraktivitätssteigerung</strong><span>= increase in attractiveness</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Lesetext -->
+  <div class="section" id="tab1">
+<img class="tab-banner"src="https://images.pexels.com/photos/1769350/pexels-photo-1769350.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Stadt">
+
+    <div class="sec-inner">
+      <div class="text-content">
+        <h3>Gentrifizierung — Wenn Stadtteile den Charakter verlieren</h3>
+
+        <p>Wenn ein Stadtbezirk plötzlich hip wird, spricht man oft von Gentrifizierung — oder auch von Yuppisierung. Damit ist eine Attraktivitätssteigerung eines Stadtteils gemeint, die vor allem für die Mittelschicht attraktiv ist. Gleichzeitig werden bestehende Bewohner durch steigende Mietpreise verdrängt. Dieser Prozess verändert das Gesicht ganzer Stadtviertel und ist in vielen Großstädten weltweit zu beobachten.</p>
+
+        <p>Der Prozess beginnt meist mit der Entdeckung eines günstigen, aber interessanten Stadtteils durch Künstler und Studenten. Diese bringen ihre Subkultur mit — Galerien, Cafés, Clubs entstehen. Der Stadtteil wird lebendiger und attraktiver. Bald folgen Gentrifier: gutverdienende Berufstätige, die den Charme des Viertels schätzen, aber höhere Mieten zahlen können. Die Nachfrage steigt, die Mieten steigen — und die ursprünglichen Bewohner können sich das Viertel nicht mehr leisten.</p>
+
+        <p>Wenn Familien in das Viertel ziehen, verändern sich auch die Anforderungen: Statt Clubs und alternativer Kunst werden Schulen, Kindergärten und ruhigere Nachbarschaften gewünscht. Die ursprüngliche Subkultur verschwindet. Immobilienfirmen erkennen das Potenzial und investieren in Sanierungsprogramme — die Gebäude werden renoviert, die Geldanlage lohnt sich.</p>
+
+        <p>Gentrifizierung hat Vor- und Nachteile. Positiv: Die Gebäude werden saniert, die Infrastruktur verbessert, die Kriminalität sinkt oft. Negativ: Ganze Bevölkerungsgruppen werden verdrängt — besonders Menschen mit geringem Einkommen, ältere Menschen und Familien. Was bleibt, ist ein gutbürgerliches Viertel — ohne die Diversität, die es einst so besonders gemacht hat.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: R/F-Fragen -->
+  <div class="section" id="tab2">
+<img class="tab-banner"src="https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="R/F-Fragen">
+
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="resetRF()">↺ Zurücksetzen</button></div>
+        
+</div>
+      <div class="rf-container" id="rfContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Lückentext -->
+  <div class="section" id="tab3">
+<img class="tab-banner"src="https://images.pexels.com/photos/325185/pexels-photo-325185.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Lückentext">
+
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="resetGaps('gapList1')">↺ Zurücksetzen</button></div>
+        
+</div>
+      <ul class="gap-list" id="gapList1">
+        <li>1. Bei der Gentrifizierung kommt es zur <input class="gap-input" data-answer="Verdrängung" placeholder=""> ärmerer Bevölkerungsgruppen.</li>
+        <li>2. Die <input class="gap-input" data-answer="Mietpreiserhöhung" placeholder=""> macht das Viertel für viele unerschwinglich.</li>
+        <li>3. Künstler bringen ihre <input class="gap-input" data-answer="Subkultur" placeholder=""> in das neue Viertel.</li>
+        <li>4. Ein <input class="gap-input" data-answer="Gentrifier" placeholder=""> ist jemand, der in ein aufgewertetes Viertel zieht.</li>
+        <li>5. Durch Renovierungen findet eine <input class="gap-input" data-answer="Aufwertung" placeholder=""> der Gebäude statt.</li>
+        <li>6. <input class="gap-input" data-answer="Sanieren" placeholder=""> bedeutet, ein Gebäude grundlegend zu renovieren.</li>
+        <li>7. Die <input class="gap-input" data-answer="Mittelschicht" placeholder=""> profitiert oft am meisten von der Gentrifizierung.</li>
+        <li>8. Eine <input class="gap-input" data-answer="Immobilienfirma" placeholder=""> kauft Häuser und saniert sie als Geldanlage.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 4: Satzbau -->
+  <div class="section" id="tab4">
+<img class="tab-banner"src="https://images.pexels.com/photos/1486785/pexels-photo-1486785.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Satzbau">
+
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="initSatzbau()">↺ Neu mischen</button></div>
+        
+</div>
+      <div class="sb-area" id="sbArea"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: Wortschatz -->
+  <div class="section" id="tab5">
+<img class="tab-banner"src="https://images.pexels.com/photos/2058130/pexels-photo-2058130.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Wortschatz">
+
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button></div>
+        
+</div>
+      <div class="vocab-grid" id="vocabGrid"></div>
+    </div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// Tab navigation
+function showTab(n) {
+  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i===n));
+  document.querySelectorAll('nav button').forEach((b,i) => b.classList.toggle('active', i===n));
+}
+
+// Timer
+var TIMER_PREFIX='B2_2026R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4,5].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+document.querySelectorAll('.section').forEach((sec, i) => {
+  const obs = new MutationObserver(() => {
+    if (sec.classList.contains('active')) startTimer('timer'+(i+1));
+  });
+  obs.observe(sec, {attributes: true});
+});
+
+// R/F Questions
+const rfQuestions = [
+  { text: 'Gentrifizierung führt zur Attraktivitätssteigerung eines Stadtteils.', answer: 'r' },
+  { text: 'Künstler und Studenten sind meist die ersten Gentrifier.', answer: 'r' },
+  { text: 'Mietpreise sinken bei der Gentrifizierung.', answer: 'f' },
+  { text: 'Immobilienfirmen sanieren Gebäude als Geldanlage.', answer: 'r' },
+  { text: 'Durch Gentrifizierung wird ein Viertel sozialer und inklusiver.', answer: 'f' },
+  { text: 'Die ursprünglichen Bewohner können oft die steigenden Mieten nicht zahlen.', answer: 'r' },
+];
+function buildRF() {
+  const cont = document.getElementById('rfContainer');
+  cont.innerHTML = '';
+  rfQuestions.forEach((q, i) => {
+    const div = document.createElement('div'); div.className='rf-item';
+    div.innerHTML=`<span class="rf-text">${i+1}. ${q.text}</span>
+      <div class="rf-buttons">
+        <button class="btn-rf" onclick="checkRF(${i},'r')">Richtig</button>
+        <button class="btn-rf" onclick="checkRF(${i},'f')">Falsch</button>
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+function checkRF(i, ans) {
+  const correct = rfQuestions[i].answer === ans;
+  const btns = document.querySelectorAll('.rf-item')[i].querySelectorAll('.btn-rf');
+  btns.forEach(b => b.className='btn-rf');
+  if (ans === 'r') btns[0].classList.add(correct ? 'correct' : 'wrong');
+  else btns[1].classList.add(correct ? 'correct' : 'wrong');
+}
+function resetRF() {
+  document.querySelectorAll('.btn-rf').forEach(b => b.className='btn-rf');
+}
+buildRF();
+
+// Gap inputs — live feedback
+document.querySelectorAll('.gap-input').forEach(inp => {
+  inp.addEventListener('input', function() {
+    const ans = this.dataset.answer.toLowerCase().trim();
+    const val = this.value.toLowerCase().trim();
+    if (!val) { this.className='gap-input'; return; }
+    if (val === ans) { this.classList.remove('wrong'); this.classList.add('correct'); }
+    else if (ans.startsWith(val)) { this.classList.remove('correct','wrong'); }
+    else { this.classList.remove('correct'); this.classList.add('wrong'); }
+  });
+});
+function resetGaps(id) {
+  document.querySelectorAll(`#${id} .gap-input`).forEach(i => { i.value=''; i.className='gap-input'; });
+}
+
+// Satzbau
+const sbSentences = [
+  { words: ['Gentrifizierung', 'verändert', 'das', 'Gesicht', 'ganzer', 'Stadtteile.'] },
+  { words: ['Künstler', 'und', 'Studenten', 'entdecken', 'günstige', 'Stadtteile', 'als', 'erste.'] },
+  { words: ['Die', 'Mietpreise', 'steigen,', 'weil', 'die', 'Nachfrage', 'wächst.'] },
+  { words: ['Immobilienfirmen', 'investieren', 'in', 'Sanierungsprogramme', 'als', 'Geldanlage.'] },
+  { words: ['Die', 'ursprünglichen', 'Bewohner', 'werden', 'durch', 'steigende', 'Preise', 'verdrängt.'] },
+  { words: ['Das', 'Viertel', 'verliert', 'seine', 'Diversität', 'und', 'seinen', 'Charakter.'] },
+];
+let sbDragged = null;
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+function initSatzbau() {
+  const area = document.getElementById('sbArea');
+  area.innerHTML = '';
+  sbSentences.forEach((s,si) => {
+    const div = document.createElement('div'); div.className='sb-task';
+    div.innerHTML=`<p>Aufgabe ${si+1}: Bringe die Wörter in die richtige Reihenfolge.</p>
+      <div class="drop-zone" id="dz${si}" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event,${si})"></div>
+      <div class="chip-pool" id="pool${si}"></div>
+      <div class="sb-feedback" id="fb${si}"></div>`;
+    area.appendChild(div);
+    shuffle([...s.words]).forEach((w,wi) => {
+      const chip = document.createElement('button');
+      chip.className='chip'; chip.textContent=w;
+      chip.dataset.si=si; chip.dataset.word=w;
+      chip.draggable=true;
+      chip.addEventListener('dragstart', e => { sbDragged=chip; chip.classList.add('ghost'); });
+      chip.addEventListener('dragend', e => { chip.classList.remove('ghost'); sbDragged=null; });
+      chip.addEventListener('click', () => handleChipClick(chip, si));
+      document.getElementById(`pool${si}`).appendChild(chip);
+    });
+  });
+}
+function handleChipClick(chip, si) {
+  const dz = document.getElementById('dz'+si);
+  const pool = document.getElementById('pool'+si);
+  if (chip.parentElement===pool) { chip.classList.add('placed'); dz.appendChild(chip); }
+  else { chip.classList.remove('placed'); pool.appendChild(chip); }
+  checkSb(si);
+}
+function dzOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dzLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dzDrop(e, si) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if (!sbDragged) return;
+  sbDragged.classList.add('placed');
+  e.currentTarget.appendChild(sbDragged);
+  checkSb(si);
+}
+function checkSb(si) {
+  const placed = [...document.getElementById('dz'+si).children].map(c=>c.textContent);
+  const correct = sbSentences[si].words;
+  const fb = document.getElementById('fb'+si);
+  [...document.getElementById('dz'+si).children].forEach(function(c,i){c.classList.remove('correct','wrong');if(correct[i]!==undefined)c.classList.add(c.textContent===correct[i]?'correct':'wrong');});
+  if (placed.length===correct.length && placed.every((w,i)=>w===correct[i])) {
+    fb.textContent='✓ Richtig!'; fb.className='sb-feedback ok';
+  } else if (placed.length>0) {
+    fb.textContent='Noch nicht ganz richtig …'; fb.className='sb-feedback err';
+  } else { fb.textContent=''; fb.className='sb-feedback'; }
+}
+initSatzbau();
+
+// Vocabulary
+const vocabData = [
+  { en:'displacement', de:'die Verdrängung', pl:'-en', type:'n', img:'1105766' },
+  { en:'rent increase', de:'die Mietpreiserhöhung', pl:'-en', type:'n', img:'1769350' },
+  { en:'middle class', de:'die Mittelschicht', pl:'-en', type:'n', img:'325185' },
+  { en:'subculture', de:'die Subkultur', pl:'-en', type:'n', img:'2058130' },
+  { en:'renovation program', de:'das Sanierungsprogramm', pl:'-e', type:'n', img:'3184296' },
+  { en:'real estate company', de:'die Immobilienfirma', pl:'-firmen', type:'n', img:'1486785' },
+];
+function buildVocab() {
+  const grid = document.getElementById('vocabGrid');
+  grid.innerHTML = '';
+  vocabData.forEach(v => {
+    const card = document.createElement('div'); card.className='vocab-card';
+    let inputs = '';
+    if (v.type==='n') {
+      const parts = v.de.split(' ');
+      const art = parts[0]; const word = parts.slice(1).join(' ');
+      inputs=`<input type="text" placeholder="Artikel" data-answer="${art}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Deutsch" data-answer="${word}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Plural" data-answer="${v.pl||''}" oninput="checkVocabInput(this)">`;
+    } else {
+      inputs=`<input type="text" placeholder="Deutsch" data-answer="${v.de}" oninput="checkVocabInput(this)">`;
+    }
+    card.innerHTML=`<img src="https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400&h=200&fit=crop" alt="${v.en}" loading="lazy">
+      <div class="vocab-body"><div class="vocab-en">${v.en}</div><div class="vocab-inputs">${inputs}</div></div>`;
+    grid.appendChild(card);
+  });
+}
+function checkVocabInput(inp) {
+  const val = inp.value.trim().toLowerCase();
+  const ans = (inp.dataset.answer || '').toLowerCase().trim();
+  if (!val) { inp.className=''; return; }
+  if (val === ans) {
+    inp.classList.remove('wrong'); inp.classList.add('correct');
+  } else if (ans.startsWith(val)) {
+    inp.classList.remove('correct', 'wrong');
+  } else {
+    inp.classList.remove('correct'); inp.classList.add('wrong');
+  }
+}
+function resetVocab() { document.querySelectorAll('.vocab-inputs input').forEach(i=>{i.value='';i.className='';}); }
+buildVocab();
+
+startTimer('timer1');
+</script>
+</body>
+</html>

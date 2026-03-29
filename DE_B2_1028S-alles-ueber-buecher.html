@@ -32,10 +32,9 @@
       border-bottom: 2px solid #e0e0e0;
       background: #f9f9f9;
     }
-    .nav-btn {
+    .nav-btn{
       flex: 1;
       padding: 12px 6px 10px;
-      border: none;
       background: transparent;
       cursor: pointer;
       font-size: 0.82rem;
@@ -58,7 +57,7 @@
     }
     .nav-btn:hover:not(.active) { background: #f0f0f0; }
     .tab-content { padding: 28px 32px; min-height: 420px; }
-    .tab-panel { display: none; }
+    .section { display: none; }
     .tab-panel.active { display: block; }
 
     /* Control bar */
@@ -275,7 +274,70 @@
       padding: 16px 24px;
       border-top: 1px solid #eee;
     }
-  </style>
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+</style>
 </head>
 <body>
 <div class="container">
@@ -285,27 +347,31 @@
     <p>B2 · Einheit 2 · Sprechen · Literatur, Lesegewohnheiten, Vortrag</p>
   </div>
 
-  <nav class="tab-nav">
-    <button class="nav-btn active" onclick="showTab(0,this)">
+  <div class="tab-nav nav">
+    <div class="nav-btn active" onclick="showSection(0)">
       <span class="nav-emoji">🔁</span>
       <span class="nav-label">Wiederholung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1,this)">
+    </div>
+    <div class="nav-btn" onclick="showSection(1)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Sprechthemen</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2,this)">
+    </div>
+    <div class="nav-btn" onclick="showSection(2)">
       <span class="nav-emoji">📊</span>
       <span class="nav-label">Leas Lesen</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3,this)">
+    </div>
+    <div class="nav-btn" onclick="showSection(3)">
       <span class="nav-emoji">🎤</span>
       <span class="nav-label">Mein Vortrag</span>
-    </button>
-  </nav>
+    </div>
+    <div class="nav-btn" onclick="showSection(4)">
+      <span class="nav-emoji">📝</span>
+      <span class="nav-label">Satzbau</span>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════ TAB 0: WIEDERHOLUNG ══════════════════════════════ -->
-  <div class="tab-panel active" id="tab-0">
+  <div class="section active" id="sec-0">
     <div class="tab-content">
       <div class="control-bar">
         <div class="btn-group">
@@ -313,8 +379,8 @@
           <button class="btn btn-reveal" onclick="revealGaps()">👁 Lösung</button>
         </div>
         <div class="timer-box">
-          ⏱ <span id="timer1">0:00</span>
-          <span class="timer-best" id="best1"></span>
+          ⏱ <span id="timer-1">0:00</span>
+          <span class="timer-best" id="best-1"></span>
         </div>
       </div>
       <p style="margin-bottom:16px; font-size:0.9rem; color:#666;">
@@ -339,7 +405,7 @@
   </div>
 
   <!-- ══════════════════════════════ TAB 1: SPRECHTHEMEN ══════════════════════════════ -->
-  <div class="tab-panel" id="tab-1">
+  <div class="section" id="sec-1">
     <div class="tab-content">
       <div class="section-title">💬 Diskussionsthemen</div>
       <div class="speak-grid">
@@ -421,15 +487,15 @@
   </div>
 
   <!-- ══════════════════════════════ TAB 2: LEAS LESEGEWOHNHEITEN ══════════════════════════════ -->
-  <div class="tab-panel" id="tab-2">
+  <div class="section" id="sec-2">
     <div class="tab-content">
       <div class="control-bar">
         <div class="btn-group">
           <button class="btn btn-reset" onclick="resetMC()">↺ Neu</button>
         </div>
         <div class="timer-box">
-          ⏱ <span id="timer2">0:00</span>
-          <span class="timer-best" id="best2"></span>
+          ⏱ <span id="timer-2">0:00</span>
+          <span class="timer-best" id="best-2"></span>
         </div>
       </div>
 
@@ -524,7 +590,7 @@
   </div>
 
   <!-- ══════════════════════════════ TAB 3: MEIN VORTRAG ══════════════════════════════ -->
-  <div class="tab-panel" id="tab-3">
+  <div class="section" id="sec-3">
     <div class="tab-content">
       <div class="context-box">
         🎤 Du bist auf der <strong>Leipziger Buchmesse</strong> und sollst einen Vortrag über dein Lieblingsbuch halten. Beantworte die Fragen und bereite deinen Vortrag vor!
@@ -617,122 +683,234 @@
 </div>
 
 <script>
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [1,2,3].forEach(function(i){ timerStop(i); });
+}
+
 /* ═══════════════════════ TIMER SYSTEM ═══════════════════════ */
-const TIMER_PREFIX = 'B2_1028S_';
-const timerIntervals = {};
-const timerSeconds   = {};
-const timerRunning   = {};
-
-function timerFmt(s) {
-  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
-}
-function loadBestTimes() {
-  [1,2].forEach(n => {
-    const k = TIMER_PREFIX + n;
-    const best = localStorage.getItem(k);
-    const el = document.getElementById('best'+n);
-    if (best && el) el.textContent = 'Bestzeit: ' + timerFmt(parseInt(best));
-  });
-}
-function timerAutoStart(n) {
-  if (timerRunning[n]) return;
-  timerRunning[n] = true;
-  timerSeconds[n] = timerSeconds[n] || 0;
-  timerIntervals[n] = setInterval(() => {
+var TIMER_PREFIX='B2_1028S_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
     timerSeconds[n]++;
-    const el = document.getElementById('timer'+n);
-    if (el) el.textContent = timerFmt(timerSeconds[n]);
-  }, 1000);
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-function timerStop(n) {
-  if (!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]);
-  timerRunning[n] = false;
-  const k = TIMER_PREFIX + n;
-  const best = parseInt(localStorage.getItem(k) || '999999');
-  if (timerSeconds[n] < best) {
-    localStorage.setItem(k, timerSeconds[n]);
-    const el = document.getElementById('best'+n);
-    if (el) el.textContent = 'Bestzeit: ' + timerFmt(timerSeconds[n]);
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
   }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
-function timerResetOne(n) {
-  clearInterval(timerIntervals[n]);
-  timerRunning[n] = false;
-  timerSeconds[n] = 0;
-  const el = document.getElementById('timer'+n);
-  if (el) el.textContent = '0:00';
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
-
-/* ═══════════════════════ TAB SWITCHING ═══════════════════════ */
-function showTab(idx, btn) {
-  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
-  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
-  if (idx === 0) timerAutoStart(1);
-  if (idx === 2) timerAutoStart(2);
-}
-
-/* ═══════════════════════ LÜCKENTEXT ═══════════════════════ */
-function liveCheck(inp) {
-  timerAutoStart(1);
-  const answer = inp.dataset.answer.toLowerCase().trim();
-  const val = inp.value.toLowerCase().trim();
-  if (!val) { inp.className = 'gap-inp'; updateGapScore(); return; }
-  if (answer.startsWith(val) && val.length < answer.length) { inp.className = 'gap-inp'; updateGapScore(); return; }
-  inp.classList.toggle('correct', val === answer);
-  inp.classList.toggle('wrong', val !== answer);
-  updateGapScore();
-  const all = document.querySelectorAll('#gap-list .gap-inp');
-  if ([...all].every(i => i.classList.contains('correct'))) timerStop(1);
-}
-function updateGapScore() {
-  document.getElementById('gap-score').textContent =
-    document.querySelectorAll('#gap-list .gap-inp.correct').length;
-}
-function resetGaps() {
-  document.querySelectorAll('#gap-list .gap-inp').forEach(inp => { inp.value=''; inp.className='gap-inp'; });
-  updateGapScore(); timerResetOne(1);
-}
-function revealGaps() {
-  timerStop(1);
-  document.querySelectorAll('#gap-list .gap-inp').forEach(inp => {
-    const a = inp.dataset.answer;
-    inp.value = a.charAt(0).toUpperCase() + a.slice(1);
-    inp.className = 'gap-inp correct';
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
-  updateGapScore();
-}
-
-/* ═══════════════════════ MULTIPLE CHOICE ═══════════════════════ */
-function mcClick(btn, isCorrect) {
-  timerAutoStart(2);
-  const options = btn.closest('.mc-options').querySelectorAll('.mc-btn');
-  options.forEach(b => b.disabled = true);
-  btn.classList.add(isCorrect ? 'correct' : 'wrong');
-  if (!isCorrect) options.forEach(b => { if (b._isCorrect) b.classList.add('correct'); });
-  const allDone = [...document.querySelectorAll('.mc-item')].every(item =>
-    [...item.querySelectorAll('.mc-btn')].some(b => b.disabled)
-  );
-  if (allDone) timerStop(2);
-}
-document.querySelectorAll('.mc-btn').forEach(btn => {
-  btn._isCorrect = btn.getAttribute('onclick')?.includes('true');
 });
-function resetMC() {
-  document.querySelectorAll('.mc-btn').forEach(btn => {
-    btn.disabled = false;
-    btn.classList.remove('correct','wrong');
-  });
-  timerResetOne(2);
-}
-
-/* ═══════════════════════ INIT ═══════════════════════ */
-document.querySelectorAll('.mc-btn').forEach(btn => {
-  btn._isCorrect = btn.getAttribute('onclick')?.includes('true');
-});
-loadBestTimes();
 timerAutoStart(1); // Tab 0 starts immediately
+function liveCheck(inp) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (val === ans) { inp.classList.add('correct'); }
+  else if (ans.startsWith(val)) { /* valid prefix — warte */ }
+  else { inp.classList.add('wrong'); }
+}
+
+/* ── SATZBAU ── */
+var sbDragged = null;
+var satzbauData = [
+  { parts: ['obwohl', 'das', 'Buch', 'sehr', 'dick', 'war', ',', 'las', 'sie', 'es', 'in', 'zwei', 'Tagen'],
+    valid: [['obwohl', 'das', 'Buch', 'sehr', 'dick', 'war', ',', 'las', 'sie', 'es', 'in', 'zwei', 'Tagen']], punct: '.' },
+  { parts: ['der', 'Roman', 'handelt', 'von', 'einer', 'Frau', ',', 'die', 'ihre', 'Familie', 'sucht'],
+    valid: [['der', 'Roman', 'handelt', 'von', 'einer', 'Frau', ',', 'die', 'ihre', 'Familie', 'sucht']], punct: '.' },
+  { parts: ['wer', 'viel', 'liest', ',', 'entwickelt', 'automatisch', 'ein', 'besseres', 'Sprachgefühl'],
+    valid: [['wer', 'viel', 'liest', ',', 'entwickelt', 'automatisch', 'ein', 'besseres', 'Sprachgefühl']], punct: '.' },
+  { parts: ['nachdem', 'sie', 'das', 'Buch', 'zu', 'Ende', 'gelesen', 'hatte', ',', 'war', 'sie', 'tief', 'bewegt'],
+    valid: [['nachdem', 'sie', 'das', 'Buch', 'zu', 'Ende', 'gelesen', 'hatte', ',', 'war', 'sie', 'tief', 'bewegt']], punct: '.' },
+  { parts: ['ein', 'Leseclub', 'ist', 'sinnvoll', ',', 'weil', 'man', 'gemeinsam', 'über', 'Bücher', 'spricht'],
+    valid: [['ein', 'Leseclub', 'ist', 'sinnvoll', ',', 'weil', 'man', 'gemeinsam', 'über', 'Bücher', 'spricht']], punct: '.' },
+  { parts: ['der', 'Autor', 'schreibt', 'so', 'lebhaft', ',', 'dass', 'man', 'sich', 'die', 'Szene', 'vorstellen', 'kann'],
+    valid: [['der', 'Autor', 'schreibt', 'so', 'lebhaft', ',', 'dass', 'man', 'sich', 'die', 'Szene', 'vorstellen', 'kann']], punct: '.' },
+  { parts: ['viele', 'Menschen', 'lesen', 'vor', 'dem', 'Einschlafen', ',', 'obwohl', 'das', 'Licht', 'die', 'Augen', 'belastet'],
+    valid: [['viele', 'Menschen', 'lesen', 'vor', 'dem', 'Einschlafen', ',', 'obwohl', 'das', 'Licht', 'die', 'Augen', 'belastet']], punct: '.' },
+];
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
+  return null;
+}
+function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+function sbUpdateCapitalization(row){
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word){
+  var chip=document.createElement('div');
+  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(4);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){ chip.style.opacity='0.4'; },0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity=''; sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');
+    if(c&&c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=getSbCursor();
+    var before=getSbInsertPos(zone,e.clientX);
+    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){
+      var c=document.getElementById('sb-insert-cursor');
+      if(c&&c.parentNode===zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
+    else zone.appendChild(sbDragged);
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);
+    sbUpdateCapitalization(row); sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){ return c.dataset.orig; });
+  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
+  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
+  }
+  setTimeout(function(){
+    var ok=sbColorRow(idx);
+    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
+    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
+  if(allOk) timerStop(4);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
+  fb.textContent='';
+  setTimeout(function(){ sbCheckAuto(idx); },100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');
+  container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div'); item.className='satzbau-item';
+    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
+    bank.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      timerAutoStart(4); row.appendChild(chip); chip.classList.remove('correct','incorrect');
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    row.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
+      chip.textContent=chip.dataset.orig;
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
+    solveBtn.setAttribute('data-idx',idx);
+    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
+    resetBtn.setAttribute('data-idx',idx);
+    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+initSatzbau();
 </script>
 
+
+  <!-- TAB 4: SATZBAU -->
+  <div class="section" id="sec-4">
+    <p class="section-title">🧩 Satzbau: Bring die Wörter in die richtige Reihenfolge!</p>
+    <div id="satzbauContainer"></div>
+  </div>
 </body>
 </html>

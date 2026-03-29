@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 2022G · Kausal-, Konditional- und Finalsätze</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+  .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+  header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 30px 16px; }
+  header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  header p { opacity: 0.85; font-size: 0.95rem; }
+  .nav{ display: flex; background: #f0f0f0;  overflow-x: auto; ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+  nav button { flex: 1; min-width: 90px; padding: 10px 8px; border: 1px solid #ccc; border-bottom: none; background: #e8e8e8; cursor: pointer; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: background 0.2s; color: #555; }
+  nav button .nav-emoji { font-size: 1.3rem; }
+  nav button .nav-label { font-size: 0.72rem; }
+  nav button.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  @media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+  .sec-inner { padding: 24px 28px; }
+  .control-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .control-bar .btn-group { display: flex; gap: 8px; }
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+  .btn-reset { background: #e0e0e0; color: #555; }
+  .btn-reset:hover { background: #ccc; }
+  .timer-box { font-size: 0.85rem; color: #666; font-variant-numeric: tabular-nums; background: #f5f5f5; padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd; }
+  .phrase-section { background: #f8f6ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+  .phrase-section h3 { color: #667eea; margin-bottom: 10px; font-size: 1rem; }
+  .phrase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 8px; }
+  .phrase-card { background: white; border: 1px solid #c8d4f8; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #333; line-height: 1.4; box-shadow: 0 1px 4px rgba(102,126,234,0.08); }
+  .phrase-card em { color: #667eea; font-style: normal; font-weight: 600; }
+  .table-wrapper { overflow-x: auto; margin-bottom: 18px; }
+  .grammar-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .grammar-table th, .grammar-table td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+  .grammar-table th { background: #f0f0f0; color: #667eea; font-weight: 600; }
+  .grammar-table tr:nth-child(even) { background: #f9f9f9; }
+  .grammar-table em { color: #667eea; font-style: normal; font-weight: 600; }
+  .gap-list { list-style: none; }
+  .gap-list li { background: #fafafa; border: 1px solid #e8e8e8; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; font-size: 0.95rem; line-height: 1.6; }
+  .gap-input { border: none; border-bottom: 2px solid #667eea; background: transparent; font-size: 0.95rem; padding: 2px 6px; min-width: 120px; outline: none; color: #333; }
+  .gap-input.correct { border-color: #4caf50; background: #e8f5e9; border-radius: 4px; }
+  .gap-input.wrong { border-color: #e53935; background: #ffebee; border-radius: 4px; }
+  .sb-area { margin-top: 8px; }
+  .sb-task { background: #f8f6ff; border: 1px solid #d0d8f8; border-radius: 10px; padding: 16px 18px; margin-bottom: 18px; }
+  .sb-task p { font-size: 0.82rem; color: #888; margin-bottom: 10px; }
+  .drop-zone { min-height: 44px; border: 2px dashed #b0bcf0; border-radius: 8px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; background: #f0f4ff; transition: background 0.2s; }
+  .drop-zone.drag-over { background: #e0e8ff; }
+  .chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { background: #667eea; color: white; padding: 6px 13px; border-radius: 20px; font-size: 0.88rem; cursor: grab; user-select: none; border: none; transition: background 0.2s, opacity 0.2s; }
+  .chip:hover { background: #5a6fd6; }
+  .chip.placed { background: #764ba2; }
+  .chip.ghost { opacity: 0.4; }
+  .sb-feedback { font-size: 0.82rem; color: #666; min-height: 1.2em; }
+  .sb-feedback.ok { color: #4caf50; font-weight: 600; }
+  .sb-feedback.err { color: #e53935; }
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .vocab-card { border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+  .vocab-card img { width: 100%; height: 120px; object-fit: cover; }
+  .vocab-body { padding: 12px 14px; }
+  .vocab-en { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+  .vocab-inputs { display: flex; flex-direction: column; gap: 5px; }
+  .vocab-inputs input { border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
+  .vocab-inputs input:focus { border-color: #667eea; }
+  .vocab-inputs input.correct { border-color: #4caf50; background: #e8f5e9; }
+  .vocab-inputs input.wrong { border-color: #e53935; background: #ffebee; }
+  .vocab-inputs input::placeholder { color: #bbb; }
+  footer { text-align: center; padding: 14px; font-size: 0.78rem; color: #999; border-top: 1px solid #eee; }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* Satzbau chip coloring */
+.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
+.chip.wrong   { background: #e74c3c !important; border-color: #e74c3c !important; color: white !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Kausal-, Konditional- und Finalsätze</h1>
+    <p>B2 · Einheit 2 · 2022G · Grammatik</p>
+  </header>
+  <div class="nav">
+    <button class="active" onclick="showTab(0)"><span class="nav-emoji">🔍</span><span class="nav-label">Entdecken</span></div>
+    <button onclick="showTab(1)"><span class="nav-emoji">📋</span><span class="nav-label">Übersicht</span></div>
+    <button onclick="showTab(2)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+    <button onclick="showTab(3)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+    <button onclick="showTab(4)"><span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span></div>
+  </div>
+
+  <!-- TAB 0: Entdecken -->
+  <div class="section active" id="tab0">
+    <div class="sec-inner">
+      <img class="tab-banner"src="https://images.pexels.com/photos/256490/pexels-photo-256490.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Entdecken">
+      <div class="phrase-section">
+        <h3>Kausalsätze — Warum?</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">Ich lebe in der Stadt, <em>weil</em> es viele Möglichkeiten gibt. (Verb am Ende des NS)</div>
+          <div class="phrase-card"><em>Da</em> die Mieten steigen, ziehen viele weg. (NS meist vorne)</div>
+          <div class="phrase-card">Die Mieten sind teuer, <em>denn</em> viele Menschen wollen in der Stadt leben. (2 Hauptsätze)</div>
+          <div class="phrase-card">Die Mieten steigen; <em>deshalb/daher/deswegen/aus diesem Grund</em> ist Wohnen teuer. (Hauptsatz-Konnektor)</div>
+        </div>
+      </div>
+      <div class="phrase-section">
+        <h3>Konditionalsätze — Unter welcher Bedingung?</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card"><em>Wenn</em> man in einer Großstadt lebt, hat man viele Möglichkeiten.</div>
+          <div class="phrase-card"><em>Falls</em> die Preise weiter steigen, müssen viele wegziehen.</div>
+        </div>
+      </div>
+      <div class="phrase-section">
+        <h3>Finalsätze — Wozu? Mit welchem Ziel?</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">Er fährt mit dem Fahrrad, <em>um</em> die Umwelt zu schonen. (um...zu + Inf, gleiche Subjekte)</div>
+          <div class="phrase-card">Die Stadt baut neue Schulen, <em>damit</em> die Kinder eine gute Bildung bekommen. (damit, verschiedene Subjekte)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Übersicht -->
+  <div class="section" id="tab1">
+<img class="tab-banner"src="https://images.pexels.com/photos/256490/pexels-photo-256490.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Übersicht">
+
+    <div class="sec-inner">
+      <div class="table-wrapper">
+        <table class="grammar-table">
+          <thead>
+            <tr>
+              <th>Typ</th>
+              <th>Konjunktion/Konnektor</th>
+              <th>Satzstellung</th>
+              <th>Beispiel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Kausal</strong></td>
+              <td><em>weil</em></td>
+              <td>Verb-Letzt (NS)</td>
+              <td>„..., weil er in der Stadt lebt."</td>
+            </tr>
+            <tr>
+              <td><strong>Kausal</strong></td>
+              <td><em>da</em></td>
+              <td>Verb-Letzt (NS, meist vorne)</td>
+              <td>„Da er in der Stadt lebt, ..."</td>
+            </tr>
+            <tr>
+              <td><strong>Kausal</strong></td>
+              <td><em>denn</em></td>
+              <td>Position 2 (HS)</td>
+              <td>„Er ist glücklich, denn die Stadt ist schön."</td>
+            </tr>
+            <tr>
+              <td><strong>Kausal</strong></td>
+              <td><em>deshalb/daher/deswegen</em></td>
+              <td>Position 1 im 2. HS</td>
+              <td>„Die Stadt ist schön; deshalb ist er glücklich."</td>
+            </tr>
+            <tr>
+              <td><strong>Konditional</strong></td>
+              <td><em>wenn</em></td>
+              <td>Verb-Letzt (NS)</td>
+              <td>„Wenn er Zeit hat, geht er spazieren."</td>
+            </tr>
+            <tr>
+              <td><strong>Konditional</strong></td>
+              <td><em>falls</em></td>
+              <td>Verb-Letzt (NS)</td>
+              <td>„Falls es regnet, bleibt er zuhause."</td>
+            </tr>
+            <tr>
+              <td><strong>Final</strong></td>
+              <td><em>um...zu</em></td>
+              <td>Inf am Ende</td>
+              <td>„Er fährt Rad, um fit zu bleiben."</td>
+            </tr>
+            <tr>
+              <td><strong>Final</strong></td>
+              <td><em>damit</em></td>
+              <td>Verb-Letzt (NS)</td>
+              <td>„Er erklärt es, damit sie es versteht."</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Lückentext -->
+  <div class="section" id="tab2">
+<img class="tab-banner"src="https://images.pexels.com/photos/256490/pexels-photo-256490.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Lückentext">
+
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="resetGaps('gapList1')">↺ Zurücksetzen</button></div>
+        
+</div>
+      <ul class="gap-list" id="gapList1">
+        <li>1. Ich wohne gerne in der Stadt, <input class="gap-input" placeholder="" data-answer="weil"> es hier viele Freizeitmöglichkeiten gibt.</li>
+        <li>2. <input class="gap-input" placeholder="" data-answer="Da"> die Urbanisierung zunimmt, werden Städte immer größer.</li>
+        <li>3. Die öffentlichen Verkehrsmittel sind gut, <input class="gap-input" placeholder="" data-answer="denn"> die Stadt hat viel investiert.</li>
+        <li>4. Die Infrastruktur ist alt; <input class="gap-input" placeholder="" data-answer="deshalb"> müssen Investitionen gemacht werden.</li>
+        <li>5. <input class="gap-input" placeholder="" data-answer="Wenn"> man in einer Großstadt lebt, hat man kürzere Arbeitswege.</li>
+        <li>6. Er nimmt die U-Bahn, <input class="gap-input" placeholder="" data-answer="um"> schneller zur Arbeit zu kommen.</li>
+        <li>7. Die Stadt baut Parks, <input class="gap-input" placeholder="" data-answer="damit"> die Bewohner Erholung finden.</li>
+        <li>8. <input class="gap-input" placeholder="" data-answer="Falls"> der Verkehr schlimmer wird, braucht man bessere Lösungen.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 3: Satzbau -->
+  <div class="section" id="tab3">
+<img class="tab-banner"src="https://images.pexels.com/photos/256490/pexels-photo-256490.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Satzbau">
+
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="initSatzbau()">↺ Neu mischen</button></div>
+        
+</div>
+      <div class="sb-area" id="sbArea"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Wortschatz -->
+  <div class="section" id="tab4">
+<img class="tab-banner"src="https://images.pexels.com/photos/256490/pexels-photo-256490.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Wortschatz">
+
+    <div class="sec-inner">
+      <div class="control-bar">
+        <div class="btn-group"><button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button></div>
+        
+</div>
+      <div class="vocab-grid" id="vocabGrid"></div>
+    </div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// Tab navigation
+function showTab(n) {
+  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i===n));
+  document.querySelectorAll('nav button').forEach((b,i) => b.classList.toggle('active', i===n));
+
+
+}
+
+// Timer
+var TIMER_PREFIX='B2_2022G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
+// Gap inputs — live feedback
+document.querySelectorAll('.gap-input').forEach(inp => {
+  inp.addEventListener('input', function() {
+    const ans = this.dataset.answer.toLowerCase().trim();
+    const val = this.value.toLowerCase().trim();
+    if (!val) { this.className='gap-input'; return; }
+    if (val === ans) { this.classList.remove('wrong'); this.classList.add('correct'); }
+    else if (ans.startsWith(val)) { this.classList.remove('correct','wrong'); }
+    else { this.classList.remove('correct'); this.classList.add('wrong'); }
+  });
+});
+function resetGaps(id) {
+  document.querySelectorAll(`#${id} .gap-input`).forEach(i => { i.value=''; i.className='gap-input'; });
+}
+
+// Satzbau
+const sbSentences = [
+  { words: ['Ich', 'lebe', 'in', 'der', 'Stadt,', 'weil', 'es', 'hier', 'viele', 'Möglichkeiten', 'gibt.'] },
+  { words: ['Da', 'die', 'Mieten', 'steigen,', 'ziehen', 'viele', 'Menschen', 'weg.'] },
+  { words: ['Er', 'fährt', 'Rad,', 'um', 'die', 'Umwelt', 'zu', 'schonen.'] },
+  { words: ['Die', 'Stadt', 'baut', 'Schulen,', 'damit', 'Kinder', 'eine', 'gute', 'Bildung', 'bekommen.'] },
+  { words: ['Wenn', 'man', 'Zeit', 'hat,', 'sollte', 'man', 'die', 'Stadt', 'erkunden.'] },
+  { words: ['Die', 'Infrastruktur', 'ist', 'schlecht;', 'deshalb', 'investiert', 'die', 'Stadt', 'mehr.'] },
+];
+let sbDragged = null;
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+function initSatzbau() {
+  const area = document.getElementById('sbArea');
+  area.innerHTML = '';
+  sbSentences.forEach((s,si) => {
+    const div = document.createElement('div'); div.className='sb-task';
+    div.innerHTML=`<p>Aufgabe ${si+1}: Bringe die Wörter in die richtige Reihenfolge.</p>
+      <div class="drop-zone" id="dz${si}" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event,${si})"></div>
+      <div class="chip-pool" id="pool${si}"></div>
+      <div class="sb-feedback" id="fb${si}"></div>`;
+    area.appendChild(div);
+    shuffle([...s.words]).forEach((w,wi) => {
+      const chip = document.createElement('button');
+      chip.className='chip'; chip.textContent=w;
+      chip.dataset.si=si; chip.dataset.word=w;
+      chip.draggable=true;
+      chip.addEventListener('dragstart', e => { sbDragged=chip; chip.classList.add('ghost'); });
+      chip.addEventListener('dragend', e => { chip.classList.remove('ghost'); sbDragged=null; });
+      chip.addEventListener('click', () => handleChipClick(chip, si));
+      document.getElementById(`pool${si}`).appendChild(chip);
+    });
+  });
+}
+function handleChipClick(chip, si) {
+  const dz = document.getElementById('dz'+si);
+  const pool = document.getElementById('pool'+si);
+  if (chip.parentElement===pool) { chip.classList.add('placed'); dz.appendChild(chip); }
+  else { chip.classList.remove('placed'); pool.appendChild(chip); }
+  checkSb(si);
+}
+function dzOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dzLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dzDrop(e, si) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if (!sbDragged) return;
+  sbDragged.classList.add('placed');
+  e.currentTarget.appendChild(sbDragged);
+  checkSb(si);
+}
+function checkSb(si) {
+  const placed = [...document.getElementById('dz'+si).children].map(c=>c.textContent);
+  const correct = sbSentences[si].words;
+  const fb = document.getElementById('fb'+si);
+  [...document.getElementById('dz'+si).children].forEach(function(c,i){c.classList.remove('correct','wrong');if(correct[i]!==undefined)c.classList.add(c.textContent===correct[i]?'correct':'wrong');});
+  if (placed.length===correct.length && placed.every((w,i)=>w===correct[i])) {
+    fb.textContent='✓ Richtig!'; fb.className='sb-feedback ok';
+  } else if (placed.length>0) {
+    fb.textContent='Noch nicht ganz richtig …'; fb.className='sb-feedback err';
+  } else { fb.textContent=''; fb.className='sb-feedback'; }
+}
+initSatzbau();
+
+// Vocabulary
+const vocabData = [
+  { en:'reason / cause', de:'der Grund', pl:'Gründe', type:'n', img:'590016' },
+  { en:'condition', de:'die Bedingung', pl:'-en', type:'n', img:'1181671' },
+  { en:'goal / aim', de:'das Ziel', pl:'-e', type:'n', img:'1058383' },
+  { en:'connection / link', de:'die Verbindung', pl:'-en', type:'n', img:'1097456' },
+  { en:'to invest', de:'investieren', type:'v', img:'534216' },
+  { en:'to plan', de:'planen', type:'v', img:'669615' },
+];
+function buildVocab() {
+  const grid = document.getElementById('vocabGrid');
+  grid.innerHTML = '';
+  vocabData.forEach(v => {
+    const card = document.createElement('div'); card.className='vocab-card';
+    let inputs = '';
+    if (v.type==='n') {
+      const parts = v.de.split(' ');
+      const art = parts[0]; const word = parts.slice(1).join(' ');
+      inputs=`<input type="text" placeholder="Artikel" data-answer="${art}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Deutsch" data-answer="${word}" oninput="checkVocabInput(this)">
+              <input type="text" placeholder="Plural" data-answer="${v.pl||''}" oninput="checkVocabInput(this)">`;
+    } else {
+      inputs=`<input type="text" placeholder="Deutsch" data-answer="${v.de}" oninput="checkVocabInput(this)">`;
+    }
+    card.innerHTML=`<img src="https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=400&h=200&fit=crop" alt="${v.en}" loading="lazy">
+      <div class="vocab-body"><div class="vocab-en">${v.en}</div><div class="vocab-inputs">${inputs}</div></div>`;
+    grid.appendChild(card);
+  });
+}
+function checkVocabInput(inp) {
+  const val = inp.value.trim().toLowerCase();
+  const ans = (inp.dataset.answer || '').toLowerCase().trim();
+  if (!val) { inp.className=''; return; }
+  if (val === ans) {
+    inp.classList.remove('wrong'); inp.classList.add('correct');
+  } else if (ans.startsWith(val)) {
+    inp.classList.remove('correct', 'wrong');
+  } else {
+    inp.classList.remove('correct'); inp.classList.add('wrong');
+  }
+}
+function resetVocab() { document.querySelectorAll('.vocab-inputs input').forEach(i=>{i.value='';i.className='';}); }
+buildVocab();
+
+startTimer('timer0');
+</script>
+</body>
+</html>

@@ -33,14 +33,13 @@
     border-bottom: 2px solid #e9ecef;
     overflow-x: auto;
   }
-  .nav-btn {
+  .nav-btn{
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 12px 8px;
-    border: none;
     background: transparent;
     cursor: pointer;
     font-size: 0.78rem;
@@ -55,8 +54,8 @@
   .nav-btn .nav-label { font-size: 0.75rem; }
   .nav-btn:hover { background: #e9ecef; color: #333; }
   .nav-btn.active { background: white; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
-  .tab-content { display: none; padding: 28px 30px; }
-  .tab-content.active { display: block; }
+  .section { display: none; padding: 28px 30px; }
+  .section.active { display: block; }
   .tab-banner {
     width: 100%;
     height: 180px;
@@ -193,25 +192,6 @@
     transition: border-color 0.2s;
   }
   .sb-drop-zone.drag-over { border-color: #667eea; background: #f0f4ff; }
-  .sb-chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-  .sb-chip {
-    background: #667eea;
-    color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    cursor: grab;
-    font-size: 0.85rem;
-    font-weight: 500;
-    user-select: none;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-  .sb-chip:active { cursor: grabbing; transform: scale(1.05); }
-  .sb-chip.punct { background: #9c6dd6; }
-  .sb-chip.in-zone { background: #5a67d8; }
-  .sb-chip.ghost { opacity: 0.35; }
-  .sb-feedback { font-size: 0.83rem; min-height: 20px; margin-top: 4px; }
-  .sb-feedback.ok { color: #28a745; font-weight: 600; }
-  .sb-feedback.err { color: #dc3545; }
   #sb-score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
   #sb-score { font-weight: 700; color: #667eea; }
 
@@ -272,7 +252,74 @@
     border-top: 1px solid #e9ecef;
     margin-top: 10px;
   }
-</style>
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* Satzbau chip coloring */
+.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
+.chip.wrong   { background: #e74c3c !important; border-color: #e74c3c !important; color: white !important; }
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }</style>
 </head>
 <body>
 <div class="container">
@@ -282,27 +329,27 @@
     <p>B2 · Einheit 6 · Lektion 1061 · Kommunikation</p>
   </div>
 
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showTab(0)">
+  <div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Vorentlastung</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(1)">
+    </div>
+    <div class="nav-btn" onclick="showSection(1)">
       <span class="nav-emoji">✏️</span>
       <span class="nav-label">Lückentext</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(2)">
+    </div>
+    <div class="nav-btn" onclick="showSection(2)">
       <span class="nav-emoji">🔀</span>
       <span class="nav-label">Satzbau</span>
-    </button>
-    <button class="nav-btn" onclick="showTab(3)">
+    </div>
+    <div class="nav-btn" onclick="showSection(3)">
       <span class="nav-emoji">📚</span>
       <span class="nav-label">Wortschatz</span>
-    </button>
-  </nav>
+    </div>
+  </div>
 
   <!-- TAB 0: VORENTLASTUNG -->
-  <div class="tab-content active" id="tab-0">
+  <div class="section active" id="sec-0">
     <img src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Meinungen und Diskussion">
 
     <div class="intro-quote">
@@ -355,14 +402,9 @@
   </div>
 
   <!-- TAB 1: LÜCKENTEXT -->
-  <div class="tab-content" id="tab-1">
+  <div class="section" id="sec-1">
     <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Lückentext">
 
-    <div class="control-bar">
-      <div class="btn-group">
-        <button class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
-      </div>
-      <div class="timer-display" id="timer1-display">⏱ 00:00</div>
     </div>
 
     <div class="luecke-text">
@@ -383,29 +425,19 @@
   </div>
 
   <!-- TAB 2: SATZBAU -->
-  <div class="tab-content" id="tab-2">
+  <div class="section" id="sec-2">
     <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Satzbau">
 
-    <div class="control-bar">
-      <div class="btn-group">
-        <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
-      </div>
-      <div class="timer-display" id="timer2-display">⏱ 00:00</div>
     </div>
 
-    <div class="sb-sentences" id="sb-container"></div>
+    <div class="sb-sentences" id="satzbauContainer"></div>
     <div id="sb-score-row">Richtig: <span id="sb-score">0</span> / 7</div>
   </div>
 
   <!-- TAB 3: WORTSCHATZ -->
-  <div class="tab-content" id="tab-3">
+  <div class="section" id="sec-3">
     <img src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Wortschatz">
 
-    <div class="control-bar">
-      <div class="btn-group">
-        <button class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
-      </div>
-      <div class="timer-display" id="timer3-display">⏱ 00:00</div>
     </div>
 
     <div class="vocab-section-title">📌 Nomen</div>
@@ -418,44 +450,52 @@
 
 <script>
 // ─── TAB NAVIGATION ───────────────────────────────────────────────
-function showTab(n) {
-  document.querySelectorAll('.tab-content').forEach((t,i) => t.classList.toggle('active', i===n));
-  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [1,2,3].forEach(function(i){ timerStop(i); });
 }
 
 // ─── TIMER SYSTEM ─────────────────────────────────────────────────
-const TIMER_PREFIX = 'B2_1061X_';
-const timers = {};
-
-function timerStart(n) {
-  if (timers[n] && timers[n].running) return;
-  const t = timers[n] || (timers[n] = {secs:0, running:false, interval:null});
-  t.running = true;
-  t.interval = setInterval(() => { t.secs++; updateTimerDisplay(n); }, 1000);
+var TIMER_PREFIX='B2_1061X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-
-function timerStop(n) {
-  const t = timers[n];
-  if (!t || !t.running) return;
-  clearInterval(t.interval);
-  t.running = false;
-  const best = loadBestTime(n);
-  if (best === null || t.secs < best) saveBestTime(n, t.secs);
-  updateTimerDisplay(n, true);
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
-
-function timerReset(n) {
-  const t = timers[n];
-  if (!t) return;
-  clearInterval(t.interval);
-  t.secs = 0;
-  t.running = false;
-  updateTimerDisplay(n);
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
-
-function fmtTime(s) {
-  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
 
 function updateTimerDisplay(n, done=false) {
   const el = document.getElementById('timer'+n+'-display');
@@ -504,7 +544,7 @@ function resetLuecke() {
     i.value = '';
     i.classList.remove('correct','wrong');
   });
-  timerReset(1);
+  timerResetOne(1);
   lueckeStarted = false;
   updateLueckeScore();
 }
@@ -515,8 +555,8 @@ let sbStarted = false;
 
 const sbSentences = [
   { parts: ['Wie jemand','die Welt','ansieht',',','definiert','seine Weltanschauung','.'] },
-  { parts: ['Es','gibt','viele verschiedene','Glaubensrichtungen','auf der Welt','.'] },
-  { parts: ['Ich','stehe','für den Pluralismus',',','denn','Vielfalt','ist positiv','.'] },
+  { parts: ['es','gibt','viele verschiedene','Glaubensrichtungen','auf der Welt','.'] },
+  { parts: ['ich','stehe','für den Pluralismus',',','denn','Vielfalt','ist positiv','.'] },
   { parts: ['Andere Meinungen','tolerieren zu können','ist','sehr wichtig','.'] },
   { parts: ['Frau Müller','sagt',',','Religion','sei','wichtig','.'] },
   { parts: ['Abweichende Meinungen','sollte','man','respektieren','.'] },
@@ -547,211 +587,166 @@ function makeChip(word, inZone=false) {
   return chip;
 }
 
-function buildSb() {
-  const container = document.getElementById('sb-container');
-  container.innerHTML = '';
-  sbSentences.forEach((sent, idx) => {
-    const item = document.createElement('div');
-    item.className = 'sb-item';
-    item.dataset.idx = idx;
 
-    const zone = document.createElement('div');
-    zone.className = 'sb-drop-zone';
-    zone.dataset.idx = idx;
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      if (sbDragged) {
-        zone.appendChild(sbDragged);
-        sbDragged.classList.add('in-zone');
-        checkSb(idx);
-        if (!sbStarted) { sbStarted = true; timerStart(2); }
-      }
+/* ── SATZBAU ── */
+var satzbauData = [
+  { parts: ['obwohl', 'wir', 'einer', 'Meinung', 'sind', ',', 'gibt', 'es', 'noch', 'Diskussionsbedarf'],
+    valid: [['obwohl', 'wir', 'einer', 'Meinung', 'sind', ',', 'gibt', 'es', 'noch', 'Diskussionsbedarf']], punct: '.' },
+  { parts: ['weil', 'er', 'anderer', 'Ansicht', 'ist', ',', 'möchte', 'er', 'die', 'Entscheidung', 'überdenken'],
+    valid: [['weil', 'er', 'anderer', 'Ansicht', 'ist', ',', 'möchte', 'er', 'die', 'Entscheidung', 'überdenken']], punct: '.' },
+  { parts: ['ich', 'verstehe', 'deinen', 'Standpunkt', ',', 'auch', 'wenn', 'ich', 'nicht', 'zustimme'],
+    valid: [['ich', 'verstehe', 'deinen', 'Standpunkt', ',', 'auch', 'wenn', 'ich', 'nicht', 'zustimme']], punct: '.' },
+  { parts: ['nachdem', 'beide', 'Seiten', 'gesprochen', 'hatten', ',', 'fanden', 'sie', 'einen', 'Kompromiss'],
+    valid: [['nachdem', 'beide', 'Seiten', 'gesprochen', 'hatten', ',', 'fanden', 'sie', 'einen', 'Kompromiss']], punct: '.' },
+  { parts: ['damit', 'keine', 'Missverständnisse', 'entstehen', ',', 'muss', 'man', 'klar', 'kommunizieren'],
+    valid: [['damit', 'keine', 'Missverständnisse', 'entstehen', ',', 'muss', 'man', 'klar', 'kommunizieren']], punct: '.' },
+  { parts: ['wer', 'zuhört', ',', 'kann', 'andere', 'Meinungen', 'besser', 'respektieren'],
+    valid: [['wer', 'zuhört', ',', 'kann', 'andere', 'Meinungen', 'besser', 'respektieren']], punct: '.' },
+  { parts: ['es', 'ist', 'möglich', ',', 'dass', 'beide', 'Standpunkte', 'teilweise', 'richtig', 'sind'],
+    valid: [['es', 'ist', 'möglich', ',', 'dass', 'beide', 'Standpunkte', 'teilweise', 'richtig', 'sind']], punct: '.' },
+];
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
+  return null;
+}
+function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+function sbUpdateCapitalization(row){
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word){
+  var chip=document.createElement('div');
+  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(2);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){ chip.style.opacity='0.4'; },0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity=''; sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');
+    if(c&&c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=getSbCursor();
+    var before=getSbInsertPos(zone,e.clientX);
+    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){
+      var c=document.getElementById('sb-insert-cursor');
+      if(c&&c.parentNode===zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
+    else zone.appendChild(sbDragged);
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);
+    sbUpdateCapitalization(row); sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){ return c.dataset.orig; });
+  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
+  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
+  }
+  setTimeout(function(){
+    var ok=sbColorRow(idx);
+    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
+    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
+  if(allOk) timerStop(2);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx); var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
+  fb.textContent=''; setTimeout(function(){ sbCheckAuto(idx); },100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');
+  if(!container) return;
+  container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div'); item.className='satzbau-item';
+    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
+    bank.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      timerAutoStart(2); row.appendChild(chip); chip.classList.remove('correct','incorrect');
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
     });
-
-    const pool = document.createElement('div');
-    pool.className = 'sb-chip-pool';
-    pool.addEventListener('dragover', e => e.preventDefault());
-    pool.addEventListener('drop', e => {
-      e.preventDefault();
-      if (sbDragged) {
-        pool.appendChild(sbDragged);
-        sbDragged.classList.remove('in-zone');
-        checkSb(idx);
-      }
+    row.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
+      chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
     });
-
-    const feedback = document.createElement('div');
-    feedback.className = 'sb-feedback';
-    feedback.dataset.idx = idx;
-
-    shuffle(sent.parts).forEach(w => pool.appendChild(makeChip(w)));
-    item.appendChild(zone);
-    item.appendChild(pool);
-    item.appendChild(feedback);
+    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
+    solveBtn.setAttribute('data-idx',idx);
+    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
+    resetBtn.setAttribute('data-idx',idx);
+    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
     container.appendChild(item);
   });
 }
-
-function checkSb(idx) {
-  const zone = document.querySelector('.sb-drop-zone[data-idx="'+idx+'"]');
-  const feedback = document.querySelector('.sb-feedback[data-idx="'+idx+'"]');
-  const chips = [...zone.querySelectorAll('.sb-chip')].map(c => c.textContent);
-  const correct = sbSentences[idx].parts;
-  if (chips.length === correct.length && chips.every((c,i) => c === correct[i])) {
-    feedback.className = 'sb-feedback ok';
-    feedback.textContent = '✓ Richtig!';
-    updateSbScore();
-  } else if (chips.length === correct.length) {
-    feedback.className = 'sb-feedback err';
-    feedback.textContent = '✗ Nicht ganz richtig – versuche es noch einmal.';
-    updateSbScore();
-  } else {
-    feedback.className = 'sb-feedback';
-    feedback.textContent = '';
-  }
-}
-
-function updateSbScore() {
-  const correct = document.querySelectorAll('.sb-feedback.ok').length;
-  document.getElementById('sb-score').textContent = correct;
-  if (correct === sbSentences.length) timerStop(2);
-}
-
-function resetAllSb() {
-  sbStarted = false;
-  document.getElementById('sb-score').textContent = '0';
-  timerReset(2);
-  buildSb();
-}
-
-// ─── WORTSCHATZ ───────────────────────────────────────────────────
-let vocabStarted = false;
-
-const vocabData = [
-  { type:'n', art:'die', word:'Weltanschauung', plural:'Weltanschauungen', en:'worldview', ex:'Wie jemand die Welt ansieht und beurteilt, definiert seine Weltanschauung.' },
-  { type:'n', art:'die', word:'Glaubensrichtung', plural:'Glaubensrichtungen', en:'religious direction', ex:'Es gibt viele verschiedene Glaubensrichtungen auf der Welt.' },
-  { type:'n', art:'die', word:'Interessengruppe', plural:'Interessengruppen', en:'interest group', ex:'Ich bin in einer Interessengruppe, die sich für die Umwelt einsetzt.' },
-  { type:'n', art:'der', word:'Pluralismus', plural:'–', en:'pluralism', ex:'Wenn eine Gesellschaft viele Weltanschauungen hat, spricht man vom Pluralismus.' },
-  { type:'n', art:'die', word:'Toleranz', plural:'–', en:'tolerance', ex:'Andere Weltanschauungen tolerieren zu können ist sehr wichtig.' },
-  { type:'n', art:'die', word:'Akzeptanz', plural:'–', en:'acceptance', ex:'Akzeptanz ist, wenn man jemanden akzeptieren kann, der anders ist.' },
-  { type:'n', art:'der', word:'Respekt', plural:'–', en:'respect', ex:'Respektiert man jemanden, so achtet und schätzt man diese Person.' },
-  { type:'v', word:'vereinnahmen', en:'to monopolize / take up completely', ex:'Wenn man jemanden vollkommen beansprucht, vereinnahmt man ihn.' },
-  { type:'v', word:'tolerieren', en:'to tolerate', ex:'Andere Glaubensrichtungen tolerieren zu können ist sehr wichtig.' },
-  { type:'v', word:'akzeptieren', en:'to accept', ex:'Man sollte auch Menschen akzeptieren können, die anders sind.' },
-  { type:'v', word:'respektieren', en:'to respect', ex:'Ich respektiere deine Meinung, aber ich sehe das anders.' }
-];
-
-const pexelsIds = {
-  'Weltanschauung': 335257, 'Glaubensrichtung': 208371, 'Interessengruppe': 1181396,
-  'Pluralismus': 1367256, 'Toleranz': 3184433, 'Akzeptanz': 1270764, 'Respekt': 3184431
-};
-
-function buildVocab() {
-  const container = document.getElementById('vocab-container');
-  container.innerHTML = '';
-  let totalInputs = 0;
-  let nounSection = true;
-
-  vocabData.forEach((item) => {
-    if (item.type === 'v' && nounSection) {
-      nounSection = false;
-      const divider = document.createElement('div');
-      divider.className = 'vocab-section-title';
-      divider.textContent = '🔤 Verben';
-      container.appendChild(divider);
-    }
-
-    const card = document.createElement('div');
-    card.className = 'vocab-card';
-
-    if (item.type === 'n') {
-      const pid = pexelsIds[item.word];
-      if (pid) {
-        const img = document.createElement('img');
-        img.className = 'vocab-card-img';
-        img.src = `https://images.pexels.com/photos/${pid}/pexels-photo-${pid}.jpeg?auto=compress&cs=tinysrgb&w=80&h=60&fit=crop`;
-        img.alt = item.word;
-        card.appendChild(img);
-      }
-    }
-
-    const info = document.createElement('div');
-    info.className = 'vocab-card-info';
-    info.innerHTML = `<div class="vocab-card-en">${item.en}</div><div class="vocab-card-ex">${item.ex}</div>`;
-    card.appendChild(info);
-
-    const inputs = document.createElement('div');
-    inputs.className = 'vocab-inputs';
-
-    if (item.type === 'n') {
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-art', item.art.toLowerCase()));
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-word', item.word.toLowerCase()));
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-plural', item.plural.toLowerCase()));
-      totalInputs += 3;
-    } else {
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-verb', item.word.toLowerCase()));
-      totalInputs += 1;
-    }
-
-    card.appendChild(inputs);
-    container.appendChild(card);
-  });
-
-  document.getElementById('vocab-total').textContent = totalInputs;
-}
-
-function makeVocabInp(cls, ans) {
-  const inp = document.createElement('input');
-  inp.className = cls;
-  inp.placeholder = '';
-  inp.dataset.answer = ans;
-  inp.addEventListener('input', () => vocabLiveCheck(inp));
-  return inp;
-}
-
-function vocabLiveCheck(inp) {
-  if (!vocabStarted) { vocabStarted = true; timerStart(3); }
-  const ans = inp.dataset.answer.toLowerCase();
-  const val = inp.value.toLowerCase().trim();
-  if (ans.startsWith(val) && val.length > 0) {
-    inp.classList.remove('wrong');
-  } else if (val.length > 0) {
-    inp.classList.add('wrong');
-    inp.classList.remove('correct');
-  }
-  if (val === ans) {
-    inp.classList.remove('wrong');
-    inp.classList.add('correct');
-  }
-  updateVocabScore();
-}
-
-function updateVocabScore() {
-  const all = document.querySelectorAll('#tab-3 .vocab-inp');
-  const correct = [...all].filter(i => i.classList.contains('correct')).length;
-  document.getElementById('vocab-score').textContent = correct;
-  if (correct === all.length) timerStop(3);
-}
-
-function resetVocab() {
-  document.querySelectorAll('#tab-3 .vocab-inp').forEach(i => {
-    i.value = '';
-    i.classList.remove('correct','wrong');
-  });
-  timerReset(3);
-  vocabStarted = false;
-  updateVocabScore();
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────
-buildSb();
-buildVocab();
-updateTimerDisplay(1);
-updateTimerDisplay(2);
-updateTimerDisplay(3);
+initSatzbau();
 </script>
 </body>
 </html>
