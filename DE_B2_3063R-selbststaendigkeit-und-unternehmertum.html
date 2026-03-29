@@ -107,6 +107,47 @@
 .rf-list    { max-width: 650px; margin: 0 auto; }
 /* ──────────────────────────────── */
 </style>
+<script>
+var TIMER_PREFIX='B2_3063R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
 </head>
 <body>
   <div class="container">
@@ -164,7 +205,7 @@
       <!-- Tab 2: Lückentext -->
       <div class="tab" id="tab2">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-2">0:00</span>
+          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
           <span style="color: #f39c12; font-weight: 600;" id="best-2"></span>
         </div>
         <div class="btn-row">
@@ -178,7 +219,7 @@
       <!-- Tab 3: Multiple Choice -->
       <div class="tab" id="tab3">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-3">0:00</span>
+          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
           <span style="color: #f39c12; font-weight: 600;" id="best-3"></span>
         </div>
         <div class="btn-row">
@@ -191,7 +232,7 @@
       <!-- Tab 4: Satzbau -->
       <div class="tab" id="tab4">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer4">0:00</span>
+          ⏱ <span id="timer-4">0:00</span><span>🏆 <span id="best-4">--:--</span></span>
           <span style="color: #f39c12; font-weight: 600;" id="best4"></span>
         </div>
         <div class="btn-row">
@@ -209,258 +250,6 @@
     </div>
   </div>
 
-  <script>
-    var timerState = [false, false, false, false, false];
-    var timerIntervals = [null, null, null, null, null];
-    var bestTimes = [null, null, null, null, null];
-    var TIMER_PREFIX='B2_3063R_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [2,3].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-
-    function liveCheck(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-        timerAutoStart(2);
-        checkAllLuecken();
-      } else if (ans.indexOf(val) === 0) {
-        timerAutoStart(2);
-      } else {
-        inp.classList.add('wrong');
-        timerAutoStart(2);
-      }
-    }
-
-    function showHint(inp) {
-      var next = inp.nextElementSibling;
-      if (next && next.classList.contains('correction-hint')) next.remove();
-      var hint = document.createElement('span');
-      hint.className = 'correction-hint';
-      hint.textContent = inp.dataset.answer;
-      inp.insertAdjacentElement('afterend', hint);
-      inp.value = inp.dataset.answer;
-      inp.classList.add('correct');
-    }
-
-    var lueckenData = [
-      { text: 'Viele Menschen träumen davon, sich <input class="blank" data-answer="selbstständig" oninput="liveCheck(this)" /> zu machen.', ans: 'selbstständig' },
-      { text: 'Die <input class="blank" data-answer="Altersvorsorge" oninput="liveCheck(this)" /> ist eine große Herausforderung für Freiberufler.', ans: 'altersvorsorge' },
-      { text: 'Ein <input class="blank" data-answer="Start-up" oninput="liveCheck(this)" /> ist ein junges, innovatives Unternehmen.', ans: 'start-up' },
-      { text: 'Die <input class="blank" data-answer="Finanzierung" oninput="liveCheck(this)" /> ist oft schwierig am Anfang.', ans: 'finanzierung' },
-      { text: 'Selbstständige müssen selbst für die <input class="blank" data-answer="Krankenversicherung" oninput="liveCheck(this)" /> zahlen.', ans: 'krankenversicherung' }
-    ];
-
-    function initLuecken() {
-      var cont = document.getElementById('luecke-container');
-      cont.innerHTML = '';
-      lueckenData.forEach(function(item) {
-        var div = document.createElement('div');
-        div.className = 'luecke-satz';
-        div.innerHTML = item.text;
-        cont.appendChild(div);
-      });
-    }
-
-    function showLuecken() {
-      var cont = document.getElementById('luecke-container');
-      var inps = cont.querySelectorAll('input.blank');
-      inps.forEach(function(inp) { showHint(inp); });
-    }
-
-    function resetLuecken() {
-      initLuecken();
-    }
-
-    function checkAllLuecken() {
-      var cont = document.getElementById('luecke-container');
-      var inps = cont.querySelectorAll('input.blank');
-      var all = Array.from(inps).every(function(i) { return i.classList.contains('correct'); });
-      if (all) timerStop(2);
-    }
-
-    var mcData = [
-      { q: 'Welche ist KEINE typische Herausforderung der Selbstständigkeit?', opts: ['Altersvorsorge', 'Krankenversicherung', 'Genossenschaftliche Unterstützung', 'Auftragsmangel'], correct: 2 },
-      { q: 'Wo wächst die Start-up-Kultur in Deutschland besonders?', opts: ['Berlin, München, Hamburg', 'Nur in Berlin', 'Nur in Köln', 'Überall gleichmäßig'], correct: 0 },
-      { q: 'Was ist eine Herausforderung der Work-Life-Balance bei Selbstständigen?', opts: ['Zu wenig Freizeit', 'Ständige Erreichbarkeit', 'Zu viele Urlaubstage', 'Langeweile'], correct: 1 }
-    ];
-
-    function initMC() {
-      var cont = document.getElementById('mc-container');
-      cont.innerHTML = '';
-      mcData.forEach(function(item, idx) {
-        var div = document.createElement('div');
-        div.className = 'mc-container';
-        var q = document.createElement('div');
-        q.className = 'mc-q';
-        q.textContent = item.q;
-        div.appendChild(q);
-        var opts = document.createElement('div');
-        opts.className = 'mc-opts';
-        item.opts.forEach(function(opt, oidx) {
-          var opt_btn = document.createElement('div');
-          opt_btn.className = 'mc-opt';
-          opt_btn.textContent = opt;
-          opt_btn.onclick = function() { checkMC(idx, oidx, this); };
-          opts.appendChild(opt_btn);
-        });
-        div.appendChild(opts);
-        cont.appendChild(div);
-      });
-    }
-
-    function checkMC(qidx, oidx, elem) {
-      timerAutoStart(3);
-      var opts = elem.parentElement.querySelectorAll('.mc-opt');
-      opts.forEach(function(o) { o.classList.remove('correct', 'wrong'); });
-      if (oidx === mcData[qidx].correct) {
-        elem.classList.add('correct');
-      } else {
-        elem.classList.add('wrong');
-        opts[mcData[qidx].correct].classList.add('correct');
-      }
-    }
-
-    function resetMC() {
-      initMC();
-    }
-
-    var sbData = [
-      {
-        chips: ['Selbstständige', 'müssen', 'selbst', 'für', 'die', 'Altersvorsorge', 'sparen', '.'],
-        correct: ['Selbstständige', 'müssen', 'selbst', 'für', 'die', 'Altersvorsorge', 'sparen', '.']
-      },
-      {
-        chips: ['Start-ups', 'bekommen', 'oft', 'Finanzierung', 'von', 'privaten', 'Investoren', '.'],
-        correct: ['Start-ups', 'bekommen', 'oft', 'Finanzierung', 'von', 'privaten', 'Investoren', '.']
-      },
-      {
-        chips: ['Die', 'Work-Life-Balance', 'ist', 'eine', 'große', 'Herausforderung', '.'],
-        correct: ['Die', 'Work-Life-Balance', 'ist', 'eine', 'große', 'Herausforderung', '.']
-      }
-    ];
-
-    var sbDragged = null;
-
-    function initSatzbau() {
-      var cont = document.getElementById('sb-container');
-      cont.innerHTML = '';
-      sbData.forEach(function(item, idx) {
-        var div = document.createElement('div');
-        div.className = 'sb-satz';
-        var bank = document.createElement('div');
-        bank.className = 'chip-bank';
-        var shuffled = item.chips.slice().sort(function() { return Math.random() - 0.5; });
-        shuffled.forEach(function(word) {
-          var chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.textContent = word;
-          chip.draggable = true;
-          chip.dataset.idx = idx;
-          chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
-          chip.addEventListener('dragend', colorAllSb);
-          bank.appendChild(chip);
-        });
-        div.appendChild(bank);
-
-        var dropzone = document.createElement('div');
-        dropzone.className = 'drop-row';
-        dropzone.dataset.idx = idx;
-        dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
-        dropzone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
-        dropzone.addEventListener('drop', function(e) { e.preventDefault(); this.classList.remove('dragover'); if (sbDragged) this.appendChild(sbDragged); });
-        div.appendChild(dropzone);
-        cont.appendChild(div);
-      });
-    }
-
-    function colorAllSb() {
-      sbData.forEach(function(_, idx) { colorSb(idx); });
-    }
-
-    function colorSb(idx) {
-      var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
-      if (!dropz) return;
-      var chips = dropz.querySelectorAll('.chip');
-      var isOk = chips.length === sbData[idx].correct.length && Array.from(chips).every(function(c, i) { return c.textContent === sbData[idx].correct[i]; });
-      chips.forEach(function(c) { c.classList.remove('correct', 'wrong'); if (isOk) c.classList.add('correct'); else if (chips.length > 0) c.classList.add('wrong'); });
-      if (isOk && idx === sbData.length - 1) { var allOk = true; sbData.forEach(function(_, i) { var dz = document.querySelector('.drop-row[data-idx="' + i + '"]'); if (!dz || !dz.querySelectorAll('.chip.correct').length) allOk = false; }); if (allOk) timerStop(4); }
-    }
-
-    function showSatzbau() {
-      sbData.forEach(function(item, idx) {
-        var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
-        dropz.innerHTML = '';
-        item.correct.forEach(function(word) {
-          var chip = document.createElement('div');
-          chip.className = 'chip correct';
-          chip.textContent = word;
-          dropz.appendChild(chip);
-        });
-      });
-    }
-
-    function resetSatzbau() {
-      initSatzbau();
-    }
-
-    function switchTab(idx) {
-      var tabs = document.querySelectorAll('.tab');
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      document.getElementById('tab' + idx).classList.add('active');
-      var navs = document.querySelectorAll('.nav-tab');
-      navs.forEach(function(n) { n.classList.remove('active'); });
-      event.target.classList.add('active');
-      if (idx === 2 && !document.getElementById('luecke-container').children.length) initLuecken();
-      if (idx === 3 && !document.getElementById('mc-container').children.length) initMC();
-      if (idx === 4 && !document.getElementById('sb-container').children.length) initSatzbau();
-    }
-
-    document.addEventListener('input', function(e) {
-      if (e.target.classList.contains('blank')) timerAutoStart(2);
-    });
-
-    initLuecken();
-    initMC();
-    initSatzbau();
-  </script>
+  
 </body>
 </html>

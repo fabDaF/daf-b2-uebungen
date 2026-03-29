@@ -136,6 +136,18 @@
     .chip:active { cursor: grabbing; transform: scale(1.04); }
     .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
     .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .drop-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 2px dashed #c5cae9;
+      background: #fafbff;
+      margin-bottom: 14px;
+    }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
     .chip-bank {
       display: flex;
       flex-wrap: wrap;
@@ -248,30 +260,6 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-
-    /* Vokabel-Hervorhebung im Lesetext */
-    .vocab-hl {
-        background: #ffe9a0;
-        border-radius: 3px;
-        padding: 1px 3px;
-        font-weight: 600;
-        cursor: help;
-    }
-    
-/* ── Satzbau-Übung ──────────────────────────────────────────────────────── */
-.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
-.sb-label { font-size: 0.8em; color: #888; margin-bottom: 6px; font-weight: 600; }
-.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
-.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
-.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
-.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
-.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
-.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
-.satzbau-feedback.correct { color: #27ae60; }
-.satzbau-feedback.incorrect { color: #e74c3c; }
-.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
-.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
-.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
 </style>
 </head>
 <body>
@@ -281,26 +269,26 @@
       <p>B2.3 · Einheit 1 · Lesetext</p>
     </div>
     <div class="nav">
-      <button class="nav-btn active" onclick="showTab(0)">
+      <div class="nav-btn active" onclick="showTab(0)">
         <span class="nav-emoji">🌅</span>
         <span class="nav-label">Vorentlastung</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(1)">
+      </div>
+      <div class="nav-btn" onclick="showTab(1)">
         <span class="nav-emoji">📖</span>
         <span class="nav-label">Lesetext</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(2)">
+      </div>
+      <div class="nav-btn" onclick="showTab(2)">
         <span class="nav-emoji">✏️</span>
         <span class="nav-label">Lückentext</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(3)">
+      </div>
+      <div class="nav-btn" onclick="showTab(3)">
         <span class="nav-emoji">❓</span>
         <span class="nav-label">Multiple Choice</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(4)">
+      </div>
+      <div class="nav-btn" onclick="showTab(4)">
         <span class="nav-emoji">🔀</span>
         <span class="nav-label">Satzbau</span>
-      </button>
+      </div>
     </div>
     <div class="content">
 
@@ -369,8 +357,8 @@
       <!-- TAB 2: Lückentext -->
       <div class="tab" id="tab2">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer2">0:00</span>
-          <span class="best-time" id="best2"></span>
+          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
+          <span class="best-time" id="best-2"></span>
         </div>
         <div class="btn-row">
           <button class="btn" onclick="showLueckeLoesung(2)">Lösungen</button>
@@ -385,8 +373,8 @@
       <!-- TAB 3: Multiple Choice -->
       <div class="tab" id="tab3">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer3">0:00</span>
-          <span class="best-time" id="best3"></span>
+          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
+          <span class="best-time" id="best-3"></span>
         </div>
         <div class="btn-row">
           <button class="btn" onclick="resetMC(3); timerResetOne(3);">Neu starten</button>
@@ -400,8 +388,8 @@
       <!-- TAB 4: Satzbau -->
       <div class="tab" id="tab4">
         <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer4">0:00</span>
-          <span class="best-time" id="best4"></span>
+          ⏱ <span id="timer-4">0:00</span><span>🏆 <span id="best-4">--:--</span></span></span></span>
+          <span class="best-time" id="best-4"></span>
         </div>
         <div class="btn-row">
           <button class="btn" onclick="resetSatzbau(4); timerResetOne(4);">Neu starten</button>
@@ -409,7 +397,7 @@
         <div class="help-box">
           <strong>Aufgabe:</strong> Ordne die Satzteile in die richtige Reihenfolge.
         </div>
-        <div id="satzbauContainer"></div>
+        <div id="satzbau-container-4"></div>
       </div>
 
     </div>
@@ -420,539 +408,45 @@
   </div>
 
   <script>
-    var TIMER_PREFIX = 'B2_3013R_';
-    var timerStarted = [false, false, false, false, false];
-    var timerRunning = [false, false, false, false, false];
-    var timerSeconds = [0, 0, 0, 0, 0];
-    var timerIntervals = [null, null, null, null, null];
-    var sbDragged = null;
-
-    function showTab(n) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab' + n).classList.add('active');
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      event.target.closest('.nav-btn').classList.add('active');
-    }
-
-    function liveCheck(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // gültiger Präfix
-      } else {
-        inp.classList.add('wrong');
-      }
-    }
-
-    function showHint(inp) {
-      var next = inp.nextElementSibling;
-      if (next && next.classList.contains('correction-hint')) next.remove();
-      if (!inp.classList.contains('correct')) {
-        var hint = document.createElement('span');
-        hint.className = 'correction-hint';
-        hint.textContent = inp.dataset.answer;
-        inp.insertAdjacentElement('afterend', hint);
-      }
-      inp.value = inp.dataset.answer;
-      inp.classList.add('correct');
-      inp.classList.remove('wrong');
-    }
-
-    function timerAutoStart(n) {
-      if (timerStarted[n]) return;
-      timerStarted[n] = true;
-      timerRunning[n] = true;
-      timerIntervals[n] = setInterval(() => {
-        timerSeconds[n]++;
-        var el = document.getElementById('timer-' + n);
-        if (el) el.textContent = fmtTime(timerSeconds[n]);
-      }, 1000);
-    }
-
-    function timerStop(n) {
-      if (!timerRunning[n]) return;
-      clearInterval(timerIntervals[n]);
-      timerRunning[n] = false;
-      var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
-      if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
-        localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
-        var el = document.getElementById('best-' + n);
-        if (el) el.textContent = '🏆 ' + fmtTime(timerSeconds[n]);
-      }
-    }
-
-    function timerResetOne(n) {
-      clearInterval(timerIntervals[n]);
-      timerRunning[n] = false;
-      timerStarted[n] = false;
-      timerSeconds[n] = 0;
-      var el = document.getElementById('timer-' + n);
-      if (el) el.textContent = '0:00';
-    }
-
-    function fmtTime(s) {
-      return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
-    }
-
-    function loadBestTimes() {
-      for (var i = 2; i <= 4; i++) {
-        var v = localStorage.getItem(TIMER_PREFIX + i);
-        if (v) {
-          var el = document.getElementById('best-' + i);
-          if (el) el.textContent = '🏆 ' + fmtTime(parseInt(v));
-        }
-      }
-    }
-
-    var LUECKEN_DATA = [
-      { segs: [{t: 'Mythen entstehen, um '}, {b: 'Naturphänomene', s: 'm'}, {t: ' zu erklären.'}], hint: 'Nomen' },
-      { segs: [{t: 'Die bekanntesten Mythen stammen aus der '}, {b: 'griechischen', s: 'm'}, {t: ' Zivilisation.'}], hint: 'Adjektiv' },
-      { segs: [{t: 'Die Götter der Griechen lebten auf dem '}, {b: 'Olymp', s: 's'}, {t: '.'}], hint: 'Berg' },
-      { segs: [{t: 'Die nordischen Mythen der Wikinger erzählen von Göttern wie '}, {b: 'Odin', s: 'm'}, {t: ' und Thor.'}], hint: 'Gott' },
-      { segs: [{t: 'Psychologen sagen, dass Mythen unserer '}, {b: 'Psyche', s: 'm'}, {t: ' helfen.'}], hint: 'Bewusstsein' },
-      { segs: [{t: 'Mythen sind kulturelle '}, {b: 'Werkzeuge', s: 'l'}, {t: '.'}], hint: 'Plural' },
-      { segs: [{t: 'Die Geschichte des '}, {b: 'Prometheus', s: 'm'}, {t: ' zeigt, dass Ungehorsam Konsequenzen hat.'}], hint: 'antiker Held' },
-      { segs: [{t: 'Wissenschaft erklärt durch '}, {b: 'Beobachtung', s: 'l'}, {t: ' und Experiment.'}], hint: 'Nomen' }
-    ];
-
-    function lueckeInit() {
-      var cont = document.getElementById('luecke-container-2');
-      cont.innerHTML = '';
-      LUECKEN_DATA.forEach((item, idx) => {
-        var sent = document.createElement('div');
-        sent.style.marginBottom = '14px';
-        item.segs.forEach(seg => {
-          if (seg.t) {
-            sent.appendChild(document.createTextNode(seg.t));
-          } else {
-            var inp = document.createElement('input');
-            inp.className = 'blank';
-            inp.type = 'text';
-            inp.dataset.answer = seg.b;
-            inp.style.width = (seg.s === 's' ? '50px' : seg.s === 'm' ? '90px' : '150px');
-            inp.addEventListener('input', function() {
-              timerAutoStart(2);
-              liveCheck(this);
-              checkLueckeAllOk(2);
-            });
-            sent.appendChild(inp);
-          }
-        });
-        cont.appendChild(sent);
-      });
-    }
-
-    function checkLueckeAllOk(n) {
-      var inputs = document.querySelectorAll('#luecke-container-' + n + ' input.blank');
-      var allOk = inputs.length > 0 && Array.from(inputs).every(i => i.classList.contains('correct'));
-      if (allOk) timerStop(n);
-    }
-
-    function showLueckeLoesung(n) {
-      document.querySelectorAll('#luecke-container-' + n + ' input.blank').forEach(inp => {
-        showHint(inp);
-      });
-      timerStop(n);
-    }
-
-    function resetLuecke(n) {
-      document.querySelectorAll('#luecke-container-' + n + ' input.blank').forEach(inp => {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-        var hint = inp.nextElementSibling;
-        if (hint && hint.classList.contains('correction-hint')) hint.remove();
-      });
-    }
-
-    var MC_DATA = [
-      { question: 'Warum entstehen Mythen?', options: [
-        { text: 'Um Naturphänomene und existenzielle Fragen zu erklären', correct: true },
-        { text: 'Um Wissenschaftler zu verwirren', correct: false },
-        { text: 'Weil Menschen zu viel Freizeit haben', correct: false }
-      ]},
-      { question: 'Welcher Gott ist nordisch?', options: [
-        { text: 'Zeus', correct: false },
-        { text: 'Odin', correct: true },
-        { text: 'Ra', correct: false }
-      ]},
-      { question: 'Was ist der Unterschied zwischen Mythos und Wissenschaft?', options: [
-        { text: 'Mythse erklären durch Geschichten, Wissenschaft durch Beobachtung', correct: true },
-        { text: 'Mythen sind immer wahr, Wissenschaft ist falsch', correct: false },
-        { text: 'Mythen nutzen nur Zahlen', correct: false }
-      ]},
-      { question: 'Was zeigt die Geschichte des Prometheus?', options: [
-        { text: 'Dass Ungehorsam gegen Autorität Konsequenzen hat', correct: true },
-        { text: 'Dass Menschen fliegen können', correct: false },
-        { text: 'Dass Feuer gut ist', correct: false }
-      ]},
-      { question: 'Warum sind Mythen heute noch bedeutsam?', options: [
-        { text: 'Sie zeigen, wer wir sind und was wir wertschätzen', correct: true },
-        { text: 'Weil sie literal wahr sind', correct: false },
-        { text: 'Sie haben keine Bedeutung mehr', correct: false }
-      ]}
-    ];
-
-    function mcInit() {
-      var cont = document.getElementById('mc-container-3');
-      cont.innerHTML = '';
-      MC_DATA.forEach((item, idx) => {
-        var sect = document.createElement('div');
-        sect.style.marginBottom = '20px';
-        var q = document.createElement('div');
-        q.style.fontWeight = '600';
-        q.style.marginBottom = '10px';
-        q.style.color = '#3949ab';
-        q.textContent = (idx + 1) + '. ' + item.question;
-        sect.appendChild(q);
-        item.options.forEach(opt => {
-          var btn = document.createElement('button');
-          btn.className = 'mc-option';
-          btn.textContent = opt.text;
-          btn.onclick = function() {
-            mcCheck(this, idx, opt.correct);
-          };
-          sect.appendChild(btn);
-        });
-        cont.appendChild(sect);
-      });
-    }
-
-    function mcCheck(btn, idx, correct) {
-      timerAutoStart(3);
-      if (correct) {
-        btn.classList.add('correct');
-        btn.disabled = true;
-        setTimeout(() => checkMcAllOk(3), 800);
-      } else {
-        btn.classList.add('wrong');
-        setTimeout(() => btn.classList.remove('wrong'), 1200);
-      }
-    }
-
-    function checkMcAllOk(n) {
-      var allBtns = document.querySelectorAll('#mc-container-' + n + ' .mc-option');
-      var answered = Array.from(allBtns).filter(b => b.classList.contains('correct'));
-      if (answered.length === MC_DATA.length) timerStop(n);
-    }
-
-    function resetMC(n) {
-      mcInit();
-    }
-
-    
-var satzbauData = [
-    { parts: ['Mythen', 'entstehen', ',', 'um', 'Naturphänomene', 'zu', 'erklären'],
-      valid: [
-        ['Mythen', 'entstehen', ',', 'um', 'Naturphänomene', 'zu', 'erklären']],
-      punct: '.' },
-    { parts: ['Die', 'Götter', 'der', 'Griechen', 'lebten', 'auf', 'dem', 'Olymp'],
-      valid: [
-        ['Die', 'Götter', 'der', 'Griechen', 'lebten', 'auf', 'dem', 'Olymp']],
-      punct: '.' },
-    { parts: ['Mythen', 'vermitteln', 'Werte', ',', 'Normen', 'und', 'Moral'],
-      valid: [
-        ['Mythen', 'vermitteln', 'Werte', ',', 'Normen', 'und', 'Moral']],
-      punct: '.' },
-    { parts: ['Wissenschaft', 'erklärt', 'durch', 'Beobachtung', 'und', 'Experiment'],
-      valid: [
-        ['Wissenschaft', 'erklärt', 'durch', 'Beobachtung', 'und', 'Experiment']],
-      punct: '.' },
-    { parts: ['Die', 'Wahrheit', 'in', 'den', 'Mythen', 'bleibt', 'bedeutsam'],
-      valid: [
-        ['Die', 'Wahrheit', 'in', 'den', 'Mythen', 'bleibt', 'bedeutsam']],
-      punct: '.' }
-];
-
-/* ========== SATZBAU (satzbau-drag-drop Skill) ========== */
-
-var sbDragged = null;
-
-function getSbCursor() {
-    var c = document.getElementById('sb-insert-cursor');
-    if (!c) {
-        c = document.createElement('div');
-        c.id = 'sb-insert-cursor';
-        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
-    }
-    return c;
+    var TIMER_PREFIX='B2_3013R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-function getSbInsertPos(zone, clientX) {
-    var chips = Array.from(zone.querySelectorAll('.chip'));
-    for (var i = 0; i < chips.length; i++) {
-        var r = chips[i].getBoundingClientRect();
-        if (clientX < r.left + r.width / 2) return chips[i];
-    }
-    return null;
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
 }
-function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-function sbUpdateCapitalization(row) {
-    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
-        var orig = c.dataset.orig;
-        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
-                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
-        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
-    });
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
-function sbMakeChip(word) {
-    var chip = document.createElement('div');
-    chip.className = 'chip';
-    chip.textContent = word;
-    chip.dataset.orig = word;
-    chip.draggable = true;
-    chip.addEventListener('dragstart', function(e) {
-        sbDragged = chip;
-        if (typeof timerAutoStart === 'function') timerAutoStart(4);
-        e.dataTransfer.setData('text/plain', '');
-        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
-    });
-    chip.addEventListener('dragend', function() {
-        chip.style.opacity = '';
-        sbDragged = null;
-        var c = document.getElementById('sb-insert-cursor');
-        if (c && c.parentNode) c.parentNode.removeChild(c);
-    });
-    return chip;
-}
-function sbRegisterZone(zone, idx) {
-    zone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        if (!sbDragged) return;
-        var cursor = getSbCursor();
-        var before = getSbInsertPos(zone, e.clientX);
-        if (before) zone.insertBefore(cursor, before);
-        else zone.appendChild(cursor);
-    });
-    zone.addEventListener('dragleave', function(e) {
-        if (!zone.contains(e.relatedTarget)) {
-            var c = document.getElementById('sb-insert-cursor');
-            if (c && c.parentNode === zone) zone.removeChild(c);
-        }
-    });
-    zone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        if (!sbDragged) return;
-        var cursor = document.getElementById('sb-insert-cursor');
-        if (cursor && cursor.parentNode === zone) {
-            zone.insertBefore(sbDragged, cursor);
-            zone.removeChild(cursor);
-        } else { zone.appendChild(sbDragged); }
-        sbDragged = null;
-        sbUpdateCapitalization(document.getElementById('sb-row-' + idx));
-        sbCheckAuto(idx);
-    });
-}
-function sbColorRow(idx) {
-    var row = document.getElementById('sb-row-' + idx);
-    var chips = Array.from(row.querySelectorAll('.chip'));
-    var order = chips.map(function(c) { return c.dataset.orig; });
-    var ok = satzbauData[idx].valid.some(function(v) {
-        return JSON.stringify(v) === JSON.stringify(order);
-    });
-    chips.forEach(function(c) {
-        c.classList.remove('correct', 'incorrect');
-        c.classList.add(ok ? 'correct' : 'incorrect');
-    });
-    var existing = row.querySelector('.sb-punkt');
-    if (existing) existing.parentNode.removeChild(existing);
-    if (ok) {
-        var punkt = document.createElement('span');
-        punkt.className = 'sb-punkt';
-        punkt.textContent = satzbauData[idx].punct || '.';
-        row.appendChild(punkt);
-    }
-    return ok;
-}
-function sbCheckAuto(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-' + idx);
-    var fb   = document.getElementById('sb-fb-' + idx);
-    if (bank.querySelectorAll('.chip').length > 0) {
-        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
-        row.classList.remove('correct', 'incorrect');
-        fb.textContent = '';
-        return;
-    }
-    setTimeout(function() {
-        if (typeof timerAutoStart === 'function') timerAutoStart(4);
-        var ok = sbColorRow(idx);
-        if (ok) {
-            row.classList.add('correct'); row.classList.remove('incorrect');
-            fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
-            sbCheckAllDone();
-        } else {
-            row.classList.add('incorrect'); row.classList.remove('correct');
-            fb.className = 'satzbau-feedback incorrect';
-            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
-        }
-    }, 500);
-}
-function sbCheckAllDone() {
-    var allOk = satzbauData.every(function(_, i) {
-        var row = document.getElementById('sb-row-' + i);
-        return row && row.classList.contains('correct');
-    });
-    if (allOk && typeof timerStop === 'function') timerStop(4);
-}
-function sbShowSolution(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-' + idx);
-    var fb   = document.getElementById('sb-fb-' + idx);
-    var solution = satzbauData[idx].valid[0];
-    var allChips = {};
-    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
-    Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
-    while (bank.firstChild) bank.removeChild(bank.firstChild);
-    while (row.firstChild)  row.removeChild(row.firstChild);
-    solution.forEach(function(word, i) {
-        var chip = allChips[word];
-        if (chip) {
-            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
-            chip.classList.remove('correct', 'incorrect');
-            row.appendChild(chip);
-        }
-    });
-    fb.textContent = '';
-    setTimeout(function() { sbCheckAuto(idx); }, 100);
-}
-function sbResetOne(idx) {
-    var bank = document.getElementById('sb-bank-' + idx);
-    var row  = document.getElementById('sb-row-'  + idx);
-    var fb   = document.getElementById('sb-fb-'   + idx);
-    while (bank.firstChild) bank.removeChild(bank.firstChild);
-    while (row.firstChild)  row.removeChild(row.firstChild);
-    row.classList.remove('correct', 'incorrect');
-    fb.textContent = ''; fb.className = 'satzbau-feedback';
-    var existing = row.querySelector('.sb-punkt');
-    if (existing) existing.parentNode.removeChild(existing);
-    var parts = satzbauData[idx].parts.slice();
-    for (var i = parts.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-    }
-    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
-}
-function initSatzbau() {
-    var container = document.getElementById('satzbauContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    satzbauData.forEach(function(ex, idx) {
-        var item = document.createElement('div');
-        item.className = 'satzbau-item';
-        var bank = document.createElement('div');
-        bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
-        var row = document.createElement('div');
-        row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
-        var fb = document.createElement('div');
-        fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
-        var parts = ex.parts.slice();
-        for (var i = parts.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-        }
-        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
-        sbRegisterZone(bank, idx);
-        sbRegisterZone(row, idx);
-        var btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
-        var solveBtn = document.createElement('button');
-        solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
-        solveBtn.setAttribute('data-idx', idx);
-        solveBtn.addEventListener('click', function() {
-            sbShowSolution(parseInt(this.getAttribute('data-idx')));
-        });
-        var resetBtn = document.createElement('button');
-        resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
-        resetBtn.setAttribute('data-idx', idx);
-        resetBtn.addEventListener('click', function() {
-            sbResetOne(parseInt(this.getAttribute('data-idx')));
-        });
-        btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-        item.appendChild(bank); item.appendChild(row);
-        item.appendChild(fb); item.appendChild(btnRow);
-        container.appendChild(item);
-    });
-}
-function resetSatzbau() { initSatzbau(); }
-
-
-    // INIT
-    lueckeInit();
-    mcInit();
-    initSatzbau();
-    loadBestTimes();
-  
-var VOCAB_HL_WORDS = ['antiquity', 'explanation', 'god', 'myth', 'supernatural', 'to arise'];
-
-// ===== VOKABEL-HIGHLIGHTING IM LESETEXT =====
-function highlightVocabInText() {
-    var storyText = document.querySelector('.story-text') ||
-                    document.querySelector('.lese-text') ||
-                    document.querySelector('.lesetext') ||
-                    document.querySelector('.reading-text') ||
-                    document.querySelector('.text-content') ||
-                    document.querySelector('.rf-text');
-    if (!storyText) return;
-    var words = [];
-    if (typeof VOCAB_HL_WORDS !== 'undefined' && VOCAB_HL_WORDS.length) {
-        words = VOCAB_HL_WORDS;
-    } else if (typeof VORENTLASTUNG !== 'undefined' && VORENTLASTUNG.length) {
-        words = VORENTLASTUNG.map(function(item) {
-            var term = item.term.replace(/^(der|die|das)\s+/i, '');
-            return term.split(',')[0].trim();
-        });
-    } else if (typeof WORTSCHATZ !== 'undefined' && WORTSCHATZ.length) {
-        words = WORTSCHATZ.map(function(item) { return item.de; });
-    } else if (typeof VOCAB !== 'undefined' && VOCAB.length) {
-        words = VOCAB.map(function(item) { return item.word; });
-    } else {
-        // DOM-Fallback: .vocab-item .de oder strong-Tags
-        var deEls = document.querySelectorAll('.vocab-item .de, .vi-de, .vocab-mini-de');
-        deEls.forEach(function(el) {
-            var t = el.textContent.replace(/^(der|die|das)\s+/i, '').split(',')[0].trim();
-            if (t.length > 3) words.push(t);
-        });
-    }
-    words = words.filter(function(w) { return w && w.length > 3; });
-    if (words.length === 0) return;
-    function walkAndHighlight(node) {
-        if (node.nodeType === 3) {
-            var text = node.nodeValue;
-            var replaced = text;
-            words.forEach(function(word) {
-                var escaped = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                var regex = new RegExp('(?<![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])(' + escaped + ')(?![a-zA-Z\u00e4\u00f6\u00fc\u00c4\u00d6\u00dc\u00df])', 'g');
-                replaced = replaced.replace(regex, '\x01$1\x02');
-            });
-            if (replaced !== text) {
-                var span = document.createElement('span');
-                var parts = replaced.split(/\x01|\x02/);
-                var isHighlight = false;
-                parts.forEach(function(part) {
-                    if (!part) { isHighlight = !isHighlight; return; }
-                    if (isHighlight) {
-                        var hl = document.createElement('span');
-                        hl.className = 'vocab-hl';
-                        hl.title = '\ud83d\udcd6 Vokabel aus der Vorentlastung';
-                        hl.textContent = part;
-                        span.appendChild(hl);
-                    } else {
-                        span.appendChild(document.createTextNode(part));
-                    }
-                    isHighlight = !isHighlight;
-                });
-                node.parentNode.replaceChild(span, node);
-            }
-        } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT') {
-            Array.from(node.childNodes).forEach(walkAndHighlight);
-        }
-    }
-    walkAndHighlight(storyText);
-}
-highlightVocabInText();
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
 </script>
 </body>
 </html>
