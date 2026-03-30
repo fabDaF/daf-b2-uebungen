@@ -204,58 +204,20 @@ nav{
 .luecken-inp.wrong{border-color:#dc3545;color:#dc3545}
 /* Satzbau — Platzhalter, echte Styles weiter unten */
 /* Wortschatz */
-.vocab-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:16px;
-}
-.vocab-card{
-  border:1px solid #e0e0e0;
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-}
-.vocab-card img{
-  width:100%;
-  height:120px;
-  object-fit:cover;
-  display:block;
-}
-.vocab-card-body{padding:12px 14px}
-.vocab-en{
-  font-size:.78rem;
-  color:#764ba2;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  margin-bottom:8px;
-}
-.vocab-fields{display:flex;gap:6px;margin-bottom:8px}
-.vocab-field-wrap{display:flex;flex-direction:column;gap:2px;flex:1;min-width:55px}
-.vocab-field-label{font-size:.68rem;color:#aaa;text-transform:uppercase;letter-spacing:.3px}
-.vocab-inp{
-  border:none;
-  border-bottom:2px solid #ddd;
-  font-size:.9rem;
-  font-family:inherit;
-  padding:2px 2px;
-  width:100%;
-  outline:none;
-  transition:border-color .2s;
-  background:transparent;
-}
-.vocab-inp:focus{border-color:#667eea}
-.vocab-inp.correct{border-color:#28a745;color:#28a745}
-.vocab-inp.wrong{border-color:#dc3545;color:#dc3545}
-.vocab-example{
-  font-size:.8rem;
-  color:#777;
-  font-style:italic;
-  line-height:1.45;
-  border-top:1px solid #f0f0f0;
-  padding-top:8px;
-  margin-top:4px;
-}
+.vocab-item{display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-radius:8px;border:1px solid #e0e0e0;margin-bottom:8px;
+  background:#fafafa;flex-wrap:wrap;}
+.vocab-en{font-weight:600;color:#3949ab;min-width:160px;}
+.vocab-arrow{color:#aaa;font-size:1.1em;}
+.vocab-inputs{display:flex;gap:8px;flex-wrap:wrap;}
+.vocab-inputs input{padding:5px 8px;border:2px solid #ddd;border-radius:6px;font-size:.92em;font-family:inherit;}
+.vocab-inputs input.art{width:80px;}
+.vocab-inputs input.wort{width:140px;}
+.vocab-inputs input.plural{width:120px;}
+.vocab-inputs input.correct{border-color:#43a047;background:#e8f5e9;}
+.vocab-inputs input.wrong{border-color:#e53935;background:#ffebee;}
+.vocab-hint{font-size:.82em;color:#43a047;font-weight:700;
+  background:#e8f5e9;padding:2px 6px;border-radius:4px;}
 /* Footer */
 .footer{
   text-align:center;
@@ -541,6 +503,7 @@ nav{
 
     <div class="control-bar">
       <div class="btns">
+        <button class="ctrl-btn btn-show" onclick="showVocabLoesung()">💡 Lösungen</button>
         <button class="ctrl-btn btn-reset" onclick="vocabReset()">↺ Reset</button>
       </div>
       <div class="timer-box">
@@ -549,7 +512,10 @@ nav{
       </div>
     </div>
 
-    <div class="vocab-grid" id="vocab-grid"></div>
+    <div class="help-box" style="margin-bottom:12px;">
+      <strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche. Bei Nomen: Artikel + Wort + Plural!
+    </div>
+    <div id="vocabContainer"></div>
   </div>
 
   <!-- FOOTER -->
@@ -625,7 +591,7 @@ function showSection(n){
   document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
   document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
   [1,2,3].forEach(function(i){ timerStop(i); });
-  if(n===3) renderVocab();
+  if(n===3) initVocab();
 }/* ===== LÜCKENTEXT ===== */
 function liveCheck(inp) {
   const ans = inp.dataset.answer;
@@ -959,91 +925,118 @@ function sbResetAll() { timerResetOne(2); initSatzbau(); }
 initSatzbau();
 
 /* ===== WORTSCHATZ ===== */
-const vocabData = [
-  { type:'n', en:'CV, résumé',           artikel:'der', wort:'Lebenslauf',            plural:'Lebensläufe',           img:'590016',  example:'Er hat einen lückenlosen Lebenslauf eingereicht.' },
-  { type:'n', en:'application',           artikel:'die', wort:'Bewerbung',             plural:'Bewerbungen',           img:'1181671', example:'Sie schickte eine vollständige Bewerbung an das Unternehmen.' },
-  { type:'n', en:'application folder',    artikel:'die', wort:'Bewerbungsmappe',        plural:'Bewerbungsmappen',      img:'159751',  example:'In der Bewerbungsmappe lagen alle erforderlichen Unterlagen.' },
-  { type:'n', en:'cover letter',          artikel:'das', wort:'Motivationsschreiben',   plural:'Motivationsschreiben',  img:'261763',  example:'Das Motivationsschreiben soll die persönliche Eignung erklären.' },
-  { type:'n', en:'job posting',           artikel:'die', wort:'Ausschreibung',          plural:'Ausschreibungen',       img:'4439444', example:'Die Ausschreibung für die Stelle erschien in der Tageszeitung.' },
-  { type:'n', en:'job offer',             artikel:'das', wort:'Stellenangebot',         plural:'Stellenangebote',       img:'3184291', example:'Er hat ein sehr attraktives Stellenangebot bekommen.' },
-  { type:'n', en:'job interview',         artikel:'das', wort:'Vorstellungsgespräch',   plural:'Vorstellungsgespräche', img:'3771074', example:'Das Vorstellungsgespräch verlief sehr positiv.' },
-  { type:'n', en:'employment agency',     artikel:'die', wort:'Arbeitsagentur',         plural:'Arbeitsagenturen',      img:'3183150', example:'Die Arbeitsagentur vermittelt offene Stellen an Arbeitssuchende.' },
-  { type:'n', en:'career counseling',     artikel:'die', wort:'Berufsberatung',         plural:'Berufsberatungen',      img:'5699823', example:'Die Berufsberatung hilft Studierenden gezielt bei der Berufswahl.' },
-  { type:'n', en:'recognition, accreditation', artikel:'die', wort:'Anerkennung',      plural:'Anerkennungen',         img:'3184287', example:'Die Anerkennung ausländischer Abschlüsse dauert mehrere Monate.' },
-  { type:'v', en:'to have (sth.) translated', wort:'übersetzen lassen',                                                img:'4348401', example:'Er ließ seine Dokumente ins Deutsche übersetzen.' },
-  { type:'v', en:'to have (sth.) certified',  wort:'beglaubigen lassen',                                               img:'4427430', example:'Sie ließ ihre Zeugnisse beim Notar beglaubigen.' }
+var WORTSCHATZ = [
+  { type:'n', en:'📄 CV, résumé',              artikel:'der', de:'Lebenslauf',           plural:'Lebensläufe' },
+  { type:'n', en:'📬 application',             artikel:'die', de:'Bewerbung',            plural:'Bewerbungen' },
+  { type:'n', en:'📁 application folder',      artikel:'die', de:'Bewerbungsmappe',      plural:'Bewerbungsmappen' },
+  { type:'n', en:'✉️ cover letter',            artikel:'das', de:'Motivationsschreiben', plural:'Motivationsschreiben' },
+  { type:'n', en:'📢 job posting',             artikel:'die', de:'Ausschreibung',        plural:'Ausschreibungen' },
+  { type:'n', en:'💼 job offer',               artikel:'das', de:'Stellenangebot',       plural:'Stellenangebote' },
+  { type:'n', en:'🎙️ job interview',           artikel:'das', de:'Vorstellungsgespräch', plural:'Vorstellungsgespräche' },
+  { type:'n', en:'🏢 employment agency',       artikel:'die', de:'Arbeitsagentur',       plural:'Arbeitsagenturen' },
+  { type:'n', en:'🧭 career counseling',       artikel:'die', de:'Berufsberatung',       plural:'Berufsberatungen' },
+  { type:'n', en:'🏅 recognition / accreditation', artikel:'die', de:'Anerkennung',     plural:'Anerkennungen' },
+  { type:'p', en:'🔄 to have (sth.) translated',   de:'übersetzen lassen' },
+  { type:'p', en:'📜 to have (sth.) certified',    de:'beglaubigen lassen' }
 ];
 
-let vocabRendered = false;
-function renderVocab() {
-  if (vocabRendered) return;
-  vocabRendered = true;
-  const grid = document.getElementById('vocab-grid');
-  vocabData.forEach((v, i) => {
-    const card = document.createElement('div');
-    card.className = 'vocab-card';
-    const imgUrl = 'https://images.pexels.com/photos/' + v.img + '/pexels-photo-' + v.img + '.jpeg?auto=compress&cs=tinysrgb&w=400';
-    let fieldsHTML = '';
-    if (v.type === 'n') {
-      fieldsHTML = `<div class="vocab-fields">
-        <div class="vocab-field-wrap">
-          <span class="vocab-field-label">Artikel</span>
-          <input class="vocab-inp" data-answer="${v.artikel}" oninput="vocabLiveCheck(this)" placeholder="">
-        </div>
-        <div class="vocab-field-wrap" style="flex:2">
-          <span class="vocab-field-label">Deutsch</span>
-          <input class="vocab-inp" data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="">
-        </div>
-        <div class="vocab-field-wrap" style="flex:2">
-          <span class="vocab-field-label">Plural</span>
-          <input class="vocab-inp" data-answer="${v.plural}" oninput="vocabLiveCheck(this)" placeholder="">
-        </div>
-      </div>`;
+function initVocab() {
+  var container = document.getElementById('vocabContainer');
+  container.innerHTML = '';
+  var shuffled = WORTSCHATZ.slice().sort(function() { return Math.random() - 0.5; });
+  shuffled.forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = 'vocab-item';
+    var en = document.createElement('span');
+    en.className = 'vocab-en';
+    en.textContent = item.en;
+    div.appendChild(en);
+    var arrow = document.createElement('span');
+    arrow.className = 'vocab-arrow';
+    arrow.textContent = '\u2192';
+    div.appendChild(arrow);
+    var inputs = document.createElement('div');
+    inputs.className = 'vocab-inputs';
+    if (item.type === 'n') {
+      var artInp = document.createElement('input');
+      artInp.className = 'art'; artInp.placeholder = 'der/die/das';
+      artInp.dataset.answer = item.artikel; artInp.dataset.field = 'art';
+      artInp.oninput = function() { timerAutoStart(3); vocabLiveCheck(this); checkVocabAllOk(); };
+      inputs.appendChild(artInp);
+      var wordInp = document.createElement('input');
+      wordInp.className = 'wort'; wordInp.placeholder = 'Deutsch';
+      wordInp.dataset.answer = item.de; wordInp.dataset.field = 'wort';
+      wordInp.oninput = function() { timerAutoStart(3); vocabLiveCheck(this); checkVocabAllOk(); };
+      inputs.appendChild(wordInp);
+      var pluralInp = document.createElement('input');
+      pluralInp.className = 'plural'; pluralInp.placeholder = 'Plural';
+      pluralInp.dataset.answer = item.plural; pluralInp.dataset.field = 'plural';
+      pluralInp.oninput = function() { timerAutoStart(3); vocabLiveCheck(this); checkVocabAllOk(); };
+      inputs.appendChild(pluralInp);
     } else {
-      fieldsHTML = `<div class="vocab-fields">
-        <div class="vocab-field-wrap" style="flex:1">
-          <span class="vocab-field-label">Deutsch</span>
-          <input class="vocab-inp" data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="">
-        </div>
-      </div>`;
+      var deInp = document.createElement('input');
+      deInp.className = 'wort'; deInp.style.width = '200px'; deInp.placeholder = 'Deutsch';
+      deInp.dataset.answer = item.de; deInp.dataset.field = 'wort';
+      deInp.oninput = function() { timerAutoStart(3); vocabLiveCheck(this); checkVocabAllOk(); };
+      inputs.appendChild(deInp);
     }
-    card.innerHTML = `
-      <img src="${imgUrl}" alt="${v.en}" onerror="this.style.display='none'">
-      <div class="vocab-card-body">
-        <div class="vocab-en">${v.en}</div>
-        ${fieldsHTML}
-        <div class="vocab-example">${v.example}</div>
-      </div>`;
-    grid.appendChild(card);
+    div.appendChild(inputs);
+    container.appendChild(div);
   });
 }
 
 function vocabLiveCheck(inp) {
-  const ans = inp.dataset.answer;
-  const val = inp.value;
-  if (!val) { inp.className = 'vocab-inp'; return; }
-  if (ans.toLowerCase().startsWith(val.toLowerCase())) {
-    if (val.toLowerCase() === ans.toLowerCase()) {
-      inp.className = 'vocab-inp correct';
-      checkAllVocab();
-    } else {
-      inp.className = 'vocab-inp';
-    }
+  var user = inp.value;
+  var answer = inp.dataset.answer;
+  var field = inp.dataset.field;
+  inp.classList.remove('correct', 'wrong');
+  if (user.length === 0) return;
+  var cmpUser   = (field === 'art') ? user.toLowerCase()   : user;
+  var cmpAnswer = (field === 'art') ? answer.toLowerCase() : answer;
+  if (cmpUser === cmpAnswer) {
+    inp.classList.add('correct');
+  } else if (cmpAnswer.indexOf(cmpUser) === 0) {
+    /* gültiger Präfix → neutral */
   } else {
-    inp.className = 'vocab-inp wrong';
+    inp.classList.add('wrong');
   }
 }
-function checkAllVocab() {
-  const all = document.querySelectorAll('#tab-3 .vocab-inp');
-  if (Array.from(all).every(i => i.classList.contains('correct'))) timerStop(3);
+
+function checkVocabAllOk() {
+  var all = document.querySelectorAll('#sec-3 .vocab-inputs input');
+  var allOk = all.length > 0 && Array.from(all).every(function(i) {
+    return i.classList.contains('correct');
+  });
+  if (allOk) timerStop(3);
 }
+
+function showVocabLoesung() {
+  document.querySelectorAll('#sec-3 .vocab-inputs input').forEach(function(inp) {
+    var field = inp.dataset.field;
+    var user   = (field === 'art') ? inp.value.trim().toLowerCase() : inp.value.trim();
+    var answer = (field === 'art') ? inp.dataset.answer.toLowerCase() : inp.dataset.answer;
+    var hint = inp.nextElementSibling;
+    if (hint && hint.classList.contains('vocab-hint')) hint.remove();
+    if (user === answer) {
+      inp.classList.remove('wrong'); inp.classList.add('correct');
+    } else {
+      inp.classList.add('wrong');
+      var h = document.createElement('span');
+      h.className = 'vocab-hint'; h.textContent = inp.dataset.answer;
+      inp.insertAdjacentElement('afterend', h);
+    }
+  });
+  timerStop(3);
+}
+
 function vocabReset() {
-  document.querySelectorAll('#tab-3 .vocab-inp').forEach(inp => {
+  document.querySelectorAll('#sec-3 .vocab-inputs input').forEach(function(inp) {
     inp.value = '';
-    inp.className = 'vocab-inp';
+    inp.classList.remove('correct', 'wrong');
+    var hint = inp.nextElementSibling;
+    if (hint && hint.classList.contains('vocab-hint')) hint.remove();
   });
   timerResetOne(3);
-  timerAutoStart(3);
 }
 
 </script>
