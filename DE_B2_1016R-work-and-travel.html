@@ -822,17 +822,22 @@ function sbShowSolution(si) {
   var row  = document.getElementById('sb-row-'+si);
   var pool = document.getElementById('sb-bank-'+si);
   var fb   = document.getElementById('sb-fb-'+si);
+  // Alle Chips einsammeln — als Queue pro Wort (Duplikate korrekt behandeln)
   var allChips = [...row.querySelectorAll('.chip'), ...pool.querySelectorAll('.chip')];
-  var byOrig = {}; allChips.forEach(function(c){ byOrig[c.dataset.orig] = c; });
+  var queues = {};
+  allChips.forEach(function(c) {
+    var k = c.dataset.orig;
+    if (!queues[k]) queues[k] = [];
+    queues[k].push(c);
+  });
   while (pool.firstChild) pool.removeChild(pool.firstChild);
   while (row.firstChild)  row.removeChild(row.firstChild);
   satzbauData[si].valid[0].forEach(function(word, i) {
-    var chip = byOrig[word];
-    if (chip) {
-      if (word !== ',' && word !== ';') chip.textContent = (i === 0) ? word.charAt(0).toUpperCase()+word.slice(1) : word;
-      chip.classList.remove('correct','incorrect');
-      row.appendChild(chip);
-    }
+    if (!queues[word] || queues[word].length === 0) return;
+    var chip = queues[word].shift();
+    if (word !== ',' && word !== ';') chip.textContent = (i === 0) ? word.charAt(0).toUpperCase()+word.slice(1) : word;
+    chip.classList.remove('correct','incorrect');
+    row.appendChild(chip);
   });
   fb.textContent = '';
   setTimeout(function() { sbCheckAuto(si); }, 100);
