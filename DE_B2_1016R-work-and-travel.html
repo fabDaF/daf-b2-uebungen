@@ -250,6 +250,14 @@ body { padding: 20px; }
 .rf-list    { max-width: 650px; margin: 0 auto; }
 /* ──────────────────────────────────────────────────────── */
 
+/* ── BTN-ROW / TIMER-BAR (Skill-Standard) ───────────────────── */
+.btn-row { display:flex; align-items:center; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.btn-row button { padding:7px 16px; border:none; border-radius:6px; cursor:pointer; font-size:.85rem; font-family:inherit; background:#667eea; color:#fff; font-weight:500; transition:opacity .2s; }
+.btn-row button:hover { opacity:.85; }
+.btn-row button.btn-sec { background:#e9ecef; color:#555; }
+.timer-bar { display:flex; align-items:center; gap:6px; font-size:.85rem; color:#555; white-space:nowrap; margin-left:auto; }
+/* ──────────────────────────────────────────────────────────── */
+
 /* ── SATZBAU ─────────────────────────────────────────────── */
 .satzbau-item { margin-bottom: 28px; }
 .chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
@@ -271,7 +279,7 @@ body { padding: 20px; }
   <!-- HEADER -->
   <div class="header">
     <h1>Work &amp; Travel</h1>
-    <p>B2.1 · Einheit 1 · Lektion 1016 · Lesetext</p>
+    <p>B2.1 · Lektion 1016 · Lesetext</p>
   </div>
 
   <!-- NAV -->
@@ -445,12 +453,11 @@ body { padding: 20px; }
       src="https://images.pexels.com/photos/3184311/pexels-photo-3184311.jpeg?auto=compress&cs=tinysrgb&w=800"
       alt="Fragen und Antworten">
 
-    <div class="control-bar">
-      <div class="btns">
-        <button class="ctrl-btn btn-reset" onclick="mcReset()">↺ Reset</button>
-      </div>
-      <div class="timer-box">
-        ⏱ <span id="timer-3" class="timer-display">0:00<span>🏆 <span id="best-3">--:--</span></span></span>
+    <div class="btn-row">
+      <button onclick="mcShowAll()">💡 Lösungen</button>
+      <button class="btn-sec" onclick="mcReset()">↺ Neu starten</button>
+      <div class="timer-bar">
+        ⏱ <span id="timer-3" class="timer-display">0:00</span>
         🏆 <span id="best-3" class="best-display">–</span>
       </div>
     </div>
@@ -465,11 +472,10 @@ body { padding: 20px; }
       src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800"
       alt="Satzbau üben">
 
-    <div class="control-bar">
-      <div class="btns">
-        <button class="ctrl-btn btn-reset" onclick="sbResetAll()">↺ Neustart</button>
-      </div>
-      <div class="timer-box">
+    <div class="btn-row">
+      <button onclick="sbSolveAll()">💡 Lösungen</button>
+      <button class="btn-sec" onclick="sbResetAll()">↺ Neu starten</button>
+      <div class="timer-bar">
         ⏱ <span id="timer-4" class="timer-display">0:00</span>
         🏆 <span id="best-4" class="best-display">–</span>
       </div>
@@ -517,39 +523,23 @@ function timerResetOne(n){
   var el=document.getElementById('timer-'+n);
   if(el) el.textContent='0:00';
 }
+function timerPause(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false;
+}
 function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
 document.addEventListener('DOMContentLoaded',function(){
-      var b2=localStorage.getItem(TIMER_PREFIX+2); if(b2){ var el2=document.getElementById('best-'+2); if(el2) el2.textContent=fmtTime(parseInt(b2)); }
-      var b3=localStorage.getItem(TIMER_PREFIX+3); if(b3){ var el3=document.getElementById('best-'+3); if(el3) el3.textContent=fmtTime(parseInt(b3)); }
-      var b4=localStorage.getItem(TIMER_PREFIX+4); if(b4){ var el4=document.getElementById('best-'+4); if(el4) el4.textContent=fmtTime(parseInt(b4)); }
-});
-
-function timerTick(n) {
-  if (!timers[n] || !timers[n].running) return;
-  timers[n].elapsed++;
-  const m = Math.floor(timers[n].elapsed / 60);
-  const s = timers[n].elapsed % 60;
-  const el = document.getElementById('timer-' + n);
-  if (el) el.textContent = m + ':' + String(s).padStart(2, '0');
-  timers[n].handle = setTimeout(() => timerTick(n), 1000);
-}
-function loadBestTimes() {
-  [2, 3, 4].forEach(n => {
-    const val = localStorage.getItem(TIMER_PREFIX + n);
-    const el = document.getElementById('best-' + n);
-    if (el && val) {
-      const sec = parseInt(val);
-      el.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
-    }
+  [2,3,4].forEach(function(n){
+    var v=localStorage.getItem(TIMER_PREFIX+n); var el=document.getElementById('best-'+n);
+    if(v&&el) el.textContent=fmtTime(parseInt(v));
   });
-}
-loadBestTimes();
+});
 
 /* ===== TAB NAVIGATION ===== */
 function showSection(n){
   document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
   document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  [1,2,3].forEach(function(i){ timerStop(i); });
+  [2,3,4].forEach(function(i){ timerPause(i); });
 }/* ===== VORENTLASTUNG VOCAB ===== */
 const preVocabData = [
   { de:'das Working-Holiday-Visum', art:'das · Pl: –', en:'Working Holiday visa', img:'1371360', example:'Das Working-Holiday-Visum ermöglicht Reisen und Arbeiten im Ausland.' },
@@ -656,6 +646,7 @@ function renderMC() {
   });
 }
 function mcCheck(qIdx, optIdx) {
+  timerAutoStart(3);
   const q = mcData[qIdx];
   const container = document.getElementById('mc-q-' + qIdx);
   const opts = container.querySelectorAll('.mc-opt');
@@ -670,6 +661,18 @@ function mcCheck(qIdx, optIdx) {
     if (mcAnswered.every(a => a)) timerStop(3);
   }
 }
+function mcShowAll() {
+  mcData.forEach(function(q, qi) {
+    var container = document.getElementById('mc-q-'+qi);
+    var opts = container.querySelectorAll('.mc-opt');
+    opts.forEach(function(opt, i) {
+      opt.disabled = true;
+      opt.classList.remove('mc-correct','mc-wrong');
+      if (i === q.correct) opt.classList.add('mc-correct');
+    });
+    mcAnswered[qi] = true;
+  });
+}
 function mcReset() {
   mcAnswered.fill(false);
   document.querySelectorAll('.mc-opt').forEach(btn => {
@@ -677,10 +680,27 @@ function mcReset() {
     btn.disabled = false;
   });
   timerResetOne(3);
-  timerAutoStart(3);
 }
 
 /* ===== SATZBAU ===== */
+/* ─── Insert-Cursor (globaler Singleton) ────────────────── */
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;display:inline-block;vertical-align:middle;';
+  }
+  return c;
+}
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
 var satzbauData = [
   { parts: ['das', 'Working-Holiday-Visum', 'ermöglicht', 'jungen', 'Menschen', ',', 'im', 'Ausland', 'zu', 'reisen', 'und', 'zu', 'arbeiten'],
     valid: [['das', 'Working-Holiday-Visum', 'ermöglicht', 'jungen', 'Menschen', ',', 'im', 'Ausland', 'zu', 'reisen', 'und', 'zu', 'arbeiten']], punct: '.' },
@@ -699,37 +719,59 @@ var satzbauData = [
 ];
 var sbDragged = null;
 function sbMakeChip(word) {
-  var ch = document.createElement('span');
+  var ch = document.createElement('div');
   ch.className = 'chip'; ch.textContent = word; ch.dataset.orig = word; ch.draggable = true;
-  ch.addEventListener('dragstart', function() { sbDragged = ch; setTimeout(function(){ ch.style.opacity='.4'; },0); timerAutoStart(4); });
-  ch.addEventListener('dragend', function() { ch.style.opacity = '1'; });
+  ch.addEventListener('dragstart', function(e) {
+    sbDragged = ch;
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function(){ ch.style.opacity = '.4'; }, 0);
+    timerAutoStart(4);
+  });
+  ch.addEventListener('dragend', function() {
+    ch.style.opacity = '1'; sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
   ch.addEventListener('click', function() {
-    var builder = ch.closest('.sentence-builder');
-    var si = parseInt(builder ? builder.dataset.si : ch.closest('.chips-container').dataset.si);
+    var parent = ch.parentElement;
+    var si = parseInt((parent.dataset && parent.dataset.si) || 0);
     var pool = document.getElementById('sb-bank-' + si);
-    var row = document.getElementById('sb-row-' + si);
-    if (ch.parentElement === row) { pool.appendChild(ch); }
-    else { var cursor = row.querySelector('.sb-insert-cursor'); row.insertBefore(ch, cursor || null); timerAutoStart(4); }
+    var row  = document.getElementById('sb-row-'  + si);
+    if (parent === row) { pool.appendChild(ch); }
+    else { row.appendChild(ch); timerAutoStart(4); }
     sbUpdateCapitalization(si); sbCheckAuto(si);
   });
   return ch;
 }
-function sbRegisterZone(row, si) {
-  row.addEventListener('dragover', function(e) {
+function sbRegisterZone(zone, si) {
+  zone.addEventListener('dragover', function(e) {
     e.preventDefault();
-    var cursor = row.querySelector('.sb-insert-cursor');
-    var chips = [...row.querySelectorAll('.chip')]; var mouseX = e.clientX; var after = null;
-    chips.forEach(function(c){ var r=c.getBoundingClientRect(); if(mouseX>r.left+r.width/2) after=c; });
-    row.insertBefore(cursor, after ? after.nextSibling : (chips[0]||null));
+    if (!sbDragged) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
   });
-  row.addEventListener('drop', function(e) {
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor = row.querySelector('.sb-insert-cursor');
-    row.insertBefore(sbDragged, cursor||null); sbDragged=null;
-    sbUpdateCapitalization(si); sbCheckAuto(si);
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
   });
-  row.addEventListener('dragleave', function(e) {
-    if(!row.contains(e.relatedTarget)){ var cur=row.querySelector('.sb-insert-cursor'); if(cur) row.appendChild(cur); }
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + si);
+    sbUpdateCapitalization(si);
+    sbCheckAuto(si);
   });
 }
 function sbUpdateCapitalization(si) {
@@ -747,73 +789,101 @@ function sbColorRow(si) {
   return ok;
 }
 function sbCheckAuto(si) {
-  var pool=document.getElementById('sb-bank-'+si);
-  if(pool.querySelectorAll('.chip').length>0) return;
-  var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
-  if(chips.length!==satzbauData[si].parts.length) return;
-  var ok=sbColorRow(si);
-  var fb=document.getElementById('sb-fb-'+si);
-  fb.textContent=ok?'✓ Korrekt!':'✗ Noch nicht ganz richtig.';
-  fb.style.color=ok?'#2e7d32':'#c62828';
-  if(ok) sbCheckAllDone();
+  var pool = document.getElementById('sb-bank-'+si);
+  var row  = document.getElementById('sb-row-'+si);
+  var fb   = document.getElementById('sb-fb-'+si);
+  if (pool.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(4);
+    var ok = sbColorRow(si);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct'; fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect'; fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
 }
 function sbCheckAllDone() {
-  var allOk=satzbauData.every(function(_,si){
-    var pool=document.getElementById('sb-bank-'+si);
-    if(pool.querySelectorAll('.chip').length>0) return false;
-    var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
-    if(chips.length!==satzbauData[si].parts.length) return false;
-    return satzbauData[si].valid.some(function(v){ return v.length===chips.length&&v.every(function(w,i){return w===chips[i].dataset.orig;}); });
+  var allOk = satzbauData.every(function(_, si) {
+    var row = document.getElementById('sb-row-' + si);
+    return row && row.classList.contains('correct');
   });
-  if(allOk) timerStop(4);
+  if (allOk) timerStop(4);
 }
 function sbShowSolution(si) {
-  var row=document.getElementById('sb-row-'+si); var pool=document.getElementById('sb-bank-'+si);
-  var allChips=[...row.querySelectorAll('.chip'),...pool.querySelectorAll('.chip')];
-  var byOrig={}; allChips.forEach(function(c){ byOrig[c.dataset.orig]=c; });
-  var cursor=row.querySelector('.sb-insert-cursor');
-  satzbauData[si].valid[0].forEach(function(w){ var c=byOrig[w]; if(c){row.insertBefore(c,cursor||null);delete byOrig[w];} });
-  sbUpdateCapitalization(si); sbColorRow(si);
+  var row  = document.getElementById('sb-row-'+si);
+  var pool = document.getElementById('sb-bank-'+si);
+  var fb   = document.getElementById('sb-fb-'+si);
+  var allChips = [...row.querySelectorAll('.chip'), ...pool.querySelectorAll('.chip')];
+  var byOrig = {}; allChips.forEach(function(c){ byOrig[c.dataset.orig] = c; });
+  while (pool.firstChild) pool.removeChild(pool.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  satzbauData[si].valid[0].forEach(function(word, i) {
+    var chip = byOrig[word];
+    if (chip) {
+      if (word !== ',' && word !== ';') chip.textContent = (i === 0) ? word.charAt(0).toUpperCase()+word.slice(1) : word;
+      chip.classList.remove('correct','incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(si); }, 100);
+}
+function sbSolveAll() {
+  satzbauData.forEach(function(_, si){ sbShowSolution(si); });
+}
+function sbResetOne(si) {
+  var bank = document.getElementById('sb-bank-'+si);
+  var row  = document.getElementById('sb-row-'+si);
+  var fb   = document.getElementById('sb-fb-'+si);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect');
+  fb.textContent = ''; fb.className = 'satzbau-feedback';
+  var parts = satzbauData[si].parts.slice();
+  for (var i = parts.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+  parts.forEach(function(w){ bank.appendChild(sbMakeChip(w)); });
 }
 function sbResetAll() {
   timerResetOne(4);
-  satzbauData.forEach(function(_,si){
-    var row=document.getElementById('sb-row-'+si); var pool=document.getElementById('sb-bank-'+si);
-    var all=[...row.querySelectorAll('.chip'),...pool.querySelectorAll('.chip')];
-    pool.innerHTML=''; var cur=document.createElement('span'); cur.className='sb-insert-cursor'; cur.id='sb-insert-cursor';
-    row.innerHTML=''; row.appendChild(cur);
-    all.sort(function(){return Math.random()-.5;}).forEach(function(c){c.textContent=c.dataset.orig;c.classList.remove('correct','incorrect');pool.appendChild(c);});
-    document.getElementById('sb-fb-'+si).textContent='';
-  });
+  satzbauData.forEach(function(_, si){ sbResetOne(si); });
 }
 function initSatzbau() {
-  var container=document.getElementById('satzbauContainer'); container.innerHTML='';
-  satzbauData.forEach(function(s,si){
-    var wrap=document.createElement('div'); wrap.style.marginBottom='24px';
-    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+si; row.dataset.si=si;
-    var cursor=document.createElement('span'); cursor.className='sb-insert-cursor'; cursor.id='sb-insert-cursor'; row.appendChild(cursor);
-    var punkt=document.createElement('span'); punkt.className='sb-punkt'; punkt.textContent=s.punct;
-    var pool=document.createElement('div'); pool.className='chips-container'; pool.id='sb-bank-'+si; pool.dataset.si=si;
-    var btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;margin-top:4px;align-items:center';
-    var btnL=document.createElement('button'); btnL.className='ctrl-btn'; btnL.style.fontSize='.78rem'; btnL.textContent='Lösen';
-    btnL.onclick=(function(i){return function(){sbShowSolution(i);};})(si);
-    var btnR=document.createElement('button'); btnR.className='ctrl-btn'; btnR.style.fontSize='.78rem'; btnR.textContent='↺ Neustart';
-    btnR.onclick=(function(i){return function(){
-      var r=document.getElementById('sb-row-'+i),p=document.getElementById('sb-bank-'+i);
-      var all=[...r.querySelectorAll('.chip'),...p.querySelectorAll('.chip')];
-      p.innerHTML=''; var cur=document.createElement('span'); cur.className='sb-insert-cursor'; cur.id='sb-insert-cursor';
-      r.innerHTML=''; r.appendChild(cur);
-      all.sort(function(){return Math.random()-.5;}).forEach(function(c){c.textContent=c.dataset.orig;c.classList.remove('correct','incorrect');p.appendChild(c);});
-      document.getElementById('sb-fb-'+i).textContent='';
-    };})(si);
-    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+si;
+  var container = document.getElementById('satzbauContainer'); container.innerHTML = '';
+  satzbauData.forEach(function(s, si) {
+    var wrap = document.createElement('div'); wrap.className = 'satzbau-item';
+    // Chip-Bank (oben)
+    var pool = document.createElement('div'); pool.className = 'chips-container'; pool.id = 'sb-bank-'+si; pool.dataset.si = si;
+    // Satz-Zeile
+    var row = document.createElement('div'); row.className = 'sentence-builder'; row.id = 'sb-row-'+si; row.dataset.si = si;
+    // Punkt am Ende (nur sichtbar bei korrektem Satz via sbColorRow)
+    var rowWrap = document.createElement('div'); rowWrap.style.cssText = 'display:flex;align-items:center;gap:4px;margin-bottom:4px';
+    rowWrap.appendChild(row);
+    // Per-Satz Buttons
+    var btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:8px;margin-top:4px;align-items:center';
+    var btnL = document.createElement('button'); btnL.style.cssText = 'padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-family:inherit;background:#667eea;color:#fff;';
+    btnL.textContent = '💡 Lösen';
+    btnL.onclick = (function(i){ return function(){ sbShowSolution(i); }; })(si);
+    var btnR = document.createElement('button'); btnR.style.cssText = 'padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-family:inherit;background:#e9ecef;color:#555;';
+    btnR.textContent = '↺ Neustart';
+    btnR.onclick = (function(i){ return function(){ sbResetOne(i); }; })(si);
     btns.appendChild(btnL); btns.appendChild(btnR);
-    var shuffled=[...s.parts].sort(function(){return Math.random()-.5;});
-    shuffled.forEach(function(w){pool.appendChild(sbMakeChip(w));});
+    var fb = document.createElement('div'); fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-'+si;
+    // Chips shuffled in Bank
+    var shuffled = s.parts.slice().sort(function(){ return Math.random()-.5; });
+    shuffled.forEach(function(w){ pool.appendChild(sbMakeChip(w)); });
+    // Beide Zonen registrieren (Bank + Row)
+    sbRegisterZone(pool, si);
     sbRegisterZone(row, si);
-    var rowWrap=document.createElement('div'); rowWrap.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px';
-    rowWrap.appendChild(row); rowWrap.appendChild(punkt);
-    wrap.appendChild(rowWrap); wrap.appendChild(pool); wrap.appendChild(btns); wrap.appendChild(fb);
+    wrap.appendChild(pool); wrap.appendChild(rowWrap); wrap.appendChild(btns); wrap.appendChild(fb);
     container.appendChild(wrap);
   });
 }
