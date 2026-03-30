@@ -258,8 +258,8 @@ body { padding: 20px; }
 .timer-bar { display:flex; align-items:center; gap:6px; font-size:.85rem; color:#555; white-space:nowrap; margin-left:auto; }
 /* ──────────────────────────────────────────────────────────── */
 
-/* ── SATZBAU ─────────────────────────────────────────────── */
-.satzbau-item { margin-bottom: 28px; }
+/* ── SATZBAU (satzbau-drag-drop Skill) ────────────────────── */
+.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
 .chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
 .sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
 .sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
@@ -689,7 +689,7 @@ function getSbCursor() {
   if (!c) {
     c = document.createElement('div');
     c.id = 'sb-insert-cursor';
-    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;display:inline-block;vertical-align:middle;';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
   }
   return c;
 }
@@ -719,29 +719,24 @@ var satzbauData = [
 ];
 var sbDragged = null;
 function sbMakeChip(word) {
-  var ch = document.createElement('div');
-  ch.className = 'chip'; ch.textContent = word; ch.dataset.orig = word; ch.draggable = true;
-  ch.addEventListener('dragstart', function(e) {
-    sbDragged = ch;
-    e.dataTransfer.setData('text/plain', '');
-    setTimeout(function(){ ch.style.opacity = '.4'; }, 0);
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip;
     timerAutoStart(4);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
   });
-  ch.addEventListener('dragend', function() {
-    ch.style.opacity = '1'; sbDragged = null;
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = '';
+    sbDragged = null;
     var c = document.getElementById('sb-insert-cursor');
     if (c && c.parentNode) c.parentNode.removeChild(c);
   });
-  ch.addEventListener('click', function() {
-    var parent = ch.parentElement;
-    var si = parseInt((parent.dataset && parent.dataset.si) || 0);
-    var pool = document.getElementById('sb-bank-' + si);
-    var row  = document.getElementById('sb-row-'  + si);
-    if (parent === row) { pool.appendChild(ch); }
-    else { row.appendChild(ch); timerAutoStart(4); }
-    sbUpdateCapitalization(si); sbCheckAuto(si);
-  });
-  return ch;
+  return chip;
 }
 function sbRegisterZone(zone, si) {
   zone.addEventListener('dragover', function(e) {
@@ -770,22 +765,30 @@ function sbRegisterZone(zone, si) {
     }
     sbDragged = null;
     var row = document.getElementById('sb-row-' + si);
-    sbUpdateCapitalization(si);
+    sbUpdateCapitalization(row);
     sbCheckAuto(si);
   });
 }
-function sbUpdateCapitalization(si) {
-  var chips = [...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
-  chips.forEach(function(ch, idx) {
-    if(ch.dataset.orig===','||ch.dataset.orig===';') return;
-    var w=ch.dataset.orig; ch.textContent=(idx===0)?w.charAt(0).toUpperCase()+w.slice(1):w;
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    if (orig === ',' || orig === ';') return;
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase() && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
   });
 }
-function sbColorRow(si) {
-  var chips=[...document.getElementById('sb-row-'+si).querySelectorAll('.chip')];
-  var placed=chips.map(function(c){return c.dataset.orig;});
-  var ok=satzbauData[si].valid.some(function(v){ return v.length===placed.length&&v.every(function(w,i){return w===placed[i];}); });
-  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) { return JSON.stringify(v) === JSON.stringify(order); });
+  chips.forEach(function(c) { c.classList.remove('correct','incorrect'); c.classList.add(ok ? 'correct' : 'incorrect'); });
+  // Punkt nur bei korrektem Satz — dynamisch an Row anhängen/entfernen
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) { var p = document.createElement('span'); p.className = 'sb-punkt'; p.textContent = satzbauData[idx].punct || '.'; row.appendChild(p); }
   return ok;
 }
 function sbCheckAuto(si) {
@@ -835,7 +838,7 @@ function sbShowSolution(si) {
   satzbauData[si].valid[0].forEach(function(word, i) {
     if (!queues[word] || queues[word].length === 0) return;
     var chip = queues[word].shift();
-    if (word !== ',' && word !== ';') chip.textContent = (i === 0) ? word.charAt(0).toUpperCase()+word.slice(1) : word;
+    if (word !== ',' && word !== ';') chip.textContent = (i === 0) ? sbCapitalize(word) : word;
     chip.classList.remove('correct','incorrect');
     row.appendChild(chip);
   });
@@ -862,34 +865,50 @@ function sbResetAll() {
   satzbauData.forEach(function(_, si){ sbResetOne(si); });
 }
 function initSatzbau() {
-  var container = document.getElementById('satzbauContainer'); container.innerHTML = '';
-  satzbauData.forEach(function(s, si) {
-    var wrap = document.createElement('div'); wrap.className = 'satzbau-item';
-    // Chip-Bank (oben)
-    var pool = document.createElement('div'); pool.className = 'chips-container'; pool.id = 'sb-bank-'+si; pool.dataset.si = si;
-    // Satz-Zeile
-    var row = document.createElement('div'); row.className = 'sentence-builder'; row.id = 'sb-row-'+si; row.dataset.si = si;
-    // Punkt am Ende (nur sichtbar bei korrektem Satz via sbColorRow)
-    var rowWrap = document.createElement('div'); rowWrap.style.cssText = 'display:flex;align-items:center;gap:4px;margin-bottom:4px';
-    rowWrap.appendChild(row);
-    // Per-Satz Buttons
-    var btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:8px;margin-top:4px;align-items:center';
-    var btnL = document.createElement('button'); btnL.style.cssText = 'padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-family:inherit;background:#667eea;color:#fff;';
-    btnL.textContent = '💡 Lösen';
-    btnL.onclick = (function(i){ return function(){ sbShowSolution(i); }; })(si);
-    var btnR = document.createElement('button'); btnR.style.cssText = 'padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-family:inherit;background:#e9ecef;color:#555;';
-    btnR.textContent = '↺ Neustart';
-    btnR.onclick = (function(i){ return function(){ sbResetOne(i); }; })(si);
-    btns.appendChild(btnL); btns.appendChild(btnR);
-    var fb = document.createElement('div'); fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-'+si;
-    // Chips shuffled in Bank
-    var shuffled = s.parts.slice().sort(function(){ return Math.random()-.5; });
-    shuffled.forEach(function(w){ pool.appendChild(sbMakeChip(w)); });
-    // Beide Zonen registrieren (Bank + Row)
-    sbRegisterZone(pool, si);
-    sbRegisterZone(row, si);
-    wrap.appendChild(pool); wrap.appendChild(rowWrap); wrap.appendChild(btns); wrap.appendChild(fb);
-    container.appendChild(wrap);
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+    var bank = document.createElement('div');
+    bank.className = 'chips-container';
+    bank.id = 'sb-bank-' + idx;
+    var row = document.createElement('div');
+    row.className = 'sentence-builder';
+    row.id = 'sb-row-' + idx;
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback';
+    fb.id = 'sb-fb-' + idx;
+    // Buttons pro Satz: Lösen + ↺ Neustart
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+    var solveBtn = document.createElement('button');
+    solveBtn.textContent = 'Lösen';
+    solveBtn.style.cssText = 'padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;font-family:inherit;background:#667eea;color:#fff;';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn = document.createElement('button');
+    resetBtn.textContent = '↺ Neustart';
+    resetBtn.style.cssText = 'padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;font-family:inherit;background:#e9ecef;color:#555;';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn);
+    btnRow.appendChild(resetBtn);
+    // Chips shuffeln (Fisher-Yates)
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+    // Beide Zonen registrieren
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+    item.appendChild(bank);
+    item.appendChild(row);
+    item.appendChild(fb);
+    item.appendChild(btnRow);
+    container.appendChild(item);
   });
 }
 initSatzbau();
