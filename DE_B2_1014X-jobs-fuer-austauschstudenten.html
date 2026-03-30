@@ -540,6 +540,7 @@ function timerAutoStart(n){
   },1000);
 }
 function timerStop(n){
+  /* Nur aufrufen wenn Übung vollständig korrekt abgeschlossen — speichert Best-Zeit */
   if(!timerRunning[n]) return;
   clearInterval(timerIntervals[n]); timerRunning[n]=false;
   var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
@@ -551,6 +552,11 @@ function timerStop(n){
   timerSeconds[n]=0; timerStarted[n]=false;
   var td=document.getElementById('timer-'+n);
   if(td) td.textContent='0:00';
+}
+function timerPause(n){
+  /* Beim Tab-Wechsel: stoppt den Timer ohne Best-Zeit zu speichern */
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
 }
 function timerResetOne(n){
   clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
@@ -590,7 +596,7 @@ loadBestTimes();
 function showSection(n){
   document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
   document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  [1,2,3].forEach(function(i){ timerStop(i); });
+  [1,2,3].forEach(function(i){ timerPause(i); });
   if(n===3) initVocab();
 }/* ===== LÜCKENTEXT ===== */
 function liveCheck(inp) {
