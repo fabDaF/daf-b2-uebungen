@@ -424,29 +424,14 @@
         }
 
         /* ── WORTSCHATZ ── */
-        .vocab-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .vocab-table th {
-            background: #667eea;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .vocab-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 0.95rem;
-        }
-
-        .vocab-table tr:nth-child(even) {
-            background: #f8f9fa;
+        #vocabContainer { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+        .vocab-card { background:#f8f9fa; border-radius:10px; padding:14px; }
+        .vocab-card .en { font-weight:600; color:#555; margin-bottom:8px; }
+        .vocab-card input { width:100%; padding:8px 10px; border:2px solid #ddd; border-radius:6px; font-size:1rem; }
+        .vocab-card input.ok { border-color:#28a745; background:#efffef; }
+        .vocab-card input.no { border-color:#dc3545; background:#fff0f0; }
+        .vocab-card .solution { font-size:0.85rem; color:#28a745; margin-top:4px; display:none; }
+        @media(max-width:600px){ #vocabContainer { grid-template-columns:1fr; } }
         }
 
         /* ── CONTROL BAR ── */
@@ -702,77 +687,14 @@
         <div class="section" id="sec-5">
             <img class="tab-banner" src="https://images.pexels.com/photos/4144923/pexels-photo-4144923.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz">
             <div class="tab-content">
-                <table class="vocab-table">
-                    <thead>
-                        <tr>
-                            <th>Deutsch</th>
-                            <th>English</th>
-                            <th>Beispiel</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>das Zazen</td>
-                            <td>seated Zen meditation</td>
-                            <td>Zazen bedeutet „Sitzen in Versunkenheit"</td>
-                        </tr>
-                        <tr>
-                            <td>die Versunkenheit</td>
-                            <td>deep absorption, contemplation</td>
-                            <td>In tiefer Versunkenheit verliert man die Zeit</td>
-                        </tr>
-                        <tr>
-                            <td>die Gedankenflut</td>
-                            <td>flood of thoughts</td>
-                            <td>Man lässt die Gedankenflut vorbeiziehen</td>
-                        </tr>
-                        <tr>
-                            <td>der Übungsweg</td>
-                            <td>path of practice</td>
-                            <td>Der Übungsweg selbst wird zum Ziel</td>
-                        </tr>
-                        <tr>
-                            <td>die Außenwelt</td>
-                            <td>the outside world</td>
-                            <td>Wer in der Außenwelt nichts besitzt…</td>
-                        </tr>
-                        <tr>
-                            <td>die Innenwelt</td>
-                            <td>the inner world</td>
-                            <td>…kann in der Innenwelt alles erreichen</td>
-                        </tr>
-                        <tr>
-                            <td>das Gleichgewicht</td>
-                            <td>balance, equilibrium</td>
-                            <td>Die Elemente sollen im Gleichgewicht stehen</td>
-                        </tr>
-                        <tr>
-                            <td>das Grundelement</td>
-                            <td>fundamental element</td>
-                            <td>Die fünf Grundelemente sind Feuer, Erde, Metall, Holz, Wasser</td>
-                        </tr>
-                        <tr>
-                            <td>die Chi-Energie</td>
-                            <td>life force energy</td>
-                            <td>Chi fließt durch unsere Umgebung</td>
-                        </tr>
-                        <tr>
-                            <td>der Lotussitz</td>
-                            <td>lotus position</td>
-                            <td>Man sitzt beim Zazen im Lotussitz</td>
-                        </tr>
-                        <tr>
-                            <td>das Paradox</td>
-                            <td>paradox</td>
-                            <td>Loslassen ist der Weg zum Erlangen</td>
-                        </tr>
-                        <tr>
-                            <td>loslassen</td>
-                            <td>to let go</td>
-                            <td>Zen lehrt uns, Gedanken loszulassen</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="control-bar">
+                  <div class="btn-row">
+                    <button class="btn btn-loesungen" onclick="vocabShowAll()">Lösungen</button>
+                    <button class="btn btn-neu" onclick="vocabReset()">Neu starten</button>
+                  </div>
+                  <div class="timer-display">⏱ <span id="timer-5">0:00</span> <span class="best-time">🏆 <span id="best-5">--:--</span></span></div>
+                </div>
+                <div id="vocabContainer"></div>
             </div>
         </div>
 
@@ -1281,10 +1203,114 @@
         }
 
         /* ── INIT ── */
+        /* ═══ WORTSCHATZ ═══ */
+        var WORTSCHATZ = [
+          {id:1, type:'nomen', en:'seated Zen meditation', artikel:'das', de:'Zazen', plural:'—'},
+          {id:2, type:'nomen', en:'deep absorption', artikel:'die', de:'Versunkenheit', plural:'—'},
+          {id:3, type:'nomen', en:'flood of thoughts', artikel:'die', de:'Gedankenflut', plural:'Gedankenfluten'},
+          {id:4, type:'nomen', en:'path of practice', artikel:'der', de:'Übungsweg', plural:'Übungswege'},
+          {id:5, type:'nomen', en:'the outside world', artikel:'die', de:'Außenwelt', plural:'—'},
+          {id:6, type:'nomen', en:'the inner world', artikel:'die', de:'Innenwelt', plural:'—'},
+          {id:7, type:'nomen', en:'balance, equilibrium', artikel:'das', de:'Gleichgewicht', plural:'Gleichgewichte'},
+          {id:8, type:'nomen', en:'fundamental element', artikel:'das', de:'Grundelement', plural:'Grundelemente'},
+          {id:9, type:'nomen', en:'life force energy', artikel:'die', de:'Chi-Energie', plural:'—'},
+          {id:10, type:'nomen', en:'lotus position', artikel:'der', de:'Lotussitz', plural:'—'},
+          {id:11, type:'nomen', en:'paradox', artikel:'das', de:'Paradox', plural:'Paradoxe'},
+          {id:12, type:'verb', en:'to let go', artikel:'', de:'loslassen', plural:''}
+        ];
+
+        function buildVocab() {
+          var container = document.getElementById('vocabContainer');
+          WORTSCHATZ.forEach(function(w, i) {
+            var card = document.createElement('div');
+            card.className = 'vocab-card';
+            var enDiv = document.createElement('div');
+            enDiv.className = 'en';
+            enDiv.textContent = w.en;
+            card.appendChild(enDiv);
+            if (w.type === 'nomen') {
+              var artInp = document.createElement('input');
+              artInp.placeholder = 'der/die/das';
+              artInp.dataset.ans = w.artikel;
+              artInp.dataset.idx = i;
+              artInp.dataset.field = 'artikel';
+              artInp.addEventListener('input', function() { vocabLiveCheck(this); });
+              card.appendChild(artInp);
+            }
+            var deInp = document.createElement('input');
+            deInp.placeholder = w.type === 'verb' ? 'Verb' : 'Nomen';
+            deInp.dataset.ans = w.de;
+            deInp.dataset.idx = i;
+            deInp.dataset.field = 'de';
+            deInp.addEventListener('input', function() { vocabLiveCheck(this); });
+            card.appendChild(deInp);
+            if (w.type === 'nomen' && w.plural !== '—') {
+              var plInp = document.createElement('input');
+              plInp.placeholder = 'Plural';
+              plInp.dataset.ans = w.plural;
+              plInp.dataset.idx = i;
+              plInp.dataset.field = 'plural';
+              plInp.addEventListener('input', function() { vocabLiveCheck(this); });
+              card.appendChild(plInp);
+            }
+            var sol = document.createElement('div');
+            sol.className = 'solution';
+            sol.textContent = (w.artikel ? w.artikel + ' ' : '') + w.de + (w.plural && w.plural !== '—' ? ', Pl. ' + w.plural : '');
+            card.appendChild(sol);
+            container.appendChild(card);
+          });
+        }
+
+        function vocabLiveCheck(inp) {
+          timerAutoStart(5);
+          var val = inp.value.trim();
+          var ans = inp.dataset.ans;
+          inp.classList.remove('ok', 'no');
+          if (!val) return;
+          if (val.toLowerCase() === ans.toLowerCase()) {
+            inp.classList.add('ok');
+            inp.value = ans;
+            vocabCheckAllDone();
+          } else if (ans.toLowerCase().indexOf(val.toLowerCase()) === 0) {
+            // prefix — neutral
+          } else {
+            inp.classList.add('no');
+          }
+        }
+
+        function vocabCheckAllDone() {
+          var inputs = document.querySelectorAll('#vocabContainer input');
+          var allOk = true;
+          for (var i = 0; i < inputs.length; i++) {
+            if (!inputs[i].classList.contains('ok')) { allOk = false; break; }
+          }
+          if (allOk) timerStop(5);
+        }
+
+        function vocabShowAll() {
+          document.querySelectorAll('#vocabContainer input').forEach(function(inp) {
+            inp.value = inp.dataset.ans;
+            inp.classList.remove('no');
+            inp.classList.add('ok');
+          });
+          document.querySelectorAll('#vocabContainer .solution').forEach(function(s) { s.style.display = 'block'; });
+          timerStop(5);
+        }
+
+        function vocabReset() {
+          document.querySelectorAll('#vocabContainer input').forEach(function(inp) {
+            inp.value = '';
+            inp.classList.remove('ok', 'no');
+          });
+          document.querySelectorAll('#vocabContainer .solution').forEach(function(s) { s.style.display = 'none'; });
+          timerResetOne(5);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             buildLuecken();
             renderMC();
             initSatzbau();
+            buildVocab();
             loadBestTimes(TIMER_PREFIX);
         });
     </script>
