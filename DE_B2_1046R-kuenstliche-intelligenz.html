@@ -1,727 +1,1062 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B2.1 · 1046R · Künstliche Intelligenz</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh; padding: 20px;
-}
-.container {
-  max-width: 1000px; margin: 0 auto; background: #fff;
-  border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden;
-}
-.header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff; padding: 24px 32px;
-}
-.header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
-.header p { font-size: 0.95rem; opacity: 0.85; }
-nav {
-  display: flex; background: #f5f5f5;
-  border-bottom: 1px solid #ddd; overflow-x: auto;
-}
-.nav-btn{
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  padding: 12px 8px 10px; cursor: pointer; background: transparent; font-size: 0.78rem; color: #555;
-  border-bottom: 3px solid transparent; transition: background 0.2s; min-width: 70px;
-}
-.nav-btn:hover { background: #ede9f8; }
-.nav-btn.active { background: #fff; color: #667eea; border-bottom: 3px solid #667eea; font-weight: 700; }
-.nav-emoji { font-size: 1.3rem; margin-bottom: 3px; }
-.nav-label { font-size: 0.75rem; text-align: center; }
-.section { display: none; padding: 28px 32px 32px; }
-.section.active { display: block; }
-.tab-banner {
-  width: 100%; height: 180px; object-fit: cover;
-  border-radius: 8px; margin-bottom: 20px; display: block;
-}
-.control-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 18px; flex-wrap: wrap; gap: 8px;
-}
-.control-bar .buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn {
-  padding: 8px 16px; border-radius: 6px; border: none;
-  cursor: pointer; font-size: 0.85rem; font-weight: 600;
-}
-.btn-reset { background: #667eea; color: #fff; }
-.btn-reset:hover { background: #764ba2; }
-.btn-secondary { background: #eee; color: #555; }
-.btn-secondary:hover { background: #ddd; }
-.timer-display {
-  font-size: 0.85rem; color: #764ba2; font-weight: 700;
-  background: #f3eeff; border-radius: 6px; padding: 6px 14px;
-  min-width: 110px; text-align: center;
-}
-.score-box {
-  background: linear-gradient(135deg, #667eea22, #764ba222);
-  border-radius: 8px; padding: 10px 18px; font-size: 0.9rem; color: #555; margin-bottom: 16px;
-}
-.score-box span { font-weight: 700; color: #764ba2; }
-.section-title {
-  font-size: 1.1rem; font-weight: 700; color: #333; margin: 22px 0 12px;
-  border-left: 4px solid #667eea; padding-left: 12px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2.1 Künstliche Intelligenz - Lesen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Vorentlastung */
-.fragen-box { background: #f8f7ff; border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
-.fragen-box h3 { font-size: 1rem; color: #764ba2; margin-bottom: 10px; }
-.fragen-list { list-style: none; padding: 0; }
-.fragen-list li {
-  padding: 8px 10px; border-left: 3px solid #764ba2;
-  margin-bottom: 8px; background: #fff; border-radius: 0 6px 6px 0; font-size: 0.95rem; color: #333;
-}
-.vocab-preview-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;
-}
-.vocab-preview-card {
-  background: #f8f7ff; border: 1px solid #d0c8f0; border-radius: 8px; padding: 12px 14px;
-}
-.vpc-word { font-size: 1rem; font-weight: 700; color: #667eea; margin-bottom: 2px; }
-.vpc-en { font-size: 0.8rem; color: #888; font-style: italic; margin-bottom: 6px; }
-.vpc-ex { font-size: 0.85rem; color: #555; line-height: 1.4; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-/* Lesetext */
-.lese-text {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1rem; line-height: 1.85; color: #333;
-  max-width: 720px; text-align: justify; hyphens: auto; margin: 0 auto 18px;
-}
-.lese-text p { margin-bottom: 1.1em; text-indent: 1.5em; }
-.lese-text p:first-child { text-indent: 0; }
-.lese-text h3 {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 1rem; color: #667eea; margin: 18px 0 8px; font-weight: 700; text-indent: 0;
-}
-.vocab-hl {
-  background: #fff176; border-radius: 3px; padding: 1px 2px;
-  cursor: help; position: relative;
-}
-.vocab-hl:hover::after {
-  content: attr(data-tip); position: absolute; bottom: 120%; left: 50%;
-  transform: translateX(-50%); background: #333; color: #fff;
-  border-radius: 6px; padding: 5px 10px; font-size: 0.8rem; white-space: nowrap; z-index: 100;
-}
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
 
-/* Lückentext */
-.luecke-list { list-style: none; padding: 0; }
-.luecke-item {
-  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-  border-bottom: 1px solid #eee; font-size: 0.95rem; color: #333; flex-wrap: wrap;
-}
-.luecke-item:last-child { border-bottom: none; }
-.luecke-item .nr { min-width: 26px; font-weight: 700; color: #764ba2; }
-.luecke-inp {
-  border: 2px solid #ccc; border-radius: 6px; padding: 5px 10px;
-  font-size: 0.9rem; width: 180px; outline: none; transition: border-color 0.2s;
-}
-.luecke-inp:focus { border-color: #667eea; }
-.luecke-inp.correct { border-color: #43a047; background: #e8f5e9; }
-.luecke-inp.wrong { border-color: #e53935; background: #fce4ec; }
-.luecke-feedback { font-size: 0.85rem; font-weight: 600; }
-.luecke-feedback.ok { color: #388e3c; }
-.luecke-feedback.err { color: #c62828; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
 
-/* Richtig/Falsch */
-.rf-list { list-style: none; padding: 0; }
-.rf-item {
-  padding: 14px 16px; border: 1px solid #e0e0e0; border-radius: 8px;
-  margin-bottom: 12px; background: #fafafa;
-}
-.rf-question { font-size: 0.95rem; color: #333; margin-bottom: 10px; font-weight: 600; }
-.rf-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
-.rf-btn {
-  padding: 7px 20px; border-radius: 6px; border: 2px solid #667eea;
-  background: #fff; color: #667eea; font-weight: 700; cursor: pointer;
-  font-size: 0.85rem; transition: all 0.2s;
-}
-.rf-btn:hover { background: #667eea; color: #fff; }
-.rf-btn:disabled { cursor: default; }
-.rf-fb { font-size: 0.85rem; font-weight: 700; min-height: 18px; margin-top: 4px; }
-.rf-fb.ok { color: #388e3c; }
-.rf-fb.err { color: #c62828; }
-.sb-drop-zone {
-  display: flex; flex-wrap: wrap; gap: 7px; min-height: 48px; background: #f0f0f0;
-  border: 2px dashed #ccc; border-radius: 8px; padding: 8px; transition: border-color 0.2s;
-}
-.sb-drop-zone.drag-over { border-color: #667eea; background: #ede9f8; }
-.sb-result { font-size: 0.9rem; font-weight: 700; margin-top: 4px; min-height: 22px; }
-.sb-result.ok { color: #388e3c; }
-.sb-result.err { color: #c62828; }
+        .header h1 {
+            font-family: Georgia, serif;
+            font-size: 2.2em;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
 
-footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; border-top: 1px solid #eee; }
+        .header p {
+            font-family: Georgia, serif;
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
 
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
+        .big-emoji {
+            font-size: 2.8em;
+            margin-top: 8px;
+        }
 
-/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
-body { padding: 20px; }
-.story-text { max-width: 600px; margin: 0 auto; }
-.lese-text  { max-width: 600px; margin: 0 auto; }
-.rf-list    { max-width: 650px; margin: 0 auto; }
-/* ──────────────────────────────────────────────────────── */
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
 
-/* ── SATZBAU ─────────────────────────────────────────────── */
-.satzbau-item { margin-bottom: 28px; }
-.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
-.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
-.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
-.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
-.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
-.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
-.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
-.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
-.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
-.satzbau-feedback.correct { color: #27ae60; }
-.satzbau-feedback.incorrect { color: #e74c3c; }</style>
+        .nav-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #efefef;
+        }
+
+        .nav-btn.active {
+            background: white;
+            border-bottom-color: #667eea;
+        }
+
+        .nav-emoji {
+            display: block;
+            font-size: 1.6em;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .nav-btn.active .nav-label {
+            color: #667eea;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .tab-banner {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .lese-text {
+            font-family: Georgia, serif;
+            font-size: 1rem;
+            line-height: 1.85;
+            color: #333;
+            max-width: 720px;
+            text-align: justify;
+            hyphens: auto;
+            margin: 0 auto 18px;
+        }
+
+        .lese-text p {
+            margin-bottom: 1.1em;
+            text-indent: 1.5em;
+        }
+
+        .lese-text p:first-child {
+            text-indent: 0;
+        }
+
+        .lese-text h3 {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            color: #667eea;
+            margin: 18px 0 8px;
+            font-weight: 700;
+            text-indent: 0;
+        }
+
+        .vocab-hl {
+            background: #fff9c4;
+            padding: 1px 4px;
+            border-radius: 3px;
+            cursor: help;
+            position: relative;
+        }
+
+        .vocab-hl:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            font-family: 'Segoe UI', sans-serif;
+            z-index: 1000;
+        }
+
+        .vorentlastung-list {
+            margin: 20px 0;
+        }
+
+        .vorentlastung-item {
+            margin-bottom: 16px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .vorentlastung-item::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .keywords-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .keyword-card {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 0.95em;
+        }
+
+        .keyword-word {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .keyword-def {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .lueckentext-container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .lueckentext-item {
+            margin-bottom: 18px;
+            padding: 12px;
+            background: #fafafa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+
+        .lueckentext-segment {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .lueckentext-text {
+            color: #333;
+        }
+
+        .lueckentext-input {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            padding: 4px 8px;
+            min-width: 100px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.95em;
+        }
+
+        .lueckentext-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .lueckentext-hint {
+            display: block;
+            font-size: 0.85em;
+            color: #888;
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        .rf-list {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .rf-item {
+            margin-bottom: 16px;
+            padding: 14px;
+            background: #fafafa;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .rf-question {
+            margin-bottom: 10px;
+            font-size: 0.98em;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .rf-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .rf-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .rf-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+
+        .rf-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .rf-btn.correct {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        .rf-btn.wrong {
+            background: #f44336;
+            border-color: #f44336;
+            color: white;
+        }
+
+        .rf-fb {
+            margin-top: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .rf-fb.correct {
+            color: #4caf50;
+        }
+
+        .rf-fb.wrong {
+            color: #f44336;
+        }
+
+        .satzbau-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .satzbau-item {
+            margin-bottom: 20px;
+            padding: 14px;
+            background: #fafafa;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .satzbau-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .chip {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: move;
+            font-size: 0.9em;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .chip.placed {
+            background: #667eea;
+            color: white;
+            cursor: default;
+        }
+
+        .satzbau-zone {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            min-height: 40px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+
+        .satzbau-zone.active {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .satzbau-word {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 2px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .satzbau-word:hover {
+            background: #764ba2;
+        }
+
+        .satzbau-punct {
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .satzbau-feedback {
+            margin-top: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .satzbau-feedback.correct {
+            color: #4caf50;
+        }
+
+        .satzbau-feedback.wrong {
+            color: #f44336;
+        }
+
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-loesungen {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-loesungen:hover {
+            background: #764ba2;
+        }
+
+        .btn-neu {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-neu:hover {
+            background: #da190b;
+        }
+
+        .timer-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            font-weight: 600;
+            color: #667eea;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .author-footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #888;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .nav-btn {
+                min-width: 80px;
+                padding: 10px 8px;
+            }
+
+            .nav-emoji {
+                font-size: 1.3em;
+                margin-bottom: 2px;
+            }
+
+            .nav-label {
+                font-size: 0.7em;
+            }
+
+            .keywords-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .satzbau-chips {
+                gap: 4px;
+            }
+
+            .chip {
+                padding: 4px 8px;
+                font-size: 0.8em;
+            }
+
+            .control-bar {
+                flex-direction: column;
+            }
+
+            .btn-row {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 100px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <header class="header">
-    <h1>B2.1 · Lektion 1046 · Künstliche Intelligenz</h1>
-    <p>Lesen · Einheit 4 · KI — Vergangenheit, Gegenwart und Zukunft</p>
-  </header>
-
-  <div class="nav">
-    <div class="nav-btn active" onclick="showSection(0)">
-      <span class="nav-emoji">💬</span>
-      <span class="nav-label">Vorentlastung</span>
-    </div>
-    <div class="nav-btn" onclick="showSection(1)">
-      <span class="nav-emoji">📖</span>
-      <span class="nav-label">Lesetext</span>
-    </div>
-    <div class="nav-btn" onclick="showSection(2)">
-      <span class="nav-emoji">✏️</span>
-      <span class="nav-label">Lückentext</span>
-    </div>
-    <div class="nav-btn" onclick="showSection(3)">
-      <span class="nav-emoji">🔘</span>
-      <span class="nav-label">Richtig/Falsch</span>
-    </div>
-    <div class="nav-btn" onclick="showSection(4)">
-      <span class="nav-emoji">🔀</span>
-      <span class="nav-label">Satzbau</span>
-    </div>
-  </div>
-
-  <!-- TAB 0: VORENTLASTUNG -->
-  <div class="section active" id="sec-0">
-    <img class="tab-banner" src="https://images.pexels.com/photos/2599244/pexels-photo-2599244.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Künstliche Intelligenz und Roboter">
-
-    <div class="fragen-box">
-      <h3>🤔 Einstiegsfragen</h3>
-      <ul class="fragen-list">
-        <li>Welche Aufgaben in deinem Alltag findest du lästig? Könntest du sie einem Roboter überlassen?</li>
-        <li>Nutzt du schon KI-Assistenten wie Siri oder Alexa? Was denkst du über sie?</li>
-        <li>Was unterscheidet deiner Meinung nach menschliches Denken von künstlicher Intelligenz?</li>
-        <li>Macht dir die Vorstellung von autonomen Robotern als Gefährten Angst oder freust du dich darauf?</li>
-      </ul>
-    </div>
-
-    <div class="section-title">🔑 Schlüsselwörter — Künstliche Intelligenz</div>
-    <div class="vocab-preview-grid">
-      <div class="vocab-preview-card">
-        <div class="vpc-word">lästig</div>
-        <div class="vpc-en">tedious, annoying</div>
-        <div class="vpc-ex">Das lästige Staubsaugen übernimmt ein kleiner Helfer.</div>
-      </div>
-      <div class="vocab-preview-card">
-        <div class="vpc-word">vernetzt</div>
-        <div class="vpc-en">networked, connected</div>
-        <div class="vpc-ex">Vieles ist heute smart, also miteinander vernetzt.</div>
-      </div>
-      <div class="vocab-preview-card">
-        <div class="vpc-word">utopisch</div>
-        <div class="vpc-en">utopian, unrealistic</div>
-        <div class="vpc-ex">Für viele klingt ein vollautomatisches Haus noch utopisch.</div>
-      </div>
-      <div class="vocab-preview-card">
-        <div class="vpc-word">die Entwicklung / -en</div>
-        <div class="vpc-en">development</div>
-        <div class="vpc-ex">Lena arbeitet an der Entwicklung von Sprachassistenten.</div>
-      </div>
-      <div class="vocab-preview-card">
-        <div class="vpc-word">der Grundstein / -e</div>
-        <div class="vpc-en">foundation stone</div>
-        <div class="vpc-ex">1956 wurde der Grundstein für die KI-Forschung gelegt.</div>
-      </div>
-      <div class="vocab-preview-card">
-        <div class="vpc-word">die Geburtsstunde / —</div>
-        <div class="vpc-en">birth, founding moment</div>
-        <div class="vpc-ex">Die Dartmouth Conference gilt als Geburtsstunde der KI.</div>
-      </div>
-      <div class="vocab-preview-card">
-        <div class="vpc-word">die Errungenschaft / -en</div>
-        <div class="vpc-en">achievement, accomplishment</div>
-        <div class="vpc-ex">Menschenähnliche Roboter sind eine bemerkenswerte Errungenschaft.</div>
-      </div>
-      <div class="vocab-preview-card">
-        <div class="vpc-word">der Gefährte / -n</div>
-        <div class="vpc-en">companion, friend</div>
-        <div class="vpc-ex">Roboter sollen eines Tages Gefährten und Freunde werden.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 1: LESETEXT -->
-  <div class="section" id="sec-1">
-    <img class="tab-banner" src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Technologie und künstliche Intelligenz">
-
-    <p style="font-size:0.85rem;color:#888;margin-bottom:16px;">Gelb markierte Wörter: Fahre mit der Maus darüber für eine Erklärung.</p>
-
-    <div class="lese-text">
-      <h3>Ein kleiner Helfer?</h3>
-      <p>Stell dir vor: Ein kleiner Roboter saugt selbstständig deine Wohnung, ein anderer mäht den Rasen, und Siri oder Alexa regeln auf Befehl die Raumtemperatur. Was noch vor wenigen Jahren <span class="vocab-hl" data-tip="unrealistic, like a utopia">utopisch</span> klang, ist heute Alltag für Millionen von Menschen. All diese Geräte sind miteinander <span class="vocab-hl" data-tip="connected, networked">vernetzt</span> — man spricht von einem Smart Home. Lästige Aufgaben, die früher Zeit und Energie kosteten, können nun automatisch erledigt werden. Und das ist erst der Anfang der <span class="vocab-hl" data-tip="development">Entwicklung</span>.</p>
-
-      <h3>Angefangen hat das Ganze …</h3>
-      <p>Die Geschichte der künstlichen Intelligenz reicht weit zurück. Schon im 18. Jahrhundert träumten Erfinder von Maschinen, die denken können. Doch erst im Jahr 1956 wurde der <span class="vocab-hl" data-tip="foundation stone">Grundstein</span> für die moderne KI-Forschung gelegt: Bei der berühmten Dartmouth Conference in New Hampshire kamen renommierte Vordenker aus Informatik, Psychologie und Neurologie zusammen. Diese Konferenz gilt heute als die <span class="vocab-hl" data-tip="birth, founding moment">Geburtsstunde</span> der künstlichen Intelligenz. Die Forscher wollten herausfinden, ob Maschinen in der Lage sind, menschliche Denkprozesse nachzuahmen.</p>
-
-      <h3>In den Kinderschuhen</h3>
-      <p>Nach der Dartmouth Conference waren die Wissenschaftler euphorisch. Sie prophezeiten, dass Maschinen schon bald das menschliche Denken vollständig nachempfinden könnten. Doch die Realität war komplizierter: Um eine Maschine zu programmieren, die denkt wie ein Mensch, muss man erst verstehen, wie das menschliche Denken selbst funktioniert — eine Aufgabe, die Informatiker, Psychologen und Neurologen bis heute beschäftigt. In den ersten Jahrzehnten gab es zwar beeindruckende Fortschritte — zum Beispiel Schachcomputer, die Weltmeister schlagen konnten — doch viele ambitionierte Ziele blieben noch lange unerreicht.</p>
-
-      <h3>Wie weit sind wir heute?</h3>
-      <p>Heute sind die Anwendungsgebiete der KI enorm vielfältig. Fußball-Roboter treten in Wettkämpfen gegeneinander an. In der Medizin helfen KI-Systeme dabei, Krankheiten früher zu erkennen. Der Marsrover Curiosity erkundet selbstständig die Oberfläche des roten Planeten. Und Social Bots sind auf Webseiten von Unternehmen zu finden, wo sie Kundenfragen beantworten. Moderne KI kann Bewegungsmuster simulieren, Sprache verstehen und sogar autonome Entscheidungen treffen — Dinge, die man früher nur Menschen zutraute.</p>
-
-      <h3>Was bringt die Zukunft?</h3>
-      <p>Ein faszinierendes Beispiel für zukünftige KI ist das Google Car: Es erfasst und analysiert vollautomatisch verschiedenste Daten — von Verkehrszeichen bis hin zum Gesichtsausdruck des Fahrers. Doch KI kann auch Risiken mit sich bringen. In einem bekannten Experiment entwickelten Facebook-KI-Systeme eine eigene Geheimsprache, die Menschen nicht mehr verstehen konnten. Das Experiment wurde daraufhin beendet. Trotz dieser Herausforderungen arbeiten Forscher weiter daran, menschenähnliche Roboter zu schaffen — Roboter, die als <span class="vocab-hl" data-tip="companion, friend">Gefährten</span> und Freunde dienen sollen. Ob das eine Chance oder eine Gefahr ist, gilt es in den nächsten Jahren zu diskutieren. Eine <span class="vocab-hl" data-tip="achievement, accomplishment">Errungenschaft</span> ist es in jedem Fall.</p>
-    </div>
-  </div>
-
-  <!-- TAB 2: LÜCKENTEXT -->
-  <div class="section" id="sec-2">
-    <img class="tab-banner" src="https://images.pexels.com/photos/4145153/pexels-photo-4145153.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Lückentext Übung">
-
-    </div>
-    <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Ergänze die fehlenden Wörter. Du bekommst sofort Rückmeldung.</p>
-
-    <ul class="luecke-list" id="luecke-list">
-      <li class="luecke-item">
-        <span class="nr">1.</span>
-        <span>Das Staubsaugen ist sehr</span>
-        <input class="luecke-inp" data-answer="lästig" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:120px">
-        <span>— ein Roboter erledigt es gerne für uns.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">2.</span>
-        <span>Für viele Menschen klingt ein vollautomatisches Smart Home noch</span>
-        <input class="luecke-inp" data-answer="utopisch" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:120px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">3.</span>
-        <span>In einem Smart Home sind alle Geräte miteinander</span>
-        <input class="luecke-inp" data-answer="vernetzt" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:120px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">4.</span>
-        <span>Menschen träumen davon, lästige Alltagsaufgaben zu</span>
-        <input class="luecke-inp" data-answer="automatisieren" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:155px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">5.</span>
-        <span>1956 wurde in New Hampshire der</span>
-        <input class="luecke-inp" data-answer="Grundstein" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:130px">
-        <span>für die KI-Forschung gelegt.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">6.</span>
-        <span>Die Forscher wollten menschliche</span>
-        <input class="luecke-inp" data-answer="Denkprozesse" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:155px">
-        <span>in Maschinen nachbilden.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">7.</span>
-        <span>Die Dartmouth Conference gilt als die</span>
-        <input class="luecke-inp" data-answer="Geburtsstunde" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:155px">
-        <span>der KI.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">8.</span>
-        <span>Nach der Konferenz waren die Wissenschaftler sehr</span>
-        <input class="luecke-inp" data-answer="euphorisch" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:130px">
-        <span>über die Zukunft der KI.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">9.</span>
-        <span>Ein Schachcomputer ist so</span>
-        <input class="luecke-inp" data-answer="programmiert" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:145px">
-        <span>, dass er einen Weltmeister schlagen kann.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">10.</span>
-        <span>KI-Systeme können heute das menschliche Denken besser</span>
-        <input class="luecke-inp" data-answer="nachempfinden" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:160px">
-        <span>als früher.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">11.</span>
-        <span>Die</span>
-        <input class="luecke-inp" data-answer="Anwendungsgebiete" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:185px">
-        <span>der KI reichen von der Medizin bis zur Weltraumforschung.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">12.</span>
-        <span>Menschenähnliche Roboter als Gefährten sind eine bemerkenswerte</span>
-        <input class="luecke-inp" data-answer="Errungenschaft" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:165px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-    </ul>
-  </div>
-
-  <!-- TAB 3: RICHTIG/FALSCH -->
-  <div class="section" id="sec-3">
-    <img class="tab-banner" src="https://images.pexels.com/photos/3808008/pexels-photo-3808008.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Richtig oder falsch">
-
-    </div>
-    <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Sind die Aussagen zum Text richtig oder falsch? Klicke auf deine Antwort.</p>
-
-    <ul class="rf-list" id="rf-list">
-      <li class="rf-item">
-        <div class="rf-question">1. Der Grundstein der KI-Forschung wurde 1956 gelegt.</div>
-        <div class="rf-btns">
-          <button class="rf-btn rf-richtig" onclick="mcClick(this, true, true)">✔ Richtig</button>
-          <button class="rf-btn rf-falsch" onclick="mcClick(this, false, true)">✖ Falsch</button>
+    <div class="container">
+        <div class="header">
+            <h1>Künstliche Intelligenz</h1>
+            <p>Ein kleiner Helfer? – Lesen (B2.1)</p>
+            <div class="big-emoji">🤖</div>
         </div>
-        <div class="rf-fb"></div>
-      </li>
-      <li class="rf-item">
-        <div class="rf-question">2. Die Dartmouth Conference fand in New York statt.</div>
-        <div class="rf-btns">
-          <button class="rf-btn rf-richtig" onclick="mcClick(this, true, false)">✔ Richtig</button>
-          <button class="rf-btn rf-falsch" onclick="mcClick(this, false, false)">✖ Falsch</button>
-        </div>
-        <div class="rf-fb"></div>
-      </li>
-      <li class="rf-item">
-        <div class="rf-question">3. Um eine Maschine zu programmieren, muss man zuerst das menschliche Denken erklären können.</div>
-        <div class="rf-btns">
-          <button class="rf-btn rf-richtig" onclick="mcClick(this, true, true)">✔ Richtig</button>
-          <button class="rf-btn rf-falsch" onclick="mcClick(this, false, true)">✖ Falsch</button>
-        </div>
-        <div class="rf-fb"></div>
-      </li>
-      <li class="rf-item">
-        <div class="rf-question">4. Das Google Car erfasst auch den Gesichtsausdruck des Fahrers.</div>
-        <div class="rf-btns">
-          <button class="rf-btn rf-richtig" onclick="mcClick(this, true, true)">✔ Richtig</button>
-          <button class="rf-btn rf-falsch" onclick="mcClick(this, false, true)">✖ Falsch</button>
-        </div>
-        <div class="rf-fb"></div>
-      </li>
-      <li class="rf-item">
-        <div class="rf-question">5. Facebook beendete das KI-Experiment, weil die KI eine Geheimsprache entwickelte.</div>
-        <div class="rf-btns">
-          <button class="rf-btn rf-richtig" onclick="mcClick(this, true, true)">✔ Richtig</button>
-          <button class="rf-btn rf-falsch" onclick="mcClick(this, false, true)">✖ Falsch</button>
-        </div>
-        <div class="rf-fb"></div>
-      </li>
-      <li class="rf-item">
-        <div class="rf-question">6. Menschenähnliche Roboter sollen in Zukunft als Gefährten und Freunde dienen.</div>
-        <div class="rf-btns">
-          <button class="rf-btn rf-richtig" onclick="mcClick(this, true, true)">✔ Richtig</button>
-          <button class="rf-btn rf-falsch" onclick="mcClick(this, false, true)">✖ Falsch</button>
-        </div>
-        <div class="rf-fb"></div>
-      </li>
-    </ul>
-  </div>
 
-  <!-- TAB 4: SATZBAU -->
-  <div class="section" id="sec-4">
-    <img class="tab-banner" src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Satzbau Übung">
+        <div class="nav">
+            <div class="nav-btn active" onclick="showSection(0)">
+                <span class="nav-emoji">💬</span>
+                <span class="nav-label">Vorentlastung</span>
+            </div>
+            <div class="nav-btn" onclick="showSection(1)">
+                <span class="nav-emoji">📖</span>
+                <span class="nav-label">Lesetext</span>
+            </div>
+            <div class="nav-btn" onclick="showSection(2)">
+                <span class="nav-emoji">✏️</span>
+                <span class="nav-label">Lückentext</span>
+            </div>
+            <div class="nav-btn" onclick="showSection(3)">
+                <span class="nav-emoji">🔘</span>
+                <span class="nav-label">Richtig/Falsch</span>
+            </div>
+            <div class="nav-btn" onclick="showSection(4)">
+                <span class="nav-emoji">🧩</span>
+                <span class="nav-label">Satzbau</span>
+            </div>
+        </div>
 
+        <div class="section active" id="sec-0">
+            <img class="tab-banner" src="https://images.pexels.com/photos/2599244/pexels-photo-2599244.jpeg?auto=compress&cs=tinysrgb&w=800">
+            <div style="padding: 28px 30px;">
+                <h3>Einstiegsfragen</h3>
+                <div class="vorentlastung-list">
+                    <div class="vorentlastung-item">Welche Aufgaben in deinem Alltag findest du lästig? Könntest du sie einem Roboter überlassen?</div>
+                    <div class="vorentlastung-item">Nutzt du schon KI-Assistenten wie Siri oder Alexa? Was denkst du über sie?</div>
+                    <div class="vorentlastung-item">Was unterscheidet deiner Meinung nach menschliches Denken von künstlicher Intelligenz?</div>
+                    <div class="vorentlastung-item">Macht dir die Vorstellung von autonomen Robotern als Gefährten Angst oder freust du dich darauf?</div>
+                </div>
+
+                <h3 style="margin-top: 32px;">Schlüsselwörter</h3>
+                <div class="keywords-grid">
+                    <div class="keyword-card">
+                        <div class="keyword-word">lästig</div>
+                        <div class="keyword-def">tedious, annoying</div>
+                    </div>
+                    <div class="keyword-card">
+                        <div class="keyword-word">vernetzt</div>
+                        <div class="keyword-def">networked, connected</div>
+                    </div>
+                    <div class="keyword-card">
+                        <div class="keyword-word">utopisch</div>
+                        <div class="keyword-def">utopian, unrealistic</div>
+                    </div>
+                    <div class="keyword-card">
+                        <div class="keyword-word">die Entwicklung</div>
+                        <div class="keyword-def">development</div>
+                    </div>
+                    <div class="keyword-card">
+                        <div class="keyword-word">der Grundstein</div>
+                        <div class="keyword-def">foundation stone</div>
+                    </div>
+                    <div class="keyword-card">
+                        <div class="keyword-word">die Geburtsstunde</div>
+                        <div class="keyword-def">birth, founding moment</div>
+                    </div>
+                    <div class="keyword-card">
+                        <div class="keyword-word">die Errungenschaft</div>
+                        <div class="keyword-def">achievement</div>
+                    </div>
+                    <div class="keyword-card">
+                        <div class="keyword-word">der Gefährte</div>
+                        <div class="keyword-def">companion, friend</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="sec-1">
+            <img class="tab-banner" src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800">
+            <div style="padding: 28px 30px;">
+                <div class="lese-text">
+                    <h3>Ein kleiner Helfer?</h3>
+
+                    <p>Das Staubsaugen ist sehr <span class="vocab-hl" data-tip="tedious">lästig</span> — ein Roboter könnte diese Aufgabe gerne für uns erledigen. Ein Roboter-Staubsauger ist heute nichts Besonderes mehr. Viele Menschen wünschen sich einen automatisierten Haushalt mit <span class="vocab-hl" data-tip="networked">vernetzten</span> Geräten, die miteinander kommunizieren und uns im Alltag unterstützen. Solche intelligenten Häuser werden oft beschrieben als Smart Home. Für viele Menschen klingt ein vollautomatisches Smart Home noch <span class="vocab-hl" data-tip="utopian">utopisch</span>, doch die <span class="vocab-hl" data-tip="development">Entwicklung</span> schreitet schnell voran.</p>
+
+                    <p>Doch wann begann die Geschichte der künstlichen Intelligenz? Im Jahr 1956 wurde in Dartmouth, New Hampshire, ein <span class="vocab-hl" data-tip="foundation">Grundstein</span> für die KI-Forschung gelegt. Auf einer Konferenz trafen sich Informatiker und Mathematiker, um über eine neue Vision zu sprechen: Sie wollten menschliche Denkprozesse in Maschinen nachbilden. Diese Konferenz gilt als die <span class="vocab-hl" data-tip="birth">Geburtsstunde</span> der künstlichen Intelligenz. Nach dieser Konferenz waren viele Wissenschaftler sehr euphorisch über die Zukunft der KI — manche glaubten, dass Computer in wenigen Jahren so intelligent sein würden wie Menschen.</p>
+
+                    <p>In den folgenden Jahrzehnten machte die KI-Forschung große Fortschritte. Ein wichtiger Moment war 1997, als der Schachcomputer Deep Blue den Weltmeister Garri Kasparov besiegte. Dieser Computer war so programmiert, dass er Millionen von Schachzügen in wenigen Sekunden analysieren konnte. Das zeigte: Maschinen konnten Menschen in komplexen Aufgaben übertreffen. Dies war eine bemerkenswerte <span class="vocab-hl" data-tip="achievement">Errungenschaft</span>.</p>
+
+                    <p>Heute nutzen wir KI überall: Sprachassistenten wie Siri und Alexa verstehen unsere Befehle. Selbstfahrende Autos wie das Google Car erfassen ihre Umgebung mit Kameras und Sensoren und treffen Entscheidungen über Richtung und Geschwindigkeit. Soziale Netzwerke wie Facebook nutzen KI-Algorithmen, um personalisierte Inhalte anzuzeigen. Die Anwendungsgebiete sind vielfältig und wachsen täglich.</p>
+
+                    <p>In Zukunft werden wir menschenähnliche Roboter sehen, die als <span class="vocab-hl" data-tip="companions">Gefährten</span> und Freunde dienen. Sie könnten uns bei Aufgaben helfen, mit uns sprechen und sogar lernen, uns besser zu verstehen. Die Vision der Dartmouth Conference rückt in immer greifbarere Nähe. Doch mit dieser Entwicklung kommen auch wichtige Fragen: Wie sicher ist künstliche Intelligenz? Welche ethischen Fragen entstehen? Diese Fragen werden die Gesellschaft in den kommenden Jahren beschäftigen.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="sec-2">
+            <img class="tab-banner" src="https://images.pexels.com/photos/4145153/pexels-photo-4145153.jpeg?auto=compress&cs=tinysrgb&w=800">
+            <div style="padding: 28px 30px;">
+                <div class="lueckentext-container">
+                    <div id="luecken-output"></div>
+                </div>
+                <div class="control-bar">
+                    <div class="timer-display" id="timer-2">00:00</div>
+                    <div class="btn-row">
+                        <button class="btn btn-loesungen" onclick="showSolutionsLueckentext()">Lösungen</button>
+                        <button class="btn btn-neu" onclick="resetLueckentext()">Neu starten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="sec-3">
+            <img class="tab-banner" src="https://images.pexels.com/photos/3808008/pexels-photo-3808008.jpeg?auto=compress&cs=tinysrgb&w=800">
+            <div style="padding: 28px 30px;">
+                <div class="rf-list" id="rf-output"></div>
+                <div class="control-bar">
+                    <div class="timer-display" id="timer-3">00:00</div>
+                    <div class="btn-row">
+                        <button class="btn btn-loesungen" onclick="showSolutionsRF()">Lösungen</button>
+                        <button class="btn btn-neu" onclick="resetRF()">Neu starten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="sec-4">
+            <img class="tab-banner" src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg?auto=compress&cs=tinysrgb&w=800">
+            <div style="padding: 28px 30px;">
+                <div class="satzbau-container" id="satzbau-output"></div>
+                <div class="control-bar">
+                    <div class="timer-display" id="timer-4">00:00</div>
+                    <div class="btn-row">
+                        <button class="btn btn-loesungen" onclick="showSolutionsSatzbau()">Lösungen</button>
+                        <button class="btn btn-neu" onclick="resetSatzbau()">Neu starten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="author-footer">
+            <p>© 2026 Deutsch als Fremdsprache | B2.1 Künstliche Intelligenz</p>
+        </div>
     </div>
-    <div id="satzbauContainer"></div>
-  </div>
 
-  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
-</div>
+    <script>
+        var TIMER_PREFIX = 'b2_1046r_';
 
-<script>
-function showSection(n){
-  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  [1,2,3].forEach(function(i){ timerStop(i); });
-}
+        var LUECKEN = [
+            { segs:[{t:'Das Staubsaugen ist sehr '},{b:'lästig'},{t:' — ein Roboter erledigt es gerne für uns.'}], hint:'Adjektiv: nervig, störend' },
+            { segs:[{t:'Für viele Menschen klingt ein vollautomatisches Smart Home noch '},{b:'utopisch'},{t:'.'}], hint:'Adjektiv: unrealistisch' },
+            { segs:[{t:'In einem Smart Home sind alle Geräte miteinander '},{b:'vernetzt'},{t:'.'}], hint:'Partizip: connected' },
+            { segs:[{t:'Menschen träumen davon, lästige Alltagsaufgaben zu '},{b:'automatisieren'},{t:'.'}], hint:'Verb: automatic machen' },
+            { segs:[{t:'1956 wurde in New Hampshire der '},{b:'Grundstein'},{t:' für die KI-Forschung gelegt.'}], hint:'Nomen: Fundament' },
+            { segs:[{t:'Die Forscher wollten menschliche '},{b:'Denkprozesse'},{t:' in Maschinen nachbilden.'}], hint:'Nomen: Denk + ...' },
+            { segs:[{t:'Die Dartmouth Conference gilt als die '},{b:'Geburtsstunde'},{t:' der KI.'}], hint:'Nomen: Beginn' },
+            { segs:[{t:'Nach der Konferenz waren die Wissenschaftler sehr '},{b:'euphorisch'},{t:' über die Zukunft der KI.'}], hint:'Adjektiv: begeistert' },
+            { segs:[{t:'Ein Schachcomputer ist so '},{b:'programmiert'},{t:', dass er einen Weltmeister schlagen kann.'}], hint:'Partizip: coded' },
+            { segs:[{t:'KI-Systeme können heute das menschliche Denken besser '},{b:'nachempfinden'},{t:' als früher.'}], hint:'Verb: nachfühlen' },
+            { segs:[{t:'Die '},{b:'Anwendungsgebiete'},{t:' der KI reichen von der Medizin bis zur Weltraumforschung.'}], hint:'Nomen: Einsatzbereiche' },
+            { segs:[{t:'Menschenähnliche Roboter als Gefährten sind eine bemerkenswerte '},{b:'Errungenschaft'},{t:'.'}], hint:'Nomen: Leistung' }
+        ];
 
-// ─── TIMER SYSTEM ─────────────────────────────────────────────────────────────
-var TIMER_PREFIX='B2_1046R_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [2,3,4].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-timerAutoStart(2);
-function liveCheck(inp) {
-  var val = inp.value.trim().toLowerCase();
-  var ans = (inp.dataset.answer || '').toLowerCase();
-  inp.classList.remove('correct', 'wrong');
-  if (val.length === 0) return;
-  if (val === ans) { inp.classList.add('correct'); }
-  else if (ans.startsWith(val)) { /* valid prefix — warte */ }
-  else { inp.classList.add('wrong'); }
-}
+        var RF_DATA = [
+            { q:'Der Grundstein der KI-Forschung wurde 1956 gelegt.', correct: true },
+            { q:'Die Dartmouth Conference fand in New York statt.', correct: false },
+            { q:'Um eine Maschine zu programmieren, muss man zuerst das menschliche Denken erklären können.', correct: true },
+            { q:'Das Google Car erfasst auch den Gesichtsausdruck des Fahrers.', correct: true },
+            { q:'Facebook beendete das KI-Experiment, weil die KI eine Geheimsprache entwickelte.', correct: true },
+            { q:'Menschenähnliche Roboter sollen in Zukunft als Gefährten und Freunde dienen.', correct: true }
+        ];
 
-/* ── SATZBAU ── */
-var satzbauData = [
-  { parts: ['obwohl', 'KI', 'viele', 'Jobs', 'automatisiert', ',', 'entstehen', 'auch', 'neue', 'Berufe'],
-    valid: [['obwohl', 'KI', 'viele', 'Jobs', 'automatisiert', ',', 'entstehen', 'auch', 'neue', 'Berufe']], punct: '.' },
-  { parts: ['weil', 'Algorithmen', 'lernen', ',', 'werden', 'Computer', 'immer', 'intelligenter'],
-    valid: [['weil', 'Algorithmen', 'lernen', ',', 'werden', 'Computer', 'immer', 'intelligenter']], punct: '.' },
-  { parts: ['man', 'muss', 'aufpassen', ',', 'dass', 'KI', 'ethisch', 'eingesetzt', 'wird'],
-    valid: [['man', 'muss', 'aufpassen', ',', 'dass', 'KI', 'ethisch', 'eingesetzt', 'wird']], punct: '.' },
-  { parts: ['nachdem', 'das', 'Modell', 'trainiert', 'wurde', ',', 'kann', 'es', 'Texte', 'generieren'],
-    valid: [['nachdem', 'das', 'Modell', 'trainiert', 'wurde', ',', 'kann', 'es', 'Texte', 'generieren']], punct: '.' },
-  { parts: ['KI', 'ist', 'nützlich', ',', 'wenn', 'sie', 'verantwortungsvoll', 'entwickelt', 'wird'],
-    valid: [['KI', 'ist', 'nützlich', ',', 'wenn', 'sie', 'verantwortungsvoll', 'entwickelt', 'wird']], punct: '.' },
-  { parts: ['viele', 'Experten', 'warnen', ',', 'bevor', 'KI', 'zu', 'mächtig', 'wird'],
-    valid: [['viele', 'Experten', 'warnen', ',', 'bevor', 'KI', 'zu', 'mächtig', 'wird']], punct: '.' },
-  { parts: ['damit', 'KI', 'uns', 'hilft', ',', 'muss', 'sie', 'transparent', 'funktionieren'],
-    valid: [['damit', 'KI', 'uns', 'hilft', ',', 'muss', 'sie', 'transparent', 'funktionieren']], punct: '.' },
-];
-var sbDragged = null;
-function getSbCursor(){
-  var c=document.getElementById('sb-insert-cursor');
-  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
-  return c;
-}
-function getSbInsertPos(zone,clientX){
-  var chips=Array.from(zone.querySelectorAll('.chip'));
-  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
-  return null;
-}
-function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
-function sbUpdateCapitalization(row){
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
-    var orig=c.dataset.orig;
-    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
-    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
-  });
-}
-function sbMakeChip(word){
-  var chip=document.createElement('div');
-  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
-  chip.addEventListener('dragstart',function(e){
-    sbDragged=chip; timerAutoStart(4);
-    e.dataTransfer.setData('text/plain','');
-    setTimeout(function(){ chip.style.opacity='0.4'; },0);
-  });
-  chip.addEventListener('dragend',function(){
-    chip.style.opacity=''; sbDragged=null;
-    var c=document.getElementById('sb-insert-cursor');
-    if(c&&c.parentNode) c.parentNode.removeChild(c);
-  });
-  return chip;
-}
-function sbRegisterZone(zone,idx){
-  zone.addEventListener('dragover',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=getSbCursor();
-    var before=getSbInsertPos(zone,e.clientX);
-    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
-  });
-  zone.addEventListener('dragleave',function(e){
-    if(!zone.contains(e.relatedTarget)){
-      var c=document.getElementById('sb-insert-cursor');
-      if(c&&c.parentNode===zone) zone.removeChild(c);
-    }
-  });
-  zone.addEventListener('drop',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=document.getElementById('sb-insert-cursor');
-    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
-    else zone.appendChild(sbDragged);
-    sbDragged=null;
-    var row=document.getElementById('sb-row-'+idx);
-    sbUpdateCapitalization(row); sbCheckAuto(idx);
-  });
-}
-function sbColorRow(idx){
-  var row=document.getElementById('sb-row-'+idx);
-  var chips=Array.from(row.querySelectorAll('.chip'));
-  var order=chips.map(function(c){ return c.dataset.orig; });
-  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
-  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
-  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
-  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
-  return ok;
-}
-function sbCheckAuto(idx){
-  var bank=document.getElementById('sb-bank-'+idx);
-  var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  if(bank.querySelectorAll('.chip').length>0){
-    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
-    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
-  }
-  setTimeout(function(){
-    var ok=sbColorRow(idx);
-    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
-    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
-  },500);
-}
-function sbCheckAllDone(){
-  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
-  if(allOk) timerStop(4);
-}
-function sbShowSolution(idx){
-  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx); var solution=satzbauData[idx].valid[0];
-  var allChips={};
-  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
-  fb.textContent=''; setTimeout(function(){ sbCheckAuto(idx); },100);
-}
-function sbResetOne(idx){
-  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
-  var parts=satzbauData[idx].parts.slice();
-  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-}
-function initSatzbau(){
-  var container=document.getElementById('satzbauContainer');
-  if(!container) return;
-  container.innerHTML='';
-  satzbauData.forEach(function(ex,idx){
-    var item=document.createElement('div'); item.className='satzbau-item';
-    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
-    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
-    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
-    var parts=ex.parts.slice();
-    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
-    bank.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      timerAutoStart(4); row.appendChild(chip); chip.classList.remove('correct','incorrect');
-      sbUpdateCapitalization(row); sbCheckAuto(idx);
-    });
-    row.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
-      chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
-    });
-    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
-    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
-    solveBtn.setAttribute('data-idx',idx);
-    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
-    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
-    resetBtn.setAttribute('data-idx',idx);
-    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
-    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
-    container.appendChild(item);
-  });
-}
-initSatzbau();
-</script>
+        var satzbauData = [
+            { parts:['obwohl','KI','viele','Jobs','automatisiert',',','entstehen','auch','neue','Berufe'], valid:[['obwohl','KI','viele','Jobs','automatisiert',',','entstehen','auch','neue','Berufe']], punct:'.' },
+            { parts:['weil','Algorithmen','lernen',',','werden','Computer','immer','intelligenter'], valid:[['weil','Algorithmen','lernen',',','werden','Computer','immer','intelligenter']], punct:'.' },
+            { parts:['man','muss','aufpassen',',','dass','KI','ethisch','eingesetzt','wird'], valid:[['man','muss','aufpassen',',','dass','KI','ethisch','eingesetzt','wird']], punct:'.' },
+            { parts:['nachdem','das','Modell','trainiert','wurde',',','kann','es','Texte','generieren'], valid:[['nachdem','das','Modell','trainiert','wurde',',','kann','es','Texte','generieren']], punct:'.' },
+            { parts:['KI','ist','nützlich',',','wenn','sie','verantwortungsvoll','entwickelt','wird'], valid:[['KI','ist','nützlich',',','wenn','sie','verantwortungsvoll','entwickelt','wird']], punct:'.' },
+            { parts:['viele','Experten','warnen',',','bevor','KI','zu','mächtig','wird'], valid:[['viele','Experten','warnen',',','bevor','KI','zu','mächtig','wird']], punct:'.' },
+            { parts:['damit','KI','uns','hilft',',','muss','sie','transparent','funktionieren'], valid:[['damit','KI','uns','hilft',',','muss','sie','transparent','funktionieren']], punct:'.' }
+        ];
+
+        var timerIntervals = {};
+        var bestTimes = [0, 0, 0, 0, 0, 0, 0];
+        var timerStarts = [0, 0, 0, 0, 0, 0, 0];
+
+        function loadBestTimes() {
+            for (var i = 2; i <= 4; i++) {
+                var key = TIMER_PREFIX + 'best_' + i;
+                var stored = localStorage.getItem(key);
+                if (stored) {
+                    bestTimes[i] = parseInt(stored, 10);
+                }
+            }
+        }
+
+        function saveBestTime(idx, seconds) {
+            if (seconds > 0 && (bestTimes[idx] === 0 || seconds < bestTimes[idx])) {
+                bestTimes[idx] = seconds;
+                var key = TIMER_PREFIX + 'best_' + idx;
+                localStorage.setItem(key, String(seconds));
+            }
+        }
+
+        function formatTime(seconds) {
+            var mins = Math.floor(seconds / 60);
+            var secs = seconds % 60;
+            return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        function startTimer(idx) {
+            if (timerIntervals[idx]) return;
+            timerStarts[idx] = Math.floor(Date.now() / 1000);
+            var timerEl = document.getElementById('timer-' + idx);
+            timerIntervals[idx] = setInterval(function() {
+                var elapsed = Math.floor(Date.now() / 1000) - timerStarts[idx];
+                if (timerEl) {
+                    timerEl.textContent = formatTime(elapsed);
+                }
+            }, 1000);
+        }
+
+        function stopTimer(idx) {
+            if (timerIntervals[idx]) {
+                clearInterval(timerIntervals[idx]);
+                timerIntervals[idx] = null;
+                var elapsed = Math.floor(Date.now() / 1000) - timerStarts[idx];
+                saveBestTime(idx, elapsed);
+            }
+        }
+
+        function resetTimer(idx) {
+            stopTimer(idx);
+            var timerEl = document.getElementById('timer-' + idx);
+            if (timerEl) {
+                timerEl.textContent = '00:00';
+            }
+        }
+
+        function showSection(idx) {
+            var sections = document.querySelectorAll('.section');
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].classList.remove('active');
+            }
+            document.getElementById('sec-' + idx).classList.add('active');
+
+            var navBtns = document.querySelectorAll('.nav-btn');
+            for (var j = 0; j < navBtns.length; j++) {
+                navBtns[j].classList.remove('active');
+            }
+            navBtns[idx].classList.add('active');
+
+            if (idx === 0 || idx === 1) {
+                if (timerIntervals[idx]) {
+                    stopTimer(idx);
+                }
+            } else if (idx === 2 || idx === 3 || idx === 4) {
+                startTimer(idx);
+            }
+        }
+
+        function renderLueckentext() {
+            var output = document.getElementById('luecken-output');
+            output.innerHTML = '';
+            for (var i = 0; i < LUECKEN.length; i++) {
+                var item = LUECKEN[i];
+                var div = document.createElement('div');
+                div.className = 'lueckentext-item';
+
+                var segDiv = document.createElement('div');
+                segDiv.className = 'lueckentext-segment';
+
+                for (var j = 0; j < item.segs.length; j++) {
+                    var seg = item.segs[j];
+                    if (seg.t) {
+                        var span = document.createElement('span');
+                        span.className = 'lueckentext-text';
+                        span.textContent = seg.t;
+                        segDiv.appendChild(span);
+                    } else if (seg.b) {
+                        var input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'lueckentext-input';
+                        input.placeholder = '...';
+                        input.dataset.correct = seg.b;
+                        input.dataset.index = String(i);
+                        segDiv.appendChild(input);
+                    }
+                }
+
+                div.appendChild(segDiv);
+
+                var hint = document.createElement('div');
+                hint.className = 'lueckentext-hint';
+                hint.textContent = 'Tipp: ' + item.hint;
+                div.appendChild(hint);
+
+                output.appendChild(div);
+            }
+        }
+
+        function showSolutionsLueckentext() {
+            var inputs = document.querySelectorAll('.lueckentext-input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].value = inputs[i].dataset.correct;
+                inputs[i].disabled = true;
+            }
+            stopTimer(2);
+        }
+
+        function resetLueckentext() {
+            renderLueckentext();
+            resetTimer(2);
+        }
+
+        function renderRF() {
+            var output = document.getElementById('rf-output');
+            output.innerHTML = '';
+            for (var i = 0; i < RF_DATA.length; i++) {
+                var item = RF_DATA[i];
+                var div = document.createElement('div');
+                div.className = 'rf-item';
+
+                var q = document.createElement('div');
+                q.className = 'rf-question';
+                q.textContent = item.q;
+                div.appendChild(q);
+
+                var btnsDiv = document.createElement('div');
+                btnsDiv.className = 'rf-btns';
+
+                var btnR = document.createElement('button');
+                btnR.className = 'rf-btn';
+                btnR.textContent = 'Richtig';
+                btnR.dataset.index = String(i);
+                btnR.dataset.answer = 'true';
+                btnR.onclick = function() {
+                    handleRFClick(this);
+                };
+                btnsDiv.appendChild(btnR);
+
+                var btnF = document.createElement('button');
+                btnF.className = 'rf-btn';
+                btnF.textContent = 'Falsch';
+                btnF.dataset.index = String(i);
+                btnF.dataset.answer = 'false';
+                btnF.onclick = function() {
+                    handleRFClick(this);
+                };
+                btnsDiv.appendChild(btnF);
+
+                div.appendChild(btnsDiv);
+
+                var fb = document.createElement('div');
+                fb.className = 'rf-fb';
+                fb.id = 'rf-fb-' + i;
+                fb.style.display = 'none';
+                div.appendChild(fb);
+
+                output.appendChild(div);
+            }
+        }
+
+        function handleRFClick(btn) {
+            var idx = parseInt(btn.dataset.index, 10);
+            var answer = btn.dataset.answer === 'true';
+            var correct = RF_DATA[idx].correct;
+
+            var item = btn.parentElement.parentElement;
+            var btns = item.querySelectorAll('.rf-btn');
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].disabled = true;
+            }
+
+            var correctBtn = null;
+            var wrongBtn = null;
+            for (var j = 0; j < btns.length; j++) {
+                if ((btns[j].dataset.answer === 'true' && correct) || (btns[j].dataset.answer === 'false' && !correct)) {
+                    correctBtn = btns[j];
+                } else {
+                    wrongBtn = btns[j];
+                }
+            }
+
+            if (answer === correct) {
+                btn.classList.add('correct');
+                if (correctBtn && correctBtn !== btn) {
+                    correctBtn.classList.add('correct');
+                }
+                if (wrongBtn) {
+                    wrongBtn.style.opacity = '0.5';
+                }
+                var fb = document.getElementById('rf-fb-' + idx);
+                fb.style.display = 'block';
+                fb.classList.add('correct');
+                fb.textContent = 'Richtig!';
+            } else {
+                btn.classList.add('wrong');
+                if (correctBtn) {
+                    correctBtn.classList.add('correct');
+                }
+                var fb2 = document.getElementById('rf-fb-' + idx);
+                fb2.style.display = 'block';
+                fb2.classList.add('wrong');
+                fb2.textContent = 'Falsch!';
+            }
+        }
+
+        function showSolutionsRF() {
+            var items = document.querySelectorAll('.rf-item');
+            for (var i = 0; i < items.length; i++) {
+                var btns = items[i].querySelectorAll('.rf-btn');
+                for (var j = 0; j < btns.length; j++) {
+                    btns[j].disabled = true;
+                }
+            }
+            stopTimer(3);
+        }
+
+        function resetRF() {
+            renderRF();
+            resetTimer(3);
+        }
+
+        function renderSatzbau() {
+            var output = document.getElementById('satzbau-output');
+            output.innerHTML = '';
+            for (var sbIdx = 0; sbIdx < satzbauData.length; sbIdx++) {
+                if (sbIdx >= satzbauData.length) break;
+                var data = satzbauData[sbIdx];
+                var div = document.createElement('div');
+                div.className = 'satzbau-item';
+
+                var chipsDiv = document.createElement('div');
+                chipsDiv.className = 'satzbau-chips';
+                chipsDiv.id = 'satzbau-chips-' + sbIdx;
+
+                var usedIndices = {};
+                for (var i = 0; i < data.parts.length; i++) {
+                    usedIndices[String(i)] = false;
+                }
+
+                for (var k = 0; k < data.parts.length; k++) {
+                    var chip = document.createElement('div');
+                    chip.className = 'chip';
+                    chip.textContent = data.parts[k];
+                    chip.draggable = true;
+                    chip.dataset.sbIdx = String(sbIdx);
+                    chip.dataset.partIdx = String(k);
+                    chip.ondragstart = function(e) {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', this.dataset.sbIdx + ',' + this.dataset.partIdx);
+                    };
+                    chipsDiv.appendChild(chip);
+                }
+
+                div.appendChild(chipsDiv);
+
+                var zone = document.createElement('div');
+                zone.className = 'satzbau-zone';
+                zone.id = 'satzbau-zone-' + sbIdx;
+                zone.ondragover = function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    this.classList.add('active');
+                };
+                zone.ondragleave = function() {
+                    this.classList.remove('active');
+                };
+                zone.ondrop = function(e) {
+                    e.preventDefault();
+                    this.classList.remove('active');
+                };
+
+                div.appendChild(zone);
+
+                var punct = document.createElement('div');
+                punct.className = 'satzbau-punct';
+                punct.textContent = data.punct;
+                div.appendChild(punct);
+
+                var fb = document.createElement('div');
+                fb.className = 'satzbau-feedback';
+                fb.id = 'satzbau-fb-' + sbIdx;
+                fb.style.display = 'none';
+                div.appendChild(fb);
+
+                output.appendChild(div);
+            }
+        }
+
+        function showSolutionsSatzbau() {
+            for (var i = 0; i < satzbauData.length; i++) {
+                var zone = document.getElementById('satzbau-zone-' + i);
+                zone.innerHTML = '';
+                for (var j = 0; j < satzbauData[i].parts.length; j++) {
+                    var word = document.createElement('div');
+                    word.className = 'satzbau-word';
+                    word.textContent = satzbauData[i].parts[j];
+                    zone.appendChild(word);
+                }
+            }
+            stopTimer(4);
+        }
+
+        function resetSatzbau() {
+            renderSatzbau();
+            resetTimer(4);
+        }
+
+        loadBestTimes();
+        renderLueckentext();
+        renderRF();
+        renderSatzbau();
+    </script>
 </body>
 </html>

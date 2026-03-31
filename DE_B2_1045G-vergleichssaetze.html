@@ -1,627 +1,693 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B2 · 1045G · Vergleichssätze</title>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  padding: 20px;
-}
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-  overflow: hidden;
-}
-.header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  padding: 24px 32px;
-}
-.header h1 { font-size: 1.6rem; font-weight: 700; }
-.header p { opacity: 0.85; margin-top: 4px; font-size: 0.95rem; }
-.nav {
-  display: flex;
-  border-bottom: 2px solid #e0e0e0;
-  background: #f8f8f8;
-}
-.nav-btn{
-  flex: 1;
-  background: none;
-  padding: 12px 8px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.78rem;
-  color: #555;
-  border-bottom: 3px solid transparent;
-  transition: background 0.2s;
-}
-.nav-btn:hover { background: #efefef; }
-.nav-btn.active { background: #fff; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
-.nav-emoji { font-size: 1.3rem; }
-.tab { display: none; padding: 28px 32px; }
-.tab.active { display: block; }
-/* Control bar */
-.control-bar {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 20px; flex-wrap: wrap;
-}
-.control-bar .buttons { display: flex; gap: 8px; }
-.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
-.btn-reset { background: #667eea; color: #fff; }
-.btn-reset:hover { background: #5a6fd6; }
-.timer-wrap { margin-left: auto; background: #f0f0f0; border-radius: 8px; padding: 6px 14px; font-size: 0.9rem; color: #444; font-family: monospace; }
-.score-bar { display: flex; align-items: center; gap: 12px; padding: 0 0 14px; font-size: 0.92rem; color: #555; }
-.score-val { font-weight: 700; font-size: 1.1rem; color: #667eea; }
-/* === GRAMMATIK TAB === */
-.gram-section { margin-bottom: 22px; }
-.gram-section h3 { font-size: 1rem; color: #667eea; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 2px solid #e8ecff; }
-.rule-box {
-  background: #f0f4ff;
-  border-left: 4px solid #667eea;
-  border-radius: 8px;
-  padding: 14px 18px;
-  margin-bottom: 12px;
-  font-size: 0.93rem;
-  line-height: 1.7;
-  color: #333;
-}
-.rule-box.purple { background: #f9f0ff; border-left-color: #764ba2; }
-.rule-box strong { color: #667eea; }
-.rule-box.purple strong { color: #764ba2; }
-.gram-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 14px; }
-.gram-table th { background: #667eea; color: #fff; padding: 8px 12px; text-align: left; }
-.gram-table td { padding: 8px 12px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
-.gram-table tr:nth-child(even) td { background: #f8f9ff; }
-.gram-table .sit { color: #555; }
-.gram-table .irr { color: #764ba2; font-weight: 600; }
-.gram-table .conn { display: inline-block; background: #667eea; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 0.82rem; margin-right: 4px; }
-.gram-table .conn.purp { background: #764ba2; }
-.kii-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 8px; }
-.kii-card { background: #f8f9ff; border: 1px solid #e0e4ff; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; }
-.kii-card h4 { color: #667eea; margin-bottom: 6px; font-size: 0.88rem; }
-.kii-card p { line-height: 1.8; }
-/* === ZUORDNUNG TAB === */
-.zuord-list { list-style: none; counter-reset: item; }
-.zuord-item {
-  counter-increment: item;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-.zuord-item:last-child { border-bottom: none; }
-.zuord-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.zuord-row::before { content: counter(item) "."; color: #667eea; font-weight: 700; min-width: 22px; font-size: 0.95rem; }
-.zuord-sentence { font-size: 0.95rem; color: #333; flex: 1; min-width: 240px; }
-.zuord-hint { font-size: 0.8rem; color: #999; font-style: italic; }
-.zuord-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-.zb {
-  padding: 5px 12px;
-  border: 2px solid #ccc;
-  background: #fff;
-  border-radius: 16px;
-  cursor: pointer;
-  font-size: 0.83rem;
-  font-weight: 600;
-  color: #555;
-  transition: all 0.15s;
-}
-.zb:hover:not(:disabled) { border-color: #667eea; color: #667eea; }
-.zb.ok { background: #43a047; border-color: #43a047; color: #fff; }
-.zb.err { background: #e53935; border-color: #e53935; color: #fff; }
-.zb:disabled { cursor: default; opacity: 0.7; }
-.zuord-fb { font-size: 0.82rem; font-weight: 600; margin-top: 4px; }
-.zuord-fb.ok { color: #43a047; }
-.zuord-fb.err { color: #e53935; }
-/* === LÜCKENTEXT === */
-.luecke-list { list-style: none; counter-reset: item; }
-.luecke-list li {
-  counter-increment: item;
-  display: flex; align-items: baseline; flex-wrap: wrap;
-  gap: 6px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; line-height: 1.8;
-}
-.luecke-list li::before { content: counter(item) "."; color: #667eea; font-weight: 700; min-width: 22px; }
-.luecke-inp {
-  border: none; border-bottom: 2px solid #ccc; outline: none;
-  font-size: 0.93rem; padding: 2px 6px; width: 120px;
-  background: transparent; transition: border-color 0.2s;
-}
-.luecke-inp:focus { border-color: #667eea; }
-.luecke-inp.ok { border-color: #43a047; background: #e8f5e9; }
-.luecke-inp.err { border-color: #e53935; background: #ffebee; }
-.luecke-hint { font-size: 0.78rem; color: #888; font-style: italic; }
-/* === SATZBAU === */
-.sb-section { margin-bottom: 24px; }
-.sb-chips-src { display: flex; flex-wrap: wrap; gap: 6px; min-height: 38px; padding: 6px; background: #f5f5f5; border-radius: 6px; border: 1px dashed #ccc; margin-bottom: 8px; }
-.sb-drop-zone { min-height: 44px; border: 2px dashed #667eea; border-radius: 8px; padding: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: #f8f9ff; margin-bottom: 6px; }
-.sb-drop-zone.drag-over { background: #e8eaff; }
-.chip-sb { background: #667eea; color: #fff; border-radius: 16px; padding: 5px 12px; font-size: 0.85rem; cursor: grab; user-select: none; }
-.chip-sb.punct { background: #764ba2; }
-.chip-sb.conn { background: #43a047; }
-.chip-sb:active { cursor: grabbing; }
-.sb-fb { font-size: 0.85rem; min-height: 18px; font-weight: 600; }
-.sb-fb.ok { color: #43a047; }
-.sb-fb.err { color: #e53935; }
-.footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; border-top: 1px solid #f0f0f0; }
-
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vergleichssätze – Konjunktiv II | Deutsch B2</title>
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header .subtitle, .header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 0; margin-bottom: 0; display: block; }
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { border-color: #667eea; color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* Grammar Tab Styles */
+.rule-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 20px; font-size: 0.95em; color: #333; line-height: 1.7; }
+.rule-box strong { color: #667eea; font-weight: 700; }
+.gram-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.95em; }
+.gram-table th { background: #f8f9fa; border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: 700; color: #333; }
+.gram-table td { border: 1px solid #ddd; padding: 10px; }
+.gram-table tr:nth-child(even) { background: #fafbfc; }
+.gram-table code { background: #f0f4ff; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+
+/* Zuordnung Styles */
+.zuord-container { display: flex; flex-direction: column; gap: 16px; }
+.zuord-item { padding: 14px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea; }
+.zuord-text { font-size: 0.95em; margin-bottom: 12px; color: #333; line-height: 1.6; }
+.zuord-text .blank { background: #fff; border-bottom: 2px solid #667eea; min-width: 60px; display: inline-block; text-align: center; font-weight: 600; color: #667eea; }
+.zuord-hint { display: inline-block; font-size: 0.8em; color: #999; font-style: italic; margin-left: 8px; }
+.zuord-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.zuord-btn { padding: 6px 12px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; color: #666; transition: all 0.15s; }
+.zuord-btn:hover { border-color: #667eea; color: #667eea; }
+.zuord-btn.selected { background: #667eea; color: white; border-color: #667eea; }
+.zuord-btn.correct { background: #10b981; color: white; border-color: #10b981; }
+.zuord-btn.wrong { background: #ef4444; color: white; border-color: #ef4444; }
+
+/* Lückentext Styles */
+.luecken-container { display: flex; flex-direction: column; gap: 18px; }
+.luecke-sentence { font-size: 0.95em; line-height: 1.8; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea; }
+.luecke-sentence span { margin-right: 4px; }
+.luecke-inp { background: white; border: none; border-bottom: 2px solid #ddd; padding: 4px 8px; min-width: 80px; font-size: 0.95em; font-weight: 600; text-align: center; transition: all 0.15s; }
+.luecke-inp:focus { outline: none; border-bottom-color: #667eea; }
+.luecke-inp.correct { border-bottom-color: #10b981; color: #10b981; }
+.luecke-inp.wrong { border-bottom-color: #ef4444; color: #ef4444; }
+.luecke-hint { font-size: 0.8em; color: #999; font-style: italic; margin-left: 12px; }
+
+/* Satzbau Styles */
+.sentence-builder { display: flex; flex-direction: column; gap: 20px; }
+.sb-item { padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea; }
+.sb-words { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; min-height: 50px; }
+.chip { background: white; border: 2px solid #667eea; border-radius: 20px; padding: 8px 16px; font-size: 0.9em; font-weight: 500; color: #667eea; cursor: grab; user-select: none; transition: all 0.15s; }
+.chip:hover { background: #f0f4ff; }
+.chip.dragging { opacity: 0.5; }
+.chip.locked { background: #667eea; color: white; cursor: default; }
+.sb-drop-zone { min-height: 50px; border: 2px dashed #ddd; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: flex-start; align-content: flex-start; gap: 8px; background: #fafbfc; }
+.sb-drop-zone.dragover { background: #f0f4ff; border-color: #667eea; }
+.sb-drop-zone .chip { cursor: pointer; }
+.sb-feedback { font-size: 0.85em; font-weight: 600; margin-top: 8px; padding: 6px 10px; border-radius: 4px; }
+.sb-feedback.correct { background: #d1fae5; color: #047857; }
+.sb-feedback.wrong { background: #fee2e2; color: #b91c1c; }
+
+/* Responsive */
 @media (max-width: 600px) {
     body { padding: 8px; }
     .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
     .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
+    .control-bar { flex-direction: column; gap: 12px; }
+    .btn-row { width: 100%; }
+    .timer-display { width: 100%; justify-content: space-around; }
 }
-/* ──────────────────────────────────────────────────────────── */.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
-.chip.wrong   { background: #e74c3c !important; border-color: #e74c3c !important; color: white !important; }
-
-/* ── SATZBAU ─────────────────────────────────────────────── */
-.satzbau-item { margin-bottom: 28px; }
-.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
-.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
-.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
-.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
-.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
-.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
-.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
-.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
-.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
-.satzbau-feedback.correct { color: #27ae60; }
-.satzbau-feedback.incorrect { color: #e74c3c; }</style>
+    </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1>Vergleichssätze</h1>
-    <p>B2 · Einheit 4 · Grammatik · 1045G</p>
-  </div>
-  <div class="nav">
-    <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Grammatik</span></div>
-    <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">🎯</span><span class="nav-label">Zuordnung</span></div>
-    <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
-    <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></div>
-  </div>
-
-  <!-- TAB 0: GRAMMATIK -->
-  <div class="section active" id="sec-0">
-    <div class="gram-section">
-      <h3>Was sind irreale Vergleichssätze?</h3>
-      <div class="rule-box">
-        In irrealen Vergleichssätzen wird eine <strong>Situation</strong> mit einem <strong>irrealen Sachverhalt</strong> verglichen — also mit etwas, das nie wirklich existiert hat. Die Konnektoren sind <strong>als ob</strong>, <strong>als wenn</strong> oder <strong>als</strong>. Die Verben im irrealen Vergleichssatz stehen immer im <strong>Konjunktiv II</strong>.
-      </div>
-      <div class="rule-box" style="background:#fff8e1;border-left-color:#f9a825;">
-        <strong style="color:#f9a825;">Beispiel:</strong> Bei vielen Frauen hat man den Eindruck, <em>als ob sie 10 Arme hätten</em>.
-      </div>
+    <div class="header">
+        <h1>Vergleichssätze</h1>
+        <p class="subtitle">Konjunktiv II – als ob, als wenn, als</p>
+        <div class="big-emoji">🔤</div>
     </div>
 
-    <div class="gram-section">
-      <h3>Struktur: als ob / als wenn → Nebensatz</h3>
-      <div class="rule-box">
-        Mit <strong>als ob</strong> und <strong>als wenn</strong> wird ein <strong>Nebensatz</strong> eingeleitet. Das konjugierte Verb steht am <strong>Ende</strong>. <em>Als wenn</em> wird eher in der gesprochenen Sprache verwendet.
-      </div>
-      <table class="gram-table">
-        <tr><th>Situation</th><th>Irrealer Vergleich (Konjunktiv II)</th></tr>
-        <tr><td class="sit">Ich empfinde soviel Glück,</td><td class="irr"><span class="conn">als ob</span> ich selbst die Geburt meines Kindes erlebt <strong>hätte</strong>.</td></tr>
-        <tr><td class="sit">Thomas sieht aus,</td><td class="irr"><span class="conn">als wenn</span> er drei Tage nicht geschlafen <strong>hätte</strong>.</td></tr>
-        <tr><td class="sit">Laura fühlt sich,</td><td class="irr"><span class="conn">als ob</span> keiner sie verstehen <strong>würde</strong>.</td></tr>
-        <tr><td class="sit">Du benimmst dich,</td><td class="irr"><span class="conn">als wenn</span> Empathie ein Fremdwort für dich <strong>wäre</strong>.</td></tr>
-      </table>
-    </div>
-
-    <div class="gram-section">
-      <h3>Struktur: als → zwei Hauptsätze</h3>
-      <div class="rule-box purple">
-        Mit nur <strong>als</strong> werden <strong>zwei Hauptsätze</strong> verbunden. Das konjugierte Verb steht direkt nach <em>als</em> an <strong>Position 2</strong>.
-      </div>
-      <table class="gram-table">
-        <tr><th>Situation</th><th>Irrealer Vergleich (Konjunktiv II)</th></tr>
-        <tr><td class="sit">Er tut so,</td><td class="irr"><span class="conn purp">als</span> <strong>würde</strong> er an einer schlimmen Krankheit leiden.</td></tr>
-        <tr><td class="sit">Thomas sieht aus,</td><td class="irr"><span class="conn purp">als</span> <strong>hätte</strong> er drei Tage nicht geschlafen.</td></tr>
-        <tr><td class="sit">Ich habe nicht das Gefühl,</td><td class="irr"><span class="conn purp">als</span> <strong>würdest</strong> du mit mir mitfühlen.</td></tr>
-      </table>
-    </div>
-
-    <div class="gram-section">
-      <h3>Konjunktiv II – Schnellübersicht</h3>
-      <div class="kii-grid">
-        <div class="kii-card">
-          <h4>haben → hätte</h4>
-          <p>ich hätte<br>du hättest<br>er/sie/es hätte<br>wir hätten<br>ihr hättet<br>sie hätten</p>
+    <div class="nav">
+        <div class="nav-btn active" onclick="showSection(0)">
+            <span class="nav-emoji">📖</span>
+            <span class="nav-label">Grammatik</span>
         </div>
-        <div class="kii-card">
-          <h4>sein → wäre</h4>
-          <p>ich wäre<br>du wärst<br>er/sie/es wäre<br>wir wären<br>ihr wärt<br>sie wären</p>
+        <div class="nav-btn" onclick="showSection(1)">
+            <span class="nav-emoji">🎯</span>
+            <span class="nav-label">Zuordnung</span>
         </div>
-        <div class="kii-card">
-          <h4>würde + Infinitiv</h4>
-          <p>ich würde<br>du würdest<br>er/sie/es würde<br>wir würden<br>ihr würdet<br>sie würden</p>
+        <div class="nav-btn" onclick="showSection(2)">
+            <span class="nav-emoji">✏️</span>
+            <span class="nav-label">Lückentext</span>
         </div>
-      </div>
+        <div class="nav-btn" onclick="showSection(3)">
+            <span class="nav-emoji">🧩</span>
+            <span class="nav-label">Satzbau</span>
+        </div>
     </div>
-  </div>
 
-  <!-- TAB 1: ZUORDNUNG -->
-  <div class="section" id="sec-1">
+    <!-- TAB 0: GRAMMATIK -->
+    <div class="section active" id="sec-0">
+        <img class="tab-banner" src="https://images.pexels.com/photos/5311610/pexels-photo-5311610.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Grammatik">
+        <div style="padding: 28px 30px;">
+            <div class="hilfe-box">
+                <strong>Vergleichssätze mit Konjunktiv II</strong><br>
+                Vergleichssätze drücken aus, dass etwas nicht real ist – es ist nur ein Vergleich zu einer imaginären Situation. Sie verwenden typischerweise <strong>als ob</strong>, <strong>als wenn</strong> oder <strong>als</strong> mit Konjunktiv II.
+            </div>
+
+            <div class="rule-box">
+                <strong>1. „als ob" / „als wenn" + Konjunktiv II</strong><br>
+                Diese Ausdrücke leiten einen Nebensatz ein. Das Verb steht am Ende des Nebensatzes.<br>
+                <strong>Beispiel:</strong> „Er tut so, <strong>als ob er krank wäre.</strong>"<br>
+                „Sie benimmt sich, <strong>als wenn sie die Chefin des Unternehmens wäre.</strong>"
+            </div>
+
+            <div class="rule-box">
+                <strong>2. „als" + Konjunktiv II</strong><br>
+                Dies ist eine verkürzte Form. Das Verb steht an Position 2 (wie in einem Hauptsatz).<br>
+                <strong>Beispiel:</strong> „Thomas sieht aus, <strong>als hätte er drei Tage nicht geschlafen.</strong>"<br>
+                „Ich habe nicht das Gefühl, <strong>als würdest du mit mir mitfühlen.</strong>"
+            </div>
+
+            <table class="gram-table">
+                <thead>
+                    <tr>
+                        <th>Situation</th>
+                        <th>Irrealer Vergleich</th>
+                        <th>Form</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Jemand tut so, als würde er nicht zuhören.</td>
+                        <td>Es ist nicht real – er hört zu.</td>
+                        <td>als ob/als when + Konjunktiv II</td>
+                    </tr>
+                    <tr>
+                        <td>Das Wetter ist so heiß, als ob es Juli wäre.</td>
+                        <td>Es ist nicht Juli, aber die Hitze ist ähnlich.</td>
+                        <td>als ob + Konjunktiv II</td>
+                    </tr>
+                    <tr>
+                        <td>Sie spricht, als hätte sie jahrzehntelang Deutsch gelernt.</td>
+                        <td>Sie hat nicht jahrzehntelang gelernt, aber ihr Deutsch ist sehr gut.</td>
+                        <td>als + Konjunktiv II (Verb an Position 2)</td>
+                    </tr>
+                    <tr>
+                        <td>Er benimmt sich, als when er der Anführer der Gruppe wäre.</td>
+                        <td>Er ist nicht der Anführer, aber er tut so.</td>
+                        <td>als when + Konjunktiv II (Verb am Ende)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="rule-box">
+                <strong>Konjunktiv II Schnellübersicht</strong><br>
+                <strong>haben:</strong> ich hätte, du hättest, er/sie/es hätte, wir hätten, ihr hättet, sie hätten<br>
+                <strong>sein:</strong> ich wäre, du wärest, er/sie/es wäre, wir wären, ihr wäret, sie wären<br>
+                <strong>würde + Infinitiv:</strong> ich würde sprechen, du würdest machen, er/sie/es würde gehen, …
+            </div>
+        </div>
     </div>
-    <p style="font-size:0.9rem;color:#555;margin-bottom:16px;">Wähle den richtigen Konnektor: <strong>als ob / als wenn</strong> (→ Verb am Ende) oder <strong>als</strong> (→ Verb an Position 2).</p>
-    <div class="score-bar">Richtig: <span class="score-val" id="zuord-score">0</span> / 8</div>
-    <ul class="zuord-list" id="zuord-list"></ul>
-  </div>
 
-  <!-- TAB 2: LÜCKENTEXT -->
-  <div class="section" id="sec-2">
+    <!-- TAB 1: ZUORDNUNG -->
+    <div class="section" id="sec-1">
+        <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Zuordnung">
+        <div style="padding: 28px 30px;">
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn btn-show" onclick="showLoesung_1()">Lösungen</button>
+                    <button class="btn btn-reset" onclick="reset_1(); timerResetOne(1);">Neu starten</button>
+                </div>
+                <div class="timer-display">
+                    <span class="current-time">⏱ <span id="timer-1">00:00</span></span>
+                    <span class="best-time">🏆 <span id="best-1">--:--</span></span>
+                </div>
+            </div>
+
+            <div id="zuordnungContainer" class="zuord-container"></div>
+        </div>
     </div>
-    <p style="font-size:0.9rem;color:#555;margin-bottom:16px;">Setze die richtige Konjunktiv-II-Form ein. <em>(Hinweis in Klammern)</em></p>
-    <div class="score-bar">Richtig: <span class="score-val" id="luecke-score">0</span> / 12</div>
-    <ul class="luecke-list" id="luecke-list">
-      <li>Er tut so, als ob er krank <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
-      <li>Thomas sieht aus, als <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> er drei Tage nicht geschlafen. <span class="luecke-hint">(haben)</span></li>
-      <li>Laura fühlt sich, als ob keiner sie verstehen <input class="luecke-inp" data-answer="würde" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(würde + Inf.)</span></li>
-      <li>Du benimmst dich, als wenn Empathie ein Fremdwort <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
-      <li>Ich empfinde soviel Glück, als ob ich selbst die Geburt erlebt <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
-      <li>Ihr rennt, als ob ihr einen Geist gesehen <input class="luecke-inp" data-answer="hättet" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben – ihr)</span></li>
-      <li>Ich habe nicht das Gefühl, als <input class="luecke-inp" data-answer="würdest" oninput="liveCheck(this)" placeholder=""> du mit mir mitfühlen. <span class="luecke-hint">(würde + Inf. – du)</span></li>
-      <li>Mir ist so zumute, als ob ich drei Bier getrunken <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
-      <li>Bastian macht den Eindruck, als wenn er kein Interesse <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
-      <li>Es klingt, als ob es sehr kompliziert <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
-      <li>Meine Freundin tut so, als ob sie ihr Geld vergessen <input class="luecke-inp" data-answer="hätte" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(haben)</span></li>
-      <li>Es ist so heiß, als ob Juli <input class="luecke-inp" data-answer="wäre" oninput="liveCheck(this)" placeholder=""> . <span class="luecke-hint">(sein)</span></li>
-    </ul>
-  </div>
 
-  <!-- TAB 3: SATZBAU -->
-  <div class="section" id="sec-3">
+    <!-- TAB 2: LÜCKENTEXT -->
+    <div class="section" id="sec-2">
+        <img class="tab-banner" src="https://images.pexels.com/photos/4145190/pexels-photo-4145190.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lückentext">
+        <div style="padding: 28px 30px;">
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn btn-show" onclick="showLoesung_2()">Lösungen</button>
+                    <button class="btn btn-reset" onclick="reset_2(); timerResetOne(2);">Neu starten</button>
+                </div>
+                <div class="timer-display">
+                    <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+                    <span class="best-time">🏆 <span id="best-2">--:--</span></span>
+                </div>
+            </div>
+
+            <div id="lueckenContainer" class="luecken-container"></div>
+        </div>
     </div>
-    <div id="satzbauContainer"></div>
-  </div>
 
-  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+    <!-- TAB 3: SATZBAU -->
+    <div class="section" id="sec-3">
+        <img class="tab-banner" src="https://images.pexels.com/photos/1111304/pexels-photo-1111304.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau">
+        <div style="padding: 28px 30px;">
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn btn-show" onclick="showLoesung_3()">Lösungen</button>
+                    <button class="btn btn-reset" onclick="reset_3(); timerResetOne(3);">Neu starten</button>
+                </div>
+                <div class="timer-display">
+                    <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+                    <span class="best-time">🏆 <span id="best-3">--:--</span></span>
+                </div>
+            </div>
+
+            <div id="satzbauContainer" class="sentence-builder"></div>
+        </div>
+    </div>
+
+    <div class="author-footer">
+        Erstellt mit <span class="author-name">DaF-Dateien Generator</span> | Lizenz: CC BY-SA 4.0
+    </div>
 </div>
 
 <script>
-// === TIMER ===
-var TIMER_PREFIX='B2_1045G_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [1,2,3].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
+/* Timer Configuration */
+var TIMER_PREFIX = 'b2_1045g_';
+var timerStarted = [false, false, false, false, false];
+var timerRunning = [false, false, false, false, false];
+var timerSeconds = [0, 0, 0, 0, 0];
+var timerIntervals = [null, null, null, null, null];
+var bestTimes = [null, null, null, null, null];
 
-// === TAB NAVIGATION ===
-function showSection(n){
-  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  [1,2,3].forEach(function(i){ timerStop(i); });
-}
-
-// === ZUORDNUNG ===
-const zuordnungData = [
-  { text: 'Bei vielen Frauen hat man den Eindruck, ___ sie zehn Arme hätten.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
-  { text: 'Thomas sieht aus, ___ hätte er drei Tage nicht geschlafen.', hint: '(Verb an Position 2)', correct: ['als'] },
-  { text: 'Laura fühlt sich, ___ keiner sie verstehen würde.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
-  { text: 'Du benimmst dich, ___ Empathie ein Fremdwort wäre.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
-  { text: 'Ich habe nicht das Gefühl, ___ würdest du mit mir mitfühlen.', hint: '(Verb an Position 2)', correct: ['als'] },
-  { text: 'Er tut so, ___ er an einer Krankheit leiden würde.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] },
-  { text: 'Ich habe das Gefühl, ___ wären unsere Unterschiede kein Problem.', hint: '(Verb an Position 2)', correct: ['als'] },
-  { text: 'Du klingst, ___ du in einer Menschenmenge stehen würdest.', hint: '(Verb am Ende)', correct: ['als ob','als wenn'] }
+/* Zuordnung Data */
+var zuordnungData = [
+    { text: 'Bei vielen Frauen hat man den Eindruck, ___ sie zehn Arme hätten.', hint: '(Verb am Ende)', correct: ['als ob','als when'] },
+    { text: 'Thomas sieht aus, ___ hätte er drei Tage nicht geschlafen.', hint: '(Verb an Position 2)', correct: ['als'] },
+    { text: 'Laura fühlt sich, ___ keiner sie verstehen würde.', hint: '(Verb am Ende)', correct: ['als ob','als when'] },
+    { text: 'Du benimmst dich, ___ Empathie ein Fremdwort wäre.', hint: '(Verb am Ende)', correct: ['als ob','als when'] },
+    { text: 'Ich habe nicht das Gefühl, ___ würdest du mit mir mitfühlen.', hint: '(Verb an Position 2)', correct: ['als'] },
+    { text: 'Er tut so, ___ er an einer Krankheit leiden würde.', hint: '(Verb am Ende)', correct: ['als ob','als when'] },
+    { text: 'Ich habe das Gefühl, ___ wären unsere Unterschiede kein Problem.', hint: '(Verb an Position 2)', correct: ['als'] },
+    { text: 'Du klingst, ___ du in einer Menschenmenge stehen würdest.', hint: '(Verb am Ende)', correct: ['als ob','als when'] }
 ];
-let zuordScore = 0;
-function buildZuordnung() {
-  const ul = document.getElementById('zuord-list');
-  ul.innerHTML = '';
-  zuordnungData.forEach((item, idx) => {
-    const li = document.createElement('li');
-    li.className = 'zuord-item';
-    li.dataset.idx = idx;
-    li.innerHTML = `<div class="zuord-row">
-      <span class="zuord-sentence">${item.text.replace('___', '<span style="color:#667eea;font-weight:700;">___</span>')}</span>
-    </div>
-    <div class="zuord-hint">${item.hint}</div>
-    <div class="zuord-btns" id="zbg-${idx}">
-      <button class="zb" onclick="checkZuord(${idx},'als ob')">als ob</button>
-      <button class="zb" onclick="checkZuord(${idx},'als wenn')">als wenn</button>
-      <button class="zb" onclick="checkZuord(${idx},'als')">als</button>
-    </div>
-    <div class="zuord-fb" id="zfb-${idx}"></div>`;
-    ul.appendChild(li);
-  });
-}
-function checkZuord(idx, choice) {
-  const item = zuordnungData[idx];
-  const fbEl = document.getElementById('zfb-' + idx);
-  const btnGroup = document.getElementById('zbg-' + idx);
-  if (btnGroup.dataset.done) return;
-  btnGroup.dataset.done = '1';
-  const correct = item.correct.includes(choice);
-  [...btnGroup.querySelectorAll('.zb')].forEach(b => {
-    b.disabled = true;
-    if (b.textContent === choice) b.className = 'zb ' + (correct ? 'ok' : 'err');
-    if (!correct && item.correct.includes(b.textContent)) b.className = 'zb ok';
-  });
-  fbEl.textContent = correct ? '✓ Richtig!' : '✗ Falsch — korrekt: ' + item.correct.join(' oder ');
-  fbEl.className = 'zuord-fb ' + (correct ? 'ok' : 'err');
-  if (correct) zuordScore++;
-  document.getElementById('zuord-score').textContent = zuordScore;
-  const allDone = [...document.querySelectorAll('.zuord-btns[data-done]')].length === zuordnungData.length;
-  if (allDone) timerStop(1);
-}
-function resetZuordnung() {
-  zuordScore = 0;
-  buildZuordnung();
-  document.getElementById('zuord-score').textContent = '0';
-  timerResetOne(1);
-}
 
-// === LÜCKENTEXT ===
-function liveCheck(inp) {
-  const ans = inp.dataset.answer.toLowerCase().trim();
-  const val = inp.value.toLowerCase().trim();
-  if (val === '') { inp.className = 'luecke-inp'; updateLueckeScore(); return; }
-  if (ans.startsWith(val)) {
-    inp.className = val === ans ? 'luecke-inp ok' : 'luecke-inp';
-  } else {
-    inp.className = 'luecke-inp err';
-  }
-  updateLueckeScore();
-}
-function updateLueckeScore() {
-  const all = document.querySelectorAll('#luecke-list .luecke-inp');
-  let c = 0; all.forEach(i => { if (i.classList.contains('ok')) c++; });
-  document.getElementById('luecke-score').textContent = c;
-  if (c === 12) timerStop(2);
-}
-function resetLuecke() {
-  document.querySelectorAll('#luecke-list .luecke-inp').forEach(i => { i.value = ''; i.className = 'luecke-inp'; });
-  document.getElementById('luecke-score').textContent = '0';
-  timerResetOne(2);
-}
+/* Lückentext Data */
+var LUECKEN = [
+    { segs:[{t:'Er tut so, als ob er krank '},{b:'wäre'},{t:'.'}], hint:'sein' },
+    { segs:[{t:'Thomas sieht aus, als '},{b:'hätte'},{t:' er drei Tage nicht geschlafen.'}], hint:'haben' },
+    { segs:[{t:'Laura fühlt sich, als ob keiner sie verstehen '},{b:'würde'},{t:'.'}], hint:'würde + Inf.' },
+    { segs:[{t:'Du benimmst dich, als when Empathie ein Fremdwort '},{b:'wäre'},{t:'.'}], hint:'sein' },
+    { segs:[{t:'Ich empfinde soviel Glück, als ob ich selbst die Geburt erlebt '},{b:'hätte'},{t:'.'}], hint:'haben' },
+    { segs:[{t:'Ihr rennt, als ob ihr einen Geist gesehen '},{b:'hättet'},{t:'.'}], hint:'haben – ihr' },
+    { segs:[{t:'Ich habe nicht das Gefühl, als '},{b:'würdest'},{t:' du mit mir mitfühlen.'}], hint:'würde + Inf. – du' },
+    { segs:[{t:'Mir ist so zumute, als ob ich drei Bier getrunken '},{b:'hätte'},{t:'.'}], hint:'haben' },
+    { segs:[{t:'Bastian macht den Eindruck, als when er kein Interesse '},{b:'hätte'},{t:'.'}], hint:'haben' },
+    { segs:[{t:'Es klingt, als ob es sehr kompliziert '},{b:'wäre'},{t:'.'}], hint:'sein' },
+    { segs:[{t:'Meine Freundin tut so, als ob sie ihr Geld vergessen '},{b:'hätte'},{t:'.'}], hint:'haben' },
+    { segs:[{t:'Es ist so heiß, als ob Juli '},{b:'wäre'},{t:'.'}], hint:'sein' }
+];
 
-/* ── SATZBAU ── */
+/* Satzbau Data */
 var satzbauData = [
-  { parts: ['er', 'spricht', 'Deutsch', ',', 'als', 'ob', 'es', 'seine', 'Muttersprache', 'wäre'],
-    valid: [['er', 'spricht', 'Deutsch', ',', 'als', 'ob', 'es', 'seine', 'Muttersprache', 'wäre']], punct: '.' },
-  { parts: ['sie', 'handelt', 'so', ',', 'als', 'wäre', 'sie', 'die', 'Leiterin', 'des', 'Projekts'],
-    valid: [['sie', 'handelt', 'so', ',', 'als', 'wäre', 'sie', 'die', 'Leiterin', 'des', 'Projekts']], punct: '.' },
-  { parts: ['je', 'mehr', 'man', 'übt', ',', 'desto', 'besser', 'wird', 'man'],
-    valid: [['je', 'mehr', 'man', 'übt', ',', 'desto', 'besser', 'wird', 'man']], punct: '.' },
-  { parts: ['er', 'ist', 'größer', ',', 'als', 'ich', 'gedacht', 'hatte'],
-    valid: [['er', 'ist', 'größer', ',', 'als', 'ich', 'gedacht', 'hatte']], punct: '.' },
-  { parts: ['die', 'Prüfung', 'war', 'leichter', ',', 'als', 'wir', 'erwartet', 'hatten'],
-    valid: [['die', 'Prüfung', 'war', 'leichter', ',', 'als', 'wir', 'erwartet', 'hatten']], punct: '.' },
-  { parts: ['sie', 'sieht', 'jünger', 'aus', ',', 'als', 'sie', 'ist'],
-    valid: [['sie', 'sieht', 'jünger', 'aus', ',', 'als', 'sie', 'ist']], punct: '.' },
-  { parts: ['obwohl', 'er', 'langsam', 'arbeitet', ',', 'macht', 'er', 'kaum', 'Fehler'],
-    valid: [['obwohl', 'er', 'langsam', 'arbeitet', ',', 'macht', 'er', 'kaum', 'Fehler']], punct: '.' },
+    { parts:['er','spricht','Deutsch',',','als','ob','es','seine','Muttersprache','wäre'], valid:[['er','spricht','Deutsch',',','als','ob','es','seine','Muttersprache','wäre']], punct:'.' },
+    { parts:['sie','handelt','so',',','als','wäre','sie','die','Leiterin','des','Projekts'], valid:[['sie','handelt','so',',','als','wäre','sie','die','Leiterin','des','Projekts']], punct:'.' },
+    { parts:['je','mehr','man','übt',',','desto','besser','wird','man'], valid:[['je','mehr','man','übt',',','desto','besser','wird','man']], punct:'.' },
+    { parts:['er','ist','größer',',','als','ich','gedacht','hatte'], valid:[['er','ist','größer',',','als','ich','gedacht','hatte']], punct:'.' },
+    { parts:['die','Prüfung','war','leichter',',','als','wir','erwartet','hatten'], valid:[['die','Prüfung','war','leichter',',','als','wir','erwartet','hatten']], punct:'.' },
+    { parts:['sie','sieht','jünger','aus',',','als','sie','ist'], valid:[['sie','sieht','jünger','aus',',','als','sie','ist']], punct:'.' },
+    { parts:['obwohl','er','langsam','arbeitet',',','macht','er','kaum','Fehler'], valid:[['obwohl','er','langsam','arbeitet',',','macht','er','kaum','Fehler']], punct:'.' }
 ];
-var sbDragged = null;
-function getSbCursor(){
-  var c=document.getElementById('sb-insert-cursor');
-  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
-  return c;
-}
-function getSbInsertPos(zone,clientX){
-  var chips=Array.from(zone.querySelectorAll('.chip'));
-  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
-  return null;
-}
-function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
-function sbUpdateCapitalization(row){
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
-    var orig=c.dataset.orig;
-    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
-    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
-  });
-}
-function sbMakeChip(word){
-  var chip=document.createElement('div');
-  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
-  chip.addEventListener('dragstart',function(e){
-    sbDragged=chip; timerAutoStart(3);
-    e.dataTransfer.setData('text/plain','');
-    setTimeout(function(){ chip.style.opacity='0.4'; },0);
-  });
-  chip.addEventListener('dragend',function(){
-    chip.style.opacity=''; sbDragged=null;
-    var c=document.getElementById('sb-insert-cursor');
-    if(c&&c.parentNode) c.parentNode.removeChild(c);
-  });
-  return chip;
-}
-function sbRegisterZone(zone,idx){
-  zone.addEventListener('dragover',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=getSbCursor();
-    var before=getSbInsertPos(zone,e.clientX);
-    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
-  });
-  zone.addEventListener('dragleave',function(e){
-    if(!zone.contains(e.relatedTarget)){
-      var c=document.getElementById('sb-insert-cursor');
-      if(c&&c.parentNode===zone) zone.removeChild(c);
+
+/* ===== NAVIGATION ===== */
+function showSection(idx) {
+    var sections = document.querySelectorAll('.section');
+    var navBtns = document.querySelectorAll('.nav-btn');
+    for (var i = 0; i < sections.length; i++) {
+        sections[i].classList.remove('active');
+        navBtns[i].classList.remove('active');
+        if (i === idx) {
+            sections[i].classList.add('active');
+            navBtns[i].classList.add('active');
+        }
     }
-  });
-  zone.addEventListener('drop',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=document.getElementById('sb-insert-cursor');
-    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
-    else zone.appendChild(sbDragged);
-    sbDragged=null;
-    var row=document.getElementById('sb-row-'+idx);
-    sbUpdateCapitalization(row); sbCheckAuto(idx);
-  });
+    if (idx === 1) buildZuordnung();
+    if (idx === 2) buildLuecken();
+    if (idx === 3) buildSatzbau();
 }
-function sbColorRow(idx){
-  var row=document.getElementById('sb-row-'+idx);
-  var chips=Array.from(row.querySelectorAll('.chip'));
-  var order=chips.map(function(c){ return c.dataset.orig; });
-  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
-  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
-  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
-  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
-  return ok;
-}
-function sbCheckAuto(idx){
-  var bank=document.getElementById('sb-bank-'+idx);
-  var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  if(bank.querySelectorAll('.chip').length>0){
-    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
-    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
-  }
-  setTimeout(function(){
-    var ok=sbColorRow(idx);
-    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
-    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
-  },500);
-}
-function sbCheckAllDone(){
-  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
-  if(allOk) timerStop(3);
-}
-function sbShowSolution(idx){
-  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx); var solution=satzbauData[idx].valid[0];
-  var allChips={};
-  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
-  fb.textContent=''; setTimeout(function(){ sbCheckAuto(idx); },100);
-}
-function sbResetOne(idx){
-  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
-  var parts=satzbauData[idx].parts.slice();
-  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-}
-function initSatzbau(){
-  var container=document.getElementById('satzbauContainer');
-  if(!container) return;
-  container.innerHTML='';
-  satzbauData.forEach(function(ex,idx){
-    var item=document.createElement('div'); item.className='satzbau-item';
-    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
-    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
-    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
-    var parts=ex.parts.slice();
-    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
-    bank.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      timerAutoStart(3); row.appendChild(chip); chip.classList.remove('correct','incorrect');
-      sbUpdateCapitalization(row); sbCheckAuto(idx);
-    });
-    row.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
-      chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
-    });
-    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
-    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
-    solveBtn.setAttribute('data-idx',idx);
-    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
-    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
-    resetBtn.setAttribute('data-idx',idx);
-    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
-    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
-    container.appendChild(item);
-  });
-}
-initSatzbau();
 
+/* ===== TIMER FUNCTIONS ===== */
+function loadBestTimes() {
+    for (var i = 1; i <= 3; i++) {
+        var best = localStorage.getItem(TIMER_PREFIX + 'best_' + i);
+        if (best) {
+            bestTimes[i] = parseInt(best);
+            var display = document.getElementById('best-' + i);
+            if (display) display.textContent = formatTime(parseInt(best));
+        }
+    }
+}
 
-// === INIT ===
-buildZuordnung();
-buildSb();
+function timerAutoStart(idx) {
+    if (!timerStarted[idx]) {
+        timerStarted[idx] = true;
+        timerStart(idx);
+    }
+}
+
+function timerStart(idx) {
+    if (timerRunning[idx]) return;
+    timerRunning[idx] = true;
+    timerIntervals[idx] = setInterval(function() {
+        timerSeconds[idx]++;
+        var display = document.getElementById('timer-' + idx);
+        if (display) display.textContent = formatTime(timerSeconds[idx]);
+    }, 1000);
+}
+
+function timerStop(idx) {
+    if (!timerRunning[idx]) return;
+    timerRunning[idx] = false;
+    clearInterval(timerIntervals[idx]);
+    timerIntervals[idx] = null;
+    var elapsed = timerSeconds[idx];
+    if (bestTimes[idx] === null || elapsed < bestTimes[idx]) {
+        bestTimes[idx] = elapsed;
+        localStorage.setItem(TIMER_PREFIX + 'best_' + idx, String(elapsed));
+        var display = document.getElementById('best-' + idx);
+        if (display) display.textContent = formatTime(elapsed);
+    }
+}
+
+function timerResetOne(idx) {
+    timerRunning[idx] = false;
+    if (timerIntervals[idx]) clearInterval(timerIntervals[idx]);
+    timerIntervals[idx] = null;
+    timerStarted[idx] = false;
+    timerSeconds[idx] = 0;
+    var display = document.getElementById('timer-' + idx);
+    if (display) display.textContent = '00:00';
+}
+
+function formatTime(seconds) {
+    var mins = Math.floor(seconds / 60);
+    var secs = seconds % 60;
+    return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+}
+
+/* ===== TAB 1: ZUORDNUNG ===== */
+function buildZuordnung() {
+    var container = document.getElementById('zuordnungContainer');
+    container.innerHTML = '';
+    zuordnungData.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'zuord-item';
+        div.dataset.idx = idx;
+
+        var textDiv = document.createElement('div');
+        textDiv.className = 'zuord-text';
+        textDiv.innerHTML = item.text.replace('___', '<span class="blank" id="blank-' + idx + '"></span>') + ' <span class="zuord-hint">' + item.hint + '</span>';
+
+        var buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'zuord-buttons';
+        var options = ['als ob', 'als when', 'als'];
+        options.forEach(function(opt) {
+            var btn = document.createElement('button');
+            btn.className = 'zuord-btn';
+            btn.textContent = opt;
+            btn.dataset.itemIdx = idx;
+            btn.data = item;
+            btn.onclick = function() {
+                timerAutoStart(1);
+                zuordnungSelect(this, idx, opt, item.correct);
+            };
+            buttonsDiv.appendChild(btn);
+        });
+
+        div.appendChild(textDiv);
+        div.appendChild(buttonsDiv);
+        container.appendChild(div);
+    });
+}
+
+function zuordnungSelect(btn, itemIdx, selected, correctAnswers) {
+    var item = btn.parentNode.parentNode;
+    var allBtns = item.querySelectorAll('.zuord-btn');
+    allBtns.forEach(function(b) { b.classList.remove('selected', 'correct', 'wrong'); });
+    btn.classList.add('selected');
+
+    var isCorrect = false;
+    for (var i = 0; i < correctAnswers.length; i++) {
+        if (selected === correctAnswers[i]) {
+            isCorrect = true;
+            break;
+        }
+    }
+
+    if (isCorrect) {
+        btn.classList.add('correct');
+        var blank = document.getElementById('blank-' + itemIdx);
+        if (blank) blank.textContent = selected;
+    } else {
+        btn.classList.add('wrong');
+    }
+
+    checkZuordnungDone();
+}
+
+function checkZuordnungDone() {
+    var items = document.querySelectorAll('.zuord-item');
+    var done = true;
+    for (var i = 0; i < items.length; i++) {
+        if (!items[i].querySelector('.zuord-btn.correct')) {
+            done = false;
+            break;
+        }
+    }
+    if (done) timerStop(1);
+}
+
+function showLoesung_1() {
+    var items = document.querySelectorAll('.zuord-item');
+    items.forEach(function(item, idx) {
+        var correctAnswers = zuordnungData[idx].correct;
+        var blank = item.querySelector('.blank');
+        if (blank && blank.textContent === '') {
+            blank.textContent = correctAnswers[0];
+            var btns = item.querySelectorAll('.zuord-btn');
+            btns.forEach(function(btn) {
+                if (correctAnswers.indexOf(btn.textContent) !== -1) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('wrong', 'selected');
+                }
+            });
+        }
+    });
+    timerStop(1);
+}
+
+function reset_1() {
+    var container = document.getElementById('zuordnungContainer');
+    container.innerHTML = '';
+    buildZuordnung();
+}
+
+/* ===== TAB 2: LÜCKENTEXT ===== */
+function buildLuecken() {
+    var container = document.getElementById('lueckenContainer');
+    container.innerHTML = '';
+    LUECKEN.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'luecke-sentence';
+        var html = '';
+        item.segs.forEach(function(seg) {
+            if (seg.t) html += '<span>' + seg.t + '</span>';
+            if (seg.b !== undefined) html += '<input class="luecke-inp" data-answer="' + seg.b + '" oninput="lueckeCheck(this); timerAutoStart(2);" placeholder="">';
+        });
+        if (item.hint) html += ' <span class="luecke-hint">(' + item.hint + ')</span>';
+        div.innerHTML = html;
+        container.appendChild(div);
+    });
+}
+
+function lueckeCheck(inp) {
+    var ans = inp.dataset.answer.toLowerCase().trim();
+    var val = inp.value.toLowerCase().trim();
+    inp.classList.remove('correct', 'wrong');
+    if (val === '') return;
+    if (val === ans) {
+        inp.classList.add('correct');
+        checkLueckenDone();
+    } else if (ans.indexOf(val) === 0) {
+        /* prefix match — wait for more input */
+    } else {
+        inp.classList.add('wrong');
+    }
+}
+
+function checkLueckenDone() {
+    var all = document.querySelectorAll('#lueckenContainer .luecke-inp');
+    var done = true;
+    for (var i = 0; i < all.length; i++) {
+        if (!all[i].classList.contains('correct')) {
+            done = false;
+            break;
+        }
+    }
+    if (done) timerStop(2);
+}
+
+function showLoesung_2() {
+    var inputs = document.querySelectorAll('#lueckenContainer .luecke-inp');
+    inputs.forEach(function(inp) {
+        inp.value = inp.dataset.answer;
+        inp.classList.remove('wrong');
+        inp.classList.add('correct');
+    });
+    timerStop(2);
+}
+
+function reset_2() {
+    var container = document.getElementById('lueckenContainer');
+    container.innerHTML = '';
+    buildLuecken();
+}
+
+/* ===== TAB 3: SATZBAU ===== */
+function buildSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    container.innerHTML = '';
+    satzbauData.forEach(function(item, sbIdx) {
+        var div = document.createElement('div');
+        div.className = 'sb-item';
+        div.dataset.sbIdx = sbIdx;
+
+        var wordsDiv = document.createElement('div');
+        wordsDiv.className = 'sb-words';
+        item.parts.forEach(function(word, idx) {
+            var chip = sbMakeChip(word, sbIdx, idx);
+            wordsDiv.appendChild(chip);
+        });
+
+        var dropDiv = document.createElement('div');
+        dropDiv.className = 'sb-drop-zone';
+        dropDiv.dataset.sbIdx = sbIdx;
+        dropDiv.ondragover = function(e) { e.preventDefault(); this.classList.add('dragover'); };
+        dropDiv.ondragleave = function() { this.classList.remove('dragover'); };
+        dropDiv.ondrop = function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            var chip = e.dataTransfer.getData('text/html');
+            if (chip) this.innerHTML += chip;
+        };
+
+        var feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'sb-feedback';
+        feedbackDiv.id = 'feedback-' + sbIdx;
+        feedbackDiv.style.display = 'none';
+
+        div.appendChild(wordsDiv);
+        div.appendChild(dropDiv);
+        div.appendChild(feedbackDiv);
+        container.appendChild(div);
+    });
+}
+
+function sbMakeChip(word, sbIdx, partIdx) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.dataset.sbIdx = String(sbIdx);
+    chip.dataset.partIdx = String(partIdx);
+    chip.draggable = true;
+
+    chip.ondragstart = function(e) {
+        if (String(this.dataset.sbIdx) !== String(sbIdx)) return;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', word);
+    };
+
+    chip.ondragend = function(e) {
+        if (String(this.dataset.sbIdx) !== String(sbIdx)) return;
+        this.classList.remove('dragging');
+        document.querySelectorAll('[data-sbIdx="' + sbIdx + '"].sb-drop-zone').forEach(function(z) { z.classList.remove('dragover'); });
+    };
+
+    chip.onclick = function() {
+        if (String(this.dataset.sbIdx) !== String(sbIdx)) return;
+        timerAutoStart(3);
+        var dropZone = this.parentNode.parentNode.querySelector('.sb-drop-zone');
+        if (dropZone && !this.classList.contains('locked')) {
+            var newChip = sbMakeChip(this.dataset.orig, sbIdx, this.dataset.partIdx);
+            newChip.classList.add('locked');
+            dropZone.appendChild(newChip);
+            newChip.onclick = function() {
+                if (String(this.dataset.sbIdx) !== String(sbIdx)) return;
+                this.remove();
+                sbCheckSentence(sbIdx);
+            };
+            sbCheckSentence(sbIdx);
+        }
+    };
+
+    return chip;
+}
+
+function sbCheckSentence(sbIdx) {
+    var item = satzbauData[sbIdx];
+    var dropZone = document.querySelector('[data-sbIdx="' + sbIdx + '"].sb-drop-zone');
+    var feedback = document.getElementById('feedback-' + sbIdx);
+    var chips = dropZone.querySelectorAll('.chip.locked');
+    var sequence = [];
+    for (var i = 0; i < chips.length; i++) {
+        sequence.push(chips[i].dataset.orig);
+    }
+
+    var isCorrect = false;
+    for (var v = 0; v < item.valid.length; v++) {
+        var valid = item.valid[v];
+        if (sequence.length === valid.length) {
+            var match = true;
+            for (var j = 0; j < valid.length; j++) {
+                if (sequence[j] !== valid[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                isCorrect = true;
+                break;
+            }
+        }
+    }
+
+    if (sequence.length > 0) {
+        feedback.style.display = 'block';
+        if (isCorrect) {
+            feedback.className = 'sb-feedback correct';
+            feedback.textContent = 'Korrekt' + item.punct;
+            timerStop(3);
+        } else if (sequence.length === item.parts.length) {
+            feedback.className = 'sb-feedback wrong';
+            feedback.textContent = 'Nicht ganz richtig. Versuche es nochmal!';
+        } else {
+            feedback.style.display = 'none';
+        }
+    } else {
+        feedback.style.display = 'none';
+    }
+}
+
+function showLoesung_3() {
+    satzbauData.forEach(function(item, sbIdx) {
+        var dropZone = document.querySelector('[data-sbIdx="' + sbIdx + '"].sb-drop-zone');
+        dropZone.innerHTML = '';
+        item.valid[0].forEach(function(word, idx) {
+            var chip = sbMakeChip(word, sbIdx, idx);
+            chip.classList.add('locked');
+            chip.onclick = function() {
+                if (String(this.dataset.sbIdx) !== String(sbIdx)) return;
+                this.remove();
+                sbCheckSentence(sbIdx);
+            };
+            dropZone.appendChild(chip);
+        });
+        var feedback = document.getElementById('feedback-' + sbIdx);
+        feedback.style.display = 'block';
+        feedback.className = 'sb-feedback correct';
+        feedback.textContent = 'Korrekt' + item.punct;
+    });
+    timerStop(3);
+}
+
+function reset_3() {
+    var container = document.getElementById('satzbauContainer');
+    container.innerHTML = '';
+    buildSatzbau();
+}
+
+/* ===== INIT ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    loadBestTimes();
+    buildZuordnung();
+    buildLuecken();
+    buildSatzbau();
+});
 </script>
 </body>
 </html>
