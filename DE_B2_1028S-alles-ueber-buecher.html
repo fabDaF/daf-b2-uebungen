@@ -1,282 +1,34 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>B2 · 1028S · Alles über Bücher!</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #fff;
-      padding: 28px 32px 20px;
-    }
-    .header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
-    .header p  { font-size: 0.95rem; opacity: 0.88; }
-    .tab-nav {
-      display: flex;
-      border-bottom: 2px solid #e0e0e0;
-      background: #f9f9f9;
-    }
-    .nav-btn{
-      flex: 1;
-      padding: 12px 6px 10px;
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.82rem;
-      color: #555;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      border-right: 1px solid #e0e0e0;
-      transition: background 0.2s;
-    }
-    .nav-btn:last-child { border-right: none; }
-    .nav-btn .nav-emoji { font-size: 1.3rem; }
-    .nav-btn .nav-label { font-size: 0.75rem; line-height: 1.2; text-align: center; }
-    .nav-btn.active {
-      background: #fff;
-      border-bottom: 3px solid #667eea;
-      color: #667eea;
-      font-weight: 600;
-    }
-    .nav-btn:hover:not(.active) { background: #f0f0f0; }
-    .tab-content { padding: 28px 32px; min-height: 420px; }
-    .section { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* Control bar */
-    .control-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      gap: 10px;
-    }
-    .control-bar .btn-group { display: flex; gap: 8px; }
-    .btn {
-      padding: 7px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.85; }
-    .btn-reset  { background: #667eea; color: #fff; }
-    .btn-reveal { background: #f0f0f0; color: #444; }
-    .timer-box {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #764ba2;
-      white-space: nowrap;
-    }
-    .timer-best { font-size: 0.75rem; color: #999; margin-left: 6px; }
-
-    /* Section titles */
-    .section-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #667eea;
-      margin: 22px 0 12px;
-      padding-bottom: 4px;
-      border-bottom: 2px solid #e8e8ff;
-    }
-    .section-title:first-child { margin-top: 0; }
-
-    /* Lückentext */
-    .gap-list { list-style: none; counter-reset: gap-count; }
-    .gap-item {
-      counter-increment: gap-count;
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      padding: 10px 14px;
-      margin-bottom: 8px;
-      background: #fafafa;
-      border-radius: 8px;
-      border: 1px solid #eee;
-      font-size: 0.95rem;
-      flex-wrap: wrap;
-    }
-    .gap-item::before {
-      content: counter(gap-count) ".";
-      font-weight: 700;
-      color: #667eea;
-      min-width: 22px;
-    }
-    .gap-inp {
-      border: none;
-      border-bottom: 2px solid #b0a0f0;
-      outline: none;
-      font-size: 0.95rem;
-      padding: 2px 6px;
-      min-width: 120px;
-      background: transparent;
-    }
-    .gap-inp.correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
-    .gap-inp.wrong   { border-color: #f44336; background: #ffebee; color: #c62828; }
-    .score-bar { display: flex; align-items: center; gap: 12px; margin-top: 18px; font-size: 0.9rem; color: #555; }
-    #gap-score { font-weight: 700; color: #667eea; }
-
-    /* Sprechkarten */
-    .speak-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 14px;
-    }
-    .speak-card {
-      background: #f5f5ff;
-      border: 2px solid #c5baff;
-      border-radius: 10px;
-      padding: 16px;
-    }
-    .speak-card h3 {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #667eea;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .speak-card ul { list-style: none; }
-    .speak-card ul li {
-      padding: 5px 0;
-      font-size: 0.88rem;
-      color: #444;
-      border-bottom: 1px solid #e8e8ff;
-    }
-    .speak-card ul li:last-child { border-bottom: none; }
-    .speak-card ul li::before { content: "▶ "; color: #764ba2; font-size: 0.7rem; }
-    .phrase-box {
-      background: #fff;
-      border: 1px solid #e8e8ff;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-top: 12px;
-      font-size: 0.88rem;
-      font-style: italic;
-      color: #555;
-    }
-    .phrase-box strong { color: #667eea; font-style: normal; }
-
-    /* Lesegewohnheiten Tabelle */
-    .lea-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      font-size: 0.88rem;
-    }
-    .lea-table th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #fff;
-      padding: 10px 14px;
-      text-align: left;
-    }
-    .lea-table td {
-      padding: 9px 14px;
-      border-bottom: 1px solid #eee;
-      vertical-align: top;
-    }
-    .lea-table tr:nth-child(even) td { background: #f9f9ff; }
-    .lea-table .cat { font-weight: 600; color: #667eea; }
-
-    /* MC */
-    .mc-list { list-style: none; }
-    .mc-item {
-      margin-bottom: 18px;
-      padding: 14px 16px;
-      background: #fafafa;
-      border-radius: 8px;
-      border: 1px solid #eee;
-    }
-    .mc-question { font-weight: 600; color: #333; margin-bottom: 10px; font-size: 0.95rem; }
-    .mc-options { display: flex; flex-wrap: wrap; gap: 8px; }
-    .mc-btn {
-      padding: 7px 14px;
-      border: 2px solid #c5baff;
-      border-radius: 6px;
-      background: #fff;
-      cursor: pointer;
-      font-size: 0.88rem;
-      color: #444;
-      transition: all 0.2s;
-    }
-    .mc-btn:hover:not(:disabled) { background: #f0eeff; }
-    .mc-btn.correct { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; font-weight: 700; }
-    .mc-btn.wrong   { background: #ffebee; border-color: #f44336; color: #c62828; }
-    .mc-btn:disabled { cursor: default; }
-
-    /* Vortrag */
-    .vortrag-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .vortrag-step {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      background: #f5f5ff;
-      border-radius: 10px;
-      padding: 14px 16px;
-      border-left: 4px solid #667eea;
-    }
-    .step-num {
-      font-size: 1.6rem;
-      font-weight: 900;
-      color: #c5baff;
-      min-width: 40px;
-      line-height: 1;
-    }
-    .step-body h4 { font-size: 0.95rem; font-weight: 700; color: #667eea; margin-bottom: 6px; }
-    .step-body p  { font-size: 0.88rem; color: #555; line-height: 1.5; }
-    .step-body .questions { margin-top: 8px; }
-    .step-body .questions li {
-      font-size: 0.85rem;
-      color: #444;
-      padding: 3px 0;
-      list-style: none;
-    }
-    .step-body .questions li::before { content: "❓ "; }
-    .context-box {
-      background: linear-gradient(135deg, #667eea15, #764ba215);
-      border: 1px solid #c5baff;
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 20px;
-      font-size: 0.95rem;
-      color: #444;
-      font-style: italic;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 0.78rem;
-      color: #999;
-      padding: 16px 24px;
-      border-top: 1px solid #eee;
-    }
-  
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1028S · Alles über Bücher!</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header .subtitle, .header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
 .nav {
     display: flex;
     flex-wrap: nowrap;
@@ -287,44 +39,221 @@
 }
 .nav-btn {
     flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
+    transition: all 0.3s;
+    font-size: 0.92em;
+    font-weight: 500;
+    color: #666;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
 }
 .nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
 .nav-btn.active {
     background: white;
     color: #667eea;
     font-weight: 700;
     border-bottom: 3px solid #667eea;
 }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
 .tab-banner {
     width: 100%;
     max-height: 180px;
     object-fit: cover;
     border-radius: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { border-color: #667eea; color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+.hilfe-box {
+    background: #f0f4ff;
+    border-left: 4px solid #667eea;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    font-size: 0.9em;
+    color: #444;
+    line-height: 1.6;
+}
+.wortkasten {
+    background: #f0f4ff;
+    border: 2px dashed #667eea;
+    border-radius: 10px;
+    padding: 14px 18px;
     margin-bottom: 20px;
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
 }
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
+.wortkasten span {
+    background: white;
+    border: 1px solid #c5baff;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 0.88em;
+    color: #667eea;
+    font-weight: 500;
 }
-/* ──────────────────────────────────────────────────────────── */
-/* ── SATZBAU ─────────────────────────────────────────────── */
+.luecken-item {
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    font-size: 0.95em;
+    line-height: 1.7;
+}
+.luecken-input {
+    border: none;
+    border-bottom: 2px solid #667eea;
+    background: #fff;
+    padding: 4px 6px;
+    font-family: inherit;
+    font-size: 0.9em;
+    outline: none;
+    transition: all 0.2s;
+    min-width: 120px;
+}
+.luecken-input:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
+.luecken-input.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #2e7d32; }
+.luecken-input.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #c62828; }
+.luecken-hint { color: #27ae60; font-weight: 600; font-size: 0.8em; margin-left: 4px; }
+.speak-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+.speak-card {
+    background: #f5f5ff;
+    border: 2px solid #c5baff;
+    border-radius: 10px;
+    padding: 16px;
+}
+.speak-card h3 {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.speak-card ul { list-style: none; }
+.speak-card ul li {
+    padding: 5px 0;
+    font-size: 0.88em;
+    color: #444;
+    border-bottom: 1px solid #e8e8ff;
+}
+.speak-card ul li:last-child { border-bottom: none; }
+.speak-card ul li::before { content: "▶ "; color: #764ba2; font-size: 0.7em; }
+.phrase-box {
+    background: #fff;
+    border: 1px solid #e8e8ff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 0.88em;
+    font-style: italic;
+    color: #555;
+}
+.phrase-box strong { color: #667eea; font-style: normal; }
+.lea-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 0.88em;
+}
+.lea-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+}
+.lea-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+.lea-table tr:nth-child(even) td { background: #f9f9ff; }
+.lea-table .cat { font-weight: 600; color: #667eea; }
+.mc-item {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    background: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+.mc-question { font-weight: 600; color: #333; margin-bottom: 10px; font-size: 0.95em; }
+.mc-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.mc-btn {
+    padding: 7px 14px;
+    border: 2px solid #c5baff;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.88em;
+    color: #444;
+    transition: all 0.2s;
+}
+.mc-btn:hover:not(:disabled) { background: #f0eeff; }
+.mc-btn.correct { background: #e8f5e9; border-color: #27ae60; color: #2e7d32; font-weight: 700; }
+.mc-btn.wrong { background: #fdeaea; border-color: #e74c3c; color: #c62828; }
+.mc-btn:disabled { cursor: default; opacity: 0.7; }
+.vortrag-steps { display: flex; flex-direction: column; gap: 14px; }
+.vortrag-step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: #f5f5ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-left: 4px solid #667eea;
+}
+.step-num { font-size: 1.6em; font-weight: 900; color: #c5baff; min-width: 40px; line-height: 1; }
+.step-body h4 { font-size: 0.95em; font-weight: 700; color: #667eea; margin-bottom: 6px; }
+.step-body p { font-size: 0.88em; color: #555; line-height: 1.5; }
+.step-body .questions { margin-top: 8px; list-style: none; }
+.step-body .questions li { font-size: 0.85em; color: #444; padding: 3px 0; }
+.step-body .questions li::before { content: "❓ "; }
+.context-box {
+    background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
+    border: 1px solid #c5baff;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+    color: #444;
+    font-style: italic;
+}
+.redemittel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+}
+.redemittel-card {
+    background: #f5f5ff;
+    border: 1px solid #c5baff;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.85em;
+}
+.redemittel-card strong { color: #667eea; }
 .satzbau-item { margin-bottom: 28px; }
 .chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
 .sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
@@ -337,577 +266,825 @@
 .satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
 .satzbau-feedback.correct { color: #27ae60; }
 .satzbau-feedback.incorrect { color: #e74c3c; }
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+    .speak-grid { grid-template-columns: 1fr; }
+    .redemittel-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="header">
-    <h1>📚 Alles über Bücher!</h1>
-    <p>B2 · Einheit 2 · Sprechen · Literatur, Lesegewohnheiten, Vortrag</p>
-  </div>
-
-  <div class="tab-nav nav">
-    <div class="nav-btn active" onclick="showSection(0)">
-      <span class="nav-emoji">🔁</span>
-      <span class="nav-label">Wiederholung</span>
+    <div class="header">
+        <h1>Alles über Bücher!</h1>
+        <p>B2 · Lektion 1028S · Sprechen</p>
+        <div class="big-emoji">📚</div>
     </div>
-    <div class="nav-btn" onclick="showSection(1)">
-      <span class="nav-emoji">💬</span>
-      <span class="nav-label">Sprechthemen</span>
+
+    <div class="nav">
+        <div class="nav-btn active" onclick="showSection(0)">
+            <span class="nav-emoji">🔁</span>
+            <span class="nav-label">Wiederholung</span>
+        </div>
+        <div class="nav-btn" onclick="showSection(1)">
+            <span class="nav-emoji">💬</span>
+            <span class="nav-label">Sprechthemen</span>
+        </div>
+        <div class="nav-btn" onclick="showSection(2)">
+            <span class="nav-emoji">📊</span>
+            <span class="nav-label">Leas Lesen</span>
+        </div>
+        <div class="nav-btn" onclick="showSection(3)">
+            <span class="nav-emoji">🎤</span>
+            <span class="nav-label">Mein Vortrag</span>
+        </div>
+        <div class="nav-btn" onclick="showSection(4)">
+            <span class="nav-emoji">🧩</span>
+            <span class="nav-label">Satzbau</span>
+        </div>
     </div>
-    <div class="nav-btn" onclick="showSection(2)">
-      <span class="nav-emoji">📊</span>
-      <span class="nav-label">Leas Lesen</span>
+
+    <!-- ═══════════ TAB 0: WIEDERHOLUNG ═══════════ -->
+    <div class="section active" id="sec-0">
+        <img class="tab-banner" src="https://images.pexels.com/photos/256431/pexels-photo-256431.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bücher und Lernen">
+        <div style="padding: 28px 30px;">
+            <h2>🔁 Wiederholung</h2>
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+                    <button class="btn" onclick="resetLuecken()">Neu starten</button>
+                </div>
+                <div class="timer-display">
+                    <span class="current-time">⏱ <span id="timer-0">00:00</span></span>
+                    <span class="best-time">🏆 <span id="best-0">--:--</span></span>
+                </div>
+            </div>
+            <div class="hilfe-box">
+                <strong>Aufgabe:</strong> Ergänze die Lücken mit dem richtigen Wort aus dem Wortkasten. Die Wörter stehen in der Grundform — passe sie ggf. an!
+            </div>
+            <div class="wortkasten" id="wortkasten"></div>
+            <div id="lueckenContainer"></div>
+        </div>
     </div>
-    <div class="nav-btn" onclick="showSection(3)">
-      <span class="nav-emoji">🎤</span>
-      <span class="nav-label">Mein Vortrag</span>
+
+    <!-- ═══════════ TAB 1: SPRECHTHEMEN ═══════════ -->
+    <div class="section" id="sec-1">
+        <img class="tab-banner" src="https://images.pexels.com/photos/1181715/pexels-photo-1181715.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Diskussion und Gespräch">
+        <div style="padding: 28px 30px;">
+            <h2>💬 Diskussionsthemen</h2>
+            <div class="hilfe-box">
+                <strong>Aufgabe:</strong> Wähle ein Thema und sprich 2–3 Minuten darüber. Nutze die Redemittel in den Karten!
+            </div>
+            <div class="speak-grid">
+
+                <div class="speak-card">
+                    <h3>📖 Kurze literarische Texte</h3>
+                    <ul>
+                        <li>An welche Textsorten erinnerst du dich? Zähle auf!</li>
+                        <li>Nenne Merkmale, die typisch für Kurzgeschichten sind.</li>
+                        <li>Was ist typisch bei einem Märchen?</li>
+                    </ul>
+                    <div class="phrase-box">
+                        <strong>Nützlich:</strong> „Typisch für … ist, dass …“ / „Ein Merkmal von … ist …“
+                    </div>
+                </div>
+
+                <div class="speak-card">
+                    <h3>✨ Stilmittel</h3>
+                    <ul>
+                        <li>Welche Stilmittel fallen dir noch ein?</li>
+                        <li>Finde für jedes Stilmittel ein Beispiel!</li>
+                        <li>Welches passt gut in eine Kurzgeschichte?</li>
+                    </ul>
+                    <div class="phrase-box">
+                        <strong>Stilmittel:</strong> die Metapher · die Alliteration · die Personifikation · die rhetorische Frage
+                    </div>
+                </div>
+
+                <div class="speak-card">
+                    <h3>🧙 Moral in Märchen</h3>
+                    <ul>
+                        <li>Welche Moral steckt in Rotkäppchen?</li>
+                        <li>Was verdeutlicht das Märchen Aschenputtel?</li>
+                        <li>Bist du dieser Meinung? Warum (nicht)?</li>
+                    </ul>
+                    <div class="phrase-box">
+                        <strong>Nützlich:</strong> „Ich bin der Meinung, dass …“ / „Das Märchen verdeutlicht, dass …“
+                    </div>
+                </div>
+
+                <div class="speak-card">
+                    <h3>🌍 Berühmte Märchen</h3>
+                    <ul>
+                        <li>Welche berühmten Märchen kennst du?</li>
+                        <li>Gibt es in deinem Heimatland Volksmärchen?</li>
+                        <li>Berichte über eines näher im Detail!</li>
+                    </ul>
+                    <div class="phrase-box">
+                        <strong>Bekannte Märchen:</strong> Rapunzel · Schneewittchen · Dornröschen · Hänsel und Gretel
+                    </div>
+                </div>
+
+                <div class="speak-card">
+                    <h3>📚 Meine Lesegewohnheiten</h3>
+                    <ul>
+                        <li>Liest du gern? Wenn ja, wie oft und wo?</li>
+                        <li>Was liest du gern? Welches Genre findest du am spannendsten?</li>
+                        <li>Hast du ein bestimmtes Ritual beim Lesen?</li>
+                    </ul>
+                    <div class="phrase-box">
+                        <strong>Nützlich:</strong> „Ich lese am liebsten …“ / „Mein Lieblingsgenre ist …“
+                    </div>
+                </div>
+
+                <div class="speak-card">
+                    <h3>🏛️ Ein Besuch bei der Buchmesse</h3>
+                    <ul>
+                        <li>Was ist eine Buchmesse? Erkläre mit eigenen Worten.</li>
+                        <li>Kennst du eine bekannte Buchmesse in Deutschland?</li>
+                        <li>Warst du schon einmal auf einer Buchmesse?</li>
+                    </ul>
+                    <div class="phrase-box">
+                        <strong>Info:</strong> Die Frankfurter Buchmesse und die Leipziger Buchmesse sind die größten in Deutschland.
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
-    <div class="nav-btn" onclick="showSection(4)">
-      <span class="nav-emoji">📝</span>
-      <span class="nav-label">Satzbau</span>
+
+    <!-- ═══════════ TAB 2: LEAS LESEGEWOHNHEITEN ═══════════ -->
+    <div class="section" id="sec-2">
+        <img class="tab-banner" src="https://images.pexels.com/photos/1741230/pexels-photo-1741230.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Mutter und Tochter lesen">
+        <div style="padding: 28px 30px;">
+            <h2>📊 Leas Lesegewohnheiten</h2>
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn" onclick="resetMC()">Neu starten</button>
+                </div>
+                <div class="timer-display">
+                    <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+                    <span class="best-time">🏆 <span id="best-2">--:--</span></span>
+                </div>
+            </div>
+
+            <div class="hilfe-box">
+                <strong>Aufgabe:</strong> Lies die Tabelle aufmerksam. Beantworte dann die Fragen darunter!
+            </div>
+
+            <table class="lea-table">
+                <thead>
+                    <tr><th></th><th>🎒 Lea</th><th>👩 Mama</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="cat">Beschäftigung</td>
+                        <td>Schule von Montag bis Freitag</td>
+                        <td>Arbeit von Mittwoch bis Samstag</td>
+                    </tr>
+                    <tr>
+                        <td class="cat">Genres</td>
+                        <td>Komödie, Märchen, Kurzgeschichten, abenteuerliche Geschichten</td>
+                        <td>Krimi, Märchen, Romanzen, abenteuerliche Geschichten, lustige Kurzgeschichten</td>
+                    </tr>
+                    <tr>
+                        <td class="cat">Wann?</td>
+                        <td>Tagsüber oder abends</td>
+                        <td>Tagsüber — auf keinen Fall am Morgen</td>
+                    </tr>
+                    <tr>
+                        <td class="cat">Wo?</td>
+                        <td>Draußen im Park, im Bett — auf keinen Fall auf dem Balkon</td>
+                        <td>Draußen im Park, im Wohnzimmer, in der Küche</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="font-size:1em; color:#667eea; margin:20px 0 12px;">🔘 Teste dein Verständnis</h3>
+            <div id="mcContainer">
+
+                <div class="mc-item">
+                    <div class="mc-question">An welchen Tagen geht Lea zur Schule?</div>
+                    <div class="mc-options">
+                        <button class="mc-btn" onclick="mcClick(this, true)">Montag bis Freitag</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Mittwoch bis Samstag</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Montag bis Samstag</button>
+                    </div>
+                </div>
+
+                <div class="mc-item">
+                    <div class="mc-question">Welches Genre liest Mama NICHT?</div>
+                    <div class="mc-options">
+                        <button class="mc-btn" onclick="mcClick(this, true)">Komödien</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Krimis</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Märchen</button>
+                    </div>
+                </div>
+
+                <div class="mc-item">
+                    <div class="mc-question">Wann liest Mama auf keinen Fall?</div>
+                    <div class="mc-options">
+                        <button class="mc-btn" onclick="mcClick(this, false)">Abends</button>
+                        <button class="mc-btn" onclick="mcClick(this, true)">Am Morgen</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Tagsüber</button>
+                    </div>
+                </div>
+
+                <div class="mc-item">
+                    <div class="mc-question">Wo liest Lea auf keinen Fall?</div>
+                    <div class="mc-options">
+                        <button class="mc-btn" onclick="mcClick(this, false)">Im Bett</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Im Park</button>
+                        <button class="mc-btn" onclick="mcClick(this, true)">Auf dem Balkon</button>
+                    </div>
+                </div>
+
+                <div class="mc-item">
+                    <div class="mc-question">Was haben Lea und Mama gemeinsam?</div>
+                    <div class="mc-options">
+                        <button class="mc-btn" onclick="mcClick(this, true)">Beide lesen gerne Märchen</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Beide lesen gerne Krimis</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Beide lesen morgens</button>
+                    </div>
+                </div>
+
+                <div class="mc-item">
+                    <div class="mc-question">Was haben Lea und Mama beim Lesen entwickelt?</div>
+                    <div class="mc-options">
+                        <button class="mc-btn" onclick="mcClick(this, false)">Einen Wettbewerb</button>
+                        <button class="mc-btn" onclick="mcClick(this, true)">Ein gemeinsames Ritual</button>
+                        <button class="mc-btn" onclick="mcClick(this, false)">Einen Buchclub</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════ TAB 0: WIEDERHOLUNG ══════════════════════════════ -->
-  <div class="section active" id="sec-0">
-    <div class="tab-content">
-      <div class="control-bar">
-        <div class="btn-group">
-          <button class="btn btn-reset"  onclick="resetGaps()">↺ Neu</button>
-          <button class="btn btn-reveal" onclick="revealGaps()">👁 Lösung</button>
+    <!-- ═══════════ TAB 3: MEIN VORTRAG ═══════════ -->
+    <div class="section" id="sec-3">
+        <img class="tab-banner" src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Vortrag und Präsentation">
+        <div style="padding: 28px 30px;">
+            <h2>🎤 Mein Vortrag</h2>
+            <div class="context-box">
+                🎤 Du bist auf der <strong>Leipziger Buchmesse</strong> und sollst einen Vortrag über dein Lieblingsbuch halten. Beantworte die Fragen und bereite deinen Vortrag vor!
+            </div>
+
+            <h3 style="font-size:1em; color:#667eea; margin:0 0 14px;">📝 Vortrag vorbereiten — Schritt für Schritt</h3>
+            <div class="vortrag-steps">
+
+                <div class="vortrag-step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h4>🧠 Brainstorming — Dein Lieblingsbuch</h4>
+                        <p>Überlege dir, welches Buch du vorstellen möchtest. Notiere spontane Gedanken.</p>
+                        <ul class="questions">
+                            <li>Welches ist dein Lieblingsbuch? Gib den Inhalt mit eigenen Worten wieder.</li>
+                            <li>Warum ist dieses Buch dein Lieblingsbuch?</li>
+                            <li>Wem würdest du dieses Buch empfehlen — und wem nicht? Warum?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="vortrag-step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h4>🎯 Ziel und Inhalt klären</h4>
+                        <p>Definiere das Ziel deines Vortrags und wähle die wichtigsten Inhalte aus.</p>
+                        <ul class="questions">
+                            <li>Was ist dein Ziel mit diesem Vortrag?</li>
+                            <li>Was möchtest du in deinen Vortrag einbringen?</li>
+                            <li>Welche Stilmittel könntest du verwenden? (Metapher, Alliteration, rhetorische Frage)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="vortrag-step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h4>📇 Karteikarten schreiben</h4>
+                        <p>Schreibe Stichworte auf Karteikarten — nicht den ganzen Text!</p>
+                        <ul class="questions">
+                            <li>Welche Vorbereitungen tätigst du für den Vortrag?</li>
+                            <li>Was gehört auf eine gute Karteikarte?</li>
+                            <li>Wie viele Karteikarten brauchst du?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="vortrag-step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <h4>🎙️ Den Vortrag halten</h4>
+                        <p>Präsentiere dein Lieblingsbuch vor der Gruppe. Nutze die Redemittel!</p>
+                        <ul class="questions">
+                            <li>Sprich frei — nicht ablesen!</li>
+                            <li>Stelle Blickkontakt her.</li>
+                            <li>Nutze Stilmittel, um deinen Vortrag interessanter zu machen.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <h3 style="font-size:1em; color:#667eea; margin:24px 0 10px;">💡 Nützliche Redemittel</h3>
+            <div class="redemittel-grid">
+                <div class="redemittel-card">
+                    <strong>Einleitung:</strong><br>
+                    „Ich möchte euch heute über … berichten.“<br>
+                    „Mein Lieblingsbuch heißt …“
+                </div>
+                <div class="redemittel-card">
+                    <strong>Inhalt:</strong><br>
+                    „In diesem Buch geht es um …“<br>
+                    „Die Hauptfigur ist …“
+                </div>
+                <div class="redemittel-card">
+                    <strong>Meinung:</strong><br>
+                    „Ich finde dieses Buch besonders interessant, weil …“<br>
+                    „Ich empfehle es, weil …“
+                </div>
+                <div class="redemittel-card">
+                    <strong>Schluss:</strong><br>
+                    „Abschließend möchte ich sagen …“<br>
+                    „Habt ihr noch Fragen?“
+                </div>
+            </div>
         </div>
-        <div class="timer-box">
-          ⏱ <span id="timer-1">0:00</span>
-          <span class="timer-best" id="best-1"></span>
-        </div>
-      </div>
-      <p style="margin-bottom:16px; font-size:0.9rem; color:#666;">
-        Wiederholung: Ergänze die Lücken mit dem richtigen Wort.
-      </p>
-      <ul class="gap-list" id="gap-list">
-        <li class="gap-item">In jedem Märchen steckt eine <input class="gap-inp" data-answer="moral" oninput="liveCheck(this)">.</li>
-        <li class="gap-item">Rotkäppchen, die Großmutter und der Wolf sind <input class="gap-inp" data-answer="märchenfiguren" oninput="liveCheck(this)">.</li>
-        <li class="gap-item">Die Metapher, die Personifikation und die rhetorische Frage sind verschiedene <input class="gap-inp" data-answer="stilmittel" oninput="liveCheck(this)">.</li>
-        <li class="gap-item">Kurzgeschichten variieren im <input class="gap-inp" data-answer="umfang" oninput="liveCheck(this)">, sind aber immer kurz.</li>
-        <li class="gap-item">Die Handlung wird im <input class="gap-inp" data-answer="hauptteil" oninput="liveCheck(this)"> eines literarischen Textes thematisiert.</li>
-        <li class="gap-item">Es ist sinnvoll, für einen Vortrag <input class="gap-inp" data-answer="karteikarten" oninput="liveCheck(this)"> vorzubereiten.</li>
-        <li class="gap-item">Lea liest gerne Komödien, <input class="gap-inp" data-answer="märchen" oninput="liveCheck(this)"> und Kurzgeschichten.</li>
-        <li class="gap-item">Mama liest gerne Krimis und <input class="gap-inp" data-answer="romanzen" oninput="liveCheck(this)">.</li>
-        <li class="gap-item">Lea liest tagsüber oder <input class="gap-inp" data-answer="abends" oninput="liveCheck(this)">.</li>
-        <li class="gap-item">Mama liest auf keinen Fall am <input class="gap-inp" data-answer="morgen" oninput="liveCheck(this)">.</li>
-        <li class="gap-item">Du bist auf der Leipziger <input class="gap-inp" data-answer="buchmesse" oninput="liveCheck(this)"> und hältst einen Vortrag.</li>
-        <li class="gap-item">Mach ein kurzes <input class="gap-inp" data-answer="brainstorming" oninput="liveCheck(this)">, um Ideen zu sammeln.</li>
-      </ul>
-      <div class="score-bar">Richtig: <span id="gap-score">0</span> / 12</div>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════ TAB 1: SPRECHTHEMEN ══════════════════════════════ -->
-  <div class="section" id="sec-1">
-    <div class="tab-content">
-      <div class="section-title">💬 Diskussionsthemen</div>
-      <div class="speak-grid">
-
-        <div class="speak-card">
-          <h3>📖 Kurze literarische Texte</h3>
-          <ul>
-            <li>An welche Textsorten erinnerst du dich? Zähle auf!</li>
-            <li>Nenne Merkmale, die typisch für Kurzgeschichten sind.</li>
-            <li>Was ist typisch bei einem Märchen?</li>
-          </ul>
-          <div class="phrase-box">
-            <strong>Nützlich:</strong> „Typisch für … ist, dass…" / „Ein Merkmal von … ist …"
-          </div>
+    <!-- ═══════════ TAB 4: SATZBAU ═══════════ -->
+    <div class="section" id="sec-4">
+        <img class="tab-banner" src="https://images.pexels.com/photos/1329296/pexels-photo-1329296.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Puzzle und Bausteine">
+        <div style="padding: 28px 30px;">
+            <h2>🧩 Satzbau</h2>
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn" onclick="sbShowAll()">Lösungen</button>
+                    <button class="btn" onclick="sbResetAll()">Neu starten</button>
+                </div>
+                <div class="timer-display">
+                    <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+                    <span class="best-time">🏆 <span id="best-4">--:--</span></span>
+                </div>
+            </div>
+            <div class="hilfe-box">
+                <strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge! Klicke auf die Chips, um sie in die Satzzeile zu verschieben.
+            </div>
+            <div id="satzbauContainer"></div>
         </div>
-
-        <div class="speak-card">
-          <h3>✨ Stilmittel</h3>
-          <ul>
-            <li>Welche Stilmittel fallen dir noch ein?</li>
-            <li>Finde für jedes Stilmittel ein Beispiel!</li>
-            <li>Welches passt gut in eine Kurzgeschichte?</li>
-          </ul>
-          <div class="phrase-box">
-            <strong>Stilmittel:</strong> die Metapher · die Alliteration · die Personifikation · die rhetorische Frage
-          </div>
-        </div>
-
-        <div class="speak-card">
-          <h3>🧙 Moral in Märchen</h3>
-          <ul>
-            <li>Welche Moral steckt in Rotkäppchen?</li>
-            <li>Was verdeutlicht das Märchen Aschenputtel?</li>
-            <li>Bist du dieser Meinung? Warum (nicht)?</li>
-          </ul>
-          <div class="phrase-box">
-            <strong>Nützlich:</strong> „Ich bin der Meinung, dass…" / „Das Märchen verdeutlicht, dass…"
-          </div>
-        </div>
-
-        <div class="speak-card">
-          <h3>🌍 Berühmte Märchen</h3>
-          <ul>
-            <li>Welche berühmten Märchen kennst du?</li>
-            <li>Gibt es in deinem Heimatland Volksmärchen?</li>
-            <li>Berichte über eines näher im Detail!</li>
-          </ul>
-          <div class="phrase-box">
-            <strong>Bekannte Märchen:</strong> Rapunzel · Schneewittchen · Dornröschen · Hänsel und Gretel
-          </div>
-        </div>
-
-        <div class="speak-card">
-          <h3>📚 Meine Lesegewohnheiten</h3>
-          <ul>
-            <li>Liest du gern? Wenn ja, wie oft und wo?</li>
-            <li>Was liest du gern? Welches Genre findest du am spannendsten?</li>
-            <li>Hast du ein bestimmtes Ritual beim Lesen?</li>
-          </ul>
-          <div class="phrase-box">
-            <strong>Nützlich:</strong> „Ich lese am liebsten…" / „Mein Lieblingsgenre ist…"
-          </div>
-        </div>
-
-        <div class="speak-card">
-          <h3>🏛️ Ein Besuch bei der Buchmesse</h3>
-          <ul>
-            <li>Was ist eine Buchmesse? Erkläre mit eigenen Worten.</li>
-            <li>Kennst du eine bekannte Buchmesse in Deutschland?</li>
-            <li>Warst du schon einmal auf einer Buchmesse?</li>
-          </ul>
-          <div class="phrase-box">
-            <strong>Info:</strong> Die Frankfurter Buchmesse und die Leipziger Buchmesse sind die größten in Deutschland.
-          </div>
-        </div>
-
-      </div>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════ TAB 2: LEAS LESEGEWOHNHEITEN ══════════════════════════════ -->
-  <div class="section" id="sec-2">
-    <div class="tab-content">
-      <div class="control-bar">
-        <div class="btn-group">
-          <button class="btn btn-reset" onclick="resetMC()">↺ Neu</button>
-        </div>
-        <div class="timer-box">
-          ⏱ <span id="timer-2">0:00</span>
-          <span class="timer-best" id="best-2"></span>
-        </div>
-      </div>
-
-      <div class="section-title">📊 Leas Lesegewohnheiten — Übersicht</div>
-      <table class="lea-table">
-        <thead>
-          <tr><th></th><th>🎒 Lea</th><th>👩 Mama</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="cat">Beschäftigung</td>
-            <td>Schule von Montag bis Freitag</td>
-            <td>Arbeit von Mittwoch bis Samstag</td>
-          </tr>
-          <tr>
-            <td class="cat">Genres</td>
-            <td>Komödie, Märchen, Kurzgeschichten, abenteuerliche Geschichten</td>
-            <td>Krimi, Märchen, Romanzen, abenteuerliche Geschichten, lustige Kurzgeschichten</td>
-          </tr>
-          <tr>
-            <td class="cat">Wann?</td>
-            <td>Tagsüber oder abends</td>
-            <td>Tagsüber — auf keinen Fall am Morgen</td>
-          </tr>
-          <tr>
-            <td class="cat">Wo?</td>
-            <td>Draußen im Park, im Bett — auf keinen Fall auf dem Balkon</td>
-            <td>Draußen im Park, im Wohnzimmer, in der Küche</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="section-title">🔘 Teste dein Verständnis</div>
-      <ul class="mc-list" id="mc-list">
-
-        <li class="mc-item">
-          <div class="mc-question">1. An welchen Tagen geht Lea zur Schule?</div>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcClick(this, true)">Montag bis Freitag</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Mittwoch bis Samstag</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Montag bis Samstag</button>
-          </div>
-        </li>
-
-        <li class="mc-item">
-          <div class="mc-question">2. Welches Genre liest Mama NICHT?</div>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcClick(this, true)">Komödien</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Krimis</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Märchen</button>
-          </div>
-        </li>
-
-        <li class="mc-item">
-          <div class="mc-question">3. Wann liest Mama auf keinen Fall?</div>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcClick(this, false)">Abends</button>
-            <button class="mc-btn" onclick="mcClick(this, true)">Am Morgen</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Tagsüber</button>
-          </div>
-        </li>
-
-        <li class="mc-item">
-          <div class="mc-question">4. Wo liest Lea auf keinen Fall?</div>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcClick(this, false)">Im Bett</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Im Park</button>
-            <button class="mc-btn" onclick="mcClick(this, true)">Auf dem Balkon</button>
-          </div>
-        </li>
-
-        <li class="mc-item">
-          <div class="mc-question">5. Was haben Lea und Mama gemeinsam?</div>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcClick(this, true)">Beide lesen gerne Märchen</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Beide lesen gerne Krimis</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Beide lesen morgens</button>
-          </div>
-        </li>
-
-        <li class="mc-item">
-          <div class="mc-question">6. Was haben Lea und Mama beim Lesen entwickelt?</div>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcClick(this, false)">Einen Wettbewerb</button>
-            <button class="mc-btn" onclick="mcClick(this, true)">Ein gemeinsames Ritual</button>
-            <button class="mc-btn" onclick="mcClick(this, false)">Einen Buchclub</button>
-          </div>
-        </li>
-
-      </ul>
+    <div class="author-footer">
+        <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+        <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════ TAB 3: MEIN VORTRAG ══════════════════════════════ -->
-  <div class="section" id="sec-3">
-    <div class="tab-content">
-      <div class="context-box">
-        🎤 Du bist auf der <strong>Leipziger Buchmesse</strong> und sollst einen Vortrag über dein Lieblingsbuch halten. Beantworte die Fragen und bereite deinen Vortrag vor!
-      </div>
-
-      <div class="section-title">📝 Vortrag vorbereiten — Schritt für Schritt</div>
-      <div class="vortrag-steps">
-
-        <div class="vortrag-step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <h4>🧠 Brainstorming — Dein Lieblingsbuch</h4>
-            <p>Überlege dir, welches Buch du vorstellen möchtest. Notiere spontane Gedanken.</p>
-            <ul class="questions">
-              <li>Welches ist dein Lieblingsbuch? Gib den Inhalt mit eigenen Worten wieder.</li>
-              <li>Warum ist dieses Buch dein Lieblingsbuch?</li>
-              <li>Wem würdest du dieses Buch empfehlen — und wem nicht? Warum?</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="vortrag-step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <h4>🎯 Ziel und Inhalt klären</h4>
-            <p>Definiere das Ziel deines Vortrags und wähle die wichtigsten Inhalte aus.</p>
-            <ul class="questions">
-              <li>Was ist dein Ziel mit diesem Vortrag?</li>
-              <li>Was möchtest du in deinen Vortrag einbringen?</li>
-              <li>Welche Stilmittel könntest du verwenden? (Metapher, Alliteration, rhetorische Frage)</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="vortrag-step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <h4>📇 Karteikarten schreiben</h4>
-            <p>Schreibe Stichworte auf Karteikarten — nicht den ganzen Text!</p>
-            <ul class="questions">
-              <li>Welche Vorbereitungen tätigst du für den Vortrag?</li>
-              <li>Was gehört auf eine gute Karteikarte?</li>
-              <li>Wie viele Karteikarten brauchst du?</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="vortrag-step">
-          <div class="step-num">4</div>
-          <div class="step-body">
-            <h4>🎙️ Den Vortrag halten</h4>
-            <p>Präsentiere dein Lieblingsbuch vor der Gruppe. Nutze die Redemittel!</p>
-            <ul class="questions">
-              <li>Sprich frei — nicht ablesen!</li>
-              <li>Stelle Blickkontakt her.</li>
-              <li>Nutze Stilmittel, um deinen Vortrag interessanter zu machen.</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="section-title">💡 Nützliche Redemittel</div>
-      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; margin-top:4px;">
-        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
-          <strong style="color:#667eea">Einleitung:</strong><br>
-          „Ich möchte euch heute über … berichten."<br>
-          „Mein Lieblingsbuch heißt …"
-        </div>
-        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
-          <strong style="color:#667eea">Inhalt:</strong><br>
-          „In diesem Buch geht es um…"<br>
-          „Die Hauptfigur ist…"
-        </div>
-        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
-          <strong style="color:#667eea">Meinung:</strong><br>
-          „Ich finde dieses Buch besonders interessant, weil…"<br>
-          „Ich empfehle es, weil…"
-        </div>
-        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
-          <strong style="color:#667eea">Schluss:</strong><br>
-          „Abschließend möchte ich sagen…"<br>
-          „Habt ihr noch Fragen?"
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
-</div>
+</div><!-- /container -->
 
 <script>
-function showSection(n){
-  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  [1,2,3].forEach(function(i){ timerStop(i); });
+/* ═══════════ NAVIGATION ═══════════ */
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
 }
 
-/* ═══════════════════════ TIMER SYSTEM ═══════════════════════ */
-var TIMER_PREFIX='B2_1028S_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
+/* ═══════════ TIMER SYSTEM ═══════════ */
+var TIMER_PREFIX = 'b2_1028S_';
+var timerStarted = {}, timerRunning = {}, timerSeconds = {}, timerIntervals = {};
+
+function fmtTime(s) {
+    var m = Math.floor(s / 60), sec = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
 }
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
+
+function timerAutoStart(n) {
+    if (timerStarted[n]) return;
+    timerStarted[n] = true;
+    timerRunning[n] = true;
+    timerSeconds[n] = 0;
+    timerIntervals[n] = setInterval(function() {
+        timerSeconds[n]++;
+        var el = document.getElementById('timer-' + n);
+        if (el) el.textContent = fmtTime(timerSeconds[n]);
+    }, 1000);
 }
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [1,2].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
-timerAutoStart(1); // Tab 0 starts immediately
-function liveCheck(inp) {
-  var val = inp.value.trim().toLowerCase();
-  var ans = (inp.dataset.answer || '').toLowerCase();
-  inp.classList.remove('correct', 'wrong');
-  if (val.length === 0) return;
-  if (val === ans) { inp.classList.add('correct'); }
-  else if (ans.startsWith(val)) { /* valid prefix — warte */ }
-  else { inp.classList.add('wrong'); }
-}
-var satzbauData = [
-  { parts: ['obwohl', 'das', 'Buch', 'sehr', 'dick', 'war', ',', 'las', 'sie', 'es', 'in', 'zwei', 'Tagen'],
-    valid: [['obwohl', 'das', 'Buch', 'sehr', 'dick', 'war', ',', 'las', 'sie', 'es', 'in', 'zwei', 'Tagen']], punct: '.' },
-  { parts: ['der', 'Roman', 'handelt', 'von', 'einer', 'Frau', ',', 'die', 'ihre', 'Familie', 'sucht'],
-    valid: [['der', 'Roman', 'handelt', 'von', 'einer', 'Frau', ',', 'die', 'ihre', 'Familie', 'sucht']], punct: '.' },
-  { parts: ['wer', 'viel', 'liest', ',', 'entwickelt', 'automatisch', 'ein', 'besseres', 'Sprachgefühl'],
-    valid: [['wer', 'viel', 'liest', ',', 'entwickelt', 'automatisch', 'ein', 'besseres', 'Sprachgefühl']], punct: '.' },
-  { parts: ['nachdem', 'sie', 'das', 'Buch', 'zu', 'Ende', 'gelesen', 'hatte', ',', 'war', 'sie', 'tief', 'bewegt'],
-    valid: [['nachdem', 'sie', 'das', 'Buch', 'zu', 'Ende', 'gelesen', 'hatte', ',', 'war', 'sie', 'tief', 'bewegt']], punct: '.' },
-  { parts: ['ein', 'Leseclub', 'ist', 'sinnvoll', ',', 'weil', 'man', 'gemeinsam', 'über', 'Bücher', 'spricht'],
-    valid: [['ein', 'Leseclub', 'ist', 'sinnvoll', ',', 'weil', 'man', 'gemeinsam', 'über', 'Bücher', 'spricht']], punct: '.' },
-  { parts: ['der', 'Autor', 'schreibt', 'so', 'lebhaft', ',', 'dass', 'man', 'sich', 'die', 'Szene', 'vorstellen', 'kann'],
-    valid: [['der', 'Autor', 'schreibt', 'so', 'lebhaft', ',', 'dass', 'man', 'sich', 'die', 'Szene', 'vorstellen', 'kann']], punct: '.' },
-  { parts: ['viele', 'Menschen', 'lesen', 'vor', 'dem', 'Einschlafen', ',', 'obwohl', 'das', 'Licht', 'die', 'Augen', 'belastet'],
-    valid: [['viele', 'Menschen', 'lesen', 'vor', 'dem', 'Einschlafen', ',', 'obwohl', 'das', 'Licht', 'die', 'Augen', 'belastet']], punct: '.' },
-];
-var sbDragged = null;
-function getSbCursor(){
-  var c=document.getElementById('sb-insert-cursor');
-  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
-  return c;
-}
-function getSbInsertPos(zone,clientX){
-  var chips=Array.from(zone.querySelectorAll('.chip'));
-  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
-  return null;
-}
-function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
-function sbUpdateCapitalization(row){
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
-    var orig=c.dataset.orig;
-    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
-    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
-  });
-}
-function sbMakeChip(word){
-  var chip=document.createElement('div');
-  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
-  chip.addEventListener('dragstart',function(e){
-    sbDragged=chip; timerAutoStart(4);
-    e.dataTransfer.setData('text/plain','');
-    setTimeout(function(){ chip.style.opacity='0.4'; },0);
-  });
-  chip.addEventListener('dragend',function(){
-    chip.style.opacity=''; sbDragged=null;
-    var c=document.getElementById('sb-insert-cursor');
-    if(c&&c.parentNode) c.parentNode.removeChild(c);
-  });
-  return chip;
-}
-function sbRegisterZone(zone,idx){
-  zone.addEventListener('dragover',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=getSbCursor();
-    var before=getSbInsertPos(zone,e.clientX);
-    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
-  });
-  zone.addEventListener('dragleave',function(e){
-    if(!zone.contains(e.relatedTarget)){
-      var c=document.getElementById('sb-insert-cursor');
-      if(c&&c.parentNode===zone) zone.removeChild(c);
+
+function timerStop(n) {
+    if (!timerRunning[n]) return;
+    clearInterval(timerIntervals[n]);
+    timerRunning[n] = false;
+    var secs = timerSeconds[n];
+    if (secs > 0) {
+        var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
+        if (secs < best) {
+            localStorage.setItem(TIMER_PREFIX + n, secs);
+            var el = document.getElementById('best-' + n);
+            if (el) el.textContent = '🏆 ' + fmtTime(secs);
+        }
     }
-  });
-  zone.addEventListener('drop',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=document.getElementById('sb-insert-cursor');
-    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
-    else zone.appendChild(sbDragged);
-    sbDragged=null;
-    var row=document.getElementById('sb-row-'+idx);
-    sbUpdateCapitalization(row); sbCheckAuto(idx);
-  });
 }
-function sbColorRow(idx){
-  var row=document.getElementById('sb-row-'+idx);
-  var chips=Array.from(row.querySelectorAll('.chip'));
-  var order=chips.map(function(c){ return c.dataset.orig; });
-  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
-  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
-  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
-  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
-  return ok;
+
+function timerResetOne(n) {
+    clearInterval(timerIntervals[n]);
+    timerRunning[n] = false;
+    timerStarted[n] = false;
+    timerSeconds[n] = 0;
+    var el = document.getElementById('timer-' + n);
+    if (el) el.textContent = '00:00';
 }
-function sbCheckAuto(idx){
-  var bank=document.getElementById('sb-bank-'+idx);
-  var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  if(bank.querySelectorAll('.chip').length>0){
-    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
-    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
-  }
-  setTimeout(function(){
-    var ok=sbColorRow(idx);
-    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
-    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
-  },500);
-}
-function sbCheckAllDone(){
-  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
-  if(allOk) timerStop(4);
-}
-function sbShowSolution(idx){
-  var bank=document.getElementById('sb-bank-'+idx);
-  var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  var solution=satzbauData[idx].valid[0];
-  var allChips={};
-  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
-  fb.textContent='';
-  setTimeout(function(){ sbCheckAuto(idx); },100);
-}
-function sbResetOne(idx){
-  var bank=document.getElementById('sb-bank-'+idx);
-  var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
-  var parts=satzbauData[idx].parts.slice();
-  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-}
-function initSatzbau(){
-  var container=document.getElementById('satzbauContainer');
-  container.innerHTML='';
-  satzbauData.forEach(function(ex,idx){
-    var item=document.createElement('div'); item.className='satzbau-item';
-    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
-    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
-    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
-    var parts=ex.parts.slice();
-    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
-    bank.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      timerAutoStart(4); row.appendChild(chip); chip.classList.remove('correct','incorrect');
-      sbUpdateCapitalization(row); sbCheckAuto(idx);
+
+function loadBestTimes() {
+    [0, 2, 4].forEach(function(n) {
+        var b = localStorage.getItem(TIMER_PREFIX + n);
+        if (b) {
+            var el = document.getElementById('best-' + n);
+            if (el) el.textContent = '🏆 ' + fmtTime(parseInt(b));
+        }
     });
-    row.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
-      chip.textContent=chip.dataset.orig;
-      sbUpdateCapitalization(row); sbCheckAuto(idx);
-    });
-    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
-    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
-    solveBtn.setAttribute('data-idx',idx);
-    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
-    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
-    resetBtn.setAttribute('data-idx',idx);
-    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
-    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
-    container.appendChild(item);
-  });
 }
+loadBestTimes();
+
+/* ═══════════ LÜCKENTEXT ═══════════ */
+var LUECKEN_DATA = [
+    { segments: ['In jedem Märchen steckt eine ', '.'], answer: 'Moral' },
+    { segments: ['Rotkäppchen, die Großmutter und der Wolf sind ', '.'], answer: 'Märchenfiguren' },
+    { segments: ['Die Metapher, die Personifikation und die rhetorische Frage sind verschiedene ', '.'], answer: 'Stilmittel' },
+    { segments: ['Kurzgeschichten variieren im ', ', sind aber immer kurz.'], answer: 'Umfang' },
+    { segments: ['Die Handlung wird im ', ' eines literarischen Textes thematisiert.'], answer: 'Hauptteil' },
+    { segments: ['Es ist sinnvoll, für einen Vortrag ', ' vorzubereiten.'], answer: 'Karteikarten' },
+    { segments: ['Lea liest gerne Komödien, ', ' und Kurzgeschichten.'], answer: 'Märchen' },
+    { segments: ['Mama liest gerne Krimis und ', '.'], answer: 'Romanzen' },
+    { segments: ['Lea liest tagsüber oder ', '.'], answer: 'abends' },
+    { segments: ['Mama liest auf keinen Fall am ', '.'], answer: 'Morgen' },
+    { segments: ['Du bist auf der Leipziger ', ' und hältst einen Vortrag.'], answer: 'Buchmesse' },
+    { segments: ['Mach ein kurzes ', ', um Ideen zu sammeln.'], answer: 'Brainstorming' }
+];
+
+var WORTKASTEN = ['die Moral', 'die Märchenfigur', 'das Stilmittel', 'der Umfang', 'der Hauptteil', 'die Karteikarte', 'das Märchen', 'die Romanze', 'abends', 'der Morgen', 'die Buchmesse', 'das Brainstorming'];
+
+function initLuecken() {
+    var wk = document.getElementById('wortkasten');
+    wk.innerHTML = '';
+    var shuffled = WORTKASTEN.slice();
+    for (var i = shuffled.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t; }
+    shuffled.forEach(function(w) { var s = document.createElement('span'); s.textContent = w; wk.appendChild(s); });
+
+    var container = document.getElementById('lueckenContainer');
+    container.innerHTML = '';
+    LUECKEN_DATA.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'luecken-item';
+        var html = '';
+        item.segments.forEach(function(seg, si) {
+            html += seg;
+            if (si < item.segments.length - 1) {
+                html += '<input class="luecken-input" data-idx="' + idx + '" oninput="lueckenLiveCheck(this)" autocomplete="off">';
+            }
+        });
+        div.innerHTML = html;
+        container.appendChild(div);
+    });
+}
+
+function lueckenLiveCheck(inp) {
+    timerAutoStart(0);
+    var idx = parseInt(inp.dataset.idx);
+    var val = inp.value.trim();
+    var ans = LUECKEN_DATA[idx].answer;
+    inp.classList.remove('correct', 'wrong');
+    var hint = inp.parentNode.querySelector('.luecken-hint');
+    if (hint) hint.remove();
+    if (val.length === 0) return;
+    if (val.toLowerCase() === ans.toLowerCase()) {
+        inp.classList.add('correct');
+        inp.disabled = true;
+        checkLueckenAllDone();
+    } else if (ans.toLowerCase().startsWith(val.toLowerCase())) {
+        /* valid prefix */
+    } else {
+        inp.classList.add('wrong');
+    }
+}
+
+function checkLueckenAllDone() {
+    var all = document.querySelectorAll('.luecken-input');
+    var done = Array.from(all).every(function(inp) { return inp.classList.contains('correct'); });
+    if (done) timerStop(0);
+}
+
+function showLueckenLoesung() {
+    document.querySelectorAll('.luecken-input').forEach(function(inp) {
+        var idx = parseInt(inp.dataset.idx);
+        var ans = LUECKEN_DATA[idx].answer;
+        if (!inp.classList.contains('correct')) {
+            var hint = inp.parentNode.querySelector('.luecken-hint');
+            if (!hint) {
+                hint = document.createElement('span');
+                hint.className = 'luecken-hint';
+                inp.parentNode.insertBefore(hint, inp.nextSibling);
+            }
+            hint.textContent = '→ ' + ans;
+        }
+    });
+}
+
+function resetLuecken() {
+    timerResetOne(0);
+    document.querySelectorAll('.luecken-input').forEach(function(inp) {
+        inp.value = '';
+        inp.disabled = false;
+        inp.classList.remove('correct', 'wrong');
+        var hint = inp.parentNode.querySelector('.luecken-hint');
+        if (hint) hint.remove();
+    });
+}
+
+initLuecken();
+
+/* ═══════════ MULTIPLE CHOICE ═══════════ */
+var mcTotal = 6;
+var mcCorrect = 0;
+
+function mcClick(btn, isCorrect) {
+    timerAutoStart(2);
+    var item = btn.closest('.mc-item');
+    var btns = item.querySelectorAll('.mc-btn');
+    btns.forEach(function(b) { b.disabled = true; });
+    if (isCorrect) {
+        btn.classList.add('correct');
+        mcCorrect++;
+    } else {
+        btn.classList.add('wrong');
+        btns.forEach(function(b) {
+            if (b.getAttribute('onclick').indexOf('true') > -1) b.classList.add('correct');
+        });
+    }
+    checkMCAllDone();
+}
+
+function checkMCAllDone() {
+    var items = document.querySelectorAll('.mc-item');
+    var done = Array.from(items).every(function(item) {
+        return item.querySelector('.mc-btn:disabled');
+    });
+    if (done) timerStop(2);
+}
+
+function resetMC() {
+    timerResetOne(2);
+    mcCorrect = 0;
+    document.querySelectorAll('.mc-btn').forEach(function(btn) {
+        btn.disabled = false;
+        btn.classList.remove('correct', 'wrong');
+    });
+}
+
+/* ═══════════ SATZBAU ═══════════ */
+var satzbauData = [
+    { parts: ['obwohl', 'das', 'Buch', 'sehr', 'dick', 'war', ',', 'las', 'sie', 'es', 'in', 'zwei', 'Tagen'],
+      valid: [['obwohl', 'das', 'Buch', 'sehr', 'dick', 'war', ',', 'las', 'sie', 'es', 'in', 'zwei', 'Tagen']], punct: '.' },
+    { parts: ['der', 'Roman', 'handelt', 'von', 'einer', 'Frau', ',', 'die', 'ihre', 'Familie', 'sucht'],
+      valid: [['der', 'Roman', 'handelt', 'von', 'einer', 'Frau', ',', 'die', 'ihre', 'Familie', 'sucht']], punct: '.' },
+    { parts: ['wer', 'viel', 'liest', ',', 'entwickelt', 'automatisch', 'ein', 'besseres', 'Sprachgefühl'],
+      valid: [['wer', 'viel', 'liest', ',', 'entwickelt', 'automatisch', 'ein', 'besseres', 'Sprachgefühl']], punct: '.' },
+    { parts: ['nachdem', 'sie', 'das', 'Buch', 'zu', 'Ende', 'gelesen', 'hatte', ',', 'war', 'sie', 'tief', 'bewegt'],
+      valid: [['nachdem', 'sie', 'das', 'Buch', 'zu', 'Ende', 'gelesen', 'hatte', ',', 'war', 'sie', 'tief', 'bewegt']], punct: '.' },
+    { parts: ['ein', 'Leseclub', 'ist', 'sinnvoll', ',', 'weil', 'man', 'gemeinsam', 'über', 'Bücher', 'spricht'],
+      valid: [['ein', 'Leseclub', 'ist', 'sinnvoll', ',', 'weil', 'man', 'gemeinsam', 'über', 'Bücher', 'spricht']], punct: '.' },
+    { parts: ['der', 'Autor', 'schreibt', 'so', 'lebhaft', ',', 'dass', 'man', 'sich', 'die', 'Szene', 'vorstellen', 'kann'],
+      valid: [['der', 'Autor', 'schreibt', 'so', 'lebhaft', ',', 'dass', 'man', 'sich', 'die', 'Szene', 'vorstellen', 'kann']], punct: '.' },
+    { parts: ['viele', 'Menschen', 'lesen', 'vor', 'dem', 'Einschlafen', ',', 'obwohl', 'das', 'Licht', 'die', 'Augen', 'belastet'],
+      valid: [['viele', 'Menschen', 'lesen', 'vor', 'dem', 'Einschlafen', ',', 'obwohl', 'das', 'Licht', 'die', 'Augen', 'belastet']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase() && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+
+function sbMakeChip(word, idx) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.dataset.sbIdx = String(idx);
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    chip.addEventListener('click', function() {
+        timerAutoStart(4);
+        var myIdx = parseInt(chip.dataset.sbIdx);
+        var bank = document.getElementById('sb-bank-' + myIdx);
+        var row = document.getElementById('sb-row-' + myIdx);
+        if (chip.parentNode === bank) {
+            row.appendChild(chip);
+        } else if (chip.parentNode === row) {
+            bank.appendChild(chip);
+        }
+        chip.classList.remove('correct', 'incorrect');
+        sbUpdateCapitalization(row);
+        sbCheckAuto(myIdx);
+    });
+    return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else {
+            zone.appendChild(sbDragged);
+        }
+        sbDragged = null;
+        var row = document.getElementById('sb-row-' + idx);
+        sbUpdateCapitalization(row);
+        sbCheckAuto(idx);
+    });
+}
+
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) { return JSON.stringify(v) === JSON.stringify(order); });
+    chips.forEach(function(c) { c.classList.remove('correct', 'incorrect'); c.classList.add(ok ? 'correct' : 'incorrect'); });
+    var ex = row.querySelector('.sb-punkt');
+    if (ex) ex.parentNode.removeChild(ex);
+    if (ok) { var p = document.createElement('span'); p.className = 'sb-punkt'; p.textContent = satzbauData[idx].punct || '.'; row.appendChild(p); }
+    return ok;
+}
+
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct');
+            row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct';
+            fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect');
+            row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge — verschiebe die Chips!';
+        }
+    }, 500);
+}
+
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var r = document.getElementById('sb-row-' + i);
+        return r && r.classList.contains('correct');
+    });
+    if (allOk) timerStop(4);
+}
+
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild) row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = i === 0 ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild) row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    fb.className = 'satzbau-feedback';
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = parts[i]; parts[i] = parts[j]; parts[j] = t; }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+}
+
+function sbShowAll() {
+    satzbauData.forEach(function(_, i) { sbShowSolution(i); });
+}
+
+function sbResetAll() {
+    timerResetOne(4);
+    satzbauData.forEach(function(_, i) { sbResetOne(i); });
+}
+
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container';
+        bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder';
+        row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback';
+        fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = parts[i]; parts[i] = parts[j]; parts[j] = t; }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        item.appendChild(bank);
+        item.appendChild(row);
+        item.appendChild(fb);
+        container.appendChild(item);
+    });
+}
+
 initSatzbau();
 </script>
-
-
-  <!-- TAB 4: SATZBAU -->
-  <div class="section" id="sec-4">
-    <p class="section-title">🧩 Satzbau: Bring die Wörter in die richtige Reihenfolge!</p>
-    <div id="satzbauContainer"></div>
-  </div>
 </body>
 </html>
