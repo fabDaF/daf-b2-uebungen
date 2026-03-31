@@ -663,9 +663,9 @@
             <div class="control-bar">
                 <div class="btn-row">
                     <button class="btn btn-loesungen" onclick="showGapSolutions()">Lösungen</button>
-                    <button class="btn btn-neu" onclick="resetGapAll()">Neu starten</button>
+                    <button class="btn btn-neu" onclick="resetGapAll(); timerResetOne(2);">Neu starten</button>
                 </div>
-                <div class="timer-display" id="timerDisp2">⏱ 00:00</div>
+                <div class="timer-display">⏱ <span id="timer-2">0:00</span> · 🏆 <span id="best-2">--:--</span></div>
             </div>
             <div id="gapContainer"></div>
             <div class="score-display" id="gapScoreDisplay">0 / 12</div>
@@ -679,9 +679,9 @@
             <div class="control-bar">
                 <div class="btn-row">
                     <button class="btn btn-loesungen" onclick="showRFSolutions()">Lösungen</button>
-                    <button class="btn btn-neu" onclick="resetRFAll()">Neu starten</button>
+                    <button class="btn btn-neu" onclick="resetRFAll(); timerResetOne(3);">Neu starten</button>
                 </div>
-                <div class="timer-display" id="timerDisp3">⏱ 00:00</div>
+                <div class="timer-display">⏱ <span id="timer-3">0:00</span> · 🏆 <span id="best-3">--:--</span></div>
             </div>
             <ul class="rf-list" id="rfContainer"></ul>
             <div class="score-display" id="rfScoreDisplay">0 / 6</div>
@@ -695,9 +695,9 @@
             <div class="control-bar">
                 <div class="btn-row">
                     <button class="btn btn-loesungen" onclick="showSbSolutions()">Lösungen</button>
-                    <button class="btn btn-neu" onclick="resetSbAll()">Neu starten</button>
+                    <button class="btn btn-neu" onclick="resetSbAll(); timerResetOne(4);">Neu starten</button>
                 </div>
-                <div class="timer-display" id="timerDisp4">⏱ 00:00</div>
+                <div class="timer-display">⏱ <span id="timer-4">0:00</span> · 🏆 <span id="best-4">--:--</span></div>
             </div>
             <div id="sbContainer"></div>
         </div>
@@ -708,67 +708,43 @@
     </div>
 
 <script>
-'use strict';
-
+/* ═══ TIMER SYSTEM ═══ */
 var TIMER_PREFIX = 'b2_1053r_';
-var timerState = {};
-var gapSolutions = {};
-var rfSolutions = {};
+var timerStarted = [false,false,false,false,false];
+var timerRunning  = [false,false,false,false,false];
+var timerSeconds  = [0,0,0,0,0];
+var timerIntervals= [null,null,null,null,null];
 
-function fmtTime(secs) {
-    var mins = Math.floor(secs / 60);
-    var sec = secs % 60;
-    return mins + ':' + (sec < 10 ? '0' : '') + sec;
+function fmtTime(s) { var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+function timerAutoStart(n) {
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
 }
-
-function saveBestTime(id, secs) {
-    try { localStorage.setItem(TIMER_PREFIX + id, secs); } catch(e) {}
+function timerStop(n) {
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0 && timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
 }
-
-function loadBestTime(id) {
-    try {
-        var v = localStorage.getItem(TIMER_PREFIX + id);
-        return v !== null ? parseInt(v) : null;
-    } catch(e) { return null; }
+function timerResetOne(n) {
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
 }
-
-function timerInit(id) {
-    if (!timerState[id]) timerState[id] = { secs: 0, running: false, done: false };
-}
-
-function timerStart(id) {
-    timerInit(id);
-    var st = timerState[id];
-    if (st.running || st.done) return;
-    st.running = true;
-    st.interval = setInterval(function() {
-        st.secs++;
-        updateTimerDisp(id);
-    }, 1000);
-}
-
-function timerStop(id) {
-    timerInit(id);
-    var st = timerState[id];
-    if (!st.running) return;
-    clearInterval(st.interval);
-    st.running = false;
-    st.done = true;
-    var best = loadBestTime(id);
-    if (st.secs > 0 && (best === null || st.secs < best)) {
-        saveBestTime(id, st.secs);
-    }
-    updateTimerDisp(id);
-}
-
-function updateTimerDisp(id) {
-    var el = document.getElementById('timerDisp' + id);
-    if (!el) return;
-    timerInit(id);
-    var st = timerState[id];
-    var best = loadBestTime(id);
-    var bestStr = best !== null ? ' · Best: ' + fmtTime(best) : '';
-    el.textContent = (st.done ? '✅ ' : '⏱ ') + fmtTime(st.secs) + bestStr;
+function loadBestTimes() {
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
 }
 
 function showSection(n) {
@@ -780,9 +756,6 @@ function showSection(n) {
     for (var i = 0; i < navBtns.length; i++) {
         navBtns[i].classList.toggle('active', i === n);
     }
-    if (n === 2) timerStart(2);
-    if (n === 3) timerStart(3);
-    if (n === 4) timerStart(4);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -818,7 +791,7 @@ function initGaps() {
         inp.className = 'blank';
         inp.dataset.answer = item.answer;
         inp.dataset.idx = idx;
-        inp.oninput = function() { liveCheckGap(this); };
+        inp.oninput = function() { liveCheck(this); };
         var textAfter = document.createTextNode(item.text.split('___')[1]);
         row.appendChild(num);
         row.appendChild(textNode);
@@ -829,23 +802,22 @@ function initGaps() {
     });
 }
 
-function liveCheckGap(inp) {
-    var ans = inp.dataset.answer.toLowerCase();
-    var val = inp.value.trim().toLowerCase();
-    if (val.length === 0) {
-        inp.classList.remove('correct', 'wrong');
-    } else if (ans.startsWith(val)) {
-        inp.classList.remove('wrong');
-        if (val === ans) {
-            inp.classList.add('correct');
-        } else {
-            inp.classList.remove('correct');
-        }
-    } else {
-        inp.classList.remove('correct');
-        inp.classList.add('wrong');
-    }
+function liveCheck(inp) {
+  timerAutoStart(2);
+  var val = inp.value.trim();
+  var ans = inp.getAttribute('data-answer');
+  inp.classList.remove('correct','wrong');
+  var oldHint = inp.parentNode.querySelector('.correction-hint[data-for="' + inp.getAttribute('data-answer') + '"]');
+  if(oldHint) oldHint.parentNode.removeChild(oldHint);
+  if(val.length === 0) return;
+  if(val.toLowerCase() === ans.toLowerCase()) {
+    inp.classList.add('correct');
     updateGapScore();
+  } else if(ans.toLowerCase().indexOf(val.toLowerCase()) === 0) {
+    /* valid prefix */
+  } else {
+    inp.classList.add('wrong');
+  }
 }
 
 function updateGapScore() {
@@ -862,6 +834,7 @@ function showGapSolutions() {
         inp.disabled = true;
     });
     updateGapScore();
+    timerStop(2);
 }
 
 function resetGapAll() {
@@ -872,8 +845,6 @@ function resetGapAll() {
         inp.disabled = false;
     });
     document.getElementById('gapScoreDisplay').textContent = '0 / ' + gapData.length;
-    timerState[2] = { secs: 0, running: false, done: false };
-    updateTimerDisp(2);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -930,6 +901,7 @@ function initRF() {
 
 function rfCheck(item, userAnswer, correctAnswer) {
     if (item.dataset.done) return;
+    timerAutoStart(3);
     item.dataset.done = '1';
     rfAnswered++;
     var isCorrect = (userAnswer === correctAnswer);
@@ -978,6 +950,7 @@ function showRFSolutions() {
     rfAnswered = rfData.length;
     rfCorrect = rfData.length;
     document.getElementById('rfScoreDisplay').textContent = rfData.length + ' / ' + rfData.length;
+    timerStop(3);
 }
 
 function resetRFAll() {
@@ -996,8 +969,6 @@ function resetRFAll() {
     rfAnswered = 0;
     rfCorrect = 0;
     document.getElementById('rfScoreDisplay').textContent = '0 / ' + rfData.length;
-    timerState[3] = { secs: 0, running: false, done: false };
-    updateTimerDisp(3);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1021,21 +992,22 @@ var sbData = [
       valid: [['wer', 'sich', 'online', 'gut', 'auskennt', ',', 'hat', 'klare', 'Vorteile', 'auf', 'dem', 'Arbeitsmarkt']], punct: '.' }
 ];
 
-var sbDragged = null;
-
 function sbCapitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function sbMakeChip(word) {
+var sbDragged = null;
+
+function sbMakeChip(word, idx) {
     var chip = document.createElement('div');
     chip.className = 'chip';
     chip.textContent = word;
     chip.dataset.orig = word;
+    chip.dataset.sbIdx = String(idx);
     chip.draggable = true;
     chip.addEventListener('dragstart', function(e) {
         sbDragged = chip;
-        timerStart(4);
+        timerAutoStart(4);
         e.dataTransfer.setData('text/plain', '');
         setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
     });
@@ -1051,7 +1023,7 @@ function sbMakeChip(word) {
             var bank = document.getElementById('sb-bank-' + chip.parentNode.id.split('-')[2]);
             bank.appendChild(chip);
         }
-        timerStart(4);
+        timerAutoStart(4);
         sbCheckAuto(chip.parentNode.id.split('-')[2]);
     });
     return chip;
@@ -1107,6 +1079,7 @@ function sbCheckAuto(idx) {
         return;
     }
     setTimeout(function() {
+        timerAutoStart(4);
         var ok = sbColorRow(idx);
         if (ok) {
             row.classList.add('correct');
@@ -1179,7 +1152,7 @@ function initSatzbau() {
             parts[j] = t;
         }
         parts.forEach(function(word) {
-            bank.appendChild(sbMakeChip(word));
+            bank.appendChild(sbMakeChip(word, idx));
         });
         sbRegisterZone(bank, idx);
         sbRegisterZone(row, idx);
@@ -1238,11 +1211,9 @@ function resetSbAll() {
             parts[j] = t;
         }
         parts.forEach(function(word) {
-            bank.appendChild(sbMakeChip(word));
+            bank.appendChild(sbMakeChip(word, idx));
         });
     });
-    timerState[4] = { secs: 0, running: false, done: false };
-    updateTimerDisp(4);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1250,10 +1221,10 @@ function resetSbAll() {
 ═══════════════════════════════════════════════════════════════ */
 
 document.addEventListener('DOMContentLoaded', function() {
+    loadBestTimes();
     initGaps();
     initRF();
     initSatzbau();
-    [2, 3, 4].forEach(updateTimerDisp);
 });
 </script>
 
