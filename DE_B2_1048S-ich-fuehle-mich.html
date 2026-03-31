@@ -975,6 +975,20 @@
                 parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
                 sbRegisterZone(bank, idx);
                 sbRegisterZone(row, idx);
+                bank.addEventListener('click', function(e){
+                  var chip = e.target.closest('.chip');
+                  if(!chip || chip.dataset.sbIdx !== String(idx)) return;
+                  timerAutoStart(2);
+                  row.appendChild(chip); chip.classList.remove('correct','incorrect');
+                  sbUpdateCapitalization(row); sbCheckAuto(idx);
+                });
+                row.addEventListener('click', function(e){
+                  var chip = e.target.closest('.chip');
+                  if(!chip || chip.dataset.sbIdx !== String(idx)) return;
+                  bank.appendChild(chip); chip.classList.remove('correct','incorrect');
+                  chip.textContent = chip.dataset.orig;
+                  sbUpdateCapitalization(row); sbCheckAuto(idx);
+                });
                 item.appendChild(bank); item.appendChild(row); item.appendChild(fb);
                 container.appendChild(item);
             });
@@ -1112,6 +1126,15 @@
                 timerIntervals[idx] = null;
             }
             timerRunning[idx] = false;
+        }
+
+        function timerResetOne(idx) {
+            clearInterval(timerIntervals[idx]);
+            timerIntervals[idx] = null;
+            timerRunning[idx] = false;
+            timerStarted[idx] = false;
+            timerSeconds[idx] = 0;
+            updateTimerDisplay(idx);
         }
 
         function loadBestTimes() {
