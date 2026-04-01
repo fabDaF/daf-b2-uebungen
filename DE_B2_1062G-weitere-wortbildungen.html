@@ -238,7 +238,7 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
 
 <div class="header">
   <h1>Weitere Wortbildungen</h1>
-  <p style="font-family: Georgia, serif;">B2 · Lektion 1062G &nbsp;|&nbsp; Komposition · Fugenelemente · Derivation</p>
+  <p style="font-family: Georgia, serif;">B2.1 – Lektion 1062G · Grammatik</p>
   <div class="big-emoji">🔤</div>
 </div>
 
@@ -1415,12 +1415,13 @@ function sbUpdateCapitalization(row) {
 }
 
 // ─── Chip erstellen ───────────────────────────────────────────────────────
-function sbMakeChip(word) {
+function sbMakeChip(word, idx) {
   var chip = document.createElement('div');
   chip.className = 'chip';
   if (word === ',' || word === ';') chip.classList.add('punct-chip');
   chip.textContent = word;
   chip.dataset.orig = word;
+  chip.dataset.sbIdx = String(idx !== undefined ? idx : 0);
   chip.draggable = true;
   chip.addEventListener('dragstart', function(e) {
     sbDragged = chip;
@@ -1441,7 +1442,7 @@ function sbMakeChip(word) {
 function sbRegisterZone(zone, idx) {
   zone.addEventListener('dragover', function(e) {
     e.preventDefault();
-    if (!sbDragged) return;
+    if (!sbDragged) return; if(sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor = getSbCursor();
     var before = getSbInsertPos(zone, e.clientX);
     if (before) zone.insertBefore(cursor, before);
@@ -1455,7 +1456,7 @@ function sbRegisterZone(zone, idx) {
   });
   zone.addEventListener('drop', function(e) {
     e.preventDefault();
-    if (!sbDragged) return;
+    if (!sbDragged) return; if(sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor = document.getElementById('sb-insert-cursor');
     if (cursor && cursor.parentNode === zone) {
       zone.insertBefore(sbDragged, cursor);
@@ -1572,7 +1573,7 @@ function sbResetOne(idx) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
   }
-  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
 }
 
 // ─── Alle lösen ───────────────────────────────────────────────────────────
@@ -1605,7 +1606,7 @@ function initSatzbau() {
       var j = Math.floor(Math.random() * (i + 1));
       var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
     }
-    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
 
     sbRegisterZone(bank, idx);
     sbRegisterZone(row, idx);
