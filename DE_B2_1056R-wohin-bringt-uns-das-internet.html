@@ -21,18 +21,22 @@
     overflow: hidden;
   }
   .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 24px 30px;
-  }
-  .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
-  .header p { font-size: 0.9rem; opacity: 0.85; }
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+  .header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+        .header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+  .header .subtitle, .header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
   .nav {
-    display: flex;
-    background: #f8f9fa;
-    border-bottom: 2px solid #e9ecef;
-    overflow-x: auto;
-  }
+            display: flex;
+            flex-wrap: nowrap;
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
   .nav-btn{
     flex: 1;
     display: flex;
@@ -247,14 +251,9 @@
   #sb-score { font-weight: 700; color: #667eea; }
 
   /* FOOTER */
-  .footer {
-    text-align: center;
-    padding: 16px;
-    font-size: 0.78rem;
-    color: #aaa;
-    border-top: 1px solid #e9ecef;
-    margin-top: 10px;
-  }
+  .author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+  .author-footer a { color: #aaa; }
+  .author-name { font-weight: 700; }
 
 /* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
 .container { overflow: hidden; }
@@ -334,6 +333,7 @@ body { padding: 20px; }
   <div class="header">
     <h1>Wohin bringt uns das Internet?</h1>
             <p>B2.1 – Lektion 1056R · Lesen</p>
+            <div class="big-emoji">📚</div>
   </div>
 
   <div class="nav">
@@ -536,7 +536,10 @@ body { padding: 20px; }
     <div id="sb-score-row">Richtig: <span id="sb-score">0</span> / 7</div>
   </div>
 
-  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+  <div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">Kontakt</a>
+  </div>
 </div>
 
 <script>
@@ -714,9 +717,9 @@ function sbUpdateCapitalization(row){
     c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
   });
 }
-function sbMakeChip(word){
+function sbMakeChip(word, idx){
   var chip=document.createElement('div');
-  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.dataset.sbIdx=String(idx); chip.draggable=true;
   chip.addEventListener('dragstart',function(e){
     sbDragged=chip; timerAutoStart(4);
     e.dataTransfer.setData('text/plain','');
@@ -731,7 +734,7 @@ function sbMakeChip(word){
 }
 function sbRegisterZone(zone,idx){
   zone.addEventListener('dragover',function(e){
-    e.preventDefault(); if(!sbDragged) return;
+    e.preventDefault(); if(!sbDragged) return; if(sbDragged && sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor=getSbCursor();
     var before=getSbInsertPos(zone,e.clientX);
     if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
@@ -743,7 +746,7 @@ function sbRegisterZone(zone,idx){
     }
   });
   zone.addEventListener('drop',function(e){
-    e.preventDefault(); if(!sbDragged) return;
+    e.preventDefault(); if(!sbDragged) return; if(sbDragged && sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor=document.getElementById('sb-insert-cursor');
     if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
     else zone.appendChild(sbDragged);
@@ -799,7 +802,7 @@ function sbResetOne(idx){
   row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
   var parts=satzbauData[idx].parts.slice();
   for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
 }
 function initSatzbau(){
   var container=document.getElementById('satzbauContainer');
@@ -812,15 +815,15 @@ function initSatzbau(){
     var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
     var parts=ex.parts.slice();
     for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
     sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
     bank.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
+      var chip=e.target.closest('.chip'); if(!chip) return; if(chip.dataset.sbIdx !== String(idx)) return;
       timerAutoStart(4); row.appendChild(chip); chip.classList.remove('correct','incorrect');
       sbUpdateCapitalization(row); sbCheckAuto(idx);
     });
     row.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
+      var chip=e.target.closest('.chip'); if(!chip) return; if(chip.dataset.sbIdx !== String(idx)) return;
       bank.appendChild(chip); chip.classList.remove('correct','incorrect');
       chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
     });
