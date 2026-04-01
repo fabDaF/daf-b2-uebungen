@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kulturschock im Büro – B2.2 · 2013R</title>
+<title>Kulturschock im Büro – B2.2 Lektion 2013R</title>
 <style>
 /* ── GLOBAL ──────────────────────────────────────────────── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -181,7 +181,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 <div class="header">
   <span class="big-emoji">🌍</span>
   <h1>Kulturschock im Büro</h1>
-            <p>B2.2 – Lektion 2013R · Lesen</p>
+  <p>B2.2 – Lektion 2013R · Lesen</p>
 </div>
 
 <!-- NAV -->
@@ -317,6 +317,13 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
   <img class="tab-banner" src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreibtisch mit Stift und Papier">
   <div class="sec-inner">
     <h2>✏️ Lückentext</h2>
+    <div class="timer-controls">
+      <button class="btn btn-reset" onclick="resetLuecken()">↺ Zurücksetzen</button>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>🏆 <span id="best-3">–</span></span>
+      </div>
+    </div>
     <div class="wordbox">
       <strong>Wortkasten:</strong> Vorstellungsgespräch · Eindruck · Kleiderordnung · Ehrgeiz · Stärke · Ruf · formell · leger · Erscheinungsbild · Vorstellungsgespräch
     </div>
@@ -361,6 +368,13 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
   <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Puzzle-Teile zusammensetzen">
   <div class="sec-inner">
     <h2>🧩 Satzbau</h2>
+    <div class="timer-controls">
+      <button class="btn btn-reset" onclick="resetSatzbau()">↺ Neu mischen</button>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">0:00</span></span>
+        <span>🏆 <span id="best-4">–</span></span>
+      </div>
+    </div>
     <div class="hilfe-box">
       <strong>Aufgabe:</strong> Sortiere die Satzteile in die richtige Reihenfolge. Ziehe die Chips oder klicke sie!
     </div>
@@ -391,7 +405,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 
 <div class="author-footer">
   <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+  <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
 </div>
 
 </div><!-- /container -->
@@ -424,17 +438,25 @@ function checkRF(itemId, answer) {
 // LÜCKENTEXT (Tab 3)
 // ─────────────────────────────────────────────────────────
 function lueckenCheck(inp) {
+    timerAutoStart(3);
     var answer = inp.getAttribute('data-answer').toLowerCase();
     var val = inp.value.toLowerCase().trim();
     if (val === '') {
         inp.classList.remove('ok', 'no');
-    } else if (val === answer || answer.startsWith(val)) {
+    } else if (val === answer) {
         inp.classList.add('ok');
         inp.classList.remove('no');
+    } else if (answer.startsWith(val)) {
+        inp.classList.remove('ok', 'no');
     } else {
         inp.classList.add('no');
         inp.classList.remove('ok');
     }
+    // Completion check
+    var all = document.querySelectorAll('#sec-3 .luecken-inp');
+    var done = 0;
+    all.forEach(function(g){ if(g.classList.contains('ok')) done++; });
+    if(done === all.length) timerStop(3);
 }
 
 // ─────────────────────────────────────────────────────────
@@ -498,8 +520,10 @@ function initSatzbau() {
         item.appendChild(fb);
         container.appendChild(item);
     });
+} // end initSatzbau
 
 function sbChipClick(chip) {
+    timerAutoStart(4);
     var zone = chip.parentElement.parentElement.querySelector('.sb-zone');
     if (chip.parentElement.classList.contains('sb-bank')) {
         sbChipDrop(chip, zone);
@@ -507,6 +531,7 @@ function sbChipClick(chip) {
 }
 
 function sbChipDrop(chip, zone) {
+    timerAutoStart(4);
     if (chip.parentElement.classList.contains('sb-zone')) {
         chip.parentElement.appendChild(chip);
     } else {
@@ -539,6 +564,11 @@ function sbCheckOrder(zone) {
     if (correct && chips.length === correctSatz.length) {
         fb.textContent = '✓ Richtig!';
         fb.style.color = '#43a047';
+        // Check if ALL sentences are done
+        var allDone = true;
+        var allFbs = document.querySelectorAll('#sbContainer .sb-fb');
+        allFbs.forEach(function(f){ if(f.textContent.indexOf('✓') < 0) allDone = false; });
+        if(allDone) timerStop(4);
     } else if (chips.length === 0) {
         fb.textContent = '';
     } else {
@@ -636,23 +666,33 @@ function getPexelsUrl(id) {
 }
 
 function vocabLiveCheck() {
+    timerAutoStart(5);
     var v = this.dataset.correct.toLowerCase();
     var inp = this.value.toLowerCase().trim();
     if (inp === '') {
         this.classList.remove('correct', 'wrong');
-    } else if (inp === v || v.startsWith(inp)) {
+    } else if (inp === v) {
         this.classList.add('correct');
         this.classList.remove('wrong');
+    } else if (v.startsWith(inp)) {
+        this.classList.remove('correct', 'wrong');
     } else {
         this.classList.add('wrong');
         this.classList.remove('correct');
     }
+    // Completion check
+    var all = document.querySelectorAll('#sec-5 .vocab-inp');
+    var done = 0;
+    all.forEach(function(i){ if(i.classList.contains('correct')) done++; });
+    if(done === all.length && all.length > 0) timerStop(5);
 }
 
 function resetVocab() {
     initVocab();
+    timerResetOne(5);
 }
 
+} // end initVocab
 
 // ─────────────────────────────────────────────────────────
 // VOCAB-HL: Vokabeln im Lesetext gelb markieren
@@ -712,12 +752,17 @@ function timerResetOne(n){
 }
 function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
 document.addEventListener('DOMContentLoaded',function(){
-  [5].forEach(function(n){
+  [3,4,5].forEach(function(n){
     var b=localStorage.getItem(TIMER_PREFIX+n);
     if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
-
 });
-}}</script>
+
+function resetLuecken(){
+  document.querySelectorAll('#sec-3 .luecken-inp').forEach(function(i){ i.value=''; i.classList.remove('ok','no'); });
+  timerResetOne(3);
+}
+function resetSatzbau(){ timerResetOne(4); initSatzbau(); }
+</script>
 </body>
 </html>
