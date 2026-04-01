@@ -291,7 +291,15 @@ footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; bord
   <!-- TAB 1: LÜCKENTEXT -->
   <div class="section" id="sec-1">
     <img class="tab-banner" src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Lückentext üben">
-
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="document.querySelectorAll('#sec-1 .luecke-inp').forEach(function(inp){if(!inp.classList.contains('correct')){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong')}});timerStop(1);">💡 Lösung</button>
+        <button class="btn" onclick="document.querySelectorAll('#sec-1 .luecke-inp').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong')});timerResetOne(1);">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-1">0:00</span></span>
+        <span>Best: <span id="best-1">--:--</span></span>
+      </div>
     </div>
     <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Ergänze das fehlende Wort.</p>
 
@@ -386,7 +394,14 @@ footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; bord
   <!-- TAB 2: SATZBAU -->
   <div class="section" id="sec-2">
     <img class="tab-banner" src="https://images.pexels.com/photos/3785077/pexels-photo-3785077.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Satzbau üben">
-
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="satzbauData.forEach(function(_,i){sbResetOne(i)});timerResetOne(2);">↺ Alle neu</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">0:00</span></span>
+        <span>Best: <span id="best-2">--:--</span></span>
+      </div>
     </div>
     <div id="satzbauContainer"></div>
   </div>
@@ -394,7 +409,15 @@ footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; bord
   <!-- TAB 3: WORTSCHATZ -->
   <div class="section" id="sec-3">
     <img class="tab-banner" src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Wortschatz lernen">
-
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="document.querySelectorAll('#sec-3 .vocab-inp').forEach(function(inp){if(!inp.classList.contains('correct')){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong')}});timerStop(3);">💡 Lösung</button>
+        <button class="btn" onclick="document.querySelectorAll('#sec-3 .vocab-inp').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong')});timerResetOne(3);">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>Best: <span id="best-3">--:--</span></span>
+      </div>
     </div>
     <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Nomen: Artikel · Wort · Plural &nbsp;|&nbsp; Verben: nur das Infinitiv tippen.</p>
 
@@ -574,20 +597,32 @@ document.addEventListener('DOMContentLoaded',function(){
 
 });
 function liveCheck(inp) {
+  timerAutoStart(1);
   var val = inp.value.trim().toLowerCase();
   var ans = (inp.dataset.answer || '').toLowerCase();
   inp.classList.remove('correct', 'wrong');
   if (val.length === 0) return;
-  if (val === ans) { inp.classList.add('correct'); }
+  if (val === ans) {
+    inp.classList.add('correct');
+    var all = document.querySelectorAll('#sec-1 .luecke-inp');
+    var done = Array.from(all).every(function(i){ return i.classList.contains('correct'); });
+    if (done) timerStop(1);
+  }
   else if (ans.startsWith(val)) { /* valid prefix — warte */ }
   else { inp.classList.add('wrong'); }
 }
 
 function vocabLiveCheck(inp) {
-  const val = inp.value.trim().toLowerCase();
-  const ans = (inp.dataset.answer || '').toLowerCase().trim();
+  timerAutoStart(3);
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase().trim();
   if (!val) { inp.className = inp.className.replace(/correct|wrong/g, '').trim(); return; }
-  if (val === ans) { inp.classList.remove('wrong'); inp.classList.add('correct'); }
+  if (val === ans) {
+    inp.classList.remove('wrong'); inp.classList.add('correct');
+    var all = document.querySelectorAll('#sec-3 .vocab-inp');
+    var done = Array.from(all).every(function(i){ return i.classList.contains('correct'); });
+    if (done) timerStop(3);
+  }
   else if (ans.startsWith(val)) { inp.classList.remove('correct', 'wrong'); }
   else { inp.classList.remove('correct'); inp.classList.add('wrong'); }
 }

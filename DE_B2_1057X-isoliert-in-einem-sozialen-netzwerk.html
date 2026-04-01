@@ -401,6 +401,15 @@
   <div class="section" id="sec-1">
     <img src="https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Kommentare in sozialen Medien">
 
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="document.querySelectorAll('#sec-1 .gap-input').forEach(function(inp){if(!inp.classList.contains('correct')){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong')}});timerStop(1);">💡 Lösung</button>
+        <button class="btn" onclick="document.querySelectorAll('#sec-1 .gap-input').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong')});timerResetOne(1);">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-1">0:00</span></span>
+        <span>Best: <span id="best-1">--:--</span></span>
+      </div>
     </div>
 
     <div class="luecke-text">
@@ -424,6 +433,14 @@
   <div class="section" id="sec-2">
     <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Satzbau">
 
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="satzbauData.forEach(function(_,i){sbResetOne(i)});timerResetOne(2);">↺ Alle neu</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">0:00</span></span>
+        <span>Best: <span id="best-2">--:--</span></span>
+      </div>
     </div>
 
     <div class="sb-sentences" id="satzbauContainer"></div>
@@ -433,7 +450,15 @@
   <!-- TAB 3: WORTSCHATZ -->
   <div class="section" id="sec-3">
     <img src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Wortschatz">
-
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="document.querySelectorAll('#sec-3 .vocab-inp').forEach(function(inp){if(!inp.classList.contains('correct')){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong')}});timerStop(3);">💡 Lösung</button>
+        <button class="btn" onclick="document.querySelectorAll('#sec-3 .vocab-inp').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong')});timerResetOne(3);">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>Best: <span id="best-3">--:--</span></span>
+      </div>
     </div>
 
     <div class="vocab-section-title">📌 Nomen</div>
@@ -513,38 +538,35 @@ function loadBestTime(n) {
 }
 
 // ─── LÜCKENTEXT ───────────────────────────────────────────────────
-let lueckeStarted = false;
 function liveCheck(inp) {
-  if (!lueckeStarted) { lueckeStarted = true; timerStart(1); }
-  const ans = inp.dataset.answer.toLowerCase();
-  const val = inp.value.toLowerCase().trim();
-  if (ans.startsWith(val) && val.length > 0) {
-    inp.classList.remove('wrong');
-  } else if (val.length > 0) {
-    inp.classList.remove('correct');
+  timerAutoStart(1);
+  var ans = inp.dataset.answer.toLowerCase();
+  var val = inp.value.toLowerCase().trim();
+  inp.classList.remove('correct','wrong');
+  if (val.length === 0) return;
+  if (val === ans) {
+    inp.classList.add('correct');
+    updateLueckeScore();
+  } else if (ans.startsWith(val)) {
+    /* valid prefix */
+  } else {
     inp.classList.add('wrong');
   }
-  if (val === ans) {
-    inp.classList.remove('wrong');
-    inp.classList.add('correct');
-  }
-  updateLueckeScore();
 }
 
 function updateLueckeScore() {
-  const all = document.querySelectorAll('#tab-1 .gap-input');
-  const correct = [...all].filter(i => i.classList.contains('correct')).length;
+  var all = document.querySelectorAll('#sec-1 .gap-input');
+  var correct = Array.from(all).filter(function(i){ return i.classList.contains('correct'); }).length;
   document.getElementById('luecke-score').textContent = correct;
   if (correct === all.length) timerStop(1);
 }
 
 function resetLuecke() {
-  document.querySelectorAll('#tab-1 .gap-input').forEach(i => {
+  document.querySelectorAll('#sec-1 .gap-input').forEach(function(i){
     i.value = '';
     i.classList.remove('correct','wrong');
   });
   timerResetOne(1);
-  lueckeStarted = false;
   updateLueckeScore();
 }
 
