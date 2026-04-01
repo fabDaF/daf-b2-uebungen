@@ -1,756 +1,979 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B2.1 · 1047X · Satzglieder erkennen</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh; padding: 20px;
-}
-.container {
-  max-width: 1000px; margin: 0 auto; background: #fff;
-  border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden;
-}
-.header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff; padding: 24px 32px;
-}
-.header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
-.header p { font-size: 0.95rem; opacity: 0.85; }
-nav {
-  display: flex; background: #f5f5f5;
-  border-bottom: 1px solid #ddd; overflow-x: auto;
-}
-.nav-btn{
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  padding: 12px 8px 10px; cursor: pointer; background: transparent; font-size: 0.78rem; color: #555;
-  border-bottom: 3px solid transparent; transition: background 0.2s; min-width: 70px;
-}
-.nav-btn:hover { background: #ede9f8; }
-.nav-btn.active { background: #fff; color: #667eea; border-bottom: 3px solid #667eea; font-weight: 700; }
-.nav-emoji { font-size: 1.3rem; margin-bottom: 3px; }
-.nav-label { font-size: 0.75rem; text-align: center; }
-.section { display: none; padding: 28px 32px 32px; }
-.section.active { display: block; }
-.tab-banner {
-  width: 100%; height: 180px; object-fit: cover;
-  border-radius: 8px; margin-bottom: 20px; display: block;
-}
-.control-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 18px; flex-wrap: wrap; gap: 8px;
-}
-.control-bar .buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn {
-  padding: 8px 16px; border-radius: 6px; border: none;
-  cursor: pointer; font-size: 0.85rem; font-weight: 600;
-}
-.btn-reset { background: #667eea; color: #fff; }
-.btn-reset:hover { background: #764ba2; }
-.btn-secondary { background: #eee; color: #555; }
-.btn-secondary:hover { background: #ddd; }
-.timer-display {
-  font-size: 0.85rem; color: #764ba2; font-weight: 700;
-  background: #f3eeff; border-radius: 6px; padding: 6px 14px;
-  min-width: 110px; text-align: center;
-}
-.score-box {
-  background: linear-gradient(135deg, #667eea22, #764ba222);
-  border-radius: 8px; padding: 10px 18px; font-size: 0.9rem; color: #555; margin-bottom: 16px;
-}
-.score-box span { font-weight: 700; color: #764ba2; }
-.section-title {
-  font-size: 1.1rem; font-weight: 700; color: #333; margin: 22px 0 12px;
-  border-left: 4px solid #667eea; padding-left: 12px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satzglieder erkennen - B2.1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Vorentlastung */
-.fragen-box { background: #f8f7ff; border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
-.fragen-box h3 { font-size: 1rem; color: #764ba2; margin-bottom: 10px; }
-.fragen-list { list-style: none; padding: 0; }
-.fragen-list li {
-  padding: 8px 10px; border-left: 3px solid #764ba2;
-  margin-bottom: 8px; background: #fff; border-radius: 0 6px 6px 0; font-size: 0.95rem; color: #333;
-}
-.chips-box { margin-bottom: 18px; }
-.chips-box h3 { font-size: 1rem; color: #667eea; margin-bottom: 10px; font-weight: 700; }
-.chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff; border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; font-weight: 600;
-}
-.info-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 0.9rem; }
-.info-table th {
-  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
-  padding: 8px 12px; text-align: left; font-size: 0.85rem;
-}
-.info-table td { padding: 8px 12px; border-bottom: 1px solid #eee; color: #333; }
-.info-table tr:nth-child(even) td { background: #f8f7ff; }
-.info-table td:first-child { font-weight: 700; color: #667eea; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-/* Lückentext */
-.luecke-list { list-style: none; padding: 0; }
-.luecke-item {
-  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-  border-bottom: 1px solid #eee; font-size: 0.95rem; color: #333; flex-wrap: wrap;
-}
-.luecke-item:last-child { border-bottom: none; }
-.luecke-item .nr { min-width: 26px; font-weight: 700; color: #764ba2; }
-.luecke-inp {
-  border: 2px solid #ccc; border-radius: 6px; padding: 5px 10px;
-  font-size: 0.9rem; width: 200px; outline: none; transition: border-color 0.2s;
-}
-.luecke-inp:focus { border-color: #667eea; }
-.luecke-inp.correct { border-color: #43a047; background: #e8f5e9; }
-.luecke-inp.wrong { border-color: #e53935; background: #fce4ec; }
-.luecke-feedback { font-size: 0.85rem; font-weight: 600; }
-.luecke-feedback.ok { color: #388e3c; }
-.luecke-feedback.err { color: #c62828; }
-.sb-drop-zone {
-  display: flex; flex-wrap: wrap; gap: 7px; min-height: 48px; background: #f0f0f0;
-  border: 2px dashed #ccc; border-radius: 8px; padding: 8px; transition: border-color 0.2s;
-}
-.sb-drop-zone.drag-over { border-color: #667eea; background: #ede9f8; }
-.sb-result { font-size: 0.9rem; font-weight: 700; margin-top: 4px; min-height: 22px; }
-.sb-result.ok { color: #388e3c; }
-.sb-result.err { color: #c62828; }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
 
-/* Wortschatz */
-.vocab-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media (max-width: 600px) { .vocab-container { grid-template-columns: 1fr; } }
-.vocab-card {
-  background: #f8f7ff; border: 1px solid #d0c8f0; border-radius: 10px;
-  padding: 12px; display: flex; flex-direction: column; gap: 6px;
-}
-.vocab-img { width: 100%; height: 90px; object-fit: cover; border-radius: 6px; }
-.vocab-en { font-size: 0.8rem; color: #888; font-style: italic; }
-.vocab-inputs { display: flex; flex-wrap: wrap; gap: 6px; }
-.vocab-inp {
-  border: 2px solid #ccc; border-radius: 6px; padding: 4px 8px;
-  font-size: 0.85rem; outline: none; transition: border-color 0.2s;
-}
-.vocab-inp:focus { border-color: #667eea; }
-.vocab-inp.correct { border-color: #43a047; background: #e8f5e9; }
-.vocab-inp.wrong { border-color: #e53935; background: #fce4ec; }
-.vocab-inp-art { width: 56px; }
-.vocab-inp-de { width: 175px; }
-.vocab-inp-pl { width: 170px; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
 
-footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; border-top: 1px solid #eee; }
+        .header h1 {
+            font-family: Georgia, serif;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
 
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-bottom: 15px;
+        }
 
-/* ── SATZBAU ─────────────────────────────────────────────── */
-.satzbau-item { margin-bottom: 28px; }
-.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
-.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
-.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
-.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
-.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
-.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
-.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
-.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
-.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
-.satzbau-feedback.correct { color: #27ae60; }
-.satzbau-feedback.incorrect { color: #e74c3c; }</style>
+        .big-emoji {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+        }
+
+        .nav button {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1em;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav button:hover {
+            background: #e8e8e8;
+        }
+
+        .nav button.active {
+            background: white;
+            border-bottom-color: #667eea;
+            font-weight: bold;
+        }
+
+        .content {
+            position: relative;
+            min-height: 500px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .banner-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .section > div:first-child {
+            padding: 28px 30px;
+        }
+
+        /* Vorentlastung */
+        .fragen {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .frage {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+
+        .frage strong {
+            color: #667eea;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .chip {
+            background: #e8eaf6;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            border: 1px solid #667eea;
+        }
+
+        /* Kurztext */
+        .lese-text {
+            font-family: Georgia, serif;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .lese-text p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .vocab-hl {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        table th,
+        table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        table tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* Lückentext */
+        .lueckentext-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .lueckentext-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .lueckentext-segment {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lueckentext-segment input {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95em;
+            min-width: 100px;
+        }
+
+        .lueckentext-segment input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .hint {
+            display: inline-block;
+            background: #e8eaf6;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-left: 10px;
+            border: 1px solid #667eea;
+        }
+
+        /* Satzbau */
+        .satzbau-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .satzbau-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .satzbau-parts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .sbpart {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: move;
+            user-select: none;
+            font-size: 0.95em;
+        }
+
+        .sbpart:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .sbpart.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .sbpart.invalid {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        /* Wortschatz */
+        #vocabContainer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .vocab-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .vocab-en {
+            font-size: 0.85em;
+            color: #999;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .vocab-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .vocab-inputs input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .vocab-inputs input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .vocab-inputs input.correct {
+            border-color: #4caf50;
+            background: #f1f8f4;
+        }
+
+        .vocab-inputs input.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        /* Timer */
+        .timer-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e8eaf6;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4ff;
+        }
+
+        /* Footer */
+        .author-footer {
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            padding: 15px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav button {
+                min-width: 80px;
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+
+            #vocabContainer {
+                grid-template-columns: 1fr;
+            }
+
+            .satzbau-parts {
+                gap: 6px;
+            }
+
+            .sbpart {
+                font-size: 0.85em;
+                padding: 6px 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <header class="header">
-    <h1>B2.1 · Lektion 1047 · Satzglieder erkennen</h1>
-    <p>Kommunikation · Einheit 4 · Umstellprobe und Ersatzprobe</p>
-  </header>
+    <div class="container">
+        <div class="header">
+            <h1>Satzglieder erkennen</h1>
+            <p>B2.1 – Lektion 1047X · Kommunikation</p>
+            <div class="big-emoji">🧩</div>
+        </div>
 
-  <div class="nav">
-    <div class="nav-btn active" onclick="showSection(0)">
-      <span class="nav-emoji">💬</span>
-      <span class="nav-label">Vorentlastung</span>
+        <div class="nav">
+            <button class="tab-btn active" data-tab="0">💬 Vorentlastung</button>
+            <button class="tab-btn" data-tab="1">📖 Kurztext</button>
+            <button class="tab-btn" data-tab="2">✏️ Lückentext</button>
+            <button class="tab-btn" data-tab="3">🧩 Satzbau</button>
+            <button class="tab-btn" data-tab="4">📚 Wortschatz</button>
+        </div>
+
+        <div class="content">
+            <!-- Tab 0: Vorentlastung -->
+            <div class="section active" id="sec-0">
+                <img src="https://images.pexels.com/photos/4145153/pexels-photo-4145153.jpeg" alt="Banner" class="banner-image">
+                <div style="padding: 28px 30px;">
+                    <div class="fragen">
+                        <div class="frage">
+                            <strong>1. Was ist ein Satzglied?</strong><br>
+                            Erkläre es mit eigenen Worten.
+                        </div>
+                        <div class="frage">
+                            <strong>2. Was ist der Unterschied zwischen einem Subjekt, einem Akkusativobjekt und einem Dativobjekt?</strong>
+                        </div>
+                        <div class="frage">
+                            <strong>3. Wie kannst du erkennen, ob ein Satzteil ein eigenständiges Satzglied ist?</strong>
+                        </div>
+                        <div class="frage">
+                            <strong>4. Was bedeutet „Umstellprobe"?</strong><br>
+                            Und was ist eine „Ersatzprobe"?
+                        </div>
+                    </div>
+
+                    <div class="chips">
+                        <div class="chip">das Subjekt</div>
+                        <div class="chip">das Prädikat</div>
+                        <div class="chip">das Akkusativobjekt</div>
+                        <div class="chip">das Dativobjekt</div>
+                        <div class="chip">das Präpositionalobjekt</div>
+                        <div class="chip">das Genitivobjekt</div>
+                        <div class="chip">die Temporalbestimmung</div>
+                        <div class="chip">die Lokalbestimmung</div>
+                        <div class="chip">die Modalbestimmung</div>
+                        <div class="chip">die Kausalbestimmung</div>
+                        <div class="chip">die Umstellprobe</div>
+                        <div class="chip">die Ersatzprobe</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 1: Kurztext -->
+            <div class="section" id="sec-1">
+                <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="Banner" class="banner-image">
+                <div style="padding: 28px 30px;">
+                    <div class="lese-text">
+                        <p>Ein <span class="vocab-hl">Satzglied</span> ist ein syntaktischer Bestandteil eines Satzes, der eine bestimmte grammatische Funktion erfüllt. Satzglieder können aus einem einzelnen Wort oder aus mehreren Wörtern bestehen. Um Satzglieder zu erkennen, nutzen wir verschiedene Methoden: Die <span class="vocab-hl">Umstellprobe</span> und die <span class="vocab-hl">Ersatzprobe</span>.</p>
+
+                        <p>Bei der Umstellprobe verschieben wir Satzteile an verschiedene Positionen im Satz. Wenn ein Satzteil seine Position ändern kann, ohne dass der Satz ungrammatikalisch wird, handelt es sich um ein Satzglied. Beispiel: „Gestern las er ein Buch." → „Er las gestern ein Buch." Das Wort „gestern" ist ein Satzglied (Temporalbestimmung), weil es verschoben werden kann.</p>
+
+                        <p>Die Ersatzprobe funktioniert anders: Wir ersetzen einen Satzteil durch ein Pronomen oder ein anderes Wort. Wenn die Ersetzung möglich ist, haben wir ein Satzglied identifiziert. Beispiel: „Er liest das Buch." → „Er liest es." Das Wort „das Buch" ist ein Satzglied (Akkusativobjekt), weil es durch das Pronomen „es" ersetzt werden kann.</p>
+
+                        <p>Die wichtigsten Satzglieder sind das Subjekt (wer/was?), das Prädikat (das konjugierte Verb), die verschiedenen Objekte (Akkusativobjekt, Dativobjekt, Präpositionalobjekt) und die Adverbialbestimmungen (Zeit, Ort, Art und Weise, Grund).</p>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Satzglied</th>
+                                <th>Frage</th>
+                                <th>Beispiel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Subjekt</td>
+                                <td>Wer oder was?</td>
+                                <td>Er liest.</td>
+                            </tr>
+                            <tr>
+                                <td>Prädikat</td>
+                                <td>(konjugiertes Verb)</td>
+                                <td>Er <strong>liest</strong>.</td>
+                            </tr>
+                            <tr>
+                                <td>Akkusativobjekt</td>
+                                <td>Wen oder was?</td>
+                                <td>Er liest <strong>ein Buch</strong>.</td>
+                            </tr>
+                            <tr>
+                                <td>Dativobjekt</td>
+                                <td>Wem?</td>
+                                <td>Er liest <strong>seinem Bruder</strong> ein Buch vor.</td>
+                            </tr>
+                            <tr>
+                                <td>Präpositionalobjekt</td>
+                                <td>Wo(r)+Präp.</td>
+                                <td>Sie denkt <strong>an ihren Urlaub</strong>.</td>
+                            </tr>
+                            <tr>
+                                <td>Temporalbestimmung</td>
+                                <td>Wann?</td>
+                                <td>Er liest <strong>abends</strong> vor.</td>
+                            </tr>
+                            <tr>
+                                <td>Lokalbestimmung</td>
+                                <td>Wo? Wohin?</td>
+                                <td>Er liest <strong>im Bett</strong> vor.</td>
+                            </tr>
+                            <tr>
+                                <td>Modalbestimmung</td>
+                                <td>Wie?</td>
+                                <td>Er liest <strong>mit viel Freude</strong> vor.</td>
+                            </tr>
+                            <tr>
+                                <td>Kausalbestimmung</td>
+                                <td>Warum?</td>
+                                <td>Er liest <strong>wegen seiner Angst</strong> vor.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Lückentext -->
+            <div class="section" id="sec-2">
+                <img src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg" alt="Banner" class="banner-image">
+                <div style="padding: 28px 30px;">
+                    <div class="timer-display" id="timer-2">00:00</div>
+                    <div class="lueckentext-container" id="lueckentext-container"></div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="showLueckenLoesung()">Lösungen</button>
+                        <button class="btn-secondary" onclick="resetLueckentext()">Neu starten</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Satzbau -->
+            <div class="section" id="sec-3">
+                <img src="https://images.pexels.com/photos/3806991/pexels-photo-3806991.jpeg" alt="Banner" class="banner-image">
+                <div style="padding: 28px 30px;">
+                    <div class="timer-display" id="timer-3">00:00</div>
+                    <div class="satzbau-container" id="satzbau-container"></div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="showSatzbauLoesung()">Lösungen</button>
+                        <button class="btn-secondary" onclick="resetSatzbau()">Neu starten</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Wortschatz -->
+            <div class="section" id="sec-4">
+                <img src="https://images.pexels.com/photos/1122586/pexels-photo-1122586.jpeg" alt="Banner" class="banner-image">
+                <div style="padding: 28px 30px;">
+                    <div class="timer-display" id="timer-4">00:00</div>
+                    <div id="vocabContainer"></div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="showVocabLoesung()">Lösungen</button>
+                        <button class="btn-secondary" onclick="resetVocab()">Neu starten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="author-footer">
+            <p>DaF-Übungen B2.1 | Satzglieder erkennen | Grammatik</p>
+        </div>
     </div>
-    <div class="nav-btn" onclick="showSection(1)">
-      <span class="nav-emoji">✏️</span>
-      <span class="nav-label">Lückentext</span>
-    </div>
-    <div class="nav-btn" onclick="showSection(2)">
-      <span class="nav-emoji">🔀</span>
-      <span class="nav-label">Satzbau</span>
-    </div>
-    <div class="nav-btn" onclick="showSection(3)">
-      <span class="nav-emoji">📚</span>
-      <span class="nav-label">Wortschatz</span>
-    </div>
-  </div>
 
-  <!-- TAB 0: VORENTLASTUNG -->
-  <div class="section active" id="sec-0">
-    <img class="tab-banner" src="https://images.pexels.com/photos/4145153/pexels-photo-4145153.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Satzglieder und Grammatik">
+    <script>
+        var TIMER_PREFIX = 'b2_1047x_';
+        var timers = [null, null, null, null, null, null, null];
+        var timerIntervals = [null, null, null, null, null, null, null];
+        var timerActive = [false, false, false, false, false, false, false];
+        var timerSeconds = [0, 0, 0, 0, 0, 0, 0];
 
-    <div class="fragen-box">
-      <h3>🤔 Einstiegsfragen</h3>
-      <ul class="fragen-list">
-        <li>Was ist ein Satzglied? Erkläre es mit eigenen Worten.</li>
-        <li>Was ist der Unterschied zwischen einem Subjekt, einem Akkusativobjekt und einem Dativobjekt?</li>
-        <li>Wie kannst du erkennen, ob ein Satzteil ein eigenständiges Satzglied ist?</li>
-        <li>Was bedeutet „Umstellprobe"? Und was ist eine „Ersatzprobe"?</li>
-      </ul>
-    </div>
+        var LUECKEN = [
+            { segs:[{t:'Das '},{b:'Subjekt'},{t:' beantwortet die Frage „Wer oder was tut etwas?"}], hint:'Wer/Was?' },
+            { segs:[{t:'Das konjugierte Verb im Satz nennt man das '},{b:'Prädikat'},{t:'.'}], hint:'Verb-Form' },
+            { segs:[{t:'„Ein Buch" in „Er liest ein Buch" ist ein '},{b:'Akkusativobjekt'},{t:'.'}], hint:'Wen/Was?' },
+            { segs:[{t:'„Seinem Bruder" antwortet auf „Wem?" und ist ein '},{b:'Dativobjekt'},{t:'.'}], hint:'Wem?' },
+            { segs:[{t:'„An meiner besten Freundin" ist ein '},{b:'Präpositionalobjekt'},{t:'.'}], hint:'Wo(r)+Präp.' },
+            { segs:[{t:'Zeitangaben wie „gestern" oder „abends" sind eine '},{b:'Temporalbestimmung'},{t:'.'}], hint:'Wann?' },
+            { segs:[{t:'Ortsangaben wie „im Bett" oder „in den Zoo" sind eine '},{b:'Lokalbestimmung'},{t:'.'}], hint:'Wo? Wohin?' },
+            { segs:[{t:'„Mit viel Freude" antwortet auf „Wie?" und ist eine '},{b:'Modalbestimmung'},{t:'.'}], hint:'Wie?' },
+            { segs:[{t:'Eine Begründung, die „Warum?" antwortet, ist eine '},{b:'Kausalbestimmung'},{t:'.'}], hint:'Warum?' },
+            { segs:[{t:'Man stellt Satzteile an verschiedene Positionen im Satz: Das nennt man die '},{b:'Umstellprobe'},{t:'.'}], hint:'Methode: verschieben' },
+            { segs:[{t:'Man ersetzt Satzglieder durch Pronomen: Das nennt man die '},{b:'Ersatzprobe'},{t:'.'}], hint:'Methode: ersetzen' },
+            { segs:[{t:'Das Prädikat steht in einem Aussagesatz immer an Position '},{b:'2'},{t:'.'}], hint:'Zahl' }
+        ];
 
-    <div class="chips-box">
-      <h3>🔑 Die Satzglieder im Überblick</h3>
-      <div class="chips-wrap">
-        <span class="chip">das Subjekt</span>
-        <span class="chip">das Prädikat</span>
-        <span class="chip">das Akkusativobjekt</span>
-        <span class="chip">das Dativobjekt</span>
-        <span class="chip">das Präpositionalobjekt</span>
-        <span class="chip">das Genitivobjekt</span>
-        <span class="chip">die Temporalbestimmung</span>
-        <span class="chip">die Lokalbestimmung</span>
-        <span class="chip">die Modalbestimmung</span>
-        <span class="chip">die Kausalbestimmung</span>
-        <span class="chip">die Umstellprobe</span>
-        <span class="chip">die Ersatzprobe</span>
-      </div>
-    </div>
+        var satzbauData = [
+            { parts:['weil','das','Subjekt','fehlt',',','ist','der','Satz','unvollständig'], valid:[['weil','das','Subjekt','fehlt',',','ist','der','Satz','unvollständig']], punct:'.' },
+            { parts:['obwohl','er','das','Prädikat','kannte',',','machte','er','Fehler'], valid:[['obwohl','er','das','Prädikat','kannte',',','machte','er','Fehler']], punct:'.' },
+            { parts:['das','Objekt','zeigt',',','was','das','Subjekt','beeinflusst'], valid:[['das','Objekt','zeigt',',','was','das','Subjekt','beeinflusst']], punct:'.' },
+            { parts:['nachdem','sie','die','Satzglieder','gelernt','hatte',',','analysierte','sie','Texte','leichter'], valid:[['nachdem','sie','die','Satzglieder','gelernt','hatte',',','analysierte','sie','Texte','leichter']], punct:'.' },
+            { parts:['wir','erkennen','Satzglieder',',','indem','wir','nach','Fragewörtern','suchen'], valid:[['wir','erkennen','Satzglieder',',','indem','wir','nach','Fragewörtern','suchen']], punct:'.' },
+            { parts:['das','Adverbial','ist','optional',',','weil','es','den','Satz','ergänzt'], valid:[['das','Adverbial','ist','optional',',','weil','es','den','Satz','ergänzt']], punct:'.' },
+            { parts:['der','Satz','klingt','natürlicher',',','wenn','die','Satzglieder','richtig','stehen'], valid:[['der','Satz','klingt','natürlicher',',','wenn','die','Satzglieder','richtig','stehen']], punct:'.' }
+        ];
 
-    <div class="section-title">📋 Satzglieder — Kurzreferenz</div>
-    <table class="info-table">
-      <tr><th>Satzglied</th><th>Frage</th><th>Beispiel</th></tr>
-      <tr><td>Subjekt</td><td>Wer oder was?</td><td>Er liest.</td></tr>
-      <tr><td>Prädikat</td><td>(konjugiertes Verb)</td><td>Er <em>liest</em>.</td></tr>
-      <tr><td>Akkusativobjekt</td><td>Wen oder was?</td><td>Er liest <em>ein Buch</em>.</td></tr>
-      <tr><td>Dativobjekt</td><td>Wem?</td><td>Er liest <em>seinem Bruder</em> ein Buch vor.</td></tr>
-      <tr><td>Präpositionalobjekt</td><td>Wo(r)+Präp. / Präp.+Fragewort</td><td>Sie denkt <em>an ihren Urlaub</em>.</td></tr>
-      <tr><td>Temporalbestimmung</td><td>Wann? Seit/bis wann?</td><td>Er liest <em>abends</em> vor.</td></tr>
-      <tr><td>Lokalbestimmung</td><td>Wo? Wohin? Woher?</td><td>Er liest <em>im Bett</em> vor.</td></tr>
-      <tr><td>Modalbestimmung</td><td>Wie?</td><td>Er liest <em>mit viel Freude</em> vor.</td></tr>
-      <tr><td>Kausalbestimmung</td><td>Warum? Weswegen?</td><td>Er liest <em>wegen seiner Angst</em> vor.</td></tr>
-    </table>
+        var WORTSCHATZ = [
+            { id:1, type:'n', en:'subject (grammar)', artikel:'das', de:'Subjekt', plural:'Subjekte' },
+            { id:2, type:'n', en:'predicate (grammar)', artikel:'das', de:'Prädikat', plural:'Prädikate' },
+            { id:3, type:'n', en:'accusative object', artikel:'das', de:'Akkusativobjekt', plural:'Akkusativobjekte' },
+            { id:4, type:'n', en:'dative object', artikel:'das', de:'Dativobjekt', plural:'Dativobjekte' },
+            { id:5, type:'n', en:'prepositional object', artikel:'das', de:'Präpositionalobjekt', plural:'Präpositionalobjekte' },
+            { id:6, type:'n', en:'temporal adverbial', artikel:'die', de:'Temporalbestimmung', plural:'Temporalbestimmungen' },
+            { id:7, type:'n', en:'local adverbial', artikel:'die', de:'Lokalbestimmung', plural:'Lokalbestimmungen' },
+            { id:8, type:'n', en:'modal adverbial', artikel:'die', de:'Modalbestimmung', plural:'Modalbestimmungen' },
+            { id:9, type:'n', en:'causal adverbial', artikel:'die', de:'Kausalbestimmung', plural:'Kausalbestimmungen' },
+            { id:10, type:'n', en:'transposition test', artikel:'die', de:'Umstellprobe', plural:'Umstellproben' },
+            { id:11, type:'n', en:'substitution test', artikel:'die', de:'Ersatzprobe', plural:'Ersatzproben' },
+            { id:12, type:'n', en:'sentence constituent', artikel:'das', de:'Satzglied', plural:'Satzglieder' }
+        ];
 
-    <div class="fragen-box" style="margin-top:10px">
-      <h3>💡 Umstellprobe &amp; Ersatzprobe</h3>
-      <ul class="fragen-list">
-        <li><strong>Umstellprobe:</strong> Satzglieder lassen sich an verschiedene Positionen stellen. Nur das Prädikat bleibt fest an <strong>Position 2</strong>. Beispiel: „Ich erlebe jeden Tag viele glückliche Eltern." → „Jeden Tag erlebe ich …" → „Viele glückliche Eltern erlebe ich …"</li>
-        <li><strong>Ersatzprobe:</strong> Jedes Satzglied kann durch ein Pronomen oder gleichwertiges Wort ersetzt werden. Beispiel: „der Schwiegervater meiner Schwester" → <strong>er</strong>, „für meine Schwester" → <strong>für sie</strong>.</li>
-      </ul>
-    </div>
-  </div>
+        function initLueckentext() {
+            var container = document.getElementById('lueckentext-container');
+            container.innerHTML = '';
 
-  <!-- TAB 1: LÜCKENTEXT -->
-  <div class="section" id="sec-1">
-    <img class="tab-banner" src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Grammatik üben">
+            for (var i = 0; i < LUECKEN.length; i++) {
+                var item = LUECKEN[i];
+                var div = document.createElement('div');
+                div.className = 'lueckentext-item';
 
-    </div>
-    <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Wie heißt das Satzglied? Ergänze den fehlenden Begriff.</p>
+                var segDiv = document.createElement('div');
+                segDiv.className = 'lueckentext-segment';
 
-    <ul class="luecke-list" id="luecke-list">
-      <li class="luecke-item">
-        <span class="nr">1.</span>
-        <span>Das ___</span>
-        <input class="luecke-inp" data-answer="Subjekt" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:150px">
-        <span>beantwortet die Frage „Wer oder was tut etwas?"</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">2.</span>
-        <span>Das konjugierte Verb im Satz nennt man das ___</span>
-        <input class="luecke-inp" data-answer="Prädikat" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:140px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">3.</span>
-        <span>„Ein Buch" in „Er liest ein Buch" ist ein ___</span>
-        <input class="luecke-inp" data-answer="Akkusativobjekt" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:185px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">4.</span>
-        <span>„Seinem Bruder" antwortet auf „Wem?" und ist ein ___</span>
-        <input class="luecke-inp" data-answer="Dativobjekt" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:155px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">5.</span>
-        <span>„An meiner besten Freundin" ist ein ___</span>
-        <input class="luecke-inp" data-answer="Präpositionalobjekt" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:210px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">6.</span>
-        <span>Zeitangaben wie „gestern" oder „abends" sind eine ___</span>
-        <input class="luecke-inp" data-answer="Temporalbestimmung" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:210px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">7.</span>
-        <span>Ortsangaben wie „im Bett" oder „in den Zoo" sind eine ___</span>
-        <input class="luecke-inp" data-answer="Lokalbestimmung" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:185px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">8.</span>
-        <span>„Mit viel Freude" antwortet auf „Wie?" und ist eine ___</span>
-        <input class="luecke-inp" data-answer="Modalbestimmung" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:185px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">9.</span>
-        <span>Eine Begründung, die „Warum?" antwortet, ist eine ___</span>
-        <input class="luecke-inp" data-answer="Kausalbestimmung" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:195px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">10.</span>
-        <span>Man stellt Satzteile an verschiedene Positionen im Satz: Das nennt man die ___</span>
-        <input class="luecke-inp" data-answer="Umstellprobe" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:170px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">11.</span>
-        <span>Man ersetzt Satzglieder durch Pronomen: Das nennt man die ___</span>
-        <input class="luecke-inp" data-answer="Ersatzprobe" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:155px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-      <li class="luecke-item">
-        <span class="nr">12.</span>
-        <span>Das Prädikat steht in einem Aussagesatz immer an Position</span>
-        <input class="luecke-inp" data-answer="2" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:60px">
-        <span>.</span>
-        <span class="luecke-feedback"></span>
-      </li>
-    </ul>
-  </div>
+                for (var j = 0; j < item.segs.length; j++) {
+                    var seg = item.segs[j];
+                    if (seg.t) {
+                        var textSpan = document.createElement('span');
+                        textSpan.textContent = seg.t;
+                        segDiv.appendChild(textSpan);
+                    } else if (seg.b) {
+                        var input = document.createElement('input');
+                        input.type = 'text';
+                        input.placeholder = 'Antwort';
+                        input.className = 'lueckentext-input';
+                        input.dataset.answer = seg.b;
+                        segDiv.appendChild(input);
+                    }
+                }
 
-  <!-- TAB 2: SATZBAU -->
-  <div class="section" id="sec-2">
-    <img class="tab-banner" src="https://images.pexels.com/photos/3806991/pexels-photo-3806991.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Sätze ordnen">
+                var hintSpan = document.createElement('span');
+                hintSpan.className = 'hint';
+                hintSpan.textContent = item.hint;
+                segDiv.appendChild(hintSpan);
 
-    </div>
-    <div id="satzbauContainer"></div>
-  </div>
+                div.appendChild(segDiv);
+                container.appendChild(div);
+            }
 
-  <!-- TAB 3: WORTSCHATZ -->
-  <div class="section" id="sec-3">
-    <img class="tab-banner" src="https://images.pexels.com/photos/1122586/pexels-photo-1122586.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Wortschatz Grammatik">
+            startTimer(2);
+        }
 
-    </div>
-    <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Ergänze Artikel, deutschen Begriff und Plural.</p>
+        function showLueckenLoesung() {
+            var inputs = document.querySelectorAll('.lueckentext-input');
+            inputs.forEach(function(input) {
+                input.value = input.dataset.answer;
+                input.style.background = '#f1f8f4';
+                input.style.borderColor = '#4caf50';
+            });
+            stopTimer(2);
+        }
 
-    <div class="vocab-container" id="vocab-container">
+        function resetLueckentext() {
+            var inputs = document.querySelectorAll('.lueckentext-input');
+            inputs.forEach(function(input) {
+                input.value = '';
+                input.style.background = '';
+                input.style.borderColor = '';
+            });
+            resetTimer(2);
+            startTimer(2);
+        }
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Subjekt">
-        <div class="vocab-en">subject (grammar)</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="das" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Subjekt" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Subjekte" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+        function initSatzbau() {
+            var container = document.getElementById('satzbau-container');
+            container.innerHTML = '';
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/3807561/pexels-photo-3807561.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Prädikat">
-        <div class="vocab-en">predicate (grammar)</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="das" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Prädikat" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Prädikate" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+            for (var i = 0; i < satzbauData.length; i++) {
+                var sb = satzbauData[i];
+                var div = document.createElement('div');
+                div.className = 'satzbau-item';
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Akkusativobjekt">
-        <div class="vocab-en">accusative object</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="das" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Akkusativobjekt" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Akkusativobjekte" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+                var partsDiv = document.createElement('div');
+                partsDiv.className = 'satzbau-parts';
+                partsDiv.id = 'sbparts-' + i;
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Dativobjekt">
-        <div class="vocab-en">dative object</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="das" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Dativobjekt" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Dativobjekte" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+                var shuffled = sb.parts.slice().sort(function() { return Math.random() - 0.5; });
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Präpositionalobjekt">
-        <div class="vocab-en">prepositional object</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="das" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Präpositionalobjekt" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Präpositionalobjekte" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+                for (var j = 0; j < shuffled.length; j++) {
+                    var part = shuffled[j];
+                    var btn = document.createElement('button');
+                    btn.className = 'sbpart';
+                    btn.textContent = part;
+                    btn.onclick = function() { selectSbPart(this, i); };
+                    partsDiv.appendChild(btn);
+                }
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/1095601/pexels-photo-1095601.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Temporalbestimmung">
-        <div class="vocab-en">temporal adverbial</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Temporalbestimmung" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Temporalbestimmungen" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+                div.appendChild(partsDiv);
+                container.appendChild(div);
+            }
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/1098567/pexels-photo-1098567.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Lokalbestimmung">
-        <div class="vocab-en">local adverbial</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Lokalbestimmung" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Lokalbestimmungen" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+            startTimer(3);
+        }
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/3808008/pexels-photo-3808008.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Modalbestimmung">
-        <div class="vocab-en">modal adverbial (manner)</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Modalbestimmung" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Modalbestimmungen" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+        function selectSbPart(btn, sbIdx) {
+            if (sbIdx < 0 || sbIdx >= satzbauData.length) return;
+            btn.classList.toggle('selected');
+        }
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Kausalbestimmung">
-        <div class="vocab-en">causal adverbial (reason)</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Kausalbestimmung" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Kausalbestimmungen" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+        function showSatzbauLoesung() {
+            for (var i = 0; i < satzbauData.length; i++) {
+                var partsDiv = document.getElementById('sbparts-' + i);
+                var btns = partsDiv.querySelectorAll('.sbpart');
+                var validOrder = satzbauData[i].valid[0];
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/3806991/pexels-photo-3806991.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Umstellprobe">
-        <div class="vocab-en">transposition test</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Umstellprobe" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Umstellproben" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+                btns.forEach(function(btn) {
+                    btn.classList.remove('selected', 'invalid');
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                });
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/1123982/pexels-photo-1123982.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Ersatzprobe">
-        <div class="vocab-en">substitution test</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Ersatzprobe" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Ersatzproben" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+                var btnArray = Array.prototype.slice.call(btns);
+                btnArray.sort(function(a, b) {
+                    var aIdx = validOrder.indexOf(a.textContent);
+                    var bIdx = validOrder.indexOf(b.textContent);
+                    return aIdx - bIdx;
+                });
 
-      <div class="vocab-card">
-        <img class="vocab-img" src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=180&fit=crop" alt="Satzglied">
-        <div class="vocab-en">sentence constituent</div>
-        <div class="vocab-inputs">
-          <input class="vocab-inp vocab-inp-art" data-answer="das" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-de" data-answer="Satzglied" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
-          <input class="vocab-inp vocab-inp-pl" data-answer="Satzglieder" oninput="vocabLiveCheck(this)" onblur="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
-        </div>
-      </div>
+                btnArray.forEach(function(btn) {
+                    btn.classList.add('selected');
+                    btn.style.background = '#667eea';
+                    btn.style.color = 'white';
+                    btn.style.borderColor = '#667eea';
+                });
+            }
+            stopTimer(3);
+        }
 
-    </div>
-  </div>
+        function resetSatzbau() {
+            var allBtns = document.querySelectorAll('.sbpart');
+            allBtns.forEach(function(btn) {
+                btn.classList.remove('selected', 'invalid');
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            });
+            resetTimer(3);
+            startTimer(3);
+        }
 
-  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
-</div>
+        function initVocab() {
+            var container = document.getElementById('vocabContainer');
+            container.innerHTML = '';
 
-<script>
-function showSection(n){
-  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  [1,2,3].forEach(function(i){ timerStop(i); });
-}
+            var shuffledVocab = WORTSCHATZ.slice().sort(function() { return Math.random() - 0.5; });
 
-// ─── TIMER SYSTEM ─────────────────────────────────────────────────────────────
-var TIMER_PREFIX='B2_1047X_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [1,2,3].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
+            for (var i = 0; i < shuffledVocab.length; i++) {
+                var vocab = shuffledVocab[i];
+                var div = document.createElement('div');
+                div.className = 'vocab-item';
+                div.id = 'vocab-' + vocab.id;
 
-});
-function liveCheck(inp) {
-  var val = inp.value.trim().toLowerCase();
-  var ans = (inp.dataset.answer || '').toLowerCase();
-  inp.classList.remove('correct', 'wrong');
-  if (val.length === 0) return;
-  if (val === ans) { inp.classList.add('correct'); }
-  else if (ans.startsWith(val)) { /* valid prefix — warte */ }
-  else { inp.classList.add('wrong'); }
-}
+                var en = document.createElement('div');
+                en.className = 'vocab-en';
+                en.textContent = vocab.en;
+                div.appendChild(en);
 
-function vocabLiveCheck(inp) {
-  const val = inp.value.trim().toLowerCase();
-  const ans = (inp.dataset.answer || '').toLowerCase().trim();
-  if (!val) { inp.className = inp.className.replace(/correct|wrong/g, '').trim(); return; }
-  if (val === ans) { inp.classList.remove('wrong'); inp.classList.add('correct'); }
-  else if (ans.startsWith(val)) { inp.classList.remove('correct', 'wrong'); }
-  else { inp.classList.remove('correct'); inp.classList.add('wrong'); }
-}
+                var inputsDiv = document.createElement('div');
+                inputsDiv.className = 'vocab-inputs';
 
-/* ── SATZBAU ── */
-var satzbauData = [
-  { parts: ['weil', 'das', 'Subjekt', 'fehlt', ',', 'ist', 'der', 'Satz', 'unvollständig'],
-    valid: [['weil', 'das', 'Subjekt', 'fehlt', ',', 'ist', 'der', 'Satz', 'unvollständig']], punct: '.' },
-  { parts: ['obwohl', 'er', 'das', 'Prädikat', 'kannte', ',', 'machte', 'er', 'Fehler'],
-    valid: [['obwohl', 'er', 'das', 'Prädikat', 'kannte', ',', 'machte', 'er', 'Fehler']], punct: '.' },
-  { parts: ['das', 'Objekt', 'zeigt', ',', 'was', 'das', 'Subjekt', 'beeinflusst'],
-    valid: [['das', 'Objekt', 'zeigt', ',', 'was', 'das', 'Subjekt', 'beeinflusst']], punct: '.' },
-  { parts: ['nachdem', 'sie', 'die', 'Satzglieder', 'gelernt', 'hatte', ',', 'analysierte', 'sie', 'Texte', 'leichter'],
-    valid: [['nachdem', 'sie', 'die', 'Satzglieder', 'gelernt', 'hatte', ',', 'analysierte', 'sie', 'Texte', 'leichter']], punct: '.' },
-  { parts: ['wir', 'erkennen', 'Satzglieder', ',', 'indem', 'wir', 'nach', 'Fragewörtern', 'suchen'],
-    valid: [['wir', 'erkennen', 'Satzglieder', ',', 'indem', 'wir', 'nach', 'Fragewörtern', 'suchen']], punct: '.' },
-  { parts: ['das', 'Adverbial', 'ist', 'optional', ',', 'weil', 'es', 'den', 'Satz', 'ergänzt'],
-    valid: [['das', 'Adverbial', 'ist', 'optional', ',', 'weil', 'es', 'den', 'Satz', 'ergänzt']], punct: '.' },
-  { parts: ['der', 'Satz', 'klingt', 'natürlicher', ',', 'wenn', 'die', 'Satzglieder', 'richtig', 'stehen'],
-    valid: [['der', 'Satz', 'klingt', 'natürlicher', ',', 'wenn', 'die', 'Satzglieder', 'richtig', 'stehen']], punct: '.' },
-];
-var sbDragged = null;
-function getSbCursor(){
-  var c=document.getElementById('sb-insert-cursor');
-  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
-  return c;
-}
-function getSbInsertPos(zone,clientX){
-  var chips=Array.from(zone.querySelectorAll('.chip'));
-  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
-  return null;
-}
-function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
-function sbUpdateCapitalization(row){
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
-    var orig=c.dataset.orig;
-    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
-    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
-  });
-}
-function sbMakeChip(word){
-  var chip=document.createElement('div');
-  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
-  chip.addEventListener('dragstart',function(e){
-    sbDragged=chip; timerAutoStart(2);
-    e.dataTransfer.setData('text/plain','');
-    setTimeout(function(){ chip.style.opacity='0.4'; },0);
-  });
-  chip.addEventListener('dragend',function(){
-    chip.style.opacity=''; sbDragged=null;
-    var c=document.getElementById('sb-insert-cursor');
-    if(c&&c.parentNode) c.parentNode.removeChild(c);
-  });
-  return chip;
-}
-function sbRegisterZone(zone,idx){
-  zone.addEventListener('dragover',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=getSbCursor();
-    var before=getSbInsertPos(zone,e.clientX);
-    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
-  });
-  zone.addEventListener('dragleave',function(e){
-    if(!zone.contains(e.relatedTarget)){
-      var c=document.getElementById('sb-insert-cursor');
-      if(c&&c.parentNode===zone) zone.removeChild(c);
-    }
-  });
-  zone.addEventListener('drop',function(e){
-    e.preventDefault(); if(!sbDragged) return;
-    var cursor=document.getElementById('sb-insert-cursor');
-    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
-    else zone.appendChild(sbDragged);
-    sbDragged=null;
-    var row=document.getElementById('sb-row-'+idx);
-    sbUpdateCapitalization(row); sbCheckAuto(idx);
-  });
-}
-function sbColorRow(idx){
-  var row=document.getElementById('sb-row-'+idx);
-  var chips=Array.from(row.querySelectorAll('.chip'));
-  var order=chips.map(function(c){ return c.dataset.orig; });
-  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
-  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
-  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
-  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
-  return ok;
-}
-function sbCheckAuto(idx){
-  var bank=document.getElementById('sb-bank-'+idx);
-  var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  if(bank.querySelectorAll('.chip').length>0){
-    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
-    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
-  }
-  setTimeout(function(){
-    var ok=sbColorRow(idx);
-    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
-    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
-  },500);
-}
-function sbCheckAllDone(){
-  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
-  if(allOk) timerStop(2);
-}
-function sbShowSolution(idx){
-  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx); var solution=satzbauData[idx].valid[0];
-  var allChips={};
-  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
-  fb.textContent=''; setTimeout(function(){ sbCheckAuto(idx); },100);
-}
-function sbResetOne(idx){
-  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
-  var fb=document.getElementById('sb-fb-'+idx);
-  while(bank.firstChild) bank.removeChild(bank.firstChild);
-  while(row.firstChild) row.removeChild(row.firstChild);
-  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
-  var parts=satzbauData[idx].parts.slice();
-  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-}
-function initSatzbau(){
-  var container=document.getElementById('satzbauContainer');
-  if(!container) return;
-  container.innerHTML='';
-  satzbauData.forEach(function(ex,idx){
-    var item=document.createElement('div'); item.className='satzbau-item';
-    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
-    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
-    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
-    var parts=ex.parts.slice();
-    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
-    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
-    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
-    bank.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      timerAutoStart(2); row.appendChild(chip); chip.classList.remove('correct','incorrect');
-      sbUpdateCapitalization(row); sbCheckAuto(idx);
-    });
-    row.addEventListener('click',function(e){
-      var chip=e.target.closest('.chip'); if(!chip) return;
-      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
-      chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
-    });
-    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
-    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
-    solveBtn.setAttribute('data-idx',idx);
-    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
-    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
-    resetBtn.setAttribute('data-idx',idx);
-    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
-    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
-    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
-    container.appendChild(item);
-  });
-}
-initSatzbau();
-</script>
+                if (vocab.type === 'n') {
+                    var artInput = document.createElement('input');
+                    artInput.type = 'text';
+                    artInput.placeholder = 'Artikel';
+                    artInput.className = 'art';
+                    artInput.dataset.answer = vocab.artikel;
+                    artInput.onkeyup = function() { vocabLiveCheck(this); };
+                    inputsDiv.appendChild(artInput);
+
+                    var wortInput = document.createElement('input');
+                    wortInput.type = 'text';
+                    wortInput.placeholder = 'Deutsch';
+                    wortInput.className = 'wort';
+                    wortInput.dataset.answer = vocab.de;
+                    wortInput.onkeyup = function() { vocabLiveCheck(this); };
+                    inputsDiv.appendChild(wortInput);
+
+                    var pluralInput = document.createElement('input');
+                    pluralInput.type = 'text';
+                    pluralInput.placeholder = 'Plural';
+                    pluralInput.className = 'plural';
+                    pluralInput.dataset.answer = vocab.plural;
+                    pluralInput.onkeyup = function() { vocabLiveCheck(this); };
+                    inputsDiv.appendChild(pluralInput);
+                }
+
+                div.appendChild(inputsDiv);
+                container.appendChild(div);
+            }
+
+            startTimer(4);
+        }
+
+        function vocabLiveCheck(input) {
+            var answer = input.dataset.answer;
+            var value = input.value.toLowerCase().trim();
+
+            if (value.length > 0) {
+                if (answer.toLowerCase().startsWith(value)) {
+                    input.classList.remove('incorrect');
+                    input.classList.add('correct');
+                } else {
+                    input.classList.remove('correct');
+                    input.classList.add('incorrect');
+                }
+            } else {
+                input.classList.remove('correct', 'incorrect');
+            }
+        }
+
+        function showVocabLoesung() {
+            var vocabItems = document.querySelectorAll('.vocab-item');
+            vocabItems.forEach(function(item) {
+                var inputs = item.querySelectorAll('input');
+                inputs.forEach(function(input) {
+                    input.value = input.dataset.answer;
+                    input.style.background = '#f1f8f4';
+                    input.style.borderColor = '#4caf50';
+                });
+            });
+            stopTimer(4);
+        }
+
+        function resetVocab() {
+            var vocabItems = document.querySelectorAll('.vocab-item');
+            vocabItems.forEach(function(item) {
+                var inputs = item.querySelectorAll('input');
+                inputs.forEach(function(input) {
+                    input.value = '';
+                    input.style.background = '';
+                    input.style.borderColor = '';
+                    input.classList.remove('correct', 'incorrect');
+                });
+            });
+            resetTimer(4);
+            startTimer(4);
+        }
+
+        function startTimer(tabIdx) {
+            if (timerActive[tabIdx]) return;
+            timerActive[tabIdx] = true;
+
+            var timerKey = TIMER_PREFIX + 'tab' + tabIdx;
+            var storedSeconds = localStorage.getItem(timerKey);
+            timerSeconds[tabIdx] = storedSeconds ? parseInt(storedSeconds) : 0;
+
+            timerIntervals[tabIdx] = setInterval(function() {
+                timerSeconds[tabIdx]++;
+                updateTimerDisplay(tabIdx);
+                localStorage.setItem(timerKey, timerSeconds[tabIdx]);
+            }, 1000);
+        }
+
+        function stopTimer(tabIdx) {
+            if (timerIntervals[tabIdx]) {
+                clearInterval(timerIntervals[tabIdx]);
+                timerIntervals[tabIdx] = null;
+                timerActive[tabIdx] = false;
+            }
+        }
+
+        function resetTimer(tabIdx) {
+            stopTimer(tabIdx);
+            timerSeconds[tabIdx] = 0;
+            var timerKey = TIMER_PREFIX + 'tab' + tabIdx;
+            localStorage.removeItem(timerKey);
+            updateTimerDisplay(tabIdx);
+        }
+
+        function updateTimerDisplay(tabIdx) {
+            var display = document.getElementById('timer-' + tabIdx);
+            if (display) {
+                var mins = Math.floor(timerSeconds[tabIdx] / 60);
+                var secs = timerSeconds[tabIdx] % 60;
+                display.textContent = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+            }
+        }
+
+        function showSection(tabIdx) {
+            var sections = document.querySelectorAll('.section');
+            sections.forEach(function(section) {
+                section.classList.remove('active');
+            });
+
+            var activeSection = document.getElementById('sec-' + tabIdx);
+            if (activeSection) {
+                activeSection.classList.add('active');
+            }
+
+            var buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+
+            event.target.classList.add('active');
+
+            if (tabIdx === 2 && document.querySelectorAll('.lueckentext-input').length === 0) {
+                initLueckentext();
+            } else if (tabIdx === 2) {
+                startTimer(2);
+            }
+
+            if (tabIdx === 3 && document.getElementById('sbparts-0') === null) {
+                initSatzbau();
+            } else if (tabIdx === 3) {
+                startTimer(3);
+            }
+
+            if (tabIdx === 4 && document.getElementById('vocabContainer').children.length === 0) {
+                initVocab();
+            } else if (tabIdx === 4) {
+                startTimer(4);
+            }
+        }
+
+        var tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var tabIdx = parseInt(this.dataset.tab);
+
+                for (var i = 0; i < timerIntervals.length; i++) {
+                    if (i !== tabIdx) {
+                        stopTimer(i);
+                    }
+                }
+
+                showSection(tabIdx);
+            });
+        });
+
+        window.addEventListener('load', function() {
+            initLueckentext();
+        });
+    </script>
 </body>
 </html>
