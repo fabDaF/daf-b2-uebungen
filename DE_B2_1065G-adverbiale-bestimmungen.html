@@ -355,7 +355,7 @@ input.gap.wrong { border-bottom-color:#f44336; background:#ffebee; }
 
   <div class="author-footer">
     <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
   </div>
 
 </div><!-- /container -->
@@ -426,6 +426,9 @@ function checkGap(inp) {
   } else {
     inp.className='gap wrong';
   }
+  var all = document.querySelectorAll('#sec-2 input.gap');
+  var done = document.querySelectorAll('#sec-2 input.gap.correct');
+  if (all.length > 0 && all.length === done.length) timerStop(2);
 }
 function resetGaps() {
   document.querySelectorAll('input.gap').forEach(function(i){ i.value=''; i.className='gap'; });
@@ -476,12 +479,13 @@ function sbUpdateCapitalization(row) {
   });
 }
 
-function sbMakeChip(word) {
+function sbMakeChip(word, idx) {
   var chip=document.createElement('div');
   chip.className='chip';
   if(word===','||word===';') chip.classList.add('punct-chip');
   chip.textContent=word;
   chip.dataset.orig=word;
+  chip.dataset.sbIdx=String(idx);
   chip.draggable=true;
   chip.addEventListener('dragstart',function(e) {
     sbDragged=chip;
@@ -502,6 +506,7 @@ function sbRegisterZone(zone,idx) {
   zone.addEventListener('dragover',function(e) {
     e.preventDefault();
     if(!sbDragged) return;
+    if(sbDragged.dataset.sbIdx!==String(idx)) return;
     var cursor=getSbCursor();
     var before=getSbInsertPos(zone,e.clientX);
     if(before) zone.insertBefore(cursor,before);
@@ -516,6 +521,7 @@ function sbRegisterZone(zone,idx) {
   zone.addEventListener('drop',function(e) {
     e.preventDefault();
     if(!sbDragged) return;
+    if(sbDragged.dataset.sbIdx!==String(idx)) return;
     var cursor=document.getElementById('sb-insert-cursor');
     if(cursor&&cursor.parentNode===zone) {
       zone.insertBefore(sbDragged,cursor);
@@ -623,7 +629,7 @@ function sbResetOne(idx) {
     var j=Math.floor(Math.random()*(i+1));
     var tmp=parts[i]; parts[i]=parts[j]; parts[j]=tmp;
   }
-  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
 }
 
 function initSatzbau() {
@@ -643,7 +649,7 @@ function initSatzbau() {
       var j=Math.floor(Math.random()*(i+1));
       var tmp=parts[i]; parts[i]=parts[j]; parts[j]=tmp;
     }
-    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
     sbRegisterZone(bank,idx);
     sbRegisterZone(row,idx);
     bank.addEventListener('click',function(e){
@@ -718,6 +724,9 @@ function checkVocab(inp) {
   } else {
     inp.className='wrong';
   }
+  var all = document.querySelectorAll('.vocab-inputs input');
+  var done = document.querySelectorAll('.vocab-inputs input.correct');
+  if (all.length > 0 && all.length === done.length) timerStop(4);
 }
 
 function resetVocab() {
