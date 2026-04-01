@@ -527,33 +527,31 @@
             <p>B2.2 – Lektion 2035G · Grammatik</p>
         </div>
 
-        <div class="nav-tabs nav">
-            <div class="nav-buttons">
-                <div class="nav-btn active" onclick="switchTab(0)">
+        <div class="nav">
+                <div class="nav-btn active" onclick="showSection(0)">
                     <span class="nav-emoji">🔍</span>
                     <span class="nav-label">Entdecken</span>
-                </button>
-                <div class="nav-btn" onclick="switchTab(1)">
+                </div>
+                <div class="nav-btn" onclick="showSection(1)">
                     <span class="nav-emoji">📋</span>
                     <span class="nav-label">Übersicht</span>
-                </button>
-                <div class="nav-btn" onclick="switchTab(2)">
+                </div>
+                <div class="nav-btn" onclick="showSection(2)">
                     <span class="nav-emoji">✏️</span>
                     <span class="nav-label">Lückentext</span>
-                </button>
-                <div class="nav-btn" onclick="switchTab(3)">
+                </div>
+                <div class="nav-btn" onclick="showSection(3)">
                     <span class="nav-emoji">🔀</span>
                     <span class="nav-label">Satzbau</span>
-                </button>
-                <div class="nav-btn" onclick="switchTab(4)">
+                </div>
+                <div class="nav-btn" onclick="showSection(4)">
                     <span class="nav-emoji">📚</span>
                     <span class="nav-label">Wortschatz</span>
-                </button>
-            </div>
+                </div>
         </div>
 
         <!-- Tab 1: Entdecken -->
-        <div class="tab-content active">
+        <div class="section active" id="sec-0">
             <img src="https://images.pexels.com/photos/164821/pexels-photo-164821.jpeg?w=1000" alt="Banner" class="tab-banner">
             <h2>Entdecken</h2>
 
@@ -590,7 +588,7 @@
         </div>
 
         <!-- Tab 2: Übersicht -->
-        <div class="tab-content">
+        <div class="section" id="sec-1">
             <img src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Banner" class="tab-banner">
             <h2>Restriktivsatz — Vollständige Übersicht</h2>
 
@@ -678,7 +676,7 @@
         </div>
 
         <!-- Tab 3: Lückentext -->
-        <div class="tab-content">
+        <div class="section" id="sec-2">
             <img src="https://images.pexels.com/photos/3808904/pexels-photo-3808904.jpeg?w=1000" alt="Banner" class="tab-banner">
             <h2>Lückentext-Übungen</h2>
 
@@ -732,7 +730,7 @@
         </div>
 
         <!-- Tab 4: Satzbau -->
-        <div class="tab-content">
+        <div class="section" id="sec-3">
             <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Banner" class="tab-banner">
             <h2>Satzbau-Übung</h2>
             <p style="color: #6c757d; margin-bottom: 20px;">Klicken Sie auf die Wörter, um sie zu ordnen. Klicken Sie in die Zeile unten, um abzulegen.</p>
@@ -741,7 +739,7 @@
         </div>
 
         <!-- Tab 5: Wortschatz -->
-        <div class="tab-content">
+        <div class="section" id="sec-4">
             <img src="https://images.pexels.com/photos/2078076/pexels-photo-2078076.jpeg?w=1000" alt="Banner" class="tab-banner">
             <h2>Wortschatz</h2>
 
@@ -791,7 +789,7 @@
 
         <div class="control-bar">
             <div class="control-buttons">
-                <button class="btn btn-secondary" onclick="resetCurrentTab()">Zurücksetzen</button>
+                <button class="btn btn-secondary" onclick="resetCurrentTab()">Zurücksetzen</div>
             </div>
             
 
@@ -799,13 +797,20 @@
 </div>
 
         <div class="footer">
-            © Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com
+            © Frank Burkert · DaF-Materialien · frankburkert@gmx.net
         </div>
     </div>
 
     <script>
-        let currentTab = 0;
-        var TIMER_PREFIX='B2_2035G_';
+var currentTab = 0;
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+  currentTab = n;
+  if (n === 3) initDragDrop();
+}
+
+var TIMER_PREFIX='B2_2035G_';
 var timerStarted=[false,false,false,false,false,false,false];
 var timerRunning=[false,false,false,false,false,false,false];
 var timerSeconds=[0,0,0,0,0,0,0];
@@ -845,189 +850,96 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 
-        function updateTimer() {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            document.getElementById('timer-2').textContent =
-                String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+function checkOption(element, isCorrect) {
+  var options = element.parentElement.querySelectorAll('.option');
+  options.forEach(function(opt) { opt.classList.remove('selected', 'correct', 'wrong'); });
+  if (isCorrect) { element.classList.add('correct'); }
+  else { element.classList.add('wrong'); }
+}
+
+function checkGap(element, correct) {
+  timerAutoStart(2);
+  var value = element.value.trim();
+  if (value.toLowerCase() === correct.toLowerCase()) {
+    element.classList.add('correct'); element.classList.remove('wrong');
+  } else if (value) {
+    element.classList.add('wrong'); element.classList.remove('correct');
+  }
+}
+
+function checkVocab(element, hint) {
+  timerAutoStart(4);
+  var value = element.value.trim();
+  if (value.length > 2) { element.classList.add('correct'); element.classList.remove('wrong'); }
+}
+
+
+
+var draggedItem = null;
+
+function initDragDrop() {
+  var container = document.getElementById('dragDropContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  dragDropSentences.forEach(function(sentence, index) {
+    var shuffled = sentence.words.slice().sort(function() { return Math.random() - 0.5; });
+    var wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '30px';
+    var title = document.createElement('div');
+    title.textContent = 'Aufgabe ' + (index + 1) + ':';
+    title.style.fontWeight = '600'; title.style.color = '#667eea';
+    title.style.marginBottom = '10px'; title.style.fontSize = '14px';
+    var dragArea = document.createElement('div');
+    dragArea.className = 'drag-drop-area'; dragArea.id = 'dragArea' + index;
+    shuffled.forEach(function(word) {
+      var item = document.createElement('div');
+      item.className = 'drag-item'; item.textContent = word;
+      item.draggable = true; item.dataset.sentenceIndex = index;
+      item.dataset.word = word;
+      item.addEventListener('dragstart', function() { draggedItem = item; item.classList.add('selected'); timerAutoStart(3); });
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.drag-item').forEach(function(di) { di.classList.remove('selected'); });
+        item.classList.add('selected'); draggedItem = item; timerAutoStart(3);
+      });
+      dragArea.appendChild(item);
+    });
+    var slotsArea = document.createElement('div');
+    slotsArea.className = 'sentence-slots'; slotsArea.id = 'slots' + index;
+    sentence.words.forEach(function(word, slotIndex) {
+      var slot = document.createElement('div');
+      slot.className = 'slot'; slot.textContent = slotIndex + 1;
+      slot.dataset.slotIndex = slotIndex;
+      slot.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (draggedItem) { slot.textContent = draggedItem.dataset.word; draggedItem.remove(); draggedItem = null; }
+      });
+      slot.addEventListener('dragover', function(e) { e.preventDefault(); });
+      slot.addEventListener('click', function() {
+        if (draggedItem && draggedItem.classList.contains('selected')) {
+          slot.textContent = draggedItem.dataset.word; draggedItem.remove(); draggedItem = null;
         }
+      });
+      slotsArea.appendChild(slot);
+    });
+    wrapper.appendChild(title); wrapper.appendChild(dragArea); wrapper.appendChild(slotsArea);
+    container.appendChild(wrapper);
+  });
+}
 
-        function switchTab(tabIndex) {
-            const tabs = document.querySelectorAll('.tab-content');
-            const btns = document.querySelectorAll('.nav-btn');
-
-            tabs.forEach(tab => tab.classList.remove('active'));
-            btns.forEach(btn => btn.classList.remove('active'));
-
-            tabs[tabIndex].classList.add('active');
-            btns[tabIndex].classList.add('active');
-
-            currentTab = tabIndex;
-            startTimer();
-
-            if (tabIndex === 3) {
-                initDragDrop();
-            }
-        }
-
-        function checkOption(element, isCorrect) {
-            const options = element.parentElement.querySelectorAll('.option');
-            options.forEach(opt => {
-                opt.classList.remove('selected', 'correct', 'wrong');
-            });
-
-            if (isCorrect) {
-                element.classList.add('correct');
-            } else {
-                element.classList.add('wrong');
-                options.forEach(opt => {
-                    if (opt.textContent.includes('✓')) {
-                        opt.classList.add('correct');
-                    }
-                });
-            }
-        }
-
-        function checkGap(element, correct) {
-            const value = element.value.trim();
-            if (value.toLowerCase() === correct.toLowerCase()) {
-                element.classList.add('correct');
-                element.classList.remove('wrong');
-            } else if (value) {
-                element.classList.add('wrong');
-                element.classList.remove('correct');
-            }
-        }
-
-        function checkVocab(element, hint) {
-            const value = element.value.trim();
-            if (value.length > 2) {
-                element.classList.add('correct');
-                element.classList.remove('wrong');
-            }
-        }
-
-        function initDragDrop() {
-            const container = document.getElementById('dragDropContainer');
-            container.innerHTML = '';
-
-            dragDropSentences.forEach((sentence, index) => {
-                const shuffled = [...sentence.words].sort(() => Math.random() - 0.5);
-
-                const wrapper = document.createElement('div');
-                wrapper.style.marginBottom = '30px';
-
-                const title = document.createElement('div');
-                title.textContent = `Aufgabe ${index + 1}:`;
-                title.style.fontWeight = '600';
-                title.style.color = '#667eea';
-                title.style.marginBottom = '10px';
-                title.style.fontSize = '14px';
-
-                const dragArea = document.createElement('div');
-                dragArea.className = 'drag-drop-area';
-                dragArea.id = `dragArea${index}`;
-
-                shuffled.forEach((word, wordIndex) => {
-                    const item = document.createElement('div');
-                    item.className = 'drag-item';
-                    item.textContent = word;
-                    item.draggable = true;
-                    item.dataset.sentenceIndex = index;
-                    item.dataset.wordIndex = wordIndex;
-                    item.dataset.word = word;
-
-                    item.addEventListener('dragstart', handleDragStart);
-                    item.addEventListener('click', handleItemClick);
-
-                    dragArea.appendChild(item);
-                });
-
-                const slotsArea = document.createElement('div');
-                slotsArea.className = 'sentence-slots';
-                slotsArea.id = `slots${index}`;
-                slotsArea.dataset.sentenceIndex = index;
-
-                sentence.words.forEach((word, slotIndex) => {
-                    const slot = document.createElement('div');
-                    slot.className = 'slot';
-                    slot.textContent = slotIndex + 1;
-                    slot.dataset.slotIndex = slotIndex;
-                    slot.addEventListener('drop', handleDrop);
-                    slot.addEventListener('dragover', handleDragOver);
-                    slot.addEventListener('click', handleSlotClick);
-                    slotsArea.appendChild(slot);
-                });
-
-                wrapper.appendChild(title);
-                wrapper.appendChild(dragArea);
-                wrapper.appendChild(slotsArea);
-                container.appendChild(wrapper);
-            });
-        }
-
-        let draggedItem = null;
-
-        function handleDragStart(e) {
-            draggedItem = this;
-            this.classList.add('selected');
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dropEffect = 'move';
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            if (draggedItem) {
-                const word = draggedItem.dataset.word;
-                this.textContent = word;
-                draggedItem.remove();
-                draggedItem.classList.remove('selected');
-            }
-        }
-
-        function handleItemClick(e) {
-            const items = document.querySelectorAll('.drag-item');
-            items.forEach(item => item.classList.remove('selected'));
-            this.classList.add('selected');
-            draggedItem = this;
-        }
-
-        function handleSlotClick(e) {
-            if (draggedItem && draggedItem.classList.contains('selected')) {
-                const word = draggedItem.dataset.word;
-                this.textContent = word;
-                draggedItem.remove();
-                draggedItem.classList.remove('selected');
-                draggedItem = null;
-            }
-        }
-
-        function resetCurrentTab() {
-            if (currentTab === 0) {
-                document.querySelectorAll('.option').forEach(opt => {
-                    opt.classList.remove('selected', 'correct', 'wrong');
-                });
-            } else if (currentTab === 2) {
-                document.querySelectorAll('.gap-input').forEach(input => {
-                    input.value = '';
-                    input.classList.remove('correct', 'wrong');
-                });
-            } else if (currentTab === 3) {
-                initDragDrop();
-            } else if (currentTab === 4) {
-                document.querySelectorAll('.vocab-input').forEach(input => {
-                    input.value = '';
-                    input.classList.remove('correct', 'wrong');
-                });
-            }
-        }
-
-        window.addEventListener('load', () => {
-            startTimer();
-        });
+function resetCurrentTab() {
+  if (currentTab === 0) {
+    document.querySelectorAll('.option').forEach(function(opt) { opt.classList.remove('selected', 'correct', 'wrong'); });
+  } else if (currentTab === 2) {
+    document.querySelectorAll('.gap-input').forEach(function(input) { input.value = ''; input.classList.remove('correct', 'wrong'); });
+    timerResetOne(2);
+  } else if (currentTab === 3) {
+    initDragDrop(); timerResetOne(3);
+  } else if (currentTab === 4) {
+    document.querySelectorAll('.vocab-input').forEach(function(input) { input.value = ''; input.classList.remove('correct', 'wrong'); });
+    timerResetOne(4);
+  }
+}
 </script>
 </body>
 </html>

@@ -393,8 +393,8 @@ input.correct + .vocab-hint { display: inline; }
 /* ──────────────────────────────────────────────────────────── */
 </style>
 <script>
-function showTab(n){
-  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===n);});
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
   document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
 }
 
@@ -436,17 +436,141 @@ document.addEventListener('DOMContentLoaded',function(){
     var b=localStorage.getItem(TIMER_PREFIX+n);
     if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
-
 });
+
 function checkLuecke(inp) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase();
+  var alt = (inp.dataset.alt || '').toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (val === ans || val === alt) { inp.classList.add('correct'); timerAutoStart(3); }
+  else if (ans.indexOf(val) === 0 || (alt && alt.indexOf(val) === 0)) { timerAutoStart(3); }
+  else { inp.classList.add('wrong'); timerAutoStart(3); }
+}
+
+var adjSelected = null;
+function adjClick(chip, correct) {
+  if (adjSelected) adjSelected.classList.remove('selected');
+  adjSelected = chip; chip.classList.add('selected');
+}
+function adjDrop(group, cat) {
+  if (!adjSelected) return;
+  var target = group.querySelector('div');
+  target.appendChild(adjSelected);
+  var correctCat = adjSelected.getAttribute('onclick').match(/'(\w+)'/);
+  if (correctCat && correctCat[1] === cat) {
+    adjSelected.classList.add('correct'); adjSelected.classList.remove('wrong');
+  } else {
+    adjSelected.classList.add('wrong'); adjSelected.classList.remove('correct');
+  }
+  adjSelected.classList.remove('selected');
+  adjSelected = null;
+}
+
+function matchEvent(card) {
+  card.classList.toggle('selected');
+}
+
+var randomQuestions = [
+  'Welches Konzert hat dich am meisten beeindruckt?',
+  'Wenn du eine Band gründen könntest, welche Musikrichtung?',
+  'Beschreibe dein ideales Musikfestival!',
+  'Welches Instrument würdest du gerne spielen?',
+  'Vergleiche zwei Musikrichtungen miteinander!',
+  'Was macht ein gutes Konzert aus?',
+  'Erzähle von einem Musiker, den du bewunderst!'
+];
+function randomQuestion() {
+  var q = randomQuestions[Math.floor(Math.random() * randomQuestions.length)];
+  document.getElementById('randomQ').textContent = q;
+}
+
+function resetLuecken() {
+  document.querySelectorAll('.luecke-input').forEach(function(inp) {
+    inp.value = ''; inp.classList.remove('correct', 'wrong');
+  });
+  timerResetOne(3);
+}
+
+// Vocab data
+var vocabData = [
+  { en: 'concert', artikel: 'das', de: 'Konzert', plural: 'Konzerte', type: 'n' },
+  { en: 'charity concert', artikel: 'das', de: 'Wohltätigkeitskonzert', plural: 'Wohltätigkeitskonzerte', type: 'n' },
+  { en: 'farewell concert', artikel: 'das', de: 'Abschiedskonzert', plural: 'Abschiedskonzerte', type: 'n' },
+  { en: 'open-air concert', artikel: 'das', de: 'Open-Air-Konzert', plural: 'Open-Air-Konzerte', type: 'n' },
+  { en: 'anniversary concert', artikel: 'das', de: 'Jubiläumskonzert', plural: 'Jubiläumskonzerte', type: 'n' },
+  { en: 'festival', artikel: 'das', de: 'Festival', plural: 'Festivals', type: 'n' },
+  { en: 'music culture', artikel: 'die', de: 'Musikkultur', plural: 'Musikkulturen', type: 'n' },
+  { en: 'favourite band', artikel: 'die', de: 'Lieblingsband', plural: 'Lieblingsbands', type: 'n' },
+  { en: 'album', artikel: 'das', de: 'Album', plural: 'Alben', type: 'n' },
+  { en: 'moving / touching', de: 'bewegend', type: 'adj' },
+  { en: 'varied / diverse', de: 'abwechslungsreich', type: 'adj' },
+  { en: 'mysterious', de: 'geheimnisvoll', type: 'adj' },
+  { en: 'to prefer', de: 'bevorzugen', type: 'v' },
+  { en: 'to recommend', de: 'weiterempfehlen', type: 'v' }
+];
+
+function buildVocab() {
+  var container = document.getElementById('vocabGrid');
+  if (!container) return;
+  container.innerHTML = '';
+  var shuffled = vocabData.slice().sort(function() { return Math.random() - 0.5; });
+  shuffled.forEach(function(item) {
+    var card = document.createElement('div'); card.className = 'vocab-card';
+    var en = document.createElement('div'); en.className = 'vocab-en'; en.textContent = item.en;
+    card.appendChild(en);
+    var inputs = document.createElement('div'); inputs.className = 'vocab-inputs';
+    if (item.type === 'n') {
+      var artInp = document.createElement('input'); artInp.placeholder = 'der/die/das';
+      artInp.dataset.answer = item.artikel;
+      artInp.addEventListener('input', function() { timerAutoStart(4); vocabLiveCheck(artInp); checkVocabAllOk(); });
+      inputs.appendChild(artInp);
+      var wordInp = document.createElement('input'); wordInp.placeholder = 'Deutsch';
+      wordInp.dataset.answer = item.de;
+      wordInp.addEventListener('input', function() { timerAutoStart(4); vocabLiveCheck(wordInp); checkVocabAllOk(); });
+      inputs.appendChild(wordInp);
+      var pluralInp = document.createElement('input'); pluralInp.placeholder = 'Plural';
+      pluralInp.dataset.answer = item.plural;
+      pluralInp.addEventListener('input', function() { timerAutoStart(4); vocabLiveCheck(pluralInp); checkVocabAllOk(); });
+      inputs.appendChild(pluralInp);
+    } else {
+      var deInp = document.createElement('input'); deInp.placeholder = 'Deutsch'; deInp.style.width = '200px';
+      deInp.dataset.answer = item.de;
+      deInp.addEventListener('input', function() { timerAutoStart(4); vocabLiveCheck(deInp); checkVocabAllOk(); });
+      inputs.appendChild(deInp);
+    }
+    card.appendChild(inputs);
+    container.appendChild(card);
+  });
+}
+
+function vocabLiveCheck(inp) {
   var val = inp.value.trim().toLowerCase();
   var ans = (inp.dataset.answer || '').toLowerCase();
   inp.classList.remove('correct', 'wrong');
   if (val.length === 0) return;
   if (val === ans) { inp.classList.add('correct'); }
-  else if (ans.startsWith(val)) { /* valid prefix */ }
+  else if (ans.indexOf(val) === 0) { /* valid prefix */ }
   else { inp.classList.add('wrong'); }
 }
+
+function checkVocabAllOk() {
+  var all = document.querySelectorAll('#vocabGrid input');
+  var allOk = all.length > 0 && Array.from(all).every(function(inp) { return inp.classList.contains('correct'); });
+  if (allOk) timerStop(4);
+}
+
+function resetVocab() {
+  document.querySelectorAll('#vocabGrid input').forEach(function(inp) {
+    inp.value = ''; inp.classList.remove('correct', 'wrong');
+  });
+  timerResetOne(4);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  buildVocab();
+});
 </script>
 </head>
 <body>
@@ -454,26 +578,27 @@ function checkLuecke(inp) {
   <div class="header">
     <div class="badge">B2.2 · Einheit 3 · Sprechen</div>
     <h1>Alles über Musikkulturen</h1>
-            <p>B2.2 – Lektion 2038S · Sprechen</p>
+    <p>B2.2 – Lektion 2038S · Sprechen</p>
   </div>
 
-  <div class="nav">
-    <button class="active" onclick="showTab('gespraech',this)">
+    <div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)">
       <span class="nav-emoji">🗣️</span><span class="nav-label">Gesprächsanlässe</span>
     </div>
-    <button onclick="showTab('rollenspiele',this)">
+    <div class="nav-btn" onclick="showSection(1)">
       <span class="nav-emoji">🎭</span><span class="nav-label">Rollenspiele</span>
     </div>
-    <button onclick="showTab('beschreiben',this)">
+    <div class="nav-btn" onclick="showSection(2)">
       <span class="nav-emoji">📊</span><span class="nav-label">Musik beschreiben</span>
     </div>
-    <button onclick="showTab('wortschatz',this)">
+    <div class="nav-btn" onclick="showSection(3)">
       <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
     </div>
   </div>
 
+
   <!-- TAB 1: GESPRÄCHSANLÄSSE -->
-  <div id="tab-gespraech" class="tab-content active">
+  <div id="sec-0" class="section active">
     <img class="tab-banner" src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Konzert">
     <div class="content-area">
       <h2>Gesprächsanlässe: Musikkulturen</h2>
@@ -547,7 +672,7 @@ function checkLuecke(inp) {
   </div>
 
   <!-- TAB 2: ROLLENSPIELE -->
-  <div id="tab-rollenspiele" class="tab-content">
+  <div id="sec-1" class="section">
     <img class="tab-banner" src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Konzert Rollenspiel">
     <div class="content-area">
       <h2>Mein bestes Konzert</h2>
@@ -588,7 +713,7 @@ function checkLuecke(inp) {
   </div>
 
   <!-- TAB 3: MUSIK BESCHREIBEN -->
-  <div id="tab-beschreiben" class="tab-content">
+  <div id="sec-2" class="section">
     <img class="tab-banner" src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?w=1000" alt="Musik Event">
     <div class="content-area">
       <h2>Event-Typen und Musik beschreiben</h2>
@@ -650,14 +775,14 @@ function checkLuecke(inp) {
       </div>
       <div class="timer-box">
         <span>⏱</span>
-        <span id="timer-3">00:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
+        <span id="timer-3">0:00</span> 🏆 <span id="best-3">--:--</span>
         <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
       </div>
     </div>
   </div>
 
   <!-- TAB 4: WORTSCHATZ -->
-  <div id="tab-wortschatz" class="tab-content">
+  <div id="sec-3" class="section">
     <img class="tab-banner" src="https://images.pexels.com/photos/2078076/pexels-photo-2078076.jpeg?w=1000" alt="Wortschatz Musik">
     <div class="content-area">
       <h2>Wortschatz: Musikkulturen</h2>
@@ -670,13 +795,13 @@ function checkLuecke(inp) {
       </div>
       <div class="timer-box">
         <span>⏱</span>
-        <span id="timer-4">00:00</span><span>🏆 <span id="best-4">--:--</span></span></span></span>
+        <span id="timer-4">0:00</span> 🏆 <span id="best-4">--:--</span>
         <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
       </div>
     </div>
   </div>
 
-  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+  <div class="footer">© Frank Burkert · DaF-Materialien · frankburkert@gmx.net</div>
 </div>
 
 
