@@ -367,6 +367,71 @@ textarea.schreib-input:focus {
 .contra-box h4 { color: #e74c3c; margin-bottom: 8px; font-size: 0.95em; }
 .pro-box ul, .contra-box ul { font-size: 0.88em; color: #444; line-height: 1.6; padding-left: 18px; }
 
+/* Auto-Save Indikator */
+.save-indicator {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    background: rgba(39,174,96,0.92);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.82em;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    z-index: 999;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+}
+.save-indicator.show { opacity: 1; }
+.save-indicator.restored { background: rgba(102,126,234,0.92); }
+
+/* Export-Bereich */
+.export-bereich {
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 32px 30px 10px;
+    text-align: center;
+}
+.export-bereich h3 {
+    color: #667eea;
+    font-size: 1.1em;
+    margin-bottom: 6px;
+}
+.export-bereich p {
+    color: #888;
+    font-size: 0.88em;
+    margin-bottom: 16px;
+}
+.export-btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.export-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 0.92em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.export-btn:hover { background: #764ba2; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+.export-btn.secondary { background: white; color: #667eea; border: 2px solid #667eea; }
+.export-btn.secondary:hover { background: #f0f4ff; }
+.export-btn.danger { background: #e74c3c; }
+.export-btn.danger:hover { background: #c0392b; }
+
 /* Footer */
 .author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
 .author-footer a { color: #aaa; }
@@ -766,12 +831,27 @@ textarea.schreib-input:focus {
         </div>
     </div>
 
+    <!-- ═══════ EXPORT-BEREICH ═══════ -->
+    <div class="export-bereich">
+        <h3>📤 Texte exportieren</h3>
+        <p>Deine Texte werden automatisch gespeichert. Hier kannst du alles auf einmal exportieren.</p>
+        <div class="export-btn-row">
+            <button class="export-btn" onclick="exportAlsMail()">✉️ Per E-Mail senden</button>
+            <button class="export-btn secondary" onclick="exportAlsDatei()">💾 Als Textdatei speichern</button>
+            <button class="export-btn secondary" onclick="exportInZwischenablage()">📋 In Zwischenablage kopieren</button>
+            <button class="export-btn danger" onclick="alleLoeschen()">🗑️ Alle Texte löschen</button>
+        </div>
+    </div>
+
     <div class="author-footer">
         <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
         <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
     </div>
 
 </div><!-- /container -->
+
+<!-- Save-Indikator (fixed, schwebt unten rechts) -->
+<div class="save-indicator" id="saveIndicator">✓ Gespeichert</div>
 
 <script>
 // ===== NAV =====
@@ -856,6 +936,205 @@ function toggleRedemittel(h4) {
     h4.classList.toggle('open');
     var list = h4.nextElementSibling;
     list.classList.toggle('show');
+}
+
+// ===== AUTO-SAVE (localStorage) =====
+var SAVE_KEY = 'daf-b2-dmt-johnson-schreibwerkstatt';
+var saveTimeout = null;
+
+function getAllTextareaIds() {
+    var ids = [];
+    document.querySelectorAll('textarea.schreib-input').forEach(function(ta) {
+        if (ta.id) ids.push(ta.id);
+    });
+    return ids;
+}
+
+function autoSave() {
+    var data = {};
+    getAllTextareaIds().forEach(function(id) {
+        var ta = document.getElementById(id);
+        if (ta && ta.value.trim()) data[id] = ta.value;
+    });
+    // Auch Checkboxen speichern
+    document.querySelectorAll('.checkliste input[type="checkbox"]').forEach(function(cb, i) {
+        if (cb.checked) data['cb-' + i] = true;
+    });
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        showSaveIndicator(false);
+    } catch(e) { /* localStorage voll oder blockiert — still ignorieren */ }
+}
+
+function autoRestore() {
+    try {
+        var raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        var restored = false;
+        Object.keys(data).forEach(function(key) {
+            if (key.startsWith('cb-')) {
+                var idx = parseInt(key.replace('cb-', ''));
+                var cbs = document.querySelectorAll('.checkliste input[type="checkbox"]');
+                if (cbs[idx]) { cbs[idx].checked = true; }
+            } else {
+                var ta = document.getElementById(key);
+                if (ta) {
+                    ta.value = data[key];
+                    restored = true;
+                    // Word-Counter aktualisieren
+                    var ev = new Event('input', { bubbles: true });
+                    ta.dispatchEvent(ev);
+                }
+            }
+        });
+        if (restored) showSaveIndicator(true);
+    } catch(e) { /* JSON kaputt oder localStorage blockiert — still ignorieren */ }
+}
+
+function showSaveIndicator(isRestore) {
+    var el = document.getElementById('saveIndicator');
+    el.textContent = isRestore ? '📂 Texte wiederhergestellt' : '✓ Gespeichert';
+    el.className = 'save-indicator show' + (isRestore ? ' restored' : '');
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(function() {
+        el.className = 'save-indicator';
+    }, isRestore ? 3000 : 1500);
+}
+
+// Debounced Auto-Save: bei jedem Input, aber max. alle 500ms
+function triggerAutoSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(autoSave, 500);
+}
+
+// Alle Textareas mit Auto-Save verbinden
+document.addEventListener('DOMContentLoaded', function() {
+    // Restore zuerst
+    autoRestore();
+    // Dann Listener
+    document.querySelectorAll('textarea.schreib-input').forEach(function(ta) {
+        ta.addEventListener('input', triggerAutoSave);
+    });
+    document.querySelectorAll('.checkliste input[type="checkbox"]').forEach(function(cb) {
+        cb.addEventListener('change', triggerAutoSave);
+    });
+});
+
+// Auch bei Seitenverlassen speichern
+window.addEventListener('beforeunload', function() {
+    autoSave();
+});
+
+// ===== EXPORT-FUNKTIONEN =====
+function sammelAlleTexte() {
+    var teile = [];
+    var aufgaben = [
+        { label: 'GELENKTES SCHREIBEN', ids: ['gelenkt-input-0','gelenkt-input-1','gelenkt-input-2','gelenkt-input-3','gelenkt-input-4','gelenkt-input-5'],
+          starter: [
+            'Johnson hat sich für das Experiment entschieden, weil …',
+            'Die Wirkung von 5-MeO-DMT setzt innerhalb von Sekunden ein, und der Betroffene …',
+            'Das Default Mode Network ist die Hirnregion, die …',
+            'Johnson benutzt die Metapher eines Globus mit Flughäfen, um zu veranschaulichen, dass …',
+            'Diese Frage berührt ein philosophisches Grundproblem, nämlich …',
+            'Ein zentrales Risiko besteht darin, dass …'
+          ]},
+        { label: 'ZUSAMMENFASSUNG', ids: ['zf-einl','zf-haupt','zf-schluss'], sub: ['Einleitung','Hauptteil','Schluss'] },
+        { label: 'STELLUNGNAHME', ids: ['sn-text'] }
+    ];
+
+    aufgaben.forEach(function(a) {
+        var hasContent = a.ids.some(function(id) {
+            var ta = document.getElementById(id);
+            return ta && ta.value.trim();
+        });
+        if (!hasContent) return;
+
+        teile.push('═══ ' + a.label + ' ═══\n');
+        a.ids.forEach(function(id, i) {
+            var ta = document.getElementById(id);
+            if (!ta || !ta.value.trim()) return;
+            var text = ta.value.trim();
+            if (a.starter && a.starter[i]) {
+                teile.push(a.starter[i] + ' ' + text);
+            } else if (a.sub && a.sub[i]) {
+                teile.push('--- ' + a.sub[i] + ' ---\n' + text);
+            } else {
+                teile.push(text);
+            }
+            teile.push('');
+        });
+        teile.push('');
+    });
+
+    if (teile.length === 0) return null;
+
+    var header = 'Schreibwerkstatt: Brian Johnson über 5-MeO-DMT\n';
+    header += 'Datum: ' + new Date().toLocaleDateString('de-DE') + '\n';
+    header += '════════════════════════════════════════════\n\n';
+    return header + teile.join('\n');
+}
+
+function exportAlsMail() {
+    var text = sammelAlleTexte();
+    if (!text) { alert('Noch keine Texte geschrieben.'); return; }
+    var subject = encodeURIComponent('Schreibwerkstatt B2: Brian Johnson / 5-MeO-DMT');
+    var body = encodeURIComponent(text);
+    window.location.href = 'mailto:FrankBurkert@fabdaf.onmicrosoft.com?subject=' + subject + '&body=' + body;
+}
+
+function exportAlsDatei() {
+    var text = sammelAlleTexte();
+    if (!text) { alert('Noch keine Texte geschrieben.'); return; }
+    var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'Schreibwerkstatt-DMT-Johnson-' + new Date().toISOString().slice(0,10) + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function exportInZwischenablage() {
+    var text = sammelAlleTexte();
+    if (!text) { alert('Noch keine Texte geschrieben.'); return; }
+    navigator.clipboard.writeText(text).then(function() {
+        var el = document.getElementById('saveIndicator');
+        el.textContent = '📋 In Zwischenablage kopiert!';
+        el.className = 'save-indicator show restored';
+        clearTimeout(el._hideTimer);
+        el._hideTimer = setTimeout(function() { el.className = 'save-indicator'; }, 2000);
+    }).catch(function() {
+        // Fallback: Textarea-Trick
+        var tmp = document.createElement('textarea');
+        tmp.value = text;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        document.body.removeChild(tmp);
+        alert('Text wurde kopiert!');
+    });
+}
+
+function alleLoeschen() {
+    if (!confirm('Alle geschriebenen Texte unwiderruflich löschen?')) return;
+    document.querySelectorAll('textarea.schreib-input').forEach(function(ta) {
+        ta.value = '';
+        var ev = new Event('input', { bubbles: true });
+        ta.dispatchEvent(ev);
+    });
+    document.querySelectorAll('.checkliste input[type="checkbox"]').forEach(function(cb) {
+        cb.checked = false;
+    });
+    try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+    var el = document.getElementById('saveIndicator');
+    el.textContent = '🗑️ Alle Texte gelöscht';
+    el.className = 'save-indicator show';
+    el.style.background = 'rgba(231,76,60,0.92)';
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(function() { el.className = 'save-indicator'; el.style.background = ''; }, 2000);
 }
 
 // ===== VOKABEL-HIGHLIGHTING IM LESETEXT =====
