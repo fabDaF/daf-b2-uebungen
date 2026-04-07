@@ -253,14 +253,15 @@ input.blank.wrong { border-color: #e74c3c; color: #e74c3c; }
     </div>
 </div>
 
-<!-- SEC-2: Zuordnung Verbpräfixe -->
+<!-- SEC-2: Lückentext Verbpräfixe -->
 <div class="section" id="sec-2">
     <img class="tab-banner" src="https://placehold.co/1000x200/667eea/white?text=Verbpr%C3%A4fixe" alt="Verbpräfixe">
     <div class="sec-inner">
-        <h2>🔀 Verbpräfixe zuordnen</h2>
+        <h2>✏️ Verbpräfixe ergänzen</h2>
         <div class="control-bar">
             <div class="btn-row">
-                <button class="btn" onclick="resetZuo(2)">Neu starten</button>
+                <button class="btn" onclick="showLoesung(2)">Lösungen</button>
+                <button class="btn" onclick="resetTab(2)">Neu starten</button>
             </div>
             <div class="timer-display">
                 <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
@@ -268,22 +269,21 @@ input.blank.wrong { border-color: #e74c3c; color: #e74c3c; }
             </div>
         </div>
         <div class="hilfe-box">
-            <strong>zer-</strong> = etwas wird geteilt / kaputt gemacht · <strong>ver-</strong> = Prozess mit (unerwünschtem) Resultat · <strong>ent-</strong> = etwas wird weggenommen · <strong>des- / miss-</strong> = Negation / Fehlschlag
+            <strong>Aufgabe:</strong> Ergänze das passende Verbpräfix (<em>zer-, ver-, ent-</em> oder <em>miss-</em>). Der Verbstamm steht bereits da — du tippst nur das Präfix!
         </div>
-        <div class="chip-bank" id="bank2"></div>
-        <div class="zuordnung-categories">
-            <div class="zuordnung-cat" id="cat2-zer" data-cat="zer">
-                <div class="zuordnung-cat-title">zer-</div>
-            </div>
-            <div class="zuordnung-cat" id="cat2-ver" data-cat="ver">
-                <div class="zuordnung-cat-title">ver-</div>
-            </div>
-            <div class="zuordnung-cat" id="cat2-ent" data-cat="ent">
-                <div class="zuordnung-cat-title">ent-</div>
-            </div>
-            <div class="zuordnung-cat" id="cat2-des" data-cat="des">
-                <div class="zuordnung-cat-title">des- / miss-</div>
-            </div>
+        <div id="luecke2-container">
+            <div class="luecken-item">Die Kinder haben das Papier in kleine Stücke <input type="text" class="blank" data-answer="zer" oninput="liveCheck(this); timerAutoStart(2)">rissen.</div>
+            <div class="luecken-item">Er hat sich im dunklen Wald völlig <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">laufen.</div>
+            <div class="luecken-item">Die Firma hat 200 Mitarbeiter <input type="text" class="blank" data-answer="ent" oninput="liveCheck(this); timerAutoStart(2)">lassen.</div>
+            <div class="luecken-item">Das Experiment ist leider <input type="text" class="blank" data-answer="miss" oninput="liveCheck(this); timerAutoStart(2)">lungen.</div>
+            <div class="luecken-item">Mein Bruder hat die Suppe total <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">salzen.</div>
+            <div class="luecken-item">Der Sturm hat viele Häuser <input type="text" class="blank" data-answer="zer" oninput="liveCheck(this); timerAutoStart(2)">stört.</div>
+            <div class="luecken-item">Mit diesem Mittel kann man Flecken <input type="text" class="blank" data-answer="ent" oninput="liveCheck(this); timerAutoStart(2)">färben.</div>
+            <div class="luecken-item">Das weiße T-Shirt hat sich rot <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">färbt.</div>
+            <div class="luecken-item">Er hat das Holz im Kamin völlig <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">brannt.</div>
+            <div class="luecken-item">Das Glas ist auf dem Boden <input type="text" class="blank" data-answer="zer" oninput="liveCheck(this); timerAutoStart(2)">brochen.</div>
+            <div class="luecken-item">Der Schüler hat die Aufgabe total <input type="text" class="blank" data-answer="miss" oninput="liveCheck(this); timerAutoStart(2)">verstanden.</div>
+            <div class="luecken-item">Man muss die Kirschen vor dem Backen <input type="text" class="blank" data-answer="ent" oninput="liveCheck(this); timerAutoStart(2)">kernen.</div>
         </div>
     </div>
 </div>
@@ -519,21 +519,6 @@ function resetTab(tabIdx) {
 /* ===== ZUORDNUNG (Tabs 2 + 3) ===== */
 var draggedChip = null;
 
-var zuo2Data = [
-    { w: 'zerreißen', cat: 'zer' },
-    { w: 'zerschneiden', cat: 'zer' },
-    { w: 'zerbrechen', cat: 'zer' },
-    { w: 'zerstören', cat: 'zer' },
-    { w: 'verfärben', cat: 'ver' },
-    { w: 'verlaufen', cat: 'ver' },
-    { w: 'verbrennen', cat: 'ver' },
-    { w: 'versalzen', cat: 'ver' },
-    { w: 'entfärben', cat: 'ent' },
-    { w: 'entlassen', cat: 'ent' },
-    { w: 'Desinteresse', cat: 'des' },
-    { w: 'misslingen', cat: 'des' }
-];
-
 var zuo3Data = [
     { w: 'schneeweiß', cat: 'verst' },
     { w: 'rabenschwarz', cat: 'verst' },
@@ -625,7 +610,7 @@ function registerZuoBank(bank, tabIdx) {
 
 function colorAllZuordnung(tabIdx) {
     var sec = document.getElementById('sec-' + tabIdx);
-    var data = tabIdx === 2 ? zuo2Data : zuo3Data;
+    var data = zuo3Data;
     sec.querySelectorAll('.chip').forEach(function(chip) {
         var zone = chip.closest('.zuordnung-cat');
         if (zone) {
@@ -640,7 +625,7 @@ function colorAllZuordnung(tabIdx) {
 }
 
 function initZuo(tabIdx) {
-    var data = tabIdx === 2 ? zuo2Data : zuo3Data;
+    var data = zuo3Data;
     var bank = document.getElementById('bank' + tabIdx);
     bank.innerHTML = '';
     registerZuoBank(bank, tabIdx);
@@ -662,7 +647,7 @@ function resetZuo(tabIdx) {
     sec.querySelectorAll('.zuordnung-cat').forEach(function(zone) {
         while (zone.children.length > 1) zone.removeChild(zone.lastChild);
     });
-    var data = tabIdx === 2 ? zuo2Data : zuo3Data;
+    var data = zuo3Data;
     shuffle(data).forEach(function(item) {
         bank.appendChild(makeZuoChip(item.w, item.cat, tabIdx));
     });
@@ -931,7 +916,6 @@ document.addEventListener('DOMContentLoaded', function() {
         inp.style.width = (ans.length + 4) + 'ch';
     });
     /* Zuordnung initialisieren */
-    initZuo(2);
     initZuo(3);
     /* Satzbau initialisieren */
     initSatzbau();
