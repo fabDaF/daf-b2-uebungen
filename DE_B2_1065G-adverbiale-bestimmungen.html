@@ -123,10 +123,15 @@ input.gap.wrong { border-bottom-color:#f44336; background:#ffebee; }
 .satzbau-feedback.incorrect { color:#e74c3c; }
 
 /* Wortschatz */
-.vocab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
-.vocab-card { border:1px solid #e0e0e0; border-radius:10px; overflow:hidden; background:white; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
-.vocab-img { width:100%; height:120px; object-fit:cover; }
-.vocab-body { padding:12px 14px; }
+#wortschatzContainer { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.ws-card { border-left:4px solid #667eea; border-radius:0 10px 10px 0; padding:14px 18px; background:#f8f9ff; }
+.ws-en { font-size:0.85em; color:#888; margin-bottom:6px; }
+.ws-example { font-size:0.82em; color:#999; font-style:italic; margin-bottom:8px; line-height:1.5; }
+.ws-inputs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+input.blank { border:none; border-bottom:2px solid #667eea; background:transparent; padding:3px 6px; font-family:inherit; font-size:0.95em; outline:none; transition:all 0.2s; min-width:4ch; }
+input.blank.correct { border-bottom-color:#27ae60; background:#e8f8f0; }
+input.blank.wrong { border-bottom-color:#e74c3c; background:#fdeaea; }
+@media (max-width:600px) { #wortschatzContainer { grid-template-columns:1fr; } }
 .vocab-de { font-size:1rem; font-weight:700; color:#333; margin-bottom:4px; }
 .vocab-en { font-size:0.82rem; color:#888; margin-bottom:8px; }
 .vocab-example { font-size:0.8rem; color:#555; font-style:italic; margin-bottom:8px; line-height:1.4; }
@@ -379,22 +384,23 @@ input.gap.wrong { border-bottom-color:#f44336; background:#ffebee; }
       <h2>📚 Wortschatz</h2>
       <div class="control-bar">
         <div class="btn-row">
-          <button class="btn" onclick="resetVocab()">Zurücksetzen</button>
+          <button class="btn" onclick="wsSolve()">Lösungen</button>
+          <button class="btn" onclick="resetWs()">Neu starten</button>
         </div>
         <div class="timer-display">
-          <span class="current-time">⏱ <span id="timer-4">0:00</span></span>
+          <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
           <span class="best-time">🏆 <span id="best-4">--:--</span></span>
         </div>
       </div>
       <div class="hilfe-box"><strong>Aufgabe:</strong> Tippen Sie die deutschen Adverbialausdrücke. T = temporal, K = kausal, M = modal, L = lokal.</div>
-      <div class="vocab-grid" id="vocab-grid"></div>
+      <div id="wortschatzContainer"></div>
 
     </div>
   </div>
 
   <div class="author-footer">
     <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-    <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
   </div>
 
 </div><!-- /container -->
@@ -434,17 +440,16 @@ function showSection(n) {
   document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
 }
 
-/* ═══ TIMER SYSTEM ═══ */
-var TIMER_PREFIX='b2_1065g_';
-var timerStarted=[false,false,false,false,false];
-var timerRunning=[false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0];
+/* ═══ TIMER SYSTEM (no localStorage) ═══ */
 var timerIntervals=[null,null,null,null,null];
+var timerSeconds=[0,0,0,0,0];
+var timerRunning=[false,false,false,false,false];
+var bestSeconds=[Infinity,Infinity,Infinity,Infinity,Infinity];
 
-function fmtTime(s) { var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+function fmtTime(s) { var m=Math.floor(s/60); var sec=s%60; return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec; }
 function timerAutoStart(n) {
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
+  if(timerRunning[n]) return;
+  timerRunning[n]=true;
   timerIntervals[n]=setInterval(function(){
     timerSeconds[n]++;
     var el=document.getElementById('timer-'+n);
@@ -454,28 +459,17 @@ function timerAutoStart(n) {
 function timerStop(n) {
   if(!timerRunning[n]) return;
   clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0 && timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+  if(timerSeconds[n]<bestSeconds[n] && timerSeconds[n]>0){
+    bestSeconds[n]=timerSeconds[n];
     var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
+    if(el) el.textContent=fmtTime(bestSeconds[n]);
   }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
 }
-function timerResetOne(n) {
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+function resetTimer(n) {
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerSeconds[n]=0;
   var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
+  if(el) el.textContent='00:00';
 }
-function loadBestTimes() {
-  [2,3,4].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-}
-document.addEventListener('DOMContentLoaded',loadBestTimes);
 
 /* ═══ LÜCKENTEXT ═══ */
 function normalize(s) {
@@ -501,7 +495,7 @@ function checkGap(inp) {
 }
 function resetGaps() {
   document.querySelectorAll('input.gap').forEach(function(i){ i.value=''; i.className='gap'; });
-  timerResetOne(2);
+  resetTimer(2);
 }
 
 /* ═══ SATZBAU ═══ */
@@ -747,63 +741,82 @@ function initSatzbau() {
   });
 }
 
-function sbResetAll() { initSatzbau(); timerResetOne(3); }
+function sbResetAll() { initSatzbau(); resetTimer(3); }
 initSatzbau();
 
 /* ═══ WORTSCHATZ ═══ */
-var vocab=[
-  {de:'gestern',en:'yesterday [T]',type:'adv',example:'Gestern haben wir uns im Park getroffen.',img:'1172207'},
-  {de:'täglich',en:'daily / every day [T]',type:'adv',example:'Sie lernt täglich eine Stunde Deutsch.',img:'3760275'},
-  {de:'seit Jahren',en:'for years [T]',type:'adv',example:'Er lebt seit Jahren in dieser Stadt.',img:'1181298'},
-  {de:'wegen + Genitiv',en:'because of [K]',type:'adv',example:'Wegen des Wetters bleiben wir zu Hause.',img:'3178786'},
-  {de:'trotz + Genitiv',en:'despite [K]',type:'adv',example:'Trotz der Kälte ging sie ohne Jacke raus.',img:'38296'},
-  {de:'bei schönem Wetter',en:'when the weather is nice [K]',type:'adv',example:'Bei schönem Wetter fahren wir ans Meer.',img:'1761279'},
-  {de:'mit dem Fahrrad',en:'by bike [M]',type:'adv',example:'Sie fährt täglich mit dem Fahrrad zur Arbeit.',img:'276517'},
-  {de:'sehr schnell',en:'very quickly [M]',type:'adv',example:'Er hat die Aufgabe sehr schnell gelöst.',img:'3861969'},
-  {de:'allein',en:'alone [M]',type:'adv',example:'Sie reist gerne allein in ferne Länder.',img:'1388660'},
-  {de:'auf dem Marktplatz',en:'at the market square [L]',type:'adv',example:'Das Konzert findet auf dem Marktplatz statt.',img:'1071249'},
-  {de:'nach Hause',en:'home (direction) [L]',type:'adv',example:'Er fährt schnell nach Hause.',img:'280229'},
-  {de:'aus Bayern',en:'from Bavaria [L]',type:'adv',example:'Sie kommt ursprünglich aus Bayern.',img:'1239291'}
+var WS_DATA=[
+  {de:'gestern',en:'yesterday [T]',example:'___ haben wir uns im Park getroffen.'},
+  {de:'täglich',en:'daily / every day [T]',example:'Sie lernt ___ eine Stunde Deutsch.'},
+  {de:'seit Jahren',en:'for years [T]',example:'Er lebt ___ in dieser Stadt.'},
+  {de:'wegen + Genitiv',en:'because of [K]',example:'___ des Wetters bleiben wir zu Hause.'},
+  {de:'trotz + Genitiv',en:'despite [K]',example:'___ der Kälte ging sie ohne Jacke raus.'},
+  {de:'bei schönem Wetter',en:'when the weather is nice [K]',example:'___ fahren wir ans Meer.'},
+  {de:'mit dem Fahrrad',en:'by bike [M]',example:'Sie fährt täglich ___ zur Arbeit.'},
+  {de:'sehr schnell',en:'very quickly [M]',example:'Er hat die Aufgabe ___ gelöst.'},
+  {de:'allein',en:'alone [M]',example:'Sie reist gerne ___ in ferne Länder.'},
+  {de:'auf dem Marktplatz',en:'at the market square [L]',example:'Das Konzert findet ___ statt.'},
+  {de:'nach Hause',en:'home (direction) [L]',example:'Er fährt schnell ___.'},
+  {de:'aus Bayern',en:'from Bavaria [L]',example:'Sie kommt ursprünglich ___.'}
 ];
 
-function buildVocab() {
-  var grid=document.getElementById('vocab-grid');
-  grid.innerHTML='';
-  vocab.forEach(function(w) {
+function initWortschatz() {
+  var con=document.getElementById('wortschatzContainer');
+  con.innerHTML='';
+  WS_DATA.forEach(function(v) {
     var card=document.createElement('div');
-    card.className='vocab-card';
-    var imgUrl='https://images.pexels.com/photos/'+w.img+'/pexels-photo-'+w.img+'.jpeg?auto=compress&cs=tinysrgb&w=400';
-    var vocabHtml='<img class="vocab-img" src="'+imgUrl+'" alt="'+w.en+'" onerror="this.style.display=\'none\'">';
-    vocabHtml+='<div class="vocab-body"><div class="vocab-en">'+w.en+'</div>';
-    vocabHtml+='<div class="vocab-example">'+w.example+'</div>';
-    vocabHtml+='<div class="vocab-inputs"><input placeholder="" data-answer="'+w.de+'" oninput="checkVocab(this)" title="Deutsch"></div>';
-    vocabHtml+='</div>';
-    card.innerHTML=vocabHtml;
-    grid.appendChild(card);
+    card.className='ws-card';
+    var enDiv=document.createElement('div');
+    enDiv.className='ws-en'; enDiv.textContent=v.en;
+    card.appendChild(enDiv);
+    var exDiv=document.createElement('div');
+    exDiv.className='ws-example'; exDiv.textContent=v.example;
+    card.appendChild(exDiv);
+    var inputs=document.createElement('div');
+    inputs.className='ws-inputs';
+    var inp=document.createElement('input');
+    inp.className='blank';
+    inp.dataset.answer=v.de;
+    inp.placeholder='Ausdruck';
+    inp.style.width=Math.max(v.de.length,'Ausdruck'.length)+4+'ch';
+    inp.addEventListener('input',function(){ wortschatzCheck(this); });
+    inputs.appendChild(inp);
+    card.appendChild(inputs);
+    con.appendChild(card);
   });
 }
 
-function checkVocab(inp) {
+function wortschatzCheck(inp) {
   timerAutoStart(4);
-  var val=inp.value.trim();
-  if(!val) { inp.className=''; return; }
-  if(normalize(val)===normalize(inp.dataset.answer)) {
-    inp.className='correct';
-    inp.value=inp.dataset.answer;
+  var val=inp.value.trim(), ans=inp.dataset.answer;
+  inp.classList.remove('correct','wrong');
+  if(!val) return;
+  if(val===ans) {
+    inp.classList.add('correct');
+    checkWortschatzAllOk();
+  } else if(ans.toLowerCase().indexOf(val.toLowerCase())===0) {
+    /* typing */
   } else {
-    inp.className='wrong';
+    inp.classList.add('wrong');
   }
-  var all = document.querySelectorAll('.vocab-inputs input');
-  var done = document.querySelectorAll('.vocab-inputs input.correct');
-  if (all.length > 0 && all.length === done.length) timerStop(4);
 }
 
-function resetVocab() {
-  document.querySelectorAll('.vocab-inputs input').forEach(function(i) { i.value=''; i.className=''; });
-  timerResetOne(4);
+function checkWortschatzAllOk() {
+  var all=document.querySelectorAll('#wortschatzContainer input.blank');
+  var ok=Array.from(all).every(function(i){ return i.classList.contains('correct'); });
+  if(ok && all.length>0) timerStop(4);
 }
 
-buildVocab();
+function wsSolve() {
+  document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp){
+    inp.value=inp.dataset.answer;
+    inp.classList.remove('wrong'); inp.classList.add('correct');
+  });
+}
+
+function resetWs() { resetTimer(4); initWortschatz(); }
+
+initWortschatz();
 </script>
 </body>
 </html>
