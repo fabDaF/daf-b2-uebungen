@@ -25,6 +25,7 @@
     color: white;
     padding: 24px 30px;
   }
+  header { text-align: center; }
   header h1 { font-size: 1.6rem; font-weight: 700; }
   header p { opacity: 0.85; margin-top: 4px; font-size: 0.95rem; }
 
@@ -470,7 +471,10 @@ body { padding: 20px; }
           <button class="btn btn-secondary" onclick="resetLuecken()">↺ Neu</button>
           <button class="btn btn-primary" onclick="showLueckenAnswers()">Lösung</button>
         </div>
-        
+        <div style="font-size:0.85rem;font-weight:700;color:#764ba2;white-space:nowrap;">
+          ⏱ <span id="timer-2">0:00</span>
+          <span id="best-2" style="font-size:0.75rem;color:#999;margin-left:6px;"></span>
+        </div>
 </div>
       <div class="word-bank" id="wbank">
         <span class="word-chip" onclick="chipClick(this)">Schadenfreude</span>
@@ -524,7 +528,10 @@ body { padding: 20px; }
           <button class="btn btn-secondary" onclick="resetMC()">↺ Neu</button>
           <button class="btn btn-primary" onclick="showMCAnswers()">Lösung</button>
         </div>
-        
+        <div style="font-size:0.85rem;font-weight:700;color:#764ba2;white-space:nowrap;">
+          ⏱ <span id="timer-3">0:00</span>
+          <span id="best-3" style="font-size:0.75rem;color:#999;margin-left:6px;"></span>
+        </div>
 </div>
       <div id="mc-area">
         <div class="mc-item">
@@ -606,45 +613,42 @@ body { padding: 20px; }
           <button class="btn btn-secondary" onclick="resetVocab()">↺ Neu</button>
           <button class="btn btn-primary" onclick="showVocabAnswers()">Lösung</button>
         </div>
-        
+        <div style="font-size:0.85rem;font-weight:700;color:#764ba2;white-space:nowrap;">
+          ⏱ <span id="timer-5">0:00</span>
+          <span id="best-5" style="font-size:0.75rem;color:#999;margin-left:6px;"></span>
+        </div>
 </div>
       <div class="vocab-container" id="vocab-container"></div>
     </div>
   </div>
 
-  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+  <footer>© Frank Burkert · DaF-Materialien · <a href="mailto:frankburkert@gmx.net" style="color:#aaa;">frankburkert@gmx.net</a></footer>
 </div>
 
 <script>
 // ── TAB NAVIGATION ──────────────────────────────────────────────
-const timers = Array(6).fill(null);
-const ticking = Array(6).fill(false);
-const elapsed = Array(6).fill(0);
-let activeTab = 0;
-
 function showSection(n){
   document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
   document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  [1,2,3].forEach(function(i){ timerStop(i); });
-}, 1000); }
-  activeTab = n;
-}
-function updateTimer(n) {
-  const m = Math.floor(elapsed[n]/60), s = elapsed[n]%60;
-  document.querySelectorAll('.timer').forEach((el,i) => { if(i===n) el.textContent = m+':'+(s<10?'0':'')+s; });
 }
 
 // ── LÜCKENTEXT ───────────────────────────────────────────────────
 function checkGap(inp) {
+  timerAutoStart(2);
   const val = inp.value.trim();
   const ans = inp.dataset.answer;
   if (!val) { inp.className='gap-input'; return; }
   if (val.toLowerCase() === ans.toLowerCase()) { inp.classList.add('correct'); inp.classList.remove('wrong'); }
   else if (ans.toLowerCase().startsWith(val.toLowerCase())) { inp.classList.remove('correct', 'wrong'); }
   else { inp.classList.add('wrong'); inp.classList.remove('correct'); }
+  // Check completion
+  var all = document.querySelectorAll('#sec-2 .gap-input');
+  var done = document.querySelectorAll('#sec-2 .gap-input.correct');
+  if (all.length > 0 && all.length === done.length) timerStop(2);
 }
 function resetLuecken() {
-  document.querySelectorAll('.gap-input').forEach(i => { i.value=''; i.className='gap-input'; });
+  timerResetOne(2);
+  document.querySelectorAll('#sec-2 .gap-input').forEach(i => { i.value=''; i.className='gap-input'; });
   document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('used'));
 }
 function showLueckenAnswers() {
@@ -660,6 +664,7 @@ function chipClick(chip) {
 
 // ── MULTIPLE CHOICE ──────────────────────────────────────────────
 function resetMC() {
+  timerResetOne(3);
   document.querySelectorAll('.mc-options input').forEach(r => r.checked=false);
   document.querySelectorAll('.mc-option').forEach(o => o.classList.remove('correct-ans','wrong-ans'));
   document.getElementById('mc-score').style.display='none';
@@ -682,6 +687,7 @@ function showMCAnswers() {
 }
 document.querySelectorAll('.mc-options input').forEach(radio => {
   radio.addEventListener('change', function() {
+    timerAutoStart(3);
     const item = this.closest('.mc-item');
     item.querySelectorAll('.mc-option').forEach(o => o.classList.remove('correct-ans','wrong-ans'));
     const chosen = this.closest('.mc-option');
@@ -690,6 +696,14 @@ document.querySelectorAll('.mc-options input').forEach(radio => {
       const correctOpt = item.querySelector('.mc-option[data-correct="true"]');
       correctOpt.classList.add('correct-ans');
     }
+    // Check MC completion
+    var mcItems = document.querySelectorAll('.mc-item');
+    var allCorrect = true;
+    mcItems.forEach(function(mi) {
+      var sel = mi.querySelector('.mc-option.correct-ans input:checked');
+      if (!sel) allCorrect = false;
+    });
+    if (allCorrect && mcItems.length > 0) timerStop(3);
   });
 });
 
@@ -709,7 +723,7 @@ var satzbauData = [
     valid: [['die', 'Idee', 'der', 'Wiedergeburt', 'bedeutet', ',', 'dass', 'die', 'Seele', 'weiterlebt']], punct: '.' },
   { parts: ['wer', 'anderen', 'hilft', ',', 'tut', 'auch', 'sich', 'selbst', 'etwas', 'Gutes'],
     valid: [['wer', 'anderen', 'hilft', ',', 'tut', 'auch', 'sich', 'selbst', 'etwas', 'Gutes']], punct: '.' },
-];;
+];
 
 var sbDragged = null;
 
@@ -745,12 +759,13 @@ function sbUpdateCapitalization(row) {
   });
 }
 
-function sbMakeChip(word) {
+function sbMakeChip(word, idx) {
   var chip = document.createElement('div');
   chip.className = 'chip';
   if (word === ',' || word === ';') chip.classList.add('punct-chip');
   chip.textContent = word;
   chip.dataset.orig = word;
+  chip.dataset.sbIdx = String(idx);
   chip.draggable = true;
   chip.addEventListener('dragstart', function(e) {
     sbDragged = chip;
@@ -764,6 +779,16 @@ function sbMakeChip(word) {
     var c = document.getElementById('sb-insert-cursor');
     if (c && c.parentNode) c.parentNode.removeChild(c);
   });
+  chip.addEventListener('click', function() {
+    timerAutoStart(4);
+    var myIdx = parseInt(chip.dataset.sbIdx);
+    var bank = document.getElementById('sb-bank-' + myIdx);
+    var row  = document.getElementById('sb-row-'  + myIdx);
+    if (chip.parentNode === bank) { row.appendChild(chip); }
+    else { bank.appendChild(chip); }
+    sbUpdateCapitalization(row);
+    sbCheckAuto(myIdx);
+  });
   return chip;
 }
 
@@ -771,6 +796,7 @@ function sbRegisterZone(zone, idx) {
   zone.addEventListener('dragover', function(e) {
     e.preventDefault();
     if (!sbDragged) return;
+    if (sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor = getSbCursor();
     var before = getSbInsertPos(zone, e.clientX);
     if (before) zone.insertBefore(cursor, before);
@@ -785,6 +811,7 @@ function sbRegisterZone(zone, idx) {
   zone.addEventListener('drop', function(e) {
     e.preventDefault();
     if (!sbDragged) return;
+    if (sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor = document.getElementById('sb-insert-cursor');
     if (cursor && cursor.parentNode === zone) {
       zone.insertBefore(sbDragged, cursor);
@@ -892,7 +919,7 @@ function sbResetOne(idx) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
   }
-  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
 }
 
 function initSatzbau() {
@@ -912,7 +939,7 @@ function initSatzbau() {
       var j = Math.floor(Math.random() * (i + 1));
       var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
     }
-    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
     sbRegisterZone(bank, idx);
     sbRegisterZone(row, idx);
     var btnRow = document.createElement('div');
@@ -931,7 +958,7 @@ function initSatzbau() {
   });
 }
 
-function resetSatzbau() { initSatzbau(); }
+function resetSatzbau() { timerResetOne(4); initSatzbau(); }
 
 // ── WORTSCHATZ ───────────────────────────────────────────────────
 const vocabData = [
@@ -971,31 +998,34 @@ function buildVocab() {
       </div>`;
     con.appendChild(item);
   });
+}
 
 function checkVocab(inp) {
+  timerAutoStart(5);
   const val = inp.value.trim();
   const ans = inp.dataset.answer;
   if (!val) { inp.classList.remove('correct','wrong'); return; }
   inp.classList.toggle('correct', val.toLowerCase()===ans.toLowerCase());
   inp.classList.toggle('wrong', val.toLowerCase()!==ans.toLowerCase());
+  // Check completion
+  var all = document.querySelectorAll('#vocab-container input');
+  var done = document.querySelectorAll('#vocab-container input.correct');
+  if (all.length > 0 && all.length === done.length) timerStop(5);
 }
 function resetVocab() {
+  timerResetOne(5);
   document.querySelectorAll('.vocab-item input').forEach(i => { i.value=''; i.classList.remove('correct','wrong'); });
 }
 function showVocabAnswers() {
   document.querySelectorAll('.vocab-item input').forEach(inp => { inp.value=inp.dataset.answer; inp.classList.add('correct'); });
 }
 
-// ── INIT ─────────────────────────────────────────────────────────
-initSatzbau();
-buildVocab();
-showSection(0);
-ticking[0]=true; timers[0]=setInterval(()=>{elapsed[0]++;updateTimer(0);},1000);
+// ── TIMER SYSTEM ────────────────────────────────────────────────
 var TIMER_PREFIX='B2_1063R_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
+var timerStarted=[false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null];
 function timerAutoStart(n){
   if(timerStarted[n]) return;
   timerStarted[n]=true; timerRunning[n]=true;
@@ -1024,14 +1054,17 @@ function timerResetOne(n){
   if(el) el.textContent='0:00';
 }
 function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+
+// ── INIT ─────────────────────────────────────────────────────────
+initSatzbau();
+buildVocab();
+showSection(0);
 document.addEventListener('DOMContentLoaded',function(){
-  [0,1,2,3,4,5].forEach(function(n){
+  [2,3,4,5].forEach(function(n){
     var b=localStorage.getItem(TIMER_PREFIX+n);
     if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
   });
-
 });
-}
 </script>
 </body>
 </html>

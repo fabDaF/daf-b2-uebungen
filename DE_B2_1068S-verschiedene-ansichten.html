@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verschiedene Ansichten – B2 Lektion 1068S</title>
+<title>B2.1 · 1068S · Verschiedene Ansichten</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:20px; }
@@ -103,7 +103,7 @@ input.gap.wrong { border-bottom-color:#f44336; background:#ffebee; }
 
   <div class="header">
     <h1>Verschiedene Ansichten</h1>
-    <p>B2 · Lektion 1068S · Meinungen äußern und widersprechen</p>
+    <p>B2.1 – Lektion 1068S · Schreiben</p>
     <div class="big-emoji">💬</div>
   </div>
 
@@ -295,7 +295,7 @@ input.gap.wrong { border-bottom-color:#f44336; background:#ffebee; }
 
   <div class="author-footer">
     <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
   </div>
 
 </div>
@@ -305,7 +305,6 @@ input.gap.wrong { border-bottom-color:#f44336; background:#ffebee; }
 function showSection(n) {
   document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
   document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
-  if(n===1) timerAutoStart(1); else if(n===2) timerAutoStart(2); else if(n===3) timerAutoStart(3);
 }
 
 /* ═══ TIMER SYSTEM ═══ */
@@ -369,6 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* ═══ LÜCKENTEXT ═══ */
 function checkGap(inp) {
+  timerAutoStart(1);
   var val = inp.value.trim().toLowerCase();
   var ans = (inp.dataset.answer || '').toLowerCase();
   inp.classList.remove('correct', 'wrong');
@@ -380,6 +380,10 @@ function checkGap(inp) {
   } else {
     inp.classList.add('wrong');
   }
+  // Completion detection
+  var all = document.querySelectorAll('#sec-1 input.gap');
+  var done = document.querySelectorAll('#sec-1 input.gap.correct');
+  if(all.length > 0 && all.length === done.length) timerStop(1);
 }
 
 function showLueckenLoesung() {
@@ -441,12 +445,13 @@ function sbUpdateCapitalization(row) {
   });
 }
 
-function sbMakeChip(word) {
+function sbMakeChip(word, idx) {
   var chip = document.createElement('div');
   chip.className = 'chip';
   chip.textContent = word;
   chip.dataset.orig = word;
   chip.draggable = true;
+  chip.dataset.sbIdx = String(idx);
   chip.addEventListener('dragstart', function(e) {
     sbDragged = chip;
     timerAutoStart(2);
@@ -466,6 +471,7 @@ function sbRegisterZone(zone, idx) {
   zone.addEventListener('dragover', function(e) {
     e.preventDefault();
     if(!sbDragged) return;
+    if(sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor = getSbCursor();
     var before = getSbInsertPos(zone, e.clientX);
     if(before) zone.insertBefore(cursor, before);
@@ -480,6 +486,7 @@ function sbRegisterZone(zone, idx) {
   zone.addEventListener('drop', function(e) {
     e.preventDefault();
     if(!sbDragged) return;
+    if(sbDragged.dataset.sbIdx !== String(idx)) return;
     var cursor = document.getElementById('sb-insert-cursor');
     if(cursor && cursor.parentNode === zone) {
       zone.insertBefore(sbDragged, cursor);
@@ -593,7 +600,7 @@ function sbResetOne(idx) {
     parts[i] = parts[j];
     parts[j] = t;
   }
-  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
 }
 
 function sbResetAll() {
@@ -625,7 +632,7 @@ function initSatzbau() {
       parts[i] = parts[j];
       parts[j] = t;
     }
-    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
     sbRegisterZone(bank, idx);
     sbRegisterZone(row, idx);
     bank.addEventListener('click', function(e) {
@@ -670,6 +677,7 @@ var vocabData = [
 ];
 
 function vocabLiveCheck(inp) {
+  timerAutoStart(3);
   var val = inp.value.trim().toLowerCase();
   var ans = (inp.dataset.answer || '').toLowerCase();
   inp.classList.remove('correct', 'wrong');
@@ -681,6 +689,10 @@ function vocabLiveCheck(inp) {
   } else {
     inp.classList.add('wrong');
   }
+  // Completion detection
+  var all = document.querySelectorAll('#sec-3 .vocab-inputs input[data-answer]');
+  var done = document.querySelectorAll('#sec-3 .vocab-inputs input.correct');
+  if(all.length > 0 && all.length === done.length) timerStop(3);
 }
 
 function showVocabLoesung() {
