@@ -1,554 +1,693 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ein Musikevent planen</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        .container {
-            max-width: 1000px;
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            background: white;
-            overflow: hidden;
-        }
-        .nav-tabs {
-            display: flex;
-            flex-direction: column;
-            background: #f5f5f5;
-            border-bottom: 1px solid #ddd;
-            padding: 0;
-        }
-        .nav-tab {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 16px 20px;
-            cursor: pointer;
-            border: none;
-            background: #f5f5f5;
-            font-size: 0.95rem;
-            color: #555;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-        .nav-tab .nav-emoji { font-size: 1.3rem; }
-        .nav-tab .nav-label { font-size: 0.72rem; }
-        .nav-tab:hover { background: #efefef; }
-        .nav-tab.active {
-            background: white;
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-        .sec-inner { display: none; padding: 30px; min-height: 400px; }
-        .sec-inner.active { display: block; }
-        .banner { width: 100%; max-height: 180px; object-fit: cover; display: block; margin: -30px -30px 30px -30px; }
-
-        .redemittel-box { background: #f3e5f5; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #9c27b0; }
-        .redemittel-box h4 { color: #667eea; margin-bottom: 10px; font-size: 0.95rem; }
-        .redemittel-list { list-style: none; margin: 10px 0; }
-        .redemittel-list li { padding: 6px 0; font-size: 0.9rem; color: #333; }
-        .redemittel-list li strong { color: #667eea; }
-
-        .category-section { margin-bottom: 20px; }
-        .category-title { color: #667eea; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
-        .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-        .chip { padding: 6px 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 20px; font-size: 0.8rem; cursor: default; }
-
-        .dialog-item { background: #fafbff; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #667eea; }
-        .dialog-speaker { color: #667eea; font-weight: 600; font-size: 0.85rem; }
-        .dialog-text { font-size: 0.9rem; color: #333; margin-top: 4px; }
-        input.dialog-input { padding: 6px 10px; border: 1px solid #c5cae9; border-radius: 4px; margin: 0 4px; min-width: 80px; font-size: 0.9rem; transition: all 0.2s; }
-        input.dialog-input:focus { outline: none; border-color: #667eea; background: #f9f9ff; }
-        input.dialog-input.correct { border-color: #27ae60; background: #e8f5e9; }
-        input.dialog-input.wrong { border-color: #e74c3c; background: #ffebee; }
-
-        .werbeplakat { background: #f3e5f5; padding: 16px; border-radius: 8px; margin-top: 16px; border-left: 5px solid #9c27b0; }
-        .werbeplakat p { font-size: 0.9rem; color: #333; margin: 8px 0; line-height: 1.6; }
-
-        .satzbau-pool { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px; background: #fafbff; border-radius: 8px; margin-bottom: 20px; border: 2px dashed #c5cae9; }
-        .satzbau-item { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 14px; border-radius: 20px; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: all 0.15s; white-space: nowrap; }
-        .satzbau-item:active { cursor: grabbing; transform: scale(1.04); }
-        .satzbau-item.selected { outline: 3px solid #f39c12; }
-        .satzbau-item.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-        .satzbau-item.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-        .drop-zone { min-height: 80px; border-radius: 10px; border: 2px dashed #c5cae9; padding: 10px; background: #fafbff; transition: all 0.2s; margin-bottom: 16px; }
-        .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
-        .drop-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 40px; }
-
-        .wortschatz-item { background: #fafbff; padding: 14px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #c5cae9; }
-        .wortschatz-item p { margin: 0 0 8px 0; font-size: 0.9rem; color: #667eea; font-weight: 600; }
-        .wortschatz-inputs { display: flex; gap: 8px; }
-        .wortschatz-inputs input { flex: 1; padding: 6px 10px; border: 1px solid #c5cae9; border-radius: 4px; font-size: 0.9rem; transition: all 0.2s; }
-        .wortschatz-inputs input:focus { outline: none; border-color: #667eea; background: #f9f9ff; }
-        .wortschatz-inputs input.correct { border-color: #27ae60; background: #e8f5e9; }
-        .wortschatz-inputs input.wrong { border-color: #e74c3c; background: #ffebee; }
-
-        .match-zone { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
-        .match-item { background: #fafbff; padding: 10px 12px; border-radius: 6px; border: 1px solid #c5cae9; flex: 1; min-width: 150px; font-size: 0.85rem; }
-        .match-item strong { color: #667eea; }
-
-        .author-footer { border-top: 1px solid #ddd; padding: 16px 30px; font-size: 0.85rem; color: #888; text-align: center; background: #fafafa; }
-        .author-footer a { color: #667eea; text-decoration: none; }
-        .author-footer a:hover { text-decoration: underline; }
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ein Musikevent planen</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.container{max-width:1000px;width:100%;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);background:#fff;overflow:hidden}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:32px 30px 24px;text-align:center}
+.header h1{font-size:1.6rem;margin-bottom:4px}
+.header .subtitle{font-size:.92rem;opacity:.88}
+.header .big-emoji{font-size:2.4rem;margin-top:8px;display:block}
+.nav{display:flex;flex-wrap:nowrap;background:#f8f9fa;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd}
+.nav-btn{flex:1;border-right:1px solid #ddd;border-bottom:1px solid #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:12px 6px;background:#f8f9fa;transition:all .2s}
+.nav-btn:last-child{border-right:none}
+.nav-btn.active{background:#fff;color:#667eea;font-weight:700;border-bottom:3px solid #667eea}
+.nav-btn .nav-emoji{font-size:1.3rem}
+.nav-btn .nav-label{font-size:.72rem;margin-top:2px}
+.section{display:none;padding:30px}
+.section.active{display:block}
+.sec-inner{max-width:820px;margin:0 auto}
+.section-title{font-size:1.1rem;color:#667eea;font-weight:700;margin-bottom:18px}
+.tab-banner{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:20px;display:block;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+/* Control-Bar */
+.control-bar{display:flex;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.control-bar .btn{padding:7px 18px;border:none;border-radius:6px;font-size:.85rem;cursor:pointer;font-weight:600;transition:all .15s}
+.control-bar .btn-solve{background:#667eea;color:#fff}
+.control-bar .btn-solve:hover{background:#5a6fd6}
+.control-bar .btn-reset{background:#e9ecef;color:#555}
+.control-bar .btn-reset:hover{background:#dee2e6}
+.timer-display{font-size:.85rem;color:#888;margin-left:auto;white-space:nowrap}
+.timer-display b{color:#667eea}
+/* Vorentlastung */
+.redemittel-box{background:#f3e5f5;padding:16px;border-radius:8px;margin-bottom:16px;border-left:5px solid #9c27b0}
+.redemittel-box h4{color:#667eea;margin-bottom:10px;font-size:.95rem}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip-static{padding:6px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;font-size:.82rem;cursor:default}
+.vocab-card{background:#fafbff;padding:14px;border-radius:8px;margin-bottom:10px;border:1px solid #c5cae9}
+.vocab-card .vc-de{font-weight:700;color:#333;font-size:1rem}
+.vocab-card .vc-en{color:#888;font-size:.85rem;margin-top:2px}
+/* Lückentext */
+.luecken-item{background:#fafbff;padding:14px;border-radius:8px;margin-bottom:10px;border:1px solid #c5cae9;line-height:1.7;font-size:.95rem}
+.luecken-item input{padding:5px 10px;border:1px solid #c5cae9;border-radius:4px;font-size:.92rem;width:130px;transition:all .2s;text-align:center}
+.luecken-item input:focus{outline:none;border-color:#667eea;background:#f9f9ff}
+.luecken-item input.ok{border-color:#27ae60;background:#e8f5e9;color:#27ae60;font-weight:600}
+.luecken-item input.no{border-color:#e74c3c;background:#ffebee;color:#e74c3c}
+.hint{display:none;font-size:.78rem;color:#888;margin-top:4px;font-style:italic}
+/* Zuordnung */
+.zuordnung-bank{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#fafbff;border:2px dashed #c5cae9;border-radius:8px;margin-bottom:18px;min-height:48px}
+.zuordnung-cat{margin-bottom:16px}
+.zuordnung-cat-label{font-weight:700;color:#667eea;font-size:.92rem;margin-bottom:6px}
+.zuordnung-zone{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#f9f9ff;border:2px dashed #c5cae9;border-radius:8px;min-height:44px;transition:all .2s}
+.zuordnung-zone.dragover{background:#e8eaff;border-color:#667eea}
+.chip{padding:7px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;font-size:.82rem;cursor:grab;font-weight:600;user-select:none;transition:all .15s;white-space:nowrap}
+.chip:active{cursor:grabbing;transform:scale(1.04)}
+.chip.correct{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
+.chip.incorrect{background:linear-gradient(135deg,#e74c3c,#c0392b)!important}
+/* Wortschatz */
+#wortschatzContainer{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.luecken-item input.blank{padding:5px 10px;border:1px solid #c5cae9;border-radius:4px;font-size:.92rem;transition:all .2s}
+.luecken-item input.blank:focus{outline:none;border-color:#667eea;background:#f9f9ff}
+.luecken-item input.blank.correct{border-color:#27ae60;background:#e8f5e9;color:#27ae60;font-weight:600}
+.luecken-item input.blank.wrong{border-color:#e74c3c;background:#ffebee;color:#e74c3c}
+/* Satzbau */
+.satzbau-item{margin-bottom:20px}
+.chips-container{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#fafbff;border:2px dashed #c5cae9;border-radius:8px;margin-bottom:8px;min-height:44px}
+.sentence-builder{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#fff8e1;border:2px solid #f0c040;border-radius:8px;min-height:44px;align-items:center}
+.sentence-builder.correct{border-color:#27ae60;background:#e8f5e9}
+.sentence-builder.incorrect{border-color:#e74c3c;background:#ffebee}
+.satzbau-feedback{font-size:.85rem;margin-top:4px;min-height:20px;font-weight:600}
+.satzbau-feedback.correct{color:#27ae60}
+.satzbau-feedback.incorrect{color:#e74c3c}
+.sb-punkt{font-weight:700;font-size:1.1rem;margin-left:2px;color:#333}
+.punct-chip{padding:7px 10px!important;min-width:24px;text-align:center}
+.btn{padding:7px 16px;border:none;border-radius:6px;font-size:.82rem;cursor:pointer;font-weight:600;background:#e9ecef;color:#555;transition:all .15s}
+.btn:hover{background:#dee2e6}
+/* Footer */
+.author-footer{border-top:1px solid #ddd;padding:18px 30px;font-size:.82rem;color:#aaa;text-align:center;background:#fafafa}
+.author-footer a{color:#667eea;text-decoration:none}
+.author-footer a:hover{text-decoration:underline}
+@media(max-width:600px){
+body{padding:8px}
+.nav{flex-wrap:wrap}
+.nav-btn{flex:1 1 33%;min-width:0;font-size:.8em;padding:10px 6px;border-right:1px solid #ddd}
+.nav-btn:last-child{border-right:1px solid #ddd}
+.tab-banner{max-height:120px}
+#wortschatzContainer{grid-template-columns:1fr}
 }
-
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 0;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
-    <div class="container">
-                <div class="header">
-            <h1>Ein Musikevent planen</h1>
-            <p>B2.2 – Lektion 2034X · Kommunikation</p>
-        </div>
+<div class="container">
+<div class="header">
+<h1>Ein Musikevent planen</h1>
+<p class="subtitle">B2.2 – Lektion 2034X · Kommunikation</p>
+<span class="big-emoji">🎵</span>
+</div>
 
-        <div class="nav">
-            <div class="nav-btn active" onclick="showSection(0)">
-                <span class="nav-emoji">🎯</span>
-                <span class="nav-label">Redemittel</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(1)">
-                <span class="nav-emoji">📝</span>
-                <span class="nav-label">Lückentext</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(2)">
-                <span class="nav-emoji">🔀</span>
-                <span class="nav-label">Satzbau</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(3)">
-                <span class="nav-emoji">📚</span>
-                <span class="nav-label">Wortschatz</span>
-            </div>
-        </div>
-        <!-- Tab 0: Redemittel -->
-        <div class="section active" id="sec-0">
-            <img src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Banner" class="banner">
+<div class="nav">
+<div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+<div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+<div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔀</span><span class="nav-label">Zuordnung</span></div>
+<div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+<div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+</div>
 
-            <div class="redemittel-box">
-                <h4>Eventplanung — Vorgehen:</h4>
-                <ol style="margin-left: 18px; font-size: 0.9rem;">
-                    <li>Eventkonzept erstellen (wie planen, konzipieren, realisieren)</li>
-                    <li>Zielgruppe bestimmen (wichtig für Ticketpreis)</li>
-                    <li>Stil wählen</li>
-                </ol>
-            </div>
+<!-- ══════ Tab 0: Vorentlastung ══════ -->
+<div class="section active" id="sec-0">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Konzert" class="tab-banner">
+<h3 class="section-title">Vorentlastung – Ein Musikevent planen</h3>
 
-            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Event-Typen:</h4>
-            <div class="chip-row">
-                <span class="chip">das Festival</span>
-                <span class="chip">das Open-Air-Konzert</span>
-                <span class="chip">das Konzert</span>
-                <span class="chip">das Wohltätigkeitskonzert</span>
-                <span class="chip">das Abschiedskonzert</span>
-                <span class="chip">das Promo-Konzert</span>
-                <span class="chip">das Jubiläumskonzert</span>
-                <span class="chip">der Spendenmarathon</span>
-            </div>
+<h4 style="color:#667eea;margin-bottom:8px;font-size:.95rem">Event-Typen</h4>
+<div class="chip-row">
+<span class="chip-static">das Festival</span>
+<span class="chip-static">das Open-Air-Konzert</span>
+<span class="chip-static">das Konzert</span>
+<span class="chip-static">das Wohltätigkeitskonzert</span>
+<span class="chip-static">das Abschiedskonzert</span>
+<span class="chip-static">das Promo-Konzert</span>
+<span class="chip-static">das Jubiläumskonzert</span>
+<span class="chip-static">der Spendenmarathon</span>
+</div>
 
-            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Musikkulturen:</h4>
-            <div class="chip-row">
-                <span class="chip">Pop</span>
-                <span class="chip">Techno</span>
-                <span class="chip">Gothic</span>
-                <span class="chip">Punk</span>
-                <span class="chip">Hippie</span>
-                <span class="chip">Hip-Hop</span>
-                <span class="chip">Metal</span>
-                <span class="chip">Klassik</span>
-            </div>
+<h4 style="color:#667eea;margin:16px 0 8px;font-size:.95rem">Musikkulturen</h4>
+<div class="chip-row">
+<span class="chip-static">Pop</span>
+<span class="chip-static">Techno</span>
+<span class="chip-static">Gothic</span>
+<span class="chip-static">Punk</span>
+<span class="chip-static">Hip-Hop</span>
+<span class="chip-static">Metal</span>
+<span class="chip-static">Klassik</span>
+<span class="chip-static">Jazz</span>
+</div>
 
-            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Planungssprache — Etwas vorschlagen:</h4>
-            <div class="redemittel-box">
-                <ul class="redemittel-list">
-                    <li><strong>„Was denkst du?"</strong> (denken)</li>
-                    <li><strong>„Wie wäre es mit...?"</strong> (sein)</li>
-                    <li><strong>„Wie findest du...?"</strong> (finden)</li>
-                    <li><strong>„Was hältst du davon?"</strong> (halten von)</li>
-                    <li><strong>„Wir könnten auch..."</strong> (können)</li>
-                    <li><strong>„Wollen wir...?"</strong> (wollen)</li>
-                </ul>
-            </div>
+<h4 style="color:#667eea;margin:16px 0 8px;font-size:.95rem">Planungssprache – Redemittel</h4>
+<div class="redemittel-box">
+<h4>Vorschläge machen</h4>
+<p style="font-size:.9rem;line-height:1.7;color:#333">„Wie wäre es mit…?“ · „Wir könnten auch…“ · „Was hältst du davon, …?“ · „Ich schlage vor, dass…“</p>
+</div>
+<div class="redemittel-box">
+<h4>Nach Meinung fragen</h4>
+<p style="font-size:.9rem;line-height:1.7;color:#333">„Was denkst du?“ · „Wie findest du…?“ · „Was meinst du dazu?“</p>
+</div>
+<div class="redemittel-box">
+<h4>Zustimmen &amp; Ablehnen</h4>
+<p style="font-size:.9rem;line-height:1.7;color:#333">„Gute Idee!“ · „Einverstanden!“ · „Das klingt gut.“<br>„Das finde ich nicht so gut.“ · „Das überzeugt mich nicht.“</p>
+</div>
 
-            <h4 style="color: #667eea; margin: 20px 0 10px 0;">Verb-Formen zuordnen:</h4>
-            <div class="match-zone">
-                <div class="match-item"><strong>denken</strong> → Was denkst du?</div>
-                <div class="match-item"><strong>sein</strong> → Wie wäre es?</div>
-                <div class="match-item"><strong>finden</strong> → Wie findest du?</div>
-                <div class="match-item"><strong>können</strong> → Wir könnten</div>
-                <div class="match-item"><strong>wollen</strong> → Wollen wir?</div>
-            </div>
-        </div>
+<h4 style="color:#667eea;margin:16px 0 8px;font-size:.95rem">Wichtige Vokabeln</h4>
+<div class="vocab-card"><div class="vc-de">die Zielgruppe, -n</div><div class="vc-en">target group</div></div>
+<div class="vocab-card"><div class="vc-de">das Budget, -s</div><div class="vc-en">budget</div></div>
+<div class="vocab-card"><div class="vc-de">die Veranstaltung, -en</div><div class="vc-en">event</div></div>
+<div class="vocab-card"><div class="vc-de">der Vorschlag, ̈-e</div><div class="vc-en">suggestion, proposal</div></div>
+<div class="vocab-card"><div class="vc-de">der Sponsor, -en</div><div class="vc-en">sponsor</div></div>
+</div>
+</div>
 
-        <!-- Tab 1: Lückentext -->
-        <div class="section" id="sec-1">
-            <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Banner" class="banner">
-            <h3 style="color: #667eea; margin-bottom: 20px;">Eventplanung-Dialog</h3>
+<!-- ══════ Tab 1: Lückentext ══════ -->
+<div class="section" id="sec-1">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Eventplanung" class="tab-banner">
+<h3 class="section-title">Lückentext – Redemittel &amp; Eventplanung</h3>
 
-            <div class="dialog-item">
-                <span class="dialog-speaker">A:</span>
-                <div class="dialog-text">
-                    Was <input class="dialog-input" type="text" placeholder="" data-answer="denkst" oninput="liveCheck(this)"> du — sollen wir ein Festival oder ein Open-Air-Konzert organisieren?
-                </div>
-            </div>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="showLueckenLoesung()">Lösungen</button>
+<button class="btn btn-reset" onclick="resetLuecken()">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-1">00:00</span> &middot; Beste: <b id="best-1">--:--</b></span>
+</div>
 
-            <div class="dialog-item">
-                <span class="dialog-speaker">B:</span>
-                <div class="dialog-text">
-                    Wie <input class="dialog-input" type="text" placeholder="" data-answer="wäre" oninput="liveCheck(this)"> es mit einem Wohltätigkeitskonzert? Das finde ich interessanter.
-                </div>
-            </div>
+<div id="lueckenContainer"></div>
+</div>
+</div>
 
-            <div class="dialog-item">
-                <span class="dialog-speaker">A:</span>
-                <div class="dialog-text">
-                    Gute Idee! Und wie <input class="dialog-input" type="text" placeholder="" data-answer="findest" oninput="liveCheck(this)"> du Pop als Musikrichtung?
-                </div>
-            </div>
+<!-- ══════ Tab 2: Zuordnung ══════ -->
+<div class="section" id="sec-2">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?w=1000" alt="Zuordnung" class="tab-banner">
+<h3 class="section-title">Zuordnung – Redemittel richtig einordnen</h3>
 
-            <div class="dialog-item">
-                <span class="dialog-speaker">B:</span>
-                <div class="dialog-text">
-                    Wir <input class="dialog-input" type="text" placeholder="" data-answer="könnten" oninput="liveCheck(this)"> auch Techno und Pop mischen. Für eine größere Zielgruppe.
-                </div>
-            </div>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="showZuordnungLoesung()">Lösungen</button>
+<button class="btn btn-reset" onclick="resetZuordnung()">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-2">00:00</span> &middot; Beste: <b id="best-2">--:--</b></span>
+</div>
 
-            <div class="dialog-item">
-                <span class="dialog-speaker">A:</span>
-                <div class="dialog-text">
-                    Was <input class="dialog-input" type="text" placeholder="" data-answer="hältst" oninput="liveCheck(this)"> du davon, ein Jubiläumskonzert zu machen?
-                </div>
-            </div>
+<div class="zuordnung-bank" id="zuordnung-bank"></div>
 
-            <div class="dialog-item">
-                <span class="dialog-speaker">B:</span>
-                <div class="dialog-text">
-                    <input class="dialog-input" type="text" placeholder="" data-answer="Wollen" oninput="liveCheck(this)"> wir zuerst das Budget festlegen?
-                </div>
-            </div>
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">Vorschläge machen</div>
+<div class="zuordnung-zone" id="zone-vorschlag" data-cat="vorschlag"></div>
+</div>
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">Nach Meinung fragen</div>
+<div class="zuordnung-zone" id="zone-meinung" data-cat="meinung"></div>
+</div>
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">Zustimmen</div>
+<div class="zuordnung-zone" id="zone-zustimmen" data-cat="zustimmen"></div>
+</div>
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">Ablehnen</div>
+<div class="zuordnung-zone" id="zone-ablehnen" data-cat="ablehnen"></div>
+</div>
+</div>
+</div>
 
-            <h4 style="color: #667eea; margin-top: 20px; margin-bottom: 12px;">Werbeplakat-Text vervollständigen:</h4>
-            <div class="werbeplakat">
-                <p>Unser <input class="dialog-input" type="text" placeholder="" data-answer="Festival" oninput="liveCheck(this)"> findet am 15. Juli statt. Die <input class="dialog-input" type="text" placeholder="" data-answer="Zielgruppe" oninput="liveCheck(this)"> ist jung und musikbegeistert. Das <input class="dialog-input" type="text" placeholder="" data-answer="Budget" oninput="liveCheck(this)"> beträgt 50.000 Euro. Als <input class="dialog-input" type="text" placeholder="" data-answer="Location" oninput="liveCheck(this)"> haben wir den Stadtpark gewählt. <input class="dialog-input" type="text" placeholder="" data-answer="Sponsoren" oninput="liveCheck(this)"> werden noch gesucht.</p>
-            </div>
-        </div>
+<!-- ══════ Tab 3: Wortschatz ══════ -->
+<div class="section" id="sec-3">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Wortschatz" class="tab-banner">
+<h3 class="section-title">Wortschatz – Englisch → Deutsch</h3>
 
-        <!-- Tab 2: Satzbau -->
-        <div class="section" id="sec-2">
-            <img src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?w=1000" alt="Banner" class="banner">
-            <h3 style="color: #667eea; margin-bottom: 20px;">Satzbau: Ordne die Wörter richtig!</h3>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="showWortschatzLoesung()">Lösungen</button>
+<button class="btn btn-reset" onclick="resetWortschatz()">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-3">00:00</span> &middot; Beste: <b id="best-3">--:--</b></span>
+</div>
 
-            <div id="sb-section-1">
-                <div class="satzbau-pool" id="sb-pool-1"></div>
-                <div class="drop-zone" id="sb-zone-1">
-                    <div class="drop-row" id="sb-row-1"></div>
-                </div>
-            </div>
+<div id="wortschatzContainer"></div>
+</div>
+</div>
 
-            <div id="sb-section-2">
-                <div class="satzbau-pool" id="sb-pool-2"></div>
-                <div class="drop-zone" id="sb-zone-2">
-                    <div class="drop-row" id="sb-row-2"></div>
-                </div>
-            </div>
+<!-- ══════ Tab 4: Satzbau ══════ -->
+<div class="section" id="sec-4">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/167491/pexels-photo-167491.jpeg?w=1000" alt="Satzbau" class="tab-banner">
+<h3 class="section-title">Satzbau – Ordne die Satzteile!</h3>
 
-            <div id="sb-section-3">
-                <div class="satzbau-pool" id="sb-pool-3"></div>
-                <div class="drop-zone" id="sb-zone-3">
-                    <div class="drop-row" id="sb-row-3"></div>
-                </div>
-            </div>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i)})">Lösungen</button>
+<button class="btn btn-reset" onclick="satzbauData.forEach(function(_,i){sbResetOne(i)});resetTimer(4)">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-4">00:00</span> &middot; Beste: <b id="best-4">--:--</b></span>
+</div>
 
-            <div id="sb-section-4">
-                <div class="satzbau-pool" id="sb-pool-4"></div>
-                <div class="drop-zone" id="sb-zone-4">
-                    <div class="drop-row" id="sb-row-4"></div>
-                </div>
-            </div>
+<div id="satzbauContainer"></div>
+</div>
+</div>
 
-            <div id="sb-section-5">
-                <div class="satzbau-pool" id="sb-pool-5"></div>
-                <div class="drop-zone" id="sb-zone-5">
-                    <div class="drop-row" id="sb-row-5"></div>
-                </div>
-            </div>
-        </div>
+<div class="author-footer">
+&copy; Frank Burkert &middot; DaF-Materialien &middot;
+<a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+</div>
 
-        <!-- Tab 3: Wortschatz -->
-        <div class="section" id="sec-3">
-            <img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Banner" class="banner">
-            <h3 style="color: #667eea; margin-bottom: 20px;">Wortschatz: Ergänze die Vokabeln</h3>
-
-            <div class="wortschatz-item">
-                <p>die Zielgruppe (Plural: -n)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Zielgruppe" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>das Werbeplakat (Plural: -e)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="das Werbeplakat" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>das Hauptziel (Plural: -e)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="das Hauptziel" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>das Eventkonzept (Plural: -e)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="das Eventkonzept" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>das Budget (Plural: -s)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="das Budget" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Location (Plural: -s)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Location" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>der Ticketpreis (Plural: -e)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="der Ticketpreis" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>das Programm (Plural: -e)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="das Programm" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>der Sponsor (Plural: -en)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="der Sponsor" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>planen (Verb)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="planen" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>realisieren (Verb)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="realisieren" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>konzipieren (Verb)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="konzipieren" oninput="liveCheck(this)">
-                </div>
-            </div>
-        </div>
-
-        <div class="author-footer">
-            <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-            <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
-        </div>
-    </div>
-
-    <script>
+<script>
+/* ══════ Navigation ══════ */
 function showSection(n){
-  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+    document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
+    document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
 }
 
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-var bestSeconds=[Infinity,Infinity,Infinity,Infinity,Infinity,Infinity];
-function timerAutoStart(n){if(timerStarted[n])return;timerStarted[n]=true;timerRunning[n]=true;timerIntervals[n]=setInterval(function(){timerSeconds[n]++;var el=document.getElementById('timer-'+n);if(el)el.textContent=fmtTime(timerSeconds[n]);},1000);}
-function timerStop(n){if(!timerRunning[n])return;clearInterval(timerIntervals[n]);timerRunning[n]=false;var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');if(timerSeconds[n]>0&&timerSeconds[n]<best){localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(timerSeconds[n]);}timerSeconds[n]=0;timerStarted[n]=false;var td=document.getElementById('timer-'+n);if(td)td.textContent='0:00';}
-function timerResetOne(n){clearInterval(timerIntervals[n]);timerRunning[n]=false;timerStarted[n]=false;timerSeconds[n]=0;var el=document.getElementById('timer-'+n);if(el)el.textContent='0:00';}
-function fmtTime(s){var m=Math.floor(s/60);var sec=s%60;return m+':'+(sec<10?'0':'')+sec;}
-document.addEventListener('DOMContentLoaded',function(){[1,2,3].forEach(function(n){var b=localStorage.getItem(TIMER_PREFIX+n);if(b){var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(parseInt(b));}});});
+/* ══════ Timer-System ══════ */
+var TIMER_PREFIX='B2_2034X_';
+var timerStarted=[false,false,false,false,false];
+var timerRunning=[false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null];
 
-function liveCheck(inp) {
-  var val = inp.value.trim().toLowerCase();
-  var ans = (inp.dataset.answer || '').toLowerCase();
-  inp.classList.remove('correct', 'wrong');
-  if (val.length === 0) return;
-  if (val === ans) { inp.classList.add('correct'); }
-  else if (ans.indexOf(val) === 0) { }
-  else { inp.classList.add('wrong'); }
+function fmtTime(s){var m=Math.floor(s/60);var sec=s%60;return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}
+
+function timerAutoStart(n){
+    if(timerStarted[n])return;
+    timerStarted[n]=true;timerRunning[n]=true;
+    timerIntervals[n]=setInterval(function(){
+        timerSeconds[n]++;
+        var el=document.getElementById('timer-'+n);
+        if(el)el.textContent=fmtTime(timerSeconds[n]);
+    },1000);
 }
 
-function shuffleArray(arr) {
-  for (var i = arr.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
-  }
-  return arr;
+function stopTimer(n){
+    if(!timerRunning[n])return;
+    clearInterval(timerIntervals[n]);timerRunning[n]=false;
+    var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+    if(timerSeconds[n]>0&&timerSeconds[n]<best){
+        localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+        var el=document.getElementById('best-'+n);
+        if(el)el.textContent=fmtTime(timerSeconds[n]);
+    }
 }
 
-var sbSentences = [
-            { words: ['Was', 'denkst', 'du', '/', 'über', 'die', 'Idee,', '/', 'ein', 'Wohltätigkeitskonzert', '/', 'zu', 'organisieren?'] },
-            { words: ['Wir', 'könnten', '/', 'die', 'Zielgruppe', '/', 'durch', 'ein', '/', 'breiteres', 'Musikprogramm', '/', 'erweitern.'] },
-            { words: ['Wie', 'wäre', 'es,', '/', 'wenn', 'wir', '/', 'einen', 'bekannten', '/', 'Sänger', 'einladen?'] },
-            { words: ['Das', 'Eventkonzept', '/', 'sollte', 'zuerst', '/', 'die', 'Musikkultur', '/', 'und', 'die', 'Zielgruppe', '/', 'definieren.'] },
-            { words: ['Wollen', 'wir', '/', 'das', 'Budget', '/', 'für', 'Werbung', '/', 'und', 'Location', '/', 'aufteilen?'] }
-        ];
+function resetTimer(n){
+    clearInterval(timerIntervals[n]);
+    timerRunning[n]=false;timerStarted[n]=false;timerSeconds[n]=0;
+    var el=document.getElementById('timer-'+n);
+    if(el)el.textContent='00:00';
+}
 
-var draggedChip = null;
+/* ══════ Lückentext (Tab 1) ══════ */
+var LUECKEN=[
+    {pre:'Was ',ans:'denkst',post:' du — sollen wir ein Festival oder ein Open-Air-Konzert organisieren?'},
+    {pre:'Wie ',ans:'wäre',post:' es mit einem Wohltätigkeitskonzert? Das finde ich interessanter.'},
+    {pre:'Wie ',ans:'findest',post:' du Pop als Musikrichtung für unsere Veranstaltung?'},
+    {pre:'Wir ',ans:'könnten',post:' auch verschiedene Musikrichtungen mischen, um eine breitere Zielgruppe anzusprechen.'},
+    {pre:'Was ',ans:'hältst',post:' du davon, ein Jubiläumskonzert zu veranstalten?'},
+    {pre:'',ans:'Wollen',post:' wir zuerst das Budget festlegen, bevor wir die Location suchen?'},
+    {pre:'Ich ',ans:'schlage',post:' vor, dass wir die Sponsoren rechtzeitig kontaktieren.'},
+    {pre:'Das Budget muss sorgfältig ',ans:'kalkuliert',post:' werden, damit wir nicht zu viel ausgeben.'},
+    {pre:'Die Veranstaltung soll ',ans:'professionell',post:' organisiert werden.'},
+    {pre:'Wir müssen die Zielgruppe genau ',ans:'definieren',post:', bevor wir mit der Werbung beginnen.'},
+    {pre:'Unser ',ans:'Vorschlag',post:' wurde von allen Teilnehmern akzeptiert.'},
+    {pre:'Das Konzert wurde vom Publikum ',ans:'begeistert',post:' aufgenommen.'}
+];
 
-function initSatzbau() {
-  sbSentences.forEach(function(sentence, idx) {
-    var sectionId = idx + 1;
-    var pool = document.getElementById('sb-pool-' + sectionId);
-    var zone = document.getElementById('sb-zone-' + sectionId);
-    var row = document.getElementById('sb-row-' + sectionId);
-    if (!pool || !zone || !row) return;
-    var shuffled = shuffleArray(sentence.words.slice());
-    shuffled.forEach(function(word) {
-      var chip = document.createElement('div');
-      chip.className = 'satzbau-item'; chip.textContent = word;
-      chip.draggable = true; chip.dataset.word = word;
-      chip.dataset.si = String(idx);
-      chip.dataset.correct = sentence.words.indexOf(word);
-      chip.addEventListener('dragstart', function(e) {
-        e.dataTransfer.setData('text/plain', ''); draggedChip = chip; timerAutoStart(2);
-      });
-      chip.addEventListener('dragend', function() { colorAllSBChips(sectionId); });
-      chip.addEventListener('click', function() {
-        timerAutoStart(2);
-        if (chip.parentElement.id === 'sb-pool-' + sectionId) { row.appendChild(chip); }
-        else { pool.appendChild(chip); }
-        colorAllSBChips(sectionId);
-      });
-      pool.appendChild(chip);
+function initLuecken(){
+    var c=document.getElementById('lueckenContainer');c.innerHTML='';
+    LUECKEN.forEach(function(item){
+        var d=document.createElement('div');d.className='luecken-item';
+        var inp=document.createElement('input');
+        inp.type='text';inp.placeholder='???';inp.dataset.ans=item.ans;
+        inp.oninput=function(){liveCheck(inp,function(){timerAutoStart(1)},function(){return document.querySelectorAll('#sec-1 .luecken-item input')},function(){stopTimer(1)});};
+        d.appendChild(document.createTextNode(item.pre));
+        d.appendChild(inp);
+        d.appendChild(document.createTextNode(item.post));
+        var h=document.createElement('div');h.className='hint';h.textContent='= '+item.ans;
+        d.appendChild(h);
+        c.appendChild(d);
     });
-    zone.addEventListener('dragover', function(e) {
-      if (draggedChip && draggedChip.dataset.si !== String(idx)) return;
-      e.preventDefault(); zone.classList.add('dragover');
+}
+
+function liveCheck(inp,timerFn,allSel,stopFn){
+    timerFn();
+    var v=inp.value.trim();var a=inp.dataset.ans;
+    inp.classList.remove('ok','no');
+    if(!v)return;
+    var cmpV=v,cmpA=a;
+    if(a.charAt(0)===a.charAt(0).toLowerCase()){cmpV=v.toLowerCase();cmpA=a.toLowerCase();}
+    if(cmpV===cmpA){
+        inp.classList.add('ok');
+        var hint=inp.parentNode.querySelector('.hint');if(hint)hint.style.display='block';
+        var all=allSel();var done=all.length>0&&Array.from(all).every(function(i){return i.classList.contains('ok');});
+        if(done)stopFn();
+    } else if(cmpA.indexOf(cmpV)===0){}
+    else{inp.classList.add('no');}
+}
+
+function showLueckenLoesung(){
+    stopTimer(1);
+    document.querySelectorAll('#sec-1 .luecken-item input').forEach(function(inp){
+        inp.value=inp.dataset.ans;inp.classList.add('ok');inp.classList.remove('no');
+        var h=inp.parentNode.querySelector('.hint');if(h)h.style.display='block';
     });
-    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
-    zone.addEventListener('drop', function(e) {
-      e.preventDefault(); zone.classList.remove('dragover');
-      if (!draggedChip || draggedChip.dataset.si !== String(idx)) return;
-      row.appendChild(draggedChip); colorAllSBChips(sectionId); checkSbAllDone(2);
+}
+
+function resetLuecken(){
+    document.querySelectorAll('#sec-1 .luecken-item input').forEach(function(inp){
+        inp.value='';inp.classList.remove('ok','no');
+        var h=inp.parentNode.querySelector('.hint');if(h)h.style.display='none';
     });
-  });
+    resetTimer(1);
 }
 
-function colorAllSBChips(sectionId) {
-  var row = document.getElementById('sb-row-' + sectionId);
-  if (!row) return;
-  var chips = row.querySelectorAll('.satzbau-item');
-  chips.forEach(function(chip, idx) {
-    chip.classList.remove('correct', 'wrong');
-    if (parseInt(chip.dataset.correct) === idx) { chip.classList.add('correct'); }
-    else { chip.classList.add('wrong'); }
-  });
+/* ══════ Zuordnung (Tab 2) ══════ */
+var ZUORDNUNG=[
+    {text:'„Wie wäre es mit…?“',cat:'vorschlag'},
+    {text:'„Wir könnten auch…“',cat:'vorschlag'},
+    {text:'„Ich schlage vor, dass…“',cat:'vorschlag'},
+    {text:'„Was hältst du davon?“',cat:'vorschlag'},
+    {text:'„Was denkst du?“',cat:'meinung'},
+    {text:'„Wie findest du…?“',cat:'meinung'},
+    {text:'„Was meinst du dazu?“',cat:'meinung'},
+    {text:'„Gute Idee!“',cat:'zustimmen'},
+    {text:'„Einverstanden!“',cat:'zustimmen'},
+    {text:'„Das klingt gut.“',cat:'zustimmen'},
+    {text:'„Das finde ich nicht so gut.“',cat:'ablehnen'},
+    {text:'„Das überzeugt mich nicht.“',cat:'ablehnen'},
+    {text:'„Ich bin dagegen.“',cat:'ablehnen'}
+];
+
+var draggedChip=null;
+
+function initZuordnung(){
+    var bank=document.getElementById('zuordnung-bank');bank.innerHTML='';
+    var shuffled=ZUORDNUNG.slice();
+    for(var i=shuffled.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=t;}
+    shuffled.forEach(function(item){
+        var chip=document.createElement('div');chip.className='chip';
+        chip.textContent=item.text;chip.dataset.cat=item.cat;chip.draggable=true;
+        chip.addEventListener('dragstart',function(e){draggedChip=chip;timerAutoStart(2);e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});
+        chip.addEventListener('dragend',function(){chip.style.opacity='';draggedChip=null;});
+        chip.addEventListener('click',function(){
+            timerAutoStart(2);
+            if(chip.parentNode.id==='zuordnung-bank')return;
+            bank.appendChild(chip);chip.classList.remove('correct','incorrect');
+            colorAllZuordnungChips();checkZuordnungDone();
+        });
+        bank.appendChild(chip);
+    });
+    document.querySelectorAll('.zuordnung-zone').forEach(function(zone){
+        zone.addEventListener('dragover',function(e){e.preventDefault();if(draggedChip)zone.classList.add('dragover');});
+        zone.addEventListener('dragleave',function(e){if(!zone.contains(e.relatedTarget))zone.classList.remove('dragover');});
+        zone.addEventListener('drop',function(e){
+            e.preventDefault();zone.classList.remove('dragover');
+            if(!draggedChip)return;
+            zone.appendChild(draggedChip);draggedChip=null;
+            colorAllZuordnungChips();checkZuordnungDone();
+        });
+    });
 }
 
-function checkSbAllDone(n) {
-  var allOk = sbSentences.every(function(sentence, idx) {
-    var row = document.getElementById('sb-row-' + (idx + 1));
-    if (!row) return false;
-    var chips = row.querySelectorAll('.satzbau-item');
-    if (chips.length !== sentence.words.length) return false;
-    return Array.from(chips).every(function(chip, i) { return parseInt(chip.dataset.correct) === i; });
-  });
-  if (allOk) timerStop(n);
+function colorAllZuordnungChips(){
+    document.querySelectorAll('.zuordnung-zone .chip').forEach(function(c){
+        c.classList.remove('correct','incorrect');
+        var zone=c.parentNode;
+        if(zone&&zone.dataset.cat){
+            c.classList.add(c.dataset.cat===zone.dataset.cat?'correct':'incorrect');
+        }
+    });
 }
 
-initSatzbau();
+function checkZuordnungDone(){
+    var bank=document.getElementById('zuordnung-bank');
+    if(bank.querySelectorAll('.chip').length>0)return;
+    var allOk=Array.from(document.querySelectorAll('.zuordnung-zone .chip')).every(function(c){return c.classList.contains('correct');});
+    if(allOk)stopTimer(2);
+}
+
+function showZuordnungLoesung(){
+    stopTimer(2);
+    var bank=document.getElementById('zuordnung-bank');
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c){
+        var zone=document.getElementById('zone-'+c.dataset.cat);
+        if(zone)zone.appendChild(c);
+    });
+    colorAllZuordnungChips();
+}
+
+function resetZuordnung(){
+    document.querySelectorAll('.zuordnung-zone .chip').forEach(function(c){
+        c.classList.remove('correct','incorrect');
+    });
+    initZuordnung();resetTimer(2);
+}
+
+/* ══════ Wortschatz (Tab 3) ══════ */
+var WORTSCHATZ=[
+    {id:1,type:'n',en:'🎪 festival',artikel:'das',de:'Festival',plural:'-s'},
+    {id:2,type:'n',en:'🎯 target group',artikel:'die',de:'Zielgruppe',plural:'-n'},
+    {id:3,type:'n',en:'💰 budget',artikel:'das',de:'Budget',plural:'-s'},
+    {id:4,type:'n',en:'🎶 concert',artikel:'das',de:'Konzert',plural:'-e'},
+    {id:5,type:'n',en:'🎉 event',artikel:'die',de:'Veranstaltung',plural:'-en'},
+    {id:6,type:'n',en:'🤝 sponsor',artikel:'der',de:'Sponsor',plural:'-en'},
+    {id:7,type:'n',en:'💡 event concept',artikel:'das',de:'Eventkonzept',plural:'-e'},
+    {id:8,type:'n',en:'🎫 ticket price',artikel:'der',de:'Ticketpreis',plural:'-e'},
+    {id:9,type:'n',en:'📝 suggestion',artikel:'der',de:'Vorschlag',plural:'̈-e'},
+    {id:10,type:'n',en:'📰 advertisement poster',artikel:'das',de:'Werbeplakat',plural:'-e'},
+    {id:11,type:'v',en:'📅 to plan',artikel:'',de:'planen',plural:''},
+    {id:12,type:'v',en:'🛠️ to organize',artikel:'',de:'organisieren',plural:''},
+    {id:13,type:'v',en:'✅ to realize',artikel:'',de:'realisieren',plural:''},
+    {id:14,type:'v',en:'📝 to design, conceive',artikel:'',de:'konzipieren',plural:''},
+    {id:15,type:'a',en:'🏆 professional',artikel:'',de:'professionell',plural:''}
+];
+
+function initWortschatz(){
+    var container=document.getElementById('wortschatzContainer');container.innerHTML='';
+    WORTSCHATZ.forEach(function(item){
+        var row=document.createElement('div');row.className='luecken-item';row.style.marginBottom='0';
+        var prompt=document.createElement('div');
+        prompt.style.cssText='font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;';
+        prompt.textContent=item.en;
+        row.appendChild(prompt);
+        var fields=document.createElement('div');
+        fields.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+        if(item.type==='n'){
+            var artInp=document.createElement('input');
+            artInp.className='blank';artInp.type='text';
+            artInp.placeholder='Artikel';artInp.style.width='70px';
+            artInp.dataset.answer=item.artikel;artInp.dataset.field='art';
+            artInp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+            fields.appendChild(artInp);
+            var wordInp=document.createElement('input');
+            wordInp.className='blank';wordInp.type='text';
+            wordInp.placeholder='Wort';wordInp.style.width='160px';
+            wordInp.dataset.answer=item.de;wordInp.dataset.field='word';
+            wordInp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+            fields.appendChild(wordInp);
+            var plInp=document.createElement('input');
+            plInp.className='blank';plInp.type='text';
+            plInp.placeholder='Plural';plInp.style.width='140px';
+            plInp.dataset.answer=item.plural;plInp.dataset.field='plural';
+            if(item.plural==='–'){
+                plInp.value='–';plInp.disabled=true;plInp.classList.add('correct');
+                plInp.style.opacity='0.6';plInp.title='Dieses Wort hat keinen Plural';
+            } else {
+                plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+            }
+            fields.appendChild(plInp);
+        } else {
+            var inp=document.createElement('input');
+            inp.className='blank';inp.type='text';
+            inp.placeholder='Deutsch';inp.style.width='220px';
+            inp.dataset.answer=item.de;inp.dataset.field='word';
+            inp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+            fields.appendChild(inp);
+        }
+        row.appendChild(fields);container.appendChild(row);
+    });
+}
+
+function wortschatzCheck(inp){
+    var user=inp.value;var answer=inp.dataset.answer;var field=inp.dataset.field;
+    inp.classList.remove('correct','wrong');
+    if(!user)return;
+    var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
+    var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
+    if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+    else if(cmpAnswer.indexOf(cmpUser)===0){}
+    else{inp.classList.add('wrong');}
+}
+
+function checkWortschatzAllOk(){
+    var inputs=document.querySelectorAll('#sec-3 input.blank');
+    var allOk=inputs.length>0&&Array.from(inputs).every(function(i){
+        return i.disabled||i.classList.contains('correct');
+    });
+    if(allOk)stopTimer(3);
+}
+
+function showWortschatzLoesung(){
+    stopTimer(3);
+    document.querySelectorAll('#sec-3 input.blank').forEach(function(inp){
+        inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');
+    });
+}
+
+function resetWortschatz(){
+    document.querySelectorAll('#sec-3 input.blank').forEach(function(inp){
+        if(!inp.disabled){inp.value='';inp.classList.remove('correct','wrong');}
+    });
+    resetTimer(3);
+}
+
+/* ══════ Satzbau (Tab 4) ══════ */
+var satzbauData=[
+    {parts:['wie','wäre','es',',','wenn','wir','ein','Open-Air-Konzert','veranstalten'],valid:[['wie','wäre','es',',','wenn','wir','ein','Open-Air-Konzert','veranstalten']],punct:'?'},
+    {parts:['das','Budget','muss','sorgfältig','kalkuliert','werden'],valid:[['das','Budget','muss','sorgfältig','kalkuliert','werden']],punct:'.'},
+    {parts:['wir','könnten','die','Zielgruppe','durch','ein','breiteres','Programm','erweitern'],valid:[['wir','könnten','die','Zielgruppe','durch','ein','breiteres','Programm','erweitern']],punct:'.'},
+    {parts:['der','Vorschlag','wurde','von','allen','Teilnehmern','akzeptiert'],valid:[['der','Vorschlag','wurde','von','allen','Teilnehmern','akzeptiert']],punct:'.'},
+    {parts:['das','Konzert','soll','professionell','organisiert','werden'],valid:[['das','Konzert','soll','professionell','organisiert','werden']],punct:'.'},
+    {parts:['die','Sponsoren','müssen','rechtzeitig','angesprochen','werden'],valid:[['die','Sponsoren','müssen','rechtzeitig','angesprochen','werden']],punct:'.'}
+];
+
+var sbDragged=null;
+
+function getSbCursor(){
+    var c=document.getElementById('sb-insert-cursor');
+    if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}
+    return c;
+}
+
+function getSbInsertPos(zone,clientX){
+    var chips=Array.from(zone.querySelectorAll('.chip'));
+    for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(clientX<r.left+r.width/2)return chips[i];}
+    return null;
+}
+
+function sbCapitalize(str){return str.charAt(0).toUpperCase()+str.slice(1);}
+
+function sbUpdateCapitalization(row){
+    var chips=Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c,i){
+        var orig=c.dataset.orig;
+        var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+        if(isProper){c.textContent=orig;}
+        else{c.textContent=(i===0)?sbCapitalize(orig):orig;}
+    });
+}
+
+function sbMakeChip(word){
+    var chip=document.createElement('div');chip.className='chip';
+    chip.textContent=word;chip.dataset.orig=word;chip.draggable=true;
+    if(word===','||word===';'||word===':')chip.classList.add('punct-chip');
+    chip.addEventListener('dragstart',function(e){
+        sbDragged=chip;timerAutoStart(4);e.dataTransfer.setData('text/plain','');
+        setTimeout(function(){chip.style.opacity='0.4';},0);
+    });
+    chip.addEventListener('dragend',function(){chip.style.opacity='';sbDragged=null;var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);});
+    return chip;
+}
+
+function sbRegisterZone(zone,idx){
+    zone.addEventListener('dragover',function(e){
+        e.preventDefault();if(!sbDragged)return;
+        var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);
+        if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave',function(e){
+        if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}
+    });
+    zone.addEventListener('drop',function(e){
+        e.preventDefault();if(!sbDragged)return;
+        var cursor=document.getElementById('sb-insert-cursor');
+        if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}
+        else{zone.appendChild(sbDragged);}
+        sbDragged=null;
+        var row=document.getElementById('sb-row-'+idx);
+        sbUpdateCapitalization(row);sbCheckAuto(idx);
+    });
+}
+
+function sbColorRow(idx){
+    var row=document.getElementById('sb-row-'+idx);
+    var chips=Array.from(row.querySelectorAll('.chip'));
+    var order=chips.map(function(c){return c.dataset.orig;});
+    var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});
+    chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});
+    var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+    if(ok){var punkt=document.createElement('span');punkt.className='sb-punkt';punkt.textContent=satzbauData[idx].punct||'.';row.appendChild(punkt);}
+    return ok;
+}
+
+function sbCheckAuto(idx){
+    var bank=document.getElementById('sb-bank-'+idx);
+    var row=document.getElementById('sb-row-'+idx);
+    var fb=document.getElementById('sb-fb-'+idx);
+    if(bank.querySelectorAll('.chip').length>0){
+        row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});
+        row.classList.remove('correct','incorrect');fb.textContent='';return;
+    }
+    setTimeout(function(){
+        timerAutoStart(4);var ok=sbColorRow(idx);
+        if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}
+        else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';}
+    },500);
+}
+
+function sbCheckAllDone(){
+    var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});
+    if(allOk)stopTimer(4);
+}
+
+function sbShowSolution(idx){
+    var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);
+    var solution=satzbauData[idx].valid[0];var allChips={};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+    while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);
+    solution.forEach(function(word,i){
+        var chip=allChips[word];if(chip){
+            if(word!==','&&word!==';'&&word!==':'){chip.textContent=(i===0)?sbCapitalize(word):word;}
+            chip.classList.remove('correct','incorrect');row.appendChild(chip);
+        }
+    });
+    fb.textContent='';setTimeout(function(){sbCheckAuto(idx);},100);
+}
+
+function sbResetOne(idx){
+    var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);
+    while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);
+    row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';
+    var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+    var parts=satzbauData[idx].parts.slice();
+    for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+    parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+}
+
+function initSatzbau(){
+    var container=document.getElementById('satzbauContainer');container.innerHTML='';
+    satzbauData.forEach(function(ex,idx){
+        var item=document.createElement('div');item.className='satzbau-item';
+        var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;
+        var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;
+        var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;
+        var parts=ex.parts.slice();
+        for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+        parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+        sbRegisterZone(bank,idx);sbRegisterZone(row,idx);
+        var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+        var solveBtn=document.createElement('button');solveBtn.className='btn';solveBtn.textContent='Lösen';
+        solveBtn.setAttribute('data-idx',idx);solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});
+        var resetBtn=document.createElement('button');resetBtn.className='btn';resetBtn.textContent='↺ Neustart';
+        resetBtn.setAttribute('data-idx',idx);resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});
+        btnRow.appendChild(solveBtn);btnRow.appendChild(resetBtn);
+        item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+
+/* ══════ Init ══════ */
+document.addEventListener('DOMContentLoaded',function(){
+    initLuecken();initZuordnung();initWortschatz();initSatzbau();
+    [1,2,3,4].forEach(function(n){
+        var b=localStorage.getItem(TIMER_PREFIX+n);
+        if(b){var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(parseInt(b));}
+    });
+});
 </script>
 </body>
 </html>
