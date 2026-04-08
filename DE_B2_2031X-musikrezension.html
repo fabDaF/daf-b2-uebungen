@@ -71,7 +71,7 @@
       max-height: 180px;
       object-fit: cover;
       margin-bottom: 20px;
-      border-radius:10px;
+      border-radius: 0;
     }
 
     /* Entdeckungs-Tab */
@@ -187,7 +187,7 @@
     }
 
     /* Wortschatz */
-    .vocab-item {
+    .ws-card {
       background: #f8f9ff;
       padding: 14px 18px;
       margin-bottom: 12px;
@@ -322,7 +322,7 @@
     width: 100%;
     max-height: 180px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 0;
     margin-bottom: 20px;
     display: block;
 }
@@ -497,7 +497,7 @@
 
         <div class="author-footer">
           <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-          <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+          <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
         </div>
       </div>
 
@@ -517,7 +517,7 @@
 
         <div class="author-footer">
           <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-          <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+          <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
         </div>
       </div>
 
@@ -531,7 +531,7 @@
 
         <div class="btn-row">
           <button class="btn" onclick="showVocabLoesung(4)">💡 Lösungen</button>
-          <button class="btn" onclick="resetVocab(4); timerResetOne(4);">🔄 Neu starten</button>
+          <button class="btn" onclick="resetWs(4); timerResetOne(4);">🔄 Neu starten</button>
         </div>
 
         <div class="help-box">
@@ -542,7 +542,7 @@
 
         <div class="author-footer">
           <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-          <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+          <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
         </div>
       </div>
     </div>
@@ -591,7 +591,6 @@ function mcCheck(idx, btn, correct) {
   }
 }
 
-var TIMER_PREFIX='B2_2031X_';
 var timerStarted=[false,false,false,false,false,false,false];
 var timerRunning=[false,false,false,false,false,false,false];
 var timerSeconds=[0,0,0,0,0,0,0];
@@ -608,12 +607,7 @@ function timerAutoStart(n){
 function timerStop(n){
   if(!timerRunning[n]) return;
   clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
+  if(timerSeconds[n]<bestSeconds[n]&&timerSeconds[n]>0){bestSeconds[n]=timerSeconds[n];var el=document.getElementById('best-'+n);if(el) el.textContent=fmtTime(bestSeconds[n]);}
   timerSeconds[n]=0; timerStarted[n]=false;
   var td=document.getElementById('timer-'+n);
   if(td) td.textContent='0:00';
@@ -871,7 +865,7 @@ function initVocab() {
   container.innerHTML = '';
   var shuffled = WORTSCHATZ.slice().sort(function() { return Math.random() - 0.5; });
   shuffled.forEach(function(item) {
-    var div = document.createElement('div'); div.className = 'vocab-item';
+    var div = document.createElement('div'); div.className = 'ws-card';
     var en = document.createElement('span'); en.className = 'vocab-en'; en.textContent = item.en;
     div.appendChild(en);
     var arrow = document.createElement('span'); arrow.className = 'vocab-arrow'; arrow.textContent = '→';
@@ -924,7 +918,7 @@ function showVocabLoesung(n) {
   timerStop(n);
 }
 
-function resetVocab(n) {
+function resetWs(n) {
   document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
     inp.value = ''; inp.classList.remove('correct', 'wrong');
     var hint = inp.nextElementSibling;

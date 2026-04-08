@@ -31,7 +31,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .sec-inner { padding: 28px 30px; }
 
 /* ── TAB-BANNER ──────────────────────────────────────────── */
-.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 0; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
 @media (max-width: 600px) { .tab-banner { max-height: 120px; } }
 
 /* ── CONTROL-BAR ─────────────────────────────────────────── */
@@ -73,7 +73,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .sb-fb { font-size: 0.88rem; margin-top: 6px; min-height: 20px; color: #43a047; font-weight: 600; }
 
 /* ── WORTSCHATZ ──────────────────────────────────────────── */
-.vocab-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+#wortschatzContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
 .vocab-card { border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.07); transition: box-shadow .2s; }
 .vocab-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
 .vocab-img { width: 100%; height: 120px; object-fit: cover; }
@@ -132,7 +132,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
     width: 100%;
     max-height: 180px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 0;
     margin-bottom: 20px;
     display: block;
 }
@@ -309,7 +309,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
     <h2>🔠 Wortschatz</h2>
     <div class="timer-controls">
       <div class="btn-row">
-        <button class="btn" onclick="resetVocab()">Neu starten</button>
+        <button class="btn" onclick="resetWs()">Neu starten</button>
       </div>
       <div class="timer-display">
         <span class="current-time">⏱ <span id="timer-3">0:00</span></span>
@@ -325,7 +325,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 
 <div class="author-footer">
   <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-  <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
 </div>
 
 </div><!-- /container -->
@@ -602,7 +602,7 @@ function resetLuecken(){
     timerResetOne(1);
 }
 function resetSatzbau(){ timerResetOne(2); initSatzbau(); }
-function resetVocab(){ timerResetOne(3); initVocab(); }
+function resetWs(){ timerResetOne(3); initVocab(); }
 
 // ─────────────────────────────────────────────────────────
 // INIT ON LOAD
@@ -615,7 +615,6 @@ window.addEventListener('DOMContentLoaded', function() {
 // ─────────────────────────────────────────────────────────
 // TIMER SYSTEM
 // ─────────────────────────────────────────────────────────
-var TIMER_PREFIX='B2_2014X_';
 var timerStarted=[false,false,false,false];
 var timerRunning=[false,false,false,false];
 var timerSeconds=[0,0,0,0];
@@ -632,12 +631,7 @@ function timerAutoStart(n){
 function timerStop(n){
   if(!timerRunning[n]) return;
   clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
+  if(timerSeconds[n]<bestSeconds[n]&&timerSeconds[n]>0){bestSeconds[n]=timerSeconds[n];var el=document.getElementById('best-'+n);if(el) el.textContent=fmtTime(bestSeconds[n]);}
   timerSeconds[n]=0; timerStarted[n]=false;
   var td=document.getElementById('timer-'+n);
   if(td) td.textContent='0:00';

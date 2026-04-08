@@ -48,7 +48,7 @@
       width: 100%;
       max-height: 180px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 0;
       margin-bottom: 18px;
     }
     .control-bar {
@@ -126,7 +126,7 @@
       line-height: 1.5;
       color: #333;
     }
-    .gap-input {
+    .luecken-inp {
       border: none;
       border-bottom: 2px solid #667eea;
       padding: 3px 8px;
@@ -136,18 +136,18 @@
       transition: border-color 0.2s, background 0.2s;
       font-family: inherit;
     }
-    .gap-input:focus {
+    .luecken-inp:focus {
       border-bottom-color: #764ba2;
     }
-    .gap-input.correct {
+    .luecken-inp.ok {
       border-bottom-color: #4caf50;
       background: #e8f5e9;
     }
-    .gap-input.wrong {
+    .luecken-inp.no {
       border-bottom-color: #e53935;
       background: #ffebee;
     }
-    .gap-input::placeholder {
+    .luecken-inp::placeholder {
       color: transparent;
     }
     .luecke-sentence {
@@ -160,7 +160,7 @@
       font-size: 0.95rem;
       color: #333;
     }
-    .vocab-item {
+    .ws-card {
       background: #f8f9ff;
       padding: 14px 18px;
       margin-bottom: 12px;
@@ -315,7 +315,7 @@
       .header h1 { font-size: 1.2rem; }
       .nav-tabs { flex-direction: row; }
       .nav-item { flex: 1; padding: 10px 8px; }
-      .vocab-item { flex-direction: column; align-items: flex-start; }
+      .ws-card { flex-direction: column; align-items: flex-start; }
     }
   
 /* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
@@ -349,7 +349,7 @@
     width: 100%;
     max-height: 180px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 0;
     margin-bottom: 20px;
     display: block;
 }
@@ -478,7 +478,7 @@
         </div>
         <div class="btn-row">
           <button class="btn" onclick="showVocabLoesung(3)">Lösungen</button>
-          <button class="btn" onclick="resetVocab(3)">Neu starten</button>
+          <button class="btn" onclick="resetWs(3)">Neu starten</button>
         </div>
         <div class="help-box">
           <strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche. Bei Nomen: Artikel + Wort + Plural!
@@ -489,7 +489,7 @@
 
     <div class="author-footer">
       <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-      <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
     </div>
   </div>
 
@@ -510,6 +510,7 @@ var timerStarted  = [false,false,false,false];
 var timerRunning   = [false,false,false,false];
 var timerSeconds   = [0,0,0,0];
 var timerIntervals = [null,null,null,null];
+var bestSeconds=[Infinity,Infinity,Infinity,Infinity,Infinity,Infinity];
 
 function fmtTime(s) {
   var m = Math.floor(s / 60), sec = s % 60;
@@ -588,7 +589,7 @@ function lueckeInit() {
         sentDiv.appendChild(document.createTextNode(seg.t));
       } else {
         var inp = document.createElement('input');
-        inp.className = 'gap-input';
+        inp.className = 'luecken-inp';
         inp.dataset.answer = seg.b;
         var widths = { s: '50px', m: '90px', l: '150px', xl: '200px' };
         inp.style.width = widths[seg.s] || '90px';
@@ -622,7 +623,7 @@ function liveCheck(inp) {
 }
 
 function checkLueckeAllOk(n) {
-  var inputs = document.querySelectorAll('#luecke-container input.gap-input');
+  var inputs = document.querySelectorAll('#luecke-container input.luecken-inp');
   var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) {
     return i.classList.contains('correct');
   });
@@ -630,7 +631,7 @@ function checkLueckeAllOk(n) {
 }
 
 function showLueckeLoesung(n) {
-  document.querySelectorAll('#luecke-container input.gap-input').forEach(function(inp) {
+  document.querySelectorAll('#luecke-container input.luecken-inp').forEach(function(inp) {
     var next = inp.nextElementSibling;
     if (next && next.classList.contains('correction-hint')) next.remove();
     if (inp.value.trim().toLowerCase() !== inp.dataset.answer.toLowerCase()) {
@@ -647,7 +648,7 @@ function showLueckeLoesung(n) {
 }
 
 function resetLuecke(n) {
-  document.querySelectorAll('#luecke-container input.gap-input').forEach(function(inp) {
+  document.querySelectorAll('#luecke-container input.luecken-inp').forEach(function(inp) {
     inp.value = '';
     inp.classList.remove('correct', 'wrong');
     var next = inp.nextElementSibling;
@@ -897,7 +898,7 @@ function initVocab() {
   var shuffled = WORTSCHATZ.slice().sort(function() { return Math.random() - 0.5; });
   shuffled.forEach(function(item) {
     var div = document.createElement('div');
-    div.className = 'vocab-item';
+    div.className = 'ws-card';
     var en = document.createElement('span');
     en.className = 'vocab-en';
     en.textContent = item.en;
@@ -972,7 +973,7 @@ function showVocabLoesung(n) {
   timerStop(n);
 }
 
-function resetVocab(n) {
+function resetWs(n) {
   document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
     inp.value = '';
     inp.classList.remove('correct', 'wrong');

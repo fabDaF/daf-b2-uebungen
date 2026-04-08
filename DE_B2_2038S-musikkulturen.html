@@ -63,8 +63,8 @@ nav button.active {
 }
 .nav-emoji { font-size: 1.3rem; }
 .nav-label { font-size: 0.72rem; margin-top: 2px; }
-.tab-content { display: none; padding: 0 0 24px; }
-.tab-content.active { display: block; }
+.sec-inner { display: none; padding: 0 0 24px; }
+.sec-inner.active { display: block; }
 .tab-banner {
   width: 100%;
   max-height: 180px;
@@ -285,9 +285,7 @@ p { color: #555; line-height: 1.6; margin-bottom: 12px; }
   font-weight: 600;
   transition: all 0.2s;
 }
-.btn-primary { background: #667eea; color: white; }
 .btn-primary:hover { background: #5570d4; }
-.btn-secondary { background: #e9ecef; color: #555; }
 .btn-secondary:hover { background: #dee2e6; }
 .timer-box {
   display: flex;
@@ -302,8 +300,8 @@ p { color: #555; line-height: 1.6; margin-bottom: 12px; }
 
 /* Wortschatz */
 .vocab-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 8px; }
-.vocab-item { background: #f8f9ff; border-radius: 8px; padding: 14px 16px; }
-.vocab-item .inputs-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.ws-card { background: #f8f9ff; border-radius: 8px; padding: 14px 16px; }
+.ws-card .inputs-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .vocab-input {
   border: 1.5px solid #c5c9f0;
   border-radius: 6px;
@@ -373,7 +371,7 @@ input.correct + .vocab-hint { display: inline; }
     width: 100%;
     max-height: 180px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 0;
     margin-bottom: 20px;
     display: block;
 }
@@ -398,7 +396,6 @@ function showSection(n){
   document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
 }
 
-var TIMER_PREFIX='B2_2038S_';
 var timerStarted=[false,false,false,false,false,false,false];
 var timerRunning=[false,false,false,false,false,false,false];
 var timerSeconds=[0,0,0,0,0,0,0];
@@ -415,12 +412,7 @@ function timerAutoStart(n){
 function timerStop(n){
   if(!timerRunning[n]) return;
   clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
+  if(timerSeconds[n]<bestSeconds[n]&&timerSeconds[n]>0){bestSeconds[n]=timerSeconds[n];var el=document.getElementById('best-'+n);if(el) el.textContent=fmtTime(bestSeconds[n]);}
   timerSeconds[n]=0; timerStarted[n]=false;
   var td=document.getElementById('timer-'+n);
   if(td) td.textContent='0:00';
@@ -511,7 +503,7 @@ var vocabData = [
   { en: 'to recommend', de: 'weiterempfehlen', type: 'v' }
 ];
 
-function buildVocab() {
+function initWortschatz() {
   var container = document.getElementById('vocabGrid');
   if (!container) return;
   container.innerHTML = '';
@@ -561,7 +553,7 @@ function checkVocabAllOk() {
   if (allOk) timerStop(4);
 }
 
-function resetVocab() {
+function resetWs() {
   document.querySelectorAll('#vocabGrid input').forEach(function(inp) {
     inp.value = ''; inp.classList.remove('correct', 'wrong');
   });
@@ -569,7 +561,7 @@ function resetVocab() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  buildVocab();
+  initWortschatz();
 });
 </script>
 </head>
@@ -771,12 +763,12 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="control-bar">
       <div class="btn-group">
-        <button class="btn btn-secondary" onclick="resetLuecken()">🔄 Zurücksetzen</button>
+        <button class="btn" onclick="resetLuecken()">🔄 Zurücksetzen</button>
       </div>
       <div class="timer-box">
         <span>⏱</span>
         <span id="timer-3">0:00</span> 🏆 <span id="best-3">--:--</span>
-        <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
+        <button class="btn" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
       </div>
     </div>
   </div>
@@ -791,17 +783,17 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="control-bar">
       <div class="btn-group">
-        <button class="btn btn-secondary" onclick="resetVocab()">🔄 Zurücksetzen</button>
+        <button class="btn" onclick="resetWs()">🔄 Zurücksetzen</button>
       </div>
       <div class="timer-box">
         <span>⏱</span>
         <span id="timer-4">0:00</span> 🏆 <span id="best-4">--:--</span>
-        <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
+        <button class="btn" style="padding:4px 8px;font-size:0.8rem" onclick="resetTimer()">Reset</button>
       </div>
     </div>
   </div>
 
-  <div class="footer">© Frank Burkert · DaF-Materialien · frankburkert@gmx.net</div>
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
 </div>
 
 
