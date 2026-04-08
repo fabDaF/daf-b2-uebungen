@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eine Kritik zum Musikalbum schreiben</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      background: white;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+    .header p { font-size: 0.95rem; opacity: 0.9; }
+
+    .nav{
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid #ddd;
+      background: #f8f9fa;
+    ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+    .nav-button {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      background: white;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+      color: #666;
+    }
+    .nav-button:hover {
+      background: #f0f2f5;
+      color: #667eea;
+    }
+    .nav-button.active {
+      background: white;
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+    .nav-emoji { font-size: 1.3rem; }
+    .nav-label { font-size: 0.72rem; margin-top: 2px; }
+
+    .content { padding: 30px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    /* Banner */
+    .tab-banner {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border-radius:10px;
+    }
+
+    /* Entdeckungs-Tab */
+    .entdeck-intro {
+      background: #f3e5f5;
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+      border-left: 5px solid #9c27b0;
+      font-size: 0.97rem;
+      line-height: 1.75;
+    }
+    .entdeck-intro h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.05rem; }
+    .hl { background: #e1bee7; border-radius: 4px; padding: 0 4px; color: #4a148c; font-weight: 700; }
+
+    .mc-step { display: none; background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; border: 1px solid #c5cae9; }
+    .mc-step.active { display: block; }
+    .mc-step h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; }
+    .mc-options { display: flex; flex-direction: column; gap: 8px; }
+    .mc-btn {
+      padding: 9px 16px;
+      border: 2px solid #c5cae9;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+    .mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
+    .mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+    .mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .mc-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 1.3em; }
+    .mc-feedback.ok { color: #2e7d32; font-weight: 700; }
+    .mc-feedback.err { color: #c62828; }
+
+    .progress-dots { display: flex; gap: 8px; margin-bottom: 20px; }
+    .pdot { width: 14px; height: 14px; border-radius: 50%; background: #c5cae9; transition: background 0.3s; }
+    .pdot.done { background: #667eea; }
+
+    .regel-karte { display: none; background: linear-gradient(135deg, #e8eaf6, #ede7f6); border-radius: 14px; padding: 22px 26px; border-left: 5px solid #3949ab; margin-top: 10px; }
+    .regel-karte h3 { color: #1a237e; margin-bottom: 12px; font-size: 1.05rem; }
+    .regel-karte ul { margin-left: 18px; }
+    .regel-karte li { color: #333; line-height: 1.8; font-size: 0.95rem; }
+    .regel-karte .rk-example { background: #fff; border-radius: 8px; padding: 10px 14px; margin-top: 12px; border-left: 3px solid #7c4dff; font-size: 0.9rem; color: #333; }
+    .regel-karte .rk-example b { color: #3949ab; }
+
+    /* Lückentext */
+    input.blank {
+      border: 2px solid #c5cae9;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      background: white;
+      margin: 0 2px;
+    }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+
+    .correction-hint {
+      font-size: 0.78rem;
+      color: #27ae60;
+      font-weight: 700;
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+
+    /* Satzbau */
+    .chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      cursor: grab;
+      font-size: 0.85rem;
+      font-weight: 600;
+      user-select: none;
+      transition: transform 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.selected { outline: 3px solid #f39c12; }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .chip.comma-chip { padding: 8px 8px; min-width: 24px; font-weight: 700; font-size: 1.1em; }
+
+    .drop-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 2px dashed #c5cae9;
+      background: #fafbff;
+    }
+    .drop-row.dragover { background: #e8eaff; border-color: #667eea; }
+    .drop-row .chip.comma-chip { margin-left: -4px; }
+
+    .chip-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      min-height: 54px;
+    }
+
+    /* Wortschatz */
+    .vocab-item {
+      background: #f8f9ff;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .vocab-en { font-weight: 600; color: #764ba2; min-width: 140px; font-size: 0.95em; }
+    .vocab-arrow { color: #ccc; font-size: 1.2em; }
+    .vocab-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .vocab-inputs input {
+      border: none;
+      border-bottom: 2px solid #667eea;
+      background: #fff;
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: 0.95em;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .vocab-inputs input:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
+    .vocab-inputs input.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+    .vocab-inputs input.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+    .vocab-inputs input.art { width: 70px; }
+    .vocab-inputs input.wort { width: 130px; }
+    .vocab-inputs input.plural { width: 140px; }
+    input.correct + .vocab-hint { display: inline; }
+  .vocab-hint { color: #27ae60; font-weight: 600; font-size: 0.8em; margin-left: 6px; }
+
+    /* Timer */
+    .timer-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .best-time { color: #f39c12; font-weight: 600; }
+
+    /* Control Bar */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn:hover { background: #764ba2; transform: translateY(-2px); }
+
+    /* Help Box */
+    .help-box {
+      background: #e8f4fd;
+      border-left: 4px solid #2196f3;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 0.92rem;
+      color: #0d47a1;
+    }
+
+    /* Text Sections */
+    .text-section { line-height: 1.8; font-size: 0.95rem; color: #333; margin-bottom: 16px; }
+    .text-section p { margin-bottom: 12px; }
+    .text-section strong { color: #3949ab; }
+
+    /* Footer */
+    .author-footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 16px;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+    .author-footer a { color: #aaa; }
+    .author-name { font-weight: 700; }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.2rem; }
+      .nav{ flex-direction: column; ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+      .nav-button { padding: 12px 14px; }
+      .content { padding: 16px; }
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Eine Kritik zum Musikalbum schreiben</h1>
+      <p>B2.2 – Lektion 2031X · Kommunikation</p>
+    </div>
+
+    <div class="nav">
+      <div class="nav-btn active" onclick="showSection(0)">
+        <span class="nav-emoji">🔍</span>
+        <span class="nav-label">Entdecken</span>
+      </div>
+      <div class="nav-btn" onclick="showSection(1)">
+        <span class="nav-emoji">🎯</span>
+        <span class="nav-label">Zuordnung</span>
+      </div>
+      <div class="nav-btn" onclick="showSection(2)">
+        <span class="nav-emoji">📝</span>
+        <span class="nav-label">Lückentext</span>
+      </div>
+      <div class="nav-btn" onclick="showSection(3)">
+        <span class="nav-emoji">🔀</span>
+        <span class="nav-label">Satzbau</span>
+      </div>
+      <div class="nav-btn" onclick="showSection(4)">
+        <span class="nav-emoji">📚</span>
+        <span class="nav-label">Wortschatz</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- TAB 0: Entdecken (interaktiv) -->
+      <div class="section active" id="sec-0">
+        <img src="https://images.pexels.com/photos/1370545/pexels-photo-1370545.jpeg?w=1000" alt="Musikalbum" class="tab-banner">
+
+        <div class="entdeck-intro">
+          <p>Eine <strong>Albumrezension</strong> ist eine kritische Bewertung eines Musikalbums. Lies den kurzen Auszug und beantworte die Fragen:</p>
+        </div>
+
+        <div style="background:#f0f4ff; border-left:4px solid #667eea; padding:14px; border-radius:6px; margin:16px 0; line-height:1.7;">
+          „Das neue Album <em>Nachtlichter</em> der Band <strong>Sternwind</strong> erschien 2024. Die <span style="border-bottom:2px dotted #667eea">Gitarrenriffs</span> klingen kraftvoll, aber die <span style="border-bottom:2px dotted #e53935">Refrains</span> wirken stellenweise monoton. Insgesamt ein gelungenes Werk — <strong>ich empfehle es</strong> allen Fans von Indie-Rock."
+        </div>
+
+        <div class="progress-dots">
+          <span class="pdot" id="pdot0"></span>
+          <span class="pdot" id="pdot1"></span>
+          <span class="pdot" id="pdot2"></span>
+          <span class="pdot" id="pdot3"></span>
+        </div>
+
+        <div class="mc-step active" id="mc-step0">
+          <h4>Frage 1: Was ist eine Albumrezension?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(0, this, false)">Ein Interview mit der Band</button>
+            <button class="mc-btn" onclick="mcCheck(0, this, true)">Eine kritische Bewertung eines Musikalbums</button>
+            <button class="mc-btn" onclick="mcCheck(0, this, false)">Eine Trackliste mit Songtexten</button>
+          </div>
+          <div class="mc-feedback" id="mcfb0"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step1">
+          <h4>Frage 2: Was gehört in die Einleitung einer Rezension?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(1, this, true)">Name der Band, Erscheinungsjahr, Albumtitel</button>
+            <button class="mc-btn" onclick="mcCheck(1, this, false)">Eigene Meinung und Empfehlung</button>
+            <button class="mc-btn" onclick="mcCheck(1, this, false)">Analyse der Stärken und Schwächen</button>
+          </div>
+          <div class="mc-feedback" id="mcfb1"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step2">
+          <h4>Frage 3: „Die Gitarrenriffs klingen kraftvoll" — Zu welchem Teil der Rezension gehört das?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(2, this, false)">Einleitung</button>
+            <button class="mc-btn" onclick="mcCheck(2, this, true)">Hauptteil (Analyse)</button>
+            <button class="mc-btn" onclick="mcCheck(2, this, false)">Schluss</button>
+          </div>
+          <div class="mc-feedback" id="mcfb2"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step3">
+          <h4>Frage 4: Was ist ein „Leitmotiv"?</h4>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(3, this, false)">Der erste Track auf dem Album</button>
+            <button class="mc-btn" onclick="mcCheck(3, this, false)">Das Lieblingsthema des Rezensenten</button>
+            <button class="mc-btn" onclick="mcCheck(3, this, true)">Ein wiederkehrendes Element, das sich durch mehrere Tracks zieht</button>
+          </div>
+          <div class="mc-feedback" id="mcfb3"></div>
+        </div>
+
+        <div class="regel-karte" id="regelkarte" style="display:none;">
+          <h3>Zusammenfassung</h3>
+          <p>Eine Rezension hat drei Teile: <strong>Einleitung</strong> (Eckdaten), <strong>Hauptteil</strong> (Analyse), <strong>Schluss</strong> (Meinung). Wichtig: keine Wortdoppelungen, klare Empfehlung!</p>
+        </div>
+      </div>
+
+      <!-- TAB 1: Zuordnung (interaktiv) -->
+      <div class="section" id="sec-1">
+        <img src="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?w=1000" alt="Zuordnung" class="tab-banner">
+
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Ordne die Elemente der Rezension richtig zu! Ziehe oder klicke die Chips in die passende Kategorie.
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 16px;">
+          <div style="border: 2px dashed #c5cae9; border-radius: 10px; padding: 12px; background: #fafbff;">
+            <h4 style="color: #3949ab; margin-bottom: 10px; font-size: 0.9rem;">Einleitung (30%)</h4>
+            <div class="drop-zone" style="min-height: 80px;" data-cat="einleitung"></div>
+          </div>
+          <div style="border: 2px dashed #c5cae9; border-radius: 10px; padding: 12px; background: #fafbff;">
+            <h4 style="color: #3949ab; margin-bottom: 10px; font-size: 0.9rem;">Hauptteil (50%)</h4>
+            <div class="drop-zone" style="min-height: 80px;" data-cat="hauptteil"></div>
+          </div>
+          <div style="border: 2px dashed #c5cae9; border-radius: 10px; padding: 12px; background: #fafbff;">
+            <h4 style="color: #3949ab; margin-bottom: 10px; font-size: 0.9rem;">Schluss (20%)</h4>
+            <div class="drop-zone" style="min-height: 80px;" data-cat="schluss"></div>
+          </div>
+        </div>
+
+        <div class="chip-bank" id="chip-bank-0">
+          <div class="chip" draggable="true" data-cat="einleitung">Herkunft der Band</div>
+          <div class="chip" draggable="true" data-cat="hauptteil">Gitarrenriffs kraftvoll</div>
+          <div class="chip" draggable="true" data-cat="hauptteil">Refrains monoton</div>
+          <div class="chip" draggable="true" data-cat="schluss">Ich empfehle es</div>
+          <div class="chip" draggable="true" data-cat="einleitung">Erscheinungsjahr</div>
+          <div class="chip" draggable="true" data-cat="hauptteil">Einflüsse von Punk</div>
+          <div class="chip" draggable="true" data-cat="schluss">Meine Meinung</div>
+          <div class="chip" draggable="true" data-cat="einleitung">Name des Albums</div>
+          <div class="chip" draggable="true" data-cat="einleitung">Vorgängeralben</div>
+          <div class="chip" draggable="true" data-cat="hauptteil">Parallelen zu anderen Bands</div>
+          <div class="chip" draggable="true" data-cat="schluss">klare Empfehlung</div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Lückentext -->
+      <div class="section" id="sec-2">
+        <img src="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?w=1000" alt="Lückentext" class="tab-banner">
+
+        <div class="timer-row">
+          ⏱ <span id="timer-2">0:00</span> 🏆 <span id="best-2">--:--</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" onclick="showLueckeLoesung()">💡 Lösungen</button>
+          <button class="btn" onclick="resetLuecke(); timerResetOne(2);">🔄 Neu starten</button>
+        </div>
+
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Fülle die Lücken aus. Du erhältst Live-Feedback!
+        </div>
+
+        <div id="luecke-container"></div>
+
+        <div class="author-footer">
+          <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+          <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+        </div>
+      </div>
+
+      <!-- TAB 3: Satzbau -->
+      <div class="section" id="sec-3">
+        <img src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?w=1000" alt="Satzbau" class="tab-banner">
+
+        <div class="timer-row">
+          ⏱ <span id="timer-3">0:00</span> 🏆 <span id="best-3">--:--</span>
+        </div>
+
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge. Ziehe die Chips in die richtige Zeile oder klicke sie an.
+        </div>
+
+        <div id="sb-container"></div>
+
+        <div class="author-footer">
+          <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+          <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+        </div>
+      </div>
+
+      <!-- TAB 4: Wortschatz -->
+      <div class="section" id="sec-4">
+        <img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Wortschatz" class="tab-banner">
+
+        <div class="timer-row">
+          ⏱ <span id="timer-4">0:00</span> 🏆 <span id="best-4">--:--</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" onclick="showVocabLoesung(4)">💡 Lösungen</button>
+          <button class="btn" onclick="resetVocab(4); timerResetOne(4);">🔄 Neu starten</button>
+        </div>
+
+        <div class="help-box">
+          <strong>Aufgabe:</strong> Übersetze ins Deutsche. Bei Nomen: Artikel + Wort + Plural!
+        </div>
+
+        <div id="vocabContainer"></div>
+
+        <div class="author-footer">
+          <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+          <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+}
+
+// ============= MC-CHECK (Entdecken) =============
+var mcTotal = 4;
+var mcDone = 0;
+function mcCheck(idx, btn, correct) {
+  var step = document.getElementById('mc-step' + idx);
+  var fb = document.getElementById('mcfb' + idx);
+  if (step.dataset.solved) return;
+  var btns = step.querySelectorAll('.mc-btn');
+  if (correct) {
+    step.dataset.solved = '1';
+    btn.classList.add('correct');
+    btns.forEach(function(b) { b.style.pointerEvents = 'none'; });
+    fb.className = 'mc-feedback ok';
+    fb.textContent = 'Richtig!';
+    var dot = document.getElementById('pdot' + idx);
+    if (dot) dot.classList.add('done');
+    mcDone++;
+    if (mcDone < mcTotal) {
+      setTimeout(function() {
+        step.classList.remove('active');
+        var next = document.getElementById('mc-step' + (idx + 1));
+        if (next) next.classList.add('active');
+      }, 800);
+    } else {
+      setTimeout(function() {
+        var karte = document.getElementById('regelkarte');
+        if (karte) karte.style.display = 'block';
+      }, 800);
+    }
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'mc-feedback err';
+    fb.textContent = 'Nicht ganz — versuche es nochmal!';
+    setTimeout(function() { btn.classList.remove('wrong'); fb.textContent = ''; }, 1200);
+  }
+}
+
+var TIMER_PREFIX='B2_2031X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
+// ============= LÜCKENTEXT =============
+var LUECKEN_DATA = [
+  { segs: [{t: 'Eine Albumrezension ist eine kritische '}, {b: 'Bewertung', s: 'm'}, {t: ' eines Musikalbums.'}], hint: 'Nomen' },
+  { segs: [{t: 'Der Rezensent analysiert die '}, {b: 'Stärken', s: 'm'}, {t: ' und Schwächen der Platte.'}], hint: 'Nomen (Plural)' },
+  { segs: [{t: 'Im Hauptteil beschreibt man musikalische '}, {b: 'Einflüsse', s: 'm'}, {t: ' und Parallelen zu anderen Bands.'}], hint: 'Nomen (Plural)' },
+  { segs: [{t: 'Das '}, {b: 'Leitmotiv', s: 'm'}, {t: ' ist ein wiederkehrendes Element im Album.'}], hint: 'Nomen' },
+  { segs: [{t: 'Am Ende gibt der Autor eine klare '}, {b: 'Empfehlung', s: 'm'}, {t: ' oder Warnung.'}], hint: 'Nomen' },
+  { segs: [{t: 'Die Einleitung enthält '}, {b: 'Eckdaten', s: 'm'}, {t: ' wie Band, Erscheinungsjahr und Albumtitel.'}], hint: 'Nomen (Plural)' },
+  { segs: [{t: 'Man sollte keine Wörter '}, {b: 'doppeln', s: 'm'}, {t: ' — jedes Wort soll präzise sein.'}], hint: 'Verb' },
+  { segs: [{t: 'Ein guter Rezensent vermeidet '}, {b: 'subjektive', s: 'm'}, {t: ' Übertreibungen.'}], hint: 'Adjektiv' },
+  { segs: [{t: 'Das Album wurde '}, {b: 'veröffentlicht', s: 'l'}, {t: ' und sofort positiv aufgenommen.'}], hint: 'Partizip II' },
+  { segs: [{t: 'Die Gitarrenriffs klingen '}, {b: 'kraftvoll', s: 'm'}, {t: ' und energiegeladen.'}], hint: 'Adjektiv' }
+];
+
+function liveCheck(inp) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (val.length === 0) return;
+  if (val === ans) { inp.classList.add('correct'); }
+  else if (ans.indexOf(val) === 0) { /* valid prefix */ }
+  else { inp.classList.add('wrong'); }
+}
+
+function checkLueckeAllOk(n) {
+  var inputs = document.querySelectorAll('#luecke-container input.blank');
+  var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) { return i.classList.contains('correct'); });
+  if (allOk) timerStop(n);
+}
+
+function lueckeInit() {
+  var container = document.getElementById('luecke-container');
+  container.innerHTML = '';
+  LUECKEN_DATA.forEach(function(item) {
+    var p = document.createElement('p');
+    p.style.marginBottom = '14px';
+    p.style.lineHeight = '1.8';
+    item.segs.forEach(function(seg) {
+      if (seg.t !== undefined) {
+        p.appendChild(document.createTextNode(seg.t));
+      } else {
+        var inp = document.createElement('input');
+        inp.className = 'blank';
+        inp.type = 'text';
+        inp.placeholder = item.hint || '';
+        inp.dataset.answer = seg.b;
+        inp.style.width = (seg.s === 's' ? '50px' : seg.s === 'm' ? '120px' : seg.s === 'l' ? '160px' : '200px');
+        inp.addEventListener('input', function() { timerAutoStart(2); liveCheck(inp); checkLueckeAllOk(2); });
+        p.appendChild(inp);
+      }
+    });
+    container.appendChild(p);
+  });
+}
+
+function showLueckeLoesung() {
+  document.querySelectorAll('#luecke-container input.blank').forEach(function(inp) {
+    inp.value = inp.dataset.answer;
+    inp.classList.remove('wrong');
+    inp.classList.add('correct');
+  });
+  timerStop(2);
+}
+
+function resetLuecke() {
+  document.querySelectorAll('#luecke-container input.blank').forEach(function(inp) {
+    inp.value = '';
+    inp.classList.remove('correct', 'wrong');
+  });
+}
+
+// ============= SATZBAU =============
+var satzbauData = [
+  { parts: ['Eine', 'gute', 'Rezension', 'hat', 'drei', 'Teile', ':', 'Einleitung', ',', 'Hauptteil', 'und', 'Schluss'],
+    valid: [['Eine', 'gute', 'Rezension', 'hat', 'drei', 'Teile', ':', 'Einleitung', ',', 'Hauptteil', 'und', 'Schluss']], punct: '.' },
+  { parts: ['Im', 'Hauptteil', 'beschreibt', 'man', 'die', 'Stärken', 'und', 'Schwächen', 'des', 'Albums'],
+    valid: [['Im', 'Hauptteil', 'beschreibt', 'man', 'die', 'Stärken', 'und', 'Schwächen', 'des', 'Albums']], punct: '.' },
+  { parts: ['Das', 'Leitmotiv', 'zieht', 'sich', 'durch', 'mehrere', 'Tracks', 'des', 'Albums'],
+    valid: [['Das', 'Leitmotiv', 'zieht', 'sich', 'durch', 'mehrere', 'Tracks', 'des', 'Albums']], punct: '.' },
+  { parts: ['Der', 'Rezensent', 'sollte', 'keine', 'Wörter', 'doppeln', 'und', 'präzise', 'formulieren'],
+    valid: [['Der', 'Rezensent', 'sollte', 'keine', 'Wörter', 'doppeln', 'und', 'präzise', 'formulieren']], punct: '.' },
+  { parts: ['Am', 'Ende', 'steht', 'eine', 'klare', 'Empfehlung', 'oder', 'eine', 'Warnung'],
+    valid: [['Am', 'Ende', 'steht', 'eine', 'klare', 'Empfehlung', 'oder', 'eine', 'Warnung']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function sbMakeChip(word, idx) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.dataset.orig = word;
+  chip.dataset.sbIdx = idx;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip; e.dataTransfer.setData('text/plain', '');
+    timerAutoStart(3);
+  });
+  chip.addEventListener('click', function() {
+    timerAutoStart(3);
+    var row = document.querySelector('#sb-container .sentence-builder[data-idx="' + idx + '"]');
+    var bank = document.querySelector('#sb-container .chips-container[data-idx="' + idx + '"]');
+    if (chip.parentElement === bank) { row.appendChild(chip); } else { bank.appendChild(chip); }
+    sbUpdateCapitalization(idx); sbCheckAuto(idx);
+  });
+  return chip;
+}
+
+function sbRegisterZone(el, idx) {
+  el.addEventListener('dragover', function(e) {
+    if (sbDragged && sbDragged.dataset.sbIdx !== String(idx)) return;
+    e.preventDefault(); el.classList.add('dragover');
+  });
+  el.addEventListener('dragleave', function(e) {
+    if (!el.contains(e.relatedTarget)) el.classList.remove('dragover');
+  });
+  el.addEventListener('drop', function(e) {
+    e.preventDefault(); el.classList.remove('dragover');
+    if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+    if (el.classList.contains('sentence-builder')) el.appendChild(sbDragged);
+    else el.appendChild(sbDragged);
+    sbDragged = null;
+    sbUpdateCapitalization(idx); sbCheckAuto(idx);
+  });
+}
+
+function sbUpdateCapitalization(idx) {
+  var row = document.querySelector('#sb-container .sentence-builder[data-idx="' + idx + '"]');
+  if (!row) return;
+  Array.from(row.querySelectorAll('.chip')).forEach(function(chip, i) {
+    var w = chip.dataset.orig;
+    if (w === ',' || w === ':' || w === ';') return;
+    chip.textContent = (i === 0) ? w.charAt(0).toUpperCase() + w.slice(1) : w;
+  });
+}
+
+function sbColorRow(idx) {
+  var row = document.querySelector('#sb-container .sentence-builder[data-idx="' + idx + '"]');
+  if (!row) return;
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var data = satzbauData[idx];
+  var isCorrect = data.valid.some(function(v) {
+    if (chips.length !== v.length) return false;
+    return chips.every(function(c, i) { return c.dataset.orig.toLowerCase() === v[i].toLowerCase(); });
+  });
+  chips.forEach(function(c) { c.classList.remove('correct', 'wrong'); c.classList.add(isCorrect ? 'correct' : 'wrong'); });
+  return isCorrect;
+}
+
+function sbCheckAuto(idx) {
+  var row = document.querySelector('#sb-container .sentence-builder[data-idx="' + idx + '"]');
+  var data = satzbauData[idx];
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  if (chips.length === data.parts.length) { sbColorRow(idx); sbCheckAllDone(3); }
+}
+
+function sbCheckAllDone(n) {
+  var allCorrect = satzbauData.every(function(_, idx) {
+    var row = document.querySelector('#sb-container .sentence-builder[data-idx="' + idx + '"]');
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    return satzbauData[idx].valid.some(function(v) {
+      if (chips.length !== v.length) return false;
+      return chips.every(function(c, i) { return c.dataset.orig.toLowerCase() === v[i].toLowerCase(); });
+    });
+  });
+  if (allCorrect) timerStop(n);
+}
+
+function sbShowSolution(idx) {
+  var row = document.querySelector('#sb-container .sentence-builder[data-idx="' + idx + '"]');
+  var bank = document.querySelector('#sb-container .chips-container[data-idx="' + idx + '"]');
+  var data = satzbauData[idx];
+  var allChips = Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));
+  row.querySelectorAll('.chip').forEach(function(c) { bank.appendChild(c); });
+  data.valid[0].forEach(function(word) {
+    var chip = allChips.find(function(c) { return c.dataset.orig === word && c.parentElement === bank; });
+    if (chip) row.appendChild(chip);
+  });
+  sbUpdateCapitalization(idx); sbColorRow(idx); sbCheckAllDone(3); timerStop(3);
+}
+
+function sbResetOne(idx) {
+  var row = document.querySelector('#sb-container .sentence-builder[data-idx="' + idx + '"]');
+  var bank = document.querySelector('#sb-container .chips-container[data-idx="' + idx + '"]');
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c) { c.classList.remove('correct', 'wrong'); bank.appendChild(c); });
+  sbUpdateCapitalization(idx);
+}
+
+function initSatzbau() {
+  var container = document.getElementById('sb-container');
+  container.innerHTML = '';
+  satzbauData.forEach(function(data, idx) {
+    var wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '18px';
+    var row = document.createElement('div');
+    row.className = 'sentence-builder'; row.dataset.idx = idx;
+    sbRegisterZone(row, idx);
+    var punct = document.createElement('span');
+    punct.className = 'sb-punkt'; punct.textContent = data.punct || '.';
+    row.appendChild(punct);
+    var bank = document.createElement('div');
+    bank.className = 'chips-container'; bank.dataset.idx = idx;
+    sbRegisterZone(bank, idx);
+    var shuffled = data.parts.slice().sort(function() { return Math.random() - 0.5; });
+    shuffled.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+    var btnRow = document.createElement('div');
+    btnRow.className = 'btn-row'; btnRow.style.marginTop = '4px';
+    var btnL = document.createElement('button'); btnL.className = 'btn'; btnL.textContent = 'Lösen';
+    btnL.onclick = (function(i) { return function() { sbShowSolution(i); }; })(idx);
+    var btnR = document.createElement('button'); btnR.className = 'btn'; btnR.textContent = '↺ Neustart';
+    btnR.onclick = (function(i) { return function() { sbResetOne(i); }; })(idx);
+    btnRow.appendChild(btnL); btnRow.appendChild(btnR);
+    wrapper.appendChild(row); wrapper.appendChild(bank); wrapper.appendChild(btnRow);
+    container.appendChild(wrapper);
+  });
+}
+
+// ============= WORTSCHATZ =============
+var WORTSCHATZ = [
+  { id: 1, type: 'n', en: 'album review', artikel: 'die', de: 'Albumrezension', plural: 'Albumrezensionen' },
+  { id: 2, type: 'n', en: 'record / album', artikel: 'die', de: 'Platte', plural: 'Platten' },
+  { id: 3, type: 'n', en: 'track / song', artikel: 'der', de: 'Track', plural: 'Tracks' },
+  { id: 4, type: 'n', en: 'leitmotif', artikel: 'das', de: 'Leitmotiv', plural: 'Leitmotive' },
+  { id: 5, type: 'n', en: 'main topic', artikel: 'das', de: 'Hauptthema', plural: 'Hauptthemen' },
+  { id: 6, type: 'n', en: 'influence', artikel: 'der', de: 'Einfluss', plural: 'Einflüsse' },
+  { id: 7, type: 'n', en: 'recommendation', artikel: 'die', de: 'Empfehlung', plural: 'Empfehlungen' },
+  { id: 8, type: 'n', en: 'introduction', artikel: 'die', de: 'Einleitung', plural: 'Einleitungen' },
+  { id: 9, type: 'n', en: 'strength', artikel: 'die', de: 'Stärke', plural: 'Stärken' },
+  { id: 10, type: 'n', en: 'weakness', artikel: 'die', de: 'Schwäche', plural: 'Schwächen' },
+  { id: 11, type: 'v', en: 'to review (critically)', de: 'rezensieren' },
+  { id: 12, type: 'v', en: 'to publish / release', de: 'veröffentlichen' },
+  { id: 13, type: 'v', en: 'to evaluate / assess', de: 'bewerten' },
+  { id: 14, type: 'adj', en: 'powerful / forceful', de: 'kraftvoll' },
+  { id: 15, type: 'adj', en: 'monotonous', de: 'monoton' }
+];
+
+function initVocab() {
+  var container = document.getElementById('vocabContainer');
+  container.innerHTML = '';
+  var shuffled = WORTSCHATZ.slice().sort(function() { return Math.random() - 0.5; });
+  shuffled.forEach(function(item) {
+    var div = document.createElement('div'); div.className = 'vocab-item';
+    var en = document.createElement('span'); en.className = 'vocab-en'; en.textContent = item.en;
+    div.appendChild(en);
+    var arrow = document.createElement('span'); arrow.className = 'vocab-arrow'; arrow.textContent = '→';
+    div.appendChild(arrow);
+    var inputs = document.createElement('div'); inputs.className = 'vocab-inputs';
+    if (item.type === 'n') {
+      var artInp = document.createElement('input'); artInp.className = 'art';
+      artInp.placeholder = 'der/die/das'; artInp.dataset.answer = item.artikel; artInp.dataset.field = 'art';
+      artInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(artInp); checkVocabAllOk(4); });
+      inputs.appendChild(artInp);
+      var wordInp = document.createElement('input'); wordInp.className = 'wort';
+      wordInp.placeholder = 'Deutsch'; wordInp.dataset.answer = item.de; wordInp.dataset.field = 'wort';
+      wordInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(wordInp); checkVocabAllOk(4); });
+      inputs.appendChild(wordInp);
+      var pluralInp = document.createElement('input'); pluralInp.className = 'plural';
+      pluralInp.placeholder = 'Plural'; pluralInp.dataset.answer = item.plural; pluralInp.dataset.field = 'plural';
+      pluralInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(pluralInp); checkVocabAllOk(4); });
+      inputs.appendChild(pluralInp);
+    } else {
+      var deInp = document.createElement('input'); deInp.className = 'wort'; deInp.style.width = '200px';
+      deInp.placeholder = 'Deutsch'; deInp.dataset.answer = item.de; deInp.dataset.field = 'wort';
+      deInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(deInp); checkVocabAllOk(4); });
+      inputs.appendChild(deInp);
+    }
+    div.appendChild(inputs);
+    container.appendChild(div);
+  });
+}
+
+function checkVocabAllOk(n) {
+  var all = document.querySelectorAll('#vocabContainer .vocab-inputs input');
+  var allOk = Array.from(all).every(function(inp) { return inp.classList.contains('correct'); });
+  if (allOk && all.length > 0) timerStop(n);
+}
+
+function showVocabLoesung(n) {
+  document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
+    var field = inp.dataset.field;
+    var user = (field === 'art') ? inp.value.trim().toLowerCase() : inp.value.trim();
+    var answer = (field === 'art') ? inp.dataset.answer.toLowerCase() : inp.dataset.answer;
+    var hint = inp.nextElementSibling;
+    if (hint && hint.classList.contains('vocab-hint')) hint.remove();
+    if (user === answer) { inp.classList.remove('wrong'); inp.classList.add('correct'); }
+    else {
+      inp.classList.add('wrong');
+      var h = document.createElement('span'); h.className = 'vocab-hint'; h.textContent = inp.dataset.answer;
+      inp.insertAdjacentElement('afterend', h);
+    }
+  });
+  timerStop(n);
+}
+
+function resetVocab(n) {
+  document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
+    inp.value = ''; inp.classList.remove('correct', 'wrong');
+    var hint = inp.nextElementSibling;
+    if (hint && hint.classList.contains('vocab-hint')) hint.remove();
+  });
+}
+
+// Tab 0 drag-drop for Einleitung/Hauptteil/Schluss
+var chipSelected = null;
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#chip-bank-0 .chip').forEach(function(chip) {
+    chip.addEventListener('dragstart', function(e) {
+      chipSelected = chip;
+      e.dataTransfer.setData('text/plain', chip.dataset.cat);
+    });
+    chip.addEventListener('click', function() {
+      if (chipSelected === chip) { chipSelected = null; chip.classList.remove('selected'); }
+      else { if (chipSelected) chipSelected.classList.remove('selected'); chipSelected = chip; chip.classList.add('selected'); }
+    });
+  });
+  document.querySelectorAll('.drop-zone').forEach(function(zone) {
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault(); zone.classList.remove('dragover');
+      if (chipSelected) {
+        zone.appendChild(chipSelected);
+        var isCorrect = chipSelected.dataset.cat === zone.dataset.cat;
+        chipSelected.classList.remove('correct', 'wrong');
+        chipSelected.classList.add(isCorrect ? 'correct' : 'wrong');
+        chipSelected = null;
+      }
+    });
+    zone.addEventListener('click', function() {
+      if (chipSelected) {
+        zone.appendChild(chipSelected);
+        var isCorrect = chipSelected.dataset.cat === zone.dataset.cat;
+        chipSelected.classList.remove('correct', 'wrong', 'selected');
+        chipSelected.classList.add(isCorrect ? 'correct' : 'wrong');
+        chipSelected = null;
+      }
+    });
+  });
+  
+  lueckeInit();
+  initSatzbau();
+  initVocab();
+});
+</script>
+</body>
+</html>
