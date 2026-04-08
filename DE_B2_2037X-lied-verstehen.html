@@ -1,937 +1,678 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DaF B2.2 · Ein Lied verstehen und analysieren</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 1.6em;
-            margin-bottom: 5px;
-        }
-
-        .nav-container {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            overflow-x: auto;
-        }
-
-        .nav-btn{
-            flex: 1;
-            padding: 12px 16px;
-            background: #f5f5f5;
-            
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.9em;
-            transition: all 0.3s;
-            
-        border-bottom:1px solid #ddd;}
-
-        .nav-btn:hover {
-            background: #efefef;
-        }
-
-        .nav-btn.active {
-            background: white;
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .nav-emoji {
-            font-size: 1.3rem;
-        }
-
-        .nav-label {
-            font-size: 0.72rem;
-            font-weight: 500;
-        }
-
-        .content {
-            display: none;
-            padding: 30px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .content.active {
-            display: block;
-        }
-
-        .banner {
-            width: 100%;
-            max-height: 180px;
-            object-fit: cover;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-
-        h2 {
-            color: #667eea;
-            font-size: 1.4em;
-            margin-bottom: 12px;
-        }
-
-        p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-
-        .intro-text {
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 4px solid #667eea;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-style: italic;
-        }
-
-        .word-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .word-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .definition-list {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-
-        .definition-item {
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .definition-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .definition-term {
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 4px;
-        }
-
-        .definition-text {
-            color: #666;
-            font-size: 0.95em;
-        }
-
-        .match-card {
-            background: white;
-            border: 1.5px solid #ddd;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin: 8px 0;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .match-card:hover {
-            background: #f3e5f5;
-        }
-
-        .match-card.matched {
-            background: #27ae60;
-            color: white;
-            border-color: #27ae60;
-        }
-
-        .match-left {
-            font-weight: 600;
-        }
-
-        .match-right {
-            color: #999;
-            font-size: 0.9em;
-        }
-
-        .match-card.matched .match-right {
-            color: rgba(255,255,255,0.9);
-        }
-
-        .lückentext-input {
-            background: white;
-            border: 1.5px solid #ddd;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin: 8px 0;
-            line-height: 1.8;
-            font-size: 1em;
-            font-family: inherit;
-        }
-
-        .lückentext-input.correct {
-            border-color: #27ae60;
-            background: #f0fdf4;
-        }
-
-        .lückentext-input.wrong {
-            border-color: #e74c3c;
-            background: #fef2f2;
-        }
-
-        .chip-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .chip {
-            padding: 8px 12px;
-            background: #e0e7ff;
-            border: 1.5px solid #667eea;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 0.9em;
-            user-select: none;
-            draggable: true;
-            transition: all 0.2s;
-        }
-
-        .chip:hover {
-            background: #c7d2fe;
-        }
-
-        .chip.selected {
-            background: #fbbf24;
-            border-color: #f59e0b;
-        }
-
-        .drop-zone {
-            min-height: 60px;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 12px;
-            margin: 8px 0;
-            background: #fafafa;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: flex-start;
-        }
-
-        .drop-zone.dragover {
-            border-color: #667eea;
-            background: #f3e5f5;
-        }
-
-        .placed-chip {
-            padding: 6px 10px;
-            background: #667eea;
-            color: white;
-            border-radius: 14px;
-            font-size: 0.85em;
-            display: inline-block;
-        }
-
-        .placed-chip.correct {
-            background: #27ae60;
-        }
-
-        .placed-chip.wrong {
-            background: #e74c3c;
-        }
-
-        .vocab-inputs {
-            display: flex;
-            gap: 10px;
-            margin: 12px 0;
-            flex-wrap: wrap;
-        }
-
-        .vocab-input {
-            flex: 1;
-            min-width: 120px;
-            padding: 10px;
-            border: 1.5px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.9em;
-            font-family: inherit;
-        }
-
-        .vocab-input.correct {
-            border-color: #27ae60;
-            background: #f0fdf4;
-        }
-
-        .vocab-input.wrong {
-            border-color: #e74c3c;
-            background: #fef2f2;
-        }
-
-        .control-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            border-top: 1px solid #ddd;
-            background: #f9f9f9;
-        }
-
-        .control-left {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 16px;
-            border: 1.5px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            background: #f3e5f5;
-        }
-
-        .btn.primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn.primary:hover {
-            background: #5568d3;
-        }
-
-        .timer {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 0.95em;
-            letter-spacing: 1px;
-        }
-
-        .author-footer {
-            padding: 15px 30px;
-            background: #f5f5f5;
-            border-top: 1px solid #ddd;
-            font-size: 0.85em;
-            color: #666;
-            text-align: center;
-        }
-
-        .author-footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .author-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .vocab-label {
-            font-size: 0.8em;
-            color: #999;
-            margin-top: -8px;
-            margin-bottom: 4px;
-        }
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ein Lied verstehen und analysieren</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.container{max-width:1000px;width:100%;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);background:#fff;overflow:hidden}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:32px 30px 24px;text-align:center}
+.header h1{font-size:1.6rem;margin-bottom:4px}
+.header .subtitle{font-size:.92rem;opacity:.88}
+.header .big-emoji{font-size:2.4rem;margin-top:8px;display:block}
+.nav{display:flex;flex-wrap:nowrap;background:#f8f9fa;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd}
+.nav-btn{flex:1;border-right:1px solid #ddd;border-bottom:1px solid #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:12px 6px;background:#f8f9fa;transition:all .2s}
+.nav-btn:last-child{border-right:none}
+.nav-btn.active{background:#fff;color:#667eea;font-weight:700;border-bottom:3px solid #667eea}
+.nav-btn .nav-emoji{font-size:1.3rem}
+.nav-btn .nav-label{font-size:.72rem;margin-top:2px}
+.section{display:none;padding:30px}
+.section.active{display:block}
+.sec-inner{max-width:820px;margin:0 auto}
+.section-title{font-size:1.1rem;color:#667eea;font-weight:700;margin-bottom:18px}
+.tab-banner{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:20px;display:block;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+/* Control-Bar */
+.control-bar{display:flex;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.control-bar .btn{padding:7px 18px;border:none;border-radius:6px;font-size:.85rem;cursor:pointer;font-weight:600;transition:all .15s}
+.control-bar .btn-solve{background:#667eea;color:#fff}
+.control-bar .btn-solve:hover{background:#5a6fd6}
+.control-bar .btn-reset{background:#e9ecef;color:#555}
+.control-bar .btn-reset:hover{background:#dee2e6}
+.timer-display{font-size:.85rem;color:#888;margin-left:auto;white-space:nowrap}
+.timer-display b{color:#667eea}
+/* Vorentlastung */
+.redemittel-box{background:#f3e5f5;padding:16px;border-radius:8px;margin-bottom:16px;border-left:5px solid #9c27b0}
+.redemittel-box h4{color:#667eea;margin-bottom:10px;font-size:.95rem}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip-static{padding:6px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;font-size:.82rem;cursor:default}
+.vocab-card{background:#fafbff;padding:14px;border-radius:8px;margin-bottom:10px;border:1px solid #c5cae9}
+.vocab-card .vc-de{font-weight:700;color:#333;font-size:1rem}
+.vocab-card .vc-en{color:#888;font-size:.85rem;margin-top:2px}
+/* Lückentext */
+.luecken-item{background:#fafbff;padding:14px;border-radius:8px;margin-bottom:10px;border:1px solid #c5cae9;line-height:1.7;font-size:.95rem}
+.luecken-item input{padding:5px 10px;border:1px solid #c5cae9;border-radius:4px;font-size:.92rem;width:130px;transition:all .2s;text-align:center}
+.luecken-item input:focus{outline:none;border-color:#667eea;background:#f9f9ff}
+.luecken-item input.ok{border-color:#27ae60;background:#e8f5e9;color:#27ae60;font-weight:600}
+.luecken-item input.no{border-color:#e74c3c;background:#ffebee;color:#e74c3c}
+.hint{display:none;font-size:.78rem;color:#888;margin-top:4px;font-style:italic}
+/* Zuordnung */
+.zuordnung-bank{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#fafbff;border:2px dashed #c5cae9;border-radius:8px;margin-bottom:18px;min-height:48px}
+.zuordnung-cat{margin-bottom:16px}
+.zuordnung-cat-label{font-weight:700;color:#667eea;font-size:.92rem;margin-bottom:6px}
+.zuordnung-zone{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#f9f9ff;border:2px dashed #c5cae9;border-radius:8px;min-height:44px;transition:all .2s}
+.zuordnung-zone.dragover{background:#e8eaff;border-color:#667eea}
+.chip{padding:7px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;font-size:.82rem;cursor:grab;font-weight:600;user-select:none;transition:all .15s;white-space:nowrap}
+.chip:active{cursor:grabbing;transform:scale(1.04)}
+.chip.correct{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
+.chip.incorrect{background:linear-gradient(135deg,#e74c3c,#c0392b)!important}
+/* Wortschatz */
+#wortschatzContainer{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.luecken-item input.blank{padding:5px 10px;border:1px solid #c5cae9;border-radius:4px;font-size:.92rem;transition:all .2s}
+.luecken-item input.blank:focus{outline:none;border-color:#667eea;background:#f9f9ff}
+.luecken-item input.blank.correct{border-color:#27ae60;background:#e8f5e9;color:#27ae60;font-weight:600}
+.luecken-item input.blank.wrong{border-color:#e74c3c;background:#ffebee;color:#e74c3c}
+/* Satzbau */
+.satzbau-item{margin-bottom:20px}
+.chips-container{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#fafbff;border:2px dashed #c5cae9;border-radius:8px;margin-bottom:8px;min-height:44px}
+.sentence-builder{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#fff8e1;border:2px solid #f0c040;border-radius:8px;min-height:44px;align-items:center}
+.sentence-builder.correct{border-color:#27ae60;background:#e8f5e9}
+.sentence-builder.incorrect{border-color:#e74c3c;background:#ffebee}
+.satzbau-feedback{font-size:.85rem;margin-top:4px;min-height:20px;font-weight:600}
+.satzbau-feedback.correct{color:#27ae60}
+.satzbau-feedback.incorrect{color:#e74c3c}
+.sb-punkt{font-weight:700;font-size:1.1rem;margin-left:2px;color:#333}
+.punct-chip{padding:7px 10px!important;min-width:24px;text-align:center}
+.btn{padding:7px 16px;border:none;border-radius:6px;font-size:.82rem;cursor:pointer;font-weight:600;background:#e9ecef;color:#555;transition:all .15s}
+.btn:hover{background:#dee2e6}
+/* Footer */
+.author-footer{border-top:1px solid #ddd;padding:18px 30px;font-size:.82rem;color:#aaa;text-align:center;background:#fafafa}
+.author-footer a{color:#667eea;text-decoration:none}
+.author-footer a:hover{text-decoration:underline}
+@media(max-width:600px){
+body{padding:8px}
+.nav{flex-wrap:wrap}
+.nav-btn{flex:1 1 33%;min-width:0;font-size:.8em;padding:10px 6px;border-right:1px solid #ddd}
+.nav-btn:last-child{border-right:1px solid #ddd}
+.tab-banner{max-height:120px}
+#wortschatzContainer{grid-template-columns:1fr}
 }
-
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 0;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Ein Lied verstehen und analysieren</h1>
-            <p>B2.2 – Lektion 2037X · Kommunikation</p>
-        </div>
+<div class="container">
+<div class="header">
+<h1>Ein Lied verstehen und analysieren</h1>
+<p class="subtitle">B2.2 – Lektion 2037X · Kommunikation</p>
+<span class="big-emoji">🎶</span>
+</div>
 
-        <div class="nav-container">
-            <div class="nav-btn active" onclick="showSection(0)">
-                <span class="nav-emoji">🔍</span>
-                <span class="nav-label">Entdecken</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(1)">
-                <span class="nav-emoji">🎯</span>
-                <span class="nav-label">Fachbegriffe</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(2)">
-                <span class="nav-emoji">📝</span>
-                <span class="nav-label">Lückentext</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(3)">
-                <span class="nav-emoji">🔀</span>
-                <span class="nav-label">Satzbau</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(4)">
-                <span class="nav-emoji">📚</span>
-                <span class="nav-label">Wortschatz</span>
-            </div>
-        </div>
+<div class="nav">
+<div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+<div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+<div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔀</span><span class="nav-label">Zuordnung</span></div>
+<div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+<div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+</div>
 
-        <!-- TAB 0: ENTDECKEN (interaktiv) -->
-        <div class="section active" id="sec-0">
-            <img src="https://images.pexels.com/photos/1370545/pexels-photo-1370545.jpeg?w=1000" alt="Musik" class="banner">
+<!-- ══════ Tab 0: Vorentlastung ══════ -->
+<div class="section active" id="sec-0">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/1370545/pexels-photo-1370545.jpeg?w=1000" alt="Musik" class="tab-banner">
+<h3 class="section-title">Vorentlastung – Liedanalyse</h3>
 
-            <div class="entdeck-intro" style="background:#f3e5f5; border-radius:12px; padding:18px 22px; margin-bottom:20px; border-left:5px solid #9c27b0; font-size:0.97rem; line-height:1.75;">
-                <p>Bei der <strong>Liedanalyse</strong> geht man ähnlich vor wie bei der Interpretation eines Gedichtes — aber die <strong>Melodie</strong> spielt auch eine Rolle. Beantworte die Fragen!</p>
-            </div>
+<h4 style="color:#667eea;margin-bottom:8px;font-size:.95rem">Strukturelemente eines Liedes</h4>
+<div class="chip-row">
+<span class="chip-static">der Vers</span>
+<span class="chip-static">die Strophe</span>
+<span class="chip-static">der Refrain</span>
+<span class="chip-static">das Leitmotiv</span>
+<span class="chip-static">die Melodie</span>
+<span class="chip-static">der Rhythmus</span>
+<span class="chip-static">das Stilmittel</span>
+<span class="chip-static">der Reim</span>
+</div>
 
-            <div class="progress-dots" style="display:flex; gap:8px; margin-bottom:20px;">
-                <span class="pdot" id="pdot0" style="width:14px;height:14px;border-radius:50%;background:#c5cae9;transition:background 0.3s;"></span>
-                <span class="pdot" id="pdot1" style="width:14px;height:14px;border-radius:50%;background:#c5cae9;transition:background 0.3s;"></span>
-                <span class="pdot" id="pdot2" style="width:14px;height:14px;border-radius:50%;background:#c5cae9;transition:background 0.3s;"></span>
-                <span class="pdot" id="pdot3" style="width:14px;height:14px;border-radius:50%;background:#c5cae9;transition:background 0.3s;"></span>
-            </div>
+<h4 style="color:#667eea;margin:16px 0 8px;font-size:.95rem">Liedgenres</h4>
+<div class="chip-row">
+<span class="chip-static">das Volkslied</span>
+<span class="chip-static">das Chanson</span>
+<span class="chip-static">der Rapsong</span>
+<span class="chip-static">die Ballade</span>
+<span class="chip-static">das Kunstlied</span>
+<span class="chip-static">der Schlager</span>
+<span class="chip-static">die Hymne</span>
+</div>
 
-            <div class="mc-step active" id="mc-step0" style="background:#fafbff;border-radius:12px;padding:18px 22px;margin-bottom:16px;border:1px solid #c5cae9;">
-                <h4 style="color:#3949ab;margin-bottom:12px;font-size:0.97rem;">Frage 1: Womit beginnt man bei der Liedanalyse?</h4>
-                <div class="mc-options" style="display:flex;flex-direction:column;gap:8px;">
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(0,this,true)">Mit dem Titel — da steckt oft die Hauptidee</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(0,this,false)">Mit den Instrumenten</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(0,this,false)">Mit der letzten Strophe</button>
-                </div>
-                <div class="mc-feedback" id="mcfb0" style="margin-top:10px;font-size:0.88rem;min-height:1.3em;"></div>
-            </div>
+<h4 style="color:#667eea;margin:16px 0 8px;font-size:.95rem">Analyse-Sprache</h4>
+<div class="redemittel-box">
+<h4>Beschreibung</h4>
+<p style="font-size:.9rem;line-height:1.7;color:#333">„Das Lied handelt von…“ · „Der Text thematisiert…“ · „Die Melodie weckt…“ · „Der Rhythmus ist…“</p>
+</div>
+<div class="redemittel-box">
+<h4>Interpretation</h4>
+<p style="font-size:.9rem;line-height:1.7;color:#333">„Das Leitmotiv des Liedes ist…“ · „Das Stilmittel verstärkt…“ · „Der Autor drückt damit… aus.“</p>
+</div>
 
-            <div class="mc-step" id="mc-step1" style="display:none;background:#fafbff;border-radius:12px;padding:18px 22px;margin-bottom:16px;border:1px solid #c5cae9;">
-                <h4 style="color:#3949ab;margin-bottom:12px;font-size:0.97rem;">Frage 2: Was ist ein „Vers"?</h4>
-                <div class="mc-options" style="display:flex;flex-direction:column;gap:8px;">
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(1,this,false)">Ein Abschnitt eines lyrischen Textes</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(1,this,true)">Eine Reihe metrisch gegliederter Rhythmen (Verszeile)</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(1,this,false)">Die regelmäßige Wiederholung im Lied</button>
-                </div>
-                <div class="mc-feedback" id="mcfb1" style="margin-top:10px;font-size:0.88rem;min-height:1.3em;"></div>
-            </div>
+<h4 style="color:#667eea;margin:16px 0 8px;font-size:.95rem">Wichtige Vokabeln</h4>
+<div class="vocab-card"><div class="vc-de">der Vers, -e</div><div class="vc-en">verse (line in a poem/song)</div></div>
+<div class="vocab-card"><div class="vc-de">die Strophe, -n</div><div class="vc-en">stanza, verse (section)</div></div>
+<div class="vocab-card"><div class="vc-de">der Refrain, -s</div><div class="vc-en">chorus, refrain</div></div>
+<div class="vocab-card"><div class="vc-de">das Leitmotiv, -e</div><div class="vc-en">leitmotif, recurring theme</div></div>
+<div class="vocab-card"><div class="vc-de">die Melodie, -n</div><div class="vc-en">melody, tune</div></div>
+<div class="vocab-card"><div class="vc-de">das Stilmittel, -</div><div class="vc-en">stylistic device</div></div>
+<div class="vocab-card"><div class="vc-de">der Rhythmus, Rhythmen</div><div class="vc-en">rhythm</div></div>
+<div class="vocab-card"><div class="vc-de">die Interpretation, -en</div><div class="vc-en">interpretation</div></div>
+</div>
+</div>
 
-            <div class="mc-step" id="mc-step2" style="display:none;background:#fafbff;border-radius:12px;padding:18px 22px;margin-bottom:16px;border:1px solid #c5cae9;">
-                <h4 style="color:#3949ab;margin-bottom:12px;font-size:0.97rem;">Frage 3: Was weckt die für die Interpretation bedeutsamen Gefühle?</h4>
-                <div class="mc-options" style="display:flex;flex-direction:column;gap:8px;">
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(2,this,false)">Der Text</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(2,this,false)">Das Stilmittel</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(2,this,true)">Die Melodie</button>
-                </div>
-                <div class="mc-feedback" id="mcfb2" style="margin-top:10px;font-size:0.88rem;min-height:1.3em;"></div>
-            </div>
+<!-- ══════ Tab 1: Lückentext ══════ -->
+<div class="section" id="sec-1">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?w=1000" alt="Lückentext" class="tab-banner">
+<h3 class="section-title">Lückentext – Liedanalyse</h3>
 
-            <div class="mc-step" id="mc-step3" style="display:none;background:#fafbff;border-radius:12px;padding:18px 22px;margin-bottom:16px;border:1px solid #c5cae9;">
-                <h4 style="color:#3949ab;margin-bottom:12px;font-size:0.97rem;">Frage 4: Was ist ein „Leitmotiv"?</h4>
-                <div class="mc-options" style="display:flex;flex-direction:column;gap:8px;">
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(3,this,false)">Der erste Vers des Liedes</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(3,this,true)">Ein wiederkehrendes Thema oder Motiv im Lied</button>
-                    <button class="mc-btn" style="padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s;" onclick="mcCheck(3,this,false)">Die Melodie im Refrain</button>
-                </div>
-                <div class="mc-feedback" id="mcfb3" style="margin-top:10px;font-size:0.88rem;min-height:1.3em;"></div>
-            </div>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="showLueckenLoesung()">Lösungen</button>
+<button class="btn btn-reset" onclick="resetLuecken()">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-1">00:00</span> &middot; Beste: <b id="best-1">--:--</b></span>
+</div>
 
-            <div class="regel-karte" id="regelkarte" style="display:none;background:linear-gradient(135deg,#e8eaf6,#ede7f6);border-radius:14px;padding:22px 26px;border-left:5px solid #3949ab;margin-top:10px;">
-                <h3 style="color:#1a237e;margin-bottom:12px;font-size:1.05rem;">Zusammenfassung</h3>
-                <p style="line-height:1.8;color:#333;">Bei der Liedanalyse beginnt man mit dem <strong>Titel</strong>, analysiert die <strong>Melodie</strong>, beachtet <strong>Sprache und Stilmittel</strong> und kennt die <strong>Geschichte</strong> des Liedes. Wichtige Begriffe: Vers, Strophe, Refrain, Leitmotiv, Stilmittel.</p>
-            </div>
-        </div>
+<div id="lueckenContainer"></div>
+</div>
+</div>
 
-        <!-- TAB 1: FACHBEGRIFFE (interaktiv) -->
-        <div class="section" id="sec-1">
-            <img src="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?w=1000" alt="Fachbegriffe" class="banner">
+<!-- ══════ Tab 2: Zuordnung ══════ -->
+<div class="section" id="sec-2">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?w=1000" alt="Zuordnung" class="tab-banner">
+<h3 class="section-title">Zuordnung – Fachbegriffe der Liedanalyse</h3>
 
-            <h3 style="color:#667eea; margin-top:10px; margin-bottom:12px;">Elemente der Liedanalyse</h3>
-            <div class="word-cloud">
-                <div class="word-card">der Titel</div>
-                <div class="word-card">die Melodie</div>
-                <div class="word-card">das Leitmotiv</div>
-                <div class="word-card">das Hauptthema</div>
-                <div class="word-card">der Text</div>
-                <div class="word-card">der Stil</div>
-                <div class="word-card">die Sprache</div>
-                <div class="word-card">das Stilmittel</div>
-                <div class="word-card">der Einsatz der Instrumente</div>
-                <div class="word-card">die Geschichte</div>
-            </div>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="showZuordnungLoesung()">Lösungen</button>
+<button class="btn btn-reset" onclick="resetZuordnung()">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-2">00:00</span> &middot; Beste: <b id="best-2">--:--</b></span>
+</div>
 
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:12px;">Interaktive Zuordnung</h3>
-            <p style="margin-bottom:15px; font-weight:500;">Klicke auf die Paare, um Fachbegriff und Definition zu verbinden:</p>
-            <div id="match-pairs-0">
-                <div class="match-card" onclick="toggleMatch(this, 'vers-def')">
-                    <span class="match-left">Vers</span>
-                    <span class="match-right">→ metrisch gegliederte Rhythmenreihe</span>
-                </div>
-                <div class="match-card" onclick="toggleMatch(this, 'strophe-def')">
-                    <span class="match-left">Strophe</span>
-                    <span class="match-right">→ Abschnitt eines lyrischen Textes</span>
-                </div>
-                <div class="match-card" onclick="toggleMatch(this, 'refrain-def')">
-                    <span class="match-left">Refrain</span>
-                    <span class="match-right">→ regelmäßige Wiederholung von Versen</span>
-                </div>
-                <div class="match-card" onclick="toggleMatch(this, 'leitmotiv-def')">
-                    <span class="match-left">Leitmotiv</span>
-                    <span class="match-right">→ wiederkehrendes Thema oder Motiv</span>
-                </div>
-                <div class="match-card" onclick="toggleMatch(this, 'stilmittel-def')">
-                    <span class="match-left">Stilmittel</span>
-                    <span class="match-right">→ sprachliches Ausdrucksmittel</span>
-                </div>
-            </div>
-        </div>
+<div class="zuordnung-bank" id="zuordnung-bank"></div>
 
-        <!-- TAB 2: LÜCKENTEXT -->
-        <div class="section" id="sec-2">
-            <img src="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?w=1000" alt="Lückentext" class="banner">
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">🎵 Struktur</div>
+<div class="zuordnung-zone" id="zuo-zone-struktur" data-cat="struktur"></div>
+</div>
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">🎨 Sprache &amp; Stil</div>
+<div class="zuordnung-zone" id="zuo-zone-sprache" data-cat="sprache"></div>
+</div>
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">🎼 Klang &amp; Musik</div>
+<div class="zuordnung-zone" id="zuo-zone-klang" data-cat="klang"></div>
+</div>
+<div class="zuordnung-cat">
+<div class="zuordnung-cat-label">📝 Inhalt &amp; Bedeutung</div>
+<div class="zuordnung-zone" id="zuo-zone-inhalt" data-cat="inhalt"></div>
+</div>
+</div>
+</div>
 
-            <h2>Die Gedanken sind frei — Liedanalyse</h2>
-            <p style="margin-bottom:20px; font-weight:500;">Ergänze die fehlenden Wörter:</p>
+<!-- ══════ Tab 3: Wortschatz ══════ -->
+<div class="section" id="sec-3">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Wortschatz" class="tab-banner">
+<h3 class="section-title">Wortschatz – Liedanalyse</h3>
 
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-0" placeholder="" oninput="checkGap(this, 'Die Gedanken sind frei')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">das berühmte Volkslied</p>
-            </div>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="showWortschatzLoesung()">Lösungen</button>
+<button class="btn btn-reset" onclick="resetWortschatz()">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-3">00:00</span> &middot; Beste: <b id="best-3">--:--</b></span>
+</div>
 
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-1" placeholder="" oninput="checkGap(this, 'Volkslied')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">ist ein klassisches deutsches ___</p>
-            </div>
+<div id="wortschatzContainer"></div>
+</div>
+</div>
 
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-2" placeholder="" oninput="checkGap(this, 'Titel')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Der ___ deutet bereits auf das Hauptthema hin</p>
-            </div>
+<!-- ══════ Tab 4: Satzbau ══════ -->
+<div class="section" id="sec-4">
+<div class="sec-inner">
+<img src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?w=1000" alt="Satzbau" class="tab-banner">
+<h3 class="section-title">Satzbau – Liedanalyse</h3>
 
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-3" placeholder="" oninput="checkGap(this, 'Hauptthema')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">das ___ hin: die Freiheit des Denkens</p>
-            </div>
+<div class="control-bar">
+<button class="btn btn-solve" onclick="sbShowAllSolutions()">Lösungen</button>
+<button class="btn btn-reset" onclick="sbResetAll()">↺ Neu starten</button>
+<span class="timer-display">⏱ <span id="timer-4">00:00</span> &middot; Beste: <b id="best-4">--:--</b></span>
+</div>
 
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-4" placeholder="" oninput="checkGap(this, 'Leitmotiv')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Das ___ ist die innere Freiheit</p>
-            </div>
+<div id="satzbauContainer"></div>
+</div>
+</div>
 
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-5" placeholder="" oninput="checkGap(this, 'Strophen')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Das Lied besteht aus mehreren ___</p>
-            </div>
+<!-- Footer -->
+<div class="author-footer">
+<span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+<a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+</div>
 
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-6" placeholder="" oninput="checkGap(this, 'Refrain')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">die alle denselben ___ haben</p>
-            </div>
-
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-7" placeholder="" oninput="checkGap(this, 'Melodie')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Die ___ ist einfach und einprägsam</p>
-            </div>
-
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-8" placeholder="" oninput="checkGap(this, 'Stilmittel')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Das wichtigste ___ ist die Wiederholung</p>
-            </div>
-
-            <h3 style="color:#667eea; margin-top:25px; margin-bottom:12px;">Liedgenres zuordnen</h3>
-            <p style="margin-bottom:15px; font-weight:500;">Ergänze die fehlenden Liedgenres:</p>
-
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-9" placeholder="" oninput="checkGap(this, 'Chanson')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Ein Lied mit Romanzen-Elementen → ___</p>
-            </div>
-
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-10" placeholder="" oninput="checkGap(this, 'Rapsong')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Ein Lied mit schnellen Rhythmen → ___</p>
-            </div>
-
-            <div>
-                <input type="text" class="lückentext-input" id="gap-1-11" placeholder="" oninput="checkGap(this, 'Volkslied')">
-                <p style="font-size:0.9em; color:#999; margin-top:-4px;">Ein traditionelles Lied des Volkes → ___</p>
-            </div>
-        </div>
-
-        <!-- TAB 3: SATZBAU -->
-        <div class="section" id="sec-3">
-            <img src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?w=1000" alt="Satzbau" class="banner">
-
-            <h2>Sätze in die richtige Reihenfolge bringen</h2>
-            <p style="margin-bottom:20px; font-weight:500;">Ziehe die Wort-Chips in die richtige Reihenfolge:</p>
-
-            <div id="satzbau-chips" class="chip-container">
-                <!-- Wird mit JavaScript gefüllt -->
-            </div>
-
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:12px;">Aufgabe 1</h3>
-            <div class="drop-zone" id="drop-zone-0"></div>
-
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:12px;">Aufgabe 2</h3>
-            <div class="drop-zone" id="drop-zone-1"></div>
-
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:12px;">Aufgabe 3</h3>
-            <div class="drop-zone" id="drop-zone-2"></div>
-
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:12px;">Aufgabe 4</h3>
-            <div class="drop-zone" id="drop-zone-3"></div>
-
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:12px;">Aufgabe 5</h3>
-            <div class="drop-zone" id="drop-zone-4"></div>
-        </div>
-
-        <!-- TAB 4: WORTSCHATZ -->
-        <div class="section" id="sec-4">
-            <img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Wortschatz" class="banner">
-
-            <h2>Wortschatz: Nomen, Verben und Adjektive</h2>
-            <p style="margin-bottom:20px; font-weight:500;">Ergänze die fehlenden Informationen:</p>
-
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:8px;">Nomen</h3>
-
-            <div class="vocab-inputs">
-                <input type="text" class="vocab-input" id="vocab-noun-0" placeholder="" oninput="checkVocab(this, 'der')">
-                <input type="text" class="vocab-input" id="vocab-noun-0-w" placeholder="" oninput="checkVocab(this, 'Vers')">
-                <input type="text" class="vocab-input" id="vocab-noun-0-p" placeholder="" oninput="checkVocab(this, 'Verse')">
-            </div>
-            <div class="vocab-label">Artikel | Wort | Plural</div>
-
-            <div class="vocab-inputs">
-                <input type="text" class="vocab-input" id="vocab-noun-1" placeholder="" oninput="checkVocab(this, 'die')">
-                <input type="text" class="vocab-input" id="vocab-noun-1-w" placeholder="" oninput="checkVocab(this, 'Strophe')">
-                <input type="text" class="vocab-input" id="vocab-noun-1-p" placeholder="" oninput="checkVocab(this, 'Strophen')">
-            </div>
-            <div class="vocab-label">Artikel | Wort | Plural</div>
-
-            <div class="vocab-inputs">
-                <input type="text" class="vocab-input" id="vocab-noun-2" placeholder="" oninput="checkVocab(this, 'der')">
-                <input type="text" class="vocab-input" id="vocab-noun-2-w" placeholder="" oninput="checkVocab(this, 'Refrain')">
-                <input type="text" class="vocab-input" id="vocab-noun-2-p" placeholder="" oninput="checkVocab(this, 'Refrains')">
-            </div>
-            <div class="vocab-label">Artikel | Wort | Plural</div>
-
-            <h3 style="color:#667eea; margin-top:20px; margin-bottom:8px;">Verben & Adjektive</h3>
-
-            <div class="vocab-inputs">
-                <input type="text" class="vocab-input" style="flex:2;" id="vocab-va-0" placeholder="" oninput="checkVocab(this, 'interpretieren')">
-            </div>
-
-            <div class="vocab-inputs">
-                <input type="text" class="vocab-input" style="flex:2;" id="vocab-va-1" placeholder="" oninput="checkVocab(this, 'analysieren')">
-            </div>
-
-            <div class="vocab-inputs">
-                <input type="text" class="vocab-input" style="flex:2;" id="vocab-va-2" placeholder="" oninput="checkVocab(this, 'wiederholen')">
-            </div>
-        </div>
-
-        <!-- CONTROL BAR -->
-        <div class="control-bar">
-            <div class="control-left">
-                <button class="btn" onclick="resetTab()">Zurücksetzen</button>
-            </div>
-            <div class="timer" id="timer">00:00</div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="author-footer">
-            <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-            <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
-        </div>
-    </div>
-
-    <script>
+<script>
+/* ═══ Navigation ═══ */
 function showSection(n){
-  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
-  if (n === 3) initSatzbau();
+document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
+document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
 }
 
-// ============= MC-CHECK (Entdecken) =============
-var mcTotal = 4;
-var mcDone = 0;
-function mcCheck(idx, btn, correct) {
-  var step = document.getElementById('mc-step' + idx);
-  var fb = document.getElementById('mcfb' + idx);
-  if (step.dataset.solved) return;
-  var btns = step.querySelectorAll('.mc-btn');
-  if (correct) {
-    step.dataset.solved = '1';
-    btn.classList.add('correct');
-    btn.style.borderColor = '#43a047';
-    btn.style.background = '#e8f5e9';
-    btn.style.color = '#2e7d32';
-    btn.style.fontWeight = '700';
-    btns.forEach(function(b) { b.style.pointerEvents = 'none'; });
-    fb.style.color = '#2e7d32';
-    fb.style.fontWeight = '700';
-    fb.textContent = 'Richtig!';
-    var dot = document.getElementById('pdot' + idx);
-    if (dot) dot.style.background = '#667eea';
-    mcDone++;
-    if (mcDone < mcTotal) {
-      setTimeout(function() {
-        step.style.display = 'none';
-        var next = document.getElementById('mc-step' + (idx + 1));
-        if (next) next.style.display = 'block';
-      }, 800);
-    } else {
-      setTimeout(function() {
-        var karte = document.getElementById('regelkarte');
-        if (karte) karte.style.display = 'block';
-      }, 800);
-    }
-  } else {
-    btn.style.borderColor = '#e53935';
-    btn.style.background = '#ffebee';
-    btn.style.color = '#c62828';
-    fb.style.color = '#c62828';
-    fb.textContent = 'Nicht ganz \u2014 versuche es nochmal!';
-    setTimeout(function() {
-      btn.style.borderColor = '#c5cae9';
-      btn.style.background = '#fff';
-      btn.style.color = '';
-      fb.textContent = '';
-    }, 1200);
-  }
+/* ═══ Timer ═══ */
+var TIMER_PREFIX='B2_2037X_';
+var timerStarted=[false,false,false,false,false];
+var timerRunning=[false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null];
+
+function fmtTime(s){var m=Math.floor(s/60);var sec=s%60;return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}
+
+function timerAutoStart(n){
+if(timerStarted[n])return;
+timerStarted[n]=true;timerRunning[n]=true;
+timerIntervals[n]=setInterval(function(){
+timerSeconds[n]++;
+var el=document.getElementById('timer-'+n);
+if(el)el.textContent=fmtTime(timerSeconds[n]);
+},1000);
 }
 
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-var bestSeconds=[Infinity,Infinity,Infinity,Infinity,Infinity,Infinity];
-function timerAutoStart(n){if(timerStarted[n])return;timerStarted[n]=true;timerRunning[n]=true;timerIntervals[n]=setInterval(function(){timerSeconds[n]++;var el=document.getElementById('timer-'+n);if(el)el.textContent=fmtTime(timerSeconds[n]);},1000);}
-function timerStop(n){if(!timerRunning[n])return;clearInterval(timerIntervals[n]);timerRunning[n]=false;var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');if(timerSeconds[n]>0&&timerSeconds[n]<best){localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(timerSeconds[n]);}timerSeconds[n]=0;timerStarted[n]=false;var td=document.getElementById('timer-'+n);if(td)td.textContent='0:00';}
-function timerResetOne(n){clearInterval(timerIntervals[n]);timerRunning[n]=false;timerStarted[n]=false;timerSeconds[n]=0;var el=document.getElementById('timer-'+n);if(el)el.textContent='0:00';}
-function fmtTime(s){var m=Math.floor(s/60);var sec=s%60;return m+':'+(sec<10?'0':'')+sec;}
-document.addEventListener('DOMContentLoaded',function(){[2,3,4].forEach(function(n){var b=localStorage.getItem(TIMER_PREFIX+n);if(b){var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(parseInt(b));}});});
-
-var sbSentences = [
-            ['Man muss', 'immer mit dem', 'Titel beginnen,', 'denn da steckt', 'oft die Hauptidee.'],
-            ['Die Melodie', 'weckt die', 'für die Interpretation', 'bedeutsamen', 'Gefühle.'],
-            ['Um ein Lied', 'zu analysieren,', 'muss man', 'sich wiederholende', 'Verse finden.'],
-            ['Ein Refrain', 'ist die', 'regelmäßige Wiederholung', 'von Versen', 'im Lied.'],
-            ['Die Strophe', 'ist ein', 'Abschnitt', 'eines lyrischen', 'Textes.']
-        ];
-
-var sbDragged = null;
-
-function shuffleArray(arr) {
-  for (var i = arr.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
-  }
-  return arr;
+function stopTimer(n){
+if(!timerRunning[n])return;
+clearInterval(timerIntervals[n]);timerRunning[n]=false;
+var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+if(timerSeconds[n]>0&&timerSeconds[n]<best){
+localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+var el=document.getElementById('best-'+n);
+if(el)el.textContent=fmtTime(timerSeconds[n]);
+}
 }
 
-function toggleMatch(elem, id) {
-  elem.classList.toggle('matched');
-  timerAutoStart(1);
+function resetTimer(n){
+clearInterval(timerIntervals[n]);
+timerRunning[n]=false;timerStarted[n]=false;timerSeconds[n]=0;
+var el=document.getElementById('timer-'+n);
+if(el)el.textContent='00:00';
 }
 
-function checkGap(input, answer) {
-  timerAutoStart(2);
-  var userAnswer = input.value.trim().toLowerCase();
-  var correct = answer.toLowerCase();
-  if (userAnswer === '') { input.classList.remove('correct', 'wrong'); }
-  else if (userAnswer === correct) { input.classList.add('correct'); input.classList.remove('wrong'); }
-  else if (correct.indexOf(userAnswer) === 0) { input.classList.remove('correct', 'wrong'); }
-  else { input.classList.add('wrong'); input.classList.remove('correct'); }
+/* ═══ Lückentext (Tab 1) ═══ */
+var LUECKEN=[
+{segs:[{t:'Bei der Liedanalyse beginnt man mit dem '},{b:'Titel',s:'m'},{t:', denn da steckt oft die Hauptidee.'}]},
+{segs:[{t:'Das Lied besteht aus mehreren '},{b:'Strophen',s:'m'},{t:', die jeweils einen eigenen Gedanken entwickeln.'}]},
+{segs:[{t:'Der '},{b:'Refrain',s:'m'},{t:' ist die regelmäßige Wiederholung von Versen im Lied.'}]},
+{segs:[{t:'Ein wiederkehrendes Thema im Lied nennt man '},{b:'Leitmotiv',s:'m'},{t:'.'}]},
+{segs:[{t:'Die '},{b:'Melodie',s:'m'},{t:' weckt die für die Interpretation bedeutsamen Gefühle.'}]},
+{segs:[{t:'Das wichtigste '},{b:'Stilmittel',s:'m'},{t:' in diesem Lied ist die Wiederholung.'}]},
+{segs:[{t:'Ein '},{b:'Vers',s:'s'},{t:' ist eine Reihe metrisch gegliederter Rhythmen.'}]},
+{segs:[{t:'Die Strophe ist ein '},{b:'Abschnitt',s:'m'},{t:' eines lyrischen Textes.'}]},
+{segs:[{t:'Der '},{b:'Rhythmus',s:'m'},{t:' bestimmt das Tempo und die Dynamik des Liedes.'}]},
+{segs:[{t:'Ein Lied mit Romanzen-Elementen nennt man '},{b:'Chanson',s:'m'},{t:'.'}]},
+{segs:[{t:'Die '},{b:'Interpretation',s:'l'},{t:' eines Liedes erfordert sorgfältige Analyse.'}]},
+{segs:[{t:'Der '},{b:'Reim',s:'s'},{t:' verbindet die Verse klanglich miteinander.'}]}
+];
+
+function initLuecken(){
+var c=document.getElementById('lueckenContainer');c.innerHTML='';
+LUECKEN.forEach(function(ex){
+var row=document.createElement('div');row.className='luecken-item';
+ex.segs.forEach(function(seg){
+if(seg.t){row.appendChild(document.createTextNode(seg.t));}
+if(seg.b){
+var inp=document.createElement('input');
+inp.type='text';inp.placeholder='???';inp.dataset.ans=seg.b;
+inp.style.width=seg.s==='s'?'70px':seg.s==='l'?'180px':seg.s==='xl'?'220px':'130px';
+inp.oninput=function(){timerAutoStart(1);liveCheck(this);checkLueckenAllOk();};
+row.appendChild(inp);
+}
+});
+c.appendChild(row);
+});
 }
 
-function checkVocab(input, answer) {
-  timerAutoStart(4);
-  var userAnswer = input.value.trim().toLowerCase();
-  var correct = answer.toLowerCase();
-  if (userAnswer === '') { input.classList.remove('correct', 'wrong'); }
-  else if (userAnswer === correct) { input.classList.add('correct'); input.classList.remove('wrong'); }
-  else if (correct.indexOf(userAnswer) === 0) { input.classList.remove('correct', 'wrong'); }
-  else { input.classList.add('wrong'); input.classList.remove('correct'); }
+function liveCheck(inp){
+var v=inp.value.trim();var a=inp.dataset.ans;
+inp.classList.remove('ok','no');
+if(!v)return;
+if(v===a){inp.classList.add('ok');var h=inp.parentElement.querySelector('.hint');if(h)h.style.display='block';}
+else if(a.toLowerCase().indexOf(v.toLowerCase())===0){/* Präfix */}
+else{inp.classList.add('no');}
 }
 
-function initSatzbau() {
-  var container = document.getElementById('satzbau-chips');
-  if (!container) return;
-  container.innerHTML = '';
-  var allChips = [];
-  sbSentences.forEach(function(words, sentIdx) {
-    words.forEach(function(word, wordIdx) {
-      allChips.push({ word: word, sentIdx: sentIdx, wordIdx: wordIdx });
-    });
-  });
-  shuffleArray(allChips);
-  allChips.forEach(function(chip) {
-    var chipEl = document.createElement('div');
-    chipEl.className = 'chip'; chipEl.textContent = chip.word;
-    chipEl.draggable = true;
-    chipEl.dataset.word = chip.word;
-    chipEl.dataset.sentIdx = chip.sentIdx;
-    chipEl.dataset.wordIdx = chip.wordIdx;
-    chipEl.addEventListener('dragstart', function(e) {
-      sbDragged = chipEl; e.dataTransfer.effectAllowed = 'move'; timerAutoStart(3);
-    });
-    chipEl.addEventListener('click', function() { chipEl.classList.toggle('selected'); });
-    container.appendChild(chipEl);
-  });
-  document.querySelectorAll('.drop-zone').forEach(function(zone, idx) {
-    zone.addEventListener('dragover', function(e) {
-      if (sbDragged && parseInt(sbDragged.dataset.sentIdx) !== idx) return;
-      e.preventDefault(); zone.classList.add('dragover');
-    });
-    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
-    zone.addEventListener('drop', function(e) {
-      e.preventDefault(); zone.classList.remove('dragover');
-      if (sbDragged && parseInt(sbDragged.dataset.sentIdx) === idx) {
-        placeChip(zone, sbDragged, idx);
-      }
-    });
-  });
+function checkLueckenAllOk(){
+var inputs=document.querySelectorAll('#sec-1 .luecken-item input');
+var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.classList.contains('ok');});
+if(allOk)stopTimer(1);
 }
 
-function placeChip(zone, chipEl, sentIdx) {
-  var placed = document.createElement('div');
-  placed.className = 'placed-chip';
-  placed.textContent = chipEl.textContent;
-  if (sbSentences[sentIdx][parseInt(chipEl.dataset.wordIdx)] === chipEl.textContent) {
-    placed.classList.add('correct');
-  } else {
-    placed.classList.add('wrong');
-  }
-  zone.appendChild(placed);
-  chipEl.style.display = 'none';
+function showLueckenLoesung(){
+stopTimer(1);
+document.querySelectorAll('#sec-1 .luecken-item input').forEach(function(inp){
+inp.value=inp.dataset.ans;inp.classList.add('ok');inp.classList.remove('no');
+var h=inp.parentElement.querySelector('.hint');if(h)h.style.display='block';
+});
 }
 
-function resetTab() {
-  var sections = document.querySelectorAll('.section');
-  var activeIdx = -1;
-  sections.forEach(function(s, i) { if (s.classList.contains('active')) activeIdx = i; });
-  if (activeIdx === 0) {
-    // Entdecken: reset MC
-    mcDone = 0;
-    document.querySelectorAll('.mc-step').forEach(function(s,i) {
-      s.style.display = (i===0) ? 'block' : 'none';
-      delete s.dataset.solved;
-      s.querySelectorAll('.mc-btn').forEach(function(b) { b.style.pointerEvents = ''; b.style.borderColor='#c5cae9'; b.style.background='#fff'; b.style.color=''; b.style.fontWeight=''; });
-    });
-    document.querySelectorAll('.pdot').forEach(function(d) { d.style.background = '#c5cae9'; });
-    document.querySelectorAll('.mc-feedback').forEach(function(f) { f.textContent = ''; });
-    var rk = document.getElementById('regelkarte'); if(rk) rk.style.display='none';
-  } else if (activeIdx === 1) {
-    document.querySelectorAll('.match-card').forEach(function(m) { m.classList.remove('matched'); });
-    timerResetOne(1);
-  } else if (activeIdx === 2) {
-    document.querySelectorAll('input[oninput]').forEach(function(inp) {
-      inp.value = ''; inp.classList.remove('correct', 'wrong');
-    });
-    timerResetOne(2);
-  } else if (activeIdx === 3) {
-    initSatzbau(); timerResetOne(3);
-  } else if (activeIdx === 4) {
-    document.querySelectorAll('.vocab-input').forEach(function(inp) {
-      inp.value = ''; inp.classList.remove('correct', 'wrong');
-    });
-    timerResetOne(4);
-  }
+function resetLuecken(){
+resetTimer(1);
+document.querySelectorAll('#sec-1 .luecken-item input').forEach(function(inp){
+inp.value='';inp.classList.remove('ok','no');
+var h=inp.parentElement.querySelector('.hint');if(h)h.style.display='none';
+});
 }
+
+/* ═══ Zuordnung (Tab 2) ═══ */
+var ZUORDNUNG=[
+{text:'der Vers',cat:'struktur'},
+{text:'die Strophe',cat:'struktur'},
+{text:'der Refrain',cat:'struktur'},
+{text:'der Reim',cat:'struktur'},
+{text:'die Metapher',cat:'sprache'},
+{text:'das Stilmittel',cat:'sprache'},
+{text:'die Wiederholung',cat:'sprache'},
+{text:'die Melodie',cat:'klang'},
+{text:'der Rhythmus',cat:'klang'},
+{text:'das Tempo',cat:'klang'},
+{text:'das Leitmotiv',cat:'inhalt'},
+{text:'das Hauptthema',cat:'inhalt'},
+{text:'die Botschaft',cat:'inhalt'}
+];
+
+var draggedChip=null;
+
+function initZuordnung(){
+var bank=document.getElementById('zuordnung-bank');bank.innerHTML='';
+var shuffled=ZUORDNUNG.slice();
+for(var i=shuffled.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=t;}
+shuffled.forEach(function(item){
+var chip=document.createElement('div');chip.className='chip';chip.textContent=item.text;
+chip.dataset.cat=item.cat;chip.draggable=true;
+chip.addEventListener('dragstart',function(e){draggedChip=chip;e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});
+chip.addEventListener('dragend',function(){chip.style.opacity='';draggedChip=null;colorAllZuordnungChips();});
+chip.addEventListener('click',function(){if(draggedChip===chip){draggedChip=null;chip.classList.remove('selected');}else{document.querySelectorAll('#sec-2 .chip.selected').forEach(function(c){c.classList.remove('selected');});draggedChip=chip;chip.classList.add('selected');}});
+bank.appendChild(chip);
+});
+
+var zones=document.querySelectorAll('#sec-2 .zuordnung-zone');
+zones.forEach(function(zone){
+zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('dragover');});
+zone.addEventListener('dragleave',function(){zone.classList.remove('dragover');});
+zone.addEventListener('drop',function(e){e.preventDefault();zone.classList.remove('dragover');if(draggedChip){zone.appendChild(draggedChip);draggedChip=null;colorAllZuordnungChips();timerAutoStart(2);}});
+zone.addEventListener('click',function(){if(draggedChip){draggedChip.classList.remove('selected');zone.appendChild(draggedChip);draggedChip=null;colorAllZuordnungChips();timerAutoStart(2);}});
+});
+
+bank.addEventListener('dragover',function(e){e.preventDefault();});
+bank.addEventListener('drop',function(e){e.preventDefault();if(draggedChip){bank.appendChild(draggedChip);draggedChip=null;colorAllZuordnungChips();}});
+bank.addEventListener('click',function(){if(draggedChip){draggedChip.classList.remove('selected');bank.appendChild(draggedChip);draggedChip=null;colorAllZuordnungChips();}});
+}
+
+function colorAllZuordnungChips(){
+document.querySelectorAll('#sec-2 .chip').forEach(function(chip){
+var zone=chip.closest('.zuordnung-zone');
+if(zone){
+chip.classList.remove('correct','incorrect');
+chip.classList.add(chip.dataset.cat===zone.dataset.cat?'correct':'incorrect');
+}else{
+chip.classList.remove('correct','incorrect');
+}
+});
+checkZuordnungDone();
+}
+
+function checkZuordnungDone(){
+var chips=document.querySelectorAll('#sec-2 .zuordnung-zone .chip');
+var allOk=chips.length===ZUORDNUNG.length&&Array.from(chips).every(function(c){return c.classList.contains('correct');});
+if(allOk)stopTimer(2);
+}
+
+function showZuordnungLoesung(){
+stopTimer(2);
+ZUORDNUNG.forEach(function(item){
+var chip=null;
+document.querySelectorAll('#sec-2 .chip').forEach(function(c){if(c.textContent===item.text)chip=c;});
+if(chip){
+var zone=document.getElementById('zuo-zone-'+item.cat);
+if(zone)zone.appendChild(chip);
+}
+});
+colorAllZuordnungChips();
+}
+
+function resetZuordnung(){
+resetTimer(2);
+initZuordnung();
+}
+
+/* ═══ Wortschatz (Tab 3) ═══ */
+var WORTSCHATZ=[
+{id:1,type:'n',en:'🎵 verse (line)',artikel:'der',de:'Vers',plural:'-e'},
+{id:2,type:'n',en:'🎶 stanza',artikel:'die',de:'Strophe',plural:'-n'},
+{id:3,type:'n',en:'🔁 chorus',artikel:'der',de:'Refrain',plural:'-s'},
+{id:4,type:'n',en:'🎯 leitmotif',artikel:'das',de:'Leitmotiv',plural:'-e'},
+{id:5,type:'n',en:'🎹 melody',artikel:'die',de:'Melodie',plural:'-n'},
+{id:6,type:'n',en:'🎨 stylistic device',artikel:'das',de:'Stilmittel',plural:'-'},
+{id:7,type:'n',en:'🥁 rhythm',artikel:'der',de:'Rhythmus',plural:'Rhythmen'},
+{id:8,type:'n',en:'💬 interpretation',artikel:'die',de:'Interpretation',plural:'-en'},
+{id:9,type:'n',en:'📝 text, lyrics',artikel:'der',de:'Text',plural:'-e'},
+{id:10,type:'n',en:'📚 folk song',artikel:'das',de:'Volkslied',plural:'-er'},
+{id:11,type:'v',en:'🔍 to analyze',de:'analysieren'},
+{id:12,type:'v',en:'💡 to interpret',de:'interpretieren'},
+{id:13,type:'v',en:'🔄 to repeat',de:'wiederholen'},
+{id:14,type:'v',en:'🎶 to compose',de:'komponieren'},
+{id:15,type:'a',en:'✨ catchy (melody)',de:'einprägsam'}
+];
+
+function initWortschatz(){
+var container=document.getElementById('wortschatzContainer');container.innerHTML='';
+WORTSCHATZ.forEach(function(item){
+var row=document.createElement('div');row.className='luecken-item';row.style.marginBottom='0';
+var prompt=document.createElement('div');
+prompt.style.cssText='font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;';
+prompt.textContent=item.en;row.appendChild(prompt);
+var fields=document.createElement('div');
+fields.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+if(item.type==='n'){
+var artInp=document.createElement('input');artInp.className='blank';artInp.type='text';
+artInp.placeholder='Artikel';artInp.style.width='70px';
+artInp.dataset.answer=item.artikel;artInp.dataset.field='art';
+artInp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+fields.appendChild(artInp);
+var wordInp=document.createElement('input');wordInp.className='blank';wordInp.type='text';
+wordInp.placeholder='Wort';wordInp.style.width='160px';
+wordInp.dataset.answer=item.de;wordInp.dataset.field='word';
+wordInp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+fields.appendChild(wordInp);
+var plInp=document.createElement('input');plInp.className='blank';plInp.type='text';
+plInp.placeholder='Plural';plInp.style.width='140px';
+plInp.dataset.answer=item.plural;plInp.dataset.field='plural';
+if(item.plural==='–'){
+plInp.value='–';plInp.disabled=true;plInp.classList.add('correct');plInp.style.opacity='0.6';
+plInp.title='Dieses Wort hat keinen Plural';
+}else{
+plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+}
+fields.appendChild(plInp);
+}else{
+var inp=document.createElement('input');inp.className='blank';inp.type='text';
+inp.placeholder='Deutsch';inp.style.width='220px';
+inp.dataset.answer=item.de;inp.dataset.field='word';
+inp.oninput=function(){wortschatzCheck(this);timerAutoStart(3);checkWortschatzAllOk();};
+fields.appendChild(inp);
+}
+row.appendChild(fields);container.appendChild(row);
+});
+}
+
+function wortschatzCheck(inp){
+var user=inp.value;var answer=inp.dataset.answer;var field=inp.dataset.field;
+inp.classList.remove('correct','wrong');
+if(!user)return;
+var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
+var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
+if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+else if(cmpAnswer.indexOf(cmpUser)===0){/* Präfix */}
+else{inp.classList.add('wrong');}
+}
+
+function checkWortschatzAllOk(){
+var inputs=document.querySelectorAll('#sec-3 input.blank');
+var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.disabled||i.classList.contains('correct');});
+if(allOk)stopTimer(3);
+}
+
+function showWortschatzLoesung(){
+stopTimer(3);
+document.querySelectorAll('#sec-3 input.blank').forEach(function(inp){
+inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');
+});
+}
+
+function resetWortschatz(){
+resetTimer(3);
+document.querySelectorAll('#sec-3 input.blank').forEach(function(inp){
+if(!inp.disabled){inp.value='';inp.classList.remove('correct','wrong');}
+});
+}
+
+/* ═══ Satzbau (Tab 4) ═══ */
+var satzbauData=[
+{parts:['man','muss','immer','mit','dem','Titel','beginnen',',','denn','da','steckt','oft','die','Hauptidee'],valid:[['man','muss','immer','mit','dem','Titel','beginnen',',','denn','da','steckt','oft','die','Hauptidee']],punct:'.'},
+{parts:['die','Melodie','weckt','die','für','die','Interpretation','bedeutsamen','Gefühle'],valid:[['die','Melodie','weckt','die','für','die','Interpretation','bedeutsamen','Gefühle']],punct:'.'},
+{parts:['das','Stilmittel','der','Wiederholung','verstärkt','die','Aussage','des','Textes'],valid:[['das','Stilmittel','der','Wiederholung','verstärkt','die','Aussage','des','Textes']],punct:'.'},
+{parts:['der','Rhythmus','bestimmt','das','Tempo','und','die','Dynamik','des','Liedes'],valid:[['der','Rhythmus','bestimmt','das','Tempo','und','die','Dynamik','des','Liedes']],punct:'.'},
+{parts:['die','Strophe','ist','ein','Abschnitt','eines','lyrischen','Textes'],valid:[['die','Strophe','ist','ein','Abschnitt','eines','lyrischen','Textes']],punct:'.'},
+{parts:['welche','Botschaft','vermittelt','der','Autor','mit','diesem','Lied'],valid:[['welche','Botschaft','vermittelt','der','Autor','mit','diesem','Lied']],punct:'?'}
+];
+
+var sbDragged=null;
+
+function getSbCursor(){
+var c=document.getElementById('sb-insert-cursor');
+if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}
+return c;
+}
+
+function getSbInsertPos(zone,clientX){
+var chips=Array.from(zone.querySelectorAll('.chip'));
+for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(clientX<r.left+r.width/2)return chips[i];}
+return null;
+}
+
+function sbCapitalize(str){return str.charAt(0).toUpperCase()+str.slice(1);}
+
+function sbUpdateCapitalization(row){
+var chips=Array.from(row.querySelectorAll('.chip'));
+chips.forEach(function(c,i){
+var orig=c.dataset.orig;
+var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+if(isProper){c.textContent=orig;}
+else{c.textContent=(i===0)?sbCapitalize(orig):orig;}
+});
+}
+
+function sbMakeChip(word){
+var chip=document.createElement('div');chip.className='chip';chip.textContent=word;chip.dataset.orig=word;chip.draggable=true;
+if(word===','||word===';'||word===':')chip.classList.add('punct-chip');
+chip.addEventListener('dragstart',function(e){sbDragged=chip;timerAutoStart(4);e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});
+chip.addEventListener('dragend',function(){chip.style.opacity='';sbDragged=null;var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);});
+return chip;
+}
+
+function sbRegisterZone(zone,idx){
+zone.addEventListener('dragover',function(e){e.preventDefault();if(!sbDragged)return;var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);});
+zone.addEventListener('dragleave',function(e){if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}});
+zone.addEventListener('drop',function(e){e.preventDefault();if(!sbDragged)return;var cursor=document.getElementById('sb-insert-cursor');if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}sbDragged=null;var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);});
+}
+
+function sbColorRow(idx){
+var row=document.getElementById('sb-row-'+idx);
+var chips=Array.from(row.querySelectorAll('.chip'));
+var order=chips.map(function(c){return c.dataset.orig;});
+var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});
+chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});
+var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+if(ok){var punkt=document.createElement('span');punkt.className='sb-punkt';punkt.textContent=satzbauData[idx].punct||'.';row.appendChild(punkt);}
+return ok;
+}
+
+function sbCheckAuto(idx){
+var bank=document.getElementById('sb-bank-'+idx);
+var row=document.getElementById('sb-row-'+idx);
+var fb=document.getElementById('sb-fb-'+idx);
+if(bank.querySelectorAll('.chip').length>0){
+row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});
+row.classList.remove('correct','incorrect');fb.textContent='';return;
+}
+setTimeout(function(){
+timerAutoStart(4);
+var ok=sbColorRow(idx);
+if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}
+else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';}
+},500);
+}
+
+function sbCheckAllDone(){
+var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});
+if(allOk)stopTimer(4);
+}
+
+function sbShowSolution(idx){
+var bank=document.getElementById('sb-bank-'+idx);
+var row=document.getElementById('sb-row-'+idx);
+var fb=document.getElementById('sb-fb-'+idx);
+var solution=satzbauData[idx].valid[0];
+var allChips={};
+Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+while(bank.firstChild)bank.removeChild(bank.firstChild);
+while(row.firstChild)row.removeChild(row.firstChild);
+solution.forEach(function(word,i){
+var chip=allChips[word];
+if(chip){if(word!==','&&word!==';'&&word!==':'){chip.textContent=(i===0)?sbCapitalize(word):word;}chip.classList.remove('correct','incorrect');row.appendChild(chip);}
+});
+fb.textContent='';
+setTimeout(function(){sbCheckAuto(idx);},100);
+}
+
+function sbResetOne(idx){
+var bank=document.getElementById('sb-bank-'+idx);
+var row=document.getElementById('sb-row-'+idx);
+var fb=document.getElementById('sb-fb-'+idx);
+while(bank.firstChild)bank.removeChild(bank.firstChild);
+while(row.firstChild)row.removeChild(row.firstChild);
+row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';
+var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+var parts=satzbauData[idx].parts.slice();
+for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+}
+
+function sbShowAllSolutions(){stopTimer(4);satzbauData.forEach(function(_,i){sbShowSolution(i);});}
+function sbResetAll(){resetTimer(4);initSatzbau();}
+
+function initSatzbau(){
+var container=document.getElementById('satzbauContainer');container.innerHTML='';
+satzbauData.forEach(function(ex,idx){
+var item=document.createElement('div');item.className='satzbau-item';
+var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;
+var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;
+var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;
+var parts=ex.parts.slice();
+for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+sbRegisterZone(bank,idx);sbRegisterZone(row,idx);
+var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+var solveBtn=document.createElement('button');solveBtn.className='btn';solveBtn.textContent='Lösen';
+solveBtn.setAttribute('data-idx',idx);
+solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});
+var resetBtn=document.createElement('button');resetBtn.className='btn';resetBtn.textContent='↺ Neustart';
+resetBtn.setAttribute('data-idx',idx);
+resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});
+btnRow.appendChild(solveBtn);btnRow.appendChild(resetBtn);
+item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);
+container.appendChild(item);
+});
+}
+
+/* ═══ Init ═══ */
+initLuecken();
+initZuordnung();
+initWortschatz();
+initSatzbau();
+[1,2,3,4].forEach(function(n){var b=localStorage.getItem(TIMER_PREFIX+n);if(b){var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(parseInt(b));}});
 </script>
 </body>
 </html>
