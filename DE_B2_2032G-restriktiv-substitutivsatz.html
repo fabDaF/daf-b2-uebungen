@@ -1,1092 +1,815 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Restriktiv- und Substitutivsatz</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      background: white;
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 30px;
-      text-align: center;
-    }
-    .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
-    .header p { font-size: 0.95rem; opacity: 0.9; }
-
-    .nav{
-      display: flex;
-      flex-direction: column;
-      border-bottom: 1px solid #ddd;
-      background: #f8f9fa;
-    ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
-    .nav-button {
-      flex: 1;
-      padding: 14px 20px;
-      border: none;
-      background: white;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.3s;
-      border-bottom: 3px solid transparent;
-      color: #666;
-    }
-    .nav-button:hover { background: #f0f2f5; color: #667eea; }
-    .nav-button.active { background: white; color: #667eea; border-bottom-color: #667eea; }
-    .nav-emoji { font-size: 1.3rem; }
-    .nav-label { font-size: 0.72rem; }
-
-    .content { padding: 30px; }
-    .tab { display: none; }
-    .tab.active { display: block; }
-
-    .tab-banner {
-      width: 100%;
-      max-height: 180px;
-      object-fit: cover;
-      margin-bottom: 20px;
-      border-radius: 0;
-    }
-
-    /* Entdeckungs-Tab */
-    .entdeck-intro {
-      background: #f3e5f5;
-      border-radius: 12px;
-      padding: 18px 22px;
-      margin-bottom: 20px;
-      border-left: 5px solid #9c27b0;
-      font-size: 0.97rem;
-      line-height: 1.75;
-    }
-    .entdeck-intro h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.05rem; }
-    .hl { background: #e1bee7; border-radius: 4px; padding: 0 4px; color: #4a148c; font-weight: 700; }
-
-    .mc-step { display: none; background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; border: 1px solid #c5cae9; }
-    .mc-step.active { display: block; }
-    .mc-step h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; }
-    .mc-options { display: flex; flex-direction: column; gap: 8px; }
-    .mc-btn {
-      padding: 9px 16px;
-      border: 2px solid #c5cae9;
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      text-align: left;
-      font-size: 0.92rem;
-      transition: all 0.2s;
-    }
-    .mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
-    .mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
-    .mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
-    .mc-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 1.3em; }
-    .mc-feedback.ok { color: #2e7d32; font-weight: 700; }
-    .mc-feedback.err { color: #c62828; }
-
-    .progress-dots { display: flex; gap: 8px; margin-bottom: 20px; }
-    .pdot { width: 14px; height: 14px; border-radius: 50%; background: #c5cae9; transition: background 0.3s; }
-    .pdot.done { background: #667eea; }
-
-    .regel-karte { display: none; background: linear-gradient(135deg, #e8eaf6, #ede7f6); border-radius: 14px; padding: 22px 26px; border-left: 5px solid #3949ab; margin-top: 10px; }
-    .regel-karte h3 { color: #1a237e; margin-bottom: 12px; font-size: 1.05rem; }
-    .regel-karte ul { margin-left: 18px; }
-    .regel-karte li { color: #333; line-height: 1.8; font-size: 0.95rem; }
-    .regel-karte .rk-example { background: #fff; border-radius: 8px; padding: 10px 14px; margin-top: 12px; border-left: 3px solid #7c4dff; font-size: 0.9rem; color: #333; }
-    .regel-karte .rk-example b { color: #3949ab; }
-
-    /* Übersicht-Tab (Tabelle) */
-    .tab-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 16px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-    }
-    .tab-table th {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 12px 14px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .tab-table td {
-      padding: 11px 14px;
-      border-bottom: 1px solid #e0e0e0;
-      font-size: 0.92rem;
-      color: #333;
-    }
-    .tab-table tr:hover { background: #f8f9ff; }
-    .tab-table strong { color: #3949ab; }
-
-    /* Lückentext */
-    input.blank {
-      border: 2px solid #c5cae9;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-      background: white;
-      margin: 0 2px;
-    }
-    input.blank:focus { border-color: #667eea; }
-    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
-    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
-
-    input.dropdown {
-      border: 2px solid #c5cae9;
-      border-radius: 6px;
-      padding: 6px 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      cursor: pointer;
-    }
-    input.dropdown:focus { border-color: #667eea; }
-    input.dropdown.correct { border-color: #27ae60; }
-    input.dropdown.wrong { border-color: #e74c3c; }
-
-    .correction-hint {
-      font-size: 0.78rem;
-      color: #27ae60;
-      font-weight: 700;
-      margin-left: 4px;
-      white-space: nowrap;
-    }
-
-    /* Satzbau */
-    .chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      cursor: grab;
-      font-size: 0.85rem;
-      font-weight: 600;
-      user-select: none;
-      transition: transform 0.15s, opacity 0.15s;
-      white-space: nowrap;
-    }
-    .chip:active { cursor: grabbing; transform: scale(1.04); }
-    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-
-    .chips-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      margin-bottom: 14px;
-      min-height: 54px;
-    }
-    .sentence-builder {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 44px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 2px dashed #c5cae9;
-      background: #fafbff;
-      margin-bottom: 6px;
-    }
-    .sentence-builder.dragover { background: #e8eaff; border-color: #667eea; }
-    .sb-punkt {
-      align-self: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #333;
-      padding-left: 2px;
-    }
-    .satzbau-feedback {
-      font-size: 0.9rem;
-      min-height: 1.2em;
-      margin-bottom: 10px;
-    }
-    .sb-insert-cursor {
-      width: 3px;
-      height: 32px;
-      background: #667eea;
-      border-radius: 2px;
-      animation: blink 1s infinite;
-      pointer-events: none;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    /* Wortschatz */
-    .ws-card {
-      background: #f8f9ff;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border-left: 4px solid #667eea;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .vocab-en { font-weight: 600; color: #764ba2; min-width: 140px; font-size: 0.95em; }
-    .vocab-arrow { color: #ccc; font-size: 1.2em; }
-    .vocab-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .vocab-inputs input {
-      border: none;
-      border-bottom: 2px solid #667eea;
-      background: #fff;
-      padding: 4px 8px;
-      font-family: inherit;
-      font-size: 0.95em;
-      outline: none;
-      transition: all 0.2s;
-    }
-    .vocab-inputs input:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
-    .vocab-inputs input.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
-    .vocab-inputs input.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
-    .vocab-inputs input.art { width: 70px; }
-    .vocab-inputs input.wort { width: 130px; }
-    .vocab-inputs input.plural { width: 140px; }
-    input.correct + .vocab-hint { display: inline; }
-  .vocab-hint { color: #27ae60; font-weight: 600; font-size: 0.8em; margin-left: 6px; display: none; }
-
-    /* Timer */
-    .timer-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      border-radius: 10px;
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
-    .best-time { color: #f39c12; font-weight: 600; }
-
-    /* Control Bar */
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-    .btn:hover { background: #764ba2; transform: translateY(-2px); }
-
-    /* Help Box */
-    .help-box {
-      background: #e8f4fd;
-      border-left: 4px solid #2196f3;
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-bottom: 16px;
-      font-size: 0.92rem;
-      color: #0d47a1;
-    }
-
-    /* Text Sections */
-    .text-section { line-height: 1.8; font-size: 0.95rem; color: #333; margin-bottom: 16px; }
-    .text-section p { margin-bottom: 12px; }
-    .text-section h3 { color: #3949ab; margin-bottom: 10px; }
-    .text-section strong { color: #3949ab; }
-
-    /* Footer */
-    .author-footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 16px;
-      font-size: 0.8rem;
-      color: #aaa;
-    }
-    .author-footer a { color: #aaa; }
-    .author-name { font-weight: 700; }
-
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .header h1 { font-size: 1.2rem; }
-      .tab-table { font-size: 0.85rem; }
-      .tab-table th, .tab-table td { padding: 8px; }
-      .content { padding: 16px; }
-    }
-  
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restriktiv- und Substitutivsatz</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}
+.container{max-width:1000px;margin:0 auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px;text-align:center}
+.header h1{font-size:2.2em;font-family:Georgia,'Times New Roman',serif;color:white;margin-bottom:8px;border:none;padding:0}
+.header .subtitle,.header p{font-size:1.1em;font-family:Georgia,'Times New Roman',serif;opacity:0.95;color:rgba(255,255,255,0.9);margin:0}
+.header .big-emoji{font-size:2.6em;display:block;margin-top:8px}
+.nav{display:flex;flex-wrap:nowrap;background:#f8f9fa;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd}
+.nav-btn{flex:1;padding:14px 10px;text-align:center;cursor:pointer;border-right:1px solid #ddd;border-bottom:1px solid #ddd;transition:all 0.3s;font-size:0.92em;font-weight:500;color:#666;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.nav-btn:last-child{border-right:none}
+.nav-btn:hover{background:#e9ecef;color:#495057}
+.nav-btn.active{background:white;color:#667eea;font-weight:600;border-bottom:3px solid #667eea}
+.nav-emoji{font-size:1.3em;line-height:1.2}
+.nav-label{font-size:0.78em;margin-top:2px;line-height:1.2}
+.section{display:none}
+.section.active{display:block}
+.sec-inner{padding:30px}
+.tab-banner{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+.section-title{font-size:1.15em;font-weight:700;color:#667eea;margin-bottom:14px}
+.control-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding:6px 12px;background:#f8f9fa;border-radius:8px}
+.btn-row{display:flex;gap:6px}
+.btn{background:none;border:1px solid #ddd;border-radius:6px;padding:4px 12px;font-size:0.82em;color:#888;cursor:pointer;transition:all 0.15s;font-weight:500}
+.btn:hover{border-color:#667eea;color:#667eea}
+.timer-display{display:flex;gap:14px;font-size:0.82em;color:#bbb;font-variant-numeric:tabular-nums}
+.hilfe-box{background:#f0f4ff;border-left:4px solid #667eea;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:22px;font-size:0.9em;color:#444;line-height:1.6}
+.entdeck-intro{background:#f3e5f5;border-radius:12px;padding:18px 22px;margin-bottom:20px;border-left:5px solid #9c27b0;font-size:0.97rem;line-height:1.75}
+.entdeck-intro h3{color:#6a1b9a;margin-bottom:10px;font-size:1.05rem}
+.hl{background:#e1bee7;border-radius:4px;padding:0 4px;color:#4a148c;font-weight:700}
+.mc-step{display:none;background:#fafbff;border-radius:12px;padding:18px 22px;margin-bottom:16px;border:1px solid #c5cae9}
+.mc-step.active{display:block}
+.mc-step h4{color:#3949ab;margin-bottom:12px;font-size:0.97rem}
+.mc-options{display:flex;flex-direction:column;gap:8px}
+.mc-btn{padding:9px 16px;border:2px solid #c5cae9;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:0.92rem;transition:all 0.2s}
+.mc-btn:hover{border-color:#667eea;background:#f3f4ff}
+.mc-btn.correct{border-color:#43a047;background:#e8f5e9;color:#2e7d32;font-weight:700}
+.mc-btn.wrong{border-color:#e53935;background:#ffebee;color:#c62828}
+.mc-feedback{margin-top:10px;font-size:0.88rem;min-height:1.3em}
+.mc-feedback.ok{color:#2e7d32;font-weight:700}
+.mc-feedback.err{color:#c62828}
+.progress-dots{display:flex;gap:8px;margin-bottom:20px}
+.pdot{width:14px;height:14px;border-radius:50%;background:#c5cae9;transition:background 0.3s}
+.pdot.done{background:#667eea}
+.regel-karte{display:none;background:linear-gradient(135deg,#e8eaf6,#ede7f6);border-radius:14px;padding:22px 26px;border-left:5px solid #3949ab;margin-top:10px}
+.regel-karte h3{color:#1a237e;margin-bottom:12px;font-size:1.05rem}
+.regel-karte ul{margin-left:18px}
+.regel-karte li{color:#333;line-height:1.8;font-size:0.95rem}
+.regel-karte .rk-example{background:#fff;border-radius:8px;padding:10px 14px;margin-top:12px;border-left:3px solid #7c4dff;font-size:0.9rem;color:#333}
+.regel-karte .rk-example b{color:#3949ab}
+.tab-table{width:100%;border-collapse:collapse;margin-bottom:16px;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.07)}
+.tab-table th{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:12px 14px;text-align:left;font-weight:600;font-size:0.9rem}
+.tab-table td{padding:11px 14px;border-bottom:1px solid #e0e0e0;font-size:0.92rem;color:#333}
+.tab-table tr:hover{background:#f8f9ff}
+.tab-table strong{color:#3949ab}
+.text-section{line-height:1.8;font-size:0.95rem;color:#333;margin-bottom:16px}
+.text-section p{margin-bottom:12px}
+.text-section h3{color:#3949ab;margin-bottom:10px}
+.text-section strong{color:#3949ab}
+.luecken-item{margin-bottom:14px;line-height:1.8;font-size:0.95em}
+input.blank{border:none;border-bottom:2px solid #667eea;background:transparent;padding:2px 6px;font-size:inherit;font-family:inherit;outline:none;transition:border-color 0.2s,background 0.2s}
+input.blank:focus{border-bottom-color:#764ba2;background:#f0f7ff}
+input.blank.ok{border-bottom-color:#27ae60;background:#e8f5e9}
+input.blank.no{border-bottom-color:#e74c3c;background:#ffebee}
+input.blank.correct{border-bottom-color:#27ae60;background:#e8f5e9}
+input.blank.wrong{border-bottom-color:#e74c3c;background:#ffebee}
+.chip{padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;cursor:grab;font-size:0.85rem;font-weight:600;user-select:none;transition:transform 0.15s,opacity 0.15s;white-space:nowrap}
+.chip:active{cursor:grabbing;transform:scale(1.04)}
+.chip.correct{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
+.chip.incorrect{background:linear-gradient(135deg,#e74c3c,#c0392b)!important}
+.punct-chip{min-width:auto;padding:6px 8px}
+.chips-container{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#f8f9fa;border-radius:10px;margin-bottom:14px;min-height:54px}
+.sentence-builder{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:8px 10px;border-radius:8px;border:2px dashed #c5cae9;background:#fafbff;margin-bottom:6px;align-items:center}
+.sb-punkt{align-self:center;font-size:1.2rem;font-weight:bold;color:#333;padding-left:2px}
+.satzbau-feedback{font-size:0.9rem;min-height:1.2em;margin-bottom:10px}
+.satzbau-feedback.correct{color:#27ae60;font-weight:700}
+.satzbau-feedback.incorrect{color:#e74c3c}
+.satzbau-item{margin-bottom:18px}
+.author-footer{text-align:center;margin-top:40px;max-width:1000px;margin-left:auto;margin-right:auto;padding:16px;font-size:0.8rem;color:#aaa}
+.author-footer a{color:#aaa}
+.author-name{font-weight:700}
+@media(max-width:600px){
+body{padding:8px}
+.nav{flex-wrap:wrap}
+.nav-btn{flex:1 1 33%;min-width:0;font-size:0.8em;padding:10px 6px;border-right:1px solid #ddd}
+.nav-btn:last-child{border-right:1px solid #ddd}
+.tab-banner{max-height:120px}
+.sec-inner{padding:16px}
 }
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 0;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Restriktiv- und Substitutivsatz</h1>
-      <p>B2.2 – Lektion 2032G · Grammatik</p>
+<div class="container">
+  <div class="header">
+    <h1>Restriktiv- und Substitutivsatz</h1>
+    <p class="subtitle">B2.2 – Lektion 2032G · Grammatik</p>
+    <div class="big-emoji">📜</div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)">
+      <span class="nav-emoji">🔍</span>
+      <span class="nav-label">Entdecken</span>
     </div>
-
-    <div class="nav">
-      <div class="nav-btn active" onclick="showSection(0)">
-        <span class="nav-emoji">🔍</span>
-        <span class="nav-label">Entdecken</span>
-      </div>
-      <div class="nav-btn" onclick="showSection(1)">
-        <span class="nav-emoji">📋</span>
-        <span class="nav-label">Übersicht</span>
-      </div>
-      <div class="nav-btn" onclick="showSection(2)">
-        <span class="nav-emoji">✏️</span>
-        <span class="nav-label">Lückentext</span>
-      </div>
-      <div class="nav-btn" onclick="showSection(3)">
-        <span class="nav-emoji">🔀</span>
-        <span class="nav-label">Satzbau</span>
-      </div>
-      <div class="nav-btn" onclick="showSection(4)">
-        <span class="nav-emoji">📚</span>
-        <span class="nav-label">Wortschatz</span>
-      </div>
+    <div class="nav-btn" onclick="showSection(1)">
+      <span class="nav-emoji">📋</span>
+      <span class="nav-label">Übersicht</span>
     </div>
+    <div class="nav-btn" onclick="showSection(2)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(3)">
+      <span class="nav-emoji">🧩</span>
+      <span class="nav-label">Satzbau</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(4)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
 
-    <div class="content">
-      <!-- TAB 0: Entdecken -->
-      <div class="section active" id="sec-0">
-        <img src="https://images.pexels.com/photos/164821/pexels-photo-164821.jpeg?w=1000" alt="Entdecken" class="tab-banner">
+  <!-- TAB 0: Entdecken -->
+  <div class="section active" id="sec-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/164821/pexels-photo-164821.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Entdecken">
+    <div class="sec-inner">
+      <h2 class="section-title">Entdecken</h2>
 
-        <div class="entdeck-intro">
-          <h3>Eingangstext zum Thema</h3>
-          <p><span class="hl">Soweit</span> ich weiß, arbeitet seine Schwester seit 2 Monaten als Solistin in dieser neuen Band. <span class="hl">Statt</span> im Büro zu arbeiten, gibt sie Gastauftritte. <span class="hl">Ohne dass</span> ihre Eltern sie finanziell unterstützen, könnte sie es bestimmt nicht schaffen.</p>
-        </div>
-
-        <div class="progress-dots">
-          <span class="pdot" id="pdot0"></span>
-          <span class="pdot" id="pdot1"></span>
-          <span class="pdot" id="pdot2"></span>
-        </div>
-
-        <div class="mc-step active" id="mc-step0">
-          <h4>Frage 1: Was drückt „Soweit ich weiß" aus?</h4>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcCheck(0, this, true)">eine Einschränkung des Wissens</div>
-            <button class="mc-btn" onclick="mcCheck(0, this, false)">eine Bedingung</div>
-            <button class="mc-btn" onclick="mcCheck(0, this, false)">einen Vergleich</div>
-          </div>
-          <div class="mc-feedback" id="mcfb0"></div>
-        </div>
-
-        <div class="mc-step" id="mc-step1">
-          <h4>Frage 2: Was zeigt „Statt im Büro zu arbeiten"?</h4>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcCheck(1, this, false)">zusätzlich im Büro arbeitet</button>
-            <button class="mc-btn" onclick="mcCheck(1, this, true)">anstelle der Büroarbeit Gastauftritte gibt</button>
-            <button class="mc-btn" onclick="mcCheck(1, this, false)">bald ins Büro zurückkehrt</button>
-          </div>
-          <div class="mc-feedback" id="mcfb1"></div>
-        </div>
-
-        <div class="mc-step" id="mc-step2">
-          <h4>Frage 3: Welcher Satztyp ist „ohne dass ihre Eltern sie unterstützen"?</h4>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcCheck(2, this, false)">Restriktivsatz</button>
-            <button class="mc-btn" onclick="mcCheck(2, this, false)">Instrumentalsatz</button>
-            <button class="mc-btn" onclick="mcCheck(2, this, true)">Modalsatz des fehlenden Begleitumstandes</button>
-          </div>
-          <div class="mc-feedback" id="mcfb2"></div>
-        </div>
-
-        <div class="regel-karte" id="regelkarte">
-          <h3>Zusammenfassung: Restriktivsatz</h3>
-          <ul>
-            <li><strong>Definition:</strong> Ein Restriktivsatz formuliert eine Einschränkung des im Hauptsatz genannten Geschehens.</li>
-            <li><strong>Frage:</strong> Wie ist es mir bekannt? Unter welcher Bedingung?</li>
-            <li><strong>Wichtige Konnektoren:</strong> wie, insofern, sofern, insoweit, soweit, soviel</li>
-            <li><strong>Position:</strong> Am Anfang oder am Ende des Satzes</li>
-            <li><strong>Beispiele:</strong>
-              <div class="rk-example"><b>Soweit</b> ich weiß, wohnt sie in Barcelona.</div>
-              <div class="rk-example">Er arbeitet bei der Post, <b>sofern</b> ich das richtig verstanden habe.</div>
-            </li>
-          </ul>
-        </div>
+      <div class="entdeck-intro">
+        <h3>Lies die Sätze und achte auf die markierten Wörter</h3>
+        <p><span class="hl">Soweit</span> ich weiß, arbeitet seine Schwester seit 2 Monaten als Solistin in dieser neuen Band.<br>
+        <span class="hl">Statt</span> im Büro zu arbeiten, gibt sie Gastauftritte.<br>
+        <span class="hl">Ohne dass</span> ihre Eltern sie finanziell unterstützen, könnte sie es bestimmt nicht schaffen.<br>
+        <span class="hl">Wie</span> ich gehört habe, hat die Band ein neues Album veröffentlicht.</p>
       </div>
 
-      <!-- TAB 1: Übersicht -->
-      <div class="section" id="sec-1">
-        <img src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Übersicht" class="tab-banner">
-
-        <div class="text-section">
-          <h3>Alle Modalsätze im Überblick</h3>
-          <table class="tab-table">
-            <thead>
-              <tr>
-                <th>Modalsatz</th>
-                <th>Konjunktionen</th>
-                <th>Frage</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Instrumentalsatz</td>
-                <td>indem, dadurch dass</td>
-                <td>Wie / Wodurch?</td>
-              </tr>
-              <tr>
-                <td>Komparativsatz</td>
-                <td>wie, als, so...wie</td>
-                <td>Wie / Womit vergleicht man?</td>
-              </tr>
-              <tr>
-                <td>Substitutivsatz</td>
-                <td>(an)statt dass, statt...zu</td>
-                <td>Was hätte stattdessen sein können?</td>
-              </tr>
-              <tr>
-                <td>Fehlender Begleitumstand</td>
-                <td>ohne dass, ohne...zu</td>
-                <td>Was fehlt / fehlte?</td>
-              </tr>
-              <tr style="background: #e8eaff;">
-                <td><strong>Restriktivsatz</strong></td>
-                <td>wie, insofern, sofern, insoweit, soweit, soviel</td>
-                <td>Wie? Unter welcher Bedingung?</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="text-section">
-          <h3>Der Restriktivsatz — Der Fokus dieser Lektion</h3>
-          <p>Der <strong>Restriktivsatz</strong> formuliert eine <strong>Einschränkung</strong> des im Hauptsatz genannten Geschehens.</p>
-          <p><strong>Beantwortet die Frage:</strong> „Wie (Woher) ist es mir bekannt?" oder „Unter welcher Bedingung?"</p>
-          <p><strong>Konnektoren:</strong> wie, insofern, sofern, insoweit, soweit, soviel</p>
-          <p><strong>Position:</strong> Am Anfang oder am Ende des Satzes</p>
-          <p><strong>Beispiele:</strong></p>
-          <ul style="margin-left: 20px; margin-bottom: 12px;">
-            <li>„<strong>Soweit</strong> ich weiß, wohnt sie in Barcelona."</li>
-            <li>„Er arbeitet bei der Post, <strong>sofern</strong> ich das richtig verstanden habe."</li>
-            <li>„<strong>Wie</strong> ich gehört habe, gibt sie Gastauftritte."</li>
-          </ul>
-        </div>
-
-        <div class="text-section">
-          <h3>Spezialfall: insofern / insoweit als (dass)</h3>
-          <table class="tab-table">
-            <thead>
-              <tr>
-                <th>Hauptsatz</th>
-                <th>Konjunktion</th>
-                <th>Frage</th>
-                <th>Nebensatz</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Man kann diese Theorie</td>
-                <td>insoweit beweisen,</td>
-                <td>Wie? In welchem Fall?</td>
-                <td>als dass man logische Argumente hat.</td>
-              </tr>
-              <tr>
-                <td>Er war</td>
-                <td>insofern schuld,</td>
-                <td>Wie? In welchem Fall?</td>
-                <td>als dass er sich kaum vorbereitet hat.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="text-section">
-          <h3>Restriktivsatz mit „außer dass" / „außer wenn"</h3>
-          <ul style="margin-left: 20px;">
-            <li>„Ich habe nichts Besonderes bemerkt, <strong>außer dass</strong> sie etwas schüchtern war."</li>
-            <li>„Ich komme heute Abend, <strong>außer wenn</strong> du keine Zeit hast."</li>
-          </ul>
-        </div>
+      <div class="progress-dots">
+        <span class="pdot" id="pdot0"></span>
+        <span class="pdot" id="pdot1"></span>
+        <span class="pdot" id="pdot2"></span>
+        <span class="pdot" id="pdot3"></span>
       </div>
 
-      <!-- TAB 2: Lückentext -->
-      <div class="section" id="sec-2">
-        <img src="https://images.pexels.com/photos/3808904/pexels-photo-3808904.jpeg?w=1000" alt="Lückentext" class="tab-banner">
-
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-2">0:00</span>
-          <span class="best-time" id="best-2"></span>
+      <div class="mc-step active" id="mc-step0">
+        <h4>Was drückt „Soweit ich weiß“ aus?</h4>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="mcCheck(0,this,true)">eine Einschränkung des Wissens</button>
+          <button class="mc-btn" onclick="mcCheck(0,this,false)">eine Bedingung</button>
+          <button class="mc-btn" onclick="mcCheck(0,this,false)">einen Vergleich</button>
         </div>
-
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Fülle die Lücken aus. Du erhältst Live-Feedback!
-        </div>
-
-        <div id="luecke-container"></div>
-
-        <div class="author-footer">
-          <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-          <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
-        </div>
+        <div class="mc-feedback" id="mcfb0"></div>
       </div>
 
-      <!-- TAB 3: Satzbau -->
-      <div class="section" id="sec-3">
-        <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Satzbau" class="tab-banner">
-
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-3">0:00</span>
-          <span class="best-time" id="best-3"></span>
+      <div class="mc-step" id="mc-step1">
+        <h4>Was zeigt „Statt im Büro zu arbeiten“?</h4>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="mcCheck(1,this,false)">Sie arbeitet zusätzlich im Büro.</button>
+          <button class="mc-btn" onclick="mcCheck(1,this,true)">Anstelle der Büroarbeit gibt sie Gastauftritte.</button>
+          <button class="mc-btn" onclick="mcCheck(1,this,false)">Sie kehrt bald ins Büro zurück.</button>
         </div>
-
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge. Ziehe die Chips in die richtige Zeile oder klicke sie an.
-        </div>
-
-        <div id="satzbauContainer"></div>
-
-        <div class="author-footer">
-          <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-          <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
-        </div>
+        <div class="mc-feedback" id="mcfb1"></div>
       </div>
 
-      <!-- TAB 4: Wortschatz -->
-      <div class="section" id="sec-4">
-        <img src="https://images.pexels.com/photos/2078076/pexels-photo-2078076.jpeg?w=1000" alt="Wortschatz" class="tab-banner">
-
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-4">0:00</span>
-          <span class="best-time" id="best-4"></span>
+      <div class="mc-step" id="mc-step2">
+        <h4>Welcher Satztyp ist „ohne dass ihre Eltern sie unterstützen“?</h4>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="mcCheck(2,this,false)">Restriktivsatz</button>
+          <button class="mc-btn" onclick="mcCheck(2,this,false)">Instrumentalsatz</button>
+          <button class="mc-btn" onclick="mcCheck(2,this,true)">Modalsatz des fehlenden Begleitumstandes</button>
         </div>
+        <div class="mc-feedback" id="mcfb2"></div>
+      </div>
 
-        <div class="btn-row">
-          <button class="btn" onclick="showVocabLoesung(4)">💡 Lösungen</button>
-          <button class="btn" onclick="resetWs(4); timerResetOne(4);">🔄 Neu starten</button>
+      <div class="mc-step" id="mc-step3">
+        <h4>Welche Konjunktionen leiten einen Restriktivsatz ein?</h4>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="mcCheck(3,this,false)">obwohl, obgleich, wenngleich</button>
+          <button class="mc-btn" onclick="mcCheck(3,this,true)">soweit, sofern, insofern, wie, soviel</button>
+          <button class="mc-btn" onclick="mcCheck(3,this,false)">damit, um … zu, auf dass</button>
         </div>
+        <div class="mc-feedback" id="mcfb3"></div>
+      </div>
 
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Übersetze ins Deutsche. Bei Nomen: Artikel + Wort + Plural!
-        </div>
-
-        <div id="vocabContainer"></div>
-
-        <div class="author-footer">
-          <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-          <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
-        </div>
+      <div class="regel-karte" id="regelkarte">
+        <h3>Zusammenfassung: Restriktivsatz &amp; Substitutivsatz</h3>
+        <ul>
+          <li><strong>Restriktivsatz:</strong> Formuliert eine Einschränkung des Hauptsatz-Geschehens.</li>
+          <li><strong>Frage:</strong> Wie ist es mir bekannt? Unter welcher Bedingung?</li>
+          <li><strong>Konnektoren:</strong> wie, insofern, sofern, insoweit, soweit, soviel</li>
+          <li><strong>Substitutivsatz:</strong> Drückt eine Ersatzhandlung aus ((an)statt dass / statt … zu).</li>
+          <li><strong>Fehlender Begleitumstand:</strong> ohne dass / ohne … zu.</li>
+        </ul>
+        <div class="rk-example"><b>Soweit</b> ich weiß, wohnt sie in Barcelona.</div>
+        <div class="rk-example">Er arbeitet bei der Post, <b>sofern</b> ich das richtig verstanden habe.</div>
       </div>
     </div>
   </div>
 
-  <script>
-function showSection(n){
-  document.querySelectorAll('.section').forEach(function(t,i){t.classList.toggle('active',i===n);});
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+  <!-- TAB 1: Übersicht -->
+  <div class="section" id="sec-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Übersicht">
+    <div class="sec-inner">
+      <h2 class="section-title">Übersicht</h2>
+
+      <div class="text-section">
+        <h3>Alle Modalsätze im Überblick</h3>
+        <table class="tab-table">
+          <thead><tr><th>Modalsatz</th><th>Konjunktionen</th><th>Frage</th></tr></thead>
+          <tbody>
+            <tr><td>Instrumentalsatz</td><td>indem, dadurch dass</td><td>Wie / Wodurch?</td></tr>
+            <tr><td>Komparativsatz</td><td>wie, als, so…wie</td><td>Wie / Womit vergleicht man?</td></tr>
+            <tr><td>Substitutivsatz</td><td>(an)statt dass, statt…zu</td><td>Was hätte stattdessen sein können?</td></tr>
+            <tr><td>Fehlender Begleitumstand</td><td>ohne dass, ohne…zu</td><td>Was fehlt / fehlte?</td></tr>
+            <tr style="background:#e8eaff"><td><strong>Restriktivsatz</strong></td><td>wie, insofern, sofern, insoweit, soweit, soviel</td><td>Wie? Unter welcher Bedingung?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-section">
+        <h3>Der Restriktivsatz — Fokus dieser Lektion</h3>
+        <p>Der <strong>Restriktivsatz</strong> formuliert eine <strong>Einschränkung</strong> des im Hauptsatz genannten Geschehens.</p>
+        <p><strong>Beantwortet die Frage:</strong> „Wie (Woher) ist es mir bekannt?“ oder „Unter welcher Bedingung?“</p>
+        <p><strong>Konnektoren:</strong> wie, insofern, sofern, insoweit, soweit, soviel</p>
+        <p><strong>Position:</strong> Am Anfang oder am Ende des Satzes</p>
+      </div>
+
+      <div class="text-section">
+        <h3>Spezialfall: insofern / insoweit als (dass)</h3>
+        <table class="tab-table">
+          <thead><tr><th>Hauptsatz</th><th>Konjunktion</th><th>Nebensatz</th></tr></thead>
+          <tbody>
+            <tr><td>Man kann diese Theorie</td><td>insoweit beweisen,</td><td>als dass man logische Argumente hat.</td></tr>
+            <tr><td>Er war</td><td>insofern schuld,</td><td>als dass er sich kaum vorbereitet hat.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-section">
+        <h3>Restriktivsatz mit „außer dass“ / „außer wenn“</h3>
+        <p>„Ich habe nichts Besonderes bemerkt, <strong>außer dass</strong> sie etwas schüchtern war.“</p>
+        <p>„Ich komme heute Abend, <strong>außer wenn</strong> du keine Zeit hast.“</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Lückentext -->
+  <div class="section" id="sec-2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3808904/pexels-photo-3808904.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lückentext">
+    <div class="sec-inner">
+      <h2 class="section-title">✏️ Lückentext</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetLuecken(); resetTimer(2);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-2">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Ergänze die passende Konjunktion. Du erhältst sofort Feedback!</div>
+      <div id="lueckenContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Satzbau -->
+  <div class="section" id="sec-3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau">
+    <div class="sec-inner">
+      <h2 class="section-title">🧩 Satzbau</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i)})">Lösungen</button>
+          <button class="btn" onclick="satzbauData.forEach(function(_,i){sbResetOne(i)}); resetTimer(3);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-3">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Bringe die Wörter in die richtige Reihenfolge. Ziehe die Chips in die Satzzeile!</div>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Wortschatz -->
+  <div class="section" id="sec-4">
+    <img class="tab-banner" src="https://images.pexels.com/photos/2078076/pexels-photo-2078076.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz">
+    <div class="sec-inner">
+      <h2 class="section-title">📚 Wortschatz</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetWortschatz(); resetTimer(4);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-4">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Übersetze ins Deutsche. Bei Nomen: Artikel + Wort + Plural (als Endung)!</div>
+      <div id="wortschatzContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    </div>
+  </div>
+
+  <div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+  </div>
+</div>
+
+<script>
+/* ── Navigation ── */
+function showSection(idx){
+    document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===idx);});
+    document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===idx);});
 }
 
-    // ============= KONSTANTEN =============
-    var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
+/* ── Timer ── */
+var TIMER_PREFIX='B2_2032G_';
+var timerStarted=[false,false,false,false,false];
+var timerRunning=[false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null];
+
+function fmtTime(s){var m=Math.floor(s/60);var sec=s%60;return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}
+
 function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
+    if(timerStarted[n]) return;
+    timerStarted[n]=true; timerRunning[n]=true;
+    timerIntervals[n]=setInterval(function(){
+        timerSeconds[n]++;
+        var el=document.getElementById('timer-'+n);
+        if(el) el.textContent=fmtTime(timerSeconds[n]);
+    },1000);
+}
+
+function stopTimer(n){
+    if(!timerRunning[n]) return;
+    clearInterval(timerIntervals[n]); timerRunning[n]=false;
+    var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+    if(timerSeconds[n]>0&&timerSeconds[n]<best){
+        localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+        var el=document.getElementById('best-'+n);
+        if(el) el.textContent=fmtTime(timerSeconds[n]);
+    }
+}
+
+function resetTimer(n){
+    clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
     var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
+    if(el) el.textContent='00:00';
 }
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  if(timerSeconds[n]<bestSeconds[n]&&timerSeconds[n]>0){bestSeconds[n]=timerSeconds[n];var el=document.getElementById('best-'+n);if(el) el.textContent=fmtTime(bestSeconds[n]);}
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+
 document.addEventListener('DOMContentLoaded',function(){
-  [2,3,4].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
+    [2,3,4].forEach(function(n){
+        var b=localStorage.getItem(TIMER_PREFIX+n);
+        if(b){var el=document.getElementById('best-'+n);if(el) el.textContent=fmtTime(parseInt(b));}
+    });
 });
 
-    // ============= LÜCKENTEXT =============
-    var LUECKEN_DATA = [
-      { segs: [{t: 'Alle wissen: Er singt seit seiner Kindheit. → „'}, {b: 'Wie', s: 's'}, {t: ' alle wissen, singt er seit seiner Kindheit.'}], hint: 'Konjunktion' },
-      { segs: [{t: 'In allen Zeitungen steht: Die Prinzessin heiratet nächste Woche. → „'}, {b: 'Wie', s: 's'}, {t: ' in allen Zeitungen steht, heiratet die Prinzessin nächste Woche.'}], hint: 'Konjunktion' },
-      { segs: [{t: 'Alle sagen mir: Ich muss meine Haare schneiden lassen. → „'}, {b: 'Wie', s: 's'}, {t: ' mir alle sagen, muss ich meine Haare schneiden lassen.'}], hint: 'Konjunktion' },
-      { segs: [{t: 'Nach der Meinung meiner Mutter stehen mir Kleider besser als Hosen. → „'}, {b: 'Soweit', s: 'm'}, {t: ' ich weiß, stehen mir laut meiner Mutter Kleider besser."'}], hint: 'Konjunktion' },
-      { segs: [{t: 'Man sagt, in der Schulzeit bildet man die engsten Freundschaften. → „'}, {b: 'Wie', s: 's'}, {t: ' man sagt, bildet man in der Schulzeit die engsten Freundschaften.'}], hint: 'Konjunktion' },
-      { segs: [{t: ''}, {b: 'sofern', s: 'm'}, {t: ' du mir sagst, wo das Konzert stattfindet, komme ich gerne mit. (Ergänze die Lücke)'}], hint: 'Konjunktion' },
-      { segs: [{t: 'Sie ist eine gute Sängerin, '}, {b: 'soweit', s: 'm'}, {t: ' ich das beurteilen kann.'}], hint: 'Konjunktion' },
-      { segs: [{t: ''}, {b: 'Wie', s: 's'}, {t: ' ich gehört habe, hat die Band ein neues Album veröffentlicht.'}], hint: 'Konjunktion' },
-      { segs: [{t: 'Das Festival war gut besucht, '}, {b: 'außer dass', s: 'l'}, {t: ' das Wetter schlecht war.'}], hint: 'Konjunktion' },
-      { segs: [{t: 'Ich komme zum Konzert, '}, {b: 'außer wenn', s: 'm'}, {t: ' ich arbeiten muss.'}], hint: 'Konjunktion' }
-    ];
+/* ── MC Entdecken ── */
+var mcFeedback=[
+    '✓ Richtig! „Soweit ich weiß“ schränkt die Aussage ein.',
+    '✓ Richtig! Die Gastauftritte ersetzen die Büroarbeit – ein Substitutivsatz.',
+    '✓ Richtig! „Ohne dass“ drückt einen fehlenden Begleitumstand aus.',
+    '✓ Richtig! Das sind die typischen Konnektoren des Restriktivsatzes.'
+];
+var mcDone=[false,false,false,false];
 
-    function liveCheck(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // gültiger Präfix → neutral
-      } else {
-        inp.classList.add('wrong');
-      }
+function mcCheck(step,btn,correct){
+    if(mcDone[step]) return;
+    var fb=document.getElementById('mcfb'+step);
+    if(correct){
+        btn.classList.add('correct');
+        fb.className='mc-feedback ok';
+        fb.textContent=mcFeedback[step];
+        mcDone[step]=true;
+        document.getElementById('pdot'+step).classList.add('done');
+        setTimeout(function(){
+            document.getElementById('mc-step'+step).classList.remove('active');
+            var next=document.getElementById('mc-step'+(step+1));
+            if(next) next.classList.add('active');
+            else document.getElementById('regelkarte').style.display='block';
+        },1200);
+    } else {
+        btn.classList.add('wrong');
+        fb.className='mc-feedback err';
+        fb.textContent='✗ Nicht ganz – lies die Sätze noch einmal.';
+        setTimeout(function(){btn.classList.remove('wrong');fb.textContent='';},1500);
     }
+}
 
-    function checkLueckeAllOk(n) {
-      var inputs = document.querySelectorAll('#luecke-container input.blank');
-      var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) { return i.classList.contains('correct'); });
-      if (allOk) timerStop(n);
+/* ── Lückentext ── */
+var LUECKEN=[
+    {pre:'Alle wissen: Er singt seit seiner Kindheit. → „',ans:'Wie',post:' alle wissen, singt er seit seiner Kindheit.“',w:50},
+    {pre:'In allen Zeitungen steht: Die Prinzessin heiratet. → „',ans:'Wie',post:' in allen Zeitungen steht, heiratet die Prinzessin nächste Woche.“',w:50},
+    {pre:'Alle sagen mir: Ich muss meine Haare schneiden lassen. → „',ans:'Wie',post:' mir alle sagen, muss ich meine Haare schneiden lassen.“',w:50},
+    {pre:'Nach Meinung meiner Mutter stehen mir Kleider besser. → „',ans:'Soweit',post:' ich weiß, stehen mir laut meiner Mutter Kleider besser.“',w:80},
+    {pre:'Man sagt, in der Schulzeit bildet man die engsten Freundschaften. → „',ans:'Wie',post:' man sagt, bildet man in der Schulzeit die engsten Freundschaften.“',w:50},
+    {pre:'',ans:'Sofern',post:' du mir sagst, wo das Konzert stattfindet, komme ich gerne mit.',w:80},
+    {pre:'Sie ist eine gute Sängerin, ',ans:'soweit',post:' ich das beurteilen kann.',w:80},
+    {pre:'',ans:'Wie',post:' ich gehört habe, hat die Band ein neues Album veröffentlicht.',w:50},
+    {pre:'Das Festival war gut besucht, ',ans:'außer dass',post:' das Wetter schlecht war.',w:120},
+    {pre:'Ich komme zum Konzert, ',ans:'außer wenn',post:' ich arbeiten muss.',w:120}
+];
+
+function liveCheck(inp,timerFn,allSel,stopFn){
+    var val=inp.value.trim();
+    var ans=inp.dataset.ans;
+    inp.classList.remove('ok','no');
+    if(!val) return;
+    var cV=val.toLowerCase(), cA=ans.toLowerCase();
+    if(cV===cA){inp.classList.add('ok');stopFn();}
+    else if(cA.indexOf(cV)===0){/* prefix */}
+    else{inp.classList.add('no');}
+}
+
+function checkLueckenAllOk(){
+    var inputs=document.querySelectorAll('#lueckenContainer input.blank');
+    var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.classList.contains('ok');});
+    if(allOk) stopTimer(2);
+}
+
+function initLuecken(){
+    var c=document.getElementById('lueckenContainer');
+    c.innerHTML='';
+    LUECKEN.forEach(function(item){
+        var p=document.createElement('div');
+        p.className='luecken-item';
+        if(item.pre) p.appendChild(document.createTextNode(item.pre));
+        var inp=document.createElement('input');
+        inp.className='blank'; inp.type='text';
+        inp.placeholder='???'; inp.style.width=item.w+'px';
+        inp.dataset.ans=item.ans;
+        inp.oninput=function(){timerAutoStart(2);liveCheck(inp,function(){timerAutoStart(2);},'#lueckenContainer input.blank',checkLueckenAllOk);};
+        p.appendChild(inp);
+        if(item.post) p.appendChild(document.createTextNode(item.post));
+        c.appendChild(p);
+    });
+}
+
+function showLueckenLoesung(){
+    stopTimer(2);
+    document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+        inp.value=inp.dataset.ans; inp.classList.add('ok'); inp.classList.remove('no');
+    });
+}
+
+function resetLuecken(){
+    document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+        inp.value=''; inp.classList.remove('ok','no');
+    });
+}
+
+/* ── Satzbau ── */
+var satzbauData=[
+    {parts:['soweit','ich','weiß',',','singt','sie','seit','zehn','Jahren'],
+     valid:[['soweit','ich','weiß',',','singt','sie','seit','zehn','Jahren']],punct:'.'},
+    {parts:['die','Band','ist','sehr','beliebt',',','sofern','ich','das','richtig','verstanden','habe'],
+     valid:[['die','Band','ist','sehr','beliebt',',','sofern','ich','das','richtig','verstanden','habe']],punct:'.'},
+    {parts:['wie','ich','gehört','habe',',','gibt','die','Sängerin','nächste','Woche','ein','Konzert'],
+     valid:[['wie','ich','gehört','habe',',','gibt','die','Sängerin','nächste','Woche','ein','Konzert']],punct:'.'},
+    {parts:['ich','komme','zum','Konzert',',','außer','wenn','ich','arbeiten','muss'],
+     valid:[['ich','komme','zum','Konzert',',','außer','wenn','ich','arbeiten','muss']],punct:'.'},
+    {parts:['das','Album','ist','ihr','bestes',',','insofern','man','das','so','sagen','kann'],
+     valid:[['das','Album','ist','ihr','bestes',',','insofern','man','das','so','sagen','kann']],punct:'.'},
+    {parts:['insoweit','ich','das','beurteilen','kann',',','ist','sie','eine','talentierte','Sängerin'],
+     valid:[['insoweit','ich','das','beurteilen','kann',',','ist','sie','eine','talentierte','Sängerin']],punct:'.'}
+];
+
+var sbDragged=null;
+
+function getSbCursor(){
+    var c=document.getElementById('sb-insert-cursor');
+    if(!c){
+        c=document.createElement('div');
+        c.id='sb-insert-cursor';
+        c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
     }
+    return c;
+}
 
-    function lueckeInit() {
-      var container = document.getElementById('luecke-container');
-      container.innerHTML = '';
-      LUECKEN_DATA.forEach(function(item) {
-        var p = document.createElement('p');
-        p.style.marginBottom = '14px';
-        p.style.lineHeight = '1.8';
-        item.segs.forEach(function(seg) {
-          if (seg.t) {
-            p.appendChild(document.createTextNode(seg.t));
-          } else {
-            var inp = document.createElement('input');
-            inp.className = 'blank';
-            inp.type = 'text';
-            inp.placeholder = '';
-            inp.dataset.answer = seg.b;
-            inp.style.width = (seg.s === 's' ? '50px' : seg.s === 'm' ? '90px' : seg.s === 'l' ? '150px' : '200px');
-            inp.addEventListener('input', function() {
-              timerAutoStart(2);
-              liveCheck(inp);
-              checkLueckeAllOk(2);
-            });
-            p.appendChild(inp);
-          }
-        });
-        container.appendChild(p);
-      });
+function getSbInsertPos(zone,clientX){
+    var chips=Array.from(zone.querySelectorAll('.chip'));
+    for(var i=0;i<chips.length;i++){
+        var r=chips[i].getBoundingClientRect();
+        if(clientX<r.left+r.width/2) return chips[i];
     }
+    return null;
+}
 
-    // ============= SATZBAU =============
-    var satzbauData = [
-      { parts: ['Soweit', 'ich', 'weiß', ',', 'singt', 'sie', 'seit', 'zehn', 'Jahren'],
-        valid: [['Soweit', 'ich', 'weiß', ',', 'singt', 'sie', 'seit', 'zehn', 'Jahren']], punct: '.' },
-      { parts: ['die', 'Band', 'ist', 'sehr', 'beliebt', ',', 'sofern', 'ich', 'das', 'richtig', 'verstanden', 'habe'],
-        valid: [['die', 'Band', 'ist', 'sehr', 'beliebt', ',', 'sofern', 'ich', 'das', 'richtig', 'verstanden', 'habe']], punct: '.' },
-      { parts: ['Wie', 'ich', 'gehört', 'habe', ',', 'gibt', 'die', 'Sängerin', 'nächste', 'Woche', 'ein', 'Konzert'],
-        valid: [['Wie', 'ich', 'gehört', 'habe', ',', 'gibt', 'die', 'Sängerin', 'nächste', 'Woche', 'ein', 'Konzert']], punct: '.' },
-      { parts: ['ich', 'komme', 'zum', 'Konzert', ',', 'außer', 'wenn', 'ich', 'arbeiten', 'muss'],
-        valid: [['ich', 'komme', 'zum', 'Konzert', ',', 'außer', 'wenn', 'ich', 'arbeiten', 'muss']], punct: '.' },
-      { parts: ['das', 'Album', 'ist', 'ihr', 'bestes', ',', 'insofern', 'man', 'das', 'so', 'sagen', 'kann'],
-        valid: [['das', 'Album', 'ist', 'ihr', 'bestes', ',', 'insofern', 'man', 'das', 'so', 'sagen', 'kann']], punct: '.' }
-    ];
+function sbCapitalize(str){return str.charAt(0).toUpperCase()+str.slice(1);}
 
-    var sbDragged = null;
+function sbUpdateCapitalization(row){
+    var chips=Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c,i){
+        var orig=c.dataset.orig;
+        var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+        if(isProper){c.textContent=orig;}
+        else{c.textContent=(i===0)?sbCapitalize(orig):orig;}
+    });
+}
 
-    function sbMakeChip(word, idx) {
-      var chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.dataset.orig = word;
-      chip.dataset.sbIdx = idx;
-      chip.draggable = true;
-      chip.addEventListener('dragstart', function(e) {
-        sbDragged = chip;
-        e.dataTransfer.setData('text/plain', '');
+function sbMakeChip(word){
+    var chip=document.createElement('div');
+    chip.className='chip';
+    chip.textContent=word;
+    chip.dataset.orig=word;
+    chip.draggable=true;
+    if(word===','||word===';'||word===':') chip.classList.add('punct-chip');
+    chip.addEventListener('dragstart',function(e){
+        sbDragged=chip;
         timerAutoStart(3);
-      });
-      chip.addEventListener('click', function() {
-        timerAutoStart(3);
-        var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
-        var bank = document.querySelector('#satzbauContainer .chips-container[data-idx="' + idx + '"]');
-        if (chip.parentElement === bank) {
-          var cursor = row.querySelector('.sb-insert-cursor');
-          if (cursor) row.insertBefore(chip, cursor); else row.appendChild(chip);
-        } else {
-          bank.appendChild(chip);
+        e.dataTransfer.setData('text/plain','');
+        setTimeout(function(){chip.style.opacity='0.4';},0);
+    });
+    chip.addEventListener('dragend',function(){
+        chip.style.opacity='';
+        sbDragged=null;
+        var c=document.getElementById('sb-insert-cursor');
+        if(c&&c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+
+function sbRegisterZone(zone,idx){
+    zone.addEventListener('dragover',function(e){
+        e.preventDefault();
+        if(!sbDragged) return;
+        var cursor=getSbCursor();
+        var before=getSbInsertPos(zone,e.clientX);
+        if(before) zone.insertBefore(cursor,before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave',function(e){
+        if(!zone.contains(e.relatedTarget)){
+            var c=document.getElementById('sb-insert-cursor');
+            if(c&&c.parentNode===zone) zone.removeChild(c);
         }
-        sbUpdateCapitalization(idx);
+    });
+    zone.addEventListener('drop',function(e){
+        e.preventDefault();
+        if(!sbDragged) return;
+        var cursor=document.getElementById('sb-insert-cursor');
+        if(cursor&&cursor.parentNode===zone){
+            zone.insertBefore(sbDragged,cursor);
+            zone.removeChild(cursor);
+        } else {
+            zone.appendChild(sbDragged);
+        }
+        sbDragged=null;
+        var row=document.getElementById('sb-row-'+idx);
+        sbUpdateCapitalization(row);
         sbCheckAuto(idx);
-      });
-      return chip;
+    });
+}
+
+function sbColorRow(idx){
+    var row=document.getElementById('sb-row-'+idx);
+    var chips=Array.from(row.querySelectorAll('.chip'));
+    var order=chips.map(function(c){return c.dataset.orig;});
+    var ok=satzbauData[idx].valid.some(function(v){
+        return JSON.stringify(v)===JSON.stringify(order);
+    });
+    chips.forEach(function(c){
+        c.classList.remove('correct','incorrect');
+        c.classList.add(ok?'correct':'incorrect');
+    });
+    var existing=row.querySelector('.sb-punkt');
+    if(existing) existing.parentNode.removeChild(existing);
+    if(ok){
+        var punkt=document.createElement('span');
+        punkt.className='sb-punkt';
+        punkt.textContent=satzbauData[idx].punct||'.';
+        row.appendChild(punkt);
     }
+    return ok;
+}
 
-    function sbRegisterZone(el, idx) {
-      el.addEventListener('dragover', function(e) {
-        if (sbDragged && sbDragged.dataset.sbIdx !== String(idx)) return;
-        e.preventDefault();
-        el.classList.add('dragover');
-        var cursor = el.querySelector('.sb-insert-cursor');
-        if (cursor) cursor.remove();
-        if (el.classList.contains('sentence-builder')) {
-          var afterEl = sbGetDragAfterElement(el, e.clientX);
-          var newCursor = document.createElement('div');
-          newCursor.className = 'sb-insert-cursor';
-          if (afterEl) el.insertBefore(newCursor, afterEl);
-          else el.appendChild(newCursor);
-        }
-      });
-      el.addEventListener('dragleave', function(e) {
-        if (!el.contains(e.relatedTarget)) {
-          el.classList.remove('dragover');
-          var cursor = el.querySelector('.sb-insert-cursor');
-          if (cursor) cursor.remove();
-        }
-      });
-      el.addEventListener('drop', function(e) {
-        e.preventDefault();
-        el.classList.remove('dragover');
-        var cursor = el.querySelector('.sb-insert-cursor');
-        if (sbDragged && sbDragged.dataset.sbIdx === String(idx)) {
-          if (el.classList.contains('sentence-builder')) {
-            if (cursor) el.insertBefore(sbDragged, cursor);
-            else el.appendChild(sbDragged);
-          } else {
-            el.appendChild(sbDragged);
-          }
-          sbDragged = null;
-          if (cursor) cursor.remove();
-          sbUpdateCapitalization(idx);
-          sbCheckAuto(idx);
-        }
-      });
+function sbCheckAuto(idx){
+    var bank=document.getElementById('sb-bank-'+idx);
+    var row=document.getElementById('sb-row-'+idx);
+    var fb=document.getElementById('sb-fb-'+idx);
+    if(bank.querySelectorAll('.chip').length>0){
+        row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});
+        row.classList.remove('correct','incorrect');
+        fb.textContent='';
+        return;
     }
-
-    function sbGetDragAfterElement(container, x) {
-      var els = Array.from(container.querySelectorAll('.chip:not(.dragging)'));
-      return els.reduce(function(closest, child) {
-        var box = child.getBoundingClientRect();
-        var offset = x - box.left - box.width / 2;
-        if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
-        return closest;
-      }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-
-    function sbUpdateCapitalization(idx) {
-      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
-      if (!row) return;
-      var chips = Array.from(row.querySelectorAll('.chip'));
-      chips.forEach(function(chip, i) {
-        var w = chip.dataset.orig;
-        if (w === ',' || w === ';') return;
-        chip.textContent = (i === 0) ? w.charAt(0).toUpperCase() + w.slice(1) : w;
-      });
-    }
-
-    function sbColorRow(idx) {
-      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
-      if (!row) return;
-      var chips = Array.from(row.querySelectorAll('.chip'));
-      var data = satzbauData[idx];
-      var isCorrect = data.valid.some(function(validArr) {
-        if (chips.length !== validArr.length) return false;
-        return chips.every(function(chip, i) {
-          return chip.dataset.orig.toLowerCase() === validArr[i].toLowerCase();
-        });
-      });
-      chips.forEach(function(chip) {
-        chip.classList.remove('correct', 'wrong');
-        chip.classList.add(isCorrect ? 'correct' : 'wrong');
-      });
-      return isCorrect;
-    }
-
-    function sbCheckAuto(idx) {
-      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
-      var data = satzbauData[idx];
-      var chips = Array.from(row.querySelectorAll('.chip'));
-      if (chips.length === data.parts.length) {
-        sbColorRow(idx);
-        sbCheckAllDone(3);
-      }
-    }
-
-    function sbCheckAllDone(n) {
-      var allCorrect = satzbauData.every(function(_, idx) {
-        var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
-        var chips = Array.from(row.querySelectorAll('.chip'));
-        var data = satzbauData[idx];
-        return data.valid.some(function(validArr) {
-          if (chips.length !== validArr.length) return false;
-          return chips.every(function(chip, i) {
-            return chip.dataset.orig.toLowerCase() === validArr[i].toLowerCase();
-          });
-        });
-      });
-      if (allCorrect) timerStop(n);
-    }
-
-    function sbShowSolution(idx) {
-      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
-      var bank = document.querySelector('#satzbauContainer .chips-container[data-idx="' + idx + '"]');
-      var data = satzbauData[idx];
-      var allChips = Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));
-      row.querySelectorAll('.chip').forEach(function(c) { bank.appendChild(c); });
-      data.valid[0].forEach(function(word) {
-        var chip = allChips.find(function(c) { return c.dataset.orig === word && c.parentElement === bank; });
-        if (chip) row.appendChild(chip);
-      });
-      sbUpdateCapitalization(idx);
-      sbColorRow(idx);
-      sbCheckAllDone(3);
-      timerStop(3);
-    }
-
-    function sbResetOne(idx) {
-      var row = document.querySelector('#satzbauContainer .sentence-builder[data-idx="' + idx + '"]');
-      var bank = document.querySelector('#satzbauContainer .chips-container[data-idx="' + idx + '"]');
-      Array.from(row.querySelectorAll('.chip')).forEach(function(c) {
-        c.classList.remove('correct', 'wrong');
-        bank.appendChild(c);
-      });
-      sbUpdateCapitalization(idx);
-    }
-
-    function initSatzbau() {
-      var container = document.getElementById('satzbauContainer');
-      container.innerHTML = '';
-      satzbauData.forEach(function(data, idx) {
-        var wrapper = document.createElement('div');
-        wrapper.style.marginBottom = '18px';
-
-        var row = document.createElement('div');
-        row.className = 'sentence-builder';
-        row.dataset.idx = idx;
-        sbRegisterZone(row, idx);
-
-        var punct = document.createElement('span');
-        punct.className = 'sb-punkt';
-        punct.textContent = data.punct || '.';
-        row.appendChild(punct);
-
-        var bank = document.createElement('div');
-        bank.className = 'chips-container';
-        bank.dataset.idx = idx;
-        sbRegisterZone(bank, idx);
-
-        var shuffled = data.parts.slice().sort(function() { return Math.random() - 0.5; });
-        shuffled.forEach(function(word) {
-          bank.appendChild(sbMakeChip(word, idx));
-        });
-
-        var btnRow = document.createElement('div');
-        btnRow.className = 'btn-row';
-        btnRow.style.marginTop = '4px';
-
-        var btnLösen = document.createElement('button');
-        btnLösen.className = 'btn';
-        btnLösen.textContent = 'Lösen';
-        btnLösen.onclick = (function(i) { return function() { sbShowSolution(i); }; })(idx);
-
-        var btnReset = document.createElement('button');
-        btnReset.className = 'btn';
-        btnReset.textContent = '↺ Neustart';
-        btnReset.onclick = (function(i) { return function() { sbResetOne(i); }; })(idx);
-
-        btnRow.appendChild(btnLösen);
-        btnRow.appendChild(btnReset);
-
-        wrapper.appendChild(row);
-        wrapper.appendChild(bank);
-        wrapper.appendChild(btnRow);
-        container.appendChild(wrapper);
-      });
-    }
-
-
-        // ============= WORTSCHATZ =============
-    var WORTSCHATZ = [
-      { id: 1, type: 'n', en: 'restriction', artikel: 'die', de: 'Einschränkung', plural: 'Einschränkungen' },
-      { id: 2, type: 'n', en: 'restrictive clause', artikel: 'der', de: 'Restriktivsatz', plural: 'Restriktivsätze' },
-      { id: 3, type: 'n', en: 'leitmotif', artikel: 'das', de: 'Leitmotiv', plural: 'Leitmotive' },
-      { id: 4, type: 'n', en: 'guest performance', artikel: 'der', de: 'Gastauftritt', plural: 'Gastauftritte' },
-      { id: 5, type: 'n', en: 'soprano / soloist', artikel: 'die', de: 'Solistin', plural: 'Solistinnen' },
-      { id: 6, type: 'v', en: 'to support (financially)', de: 'unterstützen' },
-      { id: 7, type: 'v', en: 'to judge / assess', de: 'beurteilen' },
-      { id: 8, type: 'v', en: '(in)sofar as', de: 'insofern' },
-      { id: 9, type: 'v', en: 'provided that', de: 'sofern' },
-      { id: 10, type: 'v', en: 'as far as', de: 'soweit' }
-    ];
-
-    function initVocab() {
-      var container = document.getElementById('vocabContainer');
-      container.innerHTML = '';
-      var shuffled = WORTSCHATZ.slice().sort(function() { return Math.random() - 0.5; });
-      shuffled.forEach(function(item) {
-        var div = document.createElement('div');
-        div.className = 'ws-card';
-        var en = document.createElement('span');
-        en.className = 'vocab-en';
-        en.textContent = item.en;
-        div.appendChild(en);
-        var arrow = document.createElement('span');
-        arrow.className = 'vocab-arrow';
-        arrow.textContent = '\u2192';
-        div.appendChild(arrow);
-        var inputs = document.createElement('div');
-        inputs.className = 'vocab-inputs';
-        if (item.type === 'n') {
-          var artInp = document.createElement('input');
-          artInp.className = 'art';
-          artInp.placeholder = 'der/die/das';
-          artInp.dataset.answer = item.artikel;
-          artInp.dataset.field = 'art';
-          artInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(artInp); checkVocabAllOk(4); });
-          inputs.appendChild(artInp);
-          var wordInp = document.createElement('input');
-          wordInp.className = 'wort';
-          wordInp.placeholder = 'Deutsch';
-          wordInp.dataset.answer = item.de;
-          wordInp.dataset.field = 'wort';
-          wordInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(wordInp); checkVocabAllOk(4); });
-          inputs.appendChild(wordInp);
-          var pluralInp = document.createElement('input');
-          pluralInp.className = 'plural';
-          pluralInp.placeholder = 'Plural';
-          pluralInp.dataset.answer = item.plural;
-          pluralInp.dataset.field = 'plural';
-          pluralInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(pluralInp); checkVocabAllOk(4); });
-          inputs.appendChild(pluralInp);
+    setTimeout(function(){
+        timerAutoStart(3);
+        var ok=sbColorRow(idx);
+        if(ok){
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className='satzbau-feedback correct';
+            fb.textContent='✓ Korrekt!';
+            sbCheckAllDone();
         } else {
-          var deInp = document.createElement('input');
-          deInp.className = 'wort';
-          deInp.style.width = '200px';
-          deInp.placeholder = 'Deutsch';
-          deInp.dataset.answer = item.de;
-          deInp.dataset.field = 'wort';
-          deInp.addEventListener('input', function() { timerAutoStart(4); liveCheck(deInp); checkVocabAllOk(4); });
-          inputs.appendChild(deInp);
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className='satzbau-feedback incorrect';
+            fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';
         }
-        div.appendChild(inputs);
-        container.appendChild(div);
-      });
-    }
+    },500);
+}
 
-    function checkVocabAllOk(n) {
-      var all = document.querySelectorAll('#vocabContainer .vocab-inputs input');
-      var allOk = Array.from(all).every(function(inp) { return inp.classList.contains('correct'); });
-      if (allOk && all.length > 0) timerStop(n);
-    }
+function sbCheckAllDone(){
+    var allOk=satzbauData.every(function(_,i){
+        var row=document.getElementById('sb-row-'+i);
+        return row&&row.classList.contains('correct');
+    });
+    if(allOk) stopTimer(3);
+}
 
-    function showVocabLoesung(n) {
-      document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
-        var field = inp.dataset.field;
-        var user = (field === 'art') ? inp.value.trim().toLowerCase() : inp.value.trim();
-        var answer = (field === 'art') ? inp.dataset.answer.toLowerCase() : inp.dataset.answer;
-        var hint = inp.nextElementSibling;
-        if (hint && hint.classList.contains('vocab-hint')) hint.remove();
-        if (user === answer) {
-          inp.classList.remove('wrong');
-          inp.classList.add('correct');
+function sbShowSolution(idx){
+    var bank=document.getElementById('sb-bank-'+idx);
+    var row=document.getElementById('sb-row-'+idx);
+    var fb=document.getElementById('sb-fb-'+idx);
+    var solution=satzbauData[idx].valid[0];
+    var allChips={};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+    while(bank.firstChild) bank.removeChild(bank.firstChild);
+    while(row.firstChild) row.removeChild(row.firstChild);
+    solution.forEach(function(word,i){
+        var chip=allChips[word];
+        if(chip){
+            if(word!==','&&word!==';'&&word!==':'){
+                chip.textContent=(i===0)?sbCapitalize(word):word;
+            }
+            chip.classList.remove('correct','incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent='';
+    setTimeout(function(){sbCheckAuto(idx);},100);
+}
+
+function sbResetOne(idx){
+    var bank=document.getElementById('sb-bank-'+idx);
+    var row=document.getElementById('sb-row-'+idx);
+    var fb=document.getElementById('sb-fb-'+idx);
+    while(bank.firstChild) bank.removeChild(bank.firstChild);
+    while(row.firstChild) row.removeChild(row.firstChild);
+    row.classList.remove('correct','incorrect');
+    fb.textContent=''; fb.className='satzbau-feedback';
+    var existing=row.querySelector('.sb-punkt');
+    if(existing) existing.parentNode.removeChild(existing);
+    var parts=satzbauData[idx].parts.slice();
+    for(var i=parts.length-1;i>0;i--){
+        var j=Math.floor(Math.random()*(i+1));
+        var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;
+    }
+    parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+}
+
+function initSatzbau(){
+    var container=document.getElementById('satzbauContainer');
+    container.innerHTML='';
+    satzbauData.forEach(function(ex,idx){
+        var item=document.createElement('div');
+        item.className='satzbau-item';
+        var bank=document.createElement('div');
+        bank.className='chips-container'; bank.id='sb-bank-'+idx;
+        var row=document.createElement('div');
+        row.className='sentence-builder'; row.id='sb-row-'+idx;
+        var fb=document.createElement('div');
+        fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
+        var parts=ex.parts.slice();
+        for(var i=parts.length-1;i>0;i--){
+            var j=Math.floor(Math.random()*(i+1));
+            var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;
+        }
+        parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+        sbRegisterZone(bank,idx);
+        sbRegisterZone(row,idx);
+        var btnRow=document.createElement('div');
+        btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+        var solveBtn=document.createElement('button');
+        solveBtn.className='btn'; solveBtn.textContent='Lösen';
+        solveBtn.setAttribute('data-idx',idx);
+        solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});
+        var resetBtn=document.createElement('button');
+        resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
+        resetBtn.setAttribute('data-idx',idx);
+        resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});
+        btnRow.appendChild(solveBtn);
+        btnRow.appendChild(resetBtn);
+        item.appendChild(bank);
+        item.appendChild(row);
+        item.appendChild(fb);
+        item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+
+/* ── Wortschatz ── */
+var WORTSCHATZ=[
+    {id:1,type:'n',en:'🚫 restriction',artikel:'die',de:'Einschränkung',plural:'-en'},
+    {id:2,type:'n',en:'📜 restrictive clause',artikel:'der',de:'Restriktivsatz',plural:'-̈e'},
+    {id:3,type:'n',en:'🔄 substitutive clause',artikel:'der',de:'Substitutivsatz',plural:'-̈e'},
+    {id:4,type:'n',en:'🎤 guest performance',artikel:'der',de:'Gastauftritt',plural:'-e'},
+    {id:5,type:'n',en:'🎹 soloist (f)',artikel:'die',de:'Solistin',plural:'-nen'},
+    {id:6,type:'n',en:'🎼 performance',artikel:'die',de:'Aufführung',plural:'-en'},
+    {id:7,type:'n',en:'🔗 conjunction',artikel:'die',de:'Konjunktion',plural:'-en'},
+    {id:8,type:'n',en:'📋 condition',artikel:'die',de:'Bedingung',plural:'-en'},
+    {id:9,type:'n',en:'🎵 leitmotif',artikel:'das',de:'Leitmotiv',plural:'-e'},
+    {id:10,type:'n',en:'🚧 accompanying circumstance',artikel:'der',de:'Begleitumstand',plural:'-̈e'},
+    {id:11,type:'v',en:'💪 to support (financially)',de:'unterstützen'},
+    {id:12,type:'v',en:'⚖️ to judge / assess',de:'beurteilen'},
+    {id:13,type:'v',en:'🎯 to restrict',de:'einschränken'},
+    {id:14,type:'v',en:'🔁 to replace / substitute',de:'ersetzen'},
+    {id:15,type:'v',en:'✅ to prove',de:'beweisen'}
+];
+
+function initWortschatz(){
+    var container=document.getElementById('wortschatzContainer');
+    container.innerHTML='';
+    WORTSCHATZ.forEach(function(item){
+        var row=document.createElement('div');
+        row.className='luecken-item';
+        row.style.marginBottom='0';
+        var prompt=document.createElement('div');
+        prompt.style.cssText='font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;';
+        prompt.textContent=item.en;
+        row.appendChild(prompt);
+        var fields=document.createElement('div');
+        fields.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+        if(item.type==='n'){
+            var artInp=document.createElement('input');
+            artInp.className='blank'; artInp.type='text';
+            artInp.placeholder='???'; artInp.style.width='70px';
+            artInp.dataset.answer=item.artikel; artInp.dataset.field='art';
+            artInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            fields.appendChild(artInp);
+            var wordInp=document.createElement('input');
+            wordInp.className='blank'; wordInp.type='text';
+            wordInp.placeholder='???'; wordInp.style.width='160px';
+            wordInp.dataset.answer=item.de; wordInp.dataset.field='word';
+            wordInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            fields.appendChild(wordInp);
+            var plInp=document.createElement('input');
+            plInp.className='blank'; plInp.type='text';
+            plInp.placeholder='???'; plInp.style.width='140px';
+            plInp.dataset.answer=item.plural; plInp.dataset.field='plural';
+            if(item.plural==='–'){
+                plInp.value='–'; plInp.disabled=true;
+                plInp.classList.add('correct'); plInp.style.opacity='0.6';
+                plInp.title='Dieses Wort hat keinen Plural';
+            } else {
+                plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            }
+            fields.appendChild(plInp);
         } else {
-          inp.classList.add('wrong');
-          var h = document.createElement('span');
-          h.className = 'vocab-hint';
-          h.textContent = inp.dataset.answer;
-          inp.insertAdjacentElement('afterend', h);
+            var inp=document.createElement('input');
+            inp.className='blank'; inp.type='text';
+            inp.placeholder='???'; inp.style.width='220px';
+            inp.dataset.answer=item.de; inp.dataset.field='word';
+            inp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            fields.appendChild(inp);
         }
-      });
-      timerStop(n);
-    }
+        row.appendChild(fields);
+        container.appendChild(row);
+    });
+}
 
-    function resetWs(n) {
-      document.querySelectorAll('#vocabContainer .vocab-inputs input').forEach(function(inp) {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-        var hint = inp.nextElementSibling;
-        if (hint && hint.classList.contains('vocab-hint')) hint.remove();
-      });
-    }
+function wortschatzCheck(inp){
+    var user=inp.value;
+    var answer=inp.dataset.answer;
+    var field=inp.dataset.field;
+    inp.classList.remove('correct','wrong');
+    if(!user) return;
+    var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
+    var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
+    if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+    else if(cmpAnswer.indexOf(cmpUser)===0){/* prefix */}
+    else{inp.classList.add('wrong');}
+}
 
-    // ============= INIT =============
-    lueckeInit();
-    initSatzbau();
-    initVocab();
-  </script>
+function checkWortschatzAllOk(){
+    var inputs=document.querySelectorAll('#sec-4 input.blank');
+    var allOk=inputs.length>0&&Array.from(inputs).every(function(i){
+        return i.disabled||i.classList.contains('correct');
+    });
+    if(allOk) stopTimer(4);
+}
+
+function showWortschatzLoesung(){
+    stopTimer(4);
+    document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
+        inp.value=inp.dataset.answer;
+        inp.classList.add('correct'); inp.classList.remove('wrong');
+    });
+}
+
+function resetWortschatz(){
+    document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
+        if(!inp.disabled){
+            inp.value=''; inp.classList.remove('correct','wrong');
+        }
+    });
+}
+
+/* ── Init ── */
+initLuecken();
+initSatzbau();
+initWortschatz();
+</script>
 </body>
 </html>
