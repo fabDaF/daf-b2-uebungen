@@ -1,963 +1,771 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Funktionsverbgefüge – B2.2 Lektion 2015G</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .container {
-            max-width: 1000px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 24px 30px 16px;
-        }
-
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 0.95rem;
-            opacity: 0.95;
-        }
-
-        .nav{
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            background: white;
-        ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
-
-        .nav-btn{
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 8px;
-            cursor: pointer;
-            
-            background: white;
-            
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #555;
-        border-bottom:1px solid #ddd;}
-
-        .nav-emoji {
-            font-size: 1.3rem;
-            margin-bottom: 4px;
-        }
-
-        .nav-label {
-            font-size: 0.72rem;
-            text-align: center;
-        }
-
-        .nav-btn:hover {
-            background: #f8f8f8;
-        }
-
-        .nav-btn.active {
-            background: white;
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .content-wrapper {
-            padding: 24px 30px;
-            min-height: 400px;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .tab-banner {
-            width: 100%;
-            max-height: 180px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 18px;
-        }
-
-        /* Lückentext */
-        .luecken-inp { border: none; border-bottom: 2px solid #667eea; padding: 2px 6px; font-size: 0.95em; min-width: 120px; outline: none; background: transparent; }
-        .luecken-inp.ok { border-bottom-color: #4caf50; color: #2e7d32; }
-        .luecken-inp.no { border-bottom-color: #e53935; color: #c62828; }
-        .luecke-satz { margin-bottom: 12px; line-height: 2; font-size: 0.95em; }
-        .lueckentext-container { padding: 0 16px; }
-
-        .entdecken-box {
-            background: #f8f6ff;
-            border-left: 4px solid #667eea;
-            padding: 16px;
-            margin-bottom: 14px;
-            border-radius: 4px;
-        }
-
-        .entdecken-box h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .entdecken-box p {
-            color: #333;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .lueckentext-container {
-            margin: 16px 0;
-        }
-
-        .luecke-satz {
-            background: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .luecke-satz input {
-            padding: 6px 10px;
-            border: 2px solid #667eea;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            margin: 0 4px;
-            min-width: 120px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: all 0.2s;
-        }
-
-        .luecke-satz input::placeholder {
-            color: transparent;
-        }
-
-        .luecke-satz input.correct {
-            border-color: #4caf50;
-            background: #e8f5e9;
-        }
-
-        .luecke-satz input.wrong {
-            border-color: #e53935;
-            background: #ffebee;
-        }
-
-        .satzbau-container {
-            margin: 16px 0;
-        }
-
-        .satzbau-item {
-            background: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-        }
-
-        .satzbau-dropped {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            min-height: 35px;
-            margin-top: 8px;
-            padding: 8px;
-            background: white;
-            border: 1px dashed #ccc;
-            border-radius: 4px;
-        }
-
-        .satzbau-chip {
-            padding: 6px 12px;
-            background: #667eea;
-            color: white;
-            border-radius: 20px;
-            cursor: grab;
-            font-size: 0.85rem;
-            user-select: none;
-            display: inline-block;
-            transition: all 0.2s;
-        }
-
-        .satzbau-chip:hover {
-            background: #5568d3;
-        }
-
-        .satzbau-chip.correct {
-            background: #4caf50;
-        }
-
-        .satzbau-chip.wrong {
-            background: #e53935;
-        }
-
-        /* Dynamic Satzbau */
-        .sb-item { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px 14px; margin-bottom: 10px; }
-        .sb-bank { display: flex; flex-wrap: wrap; gap: 6px; min-height: 35px; padding: 8px; }
-        .sb-zone { display: flex; flex-wrap: wrap; gap: 6px; min-height: 35px; margin-top: 8px; padding: 8px; background: white; border: 1px dashed #ccc; border-radius: 4px; }
-        .sb-zone.drag-over { border-color: #667eea; background: #f0f4ff; }
-        .chip { padding: 6px 12px; background: #667eea; color: white; border-radius: 20px; cursor: grab; font-size: 0.85rem; user-select: none; display: inline-block; transition: all 0.2s; }
-        .chip:hover { background: #5568d3; }
-        .chip.correct { background: #4caf50; }
-        .chip.wrong { background: #e53935; }
-        .sb-fb { font-size: 0.85em; margin-top: 4px; min-height: 1.2em; }
-
-        /* Timer controls */
-        .timer-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
-        .btn-row { display: flex; gap: 6px; }
-        .timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
-
-        .vocab-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 16px;
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-        }
-
-        .vocab-card img {
-            height: 120px;
-            width: 140px;
-            object-fit: cover;
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-
-        .vocab-card-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .vocab-card-text {
-            font-size: 0.9rem;
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .vocab-card-inputs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .vocab-card-inputs input {
-            padding: 6px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            flex: 1;
-            min-width: 100px;
-        }
-        .vocab-inp.correct { border-color: #4caf50; background: #e8f5e9; }
-        .vocab-inp.wrong { border-color: #e53935; background: #ffebee; }
-
-        .rules-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 14px 0;
-        }
-
-        .rules-table th {
-            background: #f0e8ff;
-            color: #333;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: 1px solid #e0e0e0;
-        }
-
-        .rules-table td {
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .rules-table tr:nth-child(even) {
-            background: #f9f7ff;
-        }
-
-        .control-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 30px;
-            background: #f5f5f5;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            background: #5568d3;
-        }
-
-        .timer-box {
-            font-size: 0.9rem;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .author-footer {
-            text-align: center;
-            padding: 14px;
-            background: #f9f9f9;
-            border-top: 1px solid #e0e0e0;
-            font-size: 0.85rem;
-            color: #777;
-        }
-
-        .author-name {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .author-footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .author-footer a:hover {
-            text-decoration: underline;
-        }
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funktionsverbgefüge – B2.2 Lektion 2015G</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header .subtitle { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.sec-inner { padding: 24px 28px; }
+.section-title { font-size: 1.4em; font-weight: 700; color: #667eea; margin-bottom: 20px; }
+
+/* Entdecken */
+.entdecken-box { background: #f8f6ff; border-left: 4px solid #667eea; padding: 16px 20px; margin-bottom: 14px; border-radius: 0 8px 8px 0; }
+.entdecken-box h4 { color: #667eea; margin-bottom: 10px; font-size: 0.95rem; font-weight: 700; }
+.entdecken-box p { color: #333; font-size: 0.9rem; line-height: 1.7; }
+.hl { background: #ffe082; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+.progress-dots { display: flex; gap: 8px; margin: 18px 0; justify-content: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; transition: background 0.3s; }
+.dot.done { background: #667eea; }
+.mc-step { display: none; background: #f8f9ff; border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
+.mc-step.active { display: block; }
+.mc-step p { font-weight: 600; color: #333; margin-bottom: 12px; font-size: 0.95em; }
+.mc-option { display: block; width: 100%; text-align: left; padding: 10px 14px; margin-bottom: 8px; border: 2px solid #e0e0e0; border-radius: 8px; background: white; cursor: pointer; font-size: 0.9em; transition: all 0.2s; }
+.mc-option:hover { border-color: #667eea; background: #f8f6ff; }
+.mc-option.correct { border-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 600; }
+.mc-option.wrong { border-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.regel-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px 24px; margin-top: 18px; display: none; }
+.regel-card h4 { margin-bottom: 10px; font-size: 1.05em; }
+.regel-card p { font-size: 0.92em; line-height: 1.7; opacity: 0.95; }
+
+/* Regeln-Tabelle */
+.rules-table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.rules-table th { background: #f0e8ff; color: #333; padding: 12px; text-align: left; font-weight: 600; font-size: 0.9rem; border: 1px solid #e0e0e0; }
+.rules-table td { padding: 12px; border: 1px solid #e0e0e0; font-size: 0.9rem; color: #555; }
+.rules-table tr:nth-child(even) { background: #f9f7ff; }
+
+/* Control-Bar */
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { border-color: #667eea; color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* Hilfe-Box */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+/* Wortkasten */
+.wordbox { background: #f3e5f5; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.9em; color: #555; line-height: 1.8; }
+.wordbox strong { color: #6a1b9a; }
+
+/* Lückentext */
+.luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; font-size: 0.95em; line-height: 1.7; }
+.luecken-inp { border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-family: inherit; font-size: 0.95em; padding: 2px 4px; transition: border-color 0.2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #27ae60; color: #27ae60; font-weight: 700; }
+.luecken-inp.no { border-bottom-color: #e74c3c; color: #e74c3c; }
+
+/* Wortschatz */
+input.blank { border: none; border-bottom: 2px solid #667eea; background: transparent; padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none; transition: all 0.2s; min-width: 4ch; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+
+/* Satzbau */
+.satzbau-item { background: #fafbff; border: 1px solid #e0e7ff; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.chip.punct-chip { background: #f8f8f8; border: 2px solid #667eea; padding: 8px 16px; color: #333; font-weight: 700; font-size: 1.3em; min-width: 18px; text-align: center; cursor: move; }
+.chip.punct-chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.punct-chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+
+/* Footer */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
 @media (max-width: 600px) {
     body { padding: 8px; }
     .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
     .nav-btn:last-child { border-right: 1px solid #ddd; }
     .tab-banner { max-height: 120px; }
 }
-/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Funktionsverbgefüge</h1>
-            <p>B2.2 – Lektion 2015G · Grammatik</p>
+<div class="container">
+  <div class="header">
+    <h1>Funktionsverbgefüge</h1>
+    <p class="subtitle">B2.2 – Lektion 2015G · Grammatik</p>
+    <div class="big-emoji">📚</div>
+  </div>
+  <div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Entdecken</span></div>
+    <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📋</span><span class="nav-label">Regeln</span></div>
+    <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+    <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+    <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span></div>
+  </div>
+
+  <!-- TAB 0: Entdecken -->
+  <div class="section active" id="sec-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Entdecken">
+    <div class="sec-inner">
+      <div class="section-title">📖 Entdecken</div>
+      <div class="entdecken-box">
+        <h4>Lies die Sätze und achte auf die markierten Ausdrücke:</h4>
+        <p>
+          1. Bitte <span class="hl">nehmen Sie Platz</span> – das Meeting beginnt gleich.<br>
+          2. Ich habe die Information <span class="hl">zur Kenntnis genommen</span>.<br>
+          3. Das Projekt ist endlich <span class="hl">in Gang gekommen</span>.<br>
+          4. Sie stand <span class="hl">im Begriff</span>, das Büro zu verlassen.<br>
+          5. Sein Talent kommt jetzt <span class="hl">zum Vorschein</span>.<br>
+          6. Die Idee hat leider keine <span class="hl">Beachtung gefunden</span>.
+        </p>
+      </div>
+      <div class="progress-dots">
+        <div class="dot" id="dot-0"></div>
+        <div class="dot" id="dot-1"></div>
+        <div class="dot" id="dot-2"></div>
+        <div class="dot" id="dot-3"></div>
+      </div>
+
+      <!-- MC-Schritt 1 -->
+      <div class="mc-step active" id="mc-0">
+        <p>Schritt 1: Was haben alle markierten Ausdrücke gemeinsam?</p>
+        <button class="mc-option" onclick="mcCheck(0,this,false)">Sie enthalten nur ein Verb.</button>
+        <button class="mc-option" onclick="mcCheck(0,this,true)">Sie bestehen aus einem Verb + einem Nomen (oft mit Präposition).</button>
+        <button class="mc-option" onclick="mcCheck(0,this,false)">Sie sind Redewendungen ohne feste Bedeutung.</button>
+      </div>
+
+      <!-- MC-Schritt 2 -->
+      <div class="mc-step" id="mc-1">
+        <p>Schritt 2: „Platz nehmen“ bedeutet „sich setzen“. Was fällt auf?</p>
+        <button class="mc-option" onclick="mcCheck(1,this,false)">Das Verb „nehmen“ trägt die Hauptbedeutung.</button>
+        <button class="mc-option" onclick="mcCheck(1,this,true)">Das Nomen („Platz“) trägt die Hauptbedeutung – das Verb ist fast leer.</button>
+        <button class="mc-option" onclick="mcCheck(1,this,false)">Beide Teile tragen gleich viel Bedeutung.</button>
+      </div>
+
+      <!-- MC-Schritt 3 -->
+      <div class="mc-step" id="mc-2">
+        <p>Schritt 3: Warum sagt man „zur Kenntnis nehmen“ statt einfach „wissen“?</p>
+        <button class="mc-option" onclick="mcCheck(2,this,false)">Es ist kürzer und einfacher.</button>
+        <button class="mc-option" onclick="mcCheck(2,this,false)">Es klingt umgangssprachlicher.</button>
+        <button class="mc-option" onclick="mcCheck(2,this,true)">Es klingt formeller – typisch für Geschäftssprache und Bürokratie.</button>
+      </div>
+
+      <!-- MC-Schritt 4 -->
+      <div class="mc-step" id="mc-3">
+        <p>Schritt 4: Was wird konjugiert (verändert) – das Verb oder das Nomen?</p>
+        <button class="mc-option" onclick="mcCheck(3,this,true)">Das Verb wird konjugiert, das Nomen bleibt unveränderlich.</button>
+        <button class="mc-option" onclick="mcCheck(3,this,false)">Beide werden konjugiert.</button>
+        <button class="mc-option" onclick="mcCheck(3,this,false)">Das Nomen wird dekliniert, das Verb bleibt im Infinitiv.</button>
+      </div>
+
+      <!-- Regelkarte -->
+      <div class="regel-card" id="regel-card">
+        <h4>✅ Regel: Funktionsverbgefüge (FVG)</h4>
+        <p>Ein Funktionsverbgefüge besteht aus einem <strong>Verb + Nomen</strong> (oft mit Präposition). Das Verb allein hat kaum Bedeutung – das <strong>Nomen trägt die Hauptbedeutung</strong>. FVG machen die Sprache <strong>formeller</strong> und sind typisch für Geschäftssprache, Wissenschaft und Bürokratie. Das Verb wird konjugiert, das Nomen ist unveränderlich.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Regeln -->
+  <div class="section" id="sec-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Regeln">
+    <div class="sec-inner">
+      <div class="section-title">📋 Regeln</div>
+      <table class="rules-table">
+        <thead>
+          <tr><th>FVG</th><th>Bedeutung (einfaches Verb)</th><th>Stil</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>zur Kenntnis nehmen</td><td>wissen / erfahren</td><td>formell</td></tr>
+          <tr><td>in Anspruch nehmen</td><td>nutzen / brauchen</td><td>formell</td></tr>
+          <tr><td>Platz nehmen</td><td>sich setzen</td><td>formell</td></tr>
+          <tr><td>Abschied nehmen</td><td>sich verabschieden</td><td>neutral</td></tr>
+          <tr><td>in Gang kommen</td><td>beginnen / starten</td><td>neutral</td></tr>
+          <tr><td>zum Vorschein kommen</td><td>erscheinen / auftauchen</td><td>neutral</td></tr>
+          <tr><td>zu Stande kommen</td><td>entstehen / gelingen</td><td>formell</td></tr>
+          <tr><td>im Begriff sein</td><td>gerade tun wollen</td><td>formell</td></tr>
+          <tr><td>in Mode sein</td><td>modisch / beliebt sein</td><td>neutral</td></tr>
+          <tr><td>im Irrtum sein</td><td>sich irren</td><td>formell</td></tr>
+          <tr><td>in Verbindung stehen</td><td>Kontakt haben</td><td>formell</td></tr>
+          <tr><td>im Gegensatz stehen</td><td>sich unterscheiden</td><td>formell</td></tr>
+          <tr><td>Beachtung finden</td><td>beachtet werden</td><td>formell</td></tr>
+          <tr><td>Gehör finden</td><td>gehört werden</td><td>formell</td></tr>
+        </tbody>
+      </table>
+      <div class="entdecken-box">
+        <p><strong>Merke:</strong> FVG machen die Sprache formeller und sind typisch für Geschäftssprache, Wissenschaft und Bürokratie. Das Verb ist das finite Verb (konjugiert), das Nomen ist unveränderlich.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Lückentext -->
+  <div class="section" id="sec-2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lückentext">
+    <div class="sec-inner">
+      <div class="section-title">✏️ Lückentext</div>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetLuecken(); resetTimer(2);">Neu starten</button>
         </div>
-
-        <div class="nav">
-            <div class="nav-btn active" onclick="showSection(0)">
-                <span class="nav-emoji">📚</span>
-                <span class="nav-label">Entdecken</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(1)">
-                <span class="nav-emoji">📋</span>
-                <span class="nav-label">Regeln</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(2)">
-                <span class="nav-emoji">✏️</span>
-                <span class="nav-label">Lückentext</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(3)">
-                <span class="nav-emoji">🧩</span>
-                <span class="nav-label">Satzbau</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(4)">
-                <span class="nav-emoji">🔠</span>
-                <span class="nav-label">Wortschatz</span>
-            </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-2">--:--</span></span>
         </div>
+      </div>
+      <div class="wordbox"><strong>Einsetzen:</strong> Platz · Kenntnis · Gang · Vorschein · Begriff · Mode · Irrtum · Beachtung · Verbindung · Stande · Anspruch · Gehör</div>
+      <div id="lueckenContainer">
+        <div class="luecken-item">Bitte nehmen Sie <input class="luecken-inp" data-ans="Platz" style="width:8ch" placeholder="???"> – das Meeting beginnt gleich.</div>
+        <div class="luecken-item">Ich habe die Information zur <input class="luecken-inp" data-ans="Kenntnis" style="width:11ch" placeholder="???"> genommen.</div>
+        <div class="luecken-item">Das neue Projekt ist endlich in <input class="luecken-inp" data-ans="Gang" style="width:7ch" placeholder="???"> gekommen.</div>
+        <div class="luecken-item">Sein Talent für Sprachen kommt jetzt zum <input class="luecken-inp" data-ans="Vorschein" style="width:12ch" placeholder="???">.</div>
+        <div class="luecken-item">Sie stand im <input class="luecken-inp" data-ans="Begriff" style="width:10ch" placeholder="???"> , das Büro zu verlassen, als das Telefon klingelte.</div>
+        <div class="luecken-item">Diese Frisur ist gerade sehr in <input class="luecken-inp" data-ans="Mode" style="width:7ch" placeholder="???"> – alle tragen sie.</div>
+        <div class="luecken-item">Ich glaube, Sie sind im <input class="luecken-inp" data-ans="Irrtum" style="width:9ch" placeholder="???"> – das stimmt nicht.</div>
+        <div class="luecken-item">Die Idee hat leider keine <input class="luecken-inp" data-ans="Beachtung" style="width:12ch" placeholder="???"> gefunden.</div>
+        <div class="luecken-item">Wir stehen noch in <input class="luecken-inp" data-ans="Verbindung" style="width:13ch" placeholder="???"> mit unserem alten Lieferanten.</div>
+        <div class="luecken-item">Das Projekt ist endlich zu <input class="luecken-inp" data-ans="Stande" style="width:9ch" placeholder="???"> gekommen.</div>
+        <div class="luecken-item">Bitte nehmen Sie sich die Zeit, dieses Angebot in <input class="luecken-inp" data-ans="Anspruch" style="width:11ch" placeholder="???"> zu nehmen.</div>
+        <div class="luecken-item">Der Vorschlag konnte kein <input class="luecken-inp" data-ans="Gehör" style="width:8ch" placeholder="???"> finden.</div>
+      </div>
+    </div>
+  </div>
 
-        <div class="content-wrapper">
-            <!-- Tab 0: Entdecken -->
-            <div class="section active" id="sec-0">
-                <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg" alt="Entdecken" class="tab-banner">
-
-                <div class="entdecken-box">
-                    <h4>Was sind Funktionsverbgefüge?</h4>
-                    <p>Ein Funktionsverbgefüge (FVG) besteht aus einem Verb + einem Nomen (oft mit Präposition). Das Verb allein hat kaum Bedeutung, das Nomen trägt die Hauptbedeutung. Beispiel: „Ich nehme Platz" = „Ich setze mich" — aber formeller.</p>
-                </div>
-
-                <div class="entdecken-box">
-                    <h4>FVG mit „nehmen"</h4>
-                    <p>• zur Kenntnis nehmen (to acknowledge)<br>
-                    • in Anspruch nehmen (to make use of)<br>
-                    • Abschied nehmen (to say goodbye)<br>
-                    • Platz nehmen (to take a seat)</p>
-                </div>
-
-                <div class="entdecken-box">
-                    <h4>FVG mit „kommen"</h4>
-                    <p>• in Gang kommen (to get going)<br>
-                    • zum Vorschein kommen (to appear)<br>
-                    • zu Stande kommen (to come about)</p>
-                </div>
-
-                <div class="entdecken-box">
-                    <h4>FVG mit „stehen/sein"</h4>
-                    <p>• im Gegensatz stehen (to be in contrast)<br>
-                    • in Verbindung stehen (to be in contact)<br>
-                    • im Begriff sein (to be about to)<br>
-                    • in Mode sein (to be in fashion)<br>
-                    • im Irrtum sein (to be mistaken)</p>
-                </div>
-
-                <div class="entdecken-box">
-                    <h4>FVG mit „finden/machen"</h4>
-                    <p>• Beachtung finden (to receive attention)<br>
-                    • Gehör finden (to be heard)<br>
-                    • Ausflug machen (to go on a trip)</p>
-                </div>
-            </div>
-
-            <!-- Tab 1: Regeln -->
-            <div class="section" id="sec-1">
-                <img src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg" alt="Regeln" class="tab-banner">
-
-                <table class="rules-table">
-                    <thead>
-                        <tr>
-                            <th>FVG</th>
-                            <th>Bedeutung (einfaches Verb)</th>
-                            <th>Stil</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>zur Kenntnis nehmen</td>
-                            <td>wissen/erfahren</td>
-                            <td>formell</td>
-                        </tr>
-                        <tr>
-                            <td>in Anspruch nehmen</td>
-                            <td>nutzen/brauchen</td>
-                            <td>formell</td>
-                        </tr>
-                        <tr>
-                            <td>Platz nehmen</td>
-                            <td>sich setzen</td>
-                            <td>formell</td>
-                        </tr>
-                        <tr>
-                            <td>in Gang kommen</td>
-                            <td>beginnen/starten</td>
-                            <td>neutral</td>
-                        </tr>
-                        <tr>
-                            <td>zum Vorschein kommen</td>
-                            <td>erscheinen/auftauchen</td>
-                            <td>neutral</td>
-                        </tr>
-                        <tr>
-                            <td>im Begriff sein</td>
-                            <td>gerade tun wollen</td>
-                            <td>formell</td>
-                        </tr>
-                        <tr>
-                            <td>Beachtung finden</td>
-                            <td>beachtet werden</td>
-                            <td>formell</td>
-                        </tr>
-                        <tr>
-                            <td>in Verbindung stehen</td>
-                            <td>kontaktiert sein</td>
-                            <td>formell</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="entdecken-box">
-                    <p>FVG machen die Sprache formeller und sind typisch für Geschäftssprache, Wissenschaft und Bürokratie.</p>
-                </div>
-
-                <div class="entdecken-box">
-                    <p>Das Verb im FVG ist das finite Verb (konjugiert). Das Nomen ist unveränderlich.</p>
-                </div>
-            </div>
-
-            <!-- Tab 2: Lückentext -->
-            <div class="section" id="sec-2">
-                <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg" alt="Lückentext" class="tab-banner">
-                <div class="timer-controls">
-                  <div class="btn-row"><button class="btn" onclick="resetLuecken()">Neu starten</button></div>
-                  <div class="timer-display">
-                    <span class="current-time">⏱ <span id="timer-2">0:00</span></span>
-                    <span class="best-time">🏆 <span id="best-2">–</span></span>
-                  </div>
-                </div>
-                <div class="lueckentext-container">
-                    <div class="luecke-satz">Bitte nehmen Sie <input id="l1" type="text" class="luecken-inp" data-answer="Platz" oninput="lueckenCheck(this)"> — das Meeting beginnt gleich.</div>
-                    <div class="luecke-satz">Ich habe die Information zur <input id="l2" type="text" class="luecken-inp" data-answer="Kenntnis" oninput="lueckenCheck(this)"> genommen.</div>
-                    <div class="luecke-satz">Das neue Projekt ist endlich in <input id="l3" type="text" class="luecken-inp" data-answer="Gang" oninput="lueckenCheck(this)"> gekommen.</div>
-                    <div class="luecke-satz">Sein Talent für Sprachen kommt jetzt zum <input id="l4" type="text" class="luecken-inp" data-answer="Vorschein" oninput="lueckenCheck(this)">.</div>
-                    <div class="luecke-satz">Sie stand im <input id="l5" type="text" class="luecken-inp" data-answer="Begriff" oninput="lueckenCheck(this)"> , das Büro zu verlassen, als das Telefon klingelte.</div>
-                    <div class="luecke-satz">Diese Mode ist gerade sehr in <input id="l6" type="text" class="luecken-inp" data-answer="Mode" oninput="lueckenCheck(this)"> — alle tragen es.</div>
-                    <div class="luecke-satz">Ich glaube, Sie sind im <input id="l7" type="text" class="luecken-inp" data-answer="Irrtum" oninput="lueckenCheck(this)"> — das stimmt nicht.</div>
-                    <div class="luecke-satz">Die Idee hat leider keine <input id="l8" type="text" class="luecken-inp" data-answer="Beachtung" oninput="lueckenCheck(this)"> gefunden.</div>
-                    <div class="luecke-satz">Wir stehen noch in <input id="l9" type="text" class="luecken-inp" data-answer="Verbindung" oninput="lueckenCheck(this)"> mit unserem alten Lieferanten.</div>
-                    <div class="luecke-satz">Das Projekt ist endlich zu <input id="l10" type="text" class="luecken-inp" data-answer="Stande" oninput="lueckenCheck(this)"> gekommen.</div>
-                    <div class="luecke-satz">Bitte nehmen Sie sich die Zeit, diese Aufgabe in <input id="l11" type="text" class="luecken-inp" data-answer="Anspruch" oninput="lueckenCheck(this)"> zu nehmen.</div>
-                    <div class="luecke-satz">Der Vorschlag konnte kein <input id="l12" type="text" class="luecken-inp" data-answer="Gehör" oninput="lueckenCheck(this)"> finden.</div>
-                </div>
-            </div>
-
-            <!-- Tab 3: Satzbau -->
-            <div class="section" id="sec-3">
-                <div class="timer-controls">
-                  <div class="btn-row"><button class="btn" onclick="resetSatzbau()">Neu starten</button></div>
-                  <div class="timer-display">
-                    <span class="current-time">⏱ <span id="timer-3">0:00</span></span>
-                    <span class="best-time">🏆 <span id="best-3">–</span></span>
-                  </div>
-                </div>
-                <div id="sbContainer"></div>
-            </div>
-
-            <!-- Tab 4: Wortschatz -->
-            <div class="section" id="sec-4">
-                <div class="timer-controls">
-                  <div class="btn-row"><button class="btn" onclick="resetVocab()">Neu starten</button></div>
-                  <div class="timer-display">
-                    <span class="current-time">⏱ <span id="timer-4">0:00</span></span>
-                    <span class="best-time">🏆 <span id="best-4">–</span></span>
-                  </div>
-                </div>
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg" alt="Platz nehmen">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to take a seat</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="Platz nehmen" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="zur Kenntnis nehmen">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to acknowledge / take note of</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="zur Kenntnis nehmen" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg" alt="in Anspruch nehmen">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to make use of</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="in Anspruch nehmen" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg" alt="in Gang kommen">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to get going / start</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="in Gang kommen" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/6292009/pexels-photo-6292009.jpeg" alt="zum Vorschein kommen">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to appear / come to light</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="zum Vorschein kommen" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg" alt="im Begriff sein">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to be about to</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="im Begriff sein" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg" alt="in Verbindung stehen">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to be in contact</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="in Verbindung stehen" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg" alt="Beachtung finden">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to receive attention</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="Beachtung finden" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg" alt="in Mode sein">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to be in fashion</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="in Mode sein" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vocab-card">
-                    <img src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg" alt="im Irrtum sein">
-                    <div class="vocab-card-content">
-                        <div class="vocab-card-text">to be mistaken</div>
-                        <div class="vocab-card-inputs">
-                            <input type="text" placeholder="German" class="vocab-inp" data-answer="im Irrtum sein" oninput="vocabCheck(this)">
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- TAB 3: Satzbau -->
+  <div class="section" id="sec-3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau">
+    <div class="sec-inner">
+      <div class="section-title">🧩 Satzbau</div>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="resetAllSatzbau(); resetTimer(3);">Neu starten</button>
         </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-3">--:--</span></span>
+        </div>
+      </div>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
 
-        <div class="control-bar" style="display:none;">
-
+  <!-- TAB 4: Wortschatz -->
+  <div class="section" id="sec-4">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz">
+    <div class="sec-inner">
+      <div class="section-title">🔠 Wortschatz</div>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetWortschatz()">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-4">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box"><strong>Aufgabe:</strong> Schreibe das Funktionsverbgefüge auf Deutsch!</div>
+      <div id="wortschatzContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+    </div>
+  </div>
 </div>
 
-        <div class="author-footer">
-            <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-            <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
-        </div>
-    </div>
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
 
-    <script>
-// ─────────────────────────────────────────────────────────
-// SECTION NAVIGATION
-// ─────────────────────────────────────────────────────────
+<script>
+// ── NAVIGATION ──────────────────────────────────────────
 function showSection(idx) {
-    document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
-    document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
 }
 
-// ─────────────────────────────────────────────────────────
-// LÜCKENTEXT (Tab 2)
-// ─────────────────────────────────────────────────────────
-function lueckenCheck(inp) {
-    timerAutoStart(2);
-    var answer = inp.getAttribute('data-answer').toLowerCase();
-    var val = inp.value.toLowerCase().trim();
-    if (val === '') {
-        inp.classList.remove('ok', 'no');
-    } else if (val === answer) {
-        inp.classList.add('ok');
-        inp.classList.remove('no');
-    } else if (answer.startsWith(val)) {
-        inp.classList.remove('ok', 'no');
-    } else {
-        inp.classList.add('no');
-        inp.classList.remove('ok');
-    }
-    var all = document.querySelectorAll('#sec-2 .luecken-inp');
-    var done = 0;
-    all.forEach(function(g){ if(g.classList.contains('ok')) done++; });
-    if(done === all.length) timerStop(2);
-}
-
-// ─────────────────────────────────────────────────────────
-// SATZBAU (Tab 3)
-// ─────────────────────────────────────────────────────────
-var satzbauDaten = [
-    ['Bitte', 'nehmen', 'Sie', 'Platz,', 'das', 'Meeting', 'beginnt', 'gleich.'],
-    ['Das', 'neue', 'System', 'ist', 'endlich', 'in', 'Gang', 'gekommen.'],
-    ['Ich', 'habe', 'Ihre', 'Nachricht', 'zur', 'Kenntnis', 'genommen.'],
-    ['Sie', 'stand', 'im', 'Begriff,', 'das', 'Büro', 'zu', 'verlassen.'],
-    ['Sein', 'Talent', 'kommt', 'jetzt', 'wirklich', 'zum', 'Vorschein.'],
-    ['Die', 'beiden', 'Abteilungen', 'stehen', 'in', 'engem', 'Kontakt.'],
-    ['Der', 'Vorschlag', 'hat', 'leider', 'keine', 'Beachtung', 'gefunden.']
-];
-function shuffleArray(arr) {
-    var a = arr.slice();
-    for (var i = a.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = a[i]; a[i] = a[j]; a[j] = temp;
-    }
-    return a;
-}
-var sbDragged = null;
-function initSatzbau() {
-    var container = document.getElementById('sbContainer');
-    container.innerHTML = '';
-    satzbauDaten.forEach(function(satz, idx) {
-        var shuffled = shuffleArray(satz);
-        var item = document.createElement('div');
-        item.className = 'sb-item';
-        var bank = document.createElement('div');
-        bank.className = 'sb-bank';
-        shuffled.forEach(function(word) {
-            var chip = document.createElement('div');
-            chip.className = 'chip';
-            chip.textContent = word;
-            chip.draggable = true;
-            chip.dataset.sbIdx = idx;
-            chip.setAttribute('data-correct-idx', satz.indexOf(word));
-            chip.addEventListener('dragstart', function(e) { sbDragged = chip; });
-            chip.addEventListener('click', function() { sbChipClick(chip); });
-            bank.appendChild(chip);
-        });
-        var zone = document.createElement('div');
-        zone.className = 'sb-zone';
-        zone.dataset.sbIdx = idx;
-        zone.addEventListener('dragover', function(e) {
-            if (sbDragged && sbDragged.dataset.sbIdx !== zone.dataset.sbIdx) return;
-            e.preventDefault(); zone.classList.add('drag-over');
-        });
-        zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
-        zone.addEventListener('drop', function(e) {
-            if (sbDragged && sbDragged.dataset.sbIdx !== zone.dataset.sbIdx) return;
-            e.preventDefault();
-            zone.classList.remove('drag-over');
-            if (sbDragged) { sbChipDrop(sbDragged, zone); }
-        });
-        item.appendChild(bank);
-        item.appendChild(zone);
-        var fb = document.createElement('div');
-        fb.className = 'sb-fb';
-        item.appendChild(fb);
-        container.appendChild(item);
-    });
-}
-function sbChipClick(chip) {
-    timerAutoStart(3);
-    var zone = chip.parentElement.parentElement.querySelector('.sb-zone');
-    if (chip.parentElement.classList.contains('sb-bank')) {
-        sbChipDrop(chip, zone);
-    }
-}
-function sbChipDrop(chip, zone) {
-    timerAutoStart(3);
-    if (chip.parentElement.classList.contains('sb-zone')) {
-        chip.parentElement.appendChild(chip);
-    } else {
-        zone.appendChild(chip);
-    }
-    sbCheckOrder(zone);
-}
-function sbCheckOrder(zone) {
-    var satzIdx = parseInt(zone.dataset.sbIdx);
-    var correctSatz = satzbauDaten[satzIdx];
-    var chips = zone.querySelectorAll('.chip');
-    var correct = true;
-    chips.forEach(function(c, idx) {
-        var shouldBe = parseInt(c.getAttribute('data-correct-idx'));
-        if (shouldBe === idx) {
-            c.classList.add('correct'); c.classList.remove('wrong');
-        } else {
-            c.classList.add('wrong'); c.classList.remove('correct');
-            correct = false;
-        }
-    });
-    var fb = zone.parentElement.querySelector('.sb-fb');
-    if (correct && chips.length === correctSatz.length) {
-        fb.textContent = '\u2713 Richtig!';
-        fb.style.color = '#43a047';
-        var allDone = true;
-        document.querySelectorAll('#sbContainer .sb-fb').forEach(function(f){ if(f.textContent.indexOf('\u2713') < 0) allDone = false; });
-        if(allDone) timerStop(3);
-    } else {
-        fb.textContent = '';
-    }
-}
-
-// ─────────────────────────────────────────────────────────
-// WORTSCHATZ (Tab 4)
-// ─────────────────────────────────────────────────────────
-function vocabCheck(inp) {
-    timerAutoStart(4);
-    var answer = inp.getAttribute('data-answer').toLowerCase();
-    var val = inp.value.toLowerCase().trim();
-    if (val === '') {
-        inp.classList.remove('correct', 'wrong');
-    } else if (val === answer) {
-        inp.classList.add('correct');
-        inp.classList.remove('wrong');
-    } else if (answer.startsWith(val)) {
-        inp.classList.remove('correct', 'wrong');
-    } else {
-        inp.classList.add('wrong');
-        inp.classList.remove('correct');
-    }
-    var all = document.querySelectorAll('#sec-4 .vocab-inp');
-    var done = 0;
-    all.forEach(function(i){ if(i.classList.contains('correct')) done++; });
-    if(done === all.length && all.length > 0) timerStop(4);
-}
-
-// ─────────────────────────────────────────────────────────
-// RESET FUNCTIONS
-// ─────────────────────────────────────────────────────────
-function resetLuecken(){
-    document.querySelectorAll('#sec-2 .luecken-inp').forEach(function(i){ i.value=''; i.classList.remove('ok','no'); });
-    timerResetOne(2);
-}
-function resetSatzbau(){ timerResetOne(3); initSatzbau(); }
-function resetVocab(){
-    document.querySelectorAll('#sec-4 .vocab-inp').forEach(function(i){ i.value=''; i.classList.remove('correct','wrong'); });
-    timerResetOne(4);
-}
-
-// ─────────────────────────────────────────────────────────
-// INIT ON LOAD
-// ─────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', function() {
-    initSatzbau();
-});
-
-// ─────────────────────────────────────────────────────────
-// TIMER SYSTEM
-// ─────────────────────────────────────────────────────────
-var TIMER_PREFIX='B2_2015G_';
-var timerStarted=[false,false,false,false,false];
-var timerRunning=[false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function timerStop(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
+// ── ENTDECKEN (MC) ──────────────────────────────────────
+var mcDone = [false, false, false, false];
+function mcCheck(step, btn, correct) {
+  if (mcDone[step]) return;
+  if (correct) {
+    btn.classList.add('correct');
+    mcDone[step] = true;
+    document.getElementById('dot-' + step).classList.add('done');
+    setTimeout(function() {
+      document.getElementById('mc-' + step).classList.remove('active');
+      if (step < 3) {
+        document.getElementById('mc-' + (step + 1)).classList.add('active');
+      } else {
+        document.getElementById('regel-card').style.display = 'block';
+      }
+    }, 800);
+  } else {
+    btn.classList.add('wrong');
+    setTimeout(function() { btn.classList.remove('wrong'); }, 600);
   }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
 }
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
+
+// ── TIMER SYSTEM ────────────────────────────────────────
+var TIMER_PREFIX = 'B2_2015G_';
+var timerStarted = [false,false,false,false,false];
+var timerRunning = [false,false,false,false,false];
+var timerSeconds = [0,0,0,0,0];
+var timerIntervals = [null,null,null,null,null];
+
+function fmtTime(s) {
+  var m = Math.floor(s / 60), sec = s % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
 }
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [2,3,4].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+function timerAutoStart(n) {
+  if (timerStarted[n]) return;
+  timerStarted[n] = true; timerRunning[n] = true;
+  timerIntervals[n] = setInterval(function() {
+    timerSeconds[n]++;
+    var el = document.getElementById('timer-' + n);
+    if (el) el.textContent = fmtTime(timerSeconds[n]);
+  }, 1000);
+}
+function stopTimer(n) {
+  if (!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n] = false;
+  var best = parseInt(localStorage.getItem(TIMER_PREFIX + n) || '999999');
+  if (timerSeconds[n] > 0 && timerSeconds[n] < best) {
+    localStorage.setItem(TIMER_PREFIX + n, timerSeconds[n]);
+    var el = document.getElementById('best-' + n);
+    if (el) el.textContent = fmtTime(timerSeconds[n]);
+  }
+}
+function resetTimer(n) {
+  clearInterval(timerIntervals[n]); timerRunning[n] = false; timerStarted[n] = false; timerSeconds[n] = 0;
+  var el = document.getElementById('timer-' + n);
+  if (el) el.textContent = '00:00';
+}
+
+// ── LÜCKENTEXT (Tab 2) ──────────────────────────────────
+function liveCheck(inp, timerFn, allSel, stopFn) {
+  timerFn();
+  var ans = inp.getAttribute('data-ans').trim();
+  var val = inp.value.trim();
+  inp.classList.remove('ok', 'no');
+  if (!val) return;
+  if (val.toLowerCase() === ans.toLowerCase()) {
+    inp.classList.add('ok');
+    var all = document.querySelectorAll(allSel);
+    var done = 0;
+    all.forEach(function(i) { if (i.classList.contains('ok')) done++; });
+    if (done === all.length) stopFn();
+  } else if (ans.toLowerCase().indexOf(val.toLowerCase()) === 0) {
+    /* Präfix – neutral */
+  } else {
+    inp.classList.add('no');
+  }
+}
+
+document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp) {
+  inp.addEventListener('input', function() {
+    liveCheck(this, function(){ timerAutoStart(2); }, '#lueckenContainer .luecken-inp', function(){ stopTimer(2); });
   });
 });
-    </script>
+
+function showLueckenLoesung() {
+  stopTimer(2);
+  document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp) {
+    inp.value = inp.getAttribute('data-ans');
+    inp.classList.add('ok'); inp.classList.remove('no');
+  });
+}
+function resetLuecken() {
+  document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp) {
+    inp.value = ''; inp.classList.remove('ok', 'no');
+  });
+}
+
+// ── SATZBAU (Tab 3) ────────────────────────────────────
+var sbDragged = null;
+
+var satzbauData = [
+  {
+    parts: ['bitte', 'nehmen', 'Sie', 'Platz'],
+    valid: [['bitte', 'nehmen', 'Sie', 'Platz']],
+    punct: '.'
+  },
+  {
+    parts: ['das', 'neue', 'Projekt', 'ist', 'endlich', 'in', 'Gang', 'gekommen'],
+    valid: [['das', 'neue', 'Projekt', 'ist', 'endlich', 'in', 'Gang', 'gekommen']],
+    punct: '.'
+  },
+  {
+    parts: ['ich', 'habe', 'Ihre', 'Nachricht', 'zur', 'Kenntnis', 'genommen'],
+    valid: [['ich', 'habe', 'Ihre', 'Nachricht', 'zur', 'Kenntnis', 'genommen']],
+    punct: '.'
+  },
+  {
+    parts: ['sie', 'stand', 'im', 'Begriff', ',', 'das', 'Büro', 'zu', 'verlassen'],
+    valid: [['sie', 'stand', 'im', 'Begriff', ',', 'das', 'Büro', 'zu', 'verlassen']],
+    punct: '.'
+  },
+  {
+    parts: ['sein', 'Talent', 'kommt', 'jetzt', 'wirklich', 'zum', 'Vorschein'],
+    valid: [['sein', 'Talent', 'kommt', 'jetzt', 'wirklich', 'zum', 'Vorschein']],
+    punct: '.'
+  },
+  {
+    parts: ['die', 'beiden', 'Abteilungen', 'stehen', 'in', 'engem', 'Kontakt'],
+    valid: [['die', 'beiden', 'Abteilungen', 'stehen', 'in', 'engem', 'Kontakt']],
+    punct: '.'
+  },
+  {
+    parts: ['der', 'Vorschlag', 'hat', 'leider', 'keine', 'Beachtung', 'gefunden'],
+    valid: [['der', 'Vorschlag', 'hat', 'leider', 'keine', 'Beachtung', 'gefunden']],
+    punct: '.'
+  }
+];
+
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+  }
+  return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
+
+function sbCapitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase() && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    if (isProper) {
+      c.textContent = orig;
+    } else {
+      c.textContent = (i === 0) ? sbCapitalize(orig) : orig;
+    }
+  });
+}
+
+function sbMakeChip(word, idx) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.dataset.sbIdx = String(idx);
+  chip.draggable = true;
+  if (word === ',' || word === ';') chip.classList.add('punct-chip');
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip;
+    timerAutoStart(3);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+  });
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = '';
+    sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
+  chip.addEventListener('click', function() {
+    timerAutoStart(3);
+    var sel = chip;
+    if (sel.dataset.sbIdx !== String(idx)) return;
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    if (sel.parentNode === bank) {
+      row.appendChild(sel);
+    } else {
+      bank.appendChild(sel);
+    }
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+  return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    if (sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    if (sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+}
+
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) {
+    return JSON.stringify(v) === JSON.stringify(order);
+  });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row = document.getElementById('sb-row-' + idx);
+  var fb = document.getElementById('sb-fb-' + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(3);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) stopTimer(3);
+}
+
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row = document.getElementById('sb-row-' + idx);
+  var fb = document.getElementById('sb-fb-' + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var chip = allChips[word];
+    if (chip) {
+      if (word !== ',' && word !== ';') {
+        chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+      }
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row = document.getElementById('sb-row-' + idx);
+  var fb = document.getElementById('sb-fb-' + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = ''; fb.className = 'satzbau-feedback';
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+}
+
+function resetAllSatzbau() { satzbauData.forEach(function(_, i) { sbResetOne(i); }); }
+
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+    var bank = document.createElement('div');
+    bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+    var row = document.createElement('div');
+    row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+
+// ── WORTSCHATZ (Tab 4) ─────────────────────────────────
+var WORTSCHATZ = [
+  { id: 1, type: 'phrase', en: 'to take a seat', de: 'Platz nehmen' },
+  { id: 2, type: 'phrase', en: 'to acknowledge / take note of', de: 'zur Kenntnis nehmen' },
+  { id: 3, type: 'phrase', en: 'to make use of', de: 'in Anspruch nehmen' },
+  { id: 4, type: 'phrase', en: 'to say goodbye', de: 'Abschied nehmen' },
+  { id: 5, type: 'phrase', en: 'to get going / start', de: 'in Gang kommen' },
+  { id: 6, type: 'phrase', en: 'to appear / come to light', de: 'zum Vorschein kommen' },
+  { id: 7, type: 'phrase', en: 'to come about / succeed', de: 'zu Stande kommen' },
+  { id: 8, type: 'phrase', en: 'to be about to', de: 'im Begriff sein' },
+  { id: 9, type: 'phrase', en: 'to be in fashion', de: 'in Mode sein' },
+  { id: 10, type: 'phrase', en: 'to be mistaken', de: 'im Irrtum sein' },
+  { id: 11, type: 'phrase', en: 'to be in contact', de: 'in Verbindung stehen' },
+  { id: 12, type: 'phrase', en: 'to receive attention', de: 'Beachtung finden' }
+];
+
+function initWortschatz() {
+  var container = document.getElementById('wortschatzContainer');
+  container.innerHTML = '';
+  WORTSCHATZ.forEach(function(item) {
+    var row = document.createElement('div');
+    row.className = 'luecken-item';
+    row.style.marginBottom = '0';
+    var prompt = document.createElement('div');
+    prompt.style.cssText = 'font-weight:600; color:#667eea; margin-bottom:6px; font-size:1.05em;';
+    prompt.textContent = item.en;
+    row.appendChild(prompt);
+    var fields = document.createElement('div');
+    fields.style.cssText = 'display:flex; gap:8px; flex-wrap:wrap; align-items:center;';
+    var inp = document.createElement('input');
+    inp.className = 'blank'; inp.type = 'text';
+    inp.placeholder = '???'; inp.style.width = '220px';
+    inp.dataset.answer = item.de; inp.dataset.field = 'word';
+    inp.oninput = function() { wortschatzCheck(this); timerAutoStart(4); checkWortschatzAllOk(); };
+    fields.appendChild(inp);
+    row.appendChild(fields);
+    container.appendChild(row);
+  });
+}
+
+function wortschatzCheck(inp) {
+  var user = inp.value;
+  var answer = inp.dataset.answer;
+  inp.classList.remove('correct', 'wrong');
+  if (!user) return;
+  var cmpUser = user.trim();
+  var cmpAnswer = answer;
+  if (cmpUser === cmpAnswer) { inp.classList.add('correct'); }
+  else if (cmpAnswer.indexOf(cmpUser) === 0) { /* Präfix – neutral */ }
+  else { inp.classList.add('wrong'); }
+}
+
+function checkWortschatzAllOk() {
+  var inputs = document.querySelectorAll('#sec-4 input.blank');
+  var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) {
+    return i.disabled || i.classList.contains('correct');
+  });
+  if (allOk) stopTimer(4);
+}
+
+function showWortschatzLoesung() {
+  stopTimer(4);
+  document.querySelectorAll('#sec-4 input.blank').forEach(function(inp) {
+    inp.value = inp.dataset.answer;
+    inp.classList.add('correct'); inp.classList.remove('wrong');
+  });
+}
+
+function resetWortschatz() {
+  document.querySelectorAll('#sec-4 input.blank').forEach(function(inp) {
+    if (!inp.disabled) { inp.value = ''; inp.classList.remove('correct', 'wrong'); }
+  });
+  resetTimer(4);
+}
+
+// ── INIT ────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+  initSatzbau();
+  initWortschatz();
+  [2,3,4].forEach(function(n) {
+    var b = localStorage.getItem(TIMER_PREFIX + n);
+    if (b) { var el = document.getElementById('best-' + n); if (el) el.textContent = fmtTime(parseInt(b)); }
+  });
+});
+</script>
 </body>
 </html>
