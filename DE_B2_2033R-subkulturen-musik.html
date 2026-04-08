@@ -1,624 +1,644 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musik- und Subkulturen</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        .container {
-            max-width: 1000px;
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            background: white;
-            overflow: hidden;
-        }
-        .nav-tabs {
-            display: flex;
-            flex-direction: column;
-            background: #f5f5f5;
-            border-bottom: 1px solid #ddd;
-            padding: 0;
-        }
-        .nav-tab {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 16px 20px;
-            cursor: pointer;
-            border: none;
-            background: #f5f5f5;
-            font-size: 0.95rem;
-            color: #555;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-        .nav-tab .nav-emoji { font-size: 1.3rem; }
-        .nav-tab .nav-label { font-size: 0.72rem; }
-        .nav-tab:hover { background: #efefef; }
-        .nav-tab.active {
-            background: white;
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-        .tab-content { display: none; padding: 30px; min-height: 400px; }
-        .tab-content.active { display: block; }
-        .banner { width: 100%; max-height: 180px; object-fit: cover; display: block; margin: -30px -30px 30px -30px; }
-
-        .vorentlastung-box { background: #f3e5f5; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #9c27b0; }
-        .vorentlastung-box p { font-size: 0.95rem; line-height: 1.7; color: #333; margin-bottom: 10px; }
-        .subkulturen-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
-        .subkultur-chip { padding: 8px 14px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-        .subkultur-chip:hover { transform: scale(1.05); }
-        .match-zone { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
-        .match-item { background: #fafbff; padding: 12px 16px; border-radius: 8px; border: 1px solid #c5cae9; flex: 1; min-width: 200px; }
-        .match-item strong { color: #667eea; }
-
-        .lesetext { max-width: 600px; margin: 0 auto; font-family: Georgia, serif; text-align: justify; line-height: 1.8; font-size: 1rem; color: #333; }
-        .lesetext p { margin-bottom: 14px; text-indent: 1.5em; }
-        .lesetext p:first-child { text-indent: 0; }
-        .lesetext b { color: #667eea; font-weight: 700; }
-        .lesetext em { background: #ffffcc; padding: 0 4px; border-radius: 3px; }
-        .tooltip { position: relative; cursor: help; }
-
-        .rf-title { font-size: 1.0em; color: #555; margin-bottom: 12px; font-weight: 600; max-width: 650px; margin-left: auto; margin-right: auto; }
-        .rf-list { display: flex; flex-direction: column; gap: 8px; max-width: 650px; margin-left: auto; margin-right: auto; }
-        .rf-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #f9f9f9; border-radius: 8px; font-size: 0.95em; cursor: pointer; border: 1.5px solid #ddd; transition: all 0.2s; }
-        .rf-item:hover { background: #f3e5f5; }
-        .rf-question { flex: 1; }
-        .rf-buttons { display: flex; gap: 6px; }
-        .rf-btn { padding: 4px 14px; border-radius: 14px; border: 1.5px solid #9b59b6; background: #fff; color: #6c3483; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .rf-btn:hover { background: #f3e5f5; }
-        .rf-btn.sel-r { background: #27ae60; color: #fff; border-color: #27ae60; }
-        .rf-btn.sel-f { background: #e74c3c; color: #fff; border-color: #e74c3c; }
-        .rf-result { font-size: 0.8rem; font-weight: 700; min-width: 24px; }
-        .rf-result.ok { color: #27ae60; }
-        .rf-result.err { color: #e74c3c; }
-
-        .lueckentext-item { background: #fafbff; padding: 14px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #c5cae9; }
-        .lueckentext-item p { margin: 0; line-height: 1.6; font-size: 0.95rem; }
-        input.lueckentext { padding: 6px 10px; border: 1px solid #c5cae9; border-radius: 4px; margin: 0 4px; min-width: 100px; font-size: 0.9rem; transition: all 0.2s; }
-        input.lueckentext:focus { outline: none; border-color: #667eea; background: #f9f9ff; }
-        input.lueckentext.correct { border-color: #27ae60; background: #e8f5e9; }
-        input.lueckentext.wrong { border-color: #e74c3c; background: #ffebee; }
-
-        .satzbau-pool { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px; background: #fafbff; border-radius: 8px; margin-bottom: 20px; border: 2px dashed #c5cae9; }
-        .satzbau-item { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 14px; border-radius: 20px; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: all 0.15s; white-space: nowrap; }
-        .satzbau-item:active { cursor: grabbing; transform: scale(1.04); }
-        .satzbau-item.selected { outline: 3px solid #f39c12; }
-        .satzbau-item.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-        .satzbau-item.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-        .drop-zone { min-height: 80px; border-radius: 10px; border: 2px dashed #c5cae9; padding: 10px; background: #fafbff; transition: all 0.2s; margin-bottom: 16px; }
-        .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
-        .drop-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 40px; }
-
-        .wortschatz-item { background: #fafbff; padding: 14px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #c5cae9; }
-        .wortschatz-item p { margin: 0 0 8px 0; font-size: 0.9rem; color: #667eea; font-weight: 600; }
-        .wortschatz-inputs { display: flex; gap: 8px; }
-        .wortschatz-inputs input { flex: 1; padding: 6px 10px; border: 1px solid #c5cae9; border-radius: 4px; font-size: 0.9rem; transition: all 0.2s; }
-        .wortschatz-inputs input:focus { outline: none; border-color: #667eea; background: #f9f9ff; }
-        .wortschatz-inputs input.correct { border-color: #27ae60; background: #e8f5e9; }
-        .wortschatz-inputs input.wrong { border-color: #e74c3c; background: #ffebee; }
-
-        .author-footer { border-top: 1px solid #ddd; padding: 16px 30px; font-size: 0.85rem; color: #888; text-align: center; background: #fafafa; }
-        .author-footer a { color: #667eea; text-decoration: none; }
-        .author-footer a:hover { text-decoration: underline; }
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musik- und Subkulturen</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}
+.container{max-width:1000px;margin:0 auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px;text-align:center}
+.header h1{font-size:2.2em;font-family:Georgia,'Times New Roman',serif;color:white;margin-bottom:8px;border:none;padding:0}
+.header .subtitle,.header p{font-size:1.1em;font-family:Georgia,'Times New Roman',serif;opacity:0.95;color:rgba(255,255,255,0.9);margin:0}
+.header .big-emoji{font-size:2.6em;display:block;margin-top:8px}
+.nav{display:flex;flex-wrap:nowrap;background:#f8f9fa;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd}
+.nav-btn{flex:1;padding:14px 10px;text-align:center;cursor:pointer;border-right:1px solid #ddd;border-bottom:1px solid #ddd;transition:all 0.3s;font-size:0.92em;font-weight:500;color:#666;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.nav-btn:last-child{border-right:none}
+.nav-btn:hover{background:#e9ecef;color:#495057}
+.nav-btn.active{background:white;color:#667eea;font-weight:600;border-bottom:3px solid #667eea}
+.nav-emoji{font-size:1.3em;line-height:1.2}
+.nav-label{font-size:0.78em;margin-top:2px;line-height:1.2}
+.section{display:none}
+.section.active{display:block}
+.sec-inner{padding:30px}
+.tab-banner{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+.section-title{font-size:1.15em;font-weight:700;color:#667eea;margin-bottom:14px}
+.control-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding:6px 12px;background:#f8f9fa;border-radius:8px}
+.btn-row{display:flex;gap:6px}
+.btn{background:none;border:1px solid #ddd;border-radius:6px;padding:4px 12px;font-size:0.82em;color:#888;cursor:pointer;transition:all 0.15s;font-weight:500}
+.btn:hover{border-color:#667eea;color:#667eea}
+.timer-display{display:flex;gap:14px;font-size:0.82em;color:#bbb;font-variant-numeric:tabular-nums}
+.hilfe-box{background:#f0f4ff;border-left:4px solid #667eea;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:22px;font-size:0.9em;color:#444;line-height:1.6}
+.info-box{background:#f3e5f5;border-left:5px solid #9c27b0;padding:16px 20px;border-radius:8px;margin-bottom:16px;font-size:.95rem;line-height:1.7}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px}
+.vocab-card{background:#f5f0ff;border:1px solid #c9b8ff;border-radius:8px;padding:14px}
+.vocab-card .word{font-weight:700;color:#5a3e9b;font-size:.95rem;margin-bottom:4px}
+.vocab-card .type{font-size:.72rem;color:#888;margin-bottom:6px}
+.vocab-card .example{font-size:.82rem;color:#555;font-style:italic;line-height:1.4}
+.subkulturen-list{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.subkultur-chip{padding:8px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:20px;font-size:0.85rem}
+.story-text{font-family:Georgia,'Times New Roman',serif;font-size:1rem;line-height:1.8;color:#222;text-align:justify;hyphens:auto;-webkit-hyphens:auto;max-width:600px;margin:0 auto}
+.story-text p{text-indent:1.5em;margin-bottom:1em}
+.story-text p:first-child{text-indent:0}
+.vocab-hl{background:#fff176;border-radius:3px;padding:0 2px;cursor:pointer;position:relative}
+.vocab-hl:hover::after{content:attr(data-tooltip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:4px 8px;border-radius:4px;font-size:.75rem;white-space:nowrap;z-index:10;pointer-events:none}
+.rf-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:14px;max-width:650px;margin-left:auto;margin-right:auto}
+.rf-item{background:#f9f9f9;border:1px solid #ddd;border-radius:8px;padding:14px 16px}
+.rf-item .rf-question{font-size:.95rem;line-height:1.5;margin-bottom:10px}
+.rf-btns{display:flex;gap:8px}
+.rf-btn{padding:6px 18px;border:none;border-radius:6px;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .2s}
+.rf-btn.richtig{background:#e8f5e9;color:#2e7d32;border:2px solid #81c784}
+.rf-btn.falsch{background:#ffebee;color:#c62828;border:2px solid #e57373}
+.rf-btn.selected-correct{background:#4caf50;color:#fff}
+.rf-btn.selected-wrong{background:#f44336;color:#fff}
+.luecken-item{margin-bottom:14px;line-height:1.8;font-size:0.95em}
+input.blank{border:none;border-bottom:2px solid #667eea;background:transparent;padding:2px 6px;font-size:inherit;font-family:inherit;outline:none;transition:border-color 0.2s,background 0.2s}
+input.blank:focus{border-bottom-color:#764ba2;background:#f0f7ff}
+input.blank.ok{border-bottom-color:#27ae60;background:#e8f5e9}
+input.blank.no{border-bottom-color:#e74c3c;background:#ffebee}
+input.blank.correct{border-bottom-color:#27ae60;background:#e8f5e9}
+input.blank.wrong{border-bottom-color:#e74c3c;background:#ffebee}
+.chip{padding:6px 14px;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;cursor:grab;font-size:0.85rem;font-weight:600;user-select:none;transition:transform 0.15s,opacity 0.15s;white-space:nowrap}
+.chip:active{cursor:grabbing;transform:scale(1.04)}
+.chip.correct{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
+.chip.incorrect{background:linear-gradient(135deg,#e74c3c,#c0392b)!important}
+.punct-chip{min-width:auto;padding:6px 8px}
+.chips-container{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#f8f9fa;border-radius:10px;margin-bottom:14px;min-height:54px}
+.sentence-builder{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:8px 10px;border-radius:8px;border:2px dashed #c5cae9;background:#fafbff;margin-bottom:6px;align-items:center}
+.sb-punkt{align-self:center;font-size:1.2rem;font-weight:bold;color:#333;padding-left:2px}
+.satzbau-feedback{font-size:0.9rem;min-height:1.2em;margin-bottom:10px}
+.satzbau-feedback.correct{color:#27ae60;font-weight:700}
+.satzbau-feedback.incorrect{color:#e74c3c}
+.satzbau-item{margin-bottom:18px}
+.author-footer{text-align:center;margin-top:40px;max-width:1000px;margin-left:auto;margin-right:auto;padding:16px;font-size:0.8rem;color:#aaa}
+.author-footer a{color:#aaa}
+.author-name{font-weight:700}
+@media(max-width:600px){
+body{padding:8px}
+.nav{flex-wrap:wrap}
+.nav-btn{flex:1 1 33%;min-width:0;font-size:0.8em;padding:10px 6px;border-right:1px solid #ddd}
+.nav-btn:last-child{border-right:1px solid #ddd}
+.tab-banner{max-height:120px}
+.sec-inner{padding:16px}
 }
-
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
-
-/* ── daf-html-layout Extra-Fixes ─── */
-.story-text { max-width: 600px; margin: 0 auto; }
-.lese-text  { max-width: 600px; margin: 0 auto; }
-.rf-list    { max-width: 650px; margin: 0 auto; }
-/* ──────────────────────────────── */
 </style>
 </head>
 <body>
-    <div class="container">
-            <div class="header">
-            <h1>Musik- und Subkulturen</h1>
-            <p>B2.2 – Lektion 2033R · Lesen</p>
-        </div>
+<div class="container">
+  <div class="header">
+    <h1>Musik- und Subkulturen</h1>
+    <p class="subtitle">B2.2 – Lektion 2033R · Lesen</p>
+    <div class="big-emoji">🎤</div>
+  </div>
 
-        <div class="nav">
-            <div class="nav-btn active" onclick="showSection(0)">
-                <span class="nav-emoji">💡</span>
-                <span class="nav-label">Vorentlastung</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(1)">
-                <span class="nav-emoji">📖</span>
-                <span class="nav-label">Lesetext</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(2)">
-                <span class="nav-emoji">✅</span>
-                <span class="nav-label">Text & Fragen</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(3)">
-                <span class="nav-emoji">📝</span>
-                <span class="nav-label">Lückentext</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(4)">
-                <span class="nav-emoji">🔀</span>
-                <span class="nav-label">Satzbau</span>
-            </div>
-            <div class="nav-btn" onclick="showSection(5)">
-                <span class="nav-emoji">📚</span>
-                <span class="nav-label">Wortschatz</span>
-            </div>
-        </div>
-        <!-- Tab 0: Vorentlastung -->
-        <div class="section active" id="sec-0">
-            <img src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?w=1000" alt="Banner" class="banner">
-            <div class="vorentlastung-box">
-                <p><strong>Einstiegsfrage:</strong> „Heutzutage gibt es unglaublich viele Subkulturen, die oft in enger Verbindung mit der Identität eines Menschen stehen. Kann es eine Identität ohne Subkulturen geben?"</p>
-            </div>
+  <div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">💡</span><span class="nav-label">Vorentlastung</span></div>
+    <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span></div>
+    <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">✓✗</span><span class="nav-label">Richtig/Falsch</span></div>
+    <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+    <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+    <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+  </div>
 
-            <h3 style="color: #667eea; margin-bottom: 16px;">Verschiedene Subkulturen — Aktivierung</h3>
-            <p style="margin-bottom: 12px; font-size: 0.95rem;">Subkulturen:</p>
-            <div class="subkulturen-list">
-                <span class="subkultur-chip">Pop</span>
-                <span class="subkultur-chip">Gothic</span>
-                <span class="subkultur-chip">Hip-Hop</span>
-                <span class="subkultur-chip">Hippie</span>
-                <span class="subkultur-chip">Rock'n'Roll</span>
-                <span class="subkultur-chip">Punk</span>
-                <span class="subkultur-chip">Techno</span>
-                <span class="subkultur-chip">Metal</span>
-            </div>
-
-            <h4 style="color: #667eea; margin-top: 20px; margin-bottom: 12px;">Welche Subkultur passt zu welchem Merkmal?</h4>
-            <div class="match-zone">
-                <div class="match-item">Friedensbewegung, Naturverbundenheit → <strong>Hippie</strong></div>
-                <div class="match-item">Schwarze Kleidung, düstere Musik → <strong>Gothic</strong></div>
-                <div class="match-item">Protestsongs, Rhythmus-Beats → <strong>Hip-Hop</strong></div>
-                <div class="match-item">Rebellion, Lautstärke, DIY → <strong>Punk</strong></div>
-            </div>
-
-            <h4 style="color: #667eea; margin-top: 20px; margin-bottom: 12px;">Schlüsselvokabeln</h4>
-            <div style="background: #f3e5f5; padding: 16px; border-radius: 8px; border-left: 5px solid #9c27b0;">
-                <ul style="margin-left: 18px;">
-                    <li><strong><em style="background: #ffffcc; padding: 0 4px; border-radius: 2px;">abgrenzen</em></strong>: sich von anderen unterscheiden und distanzieren</li>
-                    <li><strong><em style="background: #ffffcc; padding: 0 4px; border-radius: 2px;">die Identitätsfindung</em></strong>: Prozess, die eigene Identität zu entdecken</li>
-                    <li><strong><em style="background: #ffffcc; padding: 0 4px; border-radius: 2px;">die Identitätskonstruktion</em></strong>: aktiver Aufbau der eigenen Identität</li>
-                    <li><strong><em style="background: #ffffcc; padding: 0 4px; border-radius: 2px;">die Szene</em></strong>: Gruppe von Menschen mit ähnlichen Überzeugungen</li>
-                    <li><strong><em style="background: #ffffcc; padding: 0 4px; border-radius: 2px;">die Jugendbewegung</em></strong>: kulturelle Bewegung, die von Jugendlichen getragen wird</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Tab 1: Lesetext -->
-        <div class="section" id="sec-1">
-            <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?w=1000" alt="Banner" class="banner">
-            <div class="lesetext">
-                <h2 style="text-indent: 0; margin-bottom: 16px; color: #667eea;">Subkulturen in der Musik</h2>
-
-                <p>Jede Subkultur besteht aus Ansichten und Regeln, die dazu dienen, sich von anderen Subkulturen oder der Gesamtkultur <b>abzugrenzen</b>. Eine wichtige Rolle spielt auch die Musik. Bei den meisten Musikkulturen geht es nicht nur um Rhythmus und Melodie, sondern auch um Texte und Interpreten sowie die wichtigsten Einstellungen zur Politik, zum Leben und zur Gesellschaft.</p>
-
-                <p>Die Beispiele dazu sind: die Hip-Hop-Kultur, die aus den Protestsongs gegen den Rassismus in Amerika hervorgeht, oder die Hippies, die 1960 als die ersten Teilnehmer der Friedensbewegung aufgetreten sind.</p>
-
-                <p><strong>Etwas Passendes finden</strong></p>
-
-                <p>Da die Musik mit Subkulturen sehr eng verbunden ist, hat sie auch einen starken Zusammenhang mit der <b>Identitätskonstruktion</b> und der <b>Identitätsfindung</b>, insbesondere für Jugendliche. Die meisten probieren mehrere Subkulturen in der Phase des Heranwachsens aus: Heute sitzen sie in Hanfklamotten auf dem Boden als überzeugte Hippies, morgen singen sie Rocklieder und wollen nur Motorräder fahren. Dann gehen sie zu Friedhöfen und überlegen sich da stundenlang, ob es etwas wirklich Sinnvolles im Leben gibt.</p>
-
-                <p>So versuchen sie sich zwischen den verschiedenen Sub- und Musikkulturen zu finden. Schaffen sie es, etwas Passendes zu finden?</p>
-
-                <p><strong>Subkulturen beschreiben</strong></p>
-
-                <p>Auf dem Weg ins Erwachsenenleben beschäftigen sich Jugendliche mit der Identitätsfindung und Identitätskonstruktion. Die Subkultur – oder <b>Szene</b> – bringt Menschen mit ähnlichen Überzeugungen und ähnlichem Geschmack zusammen. Viele Subkulturen stammen aus <b>Jugendbewegungen</b> oder kulturellen Oppositionen. Mithilfe von Subkulturen bilden Jugendliche ihr eigenes Selbstbewusstsein.</p>
-            </div>
-        </div>
-
-        <!-- Tab 2: Text & Fragen (Richtig/Falsch) -->
-        <div class="section" id="sec-2">
-            <img src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?w=1000" alt="Banner" class="banner">
-            <p class="rf-title">Richtig oder Falsch?</p>
-            <div class="rf-list">
-                <div class="rf-item">
-                    <div class="rf-question">Subkulturen dienen dazu, sich von der Gesamtkultur abzugrenzen.</div>
-                    <div class="rf-buttons">
-                        <button class="rf-btn" onclick="checkRF(this, true)">R</button>
-                        <button class="rf-btn" onclick="checkRF(this, false)">F</button>
-                    </div>
-                    <span class="rf-result"></span>
-                </div>
-                <div class="rf-item">
-                    <div class="rf-question">Bei Musikkulturen geht es nur um Rhythmus und Melodie.</div>
-                    <div class="rf-buttons">
-                        <button class="rf-btn" onclick="checkRF(this, false)">R</button>
-                        <button class="rf-btn" onclick="checkRF(this, true)">F</button>
-                    </div>
-                    <span class="rf-result"></span>
-                </div>
-                <div class="rf-item">
-                    <div class="rf-question">Hip-Hop entstand aus Protestsongs gegen Rassismus in Amerika.</div>
-                    <div class="rf-buttons">
-                        <button class="rf-btn" onclick="checkRF(this, true)">R</button>
-                        <button class="rf-btn" onclick="checkRF(this, false)">F</button>
-                    </div>
-                    <span class="rf-result"></span>
-                </div>
-                <div class="rf-item">
-                    <div class="rf-question">Jugendliche probieren normalerweise nur eine Subkultur aus.</div>
-                    <div class="rf-buttons">
-                        <button class="rf-btn" onclick="checkRF(this, false)">R</button>
-                        <button class="rf-btn" onclick="checkRF(this, true)">F</button>
-                    </div>
-                    <span class="rf-result"></span>
-                </div>
-                <div class="rf-item">
-                    <div class="rf-question">Die Szene bringt Menschen mit ähnlichen Überzeugungen zusammen.</div>
-                    <div class="rf-buttons">
-                        <button class="rf-btn" onclick="checkRF(this, true)">R</button>
-                        <button class="rf-btn" onclick="checkRF(this, false)">F</button>
-                    </div>
-                    <span class="rf-result"></span>
-                </div>
-                <div class="rf-item">
-                    <div class="rf-question">Jugendliche bilden ihr Selbstbewusstsein unabhängig von Subkulturen.</div>
-                    <div class="rf-buttons">
-                        <button class="rf-btn" onclick="checkRF(this, false)">R</button>
-                        <button class="rf-btn" onclick="checkRF(this, true)">F</button>
-                    </div>
-                    <span class="rf-result"></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab 3: Lückentext -->
-        <div class="section" id="sec-3">
-            <img src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?w=1000" alt="Banner" class="banner">
-            <h3 style="color: #667eea; margin-bottom: 20px;">Lückentext: Subkulturen und Musik</h3>
-
-            <div class="lueckentext-item">
-                <p>Jede Subkultur besteht aus Ansichten und Regeln, die dazu dienen, sich von anderen Subkulturen <input class="lueckentext" type="text" placeholder="" data-answer="abzugrenzen" oninput="liveCheck(this)">.
-                Eine wichtige Rolle spielt auch die <input class="lueckentext" type="text" placeholder="" data-answer="Musik" oninput="liveCheck(this)">.</p>
-            </div>
-
-            <div class="lueckentext-item">
-                <p>Die Hip-Hop-Kultur geht aus den <input class="lueckentext" type="text" placeholder="" data-answer="Protestsongs" oninput="liveCheck(this)"> gegen den Rassismus in Amerika hervor.</p>
-            </div>
-
-            <div class="lueckentext-item">
-                <p>Die Jugendlichen beschäftigen sich in der Phase des <input class="lueckentext" type="text" placeholder="" data-answer="Heranwachsens" oninput="liveCheck(this)"> mit der Identitätsfindung.</p>
-            </div>
-
-            <div class="lueckentext-item">
-                <p>Die Szene bringt Menschen mit ähnlichen <input class="lueckentext" type="text" placeholder="" data-answer="Überzeugungen" oninput="liveCheck(this)"> zusammen.</p>
-            </div>
-
-            <div class="lueckentext-item">
-                <p>Viele Subkulturen stammen aus <input class="lueckentext" type="text" placeholder="" data-answer="Jugendbewegungen" oninput="liveCheck(this)"> oder kulturellen Oppositionen.</p>
-            </div>
-
-            <div class="lueckentext-item">
-                <p>Mithilfe von Subkulturen bilden Jugendliche ihr eigenes <input class="lueckentext" type="text" placeholder="" data-answer="Selbstbewusstsein" oninput="liveCheck(this)">.</p>
-            </div>
-        </div>
-
-        <!-- Tab 4: Satzbau -->
-        <div class="section" id="sec-4">
-            <img src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?w=1000" alt="Banner" class="banner">
-            <h3 style="color: #667eea; margin-bottom: 20px;">Satzbau: Ordne die Wörter richtig!</h3>
-
-            <div id="sb-section-1">
-                <div class="satzbau-pool" id="sb-pool-1"></div>
-                <div class="drop-zone" id="sb-zone-1">
-                    <div class="drop-row" id="sb-row-1"></div>
-                </div>
-            </div>
-
-            <div id="sb-section-2">
-                <div class="satzbau-pool" id="sb-pool-2"></div>
-                <div class="drop-zone" id="sb-zone-2">
-                    <div class="drop-row" id="sb-row-2"></div>
-                </div>
-            </div>
-
-            <div id="sb-section-3">
-                <div class="satzbau-pool" id="sb-pool-3"></div>
-                <div class="drop-zone" id="sb-zone-3">
-                    <div class="drop-row" id="sb-row-3"></div>
-                </div>
-            </div>
-
-            <div id="sb-section-4">
-                <div class="satzbau-pool" id="sb-pool-4"></div>
-                <div class="drop-zone" id="sb-zone-4">
-                    <div class="drop-row" id="sb-row-4"></div>
-                </div>
-            </div>
-
-            <div id="sb-section-5">
-                <div class="satzbau-pool" id="sb-pool-5"></div>
-                <div class="drop-zone" id="sb-zone-5">
-                    <div class="drop-row" id="sb-row-5"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab 5: Wortschatz -->
-        <div class="section" id="sec-5">
-            <img src="https://images.pexels.com/photos/2078076/pexels-photo-2078076.jpeg?w=1000" alt="Banner" class="banner">
-            <h3 style="color: #667eea; margin-bottom: 20px;">Wortschatz: Ergänze die Vokabeln</h3>
-
-            <div class="wortschatz-item">
-                <p>die Subkultur (Plural: -en)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Subkultur" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Musikkultur (Plural: -en)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Musikkultur" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Jugendkultur (Plural: -en)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Jugendkultur" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Szene (Plural: -n)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Szene" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Identität (Plural: -en)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Identität" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Identitätskonstruktion (Plural: -en)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Identitätskonstruktion" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Identitätsfindung (nur Singular)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Identitätsfindung" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>die Jugendbewegung (Plural: -en)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="die Jugendbewegung" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>das Selbstbewusstsein (nur Singular)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="das Selbstbewusstsein" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>abgrenzen (Verb)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="abgrenzen" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>auftreten (Verb)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="auftreten" oninput="liveCheck(this)">
-                </div>
-            </div>
-
-            <div class="wortschatz-item">
-                <p>bevorzugen (Verb)</p>
-                <div class="wortschatz-inputs">
-                    <input type="text" placeholder="" data-answer="bevorzugen" oninput="liveCheck(this)">
-                </div>
-            </div>
-        </div>
-
-        <div class="author-footer">
-            <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-            <a href="mailto:frankburkert@gmx.net">frankburkert@gmx.net</a>
-        </div>
+  <!-- TAB 0: Vorentlastung -->
+  <div class="section active" id="sec-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Konzert">
+    <div class="sec-inner">
+      <h2 class="section-title">Vorentlastung — Musik- und Subkulturen</h2>
+      <div class="info-box">
+        <p>„Heutzutage gibt es unglaublich viele Subkulturen, die oft in enger Verbindung mit der Identität eines Menschen stehen. Kann es eine Identität ohne Subkulturen geben?“</p>
+      </div>
+      <h3 style="color:#667eea;margin-bottom:12px">Verschiedene Subkulturen</h3>
+      <div class="subkulturen-list">
+        <span class="subkultur-chip">Pop</span>
+        <span class="subkultur-chip">Gothic</span>
+        <span class="subkultur-chip">Hip-Hop</span>
+        <span class="subkultur-chip">Hippie</span>
+        <span class="subkultur-chip">Rock’n’Roll</span>
+        <span class="subkultur-chip">Punk</span>
+        <span class="subkultur-chip">Techno</span>
+        <span class="subkultur-chip">Metal</span>
+      </div>
+      <h3 style="color:#667eea;margin:20px 0 12px">Schlüsselvokabeln</h3>
+      <div class="vocab-grid">
+        <div class="vocab-card"><div class="word">sich abgrenzen</div><div class="type">Verb</div><div class="example">Subkulturen dienen dazu, sich von der Gesamtkultur abzugrenzen.</div></div>
+        <div class="vocab-card"><div class="word">die Identitätsfindung</div><div class="type">Nomen</div><div class="example">In der Jugend beschäftigt man sich mit der Identitätsfindung.</div></div>
+        <div class="vocab-card"><div class="word">die Identitätskonstruktion</div><div class="type">Nomen</div><div class="example">Die aktive Identitätskonstruktion prägt das Erwachsenwerden.</div></div>
+        <div class="vocab-card"><div class="word">die Szene, -n</div><div class="type">Nomen</div><div class="example">Die Szene bringt Gleichgesinnte zusammen.</div></div>
+        <div class="vocab-card"><div class="word">die Jugendbewegung, -en</div><div class="type">Nomen</div><div class="example">Die Hippies waren Teil einer großen Jugendbewegung.</div></div>
+      </div>
     </div>
+  </div>
 
-    <script>
-function showSection(n){
-  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===n);});
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+  <!-- TAB 1: Lesetext -->
+  <div class="section" id="sec-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lesetext">
+    <div class="sec-inner">
+      <h2 class="section-title">Subkulturen in der Musik</h2>
+      <div class="story-text" id="storyText">
+        <p>Jede Subkultur besteht aus Ansichten und Regeln, die dazu dienen, sich von anderen Subkulturen oder der Gesamtkultur abzugrenzen. Eine wichtige Rolle spielt auch die Musik. Bei den meisten Musikkulturen geht es nicht nur um Rhythmus und Melodie, sondern auch um Texte und Interpreten sowie die wichtigsten Einstellungen zur Politik, zum Leben und zur Gesellschaft.</p>
+        <p>Die Beispiele dazu sind: die Hip-Hop-Kultur, die aus den Protestsongs gegen den Rassismus in Amerika hervorgeht, oder die Hippies, die 1960 als die ersten Teilnehmer der Friedensbewegung aufgetreten sind.</p>
+        <p>Da die Musik mit Subkulturen sehr eng verbunden ist, hat sie auch einen starken Zusammenhang mit der Identitätskonstruktion und der Identitätsfindung, insbesondere für Jugendliche. Die meisten probieren mehrere Subkulturen in der Phase des Heranwachsens aus: Heute sitzen sie in Hanfklamotten auf dem Boden als überzeugte Hippies, morgen singen sie Rocklieder und wollen nur Motorräder fahren. Dann gehen sie zu Friedhöfen und überlegen sich da stundenlang, ob es etwas wirklich Sinnvolles im Leben gibt.</p>
+        <p>So versuchen sie sich zwischen den verschiedenen Sub- und Musikkulturen zu finden. Schaffen sie es, etwas Passendes zu finden?</p>
+        <p>Auf dem Weg ins Erwachsenenleben beschäftigen sich Jugendliche mit der Identitätsfindung und Identitätskonstruktion. Die Subkultur – oder Szene – bringt Menschen mit ähnlichen Überzeugungen und ähnlichem Geschmack zusammen. Viele Subkulturen stammen aus Jugendbewegungen oder kulturellen Oppositionen. Mithilfe von Subkulturen bilden Jugendliche ihr eigenes Selbstbewusstsein.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Richtig/Falsch -->
+  <div class="section" id="sec-2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Richtig oder Falsch">
+    <div class="sec-inner">
+      <h2 class="section-title">✓✗ Richtig oder Falsch?</h2>
+      <div class="control-bar">
+        <div class="btn-row"><button class="btn" onclick="resetRF()">Neu starten</button></div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-2">--:--</span></span>
+        </div>
+      </div>
+      <div id="rfContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Lückentext -->
+  <div class="section" id="sec-3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1047111/pexels-photo-1047111.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lückentext">
+    <div class="sec-inner">
+      <h2 class="section-title">✏️ Lückentext</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetLuecken(); resetTimer(3);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-3">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Ergänze das passende Wort. Du erhältst sofort Feedback!</div>
+      <div id="lueckenContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Wortschatz -->
+  <div class="section" id="sec-4">
+    <img class="tab-banner" src="https://images.pexels.com/photos/2078076/pexels-photo-2078076.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz">
+    <div class="sec-inner">
+      <h2 class="section-title">📚 Wortschatz</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetWortschatz(); resetTimer(4);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-4">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Übersetze ins Deutsche. Bei Nomen: Artikel + Wort + Plural (als Endung)!</div>
+      <div id="wortschatzContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: Satzbau -->
+  <div class="section" id="sec-5">
+    <img class="tab-banner" src="https://images.pexels.com/photos/4471903/pexels-photo-4471903.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau">
+    <div class="sec-inner">
+      <h2 class="section-title">🧩 Satzbau</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="satzbauData.forEach(function(_,i){sbShowSolution(i)})">Lösungen</button>
+          <button class="btn" onclick="satzbauData.forEach(function(_,i){sbResetOne(i)}); resetTimer(5);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span class="current-time">⏱ <span id="timer-5">00:00</span></span>
+          <span class="best-time">🏆 <span id="best-5">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Bringe die Wörter in die richtige Reihenfolge. Ziehe die Chips in die Satzzeile!</div>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
+
+  <div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+  </div>
+</div>
+
+<script>
+/* ── Navigation ── */
+function showSection(idx){
+    document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===idx);});
+    document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===idx);});
 }
 
-var TIMER_PREFIX='B2_2033R_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){if(timerStarted[n])return;timerStarted[n]=true;timerRunning[n]=true;timerIntervals[n]=setInterval(function(){timerSeconds[n]++;var el=document.getElementById('timer-'+n);if(el)el.textContent=fmtTime(timerSeconds[n]);},1000);}
-function timerStop(n){if(!timerRunning[n])return;clearInterval(timerIntervals[n]);timerRunning[n]=false;var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');if(timerSeconds[n]>0&&timerSeconds[n]<best){localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(timerSeconds[n]);}timerSeconds[n]=0;timerStarted[n]=false;var td=document.getElementById('timer-'+n);if(td)td.textContent='0:00';}
-function timerResetOne(n){clearInterval(timerIntervals[n]);timerRunning[n]=false;timerStarted[n]=false;timerSeconds[n]=0;var el=document.getElementById('timer-'+n);if(el)el.textContent='0:00';}
-function fmtTime(s){var m=Math.floor(s/60);var sec=s%60;return m+':'+(sec<10?'0':'')+sec;}
-document.addEventListener('DOMContentLoaded',function(){[3,4,5].forEach(function(n){var b=localStorage.getItem(TIMER_PREFIX+n);if(b){var el=document.getElementById('best-'+n);if(el)el.textContent=fmtTime(parseInt(b));}});});
+/* ── Timer ── */
+var TIMER_PREFIX='B2_2033Rsub_';
+var timerStarted=[false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null];
 
-function liveCheck(inp) {
-  var val = inp.value.trim().toLowerCase();
-  var ans = (inp.dataset.answer || '').toLowerCase();
-  inp.classList.remove('correct', 'wrong');
-  if (val.length === 0) return;
-  if (val === ans) { inp.classList.add('correct'); }
-  else if (ans.indexOf(val) === 0) { }
-  else { inp.classList.add('wrong'); }
+function fmtTime(s){var m=Math.floor(s/60);var sec=s%60;return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}
+
+function timerAutoStart(n){
+    if(timerStarted[n]) return;
+    timerStarted[n]=true; timerRunning[n]=true;
+    timerIntervals[n]=setInterval(function(){
+        timerSeconds[n]++;
+        var el=document.getElementById('timer-'+n);
+        if(el) el.textContent=fmtTime(timerSeconds[n]);
+    },1000);
 }
 
-function checkRF(btn, correct) {
-  var item = btn.closest('.rf-item');
-  var btns = item.querySelectorAll('.rf-btn');
-  var result = item.querySelector('.rf-result');
-  btns.forEach(function(b) { b.disabled = true; });
-  if (correct) { btn.classList.add('sel-r'); result.textContent = '\u2713'; result.className = 'rf-result ok'; }
-  else { btn.classList.add('sel-f'); result.textContent = '\u2717'; result.className = 'rf-result err'; }
+function stopTimer(n){
+    if(!timerRunning[n]) return;
+    clearInterval(timerIntervals[n]); timerRunning[n]=false;
+    var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+    if(timerSeconds[n]>0&&timerSeconds[n]<best){
+        localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+        var el=document.getElementById('best-'+n);
+        if(el) el.textContent=fmtTime(timerSeconds[n]);
+    }
 }
 
-function shuffleArray(arr) {
-  for (var i = arr.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
-  }
-  return arr;
+function resetTimer(n){
+    clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent='00:00';
 }
 
-var sbSentences = [
-            { words: ['Jede', 'Subkultur', '/', 'dient', 'dazu,', '/', 'sich', 'von', '/', 'der', 'Gesamtkultur', '/', 'abzugrenzen.'] },
-            { words: ['Die', 'Hippies', '/', 'traten', '1960', '/', 'als', 'erste', 'Teilnehmer', '/', 'der', 'Friedensbewegung', '/', 'auf.'] },
-            { words: ['Jugendliche', '/', 'probieren', 'viele', '/', 'Subkulturen', 'aus,', '/', 'bevor', 'sie', '/', 'etwas', 'Passendes', 'finden.'] },
-            { words: ['Die', 'Szene', '/', 'bringt', 'Menschen', '/', 'mit', 'ähnlichen', '/', 'Überzeugungen', '/', 'zusammen.'] },
-            { words: ['Mithilfe', 'von', '/', 'Subkulturen', '/', 'bilden', 'Jugendliche', '/', 'ihr', 'eigenes', '/', 'Selbstbewusstsein.'] }
-        ];
-
-var draggedChip = null;
-
-function initSatzbau() {
-  sbSentences.forEach(function(sentence, idx) {
-    var sectionId = idx + 1;
-    var pool = document.getElementById('sb-pool-' + sectionId);
-    var zone = document.getElementById('sb-zone-' + sectionId);
-    var row = document.getElementById('sb-row-' + sectionId);
-    if (!pool || !zone || !row) return;
-    var shuffled = shuffleArray(sentence.words.slice());
-    shuffled.forEach(function(word) {
-      var chip = document.createElement('div');
-      chip.className = 'satzbau-item'; chip.textContent = word;
-      chip.draggable = true; chip.dataset.word = word;
-      chip.dataset.si = String(idx);
-      chip.dataset.correct = sentence.words.indexOf(word);
-      chip.addEventListener('dragstart', function(e) {
-        e.dataTransfer.setData('text/plain', ''); draggedChip = chip; timerAutoStart(4);
-      });
-      chip.addEventListener('dragend', function() { colorAllSBChips(sectionId); });
-      chip.addEventListener('click', function() {
-        timerAutoStart(4);
-        if (chip.parentElement.id === 'sb-pool-' + sectionId) { row.appendChild(chip); }
-        else { pool.appendChild(chip); }
-        colorAllSBChips(sectionId);
-      });
-      pool.appendChild(chip);
+document.addEventListener('DOMContentLoaded',function(){
+    [2,3,4,5].forEach(function(n){
+        var b=localStorage.getItem(TIMER_PREFIX+n);
+        if(b){var el=document.getElementById('best-'+n);if(el) el.textContent=fmtTime(parseInt(b));}
     });
-    zone.addEventListener('dragover', function(e) {
-      if (draggedChip && draggedChip.dataset.si !== String(idx)) return;
-      e.preventDefault(); zone.classList.add('dragover');
+});
+
+/* ── Vocab Highlight ── */
+var VOCAB_HIGHLIGHT=[
+    {word:'abzugrenzen',tooltip:'to set oneself apart'},
+    {word:'Identitätskonstruktion',tooltip:'identity construction'},
+    {word:'Identitätsfindung',tooltip:'identity discovery'},
+    {word:'Szene',tooltip:'scene, community'},
+    {word:'Jugendbewegungen',tooltip:'youth movements'},
+    {word:'Selbstbewusstsein',tooltip:'self-confidence'},
+    {word:'Protestsongs',tooltip:'protest songs'},
+    {word:'Überzeugungen',tooltip:'convictions, beliefs'}
+];
+
+function highlightVocabInText(){
+    var el=document.getElementById('storyText');
+    if(!el) return;
+    var html=el.innerHTML;
+    VOCAB_HIGHLIGHT.forEach(function(v){
+        var count=0;
+        html=html.replace(new RegExp('(?<!<[^>]*)\\b('+v.word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')\\b','g'),function(match){
+            count++;
+            if(count<=2) return '<span class="vocab-hl" data-tooltip="'+v.tooltip+'">'+match+'</span>';
+            return match;
+        });
     });
-    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
-    zone.addEventListener('drop', function(e) {
-      e.preventDefault(); zone.classList.remove('dragover');
-      if (!draggedChip || draggedChip.dataset.si !== String(idx)) return;
-      row.appendChild(draggedChip); colorAllSBChips(sectionId); checkSbAllDone(4);
+    el.innerHTML=html;
+}
+
+/* ── Richtig/Falsch ── */
+var RF_DATA=[
+    {q:'Subkulturen dienen dazu, sich von der Gesamtkultur abzugrenzen.',a:true},
+    {q:'Bei Musikkulturen geht es nur um Rhythmus und Melodie.',a:false},
+    {q:'Hip-Hop entstand aus Protestsongs gegen Rassismus in Amerika.',a:true},
+    {q:'Jugendliche probieren normalerweise nur eine Subkultur aus.',a:false},
+    {q:'Die Szene bringt Menschen mit ähnlichen Überzeugungen zusammen.',a:true},
+    {q:'Jugendliche bilden ihr Selbstbewusstsein unabhängig von Subkulturen.',a:false}
+];
+var rfDone=0;
+
+function initRF(){
+    var c=document.getElementById('rfContainer');
+    c.innerHTML='';
+    var list=document.createElement('ul');
+    list.className='rf-list';
+    RF_DATA.forEach(function(item,idx){
+        var li=document.createElement('li');
+        li.className='rf-item';
+        var q=document.createElement('div');
+        q.className='rf-question';
+        q.textContent=item.q;
+        li.appendChild(q);
+        var btns=document.createElement('div');
+        btns.className='rf-btns';
+        var btnR=document.createElement('button');
+        btnR.className='rf-btn richtig'; btnR.textContent='Richtig';
+        btnR.onclick=function(){checkRF(btns,idx,true);};
+        var btnF=document.createElement('button');
+        btnF.className='rf-btn falsch'; btnF.textContent='Falsch';
+        btnF.onclick=function(){checkRF(btns,idx,false);};
+        btns.appendChild(btnR);
+        btns.appendChild(btnF);
+        li.appendChild(btns);
+        list.appendChild(li);
     });
-  });
+    c.appendChild(list);
 }
 
-function colorAllSBChips(sectionId) {
-  var row = document.getElementById('sb-row-' + sectionId);
-  if (!row) return;
-  var chips = row.querySelectorAll('.satzbau-item');
-  chips.forEach(function(chip, idx) {
-    chip.classList.remove('correct', 'wrong');
-    if (parseInt(chip.dataset.correct) === idx) { chip.classList.add('correct'); }
-    else { chip.classList.add('wrong'); }
-  });
+function checkRF(btns,idx,chosen){
+    timerAutoStart(2);
+    if(btns.dataset.done) return;
+    btns.dataset.done='1';
+    var correct=RF_DATA[idx].a;
+    btns.querySelectorAll('.rf-btn').forEach(function(b){b.classList.remove('selected-correct','selected-wrong');});
+    if(chosen===correct){
+        (chosen?btns.querySelector('.richtig'):btns.querySelector('.falsch')).classList.add('selected-correct');
+    } else {
+        (chosen?btns.querySelector('.richtig'):btns.querySelector('.falsch')).classList.add('selected-wrong');
+        (correct?btns.querySelector('.richtig'):btns.querySelector('.falsch')).classList.add('selected-correct');
+    }
+    rfDone++;
+    if(rfDone>=RF_DATA.length) stopTimer(2);
 }
 
-function checkSbAllDone(n) {
-  var allOk = sbSentences.every(function(sentence, idx) {
-    var row = document.getElementById('sb-row-' + (idx + 1));
-    if (!row) return false;
-    var chips = row.querySelectorAll('.satzbau-item');
-    if (chips.length !== sentence.words.length) return false;
-    return Array.from(chips).every(function(chip, i) { return parseInt(chip.dataset.correct) === i; });
-  });
-  if (allOk) timerStop(n);
+function resetRF(){resetTimer(2);rfDone=0;initRF();}
+
+/* ── Lückentext ── */
+var LUECKEN=[
+    {pre:'Jede Subkultur besteht aus Ansichten und Regeln, die dazu dienen, sich von anderen Subkulturen ',ans:'abzugrenzen',post:'.',w:130},
+    {pre:'Eine wichtige Rolle spielt auch die ',ans:'Musik',post:'.',w:70},
+    {pre:'Die Hip-Hop-Kultur geht aus den ',ans:'Protestsongs',post:' gegen den Rassismus in Amerika hervor.',w:130},
+    {pre:'Die Jugendlichen beschäftigen sich in der Phase des ',ans:'Heranwachsens',post:' mit der Identitätsfindung.',w:150},
+    {pre:'Die Szene bringt Menschen mit ähnlichen ',ans:'Überzeugungen',post:' zusammen.',w:150},
+    {pre:'Viele Subkulturen stammen aus ',ans:'Jugendbewegungen',post:' oder kulturellen Oppositionen.',w:170},
+    {pre:'Mithilfe von Subkulturen bilden Jugendliche ihr eigenes ',ans:'Selbstbewusstsein',post:'.',w:170},
+    {pre:'Musik hat einen starken Zusammenhang mit der ',ans:'Identitätskonstruktion',post:'.',w:200},
+    {pre:'Die Hippies traten 1960 als erste Teilnehmer der ',ans:'Friedensbewegung',post:' auf.',w:170},
+    {pre:'So versuchen Jugendliche sich zwischen den verschiedenen ',ans:'Subkulturen',post:' zu finden.',w:130}
+];
+
+function liveCheck(inp,timerFn,allSel,stopFn){
+    var val=inp.value.trim();
+    var ans=inp.dataset.ans;
+    inp.classList.remove('ok','no');
+    if(!val) return;
+    var cV=val.toLowerCase(), cA=ans.toLowerCase();
+    if(cV===cA){inp.classList.add('ok');stopFn();}
+    else if(cA.indexOf(cV)===0){/* prefix */}
+    else{inp.classList.add('no');}
 }
 
+function checkLueckenAllOk(){
+    var inputs=document.querySelectorAll('#lueckenContainer input.blank');
+    var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.classList.contains('ok');});
+    if(allOk) stopTimer(3);
+}
+
+function initLuecken(){
+    var c=document.getElementById('lueckenContainer');
+    c.innerHTML='';
+    LUECKEN.forEach(function(item){
+        var p=document.createElement('div');
+        p.className='luecken-item';
+        if(item.pre) p.appendChild(document.createTextNode(item.pre));
+        var inp=document.createElement('input');
+        inp.className='blank'; inp.type='text';
+        inp.placeholder='???'; inp.style.width=item.w+'px';
+        inp.dataset.ans=item.ans;
+        inp.oninput=function(){timerAutoStart(3);liveCheck(inp,function(){timerAutoStart(3);},'#lueckenContainer input.blank',checkLueckenAllOk);};
+        p.appendChild(inp);
+        if(item.post) p.appendChild(document.createTextNode(item.post));
+        c.appendChild(p);
+    });
+}
+
+function showLueckenLoesung(){
+    stopTimer(3);
+    document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+        inp.value=inp.dataset.ans; inp.classList.add('ok'); inp.classList.remove('no');
+    });
+}
+
+function resetLuecken(){
+    document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+        inp.value=''; inp.classList.remove('ok','no');
+    });
+}
+
+/* ── Wortschatz ── */
+var WORTSCHATZ=[
+    {id:1,type:'n',en:'🎭 subculture',artikel:'die',de:'Subkultur',plural:'-en'},
+    {id:2,type:'n',en:'🎵 music culture',artikel:'die',de:'Musikkultur',plural:'-en'},
+    {id:3,type:'n',en:'🧑‍🤝‍🧑 youth culture',artikel:'die',de:'Jugendkultur',plural:'-en'},
+    {id:4,type:'n',en:'🎪 scene / community',artikel:'die',de:'Szene',plural:'-n'},
+    {id:5,type:'n',en:'🪣 identity',artikel:'die',de:'Identität',plural:'-en'},
+    {id:6,type:'n',en:'🧱 identity construction',artikel:'die',de:'Identitätskonstruktion',plural:'-en'},
+    {id:7,type:'n',en:'🔍 identity discovery',artikel:'die',de:'Identitätsfindung',plural:'–'},
+    {id:8,type:'n',en:'✊ youth movement',artikel:'die',de:'Jugendbewegung',plural:'-en'},
+    {id:9,type:'n',en:'💪 self-confidence',artikel:'das',de:'Selbstbewusstsein',plural:'–'},
+    {id:10,type:'n',en:'📣 protest song',artikel:'der',de:'Protestsong',plural:'-s'},
+    {id:11,type:'n',en:'🤝 conviction / belief',artikel:'die',de:'Überzeugung',plural:'-en'},
+    {id:12,type:'n',en:'🕊️ peace movement',artikel:'die',de:'Friedensbewegung',plural:'-en'},
+    {id:13,type:'v',en:'🚧 to set oneself apart',de:'sich abgrenzen'},
+    {id:14,type:'v',en:'🎤 to appear / perform',de:'auftreten'},
+    {id:15,type:'v',en:'⭐ to prefer',de:'bevorzugen'}
+];
+
+function initWortschatz(){
+    var container=document.getElementById('wortschatzContainer');
+    container.innerHTML='';
+    WORTSCHATZ.forEach(function(item){
+        var row=document.createElement('div');
+        row.className='luecken-item';
+        row.style.marginBottom='0';
+        var prompt=document.createElement('div');
+        prompt.style.cssText='font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;';
+        prompt.textContent=item.en;
+        row.appendChild(prompt);
+        var fields=document.createElement('div');
+        fields.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+        if(item.type==='n'){
+            var artInp=document.createElement('input');
+            artInp.className='blank'; artInp.type='text';
+            artInp.placeholder='???'; artInp.style.width='70px';
+            artInp.dataset.answer=item.artikel; artInp.dataset.field='art';
+            artInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            fields.appendChild(artInp);
+            var wordInp=document.createElement('input');
+            wordInp.className='blank'; wordInp.type='text';
+            wordInp.placeholder='???'; wordInp.style.width='160px';
+            wordInp.dataset.answer=item.de; wordInp.dataset.field='word';
+            wordInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            fields.appendChild(wordInp);
+            var plInp=document.createElement('input');
+            plInp.className='blank'; plInp.type='text';
+            plInp.placeholder='???'; plInp.style.width='140px';
+            plInp.dataset.answer=item.plural; plInp.dataset.field='plural';
+            if(item.plural==='–'){
+                plInp.value='–'; plInp.disabled=true;
+                plInp.classList.add('correct'); plInp.style.opacity='0.6';
+                plInp.title='Dieses Wort hat keinen Plural';
+            } else {
+                plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            }
+            fields.appendChild(plInp);
+        } else {
+            var inp=document.createElement('input');
+            inp.className='blank'; inp.type='text';
+            inp.placeholder='???'; inp.style.width='220px';
+            inp.dataset.answer=item.de; inp.dataset.field='word';
+            inp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
+            fields.appendChild(inp);
+        }
+        row.appendChild(fields);
+        container.appendChild(row);
+    });
+}
+
+function wortschatzCheck(inp){
+    var user=inp.value;
+    var answer=inp.dataset.answer;
+    var field=inp.dataset.field;
+    inp.classList.remove('correct','wrong');
+    if(!user) return;
+    var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
+    var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
+    if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+    else if(cmpAnswer.indexOf(cmpUser)===0){/* prefix */}
+    else{inp.classList.add('wrong');}
+}
+
+function checkWortschatzAllOk(){
+    var inputs=document.querySelectorAll('#sec-4 input.blank');
+    var allOk=inputs.length>0&&Array.from(inputs).every(function(i){
+        return i.disabled||i.classList.contains('correct');
+    });
+    if(allOk) stopTimer(4);
+}
+
+function showWortschatzLoesung(){
+    stopTimer(4);
+    document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
+        inp.value=inp.dataset.answer;
+        inp.classList.add('correct'); inp.classList.remove('wrong');
+    });
+}
+
+function resetWortschatz(){
+    document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
+        if(!inp.disabled){inp.value=''; inp.classList.remove('correct','wrong');}
+    });
+}
+
+/* ── Satzbau ── */
+var satzbauData=[
+    {parts:['jede','Subkultur','dient','dazu',',','sich','von','der','Gesamtkultur','abzugrenzen'],
+     valid:[['jede','Subkultur','dient','dazu',',','sich','von','der','Gesamtkultur','abzugrenzen']],punct:'.'},
+    {parts:['die','Hippies','traten','1960','als','erste','Teilnehmer','der','Friedensbewegung','auf'],
+     valid:[['die','Hippies','traten','1960','als','erste','Teilnehmer','der','Friedensbewegung','auf']],punct:'.'},
+    {parts:['Jugendliche','probieren','viele','Subkulturen','aus',',','bevor','sie','etwas','Passendes','finden'],
+     valid:[['Jugendliche','probieren','viele','Subkulturen','aus',',','bevor','sie','etwas','Passendes','finden']],punct:'.'},
+    {parts:['die','Szene','bringt','Menschen','mit','ähnlichen','Überzeugungen','zusammen'],
+     valid:[['die','Szene','bringt','Menschen','mit','ähnlichen','Überzeugungen','zusammen']],punct:'.'},
+    {parts:['mithilfe','von','Subkulturen','bilden','Jugendliche','ihr','eigenes','Selbstbewusstsein'],
+     valid:[['mithilfe','von','Subkulturen','bilden','Jugendliche','ihr','eigenes','Selbstbewusstsein']],punct:'.'},
+    {parts:['Musik','hat','einen','starken','Zusammenhang','mit','der','Identitätskonstruktion'],
+     valid:[['Musik','hat','einen','starken','Zusammenhang','mit','der','Identitätskonstruktion']],punct:'.'}
+];
+
+var sbDragged=null;
+
+function getSbCursor(){
+    var c=document.getElementById('sb-insert-cursor');
+    if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}
+    return c;
+}
+function getSbInsertPos(zone,clientX){
+    var chips=Array.from(zone.querySelectorAll('.chip'));
+    for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(clientX<r.left+r.width/2) return chips[i];}
+    return null;
+}
+function sbCapitalize(str){return str.charAt(0).toUpperCase()+str.slice(1);}
+function sbUpdateCapitalization(row){
+    var chips=Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c,i){
+        var orig=c.dataset.orig;
+        var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+        if(isProper){c.textContent=orig;}
+        else{c.textContent=(i===0)?sbCapitalize(orig):orig;}
+    });
+}
+function sbMakeChip(word){
+    var chip=document.createElement('div');
+    chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+    if(word===','||word===';'||word===':') chip.classList.add('punct-chip');
+    chip.addEventListener('dragstart',function(e){sbDragged=chip;timerAutoStart(5);e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});
+    chip.addEventListener('dragend',function(){chip.style.opacity='';sbDragged=null;var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);});
+    return chip;
+}
+function sbRegisterZone(zone,idx){
+    zone.addEventListener('dragover',function(e){e.preventDefault();if(!sbDragged)return;var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);});
+    zone.addEventListener('dragleave',function(e){if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}});
+    zone.addEventListener('drop',function(e){e.preventDefault();if(!sbDragged)return;var cursor=document.getElementById('sb-insert-cursor');if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}sbDragged=null;var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);});
+}
+function sbColorRow(idx){
+    var row=document.getElementById('sb-row-'+idx);var chips=Array.from(row.querySelectorAll('.chip'));
+    var order=chips.map(function(c){return c.dataset.orig;});
+    var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});
+    chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});
+    var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+    if(ok){var punkt=document.createElement('span');punkt.className='sb-punkt';punkt.textContent=satzbauData[idx].punct||'.';row.appendChild(punkt);}
+    return ok;
+}
+function sbCheckAuto(idx){
+    var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);
+    if(bank.querySelectorAll('.chip').length>0){row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});row.classList.remove('correct','incorrect');fb.textContent='';return;}
+    setTimeout(function(){timerAutoStart(5);var ok=sbColorRow(idx);
+        if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}
+        else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';}
+    },500);
+}
+function sbCheckAllDone(){var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});if(allOk)stopTimer(5);}
+function sbShowSolution(idx){
+    var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);var solution=satzbauData[idx].valid[0];
+    var allChips={};Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+    while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);
+    solution.forEach(function(word,i){var chip=allChips[word];if(chip){if(word!==','&&word!==';'&&word!==':'){chip.textContent=(i===0)?sbCapitalize(word):word;}chip.classList.remove('correct','incorrect');row.appendChild(chip);}});
+    fb.textContent='';setTimeout(function(){sbCheckAuto(idx);},100);
+}
+function sbResetOne(idx){
+    var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);
+    while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);
+    row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';
+    var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+    var parts=satzbauData[idx].parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+    parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+}
+function initSatzbau(){
+    var container=document.getElementById('satzbauContainer');container.innerHTML='';
+    satzbauData.forEach(function(ex,idx){
+        var item=document.createElement('div');item.className='satzbau-item';
+        var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;
+        var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;
+        var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;
+        var parts=ex.parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+        parts.forEach(function(word){bank.appendChild(sbMakeChip(word));});
+        sbRegisterZone(bank,idx);sbRegisterZone(row,idx);
+        var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+        var solveBtn=document.createElement('button');solveBtn.className='btn';solveBtn.textContent='Lösen';solveBtn.setAttribute('data-idx',idx);
+        solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});
+        var resetBtn=document.createElement('button');resetBtn.className='btn';resetBtn.textContent='↺ Neustart';resetBtn.setAttribute('data-idx',idx);
+        resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});
+        btnRow.appendChild(solveBtn);btnRow.appendChild(resetBtn);
+        item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+
+/* ── Init ── */
+highlightVocabInText();
+initRF();
+initLuecken();
+initWortschatz();
 initSatzbau();
 </script>
 </body>
