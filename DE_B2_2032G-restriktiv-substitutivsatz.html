@@ -377,7 +377,7 @@ function mcCheck(step,btn,correct){
     if(mcDone[step]) return;
     var fb=document.getElementById('mcfb'+step);
     if(correct){
-        btn.classList.add('correct');
+        btn.classList.add('ok');
         fb.className='mc-feedback ok';
         fb.textContent=mcFeedback[step];
         mcDone[step]=true;
@@ -389,10 +389,10 @@ function mcCheck(step,btn,correct){
             else document.getElementById('regelkarte').style.display='block';
         },1200);
     } else {
-        btn.classList.add('wrong');
+        btn.classList.add('no');
         fb.className='mc-feedback err';
         fb.textContent='✗ Nicht ganz – lies die Sätze noch einmal.';
-        setTimeout(function(){btn.classList.remove('wrong');fb.textContent='';},1500);
+        setTimeout(function(){btn.classList.remove('no');fb.textContent='';},1500);
     }
 }
 
@@ -597,7 +597,7 @@ function sbCheckAuto(idx){
         timerAutoStart(3);
         var ok=sbColorRow(idx);
         if(ok){
-            row.classList.add('correct'); row.classList.remove('incorrect');
+            row.classList.add('ok'); row.classList.remove('incorrect');
             fb.className='satzbau-feedback correct';
             fb.textContent='✓ Korrekt!';
             sbCheckAllDone();
@@ -612,7 +612,7 @@ function sbCheckAuto(idx){
 function sbCheckAllDone(){
     var allOk=satzbauData.every(function(_,i){
         var row=document.getElementById('sb-row-'+i);
-        return row&&row.classList.contains('correct');
+        return row&&row.classList.contains('ok');
     });
     if(allOk) stopTimer(3);
 }
@@ -750,7 +750,7 @@ function initWortschatz(){
             plInp.dataset.answer=item.plural; plInp.dataset.field='plural';
             if(item.plural==='–'){
                 plInp.value='–'; plInp.disabled=true;
-                plInp.classList.add('correct'); plInp.style.opacity='0.6';
+                plInp.classList.add('ok'); plInp.style.opacity='0.6';
                 plInp.title='Dieses Wort hat keinen Plural';
             } else {
                 plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
@@ -773,19 +773,19 @@ function wortschatzCheck(inp){
     var user=inp.value;
     var answer=inp.dataset.answer;
     var field=inp.dataset.field;
-    inp.classList.remove('correct','wrong');
+    inp.classList.remove('ok','no');
     if(!user) return;
     var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
     var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
-    if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+    if(cmpUser===cmpAnswer){inp.classList.add('ok');}
     else if(cmpAnswer.indexOf(cmpUser)===0){/* prefix */}
-    else{inp.classList.add('wrong');}
+    else{inp.classList.add('no');}
 }
 
 function checkWortschatzAllOk(){
     var inputs=document.querySelectorAll('#sec-4 input.blank');
     var allOk=inputs.length>0&&Array.from(inputs).every(function(i){
-        return i.disabled||i.classList.contains('correct');
+        return i.disabled||i.classList.contains('ok');
     });
     if(allOk) stopTimer(4);
 }
@@ -794,14 +794,14 @@ function showWortschatzLoesung(){
     stopTimer(4);
     document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
         inp.value=inp.dataset.answer;
-        inp.classList.add('correct'); inp.classList.remove('wrong');
+        inp.classList.add('ok'); inp.classList.remove('no');
     });
 }
 
 function resetWortschatz(){
     document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
         if(!inp.disabled){
-            inp.value=''; inp.classList.remove('correct','wrong');
+            inp.value=''; inp.classList.remove('ok','no');
         }
     });
 }

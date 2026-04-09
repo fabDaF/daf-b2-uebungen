@@ -8,10 +8,10 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:'Segoe UI',system-ui,sans-serif;padding:20px;}
 .container{max-width:1000px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);overflow:hidden;}
-.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 32px;}
-.header h1{font-size:1.6rem;margin-bottom:4px;}
-.subtitle{opacity:.85;font-size:.95rem;}
-.big-emoji{font-size:2.2rem;margin-top:8px;}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 32px;text-align:center;}
+.header h1{font-size:2.2em;margin-bottom:4px;font-family:Georgia,'Times New Roman',serif;}
+.subtitle{opacity:.85;font-size:1.1em;font-family:Georgia,'Times New Roman',serif;}
+.big-emoji{font-size:2.6em;margin-top:8px;}
 .nav{display:flex;flex-wrap:nowrap;background:#f8f9fa;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
 .nav-btn{flex:1;padding:14px 10px;text-align:center;cursor:pointer;border-right:1px solid #ddd;border-bottom:1px solid #ddd;transition:all .3s;font-size:.92em;font-weight:500;color:#666;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .nav-btn:last-child{border-right:none;}
@@ -227,7 +227,7 @@ input.blank.no{border-bottom:2px solid #f44336;color:#c62828;}
 </div>
 
 <div class="author-footer">
-  <span>&copy; Frank Burkert</span> · DaF-Materialien ·
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
   <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
 </div>
 </div>
@@ -255,7 +255,7 @@ function mcCheck(step,btn,isCorrect){
     if(mcDone[step])return;
     var fb=document.getElementById('mcfb'+step);
     if(isCorrect){
-        mcDone[step]=true;btn.classList.add('correct');
+        mcDone[step]=true;btn.classList.add('ok');
         fb.textContent='✓ Richtig!';fb.className='mc-feedback ok';
         document.getElementById('pdot'+step).classList.add('done');
         setTimeout(function(){
@@ -264,9 +264,9 @@ function mcCheck(step,btn,isCorrect){
             else{document.getElementById('regelkarte').style.display='block';}
         },800);
     } else {
-        btn.classList.add('wrong');
+        btn.classList.add('no');
         fb.textContent='✗ Nicht ganz — versuche es nochmal!';fb.className='mc-feedback err';
-        setTimeout(function(){btn.classList.remove('wrong');fb.textContent='';},1200);
+        setTimeout(function(){btn.classList.remove('no');fb.textContent='';},1200);
     }
 }
 
@@ -303,8 +303,8 @@ function initZuordnung(){
             if(!zuordSelected)return;
             zone.appendChild(zuordSelected);
             zuordSelected.style.outline='';
-            if(zuordSelected.dataset.cat===cat){zuordSelected.classList.add('correct');zuordSelected.classList.remove('wrong');}
-            else{zuordSelected.classList.add('wrong');zuordSelected.classList.remove('correct');}
+            if(zuordSelected.dataset.cat===cat){zuordSelected.classList.add('ok');zuordSelected.classList.remove('no');}
+            else{zuordSelected.classList.add('no');zuordSelected.classList.remove('correct');}
             zuordSelected=null;
         };
     });
@@ -395,13 +395,13 @@ function initWortschatz(){
     });
 }
 
-function wortschatzCheck(inp){var user=inp.value;var answer=inp.dataset.answer;var field=inp.dataset.field;inp.classList.remove('correct','wrong');if(!user)return;var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();var cmpAnswer=(field==='art')?answer.toLowerCase():answer;if(cmpUser===cmpAnswer){inp.classList.add('correct');}else if(cmpAnswer.indexOf(cmpUser)===0){}else{inp.classList.add('wrong');}}
+function wortschatzCheck(inp){var user=inp.value;var answer=inp.dataset.answer;var field=inp.dataset.field;inp.classList.remove('ok','no');if(!user)return;var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();var cmpAnswer=(field==='art')?answer.toLowerCase():answer;if(cmpUser===cmpAnswer){inp.classList.add('ok');}else if(cmpAnswer.indexOf(cmpUser)===0){}else{inp.classList.add('no');}}
 
-function checkWortschatzAllOk(){var inputs=document.querySelectorAll('#sec-4 input.blank');var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.disabled||i.classList.contains('correct');});if(allOk)stopTimer(4);}
+function checkWortschatzAllOk(){var inputs=document.querySelectorAll('#sec-4 input.blank');var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.disabled||i.classList.contains('ok');});if(allOk)stopTimer(4);}
 
-function showWortschatzLoesung(){stopTimer(4);document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');});}
+function showWortschatzLoesung(){stopTimer(4);document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add('ok');inp.classList.remove('no');});}
 
-function resetWortschatz(){document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){if(!inp.disabled){inp.value='';inp.classList.remove('correct','wrong');}});resetTimer(4);}
+function resetWortschatz(){document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){if(!inp.disabled){inp.value='';inp.classList.remove('ok','no');}});resetTimer(4);}
 
 /* === Satzbau (canonical) === */
 var satzbauData=[
@@ -443,7 +443,7 @@ function sbColorRow(idx){var row=document.getElementById('sb-row-'+idx);var chip
 
 function sbCheckAuto(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);if(bank.querySelectorAll('.chip').length>0){row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});row.classList.remove('correct','incorrect');fb.textContent='';return;}setTimeout(function(){timerAutoStart(3);var ok=sbColorRow(idx);if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';}},500);}
 
-function sbCheckAllDone(){var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});if(allOk)stopTimer(3);}
+function sbCheckAllDone(){var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('ok');});if(allOk)stopTimer(3);}
 
 function sbShowSolution(idx){var bank=document.getElementById('sb-bank-'+idx);var row=document.getElementById('sb-row-'+idx);var fb=document.getElementById('sb-fb-'+idx);var solution=satzbauData[idx].valid[0];var allChips={};Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);solution.forEach(function(word,i){var chip=allChips[word];if(chip){if(word!==','&&word!==';'&&word!==':'){chip.textContent=(i===0)?sbCapitalize(word):word;}chip.classList.remove('correct','incorrect');row.appendChild(chip);}});fb.textContent='';setTimeout(function(){sbCheckAuto(idx);},100);}
 
