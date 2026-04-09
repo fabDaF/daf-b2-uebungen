@@ -105,13 +105,13 @@ input.blank.no{border-bottom:2px solid #f44336;color:#c62828;}
   <h2 class="section-title">🧩 Vorentlastung — Gentrifizierung</h2>
   <div class="info-box">Wenn ein altes Viertel plötzlich trendy wird, kommen neue Menschen, Cafés, Boutiquen. Aber was passiert mit denjenigen, die dort vorher gelebt haben? Lerne die wichtigsten Wörter kennen, bevor du mehr erfährst.</div>
   <div class="vocab-grid">
-    <div class="vocab-card"><div class="word">die Verdrängung, -en</div><div class="type">Nomen</div><div class="example">Die Verdrängung von Bewohnern ist ein Problem bei Gentrifizierung.</div></div>
-    <div class="vocab-card"><div class="word">die Aufwertung, -en</div><div class="type">Nomen</div><div class="example">Die Aufwertung des Viertels führt zu höheren Mietpreisen.</div></div>
-    <div class="vocab-card"><div class="word">die Mietpreiserhöhung, -en</div><div class="type">Nomen</div><div class="example">Die Mietpreiserhöhung traf viele langjährige Mieter hart.</div></div>
-    <div class="vocab-card"><div class="word">die Nachfrage, -n</div><div class="type">Nomen</div><div class="example">Die Nachfrage nach Wohnungen in der Innenstadt wächst.</div></div>
-    <div class="vocab-card"><div class="word">das Angebot, -e</div><div class="type">Nomen</div><div class="example">Das Angebot an bezahlbarem Wohnraum schrumpft.</div></div>
-    <div class="vocab-card"><div class="word">die Subkultur, -en</div><div class="type">Nomen</div><div class="example">Eine Subkultur von Künstlern machte das Viertel zunächst interessant.</div></div>
-    <div class="vocab-card"><div class="word">die Mittelschicht, -en</div><div class="type">Nomen</div><div class="example">Die Mittelschicht zieht in die aufgewerteten Stadtteile.</div></div>
+    <div class="vocab-card"><div class="word">die Verdrängung, Verdrängungen</div><div class="type">Nomen</div><div class="example">Die Verdrängung von Bewohnern ist ein Problem bei Gentrifizierung.</div></div>
+    <div class="vocab-card"><div class="word">die Aufwertung, Aufwertungen</div><div class="type">Nomen</div><div class="example">Die Aufwertung des Viertels führt zu höheren Mietpreisen.</div></div>
+    <div class="vocab-card"><div class="word">die Mietpreiserhöhung, Mietpreiserhöhungen</div><div class="type">Nomen</div><div class="example">Die Mietpreiserhöhung traf viele langjährige Mieter hart.</div></div>
+    <div class="vocab-card"><div class="word">die Nachfrage, Nachfragen</div><div class="type">Nomen</div><div class="example">Die Nachfrage nach Wohnungen in der Innenstadt wächst.</div></div>
+    <div class="vocab-card"><div class="word">das Angebot, Angebote</div><div class="type">Nomen</div><div class="example">Das Angebot an bezahlbarem Wohnraum schrumpft.</div></div>
+    <div class="vocab-card"><div class="word">die Subkultur, Subkulturen</div><div class="type">Nomen</div><div class="example">Eine Subkultur von Künstlern machte das Viertel zunächst interessant.</div></div>
+    <div class="vocab-card"><div class="word">die Mittelschicht, Mittelschichten</div><div class="type">Nomen</div><div class="example">Die Mittelschicht zieht in die aufgewerteten Stadtteile.</div></div>
     <div class="vocab-card"><div class="word">hip</div><div class="type">Adjektiv</div><div class="example">Das Viertel wurde immer hipper und teurer.</div></div>
   </div>
   </div>
@@ -362,7 +362,7 @@ function initLuecken(){
         var div=document.createElement('div'); div.className='luecken-item';
         div.appendChild(document.createTextNode(parts[0]));
         var inp=document.createElement('input'); inp.type='text'; inp.className='blank';
-        inp.dataset.ans=ex.ans; inp.placeholder='???';
+        inp.dataset.ans=ex.ans; inp.placeholder='';
         inp.style.width=Math.max(80,ex.ans.length*10+20)+'px';
         inp.oninput=function(){liveCheck(this,function(){timerAutoStart(3);},'#sec-3 input.blank',function(){stopTimer(3);});};
         div.appendChild(inp);
@@ -436,7 +436,7 @@ function initWortschatz(){
             plInp.dataset.answer=item.plural;plInp.dataset.field='plural';
             if(item.plural==='–'){
                 plInp.value='–';plInp.disabled=true;
-                plInp.classList.add('correct');plInp.style.opacity='0.6';
+                plInp.classList.add('ok');plInp.style.opacity='0.6';
                 plInp.title='Dieses Wort hat keinen Plural';
             } else {
                 plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(4);checkWortschatzAllOk();};
@@ -459,19 +459,19 @@ function wortschatzCheck(inp){
     var user=inp.value;
     var answer=inp.dataset.answer;
     var field=inp.dataset.field;
-    inp.classList.remove('correct','wrong');
+    inp.classList.remove('ok','no');
     if(!user) return;
     var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
     var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
-    if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+    if(cmpUser===cmpAnswer){inp.classList.add('ok');}
     else if(cmpAnswer.indexOf(cmpUser)===0){/* prefix */}
-    else{inp.classList.add('wrong');}
+    else{inp.classList.add('no');}
 }
 
 function checkWortschatzAllOk(){
     var inputs=document.querySelectorAll('#sec-4 input.blank');
     var allOk=inputs.length>0 && Array.from(inputs).every(function(i){
-        return i.disabled || i.classList.contains('correct');
+        return i.disabled || i.classList.contains('ok');
     });
     if(allOk) stopTimer(4);
 }
@@ -480,13 +480,13 @@ function showWortschatzLoesung(){
     stopTimer(4);
     document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
         inp.value=inp.dataset.answer;
-        inp.classList.add('correct');inp.classList.remove('wrong');
+        inp.classList.add('ok');inp.classList.remove('no');
     });
 }
 
 function resetWortschatz(){
     document.querySelectorAll('#sec-4 input.blank').forEach(function(inp){
-        if(!inp.disabled){inp.value='';inp.classList.remove('correct','wrong');}
+        if(!inp.disabled){inp.value='';inp.classList.remove('ok','no');}
     });
     resetTimer(4);
 }
