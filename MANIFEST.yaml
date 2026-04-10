@@ -1,0 +1,230 @@
+# fabDaF MANIFEST — Single Source of Truth
+#
+# Dieses Dokument beschreibt die SOLL-Welt des fabDaF-Projekts.
+# Die IST-Welt lebt in Git, auf GitHub und im Dateisystem.
+#
+# Bei Abweichungen zwischen SOLL und IST ist die Abweichung der Alarm —
+# NICHT das Manifest. Drift muss untersucht und behoben werden.
+#
+# Prüfung: ./scripts/verify_manifest.sh
+# Dokumentation: MANIFEST.md (generiert)
+#
+# Letzte manuelle Aktualisierung: 2026-04-10
+# Konsolidierung abgeschlossen: 2026-04-10 (siehe backup/KONSOLIDIERUNG_20260410.md)
+
+manifest_version: 1
+project: fabDaF
+description: "Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)"
+root_path_absolute: "~/Cowork/Projekte/fabDaF"
+root_path_session: "/sessions/festive-serene-dirac/mnt/fabDaF"
+
+# Grundregeln für die Struktur.
+# Jede Verletzung dieser Regeln ist ein Alarm, kein akzeptierter Zustand.
+rules:
+  - id: one_repo_per_level
+    description: "Pro Niveau (A1, A2, B1, B2, C1) existiert genau EIN Repo. Niemals parallele Versionen."
+  - id: no_parallel_working_copies
+    description: "Keine Ordner wie 'X.1 NEU', 'X.2', 'Kopie' für dasselbe Niveau. Stattdessen Git-Branches oder Archiv."
+  - id: archive_is_frozen
+    description: "daf-archiv darf nur noch erweitert, nicht mehr verändert werden. Inhalt ist historisch."
+  - id: dashboards_point_to_manifest_repos
+    description: "Jede basis-URL in einem dashboard.html MUSS auf ein Repo zeigen, das in diesem Manifest als active/materialien/archive gelistet ist."
+  - id: no_secrets_in_remote_urls
+    description: "Remote-URLs im Manifest enthalten NIE PATs oder Tokens. Die echten URLs in .git/config können PATs enthalten, aber das Manifest bleibt sauber."
+
+# Die neun aktiven Repos.
+# Jedes Repo hat: eindeutigen Schlüssel, lokalen Pfad (relativ zu root_path_absolute),
+# öffentliche Remote-URL (ohne PAT), erwartete Rolle, Pages-Status, Dashboard-Basis-URL (falls verlinkt),
+# Erwartungen für die Verifikation.
+repos:
+
+  daf-a1-uebungen:
+    role: niveau_active
+    level: A1
+    local_path: "htmlS/A1.1 NEW"
+    remote_url: "https://github.com/fabDaF/daf-a1-uebungen.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-a1-uebungen/"
+    dashboard_basis: "https://fabdaf.github.io/daf-a1-uebungen/"
+    purpose: "Aktive A1-Lektionen (ehem. A1-Einstieg + A1 + A1.2 NEW konsolidiert am 2026-04-10)"
+    expected:
+      tracked_files_min: 190
+      html_files_min: 180
+
+  daf-a2-uebungen:
+    role: niveau_active
+    level: A2
+    local_path: "htmlS/A2.1"
+    remote_url: "https://github.com/fabDaF/daf-a2-uebungen.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-a2-uebungen/"
+    dashboard_basis: "https://fabdaf.github.io/daf-a2-uebungen/"
+    purpose: "Aktive A2-Lektionen (A2.1 + A2.2 konsolidiert am 2026-04-10)"
+    expected:
+      tracked_files_min: 180
+      html_files_min: 140
+
+  daf-b1-uebungen:
+    role: niveau_active
+    level: B1
+    local_path: "htmlS/B1.1"
+    remote_url: "https://github.com/fabDaF/daf-b1-uebungen.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-b1-uebungen/"
+    dashboard_basis: "https://fabdaf.github.io/daf-b1-uebungen/"
+    purpose: "Aktive B1-Lektionen (B1.1 als Master; B1.2/B1.3 am 2026-04-10 verworfen, nur Grammatik übernommen)"
+    expected:
+      tracked_files_min: 170
+      html_files_min: 165
+
+  daf-b2-uebungen:
+    role: niveau_active
+    level: B2
+    local_path: "."
+    remote_url: "https://github.com/fabDaF/daf-b2-uebungen.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-b2-uebungen/"
+    dashboard_basis: "https://fabdaf.github.io/daf-b2-uebungen/"
+    purpose: "Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml)"
+    is_root: true
+    expected:
+      tracked_files_min: 160
+      html_files_min: 150
+
+  daf-c1-uebungen:
+    role: niveau_active
+    level: C1
+    local_path: "htmlS/C1"
+    remote_url: "https://github.com/fabDaF/daf-c1-uebungen.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-c1-uebungen/"
+    dashboard_basis: "https://fabdaf.github.io/daf-c1-uebungen/"
+    purpose: "C1-Lektionen (klein, wird schrittweise aufgebaut)"
+    expected:
+      tracked_files_min: 1
+      html_files_min: 1
+
+  daf-materialien:
+    role: materialien
+    local_path: "daf-materialien"
+    remote_url: "https://github.com/fabDaF/daf-materialien.git"
+    github_pages:
+      enabled: false   # OFFEN: Muss auf GitHub aktiviert werden (siehe known_issues)
+      url: "https://fabdaf.github.io/daf-materialien/"
+    dashboard_basis: "https://fabdaf.github.io/daf-materialien/"
+    purpose: "Niveau-übergreifende Materialien: Grundlagen, Texte, Treffen, Warum wir krank werden, Wortschatz"
+    expected:
+      tracked_files_min: 40
+      html_files_min: 40
+
+  daf-architektur:
+    role: architektur
+    local_path: "htmlS/Architektur"
+    remote_url: "https://github.com/fabDaF/daf-architektur.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-architektur/"
+    dashboard_basis: "https://fabdaf.github.io/daf-architektur/"
+    purpose: "Architektur-Material für Caroline Deters (Kap13-Entwurfsplanung etc.)"
+    expected:
+      tracked_files_min: 7
+      html_files_min: 7
+
+  daf-lueckentexte:
+    role: spezial
+    local_path: "htmlS/Lückentexte Mattmüller"
+    remote_url: "https://github.com/fabDaF/daf-lueckentexte.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-lueckentexte/"
+    dashboard_basis: "https://fabdaf.github.io/daf-lueckentexte/"
+    purpose: "Lückentext-Übungen nach Mattmüller-Methode"
+    expected:
+      tracked_files_min: 10
+      html_files_min: 10
+
+  daf-archiv:
+    role: archiv
+    local_path: "daf-archiv"
+    remote_url: "https://github.com/fabDaF/daf-archiv.git"
+    github_pages:
+      enabled: false   # OFFEN: Muss auf GitHub aktiviert werden (siehe known_issues)
+      url: null
+    dashboard_basis: null   # Archiv wird NICHT im Dashboard verlinkt
+    purpose: "Historische Kopien und verworfene Versionen (B1/B2 Grammatik-Kopien, Löschbar-Ordner). FROZEN."
+    expected:
+      tracked_files_min: 30
+      html_files_min: 30
+
+# Bekannte, noch nicht behobene Zustände.
+# Jeder Eintrag hier ist ein OFFENER PUNKT, den das verify-Skript NICHT als Fehler werten soll,
+# solange er hier steht. Wenn er behoben ist, muss er aus dieser Liste entfernt werden.
+known_issues:
+
+  - id: pages_daf_materialien
+    severity: medium
+    description: "GitHub Pages für daf-materialien noch nicht aktiviert. Dashboard-Links auf fabdaf.github.io/daf-materialien/ laufen ins Leere, bis Frank Settings → Pages → main branch → / klickt."
+    owner: frank
+    created: 2026-04-10
+
+  - id: pages_daf_archiv
+    severity: low
+    description: "GitHub Pages für daf-archiv noch nicht aktiviert. Nur relevant, falls Archiv-Inhalte als Read-Only-Referenz serviert werden sollen."
+    owner: frank
+    created: 2026-04-10
+
+  - id: orphaned_repos_on_github
+    severity: medium
+    description: "Die alten Repos daf-a2-2-uebungen und daf-grundlagen existieren noch auf GitHub, werden aber von keinem Manifest-Eintrag mehr referenziert. Sollten auf GitHub archiviert werden (Settings → Danger Zone → Archive)."
+    owner: frank
+    created: 2026-04-10
+
+  - id: dashboard_references_missing_wkv_repo
+    severity: high
+    description: "dashboard.html verweist auf basis 'https://fabdaf.github.io/daf-wkv-uebungen/' (Sektion 'WKV – Schülermaterial', Caroline Deters), aber dieses Repo existiert lokal NICHT. Die HTML-Dateien (WKV-Vertragssprache.html, WKV-Komposita-FVG.html, WKV-Geschaeftsemail.html) liegen in 'Archiv fabDaf/Schülermaterial/'. Klärungsbedarf: Ist das Repo auf GitHub live und nur lokal nie geklont, oder ist der Dashboard-Link tot? Entscheidung: entweder Repo lokal klonen + in Manifest aufnehmen, oder Dashboard-Eintrag entfernen."
+    owner: frank
+    created: 2026-04-10
+    detected_by: manifest_initial_scan
+
+  - id: c1_untracked_files
+    severity: medium
+    description: "htmlS/C1 hat nur 1 getrackte HTML-Datei (DE_C1_1011G-nominalstil.html), aber 7 HTML-Dateien physisch vorhanden. 6 Dateien sind ungetrackt. Klärungsbedarf: sollen sie committed werden oder sind sie Entwürfe?"
+    owner: frank
+    created: 2026-04-10
+    detected_by: manifest_initial_scan
+
+  - id: launchd_backup_not_activated
+    severity: medium
+    description: "Automatisches Backup via launchd ist vorbereitet (backup/com.fabdaf.backup.plist), aber noch nicht geladen. Siehe backup/INSTALL.md."
+    owner: frank
+    created: 2026-04-10
+
+# Repos, die historisch existiert haben, aber NICHT mehr Teil des Manifests sind.
+# Wird vom verify-Skript als Warnung verwendet: Wenn eines dieser Repos lokal oder remote noch Aktivität zeigt,
+# ist das ein Signal, dass die Konsolidierung unterlaufen wird.
+deprecated_repos:
+  - name: daf-a2-2-uebungen
+    replaced_by: daf-a2-uebungen
+    deprecated_at: 2026-04-10
+    reason: "A2.2 wurde in A2.1 konsolidiert"
+  - name: daf-grundlagen
+    replaced_by: daf-materialien
+    deprecated_at: 2026-04-10
+    reason: "Grundlagen wurde Teil von daf-materialien"
+  - name: daf-a1-2-uebungen
+    replaced_by: daf-a1-uebungen
+    deprecated_at: 2026-04-10
+    reason: "A1.2 NEW wurde als obsolet verworfen"
+  - name: daf-b1-2-uebungen
+    replaced_by: daf-b1-uebungen
+    deprecated_at: 2026-04-10
+    reason: "B1.2 wurde als obsolet verworfen (B1.1 war aktueller)"
+  - name: daf-b1-3-uebungen
+    replaced_by: daf-b1-uebungen
+    deprecated_at: 2026-04-10
+    reason: "B1.3 wurde als obsolet verworfen (B1.1 war aktueller)"
