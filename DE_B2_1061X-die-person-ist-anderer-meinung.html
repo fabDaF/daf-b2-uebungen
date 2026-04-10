@@ -24,6 +24,7 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 24px 30px;
+    text-align: center;
   }
   .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
   .header p { font-size: 0.9rem; opacity: 0.85; }
@@ -54,8 +55,8 @@
   .nav-btn .nav-label { font-size: 0.75rem; }
   .nav-btn:hover { background: #e9ecef; color: #333; }
   .nav-btn.active { background: white; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
-  .tab-content { display: none; padding: 28px 30px; }
-  .tab-content.active { display: block; }
+  .section { display: none; padding: 28px 30px; }
+  .section.active { display: block; }
   .tab-banner {
     width: 100%;
     height: 180px;
@@ -192,25 +193,6 @@
     transition: border-color 0.2s;
   }
   .sb-drop-zone.drag-over { border-color: #667eea; background: #f0f4ff; }
-  .sb-chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-  .sb-chip {
-    background: #667eea;
-    color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    cursor: grab;
-    font-size: 0.85rem;
-    font-weight: 500;
-    user-select: none;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-  .sb-chip:active { cursor: grabbing; transform: scale(1.05); }
-  .sb-chip.punct { background: #9c6dd6; }
-  .sb-chip.in-zone { background: #5a67d8; }
-  .sb-chip.ghost { opacity: 0.35; }
-  .sb-feedback { font-size: 0.83rem; min-height: 20px; margin-top: 4px; }
-  .sb-feedback.ok { color: #28a745; font-weight: 600; }
-  .sb-feedback.err { color: #dc3545; }
   #sb-score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
   #sb-score { font-weight: 700; color: #667eea; }
 
@@ -321,37 +303,54 @@
     .tab-banner { max-height: 120px; }
 }
 /* ──────────────────────────────────────────────────────────── */
-</style>
+
+/* Satzbau chip coloring */
+.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
+.chip.wrong   { background: #e74c3c !important; border-color: #e74c3c !important; color: white !important; }
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }</style>
 </head>
 <body>
 <div class="container">
 
   <div class="header">
     <h1>Die Person ist anderer Meinung</h1>
-    <p>B2 · Einheit 6 · Lektion 1061 · Kommunikation</p>
+            <p>B2.1 – Lektion 1061X · Kommunikation</p>
   </div>
 
   <div class="nav">
-    <div class="nav-btn active" onclick="showTab(0)">
+    <div class="nav-btn active" onclick="showSection(0)">
       <span class="nav-emoji">💬</span>
       <span class="nav-label">Vorentlastung</span>
     </div>
-    <div class="nav-btn" onclick="showTab(1)">
+    <div class="nav-btn" onclick="showSection(1)">
       <span class="nav-emoji">✏️</span>
       <span class="nav-label">Lückentext</span>
     </div>
-    <div class="nav-btn" onclick="showTab(2)">
+    <div class="nav-btn" onclick="showSection(2)">
       <span class="nav-emoji">🔀</span>
       <span class="nav-label">Satzbau</span>
     </div>
-    <div class="nav-btn" onclick="showTab(3)">
+    <div class="nav-btn" onclick="showSection(3)">
       <span class="nav-emoji">📚</span>
       <span class="nav-label">Wortschatz</span>
     </div>
   </div>
 
   <!-- TAB 0: VORENTLASTUNG -->
-  <div class="tab-content active" id="tab-0">
+  <div class="section active" id="sec-0">
     <img src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Meinungen und Diskussion">
 
     <div class="intro-quote">
@@ -404,15 +403,19 @@
   </div>
 
   <!-- TAB 1: LÜCKENTEXT -->
-  <div class="tab-content" id="tab-1">
+  <div class="section" id="sec-1">
     <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Lückentext">
 
     <div class="control-bar">
-      <div class="btn-group">
-        <div class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
+      <div class="btn-row">
+        <button class="btn" onclick="document.querySelectorAll('#sec-1 .gap-input').forEach(function(inp){if(!inp.classList.contains('correct')){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong')}});updateLueckeScore();timerStop(1);">💡 Lösung</button>
+        <button class="btn" onclick="resetLuecke();">↺ Zurücksetzen</button>
       </div>
-      
-</div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-1">0:00</span></span>
+        <span>Best: <span id="best-1">--:--</span></span>
+      </div>
+    </div>
 
     <div class="luecke-text">
       <p>1. &nbsp;Wie jemand die Welt ansieht und beurteilt, definiert seine <input class="gap-input" data-answer="weltanschauung" oninput="liveCheck(this)" placeholder="">.</p>
@@ -432,44 +435,197 @@
   </div>
 
   <!-- TAB 2: SATZBAU -->
-  <div class="tab-content" id="tab-2">
+  <div class="section" id="sec-2">
     <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Satzbau">
 
     <div class="control-bar">
-      <div class="btn-group">
-        <div class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+      <div class="btn-row">
+        <button class="btn" onclick="satzbauData.forEach(function(_,i){sbResetOne(i)});timerResetOne(2);">↺ Alle neu</button>
       </div>
-      
-</div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">0:00</span></span>
+        <span>Best: <span id="best-2">--:--</span></span>
+      </div>
+    </div>
 
-    <div class="sb-sentences" id="sb-container"></div>
+    <div class="sb-sentences" id="satzbauContainer"></div>
     <div id="sb-score-row">Richtig: <span id="sb-score">0</span> / 7</div>
   </div>
 
   <!-- TAB 3: WORTSCHATZ -->
-  <div class="tab-content" id="tab-3">
+  <div class="section" id="sec-3">
     <img src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Wortschatz">
 
     <div class="control-bar">
-      <div class="btn-group">
-        <div class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
+      <div class="btn-row">
+        <button class="btn" onclick="document.querySelectorAll('#sec-3 .vocab-inp').forEach(function(inp){if(!inp.classList.contains('correct')){inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong')}});updateVocabScore();timerStop(3);">💡 Lösung</button>
+        <button class="btn" onclick="document.querySelectorAll('#sec-3 .vocab-inp').forEach(function(inp){inp.value='';inp.classList.remove('correct','wrong')});document.getElementById('vocab-score').textContent='0';timerResetOne(3);">↺ Zurücksetzen</button>
       </div>
-      
-</div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>Best: <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+
+    <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Nomen: Artikel · Wort · Plural &nbsp;|&nbsp; Verben & Adjektive: nur das Wort tippen.</p>
 
     <div class="vocab-section-title">📌 Nomen</div>
-    <div class="vocab-container" id="vocab-container"></div>
-    <div id="vocab-score-row" style="margin-top:14px;font-size:0.9rem;color:#555;">Richtig: <span id="vocab-score">0</span> / <span id="vocab-total">0</span></div>
+    <div class="vocab-container" id="vocab-container">
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">worldview / philosophy of life</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Weltanschauung" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="Weltanschauungen" oninput="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">religious denomination</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Glaubensrichtung" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="Glaubensrichtungen" oninput="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">interest group / lobby</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Interessengruppe" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="Interessengruppen" oninput="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">pluralism</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="der" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Pluralismus" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="-" oninput="vocabLiveCheck(this)" placeholder="Plural (kein Pl.)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">tolerance</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Toleranz" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="-" oninput="vocabLiveCheck(this)" placeholder="Plural (kein Pl.)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">acceptance</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="die" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Akzeptanz" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="-" oninput="vocabLiveCheck(this)" placeholder="Plural (kein Pl.)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">respect</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="der" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Respekt" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="-" oninput="vocabLiveCheck(this)" placeholder="Plural (kein Pl.)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">point of view / standpoint</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="der" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Standpunkt" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="Standpunkte" oninput="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">compromise</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-art" data-answer="der" oninput="vocabLiveCheck(this)" placeholder="Artikel" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-word" data-answer="Kompromiss" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="vocab-inp vocab-inp-plural" data-answer="Kompromisse" oninput="vocabLiveCheck(this)" placeholder="Plural" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="vocab-section-title">📌 Verben</div>
+    <div class="vocab-container">
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">to monopolize / to take over</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-verb" data-answer="vereinnahmen" oninput="vocabLiveCheck(this)" placeholder="Deutsch (Infinitiv)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">to tolerate</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-verb" data-answer="tolerieren" oninput="vocabLiveCheck(this)" placeholder="Deutsch (Infinitiv)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">to respect</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-verb" data-answer="respektieren" oninput="vocabLiveCheck(this)" placeholder="Deutsch (Infinitiv)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">to contradict / to disagree</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-verb" data-answer="widersprechen" oninput="vocabLiveCheck(this)" placeholder="Deutsch (Infinitiv)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="vocab-section-title">📌 Adjektive</div>
+    <div class="vocab-container">
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">radical / extreme</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-verb" data-answer="radikal" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">deviating / divergent</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-verb" data-answer="abweichend" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="vocab-card">
+        <div class="vocab-card-info"><div class="vocab-card-en">subjective</div></div>
+        <div class="vocab-inputs">
+          <input class="vocab-inp vocab-inp-verb" data-answer="subjektiv" oninput="vocabLiveCheck(this)" placeholder="Deutsch" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+
+    </div>
+
+    <div id="vocab-score-row" style="margin-top:14px;font-size:0.9rem;color:#555;">Richtig: <span id="vocab-score">0</span> / <span id="vocab-total">34</span></div>
   </div>
 
-  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+  <div class="footer">&copy; Frank Burkert &middot; DaF-Materialien &middot; <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com" style="color:#aaa;">Kontakt</a></div>
 </div>
 
 <script>
 // ─── TAB NAVIGATION ───────────────────────────────────────────────
-function showTab(n) {
-  document.querySelectorAll('.tab-content').forEach((t,i) => t.classList.toggle('active', i===n));
-  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [1,2,3].forEach(function(i){ timerStop(i); });
 }
 
 // ─── TIMER SYSTEM ─────────────────────────────────────────────────
@@ -513,301 +669,220 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 
-function updateTimerDisplay(n, done=false) {
-  const el = document.getElementById('timer'+n+'-display');
-  if (!el) return;
-  const t = timers[n] || {secs:0};
-  const best = loadBestTime(n);
-  const bestStr = best !== null ? ' · Best: ' + fmtTime(best) : '';
-  el.textContent = (done ? '✅ ' : '⏱ ') + fmtTime(t.secs) + bestStr;
-}
-
-function saveBestTime(n, secs) {
-  try { localStorage.setItem(TIMER_PREFIX+'best'+n, secs); } catch(e){}
-}
-function loadBestTime(n) {
-  try { const v = localStorage.getItem(TIMER_PREFIX+'best'+n); return v !== null ? parseInt(v) : null; } catch(e){ return null; }
-}
-
 // ─── LÜCKENTEXT ───────────────────────────────────────────────────
-let lueckeStarted = false;
 function liveCheck(inp) {
-  if (!lueckeStarted) { lueckeStarted = true; timerStart(1); }
-  const ans = inp.dataset.answer.toLowerCase();
-  const val = inp.value.toLowerCase().trim();
-  if (ans.startsWith(val) && val.length > 0) {
-    inp.classList.remove('wrong');
-  } else if (val.length > 0) {
-    inp.classList.remove('correct');
+  timerAutoStart(1);
+  var ans = inp.dataset.answer.toLowerCase();
+  var val = inp.value.toLowerCase().trim();
+  inp.classList.remove('correct','wrong');
+  if (val.length === 0) return;
+  if (val === ans) {
+    inp.classList.add('correct');
+    updateLueckeScore();
+  } else if (ans.startsWith(val)) {
+    /* valid prefix */
+  } else {
     inp.classList.add('wrong');
   }
-  if (val === ans) {
-    inp.classList.remove('wrong');
-    inp.classList.add('correct');
-  }
-  updateLueckeScore();
 }
 
 function updateLueckeScore() {
-  const all = document.querySelectorAll('#tab-1 .gap-input');
-  const correct = [...all].filter(i => i.classList.contains('correct')).length;
+  var all = document.querySelectorAll('#sec-1 .gap-input');
+  var correct = Array.from(all).filter(function(i){ return i.classList.contains('correct'); }).length;
   document.getElementById('luecke-score').textContent = correct;
   if (correct === all.length) timerStop(1);
 }
 
 function resetLuecke() {
-  document.querySelectorAll('#tab-1 .gap-input').forEach(i => {
+  document.querySelectorAll('#sec-1 .gap-input').forEach(function(i){
     i.value = '';
     i.classList.remove('correct','wrong');
   });
   timerResetOne(1);
-  lueckeStarted = false;
   updateLueckeScore();
 }
 
-// ─── SATZBAU ──────────────────────────────────────────────────────
-let sbDragged = null;
-let sbStarted = false;
-
-const sbSentences = [
-  { parts: ['Wie jemand','die Welt','ansieht',',','definiert','seine Weltanschauung','.'] },
-  { parts: ['Es','gibt','viele verschiedene','Glaubensrichtungen','auf der Welt','.'] },
-  { parts: ['Ich','stehe','für den Pluralismus',',','denn','Vielfalt','ist positiv','.'] },
-  { parts: ['Andere Meinungen','tolerieren zu können','ist','sehr wichtig','.'] },
-  { parts: ['Frau Müller','sagt',',','Religion','sei','wichtig','.'] },
-  { parts: ['Abweichende Meinungen','sollte','man','respektieren','.'] },
-  { parts: ['Meiner Meinung nach','ist','Toleranz','das Wichtigste','in einer Gesellschaft','.'] }
-];
-
-const PUNCT = ['.','!','?',',',';',':'];
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]] = [a[j],a[i]];
-  }
-  return a;
-}
-
-function makeChip(word, inZone=false) {
-  const chip = document.createElement('span');
-  chip.className = 'sb-chip' + (PUNCT.includes(word) ? ' punct' : '') + (inZone ? ' in-zone' : '');
-  chip.textContent = word;
-  chip.draggable = true;
-  chip.addEventListener('dragstart', e => {
-    sbDragged = chip;
-    setTimeout(() => chip.classList.add('ghost'), 0);
-  });
-  chip.addEventListener('dragend', () => chip.classList.remove('ghost'));
-  return chip;
-}
-
-function buildSb() {
-  const container = document.getElementById('sb-container');
-  container.innerHTML = '';
-  sbSentences.forEach((sent, idx) => {
-    const item = document.createElement('div');
-    item.className = 'sb-item';
-    item.dataset.idx = idx;
-
-    const zone = document.createElement('div');
-    zone.className = 'sb-drop-zone';
-    zone.dataset.idx = idx;
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      if (sbDragged) {
-        zone.appendChild(sbDragged);
-        sbDragged.classList.add('in-zone');
-        checkSb(idx);
-        if (!sbStarted) { sbStarted = true; timerStart(2); }
-      }
-    });
-
-    const pool = document.createElement('div');
-    pool.className = 'sb-chip-pool';
-    pool.addEventListener('dragover', e => e.preventDefault());
-    pool.addEventListener('drop', e => {
-      e.preventDefault();
-      if (sbDragged) {
-        pool.appendChild(sbDragged);
-        sbDragged.classList.remove('in-zone');
-        checkSb(idx);
-      }
-    });
-
-    const feedback = document.createElement('div');
-    feedback.className = 'sb-feedback';
-    feedback.dataset.idx = idx;
-
-    shuffle(sent.parts).forEach(w => pool.appendChild(makeChip(w)));
-    item.appendChild(zone);
-    item.appendChild(pool);
-    item.appendChild(feedback);
-    container.appendChild(item);
-  });
-
-function checkSb(idx) {
-  const zone = document.querySelector('.sb-drop-zone[data-idx="'+idx+'"]');
-  const feedback = document.querySelector('.sb-feedback[data-idx="'+idx+'"]');
-  const chips = [...zone.querySelectorAll('.sb-chip')].map(c => c.textContent);
-  const correct = sbSentences[idx].parts;
-  if (chips.length === correct.length && chips.every((c,i) => c === correct[i])) {
-    feedback.className = 'sb-feedback ok';
-    feedback.textContent = '✓ Richtig!';
-    updateSbScore();
-  } else if (chips.length === correct.length) {
-    feedback.className = 'sb-feedback err';
-    feedback.textContent = '✗ Nicht ganz richtig – versuche es noch einmal.';
-    updateSbScore();
-  } else {
-    feedback.className = 'sb-feedback';
-    feedback.textContent = '';
-  }
-}
-
-function updateSbScore() {
-  const correct = document.querySelectorAll('.sb-feedback.ok').length;
-  document.getElementById('sb-score').textContent = correct;
-  if (correct === sbSentences.length) timerStop(2);
-}
-
-function resetAllSb() {
-  sbStarted = false;
-  document.getElementById('sb-score').textContent = '0';
-  timerResetOne(2);
-  buildSb();
-}
-
-// ─── WORTSCHATZ ───────────────────────────────────────────────────
-let vocabStarted = false;
-
-const vocabData = [
-  { type:'n', art:'die', word:'Weltanschauung', plural:'Weltanschauungen', en:'worldview', ex:'Wie jemand die Welt ansieht und beurteilt, definiert seine Weltanschauung.' },
-  { type:'n', art:'die', word:'Glaubensrichtung', plural:'Glaubensrichtungen', en:'religious direction', ex:'Es gibt viele verschiedene Glaubensrichtungen auf der Welt.' },
-  { type:'n', art:'die', word:'Interessengruppe', plural:'Interessengruppen', en:'interest group', ex:'Ich bin in einer Interessengruppe, die sich für die Umwelt einsetzt.' },
-  { type:'n', art:'der', word:'Pluralismus', plural:'–', en:'pluralism', ex:'Wenn eine Gesellschaft viele Weltanschauungen hat, spricht man vom Pluralismus.' },
-  { type:'n', art:'die', word:'Toleranz', plural:'–', en:'tolerance', ex:'Andere Weltanschauungen tolerieren zu können ist sehr wichtig.' },
-  { type:'n', art:'die', word:'Akzeptanz', plural:'–', en:'acceptance', ex:'Akzeptanz ist, wenn man jemanden akzeptieren kann, der anders ist.' },
-  { type:'n', art:'der', word:'Respekt', plural:'–', en:'respect', ex:'Respektiert man jemanden, so achtet und schätzt man diese Person.' },
-  { type:'v', word:'vereinnahmen', en:'to monopolize / take up completely', ex:'Wenn man jemanden vollkommen beansprucht, vereinnahmt man ihn.' },
-  { type:'v', word:'tolerieren', en:'to tolerate', ex:'Andere Glaubensrichtungen tolerieren zu können ist sehr wichtig.' },
-  { type:'v', word:'akzeptieren', en:'to accept', ex:'Man sollte auch Menschen akzeptieren können, die anders sind.' },
-  { type:'v', word:'respektieren', en:'to respect', ex:'Ich respektiere deine Meinung, aber ich sehe das anders.' }
-];
-
-const pexelsIds = {
-  'Weltanschauung': 335257, 'Glaubensrichtung': 208371, 'Interessengruppe': 1181396,
-  'Pluralismus': 1367256, 'Toleranz': 3184433, 'Akzeptanz': 1270764, 'Respekt': 3184431
-};
-
-function buildVocab() {
-  const container = document.getElementById('vocab-container');
-  container.innerHTML = '';
-  let totalInputs = 0;
-  let nounSection = true;
-
-  vocabData.forEach((item) => {
-    if (item.type === 'v' && nounSection) {
-      nounSection = false;
-      const divider = document.createElement('div');
-      divider.className = 'vocab-section-title';
-      divider.textContent = '🔤 Verben';
-      container.appendChild(divider);
-    }
-
-    const card = document.createElement('div');
-    card.className = 'vocab-card';
-
-    if (item.type === 'n') {
-      const pid = pexelsIds[item.word];
-      if (pid) {
-        const img = document.createElement('img');
-        img.className = 'vocab-card-img';
-        img.src = `https://images.pexels.com/photos/${pid}/pexels-photo-${pid}.jpeg?auto=compress&cs=tinysrgb&w=80&h=60&fit=crop`;
-        img.alt = item.word;
-        card.appendChild(img);
-      }
-    }
-
-    const info = document.createElement('div');
-    info.className = 'vocab-card-info';
-    info.innerHTML = `<div class="vocab-card-en">${item.en}</div><div class="vocab-card-ex">${item.ex}</div>`;
-    card.appendChild(info);
-
-    const inputs = document.createElement('div');
-    inputs.className = 'vocab-inputs';
-
-    if (item.type === 'n') {
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-art', item.art.toLowerCase()));
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-word', item.word.toLowerCase()));
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-plural', item.plural.toLowerCase()));
-      totalInputs += 3;
-    } else {
-      inputs.appendChild(makeVocabInp('vocab-inp vocab-inp-verb', item.word.toLowerCase()));
-      totalInputs += 1;
-    }
-
-    card.appendChild(inputs);
-    container.appendChild(card);
-  });
-
-  document.getElementById('vocab-total').textContent = totalInputs;
-}
-
-function makeVocabInp(cls, ans) {
-  const inp = document.createElement('input');
-  inp.className = cls;
-  inp.placeholder = '';
-  inp.dataset.answer = ans;
-  inp.addEventListener('input', () => vocabLiveCheck(inp));
-  return inp;
-}
-
+// ─── WORTSCHATZ ──────────────────────────────────────────────────
 function vocabLiveCheck(inp) {
-  if (!vocabStarted) { vocabStarted = true; timerStart(3); }
-  const ans = inp.dataset.answer.toLowerCase();
-  const val = inp.value.toLowerCase().trim();
-  if (ans.startsWith(val) && val.length > 0) {
-    inp.classList.remove('wrong');
-  } else if (val.length > 0) {
-    inp.classList.add('wrong');
-    inp.classList.remove('correct');
-  }
+  timerAutoStart(3);
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase().trim();
+  inp.classList.remove('correct','wrong');
+  if (!val) return;
   if (val === ans) {
-    inp.classList.remove('wrong');
     inp.classList.add('correct');
+    updateVocabScore();
   }
-  updateVocabScore();
+  else if (ans.startsWith(val)) { /* valid prefix */ }
+  else { inp.classList.add('wrong'); }
 }
 
 function updateVocabScore() {
-  const all = document.querySelectorAll('#tab-3 .vocab-inp');
-  const correct = [...all].filter(i => i.classList.contains('correct')).length;
+  var all = document.querySelectorAll('#sec-3 .vocab-inp');
+  var correct = Array.from(all).filter(function(i){ return i.classList.contains('correct'); }).length;
   document.getElementById('vocab-score').textContent = correct;
   if (correct === all.length) timerStop(3);
 }
 
-function resetVocab() {
-  document.querySelectorAll('#tab-3 .vocab-inp').forEach(i => {
-    i.value = '';
-    i.classList.remove('correct','wrong');
-  });
-  timerResetOne(3);
-  vocabStarted = false;
-  updateVocabScore();
+/* ── SATZBAU ── */
+var satzbauData = [
+  { parts: ['obwohl', 'wir', 'einer', 'Meinung', 'sind', ',', 'gibt', 'es', 'noch', 'Diskussionsbedarf'],
+    valid: [['obwohl', 'wir', 'einer', 'Meinung', 'sind', ',', 'gibt', 'es', 'noch', 'Diskussionsbedarf']], punct: '.' },
+  { parts: ['weil', 'er', 'anderer', 'Ansicht', 'ist', ',', 'möchte', 'er', 'die', 'Entscheidung', 'überdenken'],
+    valid: [['weil', 'er', 'anderer', 'Ansicht', 'ist', ',', 'möchte', 'er', 'die', 'Entscheidung', 'überdenken']], punct: '.' },
+  { parts: ['ich', 'verstehe', 'deinen', 'Standpunkt', ',', 'auch', 'wenn', 'ich', 'nicht', 'zustimme'],
+    valid: [['ich', 'verstehe', 'deinen', 'Standpunkt', ',', 'auch', 'wenn', 'ich', 'nicht', 'zustimme']], punct: '.' },
+  { parts: ['nachdem', 'beide', 'Seiten', 'gesprochen', 'hatten', ',', 'fanden', 'sie', 'einen', 'Kompromiss'],
+    valid: [['nachdem', 'beide', 'Seiten', 'gesprochen', 'hatten', ',', 'fanden', 'sie', 'einen', 'Kompromiss']], punct: '.' },
+  { parts: ['damit', 'keine', 'Missverständnisse', 'entstehen', ',', 'muss', 'man', 'klar', 'kommunizieren'],
+    valid: [['damit', 'keine', 'Missverständnisse', 'entstehen', ',', 'muss', 'man', 'klar', 'kommunizieren']], punct: '.' },
+  { parts: ['wer', 'zuhört', ',', 'kann', 'andere', 'Meinungen', 'besser', 'respektieren'],
+    valid: [['wer', 'zuhört', ',', 'kann', 'andere', 'Meinungen', 'besser', 'respektieren']], punct: '.' },
+  { parts: ['es', 'ist', 'möglich', ',', 'dass', 'beide', 'Standpunkte', 'teilweise', 'richtig', 'sind'],
+    valid: [['es', 'ist', 'möglich', ',', 'dass', 'beide', 'Standpunkte', 'teilweise', 'richtig', 'sind']], punct: '.' },
+];
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
+  return c;
 }
-
-// ─── INIT ─────────────────────────────────────────────────────────
-buildSb();
-buildVocab();
-updateTimerDisplay(1);
-updateTimerDisplay(2);
-updateTimerDisplay(3);
-
-}</script>
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
+  return null;
+}
+function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+function sbUpdateCapitalization(row){
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word, idx){
+  var chip=document.createElement('div');
+  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.dataset.sbIdx=String(idx); chip.draggable=true;
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(2);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){ chip.style.opacity='0.4'; },0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity=''; sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');
+    if(c&&c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault(); if(!sbDragged) return; if(sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor=getSbCursor();
+    var before=getSbInsertPos(zone,e.clientX);
+    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){
+      var c=document.getElementById('sb-insert-cursor');
+      if(c&&c.parentNode===zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault(); if(!sbDragged) return; if(sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
+    else zone.appendChild(sbDragged);
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);
+    sbUpdateCapitalization(row); sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){ return c.dataset.orig; });
+  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
+  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
+  }
+  setTimeout(function(){
+    var ok=sbColorRow(idx);
+    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
+    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
+  if(allOk) timerStop(2);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx); var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
+  fb.textContent=''; setTimeout(function(){ sbCheckAuto(idx); },100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx); var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');
+  if(!container) return;
+  container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div'); item.className='satzbau-item';
+    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
+    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
+    bank.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return; if(chip.dataset.sbIdx !== String(idx)) return;
+      timerAutoStart(2); row.appendChild(chip); chip.classList.remove('correct','incorrect');
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    row.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return; if(chip.dataset.sbIdx !== String(idx)) return;
+      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
+      chip.textContent=chip.dataset.orig; sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
+    solveBtn.setAttribute('data-idx',idx);
+    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
+    resetBtn.setAttribute('data-idx',idx);
+    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+initSatzbau();
+</script>
 </body>
 </html>
