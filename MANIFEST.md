@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-10 13:02. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-10 14:14. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)
 
@@ -134,15 +134,6 @@ _Privatschüler-Material Caroline Deters (WKV = Württembergische Versicherung):
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-wkv-uebungen/
 - **Dashboard basis:** `https://fabdaf.github.io/daf-wkv-uebungen/`
 - **Erwartung:** ≥4 tracked files, ≥3 HTML
-
-## Bekannte offene Punkte
-
-Jeder Eintrag hier ist ein dokumentierter, aber noch nicht behobener Zustand. `verify_manifest.py` wertet sie nicht als Fehler, solange sie hier stehen. Sobald behoben → aus `MANIFEST.yaml` entfernen und neu rendern.
-
-### 🟡 Mittel
-
-**launchd_backup_not_activated** (seit 2026-04-10, Owner: frank)  
-Automatisches Backup via launchd ist vorbereitet (backup/com.fabdaf.backup.plist), aber noch nicht geladen. Siehe backup/INSTALL.md.
 
 ## Verworfene Repos
 
