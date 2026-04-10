@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partizip II – 100 häufigste Verben</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; font-size: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 28px 24px 20px; text-align: center; }
+.header h1 { font-size: 1.7em; margin-bottom: 6px; }
+.header p { opacity: 0.9; font-size: 0.95em; }
+.level-badge { display: inline-block; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); border-radius: 20px; padding: 3px 12px; font-size: 0.8em; margin-bottom: 10px; letter-spacing: 1px; font-weight: 700; }
+
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+
+
+
+.section { display: none; padding: 28px 24px; }
+.section.active { display: block; }
+
+.section-title { font-size: 1.25em; font-weight: 700; color: #667eea; margin-bottom: 6px; }
+.section-sub { color: #888; font-size: 0.88em; margin-bottom: 22px; }
+
+/* TIMER */
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* BUTTONS */
+.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.btn { padding: 9px 20px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-sol { background: #667eea; color: white; }
+.btn-sol:hover { background: #5568d6; }
+.btn-rst { background: #f0f0f0; color: #555; }
+.btn-rst:hover { background: #e0e0e0; }
+
+/* ERKLÄRUNG */
+.erkl-box { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 16px 20px; margin-bottom: 16px; line-height: 1.7; }
+.erkl-box h3 { color: #667eea; font-size: 1.0em; margin-bottom: 8px; }
+.erkl-box .formel { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; padding: 10px 16px; margin-top: 10px; font-family: monospace; font-size: 0.92em; text-align: center; }
+.erkl-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.88em; }
+.erkl-table th { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 12px; text-align: left; }
+.erkl-table td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.erkl-table tr:nth-child(even) td { background: #f8f9ff; }
+.highlight { background: #fff3cd; border-radius: 3px; padding: 1px 3px; font-weight: 700; color: #667eea; }
+.achtung { background: #fff8e1; border: 1px solid #f39c12; border-radius: 8px; padding: 12px 16px; margin-top: 14px; font-size: 0.88em; }
+.achtung::before { content: "⚠️ "; }
+
+/* ZUORDNUNG */
+.genus-categories { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.genus-categories.cols3 { grid-template-columns: repeat(3, 1fr); }
+.genus-categories.cols7 { grid-template-columns: repeat(4, 1fr); }
+.genus-cat { background: #f0f0f0; border: 2px dashed #ccc; border-radius: 10px; padding: 12px; min-height: 100px; }
+.genus-cat-title { font-weight: 700; color: #667eea; text-align: center; margin-bottom: 8px; font-size: 0.82em; line-height: 1.4; }
+.chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 60px; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 7px 12px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.85em; transition: all 0.2s; user-select: none; }
+.chip:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+.chip.placed { background: #667eea; color: white; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.wrong { background: #e74c3c; border-color: #e74c3c; color: white; }
+
+/* LÜCKENTEXT */
+.ex-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 14px; line-height: 2.2; }
+.ex-num { font-weight: 700; color: #667eea; margin-right: 6px; }
+.ex-hint { color: #999; font-size: 0.82em; margin-left: 8px; }
+.ex-badge { background: #667eea; color: white; border-radius: 10px; padding: 1px 8px; font-size: 0.78em; margin-right: 8px; }
+
+input.blank { border: none; border-bottom: 2px solid #667eea; background: #fff; padding: 4px 8px; font-family: inherit; font-size: 0.95em; outline: none; transition: all 0.2s; }
+input.blank:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
+input.blank.s { min-width: 50px; width: 50px; }
+input.blank.m { min-width: 110px; width: 110px; }
+input.blank.l { min-width: 160px; width: 160px; }
+input.blank.xl { min-width: 210px; width: 210px; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+.correction-hint { color: #27ae60; font-weight: 600; font-size: 0.85em; margin-left: 4px; white-space: nowrap; }
+
+/* SATZBAU */
+.satzbau-item { background: #f8f9ff; padding: 16px 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+.drop-row { background: white; border: 2px dashed #ccc; border-radius: 10px; padding: 14px; min-height: 60px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.drop-row .chip { margin: 0; }
+.chip.punct { min-width: 32px; padding: 8px 10px; font-size: 1.2em; font-weight: 700; text-align: center; }
+
+/* HILFE */
+.help-box { background: #fff8e1; border: 1px solid #f39c12; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.88em; line-height: 1.7; }
+.help-box strong { color: #e67e22; }
+
+/* NOWRAP */
+.nowrap-group { display: inline-flex; align-items: baseline; white-space: nowrap; gap: 0; }
+
+/* FOOTER */
+.author-footer { margin-top: 40px; padding: 16px 20px; text-align: center; font-size: 0.8em; color: #888; border-top: 1px solid #e0e0e0; }
+.author-footer a { color: #667eea; text-decoration: none; font-weight: 500; }
+.author-footer a:hover { text-decoration: underline; color: #764ba2; }
+.author-footer .author-name { font-weight: 600; color: #555; }
+
+/* VERB-TABELLE */
+.verb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.verb-card { background: #f8f9ff; border-radius: 8px; padding: 10px 14px; border-left: 3px solid #667eea; font-size: 0.85em; line-height: 1.6; }
+.verb-card .inf { font-weight: 700; color: #333; }
+.verb-card .p2 { color: #27ae60; font-weight: 600; }
+.verb-card .grp { color: #888; font-size: 0.78em; }
+
+/* GRUPPEN-FILTER */
+.filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.filter-btn { padding: 6px 14px; border: 2px solid #667eea; border-radius: 20px; background: white; color: #667eea; font-size: 0.82em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.filter-btn.active { background: #667eea; color: white; }
+.filter-btn:hover { background: #667eea; color: white; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ebff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; border-bottom: 3px solid #667eea; font-weight: 700; }
+@media (max-width: 600px) {
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; font-size: 0.78em; padding: 10px 4px; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+    <div class="level-badge">B1 / B2</div>
+    <h1>Partizip II – 100 häufigste Verben</h1>
+    <p>Alle 7 Bildungsgruppen &bull; Aus dem Frequency Dictionary of German</p>
+</div>
+
+<div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)">📖 Erklärung</div>
+    <div class="nav-btn" onclick="showSection(1)">📋 Alle 100 Verben</div>
+    <div class="nav-btn" onclick="showSection(2)">🔀 Gruppen zuordnen</div>
+    <div class="nav-btn" onclick="showSection(3)">✏️ Partizip bilden</div>
+    <div class="nav-btn" onclick="showSection(4)">🧩 Satzbau</div>
+</div>
+
+<!-- TAB 0: ERKLÄRUNG -->
+<div class="section active" id="sec-0">
+    <div class="section-title">📖 Die 7 Gruppen der Partizip-II-Bildung</div>
+    <div class="section-sub">Jedes Verb gehört zu genau einer Gruppe.</div>
+
+    <div class="erkl-box">
+        <h3>Gruppe 1 – Schwache Verben (regelmäßig)</h3>
+        <div class="formel">ge- + Verbstamm + -t</div>
+        <table class="erkl-table">
+            <tr><th>Infinitiv</th><th>Partizip II</th><th>Beispiel (Kollokation)</th></tr>
+            <tr><td>spielen</td><td><span class="highlight">ge</span>spiel<span class="highlight">t</span></td><td><em>Er hat leidenschaftlich gespielt.</em></td></tr>
+            <tr><td>sagen</td><td><span class="highlight">ge</span>sag<span class="highlight">t</span></td><td><em>Sie hat es freundlich und wohlwollend gesagt.</em></td></tr>
+            <tr><td>arbeiten</td><td><span class="highlight">ge</span>arbei<span class="highlight">tet</span></td><td><em>Er hat effizient und zielstrebig gearbeitet.</em> (Stamm auf -t → +et)</td></tr>
+            <tr><td>lernen</td><td><span class="highlight">ge</span>lern<span class="highlight">t</span></td><td><em>Sie hat konzentriert und systematisch gelernt.</em></td></tr>
+        </table>
+    </div>
+
+    <div class="erkl-box">
+        <h3>Gruppe 2 – Starke Verben (unregelmäßig)</h3>
+        <div class="formel">ge- + (veränderter) Verbstamm + -en</div>
+        <table class="erkl-table">
+            <tr><th>Infinitiv</th><th>Partizip II</th><th>Beispiel (Kollokation)</th></tr>
+            <tr><td>lesen</td><td><span class="highlight">ge</span>les<span class="highlight">en</span></td><td><em>Sie hat den Bericht gründlich gelesen.</em></td></tr>
+            <tr><td>schreiben</td><td><span class="highlight">ge</span>schrieb<span class="highlight">en</span></td><td><em>Er hat flüssig und lebendig geschrieben.</em> (ei → ie)</td></tr>
+            <tr><td>fahren</td><td><span class="highlight">ge</span>fahr<span class="highlight">en</span></td><td><em>Sie ist sicher und vorschriftsmäßig gefahren.</em></td></tr>
+            <tr><td>nehmen</td><td><span class="highlight">ge</span>nomm<span class="highlight">en</span></td><td><em>Er hat die Kritik gelassen genommen.</em> (e → o)</td></tr>
+            <tr><td>sprechen</td><td><span class="highlight">ge</span>sproch<span class="highlight">en</span></td><td><em>Sie hat klar und überzeugend gesprochen.</em></td></tr>
+        </table>
+    </div>
+
+    <div class="erkl-box">
+        <h3>Gruppe 3 – Gemischte Verben (Mischverben)</h3>
+        <div class="formel">ge- + (Vokalwechsel im Stamm) + -t</div>
+        <table class="erkl-table">
+            <tr><th>Infinitiv</th><th>Partizip II</th><th>Beispiel (Kollokation)</th></tr>
+            <tr><td>bringen</td><td><span class="highlight">ge</span>brach<span class="highlight">t</span></td><td><em>Er hat die Unterlagen rechtzeitig gebracht.</em> (i → a)</td></tr>
+            <tr><td>denken</td><td><span class="highlight">ge</span>dach<span class="highlight">t</span></td><td><em>Sie hat vorausschauend und kreativ gedacht.</em> (e → a)</td></tr>
+            <tr><td>wissen</td><td><span class="highlight">ge</span>wuss<span class="highlight">t</span></td><td><em>Er hat die Antwort sofort gewusst.</em> (i → u)</td></tr>
+            <tr><td>kennen</td><td><span class="highlight">ge</span>kann<span class="highlight">t</span></td><td><em>Sie hat ihn schon lange persönlich gekannt.</em> (e → a)</td></tr>
+        </table>
+    </div>
+
+    <div class="erkl-box">
+        <h3>Gruppe 4 – Trennbare Verben</h3>
+        <div class="formel">Präfix + ge- + Stamm + -t / -en</div>
+        <table class="erkl-table">
+            <tr><th>Infinitiv</th><th>Partizip II</th><th>Beispiel (Kollokation)</th></tr>
+            <tr><td>anfangen</td><td>an<span class="highlight">ge</span>fang<span class="highlight">en</span></td><td><em>Der Kurs hat pünktlich angefangen.</em></td></tr>
+            <tr><td>anrufen</td><td>an<span class="highlight">ge</span>ruf<span class="highlight">en</span></td><td><em>Er hat mich spontan angerufen.</em></td></tr>
+            <tr><td>aufhören</td><td>auf<span class="highlight">ge</span>hör<span class="highlight">t</span></td><td><em>Sie hat abrupt aufgehört.</em></td></tr>
+            <tr><td>einladen</td><td>ein<span class="highlight">ge</span>lad<span class="highlight">en</span></td><td><em>Er hat uns herzlich eingeladen.</em></td></tr>
+        </table>
+    </div>
+
+    <div class="erkl-box">
+        <h3>Gruppe 5 – Nicht-trennbare Verben</h3>
+        <div class="formel">Präfix + Verbstamm + -t / -en &nbsp;(KEIN ge-!)</div>
+        <p style="font-size:0.88em;margin-top:8px;">Präfixe: <strong>be-, er-, ver-, zer-, emp-, ent-, ge-, miss-, hinter-, über-, unter-, wieder-</strong></p>
+        <table class="erkl-table">
+            <tr><th>Infinitiv</th><th>Partizip II</th><th>Beispiel (Kollokation)</th></tr>
+            <tr><td>verstehen</td><td>verstand<span class="highlight">en</span></td><td><em>Er hat alles mühelos verstanden.</em></td></tr>
+            <tr><td>erklären</td><td>erklärt</td><td><em>Sie hat es anschaulich und verständlich erklärt.</em></td></tr>
+            <tr><td>versuchen</td><td>versucht</td><td><em>Er hat es hartnäckig und ernsthaft versucht.</em></td></tr>
+            <tr><td>gehören</td><td>gehört</td><td><em>Das Buch hat ihr persönlich gehört.</em> (ge- = Präfix!)</td></tr>
+        </table>
+        <div class="achtung">Achtung: „gehören" → „gehört" — das ge- hier ist festes Präfix, nicht Partizip-ge-!</div>
+    </div>
+
+    <div class="erkl-box">
+        <h3>Gruppe 6 – Verben auf -ieren</h3>
+        <div class="formel">Verbstamm + -iert &nbsp;(KEIN ge-!)</div>
+        <table class="erkl-table">
+            <tr><th>Infinitiv</th><th>Partizip II</th><th>Beispiel (Kollokation)</th></tr>
+            <tr><td>passieren</td><td>passier<span class="highlight">t</span></td><td><em>Was ist dort gestern passiert?</em></td></tr>
+            <tr><td>funktionieren</td><td>funktionier<span class="highlight">t</span></td><td><em>Das Gerät hat einwandfrei funktioniert.</em></td></tr>
+            <tr><td>reagieren</td><td>reagier<span class="highlight">t</span></td><td><em>Sie hat schnell und besonnen reagiert.</em></td></tr>
+        </table>
+    </div>
+
+    <div class="erkl-box">
+        <h3>Gruppe 7 – Perfekt mit „sein"</h3>
+        <div class="formel">sein + Partizip II &nbsp;(bei Bewegung und Zustandsänderung)</div>
+        <table class="erkl-table">
+            <tr><th>Infinitiv</th><th>Partizip II</th><th>Beispiel (Kollokation)</th></tr>
+            <tr><td>fahren</td><td>gefahren</td><td><em>Er ist sicher und pünktlich gefahren.</em> (Bewegung)</td></tr>
+            <tr><td>gehen</td><td>gegangen</td><td><em>Sie ist früh nach Hause gegangen.</em> (Bewegung)</td></tr>
+            <tr><td>kommen</td><td>gekommen</td><td><em>Er ist unerwartet und überraschend gekommen.</em> (Bewegung)</td></tr>
+            <tr><td>wachsen</td><td>gewachsen</td><td><em>Das Unternehmen ist rasant gewachsen.</em> (Zustandsänderung)</td></tr>
+            <tr><td>bleiben</td><td>geblieben</td><td><em>Sie ist ruhig und gelassen geblieben.</em> (Ausnahme!)</td></tr>
+            <tr><td>einschlafen</td><td>eingeschlafen</td><td><em>Das Kind ist tief und friedlich eingeschlafen.</em> (Zustandsänd.)</td></tr>
+        </table>
+        <div class="achtung">Viele sein-Verben sind auch stark (Gruppe 2). Die sein/haben-Frage ist ZUSÄTZLICH zu den Gruppen 1–6 relevant!</div>
+    </div>
+</div>
+
+<!-- TAB 1: ALLE 100 VERBEN -->
+<div class="section" id="sec-1">
+    <div class="section-title">📋 Die 100 häufigsten deutschen Verben</div>
+    <div class="section-sub">Quelle: Frequency Dictionary of German (Tschirner &amp; Möhring). Sortiert nach Frequenzrang.</div>
+
+    <div class="filter-row" id="filterRow">
+        <button class="filter-btn active" onclick="filterVerbs('all', this)">Alle</button>
+        <button class="filter-btn" onclick="filterVerbs('1', this)">1 Schwach</button>
+        <button class="filter-btn" onclick="filterVerbs('2', this)">2 Stark</button>
+        <button class="filter-btn" onclick="filterVerbs('3', this)">3 Gemischt</button>
+        <button class="filter-btn" onclick="filterVerbs('4', this)">4 Trennbar</button>
+        <button class="filter-btn" onclick="filterVerbs('5', this)">5 Nicht-trennbar</button>
+        <button class="filter-btn" onclick="filterVerbs('6', this)">6 -ieren</button>
+        <button class="filter-btn" onclick="filterVerbs('7', this)">7 sein</button>
+    </div>
+
+    <div class="verb-grid" id="verbGrid"></div>
+</div>
+
+<!-- TAB 2: GRUPPEN ZUORDNEN -->
+<div class="section" id="sec-2">
+    <div class="section-title">🔀 Gruppen zuordnen</div>
+    <div class="section-sub">Ordne die Verben (als Infinitiv) der richtigen Bildungsgruppe zu.</div>
+
+    <div class="help-box">
+        <strong>Tipp:</strong> Achte auf: trennbares Präfix? Festes Präfix (be-/ver-/er-…)? Endet auf -ieren? Vokalwechsel im Stamm? Endung -t oder -en?
+    </div>
+
+    <div class="genus-categories cols7">
+        <div class="genus-cat" data-cat="1" ondrop="dropGenus(event)" ondragover="allowDrop(event)">
+            <div class="genus-cat-title">① Schwach<br><small>ge-…-t</small></div>
+        </div>
+        <div class="genus-cat" data-cat="2" ondrop="dropGenus(event)" ondragover="allowDrop(event)">
+            <div class="genus-cat-title">② Stark<br><small>ge-…-en</small></div>
+        </div>
+        <div class="genus-cat" data-cat="3" ondrop="dropGenus(event)" ondragover="allowDrop(event)">
+            <div class="genus-cat-title">③ Gemischt<br><small>ge-+Vokal-t</small></div>
+        </div>
+        <div class="genus-cat" data-cat="4" ondrop="dropGenus(event)" ondragover="allowDrop(event)">
+            <div class="genus-cat-title">④ Trennbar<br><small>Pr.+ge-+…</small></div>
+        </div>
+        <div class="genus-cat" data-cat="5" ondrop="dropGenus(event)" ondragover="allowDrop(event)">
+            <div class="genus-cat-title">⑤ Nicht-trennbar<br><small>kein ge-</small></div>
+        </div>
+        <div class="genus-cat" data-cat="6" ondrop="dropGenus(event)" ondragover="allowDrop(event)">
+            <div class="genus-cat-title">⑥ -ieren<br><small>-iert</small></div>
+        </div>
+        <div class="genus-cat" data-cat="7" ondrop="dropGenus(event)" ondragover="allowDrop(event)">
+            <div class="genus-cat-title">⑦ sein-Verben<br><small>ist + P.II</small></div>
+        </div>
+    </div>
+    <div class="chip-bank" id="genusBank" ondrop="dropGenus(event)" ondragover="allowDrop(event)"></div>
+
+    <div class="timer-display">
+        <span class="current-time">⏱️ <span id="timer-2">00:00</span></span>
+        <span class="best-time">🏆 Best: <span id="best-2">--:--</span></span>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-sol" onclick="showGenusLoesung(); stopTimer(2);">Lösungen</button>
+        <button class="btn btn-rst" onclick="resetGenus(); resetTimer(2);">🔄 Neu starten</button>
+    </div>
+</div>
+
+<!-- TAB 3: PARTIZIP BILDEN -->
+<div class="section" id="sec-3">
+    <div class="section-title">✏️ Partizip II bilden</div>
+    <div class="section-sub">Bilde das Partizip II der häufigsten deutschen Verben.</div>
+
+    <div class="help-box">
+        <strong>Erinnerung:</strong> ge-…-t (schwach) · ge-…-en (stark) · ge-…-t mit Vokalwechsel (gemischt) · Präfix+ge-…(trennbar) · kein ge- (nicht-trennbar) · -iert (ieren)
+    </div>
+
+    <div id="luecken-container"></div>
+
+    <div class="timer-display">
+        <span class="current-time">⏱️ <span id="timer-3">00:00</span></span>
+        <span class="best-time">🏆 Best: <span id="best-3">--:--</span></span>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-sol" onclick="showLueckenLoesung(); stopTimer(3);">Lösungen</button>
+        <button class="btn btn-rst" onclick="resetLuecken(); resetTimer(3);">🔄 Neu starten</button>
+    </div>
+</div>
+
+<!-- TAB 4: SATZBAU -->
+<div class="section" id="sec-4">
+    <div class="section-title">🧩 Satzbau – Perfekt mit häufigen Verben</div>
+    <div class="section-sub">Bilde Perfekt-Sätze mit den häufigsten deutschen Verben.</div>
+
+    <div class="help-box">
+        <strong>Tipp:</strong> Denk an sein/haben! Bewegungsverben und Zustandsänderungen nehmen sein.
+    </div>
+
+    <div id="satzbauContainer"></div>
+
+    <div class="timer-display">
+        <span class="current-time">⏱️ <span id="timer-4">00:00</span></span>
+        <span class="best-time">🏆 Best: <span id="best-4">--:--</span></span>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-sol" onclick="showSatzbauLoesung(); stopTimer(4);">Lösungen</button>
+        <button class="btn btn-rst" onclick="resetSatzbau(); resetTimer(4);">🔄 Neu starten</button>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+
+<script>
+// ================================================================
+// DATEN: 100 häufigste Verben mit Partizip II und Gruppe
+// Quelle: Frequency Dictionary of German (Tschirner & Möhring)
+// Gruppen: 1=schwach, 2=stark, 3=gemischt, 4=trennbar,
+//          5=nicht-trennbar, 6=-ieren, 7=sein-Verb
+// ================================================================
+const VERBEN = [
+    // Rang 1-10
+    { rang: 1,  inf: 'sein',       p2: 'gewesen',       gr: 2, sein: true,  en: 'to be' },
+    { rang: 2,  inf: 'haben',      p2: 'gehabt',        gr: 1, sein: false, en: 'to have' },
+    { rang: 3,  inf: 'werden',     p2: 'geworden',      gr: 2, sein: true,  en: 'to become' },
+    { rang: 4,  inf: 'können',     p2: 'gekonnt',       gr: 3, sein: false, en: 'can' },
+    { rang: 5,  inf: 'müssen',     p2: 'gemusst',       gr: 1, sein: false, en: 'must' },
+    { rang: 6,  inf: 'sagen',      p2: 'gesagt',        gr: 1, sein: false, en: 'to say' },
+    { rang: 7,  inf: 'machen',     p2: 'gemacht',       gr: 1, sein: false, en: 'to make/do' },
+    { rang: 8,  inf: 'geben',      p2: 'gegeben',       gr: 2, sein: false, en: 'to give' },
+    { rang: 9,  inf: 'kommen',     p2: 'gekommen',      gr: 2, sein: true,  en: 'to come' },
+    { rang: 10, inf: 'sollen',     p2: 'gesollt',       gr: 1, sein: false, en: 'shall/should' },
+    // Rang 11-20
+    { rang: 11, inf: 'wollen',     p2: 'gewollt',       gr: 1, sein: false, en: 'to want' },
+    { rang: 12, inf: 'gehen',      p2: 'gegangen',      gr: 2, sein: true,  en: 'to go' },
+    { rang: 13, inf: 'wissen',     p2: 'gewusst',       gr: 3, sein: false, en: 'to know' },
+    { rang: 14, inf: 'sehen',      p2: 'gesehen',       gr: 2, sein: false, en: 'to see' },
+    { rang: 15, inf: 'lassen',     p2: 'gelassen',      gr: 2, sein: false, en: 'to let/leave' },
+    { rang: 16, inf: 'stehen',     p2: 'gestanden',     gr: 2, sein: false, en: 'to stand' },
+    { rang: 17, inf: 'finden',     p2: 'gefunden',      gr: 2, sein: false, en: 'to find' },
+    { rang: 18, inf: 'bleiben',    p2: 'geblieben',     gr: 2, sein: true,  en: 'to stay' },
+    { rang: 19, inf: 'liegen',     p2: 'gelegen',       gr: 2, sein: false, en: 'to lie/be located' },
+    { rang: 20, inf: 'heißen',     p2: 'geheißen',      gr: 2, sein: false, en: 'to be called' },
+    // Rang 21-30
+    { rang: 21, inf: 'dürfen',     p2: 'gedurft',       gr: 3, sein: false, en: 'may/to be allowed' },
+    { rang: 22, inf: 'glauben',    p2: 'geglaubt',      gr: 1, sein: false, en: 'to believe' },
+    { rang: 23, inf: 'halten',     p2: 'gehalten',      gr: 2, sein: false, en: 'to hold/keep' },
+    { rang: 24, inf: 'nennen',     p2: 'genannt',       gr: 3, sein: false, en: 'to name/call' },
+    { rang: 25, inf: 'mögen',      p2: 'gemocht',       gr: 3, sein: false, en: 'to like' },
+    { rang: 26, inf: 'zeigen',     p2: 'gezeigt',       gr: 1, sein: false, en: 'to show' },
+    { rang: 27, inf: 'führen',     p2: 'geführt',       gr: 1, sein: false, en: 'to lead/conduct' },
+    { rang: 28, inf: 'sprechen',   p2: 'gesprochen',    gr: 2, sein: false, en: 'to speak' },
+    { rang: 29, inf: 'bringen',    p2: 'gebracht',      gr: 3, sein: false, en: 'to bring' },
+    { rang: 30, inf: 'leben',      p2: 'gelebt',        gr: 1, sein: false, en: 'to live' },
+    // Rang 31-40
+    { rang: 31, inf: 'fahren',     p2: 'gefahren',      gr: 2, sein: true,  en: 'to drive/travel' },
+    { rang: 32, inf: 'meinen',     p2: 'gemeint',       gr: 1, sein: false, en: 'to mean/think' },
+    { rang: 33, inf: 'fragen',     p2: 'gefragt',       gr: 1, sein: false, en: 'to ask' },
+    { rang: 34, inf: 'kennen',     p2: 'gekannt',       gr: 3, sein: false, en: 'to know (person)' },
+    { rang: 35, inf: 'gelten',     p2: 'gegolten',      gr: 2, sein: false, en: 'to be valid' },
+    { rang: 36, inf: 'stellen',    p2: 'gestellt',      gr: 1, sein: false, en: 'to place/put' },
+    { rang: 37, inf: 'spielen',    p2: 'gespielt',      gr: 1, sein: false, en: 'to play' },
+    { rang: 38, inf: 'arbeiten',   p2: 'gearbeitet',    gr: 1, sein: false, en: 'to work' },
+    { rang: 39, inf: 'brauchen',   p2: 'gebraucht',     gr: 1, sein: false, en: 'to need' },
+    { rang: 40, inf: 'folgen',     p2: 'gefolgt',       gr: 1, sein: true,  en: 'to follow' },
+    // Rang 41-50
+    { rang: 41, inf: 'lernen',     p2: 'gelernt',       gr: 1, sein: false, en: 'to learn' },
+    { rang: 42, inf: 'bestehen',   p2: 'bestanden',     gr: 5, sein: false, en: 'to consist/pass' },
+    { rang: 43, inf: 'verstehen',  p2: 'verstanden',    gr: 5, sein: false, en: 'to understand' },
+    { rang: 44, inf: 'setzen',     p2: 'gesetzt',       gr: 1, sein: false, en: 'to set/put' },
+    { rang: 45, inf: 'bekommen',   p2: 'bekommen',      gr: 5, sein: false, en: 'to get/receive' },
+    { rang: 46, inf: 'beginnen',   p2: 'begonnen',      gr: 5, sein: false, en: 'to begin' },
+    { rang: 47, inf: 'laufen',     p2: 'gelaufen',      gr: 2, sein: true,  en: 'to run' },
+    { rang: 48, inf: 'schreiben',  p2: 'geschrieben',   gr: 2, sein: false, en: 'to write' },
+    { rang: 49, inf: 'lesen',      p2: 'gelesen',       gr: 2, sein: false, en: 'to read' },
+    { rang: 50, inf: 'denken',     p2: 'gedacht',       gr: 3, sein: false, en: 'to think' },
+    // Rang 51-60
+    { rang: 51, inf: 'nehmen',     p2: 'genommen',      gr: 2, sein: false, en: 'to take' },
+    { rang: 52, inf: 'tun',        p2: 'getan',         gr: 2, sein: false, en: 'to do' },
+    { rang: 53, inf: 'erhalten',   p2: 'erhalten',      gr: 5, sein: false, en: 'to receive/maintain' },
+    { rang: 54, inf: 'anfangen',   p2: 'angefangen',    gr: 4, sein: false, en: 'to start' },
+    { rang: 55, inf: 'vorstellen', p2: 'vorgestellt',   gr: 4, sein: false, en: 'to introduce/imagine' },
+    { rang: 56, inf: 'legen',      p2: 'gelegt',        gr: 1, sein: false, en: 'to lay/put' },
+    { rang: 57, inf: 'erklären',   p2: 'erklärt',       gr: 5, sein: false, en: 'to explain' },
+    { rang: 58, inf: 'verlieren',  p2: 'verloren',      gr: 5, sein: false, en: 'to lose' },
+    { rang: 59, inf: 'erreichen',  p2: 'erreicht',      gr: 5, sein: false, en: 'to reach/achieve' },
+    { rang: 60, inf: 'entwickeln', p2: 'entwickelt',    gr: 5, sein: false, en: 'to develop' },
+    // Rang 61-70
+    { rang: 61, inf: 'tragen',     p2: 'getragen',      gr: 2, sein: false, en: 'to carry/wear' },
+    { rang: 62, inf: 'schaffen',   p2: 'geschafft',     gr: 1, sein: false, en: 'to manage/create' },
+    { rang: 63, inf: 'kaufen',     p2: 'gekauft',       gr: 1, sein: false, en: 'to buy' },
+    { rang: 64, inf: 'fallen',     p2: 'gefallen',      gr: 2, sein: true,  en: 'to fall' },
+    { rang: 65, inf: 'warten',     p2: 'gewartet',      gr: 1, sein: false, en: 'to wait' },
+    { rang: 66, inf: 'gehören',    p2: 'gehört',        gr: 5, sein: false, en: 'to belong to' },
+    { rang: 67, inf: 'entstehen',  p2: 'entstanden',    gr: 5, sein: true,  en: 'to arise/emerge' },
+    { rang: 68, inf: 'erscheinen', p2: 'erschienen',    gr: 5, sein: true,  en: 'to appear' },
+    { rang: 69, inf: 'versuchen',  p2: 'versucht',      gr: 5, sein: false, en: 'to try' },
+    { rang: 70, inf: 'handeln',    p2: 'gehandelt',     gr: 1, sein: false, en: 'to act/deal' },
+    // Rang 71-80
+    { rang: 71, inf: 'beschreiben',p2: 'beschrieben',   gr: 5, sein: false, en: 'to describe' },
+    { rang: 72, inf: 'treffen',    p2: 'getroffen',     gr: 2, sein: false, en: 'to meet/hit' },
+    { rang: 73, inf: 'aufmachen',  p2: 'aufgemacht',    gr: 4, sein: false, en: 'to open' },
+    { rang: 74, inf: 'ausgehen',   p2: 'ausgegangen',   gr: 4, sein: true,  en: 'to go out' },
+    { rang: 75, inf: 'aussehen',   p2: 'ausgesehen',    gr: 4, sein: false, en: 'to look/appear' },
+    { rang: 76, inf: 'anrufen',    p2: 'angerufen',     gr: 4, sein: false, en: 'to call/phone' },
+    { rang: 77, inf: 'aufhören',   p2: 'aufgehört',     gr: 4, sein: false, en: 'to stop/quit' },
+    { rang: 78, inf: 'weitergehen',p2: 'weitergegangen',gr: 4, sein: true,  en: 'to continue' },
+    { rang: 79, inf: 'passieren',  p2: 'passiert',      gr: 6, sein: true,  en: 'to happen' },
+    { rang: 80, inf: 'funktionieren',p2:'funktioniert', gr: 6, sein: false, en: 'to work/function' },
+    // Rang 81-90
+    { rang: 81, inf: 'interessieren',p2:'interessiert', gr: 6, sein: false, en: 'to interest' },
+    { rang: 82, inf: 'reagieren',  p2: 'reagiert',      gr: 6, sein: false, en: 'to react' },
+    { rang: 83, inf: 'verlassen',  p2: 'verlassen',     gr: 5, sein: false, en: 'to leave' },
+    { rang: 84, inf: 'wachsen',    p2: 'gewachsen',     gr: 2, sein: true,  en: 'to grow' },
+    { rang: 85, inf: 'sterben',    p2: 'gestorben',     gr: 2, sein: true,  en: 'to die' },
+    { rang: 86, inf: 'vergessen',  p2: 'vergessen',     gr: 5, sein: false, en: 'to forget' },
+    { rang: 87, inf: 'bieten',     p2: 'geboten',       gr: 2, sein: false, en: 'to offer' },
+    { rang: 88, inf: 'helfen',     p2: 'geholfen',      gr: 2, sein: false, en: 'to help' },
+    { rang: 89, inf: 'schlafen',   p2: 'geschlafen',    gr: 2, sein: false, en: 'to sleep' },
+    { rang: 90, inf: 'einschlafen',p2: 'eingeschlafen', gr: 4, sein: true,  en: 'to fall asleep' },
+    // Rang 91-100
+    { rang: 91, inf: 'aufstehen',  p2: 'aufgestanden',  gr: 4, sein: true,  en: 'to get up' },
+    { rang: 92, inf: 'einladen',   p2: 'eingeladen',    gr: 4, sein: false, en: 'to invite' },
+    { rang: 93, inf: 'rufen',      p2: 'gerufen',       gr: 2, sein: false, en: 'to call/shout' },
+    { rang: 94, inf: 'werfen',     p2: 'geworfen',      gr: 2, sein: false, en: 'to throw' },
+    { rang: 95, inf: 'benutzen',   p2: 'benutzt',       gr: 5, sein: false, en: 'to use' },
+    { rang: 96, inf: 'verbringen', p2: 'verbracht',     gr: 5, sein: false, en: 'to spend (time)' },
+    { rang: 97, inf: 'aufnehmen',  p2: 'aufgenommen',   gr: 4, sein: false, en: 'to record/take up' },
+    { rang: 98, inf: 'vorhaben',   p2: 'vorgehabt',     gr: 4, sein: false, en: 'to plan/intend' },
+    { rang: 99, inf: 'darstellen', p2: 'dargestellt',   gr: 4, sein: false, en: 'to represent' },
+    { rang:100, inf: 'übernehmen', p2: 'übernommen',    gr: 5, sein: false, en: 'to take over' },
+];
+
+const GRUPPENNAME = {
+    '1': 'schwach (ge-…-t)',
+    '2': 'stark (ge-…-en)',
+    '3': 'gemischt (ge-+Vokal-t)',
+    '4': 'trennbar (Pr.+ge-+…)',
+    '5': 'nicht-trennbar (kein ge-)',
+    '6': '-ieren (-iert)',
+    '7': 'sein-Verb'
+};
+
+// ================================================================
+// TIMER
+// ================================================================
+const TIMER_PREFIX = 'partizip2-100verben';
+const timerState = {};
+
+function initTimer(idx) {
+    timerState[idx] = { interval: null, seconds: 0, running: false, stopped: false };
+}
+function startTimer(idx) {
+    const s = timerState[idx];
+    if (!s || s.running || s.stopped) return;
+    s.running = true;
+    s.interval = setInterval(() => {
+        s.seconds++;
+        document.getElementById('timer-' + idx).textContent = formatTime(s.seconds);
+    }, 1000);
+}
+function stopTimer(idx) {
+    const s = timerState[idx];
+    if (!s || !s.running) return;
+    clearInterval(s.interval);
+    s.running = false;
+    s.stopped = true;
+    const key = TIMER_PREFIX + '-best-' + idx;
+    const prev = localStorage.getItem(key);
+    if (!prev || s.seconds < parseInt(prev)) {
+        localStorage.setItem(key, s.seconds);
+        document.getElementById('best-' + idx).textContent = formatTime(s.seconds);
+    }
+}
+function resetTimer(idx) {
+    const s = timerState[idx];
+    if (!s) return;
+    clearInterval(s.interval);
+    s.seconds = 0; s.running = false; s.stopped = false;
+    document.getElementById('timer-' + idx).textContent = '00:00';
+}
+function formatTime(sec) {
+    return String(Math.floor(sec / 60)).padStart(2,'0') + ':' + String(sec % 60).padStart(2,'0');
+}
+function loadBestTimes() {
+    document.querySelectorAll('[id^="best-"]').forEach(el => {
+        const idx = el.id.split('-')[1];
+        const val = localStorage.getItem(TIMER_PREFIX + '-best-' + idx);
+        if (val) el.textContent = formatTime(parseInt(val));
+    });
+}
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === idx));
+    document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+}
+
+// ================================================================
+// TAB 1: VERB-GRID
+// ================================================================
+function renderVerbGrid(filter) {
+    const grid = document.getElementById('verbGrid');
+    grid.innerHTML = '';
+    const list = filter === 'all' ? VERBEN : VERBEN.filter(v => String(v.gr) === filter || (filter === '7' && v.sein));
+    list.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'verb-card';
+        card.dataset.gr = v.gr;
+        card.innerHTML = `<span class="inf">${v.rang}. ${v.inf}</span> → <span class="p2">${v.p2}</span>${v.sein ? ' <span style="color:#e74c3c;font-size:0.8em;">(ist)</span>' : ''}<br><span class="grp">Gr. ${v.gr}: ${GRUPPENNAME[v.gr]}</span><br><span style="color:#aaa;font-size:0.78em;">${v.en}</span>`;
+        grid.appendChild(card);
+    });
+}
+
+function filterVerbs(filter, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderVerbGrid(filter);
+}
+
+// ================================================================
+// DRAG & DROP KERN
+// ================================================================
+function allowDrop(e) { e.preventDefault(); }
+
+// ================================================================
+// TAB 2: ZUORDNUNG
+// ================================================================
+// Zuordnung: 28 Verben (4 pro Gruppe) — mit Kollokations-Kontext als Chip-Label
+// Format: Infinitiv + typische Kollokation als Gedächtnishilfe
+const GENUS_DATA = [
+    // Gruppe 1 – schwach (ge-…-t)
+    { word: 'spielen – leidenschaftlich', cat: '1' },
+    { word: 'lernen – systematisch', cat: '1' },
+    { word: 'arbeiten – unermüdlich', cat: '1' },
+    { word: 'fragen – direkt', cat: '1' },
+    // Gruppe 2 – stark (ge-…-en)
+    { word: 'lesen – gründlich', cat: '2' },
+    { word: 'schreiben – flüssig', cat: '2' },
+    { word: 'sprechen – klar', cat: '2' },
+    { word: 'nehmen – gelassen', cat: '2' },
+    // Gruppe 3 – gemischt (ge-+Vokal-t)
+    { word: 'bringen – rechtzeitig', cat: '3' },
+    { word: 'denken – vorausschauend', cat: '3' },
+    { word: 'wissen – sofort', cat: '3' },
+    { word: 'kennen – persönlich', cat: '3' },
+    // Gruppe 4 – trennbar (Präfix+ge-+…)
+    { word: 'anfangen – pünktlich', cat: '4' },
+    { word: 'anrufen – spontan', cat: '4' },
+    { word: 'aufhören – abrupt', cat: '4' },
+    { word: 'einladen – herzlich', cat: '4' },
+    // Gruppe 5 – nicht-trennbar (kein ge-)
+    { word: 'verstehen – mühelos', cat: '5' },
+    { word: 'erklären – verständlich', cat: '5' },
+    { word: 'versuchen – hartnäckig', cat: '5' },
+    { word: 'verlieren – haushoch', cat: '5' },
+    // Gruppe 6 – ieren (-iert)
+    { word: 'passieren – unerwartet', cat: '6' },
+    { word: 'funktionieren – einwandfrei', cat: '6' },
+    { word: 'reagieren – besonnen', cat: '6' },
+    { word: 'interessieren – brennend', cat: '6' },
+    // Gruppe 7 – sein-Verben
+    { word: 'fahren – pünktlich', cat: '7' },
+    { word: 'gehen – früh', cat: '7' },
+    { word: 'wachsen – rasant', cat: '7' },
+    { word: 'einschlafen – tief', cat: '7' },
+];
+
+let selectedGenusChip = null;
+
+function initGenus() {
+    const bank = document.getElementById('genusBank');
+    bank.innerHTML = '';
+    const shuffled = [...GENUS_DATA].sort(() => Math.random() - 0.5);
+    shuffled.forEach((item) => {
+        const origIdx = GENUS_DATA.indexOf(item);
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = item.word;
+        chip.draggable = true;
+        chip.dataset.word = item.word;
+        chip.dataset.cat = item.cat;
+        chip.id = 'genus-chip-' + origIdx;
+        chip.ondragstart = dragGenus;
+        chip.onclick = () => selectGenusChip(chip);
+        bank.appendChild(chip);
+    });
+}
+
+function dragGenus(e) { e.dataTransfer.setData('text', e.target.id); }
+
+function dropGenus(e) {
+    e.preventDefault();
+    var chipId = e.dataTransfer.getData('text');
+    var chip = document.getElementById(chipId);
+    if (!chip) return;
+    var dt = e.currentTarget;
+    dt.appendChild(chip);
+    chip.classList.remove('correct', 'wrong');
+    if (dt.id === 'genusBank') {
+        chip.classList.remove('placed');
+    } else {
+        chip.classList.add('placed');
+        if (chip.dataset.cat === dt.dataset.cat) {
+            chip.classList.add('correct');
+        } else {
+            chip.classList.add('wrong');
+        }
+        checkAllDragDrop(GENUS_DATA.length, 2);
+    }
+    startTimer(2);
+}
+
+function checkAllDragDrop(dataLen, timerIdx) {
+    var cats = document.querySelectorAll('.genus-cat');
+    var correctCount = 0;
+    cats.forEach(function(cat) {
+        cat.querySelectorAll('.chip').forEach(function(chip) {
+            if (chip.classList.contains('correct')) correctCount++;
+        });
+    });
+    if (correctCount === dataLen) stopTimer(timerIdx);
+}
+
+function selectGenusChip(chip) {
+    if (selectedGenusChip) selectedGenusChip.style.outline = '';
+    selectedGenusChip = chip;
+    chip.style.outline = '3px solid #f39c12';
+    document.querySelectorAll('.genus-cat').forEach(cat => {
+        cat.onclick = () => {
+            if (selectedGenusChip) {
+                cat.appendChild(selectedGenusChip);
+                selectedGenusChip.style.outline = '';
+                selectedGenusChip.classList.add('placed');
+                selectedGenusChip.classList.remove('correct', 'wrong');
+                if (selectedGenusChip.dataset.cat === cat.dataset.cat) {
+                    selectedGenusChip.classList.add('correct');
+                } else {
+                    selectedGenusChip.classList.add('wrong');
+                }
+                selectedGenusChip = null;
+                checkAllDragDrop(GENUS_DATA.length, 2);
+                startTimer(2);
+            }
+        };
+    });
+    document.getElementById('genusBank').onclick = () => {
+        if (selectedGenusChip && selectedGenusChip.classList.contains('placed')) {
+            document.getElementById('genusBank').appendChild(selectedGenusChip);
+            selectedGenusChip.classList.remove('placed', 'correct', 'wrong');
+            selectedGenusChip.style.outline = '';
+            selectedGenusChip = null;
+        }
+    };
+}
+
+function showGenusLoesung() {
+    document.querySelectorAll('.genus-cat').forEach(cat => {
+        const title = cat.querySelector('.genus-cat-title').innerHTML;
+        cat.innerHTML = '<div class="genus-cat-title">' + title + '</div>';
+    });
+    GENUS_DATA.forEach((item, idx) => {
+        const chip = document.getElementById('genus-chip-' + idx);
+        const targetCat = document.querySelector('.genus-cat[data-cat="' + item.cat + '"]');
+        targetCat.appendChild(chip);
+        chip.classList.add('placed', 'correct');
+        chip.classList.remove('wrong');
+    });
+}
+
+function resetGenus() {
+    document.querySelectorAll('.genus-cat').forEach(cat => {
+        const title = cat.querySelector('.genus-cat-title').innerHTML;
+        cat.innerHTML = '<div class="genus-cat-title">' + title + '</div>';
+    });
+    initGenus();
+    selectedGenusChip = null;
+}
+
+// ================================================================
+// TAB 3: LÜCKENTEXT (Partizip II bilden)
+// ================================================================
+// 20 Sätze – Kollokationen aus: Quasthoff, Wörterbuch der Kollokationen im Deutschen
+const LUECKEN = [
+    // Gruppe 1 – schwach
+    { id:1,  badge:'schwach', before:'Er hat fleißig und unermüdlich ', blank:'gearbeitet', after:'. (arbeiten)', size:'xl' },
+    { id:2,  badge:'schwach', before:'Sie hat direkt und konkret ', blank:'gefragt', after:'. (fragen)', size:'l' },
+    { id:3,  badge:'schwach (-et)', before:'Der Trainer hat das Spiel taktisch klug ', blank:'geleitet', after:'. (leiten)', size:'l' },
+    // Gruppe 2 – stark
+    { id:4,  badge:'stark', before:'Sie hat den Roman konzentriert und gründlich ', blank:'gelesen', after:'. (lesen)', size:'l' },
+    { id:5,  badge:'stark', before:'Er hat den Brief eigenhändig und persönlich ', blank:'geschrieben', after:'. (schreiben)', size:'xl' },
+    { id:6,  badge:'stark', before:'Sie hat die Einladung dankend ', blank:'angenommen', after:'. (annehmen)', size:'xl' },
+    { id:7,  badge:'stark', before:'Er hat die Verantwortung ruhig und gelassen ', blank:'getragen', after:'. (tragen)', size:'l' },
+    // Gruppe 3 – gemischt
+    { id:8,  badge:'gemischt', before:'Sie hat die Antwort sofort ', blank:'gewusst', after:'. (wissen)', size:'l' },
+    { id:9,  badge:'gemischt', before:'Er hat die Unterlagen rechtzeitig ', blank:'gebracht', after:'. (bringen)', size:'l' },
+    { id:10, badge:'gemischt', before:'Sie hat positiv und vorausschauend ', blank:'gedacht', after:'. (denken)', size:'l' },
+    // Gruppe 4 – trennbar
+    { id:11, badge:'trennbar', before:'Der Kurs hat pünktlich und verheißungsvoll ', blank:'angefangen', after:'. (anfangen)', size:'xl' },
+    { id:12, badge:'trennbar', before:'Er hat mich spontan ', blank:'angerufen', after:'. (anrufen)', size:'xl' },
+    { id:13, badge:'trennbar', before:'Sie hat uns herzlich ', blank:'eingeladen', after:'. (einladen)', size:'xl' },
+    // Gruppe 5 – nicht-trennbar
+    { id:14, badge:'nicht-trennbar', before:'Er hat alles sofort und mühelos ', blank:'verstanden', after:'. (verstehen)', size:'xl' },
+    { id:15, badge:'nicht-trennbar', before:'Sie hat die Stelle nach langer Suche ', blank:'bekommen', after:'. (bekommen)', size:'xl' },
+    { id:16, badge:'nicht-trennbar', before:'Der Lehrer hat den Unterschied anschaulich und verständlich ', blank:'erklärt', after:'. (erklären)', size:'l' },
+    // Gruppe 6 – ieren
+    { id:17, badge:'-ieren', before:'Was ist dort gestern ', blank:'passiert', after:'? (passieren)', size:'l' },
+    { id:18, badge:'-ieren', before:'Das Gerät hat leider gar nicht ', blank:'funktioniert', after:'. (funktionieren)', size:'xl' },
+    // Gruppe 7 – sein
+    { id:19, badge:'sein-Verb', before:'Er ist spät abends noch schnell ', blank:'gefahren', after:'. (fahren)', size:'l' },
+    { id:20, badge:'sein-Verb', before:'Das Unternehmen ist rasant ', blank:'gewachsen', after:'. (wachsen)', size:'l' },
+];
+
+function renderLuecken() {
+    const container = document.getElementById('luecken-container');
+    container.innerHTML = '';
+    LUECKEN.forEach(ex => {
+        const item = document.createElement('div');
+        item.className = 'ex-item';
+
+        const num = document.createElement('span');
+        num.className = 'ex-num';
+        num.textContent = ex.id + '. ';
+        item.appendChild(num);
+
+        const badge = document.createElement('span');
+        badge.className = 'ex-badge';
+        badge.textContent = ex.badge;
+        item.appendChild(badge);
+
+        if (ex.before) item.appendChild(document.createTextNode(ex.before));
+
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'blank ' + ex.size;
+        inp.dataset.answer = ex.blank;
+        inp.dataset.field = 'p2';
+        inp.dataset.exId = ex.id;
+        inp.placeholder = '...';
+        inp.oninput = function() { liveCheck(this); startTimer(3); };
+        item.appendChild(inp);
+
+        if (ex.after) item.appendChild(document.createTextNode(ex.after));
+
+        container.appendChild(item);
+    });
+}
+
+function liveCheck(inp) {
+    var user = inp.value;
+    var answer = inp.dataset.answer;
+    inp.classList.remove('correct', 'wrong');
+    if (user.length === 0) return;
+    var cmpUser = user.toLowerCase();
+    var cmpAnswer = answer.toLowerCase();
+    if (cmpUser === cmpAnswer) {
+        inp.classList.add('correct');
+    } else if (cmpAnswer.indexOf(cmpUser) === 0) {
+        // prefix – keep typing
+    } else {
+        inp.classList.add('wrong');
+    }
+}
+
+function showLueckenLoesung() {
+    document.querySelectorAll('#luecken-container input.blank').forEach(inp => {
+        const next = inp.nextElementSibling;
+        if (next && next.classList.contains('correction-hint')) next.remove();
+        const user = inp.value.trim().toLowerCase();
+        const answer = inp.dataset.answer.toLowerCase();
+        if (user === answer) {
+            inp.classList.remove('wrong');
+            inp.classList.add('correct');
+        } else {
+            inp.classList.add('wrong');
+            const hint = document.createElement('span');
+            hint.className = 'correction-hint';
+            hint.textContent = inp.dataset.answer;
+            inp.insertAdjacentElement('afterend', hint);
+        }
+    });
+}
+
+function resetLuecken() {
+    document.querySelectorAll('#luecken-container input.blank').forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+        const next = inp.nextElementSibling;
+        if (next && next.classList.contains('correction-hint')) next.remove();
+    });
+}
+
+// ================================================================
+// TAB 4: SATZBAU
+// ================================================================
+// Satzbau-Sätze – Kollokationen aus: Quasthoff, Wörterbuch der Kollokationen im Deutschen
+const SATZBAU = [
+    {
+        id: 1,
+        parts: ['sie', 'hat', 'den Roman', 'konzentriert gelesen'],
+        valid: [['sie', 'hat', 'den Roman', 'konzentriert gelesen']],
+        punct: '.'
+    },
+    {
+        id: 2,
+        parts: ['er', 'ist', 'pünktlich', 'zur Arbeit gefahren'],
+        valid: [
+            ['er', 'ist', 'pünktlich', 'zur Arbeit gefahren'],
+            ['pünktlich', 'ist', 'er', 'zur Arbeit gefahren']
+        ],
+        punct: '.'
+    },
+    {
+        id: 3,
+        parts: ['sie', 'hat', 'die Frage', 'direkt gestellt'],
+        valid: [['sie', 'hat', 'die Frage', 'direkt gestellt']],
+        punct: '.'
+    },
+    {
+        id: 4,
+        parts: ['wann', 'habt', 'ihr', 'pünktlich angefangen'],
+        valid: [['wann', 'habt', 'ihr', 'pünktlich angefangen']],
+        punct: '?'
+    },
+    {
+        id: 5,
+        parts: ['das Team', 'hat', 'engagiert', 'zusammengearbeitet'],
+        valid: [
+            ['das Team', 'hat', 'engagiert', 'zusammengearbeitet'],
+            ['engagiert', 'hat', 'das Team', 'zusammengearbeitet']
+        ],
+        punct: '.'
+    },
+    {
+        id: 6,
+        parts: ['das Kind', 'ist', 'tief und friedlich', 'eingeschlafen'],
+        valid: [
+            ['das Kind', 'ist', 'tief und friedlich', 'eingeschlafen'],
+            ['tief und friedlich', 'ist', 'das Kind', 'eingeschlafen']
+        ],
+        punct: '.'
+    },
+    {
+        id: 7,
+        parts: ['er', 'hat', 'spontan', 'angerufen'],
+        valid: [
+            ['er', 'hat', 'spontan', 'angerufen'],
+            ['spontan', 'hat', 'er', 'angerufen']
+        ],
+        punct: '.'
+    },
+    {
+        id: 8,
+        parts: ['was', 'ist', 'dort gestern', 'passiert'],
+        valid: [['was', 'ist', 'dort gestern', 'passiert']],
+        punct: '?'
+    },
+];
+
+let selectedSBChip = null;
+
+function initSatzbau() {
+    const container = document.getElementById('satzbauContainer');
+    container.innerHTML = '';
+    SATZBAU.forEach(ex => {
+        const div = document.createElement('div');
+        div.className = 'satzbau-item';
+
+        const dropRow = document.createElement('div');
+        dropRow.className = 'drop-row';
+        dropRow.id = 'sb-drop-' + ex.id;
+        dropRow.dataset.exId = ex.id;
+        dropRow.ondrop = dropSB;
+        dropRow.ondragover = allowDrop;
+        dropRow.onclick = () => {
+            if (selectedSBChip && selectedSBChip.dataset.exId == ex.id) {
+                const dot = dropRow.querySelector('.fixed-dot');
+                dropRow.insertBefore(selectedSBChip, dot);
+                selectedSBChip.style.outline = '';
+                selectedSBChip = null;
+                updateCaps(ex.id);
+                checkSatzbauAuto(ex.id);
+            }
+        };
+
+        const bank = document.createElement('div');
+        bank.className = 'chip-bank';
+        bank.id = 'sb-bank-' + ex.id;
+        bank.ondrop = dropSB;
+        bank.ondragover = allowDrop;
+        bank.onclick = () => {
+            if (selectedSBChip && selectedSBChip.dataset.exId == ex.id && selectedSBChip.parentElement.classList.contains('drop-row')) {
+                bank.appendChild(selectedSBChip);
+                selectedSBChip.style.outline = '';
+                selectedSBChip = null;
+                updateCaps(ex.id);
+                checkSatzbauAuto(ex.id);
+            }
+        };
+
+        const shuffled = [...ex.parts].sort(() => Math.random() - 0.5);
+        shuffled.forEach((p, pi) => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = p;
+            chip.draggable = true;
+            chip.dataset.text = p;
+            chip.dataset.exId = ex.id;
+            chip.id = 'sb-chip-' + ex.id + '-' + pi;
+            chip.ondragstart = dragSB;
+            chip.onclick = () => selectSBChip(chip);
+            if (p === ',' || p === ';') chip.classList.add('punct');
+            bank.appendChild(chip);
+        });
+
+        const point = document.createElement('span');
+        point.className = 'fixed-dot';
+        point.textContent = ex.punct || '.';
+        point.style.fontSize = '1.5em';
+        point.style.marginLeft = '4px';
+        dropRow.appendChild(point);
+
+        div.appendChild(dropRow);
+        div.appendChild(bank);
+        container.appendChild(div);
+    });
+}
+
+function dragSB(e) { e.dataTransfer.setData('text', e.target.id); }
+
+function dropSB(e) {
+    e.preventDefault();
+    const chipId = e.dataTransfer.getData('text');
+    const chip = document.getElementById(chipId);
+    if (!chip) return;
+    const target = e.currentTarget;
+    if (target.classList.contains('drop-row')) {
+        const dot = target.querySelector('.fixed-dot');
+        const chips = Array.from(target.querySelectorAll('.chip'));
+        let inserted = false;
+        for (const c of chips) {
+            const rect = c.getBoundingClientRect();
+            if (e.clientX < rect.left + rect.width / 2) {
+                target.insertBefore(chip, c);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) target.insertBefore(chip, dot);
+    } else {
+        target.appendChild(chip);
+    }
+    updateCaps(chip.dataset.exId);
+    checkSatzbauAuto(chip.dataset.exId);
+    startTimer(4);
+}
+
+function selectSBChip(chip) {
+    if (selectedSBChip && selectedSBChip !== chip &&
+        selectedSBChip.dataset.exId === chip.dataset.exId) {
+        const row = document.getElementById('sb-drop-' + chip.dataset.exId);
+        if (chip.parentElement === row) {
+            row.insertBefore(selectedSBChip, chip);
+            selectedSBChip.style.outline = '';
+            selectedSBChip = null;
+            updateCaps(chip.dataset.exId);
+            checkSatzbauAuto(chip.dataset.exId);
+            return;
+        }
+    }
+    if (selectedSBChip) selectedSBChip.style.outline = '';
+    if (selectedSBChip === chip) { selectedSBChip = null; return; }
+    selectedSBChip = chip;
+    chip.style.outline = '3px solid #f39c12';
+    startTimer(4);
+}
+
+function updateCaps(exId) {
+    const row = document.getElementById('sb-drop-' + exId);
+    row.querySelectorAll('.chip').forEach(c => { c.textContent = c.dataset.text; });
+    const first = row.querySelector('.chip');
+    if (first && !first.classList.contains('punct')) {
+        const t = first.dataset.text;
+        if (t && t.length > 0) first.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+    }
+}
+
+function checkSatzbauAuto(exId) {
+    var ex = SATZBAU.find(s => s.id == exId);
+    if (!ex) return;
+    var row = document.getElementById('sb-drop-' + exId);
+    var bank = document.getElementById('sb-bank-' + exId);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(c => c.classList.remove('correct', 'wrong'));
+        return;
+    }
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var userOrder = chips.map(c => c.dataset.text);
+    var isCorrect = ex.valid.some(v => v.length === userOrder.length && v.every((p, i) => p === userOrder[i]));
+    chips.forEach(c => { c.classList.remove('correct', 'wrong'); c.classList.add(isCorrect ? 'correct' : 'wrong'); });
+    var allDone = true;
+    SATZBAU.forEach(s => {
+        var r = document.getElementById('sb-drop-' + s.id);
+        var b = document.getElementById('sb-bank-' + s.id);
+        if (b.querySelectorAll('.chip').length > 0) { allDone = false; return; }
+        var ch = Array.from(r.querySelectorAll('.chip'));
+        var uo = ch.map(c => c.dataset.text);
+        var ok = s.valid.some(v => v.length === uo.length && v.every((p, i) => p === uo[i]));
+        if (!ok) allDone = false;
+    });
+    if (allDone) stopTimer(4);
+}
+
+function showSatzbauLoesung() {
+    SATZBAU.forEach(ex => {
+        const row = document.getElementById('sb-drop-' + ex.id);
+        const bank = document.getElementById('sb-bank-' + ex.id);
+        const allChips = [...row.querySelectorAll('.chip'), ...bank.querySelectorAll('.chip')];
+        row.innerHTML = '';
+        ex.valid[0].forEach(p => {
+            const chip = allChips.find(c => c.dataset.text === p);
+            if (chip) { row.appendChild(chip); chip.classList.remove('wrong'); chip.classList.add('correct'); }
+        });
+        const point = document.createElement('span');
+        point.className = 'fixed-dot';
+        point.textContent = ex.punct || '.';
+        point.style.fontSize = '1.5em';
+        point.style.marginLeft = '4px';
+        row.appendChild(point);
+        updateCaps(ex.id);
+    });
+}
+
+function resetSatzbau() { initSatzbau(); selectedSBChip = null; }
+
+// ================================================================
+// INIT
+// ================================================================
+[2, 3, 4].forEach(initTimer);
+loadBestTimes();
+renderVerbGrid('all');
+initGenus();
+renderLuecken();
+initSatzbau();
+</script>
+</body>
+</html>
