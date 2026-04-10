@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-10 11:18. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-10 12:05. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)
 
@@ -28,10 +28,11 @@ Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Ni
 | `daf-b1-uebungen` | Aktives Niveau | B1 | `htmlS/B1.1` | [fabdaf.github.io/daf-b1-uebungen](https://fabdaf.github.io/daf-b1-uebungen/) | ✓ |
 | `daf-b2-uebungen` | Aktives Niveau | B2 | `.` | [fabdaf.github.io/daf-b2-uebungen](https://fabdaf.github.io/daf-b2-uebungen/) | ✓ |
 | `daf-c1-uebungen` | Aktives Niveau | C1 | `htmlS/C1` | [fabdaf.github.io/daf-c1-uebungen](https://fabdaf.github.io/daf-c1-uebungen/) | ✓ |
-| `daf-materialien` | Materialien | — | `daf-materialien` | [fabdaf.github.io/daf-materialien](https://fabdaf.github.io/daf-materialien/) | ✗ (offen) |
+| `daf-materialien` | Materialien | — | `daf-materialien` | [fabdaf.github.io/daf-materialien](https://fabdaf.github.io/daf-materialien/) | ✓ |
 | `daf-architektur` | Architektur | — | `htmlS/Architektur` | [fabdaf.github.io/daf-architektur](https://fabdaf.github.io/daf-architektur/) | ✓ |
 | `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [fabdaf.github.io/daf-lueckentexte](https://fabdaf.github.io/daf-lueckentexte/) | ✓ |
-| `daf-archiv` | Archiv | — | `daf-archiv` | — | ✗ (offen) |
+| `daf-archiv` | Archiv | — | `daf-archiv` | — | ✓ |
+| `daf-wkv-uebungen` | Privatschüler | — | `schueler/WKV` | [fabdaf.github.io/daf-wkv-uebungen](https://fabdaf.github.io/daf-wkv-uebungen/) | ✓ |
 
 ## Details pro Repo
 
@@ -91,7 +92,7 @@ _Niveau-übergreifende Materialien: Grundlagen, Texte, Treffen, Warum wir krank 
 
 - **Lokal:** `daf-materialien`
 - **Remote:** https://github.com/fabDaF/daf-materialien.git
-- **GitHub Pages:** ⚠ noch nicht aktiv
+- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-materialien/
 - **Dashboard basis:** `https://fabdaf.github.io/daf-materialien/`
 - **Erwartung:** ≥40 tracked files, ≥40 HTML
 
@@ -121,36 +122,30 @@ _Historische Kopien und verworfene Versionen (B1/B2 Grammatik-Kopien, Löschbar-
 
 - **Lokal:** `daf-archiv`
 - **Remote:** https://github.com/fabDaF/daf-archiv.git
-- **GitHub Pages:** ⚠ noch nicht aktiv
+- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-archiv/
 - **Erwartung:** ≥30 tracked files, ≥30 HTML
+
+### `daf-wkv-uebungen`
+
+_Privatschüler-Material Caroline Deters (WKV = Württembergische Versicherung): interaktive DaF-Übungen zu AVB Zurich WKV Zmart Vertragssprache. Erstes Repo eines neuen Schemas 'ein Repo pro Schüler', wobei der Repo-Name den Arbeitskontext benennt (WKV), nicht die Person (DSGVO-freundlich)._
+
+- **Lokal:** `schueler/WKV`
+- **Remote:** https://github.com/fabDaF/daf-wkv-uebungen.git
+- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-wkv-uebungen/
+- **Dashboard basis:** `https://fabdaf.github.io/daf-wkv-uebungen/`
+- **Erwartung:** ≥4 tracked files, ≥3 HTML
 
 ## Bekannte offene Punkte
 
 Jeder Eintrag hier ist ein dokumentierter, aber noch nicht behobener Zustand. `verify_manifest.py` wertet sie nicht als Fehler, solange sie hier stehen. Sobald behoben → aus `MANIFEST.yaml` entfernen und neu rendern.
 
-### 🔴 Hoch
-
-**dashboard_references_missing_wkv_repo** (seit 2026-04-10, Owner: frank)  
-dashboard.html verweist auf basis 'https://fabdaf.github.io/daf-wkv-uebungen/' (Sektion 'WKV – Schülermaterial', Caroline Deters), aber dieses Repo existiert lokal NICHT. Die HTML-Dateien (WKV-Vertragssprache.html, WKV-Komposita-FVG.html, WKV-Geschaeftsemail.html) liegen in 'Archiv fabDaf/Schülermaterial/'. Klärungsbedarf: Ist das Repo auf GitHub live und nur lokal nie geklont, oder ist der Dashboard-Link tot? Entscheidung: entweder Repo lokal klonen + in Manifest aufnehmen, oder Dashboard-Eintrag entfernen.
-
 ### 🟡 Mittel
-
-**pages_daf_materialien** (seit 2026-04-10, Owner: frank)  
-GitHub Pages für daf-materialien noch nicht aktiviert. Dashboard-Links auf fabdaf.github.io/daf-materialien/ laufen ins Leere, bis Frank Settings → Pages → main branch → / klickt.
-
-**orphaned_repos_on_github** (seit 2026-04-10, Owner: frank)  
-Die alten Repos daf-a2-2-uebungen und daf-grundlagen existieren noch auf GitHub, werden aber von keinem Manifest-Eintrag mehr referenziert. Sollten auf GitHub archiviert werden (Settings → Danger Zone → Archive).
 
 **c1_untracked_files** (seit 2026-04-10, Owner: frank)  
 htmlS/C1 hat nur 1 getrackte HTML-Datei (DE_C1_1011G-nominalstil.html), aber 7 HTML-Dateien physisch vorhanden. 6 Dateien sind ungetrackt. Klärungsbedarf: sollen sie committed werden oder sind sie Entwürfe?
 
 **launchd_backup_not_activated** (seit 2026-04-10, Owner: frank)  
 Automatisches Backup via launchd ist vorbereitet (backup/com.fabdaf.backup.plist), aber noch nicht geladen. Siehe backup/INSTALL.md.
-
-### ⚪ Niedrig
-
-**pages_daf_archiv** (seit 2026-04-10, Owner: frank)  
-GitHub Pages für daf-archiv noch nicht aktiviert. Nur relevant, falls Archiv-Inhalte als Read-Only-Referenz serviert werden sollen.
 
 ## Verworfene Repos
 

@@ -24,6 +24,7 @@ ROLE_LABELS = {
     "architektur": "Architektur",
     "spezial": "Spezial",
     "archiv": "Archiv",
+    "schueler_privat": "Privatschüler",
 }
 
 
