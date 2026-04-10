@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3025G – Konzessiv- und Konsekutivsatz</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; min-height: 100vh; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+    .header h1 { font-size: 2rem; margin-bottom: 8px; }
+    .header .subtitle { font-size: 0.95rem; opacity: 0.95; }
+    .header img { width: 100%; height: 200px; object-fit: cover; margin-top: 20px; border-radius: 8px; }
+    .tab-nav { display: flex; border-bottom: 2px solid #eee; background: #fafbfc; overflow-x: auto; }
+    .nav-btn{ flex: 1; padding: 16px 12px;  background: transparent; cursor: pointer; font-size: 0.9rem; color: #666; display: flex; flex-direction: column; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.3s;  border-bottom:1px solid #ddd;}
+    .nav-btn:hover { background: #f0f2f5; color: #333; }
+    .nav-btn.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
+    .nav-btn .emoji { font-size: 1.4rem; }
+    .content-area { padding: 30px; min-height: 500px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .entdeck-intro { background: #f3e5f5; border-radius: 12px; padding: 18px 22px; margin-bottom: 20px; border-left: 5px solid #9c27b0; font-size: 0.97rem; line-height: 1.75; }
+    .entdeck-intro h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.05rem; }
+    .hl { background: #e1bee7; border-radius: 4px; padding: 0 4px; color: #4a148c; font-weight: 700; }
+    .mc-step { display: none; background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; border: 1px solid #c5cae9; }
+    .mc-step.active { display: block; }
+    .mc-step h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; }
+    .mc-options { display: flex; flex-direction: column; gap: 8px; }
+    .mc-btn { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: white; cursor: pointer; text-align: left; font-size: 0.92rem; transition: all 0.2s; }
+    .mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
+    .mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+    .mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .mc-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 1.3em; }
+    .mc-feedback.ok { color: #2e7d32; font-weight: 700; }
+    .mc-feedback.err { color: #c62828; }
+    .progress-dots { display: flex; gap: 8px; margin-bottom: 20px; }
+    .pdot { width: 14px; height: 14px; border-radius: 50%; background: #c5cae9; transition: background 0.3s; }
+    .pdot.done { background: #667eea; }
+    .regel-karte { display: none; background: linear-gradient(135deg, #e8eaf6, #ede7f6); border-radius: 14px; padding: 22px 26px; border-left: 5px solid #3949ab; margin-top: 10px; }
+    .regel-karte h3 { color: #1a237e; margin-bottom: 12px; font-size: 1.05rem; }
+    .regel-karte ul { margin-left: 18px; }
+    .regel-karte li { color: #333; line-height: 1.8; font-size: 0.95rem; }
+    .help-box { background: #e8f4fd; border-left: 4px solid #0099ff; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; color: #003d66; }
+    .sentence-block { background: #fafbff; border-left: 4px solid #667eea; padding: 12px 16px; margin-bottom: 12px; border-radius: 6px; line-height: 1.8; font-size: 0.95rem; }
+    input.blank { border: 2px solid #c5cae9; border-radius: 6px; padding: 4px 8px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s, background 0.2s; background: white; margin: 0 2px; }
+    input.blank:focus { border-color: #667eea; }
+    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
+    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
+    .chip { padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: grab; font-size: 0.85rem; font-weight: 600; user-select: none; transition: transform 0.15s; white-space: nowrap; display: inline-block; margin: 4px; }
+    .chip:active { cursor: grabbing; transform: scale(1.04); }
+    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 16px; min-height: 50px; }
+    .drop-zone { min-height: 80px; border: 2px dashed #c5cae9; border-radius: 10px; padding: 12px; background: #fafbff; margin-bottom: 16px; transition: background 0.2s; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; align-content: flex-start; }
+    .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
+    .vocab-item { background: #f8f9ff; padding: 14px 18px; margin-bottom: 12px; border-radius: 10px; border-left: 4px solid #667eea; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .vocab-en { font-weight: 600; color: #764ba2; min-width: 140px; font-size: 0.95em; }
+    .vocab-arrow { color: #ccc; font-size: 1.2em; }
+    .vocab-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .vocab-inputs input { border: none; border-bottom: 2px solid #667eea; background: white; padding: 4px 8px; font-family: inherit; font-size: 0.95em; outline: none; transition: all 0.2s; }
+    .vocab-inputs input:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
+    .vocab-inputs input.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+    .vocab-inputs input.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+    .vocab-inputs input.art { width: 70px; }
+    .vocab-inputs input.wort { width: 130px; }
+    .vocab-inputs input.plural { width: 140px; }
+    .timer-row { display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #666; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
+    .btn-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; background: #667eea; color: white; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.3s; }
+    .btn:hover { background: #764ba2; }
+    .btn-reset { background: #f39c12; }
+    .btn-reset:hover { background: #d68910; }
+    .author-footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+    .author-footer a { color: #aaa; }
+    .author-name { font-weight: 700; }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.3rem; }
+      .content-area { padding: 16px; }
+      .nav-btn{ font-size: 0.75rem; padding: 12px 8px; border-bottom:1px solid #ddd;flex:1;}
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Konzessiv- und Konsekutivsatz</h1>
+      <p class="subtitle">B2.3 · Einheit 2 · G</p>
+      <img src="https://images.pexels.com/photos/3808517/pexels-photo-3808517.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Logik und Struktur">
+    </div>
+
+    <div class="tab-nav nav">
+      <div class="nav-btn active" onclick="switchTab(0)"><span class="emoji">🔍</span> Entdecken</div>
+      <div class="nav-btn" onclick="switchTab(1)"><span class="emoji">📖</span> Regel</div>
+      <div class="nav-btn" onclick="switchTab(2)"><span class="emoji">✏️</span> Lückentext</div>
+      <div class="nav-btn" onclick="switchTab(3)"><span class="emoji">🔀</span> Satzbau</div>
+      <div class="nav-btn" onclick="switchTab(4)"><span class="emoji">📚</span> Wortschatz</div>
+    </div>
+
+    <div class="content-area">
+      <!-- Tab 0: Entdecken -->
+      <div class="tab active" id="tab0">
+        <div class="entdeck-intro">
+          <h3>Was ist ein Konzessiv- und Konsekutivsatz?</h3>
+          <p>Konzessivsätze zeigen einen Gegensatz: „Obwohl es regnet, gehe ich nach draußen." Konsekutivsätze zeigen eine Folge: „Es regnet so stark, dass ich nicht gehe." Erkenne den Unterschied in den Sätzen!</p>
+        </div>
+
+        <div class="progress-dots">
+          <div class="pdot" id="pdot0"></div>
+          <div class="pdot" id="pdot1"></div>
+          <div class="pdot" id="pdot2"></div>
+          <div class="pdot" id="pdot3"></div>
+        </div>
+
+        <div class="mc-step active" id="mc-step0">
+          <h4>Schritt 1: Konzessiv vs. Konsequenz</h4>
+          <p style="margin-bottom: 10px; color: #555;">Lese die zwei Sätze:</p>
+          <p style="margin-bottom: 8px; color: #333;"><strong>A:</strong> Obwohl der Film schlecht war, hat mir die Zeit Spaß gemacht. (Gegensatz!)</p>
+          <p style="margin-bottom: 12px; color: #333;"><strong>B:</strong> Der Film war so langweilig, dass ich einschlafen bin. (Folge!)</p>
+          <p style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">Welcher Satz drückt einen Gegensatz aus?</p>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(0, this, true)">Satz A — trotz Gegensatz dennoch...</button>
+            <button class="mc-btn" onclick="mcCheck(0, this, false)">Satz B — die Folge zeigen</button>
+          </div>
+          <div class="mc-feedback" id="mcfb0"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step1">
+          <h4>Schritt 2: Konjunktionen erkennen</h4>
+          <p style="margin-bottom: 10px; color: #555;">Konzessivsätze nutzen: obwohl, obgleich, wenngleich, auch wenn</p>
+          <p style="margin-bottom: 12px; color: #555;">Konsekutivsätze nutzen: sodass, so ... dass, derart ... dass</p>
+          <p style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">Welche Konjunktion passt hier? „Er war krank, _____ er nicht zur Arbeit ging."</p>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(1, this, true)">sodass (Folge)</button>
+            <button class="mc-btn" onclick="mcCheck(1, this, false)">obwohl (Gegensatz)</button>
+          </div>
+          <div class="mc-feedback" id="mcfb1"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step2">
+          <h4>Schritt 3: Satzbau</h4>
+          <p style="margin-bottom: 10px; color: #555;">Konzessivsatz: Obwohl + Nebensatz, Hauptsatz</p>
+          <p style="margin-bottom: 12px; color: #555;">Konsekutivsatz: Hauptsatz + sodass / so ... dass + Nebensatz</p>
+          <p style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">Das stimmt, richtig?</p>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(2, this, true)">Ja, das ist die korrekte Struktur</button>
+            <button class="mc-btn" onclick="mcCheck(2, this, false)">Nein, es ist umgekehrt</button>
+          </div>
+          <div class="mc-feedback" id="mcfb2"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step3">
+          <h4>Schritt 4: Anwendungsfall</h4>
+          <p style="margin-bottom: 10px; color: #555;">Welcher Satz ist ein Konzessivsatz?</p>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcCheck(3, this, true)">Obwohl das Wetter schlecht ist, fahren wir ins Freie.</button>
+            <button class="mc-btn" onclick="mcCheck(3, this, false)">Das Wetter ist so schlecht, dass wir zu Hause bleiben.</button>
+          </div>
+          <div class="mc-feedback" id="mcfb3"></div>
+        </div>
+
+        <div class="regel-karte" id="regelkarte">
+          <h3>Regel: Konzessiv- und Konsekutivsätze</h3>
+          <ul>
+            <li><strong>Konzessivsatz:</strong> Zeigt einen Gegensatz. „Obwohl / obgleich / wenngleich / auch wenn + Nebensatz"</li>
+            <li><strong>Konsekutivsatz:</strong> Zeigt eine Folge. „Sodass / so ... dass / derart ... dass + Nebensatz"</li>
+            <li><strong>Beispiel Konzessiv:</strong> Obwohl ich müde bin, arbeite ich weiter.</li>
+            <li><strong>Beispiel Konsequenz:</strong> Ich bin so müde, dass ich schlafen muss.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab 1: Regel -->
+      <div class="tab" id="tab1">
+        <div class="help-box"><strong>Regel:</strong> Konzessivsätze drücken einen Gegensatz aus, Konsekutivsätze zeigen eine Folge oder Konsequenz.</div>
+        <div style="background: #f3e5f5; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
+          <h3 style="color: #6a1b9a; margin-bottom: 12px;">Konzessivsätze (Gegensatz)</h3>
+          <p style="margin-bottom: 8px;"><strong>Konjunktionen:</strong> obwohl, obgleich, wenngleich, auch wenn, trotzdem</p>
+          <p style="margin-bottom: 8px;"><strong>Struktur:</strong> Obwohl + Nebensatz, Hauptsatz</p>
+          <p>Beispiel: Obwohl es teuer ist, kaufe ich das Smartphone.</p>
+        </div>
+        <div style="background: #fff3e0; border-radius: 8px; padding: 16px 18px;">
+          <h3 style="color: #e65100; margin-bottom: 12px;">Konsekutivsätze (Folge)</h3>
+          <p style="margin-bottom: 8px;"><strong>Konjunktionen:</strong> sodass, so ... dass, derart ... dass</p>
+          <p style="margin-bottom: 8px;"><strong>Struktur:</strong> Hauptsatz + sodass / so ... dass + Nebensatz</p>
+          <p>Beispiel: Das Essen war so schlecht, dass ich es nicht essen konnte.</p>
+        </div>
+      </div>
+
+      <!-- Tab 2: Lückentext -->
+      <div class="tab" id="tab2">
+        
+<div class="btn-row">
+          <button class="btn btn-show" onclick="showLueckenSolution()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetLuecken()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Ergänze die Lücken mit den richtigen Konjunktionen.</div>
+        <div id="lueckenContainer"></div>
+      </div>
+
+      <!-- Tab 3: Satzbau -->
+      <div class="tab" id="tab3">
+        
+<div class="btn-row">
+          <button class="btn btn-reset" onclick="resetSatzbau()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge.</div>
+        <div id="satzbauContainer"></div>
+      </div>
+
+      <!-- Tab 4: Wortschatz -->
+      <div class="tab" id="tab4">
+        
+<div class="btn-row">
+          <button class="btn btn-show" onclick="showVocabSolution()">Lösungen</button>
+          <button class="btn btn-reset" onclick="resetVocab()">Neu starten</button>
+        </div>
+        <div class="help-box"><strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche. Bei Nomen: Artikel + Wort + Plural!</div>
+        <div id="vocabContainer"></div>
+      </div>
+    </div>
+
+    <div class="author-footer">
+      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+  </div>
+
+  <script>
+function switchTab(n){
+  var tabs=document.querySelectorAll('.tab-content');
+  if(!tabs.length)tabs=document.querySelectorAll('.tab');
+  tabs.forEach(function(t,i){t.classList.toggle('active',i===n);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+}
+
+    var TIMER_PREFIX='B2_3025G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
+    var lueckenData = [
+      { text: 'Obwohl es regnet, <input class="blank" data-answer="gehen" oninput="liveCheckLuecken(this)"> wir spazieren.', answer: 'gehen' },
+      { text: 'Die Zeitung ist so teuer, <input class="blank" data-answer="sodass" oninput="liveCheckLuecken(this)"> ich sie nicht abonniere.', answer: 'sodass' },
+      { text: 'Wenngleich der Film langweilig war, <input class="blank" data-answer="hat" oninput="liveCheckLuecken(this)"> es mir gefallen.', answer: 'hat' },
+      { text: 'Die Nachrichten sind so interessant, <input class="blank" data-answer="dass" oninput="liveCheckLuecken(this)"> ich sie jeden Tag lese.', answer: 'dass' },
+      { text: 'Auch wenn die Medien schlecht sind, <input class="blank" data-answer="informieren" oninput="liveCheckLuecken(this)"> wir uns.', answer: 'informieren' }
+    ];
+
+    function liveCheckLuecken(inp) {
+      var val = inp.value.trim().toLowerCase();
+      var ans = (inp.dataset.answer || '').toLowerCase();
+      inp.classList.remove('correct', 'wrong');
+      if (val.length === 0) return;
+      if (val === ans) { inp.classList.add('correct'); } else if (ans.indexOf(val) === 0) {
+        // valid
+      } else { inp.classList.add('wrong'); }
+      timerAutoStart(2);
+      checkLueckenAll();
+    }
+
+    function checkLueckenAll() {
+      var inputs = document.querySelectorAll('#tab2 input.blank');
+      if (inputs.length === 0) return;
+      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
+      if (allOk) timerStop(2);
+    }
+
+    function showLueckenSolution() {
+      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
+        inp.value = inp.dataset.answer;
+        inp.classList.add('correct');
+      });
+      checkLueckenAll();
+    }
+
+    function resetLuecken() {
+      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+      });
+      timerResetOne(2);
+    }
+
+    var satzbauData = [
+      { words: ['Obwohl', 'das', 'Wetter', 'schlecht', 'ist', ',', 'fahren', 'wir', 'ins', 'Grüne', '.'], correct: 'Obwohl das Wetter schlecht ist , fahren wir ins Grüne .' },
+      { words: ['Das', 'Internet', 'ist', 'so', 'schnell', ',', 'sodass', 'wir', 'sofort', 'alles', 'erfahren', '.'], correct: 'Das Internet ist so schnell , sodass wir sofort alles erfahren .' },
+      { words: ['Auch', 'wenn', 'die', 'Zeitung', 'teuer', 'ist', ',', 'abonniere', 'ich', 'sie', '.'], correct: 'Auch wenn die Zeitung teuer ist , abonniere ich sie .' },
+      { words: ['Die', 'Nachricht', 'war', 'so', 'schockierend', ',', 'dass', 'ich', 'nicht', 'schlafen', 'konnte', '.'], correct: 'Die Nachricht war so schockierend , dass ich nicht schlafen konnte .' }
+    ];
+
+    function shuffleArr(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderSatzbau() {
+      var cont = document.getElementById('satzbauContainer');
+      cont.innerHTML = '';
+      satzbauData.forEach((item, idx) => {
+        var div = document.createElement('div');
+        div.style.marginBottom = '20px';
+        var bank = document.createElement('div');
+        bank.className = 'chip-bank';
+        var shuffled = shuffleArr([...item.words]);
+        shuffled.forEach(word => {
+          var chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = word;
+          chip.draggable = true;
+          chip.dataset.idx = idx;
+          chip.dataset.word = word;
+          chip.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', '');
+            sbDragged = chip;
+          });
+          chip.addEventListener('dragend', function() {
+            colorSbChips(idx);
+          });
+          bank.appendChild(chip);
+        });
+        div.appendChild(bank);
+        var zone = document.createElement('div');
+        zone.className = 'drop-zone';
+        zone.dataset.idx = idx;
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          zone.classList.remove('dragover');
+          if (sbDragged) { zone.appendChild(sbDragged); colorSbChips(idx); }
+        });
+        div.appendChild(zone);
+        cont.appendChild(div);
+      });
+
+    function colorSbChips(idx) {
+      timerAutoStart(3);
+      var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
+      if (!zone) return;
+      var chips = zone.querySelectorAll('.chip');
+      var text = Array.from(chips).map(c => c.textContent).join(' ');
+      chips.forEach(c => c.classList.remove('correct', 'wrong'));
+      if (text === satzbauData[idx].correct) { chips.forEach(c => c.classList.add('correct')); }
+      checkSbAll();
+    }
+
+    function checkSbAll() {
+      var allOk = true;
+      satzbauData.forEach((_, idx) => {
+        var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
+        var text = Array.from(zone.querySelectorAll('.chip')).map(c => c.textContent).join(' ');
+        if (text !== satzbauData[idx].correct) allOk = false;
+      });
+      if (allOk) timerStop(3);
+    }
+
+    function resetSatzbau() {
+      renderSatzbau();
+      timerResetOne(3);
+    }
+
+    var vocabData = [
+      { en: 'although', art: 'obwohl', word: 'obwohl', plural: '(Konjunktion)' },
+      { en: 'in such a way that', art: 'sodass', word: 'sodass', plural: '(Konjunktion)' },
+      { en: 'concession', art: 'die', word: 'Konzession', plural: 'Konzessionen' },
+      { en: 'consequence', art: 'die', word: 'Konsequenz', plural: 'Konsequenzen' }
+    ];
+
+    function renderVocab() {
+      var cont = document.getElementById('vocabContainer');
+      cont.innerHTML = '';
+      vocabData.forEach((item, idx) => {
+        var div = document.createElement('div');
+        div.className = 'vocab-item';
+        var en = document.createElement('div');
+        en.className = 'vocab-en';
+        en.textContent = item.en;
+        var arrow = document.createElement('div');
+        arrow.className = 'vocab-arrow';
+        arrow.textContent = '→';
+        var inputs = document.createElement('div');
+        inputs.className = 'vocab-inputs';
+        var artInp = document.createElement('input');
+        artInp.className = 'art';
+        artInp.dataset.answer = item.art;
+        artInp.placeholder = 'Form';
+        artInp.addEventListener('input', function() { liveCheckVocab(this); });
+        var wortInp = document.createElement('input');
+        wortInp.className = 'wort';
+        wortInp.dataset.answer = item.word;
+        wortInp.placeholder = 'Deutsch';
+        wortInp.addEventListener('input', function() { liveCheckVocab(this); });
+        var pluralInp = document.createElement('input');
+        pluralInp.className = 'plural';
+        pluralInp.dataset.answer = item.plural;
+        pluralInp.placeholder = 'Plural/Typ';
+        pluralInp.addEventListener('input', function() { liveCheckVocab(this); });
+        inputs.appendChild(artInp);
+        inputs.appendChild(wortInp);
+        inputs.appendChild(pluralInp);
+        div.appendChild(en);
+        div.appendChild(arrow);
+        div.appendChild(inputs);
+        cont.appendChild(div);
+      });
+
+    function liveCheckVocab(inp) {
+      timerAutoStart(4);
+      var val = inp.value.trim().toLowerCase();
+      var ans = (inp.dataset.answer || '').toLowerCase();
+      inp.classList.remove('correct', 'wrong');
+      if (val.length === 0) return;
+      if (val === ans) { inp.classList.add('correct'); } else if (ans.indexOf(val) === 0) {
+        // valid
+      } else { inp.classList.add('wrong'); }
+      checkVocabAll();
+    }
+
+    function checkVocabAll() {
+      var inputs = document.querySelectorAll('#tab4 input');
+      if (inputs.length === 0) return;
+      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
+      if (allOk) timerStop(4);
+    }
+
+    function showVocabSolution() {
+      document.querySelectorAll('#tab4 input').forEach(inp => {
+        inp.value = inp.dataset.answer;
+        inp.classList.add('correct');
+      });
+      checkVocabAll();
+    }
+
+    function resetVocab() {
+      document.querySelectorAll('#tab4 input').forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+      });
+      timerResetOne(4);
+    }
+
+    function initPage() {
+      var lueckeCont = document.getElementById('lueckenContainer');
+      lueckeCont.innerHTML = '';
+      lueckenData.forEach(item => {
+        var div = document.createElement('div');
+        div.className = 'sentence-block';
+        div.innerHTML = item.text;
+        lueckeCont.appendChild(div);
+      });
+      renderSatzbau();
+      renderVocab();
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  
+}}</script>
+</body>
+</html>

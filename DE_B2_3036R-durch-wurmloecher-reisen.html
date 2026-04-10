@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2.3 · Einheit 3 · Durch Wurmlöcher reisen (R)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 { font-size: 28px; margin-bottom: 5px; }
+        header p { font-size: 14px; opacity: 0.9; }
+        .nav{
+            display: flex;
+            
+            background: #fafafa;
+            overflow-x: auto;
+        ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
+        nav button {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        nav button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        nav button:hover:not(.active) {
+            background: #f5f5f5;
+        }
+        nav .emoji { font-size: 24px; }
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(100vh - 400px);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        .vocab-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .vocab-card {
+            padding: 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        .vocab-card strong {
+            color: #667eea;
+        }
+        .vocab-card .meaning {
+            color: #666;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .reading-text {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.8;
+            color: #333;
+            margin: 20px 0;
+        }
+        .reading-text p {
+            margin-bottom: 15px;
+        }
+        .exercise {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .exercise label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .exercise input, .exercise textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .exercise textarea { min-height: 80px; resize: vertical; }
+        .exercise input:focus, .exercise textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        .feedback {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            min-height: 20px;
+        }
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .mc-option {
+            display: block;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .mc-option:hover {
+            border-color: #667eea;
+        }
+        .mc-option.selected {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+        .mc-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #fafafa;
+            border-top: 2px solid #f0f0f0;
+        }
+        .buttons { display: flex; gap: 10px; }
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        .timer {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        footer {
+            background: #333;
+            color: #ccc;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .vocab-list { grid-template-columns: 1fr; }
+            nav button { min-width: 100px; font-size: 11px; padding: 10px; }
+        }
+    
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⏳ Durch Wurmlöcher reisen</h1>
+            <p>B2.3 · Einheit 3 · Physik und Science-Fiction</p>
+        </header>
+
+        <div class="nav" id="tabNav">
+            <div class="nav-btn active" data-tab="0">
+                <span class="emoji">🌅</span>
+                <span>Vorentlastung</span>
+            </div>
+            <div class="nav-btn" data-tab="1">
+                <span class="emoji">📖</span>
+                <span>Lesetext</span>
+            </div>
+            <div class="nav-btn" data-tab="2">
+                <span class="emoji">✏️</span>
+                <span>Lückentext</span>
+            </div>
+            <div class="nav-btn" data-tab="3">
+                <span class="emoji">❓</span>
+                <span>Multiple Choice</span>
+            </div>
+            <div class="nav-btn" data-tab="4">
+                <span class="emoji">🔀</span>
+                <span>Satzbau</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- TAB 0: Vorentlastung -->
+            <div class="tab-content active">
+                <h2>🌅 Vorentlastung: Wichtige Vokabeln</h2>
+                <p style="margin-bottom: 20px; color: #666;">Lerne die Schlüsselvokabeln zum Thema "Wurmlöcher":</p>
+                <div class="vocab-list">
+                    <div class="vocab-card">
+                        <strong>das Wurmloch</strong>
+                        <div class="meaning">Theoretischer Tunnel durch die Raumzeit</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die Raumzeit</strong>
+                        <div class="meaning">Kombination von Raum und Zeit</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die Einstein-Rosen-Brücke</strong>
+                        <div class="meaning">Mathematische Lösung für Wurmlöcher</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die Zeitreise</strong>
+                        <div class="meaning">Reise in die Vergangenheit oder Zukunft</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>das Schwarze Loch</strong>
+                        <div class="meaning">Region, aus der nichts entkommen kann</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die Stabilität</strong>
+                        <div class="meaning">Beständigkeit; Nicht-Veränderlichkeit</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>die exotische Materie</strong>
+                        <div class="meaning">Hypothetische Materie mit Negativenergie</div>
+                    </div>
+                    <div class="vocab-card">
+                        <strong>das Kontinuum</strong>
+                        <div class="meaning">Ununterbrochene Folge oder Einheit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: Lesetext -->
+            <div class="tab-content">
+                <h2>📖 Lesetext: Wurmlöcher — Physik oder Science-Fiction?</h2>
+                <div class="reading-text">
+                    <p>Seit Jahrzenten faszinieren Wurmlöcher Wissenschaftler und Science-Fiction-Autoren gleichermaßen. Ein Wurmloch ist ein hypothetisches Phänomen der Raumzeit — ein Tunnel, der zwei entfernte Punkte im Universum verbindet. Doch was ist wirklich Realität, und was ist Fiktion?</p>
+
+                    <p>Die mathematische Grundlage für Wurmlöcher stammt von Albert Einstein und Nathan Rosen. 1935 beschrieben sie die sogenannte Einstein-Rosen-Brücke, eine theoretische Struktur, die zwei schwarze Löcher verbinden könnte. Nach dieser mathematischen Lösung der Relativitätsgleichungen wären Wurmlöcher nicht unmöglich — sie folgen den Gesetzen der Physik.</p>
+
+                    <p>Theoretisch könnten Wurmlöcher als "Abkürzungen" durch die Raumzeit funktionieren. Statt Millionen von Lichtyahren zu reisen, könnte man durch ein Wurmloch eine unvorstellbar lange Distanz in Sekunden überbrücken. Noch faszinierender: Manche Lösungen der Relativitätsgleichungen deuten darauf hin, dass Zeitreisen durch Wurmlöcher möglich sein könnten.</p>
+
+                    <p>Aber es gibt ein großes Problem — die Stabilität. Ein natürlich entstandenes Wurmloch würde sofort zusammenbrechen. Um es offen zu halten, würde man "exotische Materie" mit Negativenergie benötigen — etwas, das wir noch nie beobachtet haben und möglicherweise nicht existiert. Außerdem könnten die enormen Gezeitenkräfte in der Nähe eines Wurmlochs alles zerstören, was hindurchfährt.</p>
+
+                    <p>Deshalb bleiben Wurmlöcher für jetzt in der Realm der Science-Fiction. Dennoch bleibt die Frage offen: Sind sie unmöglich, oder sind wir nur noch nicht technologisch fortgeschritten genug, um sie zu erschaffen? Die Physik sagt: Vielleicht später.</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: Lückentext -->
+            <div class="tab-content">
+                <h2>✏️ Lückentext: Verständnis überprüfen</h2>
+                <div class="exercise">
+                    <label>1. Die Einstein-Rosen-Brücke wurde _____________ und _____________ entwickelt.</label>
+                    <input type="text" class="luekentext" data-answer="einstein rosen" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>2. Ein Wurmloch könnte zwei _____________ Punkte im Universum verbinden.</label>
+                    <input type="text" class="luekentext" data-answer="entfernte" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>3. Ein Wurmloch könnte als _____________ durch die Raumzeit funktionieren.</label>
+                    <input type="text" class="luekentext" data-answer="abkuerzung" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>4. Das Hauptproblem bei Wurmlöchern ist ihre mangelnde _____________.</label>
+                    <input type="text" class="luekentext" data-answer="stabilitaet" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+                <div class="exercise">
+                    <label>5. Um ein Wurmloch offen zu halten, würde man _____________ Materie benötigen.</label>
+                    <input type="text" class="luekentext" data-answer="exotische" oninput="checkAnswer(this)">
+                    <div class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Multiple Choice -->
+            <div class="tab-content">
+                <h2>❓ Multiple Choice: Verständnisfragen</h2>
+                <div class="exercise">
+                    <label><strong>1. Wann wurde die Einstein-Rosen-Brücke beschrieben?</strong></label>
+                    <div onclick="selectMC(this, 'a')">
+                        <label class="mc-option" data-correct="yes">
+                            <input type="radio" name="q1"> a) 1935
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'b')">
+                        <label class="mc-option">
+                            <input type="radio" name="q1"> b) 1905
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'c')">
+                        <label class="mc-option">
+                            <input type="radio" name="q1"> c) 1975
+                        </label>
+                    </div>
+                </div>
+                <div class="exercise">
+                    <label><strong>2. Was würde durch ein Wurmloch möglich sein?</strong></label>
+                    <div onclick="selectMC(this, 'a')">
+                        <label class="mc-option">
+                            <input type="radio" name="q2"> a) Schneller als Licht reisen
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'b')">
+                        <label class="mc-option" data-correct="yes">
+                            <input type="radio" name="q2"> b) Abkürzungen durch die Raumzeit
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'c')">
+                        <label class="mc-option">
+                            <input type="radio" name="q2"> c) Energie erzeugen
+                        </label>
+                    </div>
+                </div>
+                <div class="exercise">
+                    <label><strong>3. Warum sind Wurmlöcher wahrscheinlich nicht stabil?</strong></label>
+                    <div onclick="selectMC(this, 'a')">
+                        <label class="mc-option">
+                            <input type="radio" name="q3"> a) Sie sind zu groß
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'b')">
+                        <label class="mc-option" data-correct="yes">
+                            <input type="radio" name="q3"> b) Sie würden sofort zusammenbrechen
+                        </label>
+                    </div>
+                    <div onclick="selectMC(this, 'c')">
+                        <label class="mc-option">
+                            <input type="radio" name="q3"> c) Sie brauchen zu viel Energie
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Satzbau -->
+            <div class="tab-content">
+                <h2>🔀 Satzbau: Sätze ordnen</h2>
+                <p style="margin-bottom: 20px; color: #666;">Ordne die Wörter zu vollständigen Sätzen:</p>
+                <div id="sbContainer"></div>
+            </div>
+        </div>
+
+        <div class="control-bar">
+            <div class="buttons">
+                <button class="btn-secondary" onclick="resetTab()">Zurücksetzen</button>
+            </div>
+            <div class="timer" id="timer">⏱️ 0:00</div>
+        </div>
+
+        <footer>
+            © Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com
+        </footer>
+    </div>
+
+    <script>
+        let currentTab = 0;
+        let timerInterval;
+        let seconds = 0;
+
+        const tabButtons = document.querySelectorAll('.nav-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => switchTab(idx));
+        });
+
+        function switchTab(idx) {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tabButtons[idx].classList.add('active');
+            tabContents[idx].classList.add('active');
+            currentTab = idx;
+
+            if (idx === 4) initSatzbau();
+        }
+
+        function checkAnswer(inp) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.answer || '').toLowerCase();
+  inp.classList.remove('correct', 'wrong');
+  if (!val) return;
+  if (val === ans) { inp.classList.add('correct'); }
+  else if (ans.startsWith(val)) { /* valid prefix */ }
+  else { inp.classList.add('wrong'); }
+}
+        function selectMC(el, answer) {
+            const parent = el.parentElement;
+            parent.querySelectorAll('.mc-option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            el.classList.add('selected');
+
+            if (el.dataset.correct === 'yes') {
+                el.classList.add('correct');
+                el.style.borderColor = '#28a745';
+            }
+        }
+
+        function initSatzbau() {
+            const container = document.getElementById('sbContainer');
+            if (container.innerHTML) return;
+
+            const sentences = [
+                { words: ['Ein', 'Wurmloch', 'könnte', 'zwei', 'entfernte', 'Punkte', 'verbinden.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Einstein', 'und', 'Rosen', 'beschrieben', 'die', 'mathematische', 'Lösung.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Zeitreisen', 'könnten', 'theoretisch', 'durch', 'Wurmlöcher', 'möglich', 'sein.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Exotische', 'Materie', 'könnte', 'das', 'Wurmloch', 'stabil', 'halten.'], correct: [0,1,2,3,4,5,6] },
+                { words: ['Für', 'jetzt', 'bleiben', 'Wurmlöcher', 'science-fiction.'], correct: [0,1,2,3,4] }
+            ];
+
+            sentences.forEach((sent, idx) => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '20px';
+
+                const label = document.createElement('p');
+                label.textContent = `Aufgabe ${idx + 1}:`;
+                label.style.fontWeight = '600';
+                label.style.marginBottom = '10px';
+                div.appendChild(label);
+
+                const chips = document.createElement('div');
+                chips.style.display = 'flex';
+                chips.style.flexWrap = 'wrap';
+                chips.style.gap = '8px';
+                chips.style.minHeight = '50px';
+                chips.style.padding = '10px';
+                chips.style.background = '#f9f9f9';
+                chips.style.borderRadius = '6px';
+
+                sent.words.forEach((word) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'punct-chip';
+                    chip.textContent = word;
+                    chip.style.padding = '8px 12px';
+                    chip.style.background = '#667eea';
+                    chip.style.color = 'white';
+                    chip.style.borderRadius = '4px';
+                    chip.style.cursor = 'pointer';
+                    chip.style.userSelect = 'none';
+                    chip.addEventListener('click', () => toggleWord(chip));
+                    chips.appendChild(chip);
+                });
+
+                div.appendChild(chips);
+                container.appendChild(div);
+            });
+        }
+
+        function toggleWord(el) {
+            el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
+        }
+
+        function resetTab() {
+            location.reload();
+        }
+    
+
+</script>
+</body>
+</html>
