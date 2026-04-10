@@ -1,0 +1,125 @@
+# fabDaF — Projekt-Instruktionen für Claude
+
+Diese Datei wird automatisch geladen, wenn eine Claude-Session im
+fabDaF-Ordner arbeitet. Sie enthält die verbindlichen Spielregeln für
+dieses Projekt. Bei Widersprüchen zwischen dieser Datei und allgemeinen
+Gewohnheiten gilt diese Datei.
+
+## Was ist fabDaF?
+
+Deutsch-als-Fremdsprache-Projekt von Frank Burkert. Unterrichtsmaterialien
+und interaktive HTML-Übungen für die Niveaus A1 bis C1. Das Projekt ist
+auf neun Git-Repos verteilt, die im `MANIFEST.yaml` am Root vollständig
+dokumentiert sind.
+
+## Erste Maßnahme bei jeder strukturellen Arbeit
+
+**Bevor** du an der Repo-Struktur, am Dashboard, an Ordner-Layouts oder
+an mehreren Niveaus gleichzeitig arbeitest:
+
+```bash
+./scripts/verify_manifest.sh
+```
+
+Wenn das Skript nicht grün ist, zuerst klären, warum — nicht
+drüberbauen. Jeder Fehler dort ist ein Signal, dass die IST-Welt nicht
+mehr zur SOLL-Welt passt.
+
+Bei rein inhaltlichen Arbeiten an einer einzelnen HTML-Datei (typischer
+DaF-Lektion) ist das nicht nötig.
+
+## Die Grundregeln dieses Projekts
+
+Diese Regeln sind maschinenlesbar in `MANIFEST.yaml` unter `rules:`
+definiert. Hier ist die menschliche Fassung:
+
+**Ein Niveau, ein Repo.** Für A1, A2, B1, B2, C1 existiert je genau ein
+aktives Repo. Niemals parallele Versionen wie "A2.1" und "A2.2" oder
+"B1.2 NEU". Wer so etwas braucht, nutzt Git-Branches oder legt den
+Ordner im `daf-archiv` ab.
+
+**Keine parallelen Arbeitskopien.** Kein "Kopie", kein "Entwurf", kein
+"OLD" auf derselben Ebene. Genau diese Parallelität hat am 2026-04-10
+eine mehrstündige Konsolidierung nötig gemacht.
+
+**Das Archiv ist eingefroren.** `daf-archiv` darf erweitert, aber nicht
+verändert werden. Inhalte dort sind historisch.
+
+**Dashboards zeigen nur auf Manifest-Repos.** Jede `basis:`-URL in
+einem `dashboard.html` muss auf ein Repo zeigen, das im Manifest
+gelistet ist. Tote Links sind Fehler, keine Platzhalter.
+
+**Keine Secrets in committeten Dateien.** Remote-URLs im Manifest und
+in Dokumentation enthalten nie PATs. Die echten URLs in `.git/config`
+können Tokens enthalten — die gehören da hin und sonst nirgends.
+
+## Die neun Repos in Kurzform
+
+| Schlüssel | Lokaler Pfad | Rolle |
+|---|---|---|
+| `daf-a1-uebungen` | `htmlS/A1.1 NEW` | A1 aktiv |
+| `daf-a2-uebungen` | `htmlS/A2.1` | A2 aktiv |
+| `daf-b1-uebungen` | `htmlS/B1.1` | B1 aktiv |
+| `daf-b2-uebungen` | `.` (Root) | B2 aktiv — trägt dieses CLAUDE.md und das Manifest |
+| `daf-c1-uebungen` | `htmlS/C1` | C1 aktiv |
+| `daf-materialien` | `daf-materialien` | Niveau-übergreifendes Material |
+| `daf-architektur` | `htmlS/Architektur` | Architektur-Kurs (Caroline Deters) |
+| `daf-lueckentexte` | `htmlS/Lückentexte Mattmüller` | Lückentexte nach Mattmüller |
+| `daf-archiv` | `daf-archiv` | Historische Kopien, FROZEN |
+
+Vollständige Details inklusive Remote-URLs, Dashboard-Zuordnungen und
+Erwartungen: siehe `MANIFEST.md` (generiert aus `MANIFEST.yaml`).
+
+## Betriebs-Warnungen — was in der Vergangenheit Zeit gekostet hat
+
+**Post-commit-Hook pusht automatisch.** Mehrere Repos haben einen Hook,
+der nach jedem Commit sofort `git push` ausführt. Wenn du manuell
+`git push` hinterherschickst, bekommst du Race Conditions und
+"cannot lock ref"-Fehler. Stattdessen: kurz warten, dann prüfen mit
+`git rev-parse HEAD origin/main` — wenn beide gleich sind, ist alles
+gut.
+
+**api.github.com ist in Cowork-Sessions blockiert.** Repos auf GitHub
+anzulegen geht nicht über `gh` oder `curl`. Workaround: Chrome MCP auf
+github.com/new navigieren. Dokumentiert im Konsolidierungs-Bericht
+`backup/KONSOLIDIERUNG_20260410.md`.
+
+**Stale git locks.** `.git/index.lock`, `.git/HEAD.lock` oder
+`.git/refs/remotes/origin/main.lock` können nach abgebrochenen
+Operationen bleiben. Lösung: `find .git -name "*.lock" -delete` und
+neu versuchen.
+
+## Wenn du etwas Neues hinzufügst
+
+Ein neues Repo, eine neue Niveau-Kategorie, ein neuer Ordner mit
+eigenem Git-Status → **erst ins `MANIFEST.yaml` eintragen, dann
+physisch anlegen.** In dieser Reihenfolge. Anschließend
+`python3 scripts/render_manifest.py` laufen lassen, damit `MANIFEST.md`
+nachzieht. Sonst ist der neue Zustand Drift und das verify-Skript
+schlägt Alarm.
+
+## Wenn du ein known_issue behebst
+
+In `MANIFEST.yaml` unter `known_issues:` den Eintrag löschen, dann
+`render_manifest.py` laufen lassen, dann committen. Nicht umgekehrt.
+
+## Ergänzende Dokumente in diesem Repo
+
+- `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
+- `MANIFEST.md` — dieselbe Info, menschenlesbar (generiert)
+- `scripts/verify_manifest.sh` — IST-gegen-SOLL-Prüfung
+- `scripts/render_manifest.py` — MD aus YAML erzeugen
+- `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
+  11-zu-9-Konsolidierung, warum die heutige Struktur so ist
+- `backup/INSTALL.md` — launchd-Backup-Aktivierung
+
+## Franks Arbeitsweise — was ich aus früheren Sessions weiß
+
+Frank ist DaF-Lehrer, nicht Software-Entwickler. Er bevorzugt Prosa
+statt Bullet-Listen, will direkte Antworten ohne Präambel, und schätzt
+Selbstreflexion und dialektisches Denken (These/Antithese/Synthese).
+Er hat einen post-commit-Hook installiert, damit nichts verloren geht —
+Datensicherheit ist ihm wichtiger als Git-Eleganz.
+
+Weitere projekt-übergreifende Präferenzen liegen im Auto-Memory-System
+unter `~/.auto-memory/MEMORY.md`.
