@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2 · 1028S · Alles über Bücher!</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 28px 32px 20px;
+    }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+    .header p  { font-size: 0.95rem; opacity: 0.88; }
+    .tab-nav {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      background: #f9f9f9;
+    }
+    .nav-btn{
+      flex: 1;
+      padding: 12px 6px 10px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: #555;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      border-right: 1px solid #e0e0e0;
+      transition: background 0.2s;
+    }
+    .nav-btn:last-child { border-right: none; }
+    .nav-btn .nav-emoji { font-size: 1.3rem; }
+    .nav-btn .nav-label { font-size: 0.75rem; line-height: 1.2; text-align: center; }
+    .nav-btn.active {
+      background: #fff;
+      border-bottom: 3px solid #667eea;
+      color: #667eea;
+      font-weight: 600;
+    }
+    .nav-btn:hover:not(.active) { background: #f0f0f0; }
+    .tab-content { padding: 28px 32px; min-height: 420px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Control bar */
+    .control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .control-bar .btn-group { display: flex; gap: 8px; }
+    .btn {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-reset  { background: #667eea; color: #fff; }
+    .btn-reveal { background: #f0f0f0; color: #444; }
+    .timer-box {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #764ba2;
+      white-space: nowrap;
+    }
+    .timer-best { font-size: 0.75rem; color: #999; margin-left: 6px; }
+
+    /* Section titles */
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #667eea;
+      margin: 22px 0 12px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #e8e8ff;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    /* Lückentext */
+    .gap-list { list-style: none; counter-reset: gap-count; }
+    .gap-item {
+      counter-increment: gap-count;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      background: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      font-size: 0.95rem;
+      flex-wrap: wrap;
+    }
+    .gap-item::before {
+      content: counter(gap-count) ".";
+      font-weight: 700;
+      color: #667eea;
+      min-width: 22px;
+    }
+    .gap-inp {
+      border: none;
+      border-bottom: 2px solid #b0a0f0;
+      outline: none;
+      font-size: 0.95rem;
+      padding: 2px 6px;
+      min-width: 120px;
+      background: transparent;
+    }
+    .gap-inp.correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
+    .gap-inp.wrong   { border-color: #f44336; background: #ffebee; color: #c62828; }
+    .score-bar { display: flex; align-items: center; gap: 12px; margin-top: 18px; font-size: 0.9rem; color: #555; }
+    #gap-score { font-weight: 700; color: #667eea; }
+
+    /* Sprechkarten */
+    .speak-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .speak-card {
+      background: #f5f5ff;
+      border: 2px solid #c5baff;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .speak-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .speak-card ul { list-style: none; }
+    .speak-card ul li {
+      padding: 5px 0;
+      font-size: 0.88rem;
+      color: #444;
+      border-bottom: 1px solid #e8e8ff;
+    }
+    .speak-card ul li:last-child { border-bottom: none; }
+    .speak-card ul li::before { content: "▶ "; color: #764ba2; font-size: 0.7rem; }
+    .phrase-box {
+      background: #fff;
+      border: 1px solid #e8e8ff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      font-style: italic;
+      color: #555;
+    }
+    .phrase-box strong { color: #667eea; font-style: normal; }
+
+    /* Lesegewohnheiten Tabelle */
+    .lea-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+    }
+    .lea-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .lea-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+    .lea-table tr:nth-child(even) td { background: #f9f9ff; }
+    .lea-table .cat { font-weight: 600; color: #667eea; }
+
+    /* MC */
+    .mc-list { list-style: none; }
+    .mc-item {
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      background: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+    .mc-question { font-weight: 600; color: #333; margin-bottom: 10px; font-size: 0.95rem; }
+    .mc-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mc-btn {
+      padding: 7px 14px;
+      border: 2px solid #c5baff;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: #444;
+      transition: all 0.2s;
+    }
+    .mc-btn:hover:not(:disabled) { background: #f0eeff; }
+    .mc-btn.correct { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; font-weight: 700; }
+    .mc-btn.wrong   { background: #ffebee; border-color: #f44336; color: #c62828; }
+    .mc-btn:disabled { cursor: default; }
+
+    /* Vortrag */
+    .vortrag-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .vortrag-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: #f5f5ff;
+      border-radius: 10px;
+      padding: 14px 16px;
+      border-left: 4px solid #667eea;
+    }
+    .step-num {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #c5baff;
+      min-width: 40px;
+      line-height: 1;
+    }
+    .step-body h4 { font-size: 0.95rem; font-weight: 700; color: #667eea; margin-bottom: 6px; }
+    .step-body p  { font-size: 0.88rem; color: #555; line-height: 1.5; }
+    .step-body .questions { margin-top: 8px; }
+    .step-body .questions li {
+      font-size: 0.85rem;
+      color: #444;
+      padding: 3px 0;
+      list-style: none;
+    }
+    .step-body .questions li::before { content: "❓ "; }
+    .context-box {
+      background: linear-gradient(135deg, #667eea15, #764ba215);
+      border: 1px solid #c5baff;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      color: #444;
+      font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #999;
+      padding: 16px 24px;
+      border-top: 1px solid #eee;
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>📚 Alles über Bücher!</h1>
+    <p>B2 · Einheit 2 · Sprechen · Literatur, Lesegewohnheiten, Vortrag</p>
+  </div>
+
+  <nav class="tab-nav nav">
+    <button class="nav-btn active" onclick="showTab(0,this)">
+      <span class="nav-emoji">🔁</span>
+      <span class="nav-label">Wiederholung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1,this)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Sprechthemen</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2,this)">
+      <span class="nav-emoji">📊</span>
+      <span class="nav-label">Leas Lesen</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3,this)">
+      <span class="nav-emoji">🎤</span>
+      <span class="nav-label">Mein Vortrag</span>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════ TAB 0: WIEDERHOLUNG ══════════════════════════════ -->
+  <div class="tab-panel active" id="tab-0">
+    <div class="tab-content">
+      <div class="control-bar">
+        <div class="btn-group">
+          <button class="btn btn-reset"  onclick="resetGaps()">↺ Neu</button>
+          <button class="btn btn-reveal" onclick="revealGaps()">👁 Lösung</button>
+        </div>
+        <div class="timer-box">
+          ⏱ <span id="timer-1">0:00</span>
+          <span class="timer-best" id="best-1"></span>
+        </div>
+      </div>
+      <p style="margin-bottom:16px; font-size:0.9rem; color:#666;">
+        Wiederholung: Ergänze die Lücken mit dem richtigen Wort.
+      </p>
+      <ul class="gap-list" id="gap-list">
+        <li class="gap-item">In jedem Märchen steckt eine <input class="gap-inp" data-answer="moral" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Rotkäppchen, die Großmutter und der Wolf sind <input class="gap-inp" data-answer="märchenfiguren" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Die Metapher, die Personifikation und die rhetorische Frage sind verschiedene <input class="gap-inp" data-answer="stilmittel" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Kurzgeschichten variieren im <input class="gap-inp" data-answer="umfang" oninput="liveCheck(this)">, sind aber immer kurz.</li>
+        <li class="gap-item">Die Handlung wird im <input class="gap-inp" data-answer="hauptteil" oninput="liveCheck(this)"> eines literarischen Textes thematisiert.</li>
+        <li class="gap-item">Es ist sinnvoll, für einen Vortrag <input class="gap-inp" data-answer="karteikarten" oninput="liveCheck(this)"> vorzubereiten.</li>
+        <li class="gap-item">Lea liest gerne Komödien, <input class="gap-inp" data-answer="märchen" oninput="liveCheck(this)"> und Kurzgeschichten.</li>
+        <li class="gap-item">Mama liest gerne Krimis und <input class="gap-inp" data-answer="romanzen" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Lea liest tagsüber oder <input class="gap-inp" data-answer="abends" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Mama liest auf keinen Fall am <input class="gap-inp" data-answer="morgen" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Du bist auf der Leipziger <input class="gap-inp" data-answer="buchmesse" oninput="liveCheck(this)"> und hältst einen Vortrag.</li>
+        <li class="gap-item">Mach ein kurzes <input class="gap-inp" data-answer="brainstorming" oninput="liveCheck(this)">, um Ideen zu sammeln.</li>
+      </ul>
+      <div class="score-bar">Richtig: <span id="gap-score">0</span> / 12</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ TAB 1: SPRECHTHEMEN ══════════════════════════════ -->
+  <div class="tab-panel" id="tab-1">
+    <div class="tab-content">
+      <div class="section-title">💬 Diskussionsthemen</div>
+      <div class="speak-grid">
+
+        <div class="speak-card">
+          <h3>📖 Kurze literarische Texte</h3>
+          <ul>
+            <li>An welche Textsorten erinnerst du dich? Zähle auf!</li>
+            <li>Nenne Merkmale, die typisch für Kurzgeschichten sind.</li>
+            <li>Was ist typisch bei einem Märchen?</li>
+          </ul>
+          <div class="phrase-box">
+            <strong>Nützlich:</strong> „Typisch für … ist, dass…" / „Ein Merkmal von … ist …"
+          </div>
+        </div>
+
+        <div class="speak-card">
+          <h3>✨ Stilmittel</h3>
+          <ul>
+            <li>Welche Stilmittel fallen dir noch ein?</li>
+            <li>Finde für jedes Stilmittel ein Beispiel!</li>
+            <li>Welches passt gut in eine Kurzgeschichte?</li>
+          </ul>
+          <div class="phrase-box">
+            <strong>Stilmittel:</strong> die Metapher · die Alliteration · die Personifikation · die rhetorische Frage
+          </div>
+        </div>
+
+        <div class="speak-card">
+          <h3>🧙 Moral in Märchen</h3>
+          <ul>
+            <li>Welche Moral steckt in Rotkäppchen?</li>
+            <li>Was verdeutlicht das Märchen Aschenputtel?</li>
+            <li>Bist du dieser Meinung? Warum (nicht)?</li>
+          </ul>
+          <div class="phrase-box">
+            <strong>Nützlich:</strong> „Ich bin der Meinung, dass…" / „Das Märchen verdeutlicht, dass…"
+          </div>
+        </div>
+
+        <div class="speak-card">
+          <h3>🌍 Berühmte Märchen</h3>
+          <ul>
+            <li>Welche berühmten Märchen kennst du?</li>
+            <li>Gibt es in deinem Heimatland Volksmärchen?</li>
+            <li>Berichte über eines näher im Detail!</li>
+          </ul>
+          <div class="phrase-box">
+            <strong>Bekannte Märchen:</strong> Rapunzel · Schneewittchen · Dornröschen · Hänsel und Gretel
+          </div>
+        </div>
+
+        <div class="speak-card">
+          <h3>📚 Meine Lesegewohnheiten</h3>
+          <ul>
+            <li>Liest du gern? Wenn ja, wie oft und wo?</li>
+            <li>Was liest du gern? Welches Genre findest du am spannendsten?</li>
+            <li>Hast du ein bestimmtes Ritual beim Lesen?</li>
+          </ul>
+          <div class="phrase-box">
+            <strong>Nützlich:</strong> „Ich lese am liebsten…" / „Mein Lieblingsgenre ist…"
+          </div>
+        </div>
+
+        <div class="speak-card">
+          <h3>🏛️ Ein Besuch bei der Buchmesse</h3>
+          <ul>
+            <li>Was ist eine Buchmesse? Erkläre mit eigenen Worten.</li>
+            <li>Kennst du eine bekannte Buchmesse in Deutschland?</li>
+            <li>Warst du schon einmal auf einer Buchmesse?</li>
+          </ul>
+          <div class="phrase-box">
+            <strong>Info:</strong> Die Frankfurter Buchmesse und die Leipziger Buchmesse sind die größten in Deutschland.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ TAB 2: LEAS LESEGEWOHNHEITEN ══════════════════════════════ -->
+  <div class="tab-panel" id="tab-2">
+    <div class="tab-content">
+      <div class="control-bar">
+        <div class="btn-group">
+          <button class="btn btn-reset" onclick="resetMC()">↺ Neu</button>
+        </div>
+        <div class="timer-box">
+          ⏱ <span id="timer-2">0:00</span>
+          <span class="timer-best" id="best-2"></span>
+        </div>
+      </div>
+
+      <div class="section-title">📊 Leas Lesegewohnheiten — Übersicht</div>
+      <table class="lea-table">
+        <thead>
+          <tr><th></th><th>🎒 Lea</th><th>👩 Mama</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cat">Beschäftigung</td>
+            <td>Schule von Montag bis Freitag</td>
+            <td>Arbeit von Mittwoch bis Samstag</td>
+          </tr>
+          <tr>
+            <td class="cat">Genres</td>
+            <td>Komödie, Märchen, Kurzgeschichten, abenteuerliche Geschichten</td>
+            <td>Krimi, Märchen, Romanzen, abenteuerliche Geschichten, lustige Kurzgeschichten</td>
+          </tr>
+          <tr>
+            <td class="cat">Wann?</td>
+            <td>Tagsüber oder abends</td>
+            <td>Tagsüber — auf keinen Fall am Morgen</td>
+          </tr>
+          <tr>
+            <td class="cat">Wo?</td>
+            <td>Draußen im Park, im Bett — auf keinen Fall auf dem Balkon</td>
+            <td>Draußen im Park, im Wohnzimmer, in der Küche</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">🔘 Teste dein Verständnis</div>
+      <ul class="mc-list" id="mc-list">
+
+        <li class="mc-item">
+          <div class="mc-question">1. An welchen Tagen geht Lea zur Schule?</div>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcClick(this, true)">Montag bis Freitag</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Mittwoch bis Samstag</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Montag bis Samstag</button>
+          </div>
+        </li>
+
+        <li class="mc-item">
+          <div class="mc-question">2. Welches Genre liest Mama NICHT?</div>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcClick(this, true)">Komödien</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Krimis</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Märchen</button>
+          </div>
+        </li>
+
+        <li class="mc-item">
+          <div class="mc-question">3. Wann liest Mama auf keinen Fall?</div>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcClick(this, false)">Abends</button>
+            <button class="mc-btn" onclick="mcClick(this, true)">Am Morgen</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Tagsüber</button>
+          </div>
+        </li>
+
+        <li class="mc-item">
+          <div class="mc-question">4. Wo liest Lea auf keinen Fall?</div>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcClick(this, false)">Im Bett</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Im Park</button>
+            <button class="mc-btn" onclick="mcClick(this, true)">Auf dem Balkon</button>
+          </div>
+        </li>
+
+        <li class="mc-item">
+          <div class="mc-question">5. Was haben Lea und Mama gemeinsam?</div>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcClick(this, true)">Beide lesen gerne Märchen</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Beide lesen gerne Krimis</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Beide lesen morgens</button>
+          </div>
+        </li>
+
+        <li class="mc-item">
+          <div class="mc-question">6. Was haben Lea und Mama beim Lesen entwickelt?</div>
+          <div class="mc-options">
+            <button class="mc-btn" onclick="mcClick(this, false)">Einen Wettbewerb</button>
+            <button class="mc-btn" onclick="mcClick(this, true)">Ein gemeinsames Ritual</button>
+            <button class="mc-btn" onclick="mcClick(this, false)">Einen Buchclub</button>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ TAB 3: MEIN VORTRAG ══════════════════════════════ -->
+  <div class="tab-panel" id="tab-3">
+    <div class="tab-content">
+      <div class="context-box">
+        🎤 Du bist auf der <strong>Leipziger Buchmesse</strong> und sollst einen Vortrag über dein Lieblingsbuch halten. Beantworte die Fragen und bereite deinen Vortrag vor!
+      </div>
+
+      <div class="section-title">📝 Vortrag vorbereiten — Schritt für Schritt</div>
+      <div class="vortrag-steps">
+
+        <div class="vortrag-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>🧠 Brainstorming — Dein Lieblingsbuch</h4>
+            <p>Überlege dir, welches Buch du vorstellen möchtest. Notiere spontane Gedanken.</p>
+            <ul class="questions">
+              <li>Welches ist dein Lieblingsbuch? Gib den Inhalt mit eigenen Worten wieder.</li>
+              <li>Warum ist dieses Buch dein Lieblingsbuch?</li>
+              <li>Wem würdest du dieses Buch empfehlen — und wem nicht? Warum?</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vortrag-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>🎯 Ziel und Inhalt klären</h4>
+            <p>Definiere das Ziel deines Vortrags und wähle die wichtigsten Inhalte aus.</p>
+            <ul class="questions">
+              <li>Was ist dein Ziel mit diesem Vortrag?</li>
+              <li>Was möchtest du in deinen Vortrag einbringen?</li>
+              <li>Welche Stilmittel könntest du verwenden? (Metapher, Alliteration, rhetorische Frage)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vortrag-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>📇 Karteikarten schreiben</h4>
+            <p>Schreibe Stichworte auf Karteikarten — nicht den ganzen Text!</p>
+            <ul class="questions">
+              <li>Welche Vorbereitungen tätigst du für den Vortrag?</li>
+              <li>Was gehört auf eine gute Karteikarte?</li>
+              <li>Wie viele Karteikarten brauchst du?</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vortrag-step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>🎙️ Den Vortrag halten</h4>
+            <p>Präsentiere dein Lieblingsbuch vor der Gruppe. Nutze die Redemittel!</p>
+            <ul class="questions">
+              <li>Sprich frei — nicht ablesen!</li>
+              <li>Stelle Blickkontakt her.</li>
+              <li>Nutze Stilmittel, um deinen Vortrag interessanter zu machen.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="section-title">💡 Nützliche Redemittel</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; margin-top:4px;">
+        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
+          <strong style="color:#667eea">Einleitung:</strong><br>
+          „Ich möchte euch heute über … berichten."<br>
+          „Mein Lieblingsbuch heißt …"
+        </div>
+        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
+          <strong style="color:#667eea">Inhalt:</strong><br>
+          „In diesem Buch geht es um…"<br>
+          „Die Hauptfigur ist…"
+        </div>
+        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
+          <strong style="color:#667eea">Meinung:</strong><br>
+          „Ich finde dieses Buch besonders interessant, weil…"<br>
+          „Ich empfehle es, weil…"
+        </div>
+        <div style="background:#f5f5ff; border:1px solid #c5baff; border-radius:8px; padding:10px 12px; font-size:0.85rem;">
+          <strong style="color:#667eea">Schluss:</strong><br>
+          „Abschließend möchte ich sagen…"<br>
+          „Habt ihr noch Fragen?"
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+/* ═══════════════════════ TIMER SYSTEM ═══════════════════════ */
+var TIMER_PREFIX='B2_1028S_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+timerAutoStart(1); // Tab 0 starts immediately
+</script>
+
+</body>
+</html>

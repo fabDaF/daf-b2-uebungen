@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2 · 1027X · Eine Kurzgeschichte schreiben</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 28px 32px 20px;
+    }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+    .header p  { font-size: 0.95rem; opacity: 0.88; }
+    .tab-nav {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      background: #f9f9f9;
+    }
+    .nav-btn{
+      flex: 1;
+      padding: 12px 6px 10px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: #555;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      border-right: 1px solid #e0e0e0;
+      transition: background 0.2s;
+    }
+    .nav-btn:last-child { border-right: none; }
+    .nav-btn .nav-emoji { font-size: 1.3rem; }
+    .nav-btn .nav-label { font-size: 0.75rem; line-height: 1.2; text-align: center; }
+    .nav-btn.active {
+      background: #fff;
+      border-bottom: 3px solid #667eea;
+      color: #667eea;
+      font-weight: 600;
+    }
+    .nav-btn:hover:not(.active) { background: #f0f0f0; }
+    .tab-content { padding: 28px 32px; min-height: 420px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Control bar ── */
+    .control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .control-bar .btn-group { display: flex; gap: 8px; }
+    .btn {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-reset  { background: #667eea; color: #fff; }
+    .btn-reveal { background: #f0f0f0; color: #444; }
+    .timer-box {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #764ba2;
+      white-space: nowrap;
+    }
+    .timer-best { font-size: 0.75rem; color: #999; margin-left: 6px; }
+
+    /* ── Vorentlastung ── */
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #667eea;
+      margin: 22px 0 12px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #e8e8ff;
+    }
+    .einstieg-list { list-style: none; }
+    .einstieg-list li {
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      background: #f5f5ff;
+      border-left: 4px solid #667eea;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .vocab-chip {
+      background: #f0eeff;
+      border: 1px solid #c5baff;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      color: #333;
+    }
+    .vocab-chip strong { color: #667eea; display: block; margin-bottom: 2px; }
+
+    /* Vergleichstabelle */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .compare-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .compare-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+    .compare-table tr:nth-child(even) td { background: #f9f9ff; }
+    .compare-table .feature { font-weight: 600; color: #444; width: 25%; }
+
+    /* ── Lückentext ── */
+    .gap-list { list-style: none; counter-reset: gap-count; }
+    .gap-item {
+      counter-increment: gap-count;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      background: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      font-size: 0.95rem;
+      flex-wrap: wrap;
+    }
+    .gap-item::before {
+      content: counter(gap-count) ".";
+      font-weight: 700;
+      color: #667eea;
+      min-width: 22px;
+    }
+    .gap-inp {
+      border: none;
+      border-bottom: 2px solid #b0a0f0;
+      outline: none;
+      font-size: 0.95rem;
+      padding: 2px 6px;
+      min-width: 130px;
+      background: transparent;
+      transition: border-color 0.2s;
+    }
+    .gap-inp:focus { border-color: #667eea; }
+    .gap-inp.correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
+    .gap-inp.wrong   { border-color: #f44336; background: #ffebee; color: #c62828; }
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    #gap-score { font-weight: 700; color: #667eea; }
+
+    /* ── Satzbau ── */
+    .sb-task {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+    .sb-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px;
+      background: #f0eeff;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .sb-drop {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px;
+      background: #fff;
+      border: 2px dashed #c5baff;
+      border-radius: 6px;
+    }
+    .sb-drop.drag-over { border-color: #667eea; background: #f5f5ff; }
+    .chip {
+      padding: 6px 12px;
+      background: #667eea;
+      color: #fff;
+      border-radius: 20px;
+      cursor: grab;
+      font-size: 0.88rem;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .chip.punct { background: #764ba2; }
+    .chip.correct-chip { background: #4caf50; }
+    .chip.wrong-chip   { background: #f44336; }
+    .sb-feedback { font-size: 0.85rem; min-height: 1.2em; margin-top: 6px; }
+    .sb-feedback.ok  { color: #4caf50; font-weight: 600; }
+    .sb-feedback.err { color: #f44336; }
+    .sb-btn-row { display: flex; gap: 8px; margin-top: 8px; }
+
+    /* ── Wortschatz ── */
+    .vocab-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .vocab-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .vocab-card-img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      background: #f0eeff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+    .vocab-card-body { padding: 12px; }
+    .vocab-card-en {
+      font-size: 0.82rem;
+      color: #999;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    .vocab-fields { display: flex; flex-direction: column; gap: 6px; }
+    .vocab-field-row { display: flex; gap: 6px; align-items: center; }
+    .field-label {
+      font-size: 0.72rem;
+      color: #888;
+      min-width: 48px;
+    }
+    .vocab-inp {
+      flex: 1;
+      border: none;
+      border-bottom: 2px solid #c5baff;
+      outline: none;
+      font-size: 0.88rem;
+      padding: 2px 4px;
+      background: transparent;
+    }
+    .vocab-inp:focus { border-color: #667eea; }
+    .vocab-inp.correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
+    .vocab-inp.wrong   { border-color: #f44336; background: #ffebee; color: #c62828; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #999;
+      padding: 16px 24px;
+      border-top: 1px solid #eee;
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+  /* Satzbau */
+  .satzbau-item { margin-bottom: 28px; }
+  .chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+  .sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+  .sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+  .sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+  .chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+  .chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+  .chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+  .sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+  .satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+  .satzbau-feedback.correct { color: #27ae60; }
+  .satzbau-feedback.incorrect { color: #e74c3c; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>✍️ Eine Kurzgeschichte schreiben</h1>
+    <p>B2 · Einheit 2 · Kommunikation · Märchen &amp; Kurzgeschichten</p>
+  </div>
+
+  <!-- NAV -->
+  <div class="tab-nav nav">
+    <div class="nav-btn active" onclick="showTab(0,this)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <div class="nav-btn" onclick="showTab(1,this)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <div class="nav-btn" onclick="showTab(2,this)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+    <div class="nav-btn" onclick="showTab(3,this)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════ TAB 0: VORENTLASTUNG ══════════════════════════════ -->
+  <div class="tab-panel active" id="tab-0">
+    <div class="tab-content">
+      <div class="section-title">🤔 Einstiegsfragen</div>
+      <ul class="einstieg-list">
+        <li>Welche deutschen Märchen kennen Sie? Erzählen Sie kurz von einem Märchen!</li>
+        <li>Haben Sie schon einmal eine Kurzgeschichte gelesen? Was ist der Unterschied zum Märchen?</li>
+        <li>Was sind typische Stilmittel in literarischen Texten? Kennen Sie Beispiele?</li>
+        <li>Was würden Sie gerne in einer Kurzgeschichte schreiben? Welches Alltagsthema interessiert Sie?</li>
+      </ul>
+
+      <div class="section-title">📚 Schlüsselwörter</div>
+      <div class="vocab-grid">
+        <div class="vocab-chip"><strong>das Märchen, -</strong>fairy tale</div>
+        <div class="vocab-chip"><strong>die Kurzgeschichte, -n</strong>short story</div>
+        <div class="vocab-chip"><strong>die Fantasiewelt, -en</strong>fantasy world</div>
+        <div class="vocab-chip"><strong>die Moral, -en</strong>moral (of a story)</div>
+        <div class="vocab-chip"><strong>der Held/die Heldin</strong>hero / heroine</div>
+        <div class="vocab-chip"><strong>der Schreibstil, -e</strong>writing style</div>
+        <div class="vocab-chip"><strong>der Schauplatz, Schauplätze</strong>setting / scene</div>
+        <div class="vocab-chip"><strong>der Umfang, Umfänge</strong>length / scope</div>
+        <div class="vocab-chip"><strong>chronologisch</strong>chronological</div>
+        <div class="vocab-chip"><strong>literarisch</strong>literary</div>
+        <div class="vocab-chip"><strong>unmittelbar</strong>immediate / direct</div>
+        <div class="vocab-chip"><strong>die rhetorische Frage</strong>rhetorical question</div>
+      </div>
+
+      <div class="section-title">⚖️ Märchen vs. Kurzgeschichte — Vergleich</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Merkmal</th>
+            <th>🧙 Märchen</th>
+            <th>✍️ Kurzgeschichte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feature">Einstieg</td>
+            <td>„Es war einmal…"</td>
+            <td>Unmittelbarer Einstieg — sofort in der Handlung</td>
+          </tr>
+          <tr>
+            <td class="feature">Ende</td>
+            <td>Positiv, Moral der Geschichte</td>
+            <td>Meistens offen — der Leser denkt weiter</td>
+          </tr>
+          <tr>
+            <td class="feature">Welt</td>
+            <td>Abstrakte Fantasiewelt</td>
+            <td>Reale Welt, Alltagsthemen</td>
+          </tr>
+          <tr>
+            <td class="feature">Charaktere</td>
+            <td>Held oder Heldin, magische Wesen</td>
+            <td>Wenige, gewöhnliche Menschen — keine Helden</td>
+          </tr>
+          <tr>
+            <td class="feature">Handlung</td>
+            <td>Ort und Zeit unbekannt</td>
+            <td>Chronologisch, kurze Zeitspanne</td>
+          </tr>
+          <tr>
+            <td class="feature">Umfang</td>
+            <td>Kurz bis mittel</td>
+            <td>Kurz — nur wenige Seiten</td>
+          </tr>
+          <tr>
+            <td class="feature">Tiere/Pflanzen</td>
+            <td>Menschliche Eigenschaften</td>
+            <td>Normal — keine Personifikation nötig</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ TAB 1: LÜCKENTEXT ══════════════════════════════ -->
+  <div class="tab-panel" id="tab-1">
+    <div class="tab-content">
+      <div class="control-bar">
+        <div class="btn-group">
+          <div class="btn btn-reset"  onclick="resetGaps()">↺ Neu</button>
+          <div class="btn btn-reveal" onclick="revealGaps()">👁 Lösung</button>
+        </div>
+        <div class="timer-box">
+          ⏱ <span id="timer-1">0:00</span>
+          <span class="timer-best" id="best-1"></span>
+        </div>
+      </div>
+      <p style="margin-bottom:16px; font-size:0.9rem; color:#666;">
+        Ergänze die Lücken mit dem richtigen Wort.
+      </p>
+      <ul class="gap-list" id="gap-list">
+        <li class="gap-item">Texte kommen in vielen verschiedenen <input class="gap-inp" data-answer="formen" oninput="liveCheck(this)"> vor.</li>
+        <li class="gap-item">Märchen enthalten Elemente aus der <input class="gap-inp" data-answer="fantasiewelt" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Jedes Märchen hat einen Helden oder eine <input class="gap-inp" data-answer="heldin" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Das Märchen endet mit einer <input class="gap-inp" data-answer="moral" oninput="liveCheck(this)"> der Geschichte.</li>
+        <li class="gap-item">Kurzgeschichten sind eine weitere <input class="gap-inp" data-answer="literarische" oninput="liveCheck(this)"> Form.</li>
+        <li class="gap-item">Sie beginnen sofort und <input class="gap-inp" data-answer="unmittelbar" oninput="liveCheck(this)"> mit der Handlung.</li>
+        <li class="gap-item">Die Handlung wird <input class="gap-inp" data-answer="chronologisch" oninput="liveCheck(this)"> erzählt.</li>
+        <li class="gap-item">Der <input class="gap-inp" data-answer="schluss" oninput="liveCheck(this)"> bleibt meistens offen.</li>
+        <li class="gap-item">Häufig werden <input class="gap-inp" data-answer="alltagsthemen" oninput="liveCheck(this)"> behandelt.</li>
+        <li class="gap-item">Diese <input class="gap-inp" data-answer="charaktere" oninput="liveCheck(this)"> sind in der Regel keine Helden.</li>
+        <li class="gap-item">Kurzgeschichten haben nur einen geringen <input class="gap-inp" data-answer="umfang" oninput="liveCheck(this)">.</li>
+        <li class="gap-item">Jeder Autor hat seinen persönlichen <input class="gap-inp" data-answer="schreibstil" oninput="liveCheck(this)">.</li>
+      </ul>
+      <div class="score-bar">Richtig: <span id="gap-score">0</span> / 12</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ TAB 2: SATZBAU ══════════════════════════════ -->
+  <div class="tab-panel" id="tab-2">
+    <div class="tab-content">
+      <div class="control-bar">
+        <div class="btn-group">
+          <div class="btn btn-reset" onclick="resetSatzbau()">↺ Alle neu</button>
+        </div>
+        <div class="timer-box">
+          ⏱ <span id="timer-2">0:00</span>
+          <span class="timer-best" id="best-2"></span>
+        </div>
+      </div>
+      <p style="margin-bottom:16px; font-size:0.9rem; color:#666;">
+        Bringe die Wörter in die richtige Reihenfolge. Ziehe die Chips in das Feld.
+      </p>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ TAB 3: WORTSCHATZ ══════════════════════════════ -->
+  <div class="tab-panel" id="tab-3">
+    <div class="tab-content">
+      <div class="control-bar">
+        <div class="btn-group">
+          <div class="btn btn-reset" onclick="resetVocab()">↺ Neu</button>
+          <div class="btn btn-reveal" onclick="revealVocab()">👁 Lösung</button>
+        </div>
+        <div class="timer-box">
+          ⏱ <span id="timer-3">0:00</span>
+          <span class="timer-best" id="best-3"></span>
+        </div>
+      </div>
+      <p style="margin-bottom:16px; font-size:0.9rem; color:#666;">
+        Tippe Artikel, Wort und Pluralendung — oder das deutsche Wort.
+      </p>
+      <div class="vocab-container" id="vocabContainer"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+/* ═══════════════════════ TIMER SYSTEM ═══════════════════════ */
+var satzbauData = [
+  { parts: ['Kurzgeschichten', 'beginnen', 'oft', 'unmittelbar', 'mitten', 'in', 'der', 'Handlung'],
+    valid: [['Kurzgeschichten', 'beginnen', 'oft', 'unmittelbar', 'mitten', 'in', 'der', 'Handlung']], punct: '.' },
+  { parts: ['Der', 'Schluss', 'einer', 'Kurzgeschichte', 'bleibt', 'meistens', 'offen'],
+    valid: [['Der', 'Schluss', 'einer', 'Kurzgeschichte', 'bleibt', 'meistens', 'offen']], punct: '.' },
+  { parts: ['Märchen', 'enthalten', 'typische', 'Elemente', 'wie', 'Magie', 'und', 'moralische', 'Botschaften'],
+    valid: [['Märchen', 'enthalten', 'typische', 'Elemente', 'wie', 'Magie', 'und', 'moralische', 'Botschaften']], punct: '.' },
+  { parts: ['Jeder', 'Autor', 'entwickelt', 'mit', 'der', 'Zeit', 'seinen', 'eigenen', 'Schreibstil'],
+    valid: [['Jeder', 'Autor', 'entwickelt', 'mit', 'der', 'Zeit', 'seinen', 'eigenen', 'Schreibstil']], punct: '.' },
+  { parts: ['Die', 'Handlung', 'einer', 'Geschichte', 'wird', 'oft', 'chronologisch', 'erzählt'],
+    valid: [['Die', 'Handlung', 'einer', 'Geschichte', 'wird', 'oft', 'chronologisch', 'erzählt']], punct: '.' },
+  { parts: ['In', 'guten', 'Geschichten', 'müssen', 'die', 'Charaktere', 'glaubwürdig', 'sein'],
+    valid: [['In', 'guten', 'Geschichten', 'müssen', 'die', 'Charaktere', 'glaubwürdig', 'sein']], punct: '.' },
+  { parts: ['Im', 'Märchen', 'werden', 'oft', 'gesellschaftliche', 'Werte', 'und', 'Normen', 'vermittelt'],
+    valid: [['Im', 'Märchen', 'werden', 'oft', 'gesellschaftliche', 'Werte', 'und', 'Normen', 'vermittelt']], punct: '.' },
+];
+
+var sbDragged = null;
+
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){ c=document.createElement('div'); c.id='sb-insert-cursor'; c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;'; }
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){ var r=chips[i].getBoundingClientRect(); if(clientX<r.left+r.width/2) return chips[i]; }
+  return null;
+}
+function sbCapitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+function sbUpdateCapitalization(row){
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word){
+  var chip=document.createElement('div');
+  chip.className='chip'; chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(2);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){ chip.style.opacity='0.4'; },0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity=''; sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');
+    if(c&&c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=getSbCursor();
+    var before=getSbInsertPos(zone,e.clientX);
+    if(before) zone.insertBefore(cursor,before); else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){
+      var c=document.getElementById('sb-insert-cursor');
+      if(c&&c.parentNode===zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault(); if(!sbDragged) return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){ zone.insertBefore(sbDragged,cursor); zone.removeChild(cursor); }
+    else zone.appendChild(sbDragged);
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);
+    sbUpdateCapitalization(row); sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){ return c.dataset.orig; });
+  var ok=satzbauData[idx].valid.some(function(v){ return JSON.stringify(v)===JSON.stringify(order); });
+  chips.forEach(function(c){ c.classList.remove('correct','incorrect'); c.classList.add(ok?'correct':'incorrect'); });
+  var ex=row.querySelector('.sb-punkt'); if(ex) ex.parentNode.removeChild(ex);
+  if(ok){ var p=document.createElement('span'); p.className='sb-punkt'; p.textContent=satzbauData[idx].punct||'.'; row.appendChild(p); }
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect'); fb.textContent=''; return;
+  }
+  setTimeout(function(){
+    var ok=sbColorRow(idx);
+    if(ok){ row.classList.add('correct'); row.classList.remove('incorrect'); fb.className='satzbau-feedback correct'; fb.textContent='✓ Korrekt!'; sbCheckAllDone(); }
+    else { row.classList.add('incorrect'); row.classList.remove('correct'); fb.className='satzbau-feedback incorrect'; fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!'; }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){ var r=document.getElementById('sb-row-'+i); return r&&r.classList.contains('correct'); });
+  if(allOk) timerStop(2);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ allChips[c.dataset.orig]=c; });
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){ var chip=allChips[word]; if(chip){ chip.textContent=i===0?sbCapitalize(word):word; chip.classList.remove('correct','incorrect'); row.appendChild(chip); } });
+  fb.textContent='';
+  setTimeout(function(){ sbCheckAuto(idx); },100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild) bank.removeChild(bank.firstChild);
+  while(row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect'); fb.textContent=''; fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+  parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');
+  container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div'); item.className='satzbau-item';
+    var bank=document.createElement('div'); bank.className='chips-container'; bank.id='sb-bank-'+idx;
+    var row=document.createElement('div'); row.className='sentence-builder'; row.id='sb-row-'+idx;
+    var fb=document.createElement('div'); fb.className='satzbau-feedback'; fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+    parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
+    sbRegisterZone(bank,idx); sbRegisterZone(row,idx);
+    bank.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      timerAutoStart(2); row.appendChild(chip); chip.classList.remove('correct','incorrect');
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    row.addEventListener('click',function(e){
+      var chip=e.target.closest('.chip'); if(!chip) return;
+      bank.appendChild(chip); chip.classList.remove('correct','incorrect');
+      chip.textContent=chip.dataset.orig;
+      sbUpdateCapitalization(row); sbCheckAuto(idx);
+    });
+    var btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var solveBtn=document.createElement('button'); solveBtn.className='btn'; solveBtn.textContent='💡 Lösen';
+    solveBtn.setAttribute('data-idx',idx);
+    solveBtn.addEventListener('click',function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn=document.createElement('button'); resetBtn.className='btn'; resetBtn.textContent='↺ Neustart';
+    resetBtn.setAttribute('data-idx',idx);
+    resetBtn.addEventListener('click',function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+function resetSatzbau(){ initSatzbau(); }
+
+var TIMER_PREFIX='B2_1027X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+initSatzbau();
+buildVocab();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B2.1 · 1014X · Jobs für Austauschstudenten</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  min-height:100vh;
+  padding:20px;
+}
+.container{
+  max-width:1000px;
+  margin:0 auto;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.2);
+  overflow:hidden;
+}
+/* Header */
+.header{
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:#fff;
+  padding:24px 30px;
+  text-align:center;
+}
+.header h1{font-size:1.6rem;margin-bottom:6px}
+.header p{opacity:.9;font-size:.95rem}
+/* Nav */
+nav{
+  display:flex;
+  background:#f8f9fa;
+  border-bottom:2px solid #e9ecef;
+  padding:8px 12px 0;
+  gap:6px;
+}
+.nav-btn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:8px 4px;
+  border:1px solid #dee2e6;
+  border-bottom:none;
+  border-radius:8px 8px 0 0;
+  background:#e9ecef;
+  cursor:pointer;
+  color:#666;
+  transition:background .2s,color .2s;
+  gap:3px;
+  font-family:inherit;
+}
+.nav-btn:hover{background:#f0f0f0}
+.nav-btn.active{
+  background:#fff;
+  color:#667eea;
+  border-bottom:3px solid #667eea;
+  font-weight:600;
+}
+.nav-emoji{font-size:1.3rem;line-height:1}
+.nav-label{font-size:.75rem;line-height:1.2}
+/* Sections */
+.section{display:none;padding:24px 30px;min-height:300px}
+.section.active{display:block}
+.tab-banner{
+  width:100%;
+  max-height:180px;
+  object-fit:cover;
+  border-radius:10px;
+  margin-bottom:20px;
+  display:block;
+}
+/* Control bar */
+.control-bar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:16px;
+}
+.control-bar .btns{display:flex;gap:8px;flex:1}
+.ctrl-btn{
+  padding:7px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:.85rem;
+  font-family:inherit;
+  transition:opacity .2s;
+}
+.ctrl-btn:hover{opacity:.85}
+.btn-reset{background:#e9ecef;color:#555}
+.btn-next{background:#667eea;color:#fff}
+.timer-box{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.85rem;
+  color:#555;
+  white-space:nowrap;
+}
+.timer-display{
+  background:#f0f4ff;
+  border:1px solid #c7d2fe;
+  border-radius:6px;
+  padding:4px 10px;
+  font-variant-numeric:tabular-nums;
+  min-width:52px;
+  text-align:center;
+  font-family:monospace;
+}
+.best-display{
+  color:#764ba2;
+  font-weight:600;
+  min-width:42px;
+}
+/* Vorentlastung */
+.dialog-box{
+  background:#f0f4ff;
+  border-left:4px solid #667eea;
+  border-radius:0 8px 8px 0;
+  padding:18px 20px;
+  margin-bottom:20px;
+  line-height:1.75;
+}
+.dialog-box p{margin-bottom:8px}
+.dialog-box p:last-child{margin-bottom:0}
+.speaker{font-weight:700;color:#667eea}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+.info-card{
+  background:#fafafa;
+  border:1px solid #e0e0e0;
+  border-radius:8px;
+  padding:14px 16px;
+}
+.info-card h3{
+  font-size:.88rem;
+  color:#764ba2;
+  margin-bottom:10px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.info-card ul{list-style:none;padding:0}
+.info-card ul li{
+  padding:5px 0;
+  font-size:.9rem;
+  border-bottom:1px solid #f0f0f0;
+  line-height:1.4;
+}
+.info-card ul li:last-child{border-bottom:none}
+.info-card ul li::before{content:"▸ ";color:#667eea}
+/* Lückentext */
+.wortkasten{
+  background:#f0f4ff;
+  border:1px solid #c7d2fe;
+  border-radius:8px;
+  padding:14px 16px;
+  margin-bottom:20px;
+  line-height:2;
+  font-size:.9rem;
+}
+.wortkasten strong{
+  margin-right:12px;
+  color:#333;
+  display:inline-block;
+}
+.luecken-list{list-style:none;padding:0}
+.luecken-list li{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  flex-wrap:wrap;
+  padding:10px 0;
+  border-bottom:1px solid #f0f0f0;
+  font-size:.95rem;
+  line-height:1.6;
+}
+.luecken-list li:last-child{border-bottom:none}
+.luecken-num{
+  min-width:26px;
+  color:#667eea;
+  font-weight:700;
+  font-size:.85rem;
+  flex-shrink:0;
+}
+.luecken-inp{
+  border:none;
+  border-bottom:2px solid #ccc;
+  outline:none;
+  font-size:.95rem;
+  font-family:inherit;
+  padding:2px 4px;
+  width:190px;
+  transition:border-color .2s;
+  background:transparent;
+}
+.luecken-inp.wide{width:260px}
+.luecken-inp.xwide{width:310px}
+.luecken-inp:focus{border-color:#667eea}
+.luecken-inp.correct{border-color:#28a745;color:#28a745}
+.luecken-inp.wrong{border-color:#dc3545;color:#dc3545}
+/* Satzbau */
+.satzbau-wrap{
+  background:#f8f9fa;
+  border-radius:10px;
+  padding:18px;
+}
+.aufgabe-nr{font-size:.8rem;color:#888;margin-bottom:10px;font-weight:600}
+.chip-source{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:52px;
+  background:#fff;
+  border:2px dashed #c7d2fe;
+  border-radius:8px;
+  padding:10px;
+  margin-bottom:12px;
+}
+.drop-zone{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:54px;
+  background:#f0f4ff;
+  border:2px dashed #667eea;
+  border-radius:8px;
+  padding:10px;
+}
+.chip{
+  background:#667eea;
+  color:#fff;
+  padding:7px 14px;
+  border-radius:20px;
+  cursor:grab;
+  font-size:.9rem;
+  user-select:none;
+  transition:opacity .2s,transform .1s;
+  touch-action:none;
+}
+.chip:active{cursor:grabbing;transform:scale(1.05)}
+.chip.punct{
+  background:#764ba2;
+  min-width:28px;
+  text-align:center;
+  padding:7px 10px;
+}
+.chip.correct{background:#28a745;cursor:default}
+.sb-feedback{
+  margin-top:12px;
+  font-size:.9rem;
+  font-weight:600;
+  min-height:1.4em;
+  color:#28a745;
+}
+/* Wortschatz */
+.vocab-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;
+}
+.vocab-card{
+  border:1px solid #e0e0e0;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.vocab-card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  display:block;
+}
+.vocab-card-body{padding:12px 14px}
+.vocab-en{
+  font-size:.78rem;
+  color:#764ba2;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-bottom:8px;
+}
+.vocab-fields{display:flex;gap:6px;margin-bottom:8px}
+.vocab-field-wrap{display:flex;flex-direction:column;gap:2px;flex:1;min-width:55px}
+.vocab-field-label{font-size:.68rem;color:#aaa;text-transform:uppercase;letter-spacing:.3px}
+.vocab-inp{
+  border:none;
+  border-bottom:2px solid #ddd;
+  font-size:.9rem;
+  font-family:inherit;
+  padding:2px 2px;
+  width:100%;
+  outline:none;
+  transition:border-color .2s;
+  background:transparent;
+}
+.vocab-inp:focus{border-color:#667eea}
+.vocab-inp.correct{border-color:#28a745;color:#28a745}
+.vocab-inp.wrong{border-color:#dc3545;color:#dc3545}
+.vocab-example{
+  font-size:.8rem;
+  color:#777;
+  font-style:italic;
+  line-height:1.45;
+  border-top:1px solid #f0f0f0;
+  padding-top:8px;
+  margin-top:4px;
+}
+/* Footer */
+.footer{
+  text-align:center;
+  padding:14px;
+  font-size:.78rem;
+  color:#aaa;
+  border-top:1px solid #eee;
+  background:#fafafa;
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Jobs für Austauschstudenten</h1>
+    <p>B2.1 · Einheit 1 · Lektion 1014 · Extra-Übungen</p>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">📝</span>
+      <span class="nav-label">Lückentext</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🧩</span>
+      <span class="nav-label">Satzbau</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
+
+  <!-- TAB 1: VORENTLASTUNG -->
+  <div class="section active" id="tab-0">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/1181396/pexels-photo-1181396.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Studierende im Gespräch">
+
+    <h2 style="font-size:1.1rem;color:#333;margin-bottom:16px">Stellensuche im Ausland</h2>
+
+    <div class="dialog-box">
+      <p><span class="speaker">Lea:</span> „Hey Carlos, du siehst heute gestresst aus. Was ist los?"</p>
+      <p><span class="speaker">Carlos:</span> „Ich suche gerade einen Nebenjob, aber ich weiß gar nicht, wo ich anfangen soll."</p>
+      <p><span class="speaker">Lea:</span> „Warst du schon bei der <strong>Berufsberatung</strong>? Die helfen Studierenden gezielt bei der Stellensuche."</p>
+      <p><span class="speaker">Carlos:</span> „Nein, noch nicht. Was machen die genau?"</p>
+      <p><span class="speaker">Lea:</span> „Die zeigen dir, wie du deinen <strong>Lebenslauf</strong> auf Deutsch schreibst und was alles in eine <strong>Bewerbungsmappe</strong> gehört."</p>
+      <p><span class="speaker">Carlos:</span> „Ah, interessant! Und wie finde ich überhaupt <strong>Stellenangebote</strong>?"</p>
+      <p><span class="speaker">Lea:</span> „Schau bei der <strong>Arbeitsagentur</strong> online, oder such nach aktuellen <strong>Ausschreibungen</strong> auf Jobportalen."</p>
+      <p><span class="speaker">Carlos:</span> „Muss ich auch meine Abschlüsse <strong>anerkennen lassen</strong>?"</p>
+      <p><span class="speaker">Lea:</span> „Für einen Nebenjob normalerweise nicht. Aber du solltest deine Zeugnisse <strong>übersetzen lassen</strong>, falls jemand nach Qualifikationen fragt."</p>
+      <p><span class="speaker">Carlos:</span> „Und wie ist das mit dem Vertrag — ist der <strong>befristet</strong>?"</p>
+      <p><span class="speaker">Lea:</span> „Meistens ja. Studentenjobs sind oft befristete Arbeitsverträge. Und pass auf: Wenn du mehr als 520 Euro verdienst, bist du <strong>sozialversicherungspflichtig</strong>."</p>
+      <p><span class="speaker">Carlos:</span> „Das klingt wirklich kompliziert. Ich gehe morgen direkt zur Berufsberatung!"</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>📄 Bewerbungsunterlagen</h3>
+        <ul>
+          <li>Lebenslauf (auf Deutsch)</li>
+          <li>Motivationsschreiben</li>
+          <li>Zeugnisse (ggf. übersetzen lassen)</li>
+          <li>Empfehlungsschreiben</li>
+          <li>aussagekräftige Bewerbungsmappe</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>🔧 lassen + Infinitiv</h3>
+        <ul>
+          <li>Dokumente <strong>übersetzen lassen</strong></li>
+          <li>Abschlüsse <strong>anerkennen lassen</strong></li>
+          <li>Zeugnisse <strong>beglaubigen lassen</strong></li>
+          <li>Text <strong>überprüfen lassen</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: LÜCKENTEXT -->
+  <div class="section" id="tab-1">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/590016/pexels-photo-590016.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Bewerbungsunterlagen">
+
+    <div class="control-bar">
+      <div class="btns">
+        <div class="ctrl-btn btn-reset" onclick="resetLuecken()">↺ Reset</button>
+      </div>
+      <div class="timer-box">
+        ⏱ <span id="timer-1" class="timer-display">0:00<span>🏆 <span id="best-1">--:--</span></span></span>
+        🏆 <span id="best-1" class="best-display">–</span>
+      </div>
+    </div>
+
+    <div class="wortkasten">
+      <strong>Anerkennung</strong>
+      <strong>Arbeitsagentur</strong>
+      <strong>beglaubigen lassen</strong>
+      <strong>befristet</strong>
+      <strong>Berufsberatung</strong>
+      <strong>Bewerbung</strong>
+      <strong>Bewerbungsmappe</strong>
+      <strong>Lebenslauf</strong>
+      <strong>sozialversicherungspflichtig</strong>
+      <strong>Stellenangebot</strong>
+      <strong>übersetzen lassen</strong>
+      <strong>Vorstellungsgespräch</strong>
+    </div>
+
+    <ol class="luecken-list">
+      <li>
+        <span class="luecken-num">1.</span>
+        <span>Für einen Job in Deutschland brauchst du einen aktuellen</span>
+        <input class="luecken-inp" data-answer="Lebenslauf" oninput="liveCheck(this)" placeholder="">
+        <span>auf Deutsch.</span>
+      </li>
+      <li>
+        <span class="luecken-num">2.</span>
+        <span>Die</span>
+        <input class="luecken-inp" data-answer="Berufsberatung" oninput="liveCheck(this)" placeholder="">
+        <span>hilft Studierenden, den richtigen Beruf zu finden.</span>
+      </li>
+      <li>
+        <span class="luecken-num">3.</span>
+        <span>Ich habe online ein interessantes</span>
+        <input class="luecken-inp" data-answer="Stellenangebot" oninput="liveCheck(this)" placeholder="">
+        <span>für eine Werkstudentenstelle gefunden.</span>
+      </li>
+      <li>
+        <span class="luecken-num">4.</span>
+        <span>Meine</span>
+        <input class="luecken-inp" data-answer="Bewerbungsmappe" oninput="liveCheck(this)" placeholder="">
+        <span>enthält Lebenslauf, Motivationsschreiben und alle Zeugnisse.</span>
+      </li>
+      <li>
+        <span class="luecken-num">5.</span>
+        <span>Nach meiner</span>
+        <input class="luecken-inp" data-answer="Bewerbung" oninput="liveCheck(this)" placeholder="">
+        <span>wurde ich zu einem Gespräch eingeladen.</span>
+      </li>
+      <li>
+        <span class="luecken-num">6.</span>
+        <span>Das</span>
+        <input class="luecken-inp wide" data-answer="Vorstellungsgespräch" oninput="liveCheck(this)" placeholder="">
+        <span>dauerte eine Stunde und verlief sehr gut.</span>
+      </li>
+      <li>
+        <span class="luecken-num">7.</span>
+        <span>Bei der</span>
+        <input class="luecken-inp wide" data-answer="Arbeitsagentur" oninput="liveCheck(this)" placeholder="">
+        <span>kann man offene Stellen suchen und Hilfe bei der Bewerbung bekommen.</span>
+      </li>
+      <li>
+        <span class="luecken-num">8.</span>
+        <span>Mein Vertrag ist</span>
+        <input class="luecken-inp" data-answer="befristet" oninput="liveCheck(this)" placeholder="">
+        <span>— er gilt nur für sechs Monate.</span>
+      </li>
+      <li>
+        <span class="luecken-num">9.</span>
+        <span>Wenn du mehr als 520 Euro im Monat verdienst, bist du</span>
+        <input class="luecken-inp xwide" data-answer="sozialversicherungspflichtig" oninput="liveCheck(this)" placeholder="">
+        <span>beschäftigt.</span>
+      </li>
+      <li>
+        <span class="luecken-num">10.</span>
+        <span>Die</span>
+        <input class="luecken-inp wide" data-answer="Anerkennung" oninput="liveCheck(this)" placeholder="">
+        <span>meines ausländischen Abschlusses hat drei Monate gedauert.</span>
+      </li>
+      <li>
+        <span class="luecken-num">11.</span>
+        <span>Ich musste alle meine Dokumente ins Deutsche</span>
+        <input class="luecken-inp wide" data-answer="übersetzen lassen" oninput="liveCheck(this)" placeholder="">
+        <span>.</span>
+      </li>
+      <li>
+        <span class="luecken-num">12.</span>
+        <span>Die Kopien meiner Zeugnisse musste ich beim Notar</span>
+        <input class="luecken-inp wide" data-answer="beglaubigen lassen" oninput="liveCheck(this)" placeholder="">
+        <span>.</span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- TAB 3: SATZBAU -->
+  <div class="section" id="tab-2">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Schreiben und Notizen">
+
+    <div class="control-bar">
+      <div class="btns">
+        <div class="ctrl-btn btn-reset" onclick="sbReset()">↺ Reset</button>
+        <div class="ctrl-btn btn-next" onclick="sbNext()">→ Nächste</button>
+      </div>
+      <div class="timer-box">
+        ⏱ <span id="timer-2" class="timer-display">0:00<span>🏆 <span id="best-2">--:--</span></span></span>
+        🏆 <span id="best-2" class="best-display">–</span>
+      </div>
+    </div>
+
+    <div class="satzbau-wrap">
+      <div class="aufgabe-nr" id="sb-nr">Aufgabe 1 von 7</div>
+      <div id="sb-source" class="chip-source"></div>
+      <div id="sb-zone" class="drop-zone"></div>
+      <div id="sb-feedback" class="sb-feedback"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: WORTSCHATZ -->
+  <div class="section" id="tab-3">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Job und Karriere">
+
+    <div class="control-bar">
+      <div class="btns">
+        <div class="ctrl-btn btn-reset" onclick="vocabReset()">↺ Reset</button>
+      </div>
+      <div class="timer-box">
+        ⏱ <span id="timer-3" class="timer-display">0:00<span>🏆 <span id="best-3">--:--</span></span></span>
+        🏆 <span id="best-3" class="best-display">–</span>
+      </div>
+    </div>
+
+    <div class="vocab-grid" id="vocab-grid"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+
+</div><!-- /container -->
+
+<script>
+/* ===== TIMER SYSTEM ===== */
+var TIMER_PREFIX='B2_1014X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+      var b1=localStorage.getItem(TIMER_PREFIX+1); if(b1){ var el1=document.getElementById('best-'+1); if(el1) el1.textContent=fmtTime(parseInt(b1)); }
+      var b2=localStorage.getItem(TIMER_PREFIX+2); if(b2){ var el2=document.getElementById('best-'+2); if(el2) el2.textContent=fmtTime(parseInt(b2)); }
+      var b3=localStorage.getItem(TIMER_PREFIX+3); if(b3){ var el3=document.getElementById('best-'+3); if(el3) el3.textContent=fmtTime(parseInt(b3)); }
+});
+
+
+function timerTick(n) {
+  if (!timers[n] || !timers[n].running) return;
+  timers[n].elapsed++;
+  const m = Math.floor(timers[n].elapsed / 60);
+  const s = timers[n].elapsed % 60;
+  const el = document.getElementById('timer-' + n);
+  if (el) el.textContent = m + ':' + String(s).padStart(2, '0');
+  timers[n].handle = setTimeout(() => timerTick(n), 1000);
+}
+function loadBestTimes() {
+  [1, 2, 3].forEach(n => {
+    const val = localStorage.getItem(TIMER_PREFIX + n);
+    const el = document.getElementById('best-' + n);
+    if (el && val) {
+      const sec = parseInt(val);
+      el.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+    }
+  });
+}
+loadBestTimes();
+
+/* ===== TAB NAVIGATION ===== */
+function showTab(n) {
+  document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === n));
+  document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === n));
+if (n === 2) { sbInit(); }
+  if (n === 3) { renderVocab(); }
+}
+
+/* ===== LÜCKENTEXT ===== */
+function liveCheck(inp) {
+  const ans = inp.dataset.answer;
+  const val = inp.value;
+  if (!val) { inp.className = inp.className.replace(/ ?(correct|wrong)/g, ''); return; }
+  const base = inp.className.replace(/ ?(correct|wrong)/g, '');
+  if (ans.toLowerCase().startsWith(val.toLowerCase())) {
+    if (val.toLowerCase() === ans.toLowerCase()) {
+      inp.className = base + ' correct';
+      checkAllLuecken();
+    } else {
+      inp.className = base;
+    }
+  } else {
+    inp.className = base + ' wrong';
+  }
+}
+function checkAllLuecken() {
+  const all = document.querySelectorAll('#tab-1 .luecken-inp');
+  if (Array.from(all).every(i => i.classList.contains('correct'))) timerStop(1);
+}
+function resetLuecken() {
+  document.querySelectorAll('#tab-1 .luecken-inp').forEach(inp => {
+    inp.value = '';
+    inp.className = inp.className.replace(/ ?(correct|wrong)/g, '');
+  });
+  timerResetOne(1);
+  timerAutoStart(1);
+}
+
+/* ===== SATZBAU ===== */
+const satzbauData = [
+  {
+    parts: ['Ich', 'habe', 'meine Dokumente', 'beim Notar', 'beglaubigen lassen', '.'],
+    valid: 'Ich habe meine Dokumente beim Notar beglaubigen lassen.'
+  },
+  {
+    parts: ['Du', 'solltest', 'deinen Lebenslauf', 'auf Deutsch', 'übersetzen lassen', '.'],
+    valid: 'Du solltest deinen Lebenslauf auf Deutsch übersetzen lassen.'
+  },
+  {
+    parts: ['Die Berufsberatung', 'hilft', 'dir', 'bei der Stellensuche', 'im Ausland', '.'],
+    valid: 'Die Berufsberatung hilft dir bei der Stellensuche im Ausland.'
+  },
+  {
+    parts: ['Das Vorstellungsgespräch', 'fand', 'in der Personalabteilung', 'statt', '.'],
+    valid: 'Das Vorstellungsgespräch fand in der Personalabteilung statt.'
+  },
+  {
+    parts: ['Mein Abschluss', 'muss', 'von einer deutschen Behörde', 'anerkannt werden', '.'],
+    valid: 'Mein Abschluss muss von einer deutschen Behörde anerkannt werden.'
+  },
+  {
+    parts: ['Der befristete Arbeitsvertrag', 'gilt', 'nur', 'für ein Jahr', '.'],
+    valid: 'Der befristete Arbeitsvertrag gilt nur für ein Jahr.'
+  },
+  {
+    parts: ['Bitte senden Sie', 'uns', 'Ihre aussagekräftigen', 'Bewerbungsunterlagen', 'zu', '.'],
+    valid: 'Bitte senden Sie uns Ihre aussagekräftigen Bewerbungsunterlagen zu.'
+  }
+];
+
+let sbCurrent = 0;
+let sbDragged = null;
+let sbInitialized = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function sbInit() {
+  if (!sbInitialized) {
+    setupDropZones();
+    sbInitialized = true;
+  }
+  sbCurrent = 0;
+  sbRenderChips(satzbauData[0]);
+}
+
+function sbRenderChips(data) {
+  const src = document.getElementById('sb-source');
+  const zone = document.getElementById('sb-zone');
+  const fb = document.getElementById('sb-feedback');
+  src.innerHTML = '';
+  zone.innerHTML = '';
+  fb.textContent = '';
+  document.getElementById('sb-nr').textContent =
+    'Aufgabe ' + (sbCurrent + 1) + ' von ' + satzbauData.length;
+  shuffle(data.parts).forEach(p => src.appendChild(makeChip(p)));
+}
+
+function makeChip(text) {
+  const chip = document.createElement('div');
+  const isPunct = /^[.!?]$/.test(text);
+  chip.className = 'chip' + (isPunct ? ' punct' : '');
+  chip.textContent = text;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', () => { sbDragged = chip; chip.style.opacity = '.5'; });
+  chip.addEventListener('dragend', () => { chip.style.opacity = '1'; sbDragged = null; });
+  chip.addEventListener('click', () => sbMoveChip(chip));
+  return chip;
+}
+
+function sbMoveChip(chip) {
+  const src = document.getElementById('sb-source');
+  const zone = document.getElementById('sb-zone');
+  if (chip.parentNode === src) zone.appendChild(chip);
+  else src.appendChild(chip);
+  sbCheckAnswer();
+}
+
+function setupDropZones() {
+  ['sb-zone', 'sb-source'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('dragover', e => e.preventDefault());
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      if (sbDragged && sbDragged.parentNode !== el) {
+        el.appendChild(sbDragged);
+        sbCheckAnswer();
+      }
+    });
+  });
+}
+
+function sbCheckAnswer() {
+  const zone = document.getElementById('sb-zone');
+  const fb = document.getElementById('sb-feedback');
+  const chips = Array.from(zone.querySelectorAll('.chip'));
+  if (!chips.length) { fb.textContent = ''; return; }
+  const built = chips.map(c => c.textContent).join(' ').replace(/ ([.!?])/g, '$1');
+  if (built === satzbauData[sbCurrent].valid) {
+    fb.textContent = '✓ Korrekt!';
+    chips.forEach(c => c.classList.add('correct'));
+    if (sbCurrent === satzbauData.length - 1) timerStop(2);
+  } else {
+    fb.textContent = '';
+  }
+}
+
+function sbReset() {
+  sbRenderChips(satzbauData[sbCurrent]);
+  timerResetOne(2);
+  timerAutoStart(2);
+}
+
+function sbNext() {
+  sbCurrent = (sbCurrent + 1) % satzbauData.length;
+  sbRenderChips(satzbauData[sbCurrent]);
+}
+
+/* ===== WORTSCHATZ ===== */
+const vocabData = [
+  { type:'n', en:'CV, résumé',           artikel:'der', wort:'Lebenslauf',            plural:'Lebensläufe',           img:'590016',  example:'Er hat einen lückenlosen Lebenslauf eingereicht.' },
+  { type:'n', en:'application',           artikel:'die', wort:'Bewerbung',             plural:'Bewerbungen',           img:'1181671', example:'Sie schickte eine vollständige Bewerbung an das Unternehmen.' },
+  { type:'n', en:'application folder',    artikel:'die', wort:'Bewerbungsmappe',        plural:'Bewerbungsmappen',      img:'159751',  example:'In der Bewerbungsmappe lagen alle erforderlichen Unterlagen.' },
+  { type:'n', en:'cover letter',          artikel:'das', wort:'Motivationsschreiben',   plural:'Motivationsschreiben',  img:'261763',  example:'Das Motivationsschreiben soll die persönliche Eignung erklären.' },
+  { type:'n', en:'job posting',           artikel:'die', wort:'Ausschreibung',          plural:'Ausschreibungen',       img:'4439444', example:'Die Ausschreibung für die Stelle erschien in der Tageszeitung.' },
+  { type:'n', en:'job offer',             artikel:'das', wort:'Stellenangebot',         plural:'Stellenangebote',       img:'3184291', example:'Er hat ein sehr attraktives Stellenangebot bekommen.' },
+  { type:'n', en:'job interview',         artikel:'das', wort:'Vorstellungsgespräch',   plural:'Vorstellungsgespräche', img:'3771074', example:'Das Vorstellungsgespräch verlief sehr positiv.' },
+  { type:'n', en:'employment agency',     artikel:'die', wort:'Arbeitsagentur',         plural:'Arbeitsagenturen',      img:'3183150', example:'Die Arbeitsagentur vermittelt offene Stellen an Arbeitssuchende.' },
+  { type:'n', en:'career counseling',     artikel:'die', wort:'Berufsberatung',         plural:'Berufsberatungen',      img:'5699823', example:'Die Berufsberatung hilft Studierenden gezielt bei der Berufswahl.' },
+  { type:'n', en:'recognition, accreditation', artikel:'die', wort:'Anerkennung',      plural:'Anerkennungen',         img:'3184287', example:'Die Anerkennung ausländischer Abschlüsse dauert mehrere Monate.' },
+  { type:'v', en:'to have (sth.) translated', wort:'übersetzen lassen',                                                img:'4348401', example:'Er ließ seine Dokumente ins Deutsche übersetzen.' },
+  { type:'v', en:'to have (sth.) certified',  wort:'beglaubigen lassen',                                               img:'4427430', example:'Sie ließ ihre Zeugnisse beim Notar beglaubigen.' }
+];
+
+let vocabRendered = false;
+function renderVocab() {
+  if (vocabRendered) return;
+  vocabRendered = true;
+  const grid = document.getElementById('vocab-grid');
+  vocabData.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    const imgUrl = 'https://images.pexels.com/photos/' + v.img + '/pexels-photo-' + v.img + '.jpeg?auto=compress&cs=tinysrgb&w=400';
+    let fieldsHTML = '';
+    if (v.type === 'n') {
+      fieldsHTML = `<div class="vocab-fields">
+        <div class="vocab-field-wrap">
+          <span class="vocab-field-label">Artikel</span>
+          <input class="vocab-inp" data-answer="${v.artikel}" oninput="vocabLiveCheck(this)" placeholder="">
+        </div>
+        <div class="vocab-field-wrap" style="flex:2">
+          <span class="vocab-field-label">Deutsch</span>
+          <input class="vocab-inp" data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="">
+        </div>
+        <div class="vocab-field-wrap" style="flex:2">
+          <span class="vocab-field-label">Plural</span>
+          <input class="vocab-inp" data-answer="${v.plural}" oninput="vocabLiveCheck(this)" placeholder="">
+        </div>
+      </div>`;
+    } else {
+      fieldsHTML = `<div class="vocab-fields">
+        <div class="vocab-field-wrap" style="flex:1">
+          <span class="vocab-field-label">Deutsch</span>
+          <input class="vocab-inp" data-answer="${v.wort}" oninput="vocabLiveCheck(this)" placeholder="">
+        </div>
+      </div>`;
+    }
+    card.innerHTML = `
+      <img src="${imgUrl}" alt="${v.en}" onerror="this.style.display='none'">
+      <div class="vocab-card-body">
+        <div class="vocab-en">${v.en}</div>
+        ${fieldsHTML}
+        <div class="vocab-example">${v.example}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+function vocabLiveCheck(inp) {
+  const ans = inp.dataset.answer;
+  const val = inp.value;
+  if (!val) { inp.className = 'vocab-inp'; return; }
+  if (ans.toLowerCase().startsWith(val.toLowerCase())) {
+    if (val.toLowerCase() === ans.toLowerCase()) {
+      inp.className = 'vocab-inp correct';
+      checkAllVocab();
+    } else {
+      inp.className = 'vocab-inp';
+    }
+  } else {
+    inp.className = 'vocab-inp wrong';
+  }
+}
+function checkAllVocab() {
+  const all = document.querySelectorAll('#tab-3 .vocab-inp');
+  if (Array.from(all).every(i => i.classList.contains('correct'))) timerStop(3);
+}
+function vocabReset() {
+  document.querySelectorAll('#tab-3 .vocab-inp').forEach(inp => {
+    inp.value = '';
+    inp.className = 'vocab-inp';
+  });
+  timerResetOne(3);
+  timerAutoStart(3);
+}
+
+}}</script>
+</body>
+</html>

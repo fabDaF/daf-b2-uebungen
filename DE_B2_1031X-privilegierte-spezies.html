@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1031X · Privilegierte Spezies</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;font-family:'Segoe UI',Arial,sans-serif}
+  .container{background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);width:100%;max-width:1000px;overflow:hidden}
+  header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 32px}
+  header h1{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+  header p{opacity:.85;font-size:.95rem}
+  nav{display:flex;background:#f0f0f0;border-bottom:2px solid #ddd}
+  .nav-btn{flex:1;background:none;border-right:1px solid #ddd;padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.72rem;color:#555;transition:background .2s}
+  .nav-btn:last-child{border-right:none}
+  .nav-btn .nav-emoji{font-size:1.3rem}
+  .nav-btn .nav-label{font-weight:600;text-align:center;line-height:1.2}
+  .nav-btn.active{background:#fff;border-bottom:3px solid #667eea;color:#667eea}
+  .nav-btn:hover:not(.active){background:#e8e8e8}
+  .tab{display:none;padding:28px 32px}
+  .tab.active{display:block}
+
+  /* control bar */
+  .control-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+  .ctrl-left{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:background .2s}
+  .btn-reset{background:#667eea;color:#fff}
+  .btn-reset:hover{background:#5568d4}
+  .timer-box{background:#f0f4ff;border:1px solid #c5cef7;border-radius:8px;padding:6px 14px;font-size:.9rem;font-weight:700;color:#667eea;white-space:nowrap}
+
+  /* tab banner */
+  .tab-banner{width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:22px;display:block}
+
+  /* Vorentlastung */
+  .intro-box{background:#f0f4ff;border-left:4px solid #667eea;border-radius:8px;padding:16px 20px;margin-bottom:20px}
+  .intro-box h3{color:#667eea;margin-bottom:12px;font-size:1rem}
+  .intro-box ol{padding-left:20px;line-height:1.8}
+  .chip-cloud{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+  .chip{background:#667eea;color:#fff;border-radius:20px;padding:6px 14px;font-size:.88rem;font-weight:600}
+  .redemittel-box{background:#fff8e1;border:1px solid #f0c040;border-radius:8px;padding:16px 20px;margin-top:20px}
+  .redemittel-box h3{color:#b8860b;margin-bottom:12px;font-size:1rem}
+  .redemittel-item{background:#fff;border:1px solid #f0c040;border-radius:6px;padding:10px 14px;margin-bottom:8px;font-size:.9rem}
+  .redemittel-item strong{color:#667eea}
+
+  /* Lückentext */
+  .luecken-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+  .luecken-list li{background:#f9f9f9;border-radius:8px;padding:14px 18px;line-height:1.7;font-size:.95rem}
+  .luecken-list li input{border:none;border-bottom:2px solid #667eea;background:transparent;width:140px;font-size:.95rem;padding:2px 4px;outline:none;color:#333;transition:border-color .2s}
+  .luecken-list li input.correct{border-color:#27ae60;background:#eafaf1;color:#27ae60}
+  .luecken-list li input.wrong{border-color:#e74c3c}
+
+  /* Satzbau */
+  .sb-sentence{margin-bottom:22px}
+  .sb-sentence .sb-prompt{display:none;font-size:.82rem;color:#888;margin-bottom:6px;font-style:italic}
+  .drop-zone{min-height:46px;border:2px dashed #667eea;border-radius:8px;padding:6px 10px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;background:#f8f8ff;align-items:center}
+  .chip-pool{display:flex;flex-wrap:wrap;gap:6px;min-height:36px}
+  .sb-chip{background:#667eea;color:#fff;border-radius:20px;padding:6px 12px;font-size:.85rem;cursor:grab;user-select:none;transition:opacity .2s}
+  .sb-chip.punct{background:#764ba2}
+  .sb-chip:active{cursor:grabbing;opacity:.7}
+  .sb-feedback{font-size:.82rem;margin-top:4px;min-height:18px;font-weight:600}
+  .sb-feedback.ok{color:#27ae60}
+  .sb-feedback.err{color:#e74c3c}
+
+  /* Wortschatz */
+  .vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .vocab-card{border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .vocab-card img{width:100%;height:130px;object-fit:cover;display:block}
+  .vocab-card .vc-body{padding:12px 14px}
+  .vocab-card .vc-en{font-size:.8rem;color:#999;margin-bottom:6px}
+  .vocab-card .vc-inputs{display:flex;flex-direction:column;gap:6px}
+  .vocab-card input{border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:.85rem;outline:none;width:100%;transition:border-color .2s}
+  .vocab-card input::placeholder{color:#bbb;font-size:.8rem}
+  .vocab-card input.correct{border-color:#27ae60;background:#eafaf1;color:#27ae60}
+  .vocab-card input.wrong{border-color:#e74c3c}
+  .vocab-card .vc-example{font-size:.78rem;color:#888;margin-top:8px;font-style:italic;line-height:1.4}
+
+  footer{text-align:center;padding:16px;font-size:.78rem;color:#888;border-top:1px solid #eee}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Privilegierte Spezies 🐾</h1>
+    <p>B2 · Einheit 3 · Lektion 1031 · Kommunikation</p>
+  </header>
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)"><span class="nav-emoji">💬</span><span class="nav-label">Vorent&shy;lastung</span></div>
+    <div class="nav-btn" onclick="showTab(1)"><span class="nav-emoji">✏️</span><span class="nav-label">Lücken&shy;text</span></div>
+    <div class="nav-btn" onclick="showTab(2)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></div>
+    <div class="nav-btn" onclick="showTab(3)"><span class="nav-emoji">📚</span><span class="nav-label">Wort&shy;schatz</span></div>
+  </div>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="tab active" id="tab0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/47547/squirrel-animal-cute-rodents-47547.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Tier in der Natur">
+    <div class="intro-box">
+      <h3>🤔 Einstiegsfragen</h3>
+      <ol>
+        <li>Was verstehst du unter dem Begriff „Tierquälerei"? Gibt es klare Grenzen?</li>
+        <li>Welche Tierarten sind deiner Meinung nach besonders gefährdet? Warum?</li>
+        <li>Was könnte man konkret tun, um vom Aussterben bedrohte Tiere zu schützen?</li>
+        <li>Glaubst du, dass Menschen eine besondere Verantwortung für die Natur tragen?</li>
+      </ol>
+    </div>
+    <div class="intro-box" style="margin-top:16px">
+      <h3>🔑 Schlüsselvokabular</h3>
+      <div class="chip-cloud">
+        <span class="chip">die Misshandlung</span>
+        <span class="chip">die Diskriminierung</span>
+        <span class="chip">die Tierquälerei</span>
+        <span class="chip">die Gefährdung</span>
+        <span class="chip">die Würde</span>
+        <span class="chip">das Gleichgewicht</span>
+        <span class="chip">die Gefahrenquelle</span>
+        <span class="chip">die Ausrottung</span>
+        <span class="chip">das Lebewesen</span>
+        <span class="chip">die Herausforderung</span>
+        <span class="chip">die Ethik</span>
+        <span class="chip">zugrunde gehen</span>
+      </div>
+    </div>
+    <div class="redemittel-box">
+      <h3>💡 Meinung ausdrücken – Redemittel</h3>
+      <div class="redemittel-item"><strong>Soweit ich das beurteilen kann,</strong> ist die Ausrottung exotischer Tierarten ein Überlebensproblem.</div>
+      <div class="redemittel-item"><strong>Wenn ich mich nicht täusche,</strong> sind Leoparden vom Aussterben bedroht.</div>
+      <div class="redemittel-item"><strong>Ich muss zugeben, dass</strong> mich das Thema Umweltschutz richtig interessiert.</div>
+      <div class="redemittel-item"><strong>Man kann mit Sicherheit sagen, dass</strong> die Ausrottung vieler Spezies zur Zerstörung des Planeten führen wird.</div>
+    </div>
+    <div class="intro-box" style="margin-top:16px;background:#f0fff4;border-color:#27ae60">
+      <h3 style="color:#27ae60">📖 Lesetext: Der Leopard – vom Aussterben bedroht</h3>
+      <p style="line-height:1.8;font-size:.93rem">Es gibt viele Spezies, die vom Aussterben bedroht sind. Der Leopard ist eine von ihnen. Er lebt in Afrika und Asien, aber in letzter Zeit ist sein Lebensraum immer stärker gefährdet. In Kambodscha leben nur noch 30 Exemplare, weil sie gejagt werden. Grund dafür ist sein Fell, das sehr wertvoll ist. Der Leopard ist ein Einzelgänger. Wenn ein Leopard auf die Jagd geht, kann er mehr als 60 km/h erreichen.</p>
+    </div>
+  </div>
+
+  <!-- TAB 1: LÜCKENTEXT -->
+  <div class="tab" id="tab1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Umweltschutz">
+    <div class="control-bar">
+      <div class="ctrl-left">
+        <div class="btn btn-reset" onclick="resetLuecken()">↺ Neu starten</button>
+      </div>
+      
+</div>
+    <p style="margin-bottom:16px;color:#555;font-size:.9rem">Ergänze die fehlenden Wörter. Das Feedback erscheint sofort.</p>
+    <ol class="luecken-list" id="lueckenList">
+      <li>Die <input data-answer="misshandlung" placeholder=""> der Tiere ist ein komplexes Problem der Gegenwart.</li>
+      <li>Die <input data-answer="diskriminierung" placeholder=""> von Männern und Frauen ist in vielen Ländern ein wichtiges Thema.</li>
+      <li>Viele Tierspezies sind heutzutage vom Aussterben <input data-answer="bedroht" placeholder="">.</li>
+      <li>Die <input data-answer="würde" placeholder=""> des Menschen ist unantastbar, aber auch Tiere haben Rechte.</li>
+      <li>Das Elfenbein ist der wichtigste Grund für die <input data-answer="ausrottung" placeholder=""> der Elefanten.</li>
+      <li>Es ist wichtig, in der Natur ein <input data-answer="gleichgewicht" placeholder=""> zu bewahren.</li>
+      <li>Eine der hauptsächlichen <input data-answer="gefahrenquellen" placeholder=""> ist die Luftverschmutzung.</li>
+      <li>Wenn wir unsere Umwelt nicht schützen, geht alles <input data-answer="zugrunde" placeholder="">.</li>
+      <li>Menschen und Tiere sind <input data-answer="lebewesen" placeholder="">.</li>
+      <li>Welche wäre die größte <input data-answer="herausforderung" placeholder=""> für die Zukunft?</li>
+      <li>Die <input data-answer="ethik" placeholder=""> ist ein interessantes Fach, das sich mit moralischen Fragen beschäftigt.</li>
+      <li>Die klimatischen Änderungen stellen eine große <input data-answer="gefährdung" placeholder=""> für die Menschheit dar.</li>
+    </ol>
+  </div>
+
+  <!-- TAB 2: SATZBAU -->
+  <div class="tab" id="tab2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/792381/pexels-photo-792381.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Tiere in der Natur">
+    <div class="control-bar">
+      <div class="ctrl-left">
+        <div class="btn btn-reset" onclick="resetAllSb()">↺ Alle neu</button>
+      </div>
+      
+</div>
+    <p style="margin-bottom:18px;color:#555;font-size:.9rem">Ordne die Chips zur richtigen Satzstruktur. Ziehe und lasse los.</p>
+    <div id="sbContainer"></div>
+  </div>
+
+  <!-- TAB 3: WORTSCHATZ -->
+  <div class="tab" id="tab3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1661179/pexels-photo-1661179.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Elefant">
+    <div class="control-bar">
+      <div class="ctrl-left">
+        <div class="btn btn-reset" onclick="resetVocab()">↺ Neu starten</button>
+      </div>
+      
+</div>
+    <p style="margin-bottom:18px;color:#555;font-size:.9rem">Tippe den deutschen Begriff mit Artikel und Plural.</p>
+    <div class="vocab-grid" id="vocabGrid"></div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// ── TIMER SYSTEM ─────────────────────────────────────────────────────────────
+var TIMER_PREFIX='B2_1031X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
+// ── TAB NAVIGATION ────────────────────────────────────────────────────────────
+function showTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===n));
+}
+
+// ── LÜCKENTEXT ────────────────────────────────────────────────────────────────
+let lueckenStarted=false;
+function liveCheck(inp){
+  if(!lueckenStarted){ lueckenStarted=true; timerAutoStart(1); }
+  const val=inp.value.trim().toLowerCase();
+  const ans=inp.dataset.answer.toLowerCase();
+  if(!val){ inp.classList.remove('correct','wrong'); return; }
+  if(ans.startsWith(val)){ inp.classList.remove('wrong'); if(val===ans){ inp.classList.add('correct'); checkAllLuecken(); } }
+  else{ inp.classList.remove('correct'); inp.classList.add('wrong'); }
+}
+function checkAllLuecken(){
+  const all=[...document.querySelectorAll('#lueckenList input')];
+  if(all.every(i=>i.classList.contains('correct'))) timerStop(1);
+}
+function resetLuecken(){
+  document.querySelectorAll('#lueckenList input').forEach(i=>{ i.value=''; i.classList.remove('correct','wrong'); });
+  lueckenStarted=false; timerResetOne(1);
+}
+document.querySelectorAll('#lueckenList input').forEach(i=>i.addEventListener('input',()=>liveCheck(i)));
+
+// ── SATZBAU ───────────────────────────────────────────────────────────────────
+const satzbauData=[
+  {parts:['Der Leopard','lebt','in Afrika und Asien','und ist','vom Aussterben bedroht','.'],valid:['Der Leopard','lebt','in Afrika und Asien','und ist','vom Aussterben bedroht','.']},
+  {parts:['Das Elfenbein','ist','der wichtigste Grund','für die Ausrottung','der Elefanten','.'],valid:['Das Elfenbein','ist','der wichtigste Grund','für die Ausrottung','der Elefanten','.']},
+  {parts:['Man kann','mit Sicherheit sagen,','dass','viele Tierarten','gefährdet sind','.'],valid:['Man kann','mit Sicherheit sagen,','dass','viele Tierarten','gefährdet sind','.']},
+  {parts:['Es ist wichtig,','in der Natur','ein Gleichgewicht','zu bewahren','.'],valid:['Es ist wichtig,','in der Natur','ein Gleichgewicht','zu bewahren','.']},
+  {parts:['Wenn wir','unsere Umwelt','nicht schützen,','geht alles','zugrunde','.'],valid:['Wenn wir','unsere Umwelt','nicht schützen,','geht alles','zugrunde','.']},
+  {parts:['Die Luftverschmutzung','ist','eine der hauptsächlichen','Gefahrenquellen','.'],valid:['Die Luftverschmutzung','ist','eine der hauptsächlichen','Gefahrenquellen','.']},
+  {parts:['Soweit ich','das beurteilen kann,','ist die Ausrottung','exotischer Tierarten','ein Problem','.'],valid:['Soweit ich','das beurteilen kann,','ist die Ausrottung','exotischer Tierarten','ein Problem','.']}
+];
+
+let sbDragged=null;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function makeChip(text,sIdx){
+  const c=document.createElement('span');
+  c.className='sb-chip'+(text==='.'?' punct':'');
+  c.textContent=text;
+  c.draggable=true;
+  c.addEventListener('dragstart',e=>{sbDragged=c;e.dataTransfer.effectAllowed='move';});
+  c.addEventListener('dragend',()=>sbDragged=null);
+  return c;
+}
+
+function buildSb(){
+  const wrap=document.getElementById('sbContainer');
+  wrap.innerHTML='';
+  satzbauData.forEach((s,sIdx)=>{
+    const div=document.createElement('div');
+    div.className='sb-sentence';
+    div.innerHTML = "";const zone=document.createElement('div');
+    zone.className='drop-zone';
+    zone.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';});
+    zone.addEventListener('drop',e=>{
+      e.preventDefault();
+      if(sbDragged) zone.appendChild(sbDragged);
+      checkSb(sIdx,zone,fb,pool);
+    });
+
+    const fb=document.createElement('div');
+    fb.className='sb-feedback';
+
+    const pool=document.createElement('div');
+    pool.className='chip-pool';
+    pool.addEventListener('dragover',e=>{e.preventDefault();});
+    pool.addEventListener('drop',e=>{
+      e.preventDefault();
+      if(sbDragged) pool.appendChild(sbDragged);
+      fb.textContent='';fb.className='sb-feedback';
+    });
+
+    const shuffled=shuffle([...s.parts]);
+    shuffled.forEach(p=>pool.appendChild(makeChip(p,sIdx)));
+
+    const resetBtn=document.createElement('button');
+    resetBtn.className='btn btn-reset';
+    resetBtn.style.cssText='margin-top:6px;font-size:.78rem;padding:4px 10px';
+    resetBtn.textContent='↺';
+    resetBtn.onclick=()=>resetSb(sIdx,zone,fb,pool,s.parts);
+
+    div.appendChild(zone);
+    div.appendChild(fb);
+    div.appendChild(pool);
+    div.appendChild(resetBtn);
+    wrap.appendChild(div);
+  });
+
+function checkSb(sIdx,zone,fb,pool){
+  if(pool.children.length>0){fb.textContent='';fb.className='sb-feedback';return;}
+  const chips=[...zone.children].map(c=>c.textContent);
+  const valid=satzbauData[sIdx].valid;
+  if(JSON.stringify(chips)===JSON.stringify(valid)){
+    fb.textContent='✓ Richtig!';fb.className='sb-feedback ok';
+    checkAllSb();
+  } else {
+    fb.textContent='✗ Noch nicht richtig.';fb.className='sb-feedback err';
+  }
+}
+
+function checkAllSb(){
+  const fbs=document.querySelectorAll('#sbContainer .sb-feedback');
+  if([...fbs].every(f=>f.classList.contains('ok'))) timerStop(2);
+}
+
+function resetSb(sIdx,zone,fb,pool,parts){
+  zone.innerHTML='';fb.textContent='';fb.className='sb-feedback';pool.innerHTML='';
+  shuffle([...parts]).forEach(p=>pool.appendChild(makeChip(p,sIdx)));
+}
+
+function resetAllSb(){
+  buildSb(); timerResetOne(2);
+}
+
+let sbStarted=false;
+document.getElementById('tab2').addEventListener('click',()=>{
+  if(!sbStarted){sbStarted=true;timerAutoStart(2);}
+},true);
+
+buildSb();
+
+// ── WORTSCHATZ ────────────────────────────────────────────────────────────────
+const vocabData=[
+  {en:'maltreatment / abuse',type:'n',art:'die',wort:'Misshandlung',pl:'-en',img:'1108099',ex:'Die Misshandlung der Tiere ist ein komplexes Problem der Gegenwart.'},
+  {en:'discrimination',type:'n',art:'die',wort:'Diskriminierung',pl:'-en',img:'3662667',ex:'Die Diskriminierung von Männern und Frauen ist in vielen Ländern ein Thema.'},
+  {en:'animal cruelty',type:'n',art:'die',wort:'Tierquälerei',pl:'-en',img:'1366957',ex:'Man kann von Tierquälerei sprechen, wenn Tiere nicht artgerecht gehalten werden.'},
+  {en:'endangerment',type:'n',art:'die',wort:'Gefährdung',pl:'-en',img:'1108572',ex:'Die klimatischen Änderungen stellen eine große Gefährdung für die Menschheit dar.'},
+  {en:'dignity',type:'n',art:'die',wort:'Würde',pl:'(—)',img:'1583582',ex:'Die Würde des Menschen ist unantastbar.'},
+  {en:'balance / equilibrium',type:'n',art:'das',wort:'Gleichgewicht',pl:'-e',img:'3621343',ex:'Es ist wichtig, in der Natur ein Gleichgewicht zu bewahren.'},
+  {en:'source of danger',type:'n',art:'die',wort:'Gefahrenquelle',pl:'-n',img:'459728',ex:'Eine der hauptsächlichen Gefahrenquellen ist die Luftverschmutzung.'},
+  {en:'extinction / extermination',type:'n',art:'die',wort:'Ausrottung',pl:'-en',img:'1661179',ex:'Das Elfenbein ist der wichtigste Grund für die Ausrottung der Elefanten.'},
+  {en:'living being',type:'n',art:'das',wort:'Lebewesen',pl:'—',img:'145939',ex:'Menschen und Tiere sind Lebewesen.'},
+  {en:'challenge',type:'n',art:'die',wort:'Herausforderung',pl:'-en',img:'3831847',ex:'Welche wäre die größte Herausforderung für die Zukunft?'},
+  {en:'to perish / go under',type:'v',wort:'zugrunde gehen',img:'2990650',ex:'Wenn wir unsere Umwelt nicht schützen, geht alles zugrunde.'},
+  {en:'to be endangered',type:'v',wort:'vom Aussterben bedroht sein',img:'47547',ex:'Viele Tierarten, darunter der Asiatische Elefant, sind vom Aussterben bedroht.'}
+];
+
+let vocabStarted=false;
+function vocabLiveCheck(inp){
+  if(!vocabStarted){vocabStarted=true;timerAutoStart(3);}
+  const val=inp.value.trim().toLowerCase();
+  const ans=inp.dataset.answer.toLowerCase();
+  if(!val){inp.classList.remove('correct','wrong');return;}
+  if(ans.startsWith(val)){inp.classList.remove('wrong');if(val===ans){inp.classList.add('correct');checkAllVocab();}}
+  else{inp.classList.remove('correct');inp.classList.add('wrong');}
+}
+function checkAllVocab(){
+  const all=[...document.querySelectorAll('#vocabGrid input')];
+  if(all.every(i=>i.classList.contains('correct'))) timerStop(3);
+}
+function resetVocab(){
+  document.querySelectorAll('#vocabGrid input').forEach(i=>{i.value='';i.classList.remove('correct','wrong');});
+  vocabStarted=false;timerResetOne(3);
+}
+
+function buildVocab(){
+  const grid=document.getElementById('vocabGrid');
+  vocabData.forEach(v=>{
+    const card=document.createElement('div');
+    card.className='vocab-card';
+    card.innerHTML=`<img src="https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=280&h=130&fit=crop" alt="${v.wort}" loading="lazy">`;
+    const body=document.createElement('div');
+    body.className='vc-body';
+    body.innerHTML=`<div class="vc-en">${v.en}</div>`;
+    const inputs=document.createElement('div');
+    inputs.className='vc-inputs';
+    if(v.type==='n'){
+      const iArt=document.createElement('input');
+      iArt.placeholder='Artikel';iArt.dataset.answer=v.art;
+      iArt.addEventListener('input',()=>vocabLiveCheck(iArt));
+      const iWort=document.createElement('input');
+      iWort.placeholder='Deutsch';iWort.dataset.answer=v.wort.toLowerCase();
+      iWort.addEventListener('input',()=>vocabLiveCheck(iWort));
+      const iPl=document.createElement('input');
+      iPl.placeholder='Plural';iPl.dataset.answer=v.pl.toLowerCase();
+      iPl.addEventListener('input',()=>vocabLiveCheck(iPl));
+      inputs.appendChild(iArt);inputs.appendChild(iWort);inputs.appendChild(iPl);
+    } else {
+      const iWort=document.createElement('input');
+      iWort.placeholder='Deutsch';iWort.dataset.answer=v.wort.toLowerCase();
+      iWort.addEventListener('input',()=>vocabLiveCheck(iWort));
+      inputs.appendChild(iWort);
+    }
+    body.appendChild(inputs);
+    body.innerHTML+=`<div class="vc-example">${v.ex}</div>`;
+    card.appendChild(body);
+    grid.appendChild(card);
+  });
+}
+buildVocab();
+
+}</script>
+</body>
+</html>

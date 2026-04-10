@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.1 · 1041X · Ausdruck von Gefühlen</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 24px 32px;
+}
+.header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+.header p { font-size: 0.95rem; opacity: 0.85; }
+nav {
+  display: flex;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  overflow-x: auto;
+}
+.nav-btn{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px 10px;
+  cursor: pointer;
+  background: transparent;
+  font-size: 0.78rem;
+  color: #555;
+  border-bottom: 3px solid transparent;
+  transition: background 0.2s;
+  min-width: 80px;
+}
+.nav-btn:hover { background: #ede9f8; }
+.nav-btn.active {
+  background: #fff;
+  color: #667eea;
+  border-bottom: 3px solid #667eea;
+  font-weight: 700;
+}
+.nav-emoji { font-size: 1.3rem; margin-bottom: 3px; }
+.nav-label { font-size: 0.78rem; }
+.tab-content { display: none; padding: 28px 32px 32px; }
+.tab-content.active { display: block; }
+
+.tab-banner {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.control-bar .buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.btn-reset { background: #667eea; color: #fff; }
+.btn-reset:hover { background: #764ba2; }
+.btn-secondary { background: #eee; color: #555; }
+.btn-secondary:hover { background: #ddd; }
+.timer-display {
+  font-size: 0.85rem;
+  color: #764ba2;
+  font-weight: 700;
+  background: #f3eeff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  min-width: 110px;
+  text-align: center;
+}
+.score-box {
+  background: linear-gradient(135deg, #667eea22, #764ba222);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 16px;
+}
+.score-box span { font-weight: 700; color: #764ba2; }
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin: 22px 0 12px;
+  border-left: 4px solid #667eea;
+  padding-left: 12px;
+}
+
+/* Vorentlastung */
+.fragen-box { background: #f8f7ff; border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+.fragen-box h3 { font-size: 1rem; color: #764ba2; margin-bottom: 10px; }
+.fragen-list { list-style: none; padding: 0; }
+.fragen-list li {
+  padding: 8px 10px;
+  border-left: 3px solid #764ba2;
+  margin-bottom: 8px;
+  background: #fff;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+.chips-box { margin-bottom: 18px; }
+.chips-box h3 { font-size: 1rem; color: #667eea; margin-bottom: 10px; font-weight: 700; }
+.chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.emotion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.emotion-chip {
+  background: #f3eeff;
+  border: 2px solid #764ba2;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+}
+.emotion-chip .emoji { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+.redemittel-box { background: #fff9c4; border: 1px solid #f9a825; border-radius: 8px; padding: 14px 16px; margin-bottom: 18px; }
+.redemittel-box h4 { color: #f57f17; margin-bottom: 8px; font-size: 0.95rem; }
+.redemittel-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.redemittel-item {
+  background: #fff;
+  border: 1px solid #f9a825;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  color: #555;
+  font-style: italic;
+}
+
+/* Lesetext */
+.lese-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: #333;
+  max-width: 720px;
+  text-align: justify;
+  hyphens: auto;
+  margin: 0 auto 18px;
+}
+.lese-text p { margin-bottom: 1.1em; text-indent: 1.5em; }
+.lese-text p:first-child { text-indent: 0; }
+
+.vocab-hl {
+  background: #fff176;
+  border-radius: 3px;
+  padding: 1px 2px;
+  cursor: help;
+  position: relative;
+}
+.vocab-hl:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Lückentext */
+.luecke-list { list-style: none; padding: 0; }
+.luecke-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+  color: #333;
+  flex-wrap: wrap;
+}
+.luecke-item:last-child { border-bottom: none; }
+.luecke-item .nr { min-width: 26px; font-weight: 700; color: #764ba2; }
+.luecke-inp {
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  width: 180px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.luecke-inp:focus { border-color: #667eea; }
+.luecke-inp.correct { border-color: #43a047; background: #e8f5e9; }
+.luecke-inp.wrong { border-color: #e53935; background: #fce4ec; }
+.luecke-feedback { font-size: 0.85rem; font-weight: 600; }
+.luecke-feedback.ok { color: #388e3c; }
+.luecke-feedback.err { color: #c62828; }
+
+/* Satzbau */
+.sb-sentence { margin-bottom: 28px; }
+.sb-sentence p.sb-instruction { font-size: 0.85rem; color: #888; margin-bottom: 6px; }
+.sb-chips-area {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  min-height: 42px; background: #f8f7ff;
+  border-radius: 8px; padding: 8px; margin-bottom: 7px;
+}
+.sb-drop-zone {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  min-height: 48px; background: #f0f0f0;
+  border: 2px dashed #ccc; border-radius: 8px;
+  padding: 8px; transition: border-color 0.2s;
+}
+.sb-drop-zone.drag-over { border-color: #667eea; background: #ede9f8; }
+.sb-chip {
+  background: #667eea; color: #fff; border-radius: 20px;
+  padding: 6px 14px; font-size: 0.9rem; font-weight: 600;
+  cursor: grab; user-select: none; transition: transform 0.1s, background 0.2s;
+}
+.sb-chip:active { transform: scale(1.06); }
+.sb-chip.punct { background: #764ba2; }
+.sb-chip.correct-chip { background: #43a047; }
+.sb-chip.wrong-chip { background: #e53935; }
+.sb-result { font-size: 0.9rem; font-weight: 700; margin-top: 4px; min-height: 22px; }
+.sb-result.ok { color: #388e3c; }
+.sb-result.err { color: #c62828; }
+
+/* Wortschatz */
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.vocab-card { border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+.vocab-card img { width: 100%; height: 130px; object-fit: cover; display: block; }
+.vocab-card-body { padding: 12px; }
+.vocab-card-body .word-display { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 8px; }
+.vocab-card-body .example { font-size: 0.8rem; color: #666; font-style: italic; margin-bottom: 10px; line-height: 1.4; }
+.vocab-field { margin-bottom: 6px; }
+.vocab-field label { font-size: 0.78rem; color: #888; display: block; margin-bottom: 2px; }
+.vocab-field input {
+  width: 100%; border: 1.5px solid #ddd; border-radius: 5px;
+  padding: 5px 8px; font-size: 0.88rem; outline: none;
+}
+.vocab-field input:focus { border-color: #667eea; }
+.vocab-field input.correct { border-color: #43a047; background: #e8f5e9; }
+.vocab-field input.wrong { border-color: #e53935; background: #fce4ec; }
+.card-status { font-size: 0.8rem; font-weight: 700; text-align: right; margin-top: 4px; min-height: 18px; }
+.card-status.ok { color: #388e3c; }
+.card-status.err { color: #e53935; }
+
+footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; border-top: 1px solid #eee; }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <h1>B2.1 · Lektion 1041 · Ausdruck von Gefühlen</h1>
+    <p>Kommunikation · Einheit 4 · Extra-Übungen</p>
+  </header>
+
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="tab-content active" id="tab-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1250452/pexels-photo-1250452.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Gefühle ausdrücken">
+
+    <div class="fragen-box">
+      <h3>🤔 Einstiegsfragen — Was denkst du?</h3>
+      <ul class="fragen-list">
+        <li>Fällt es dir leicht oder schwer, deine Gefühle auszudrücken?</li>
+        <li>Was machst du, wenn du in einem Gespräch etwas nicht verstanden hast?</li>
+        <li>Wie kannst du in einem Gespräch zeigen, dass du interessiert bist?</li>
+        <li>Wie würdest du reagieren, wenn deine beste Freundin plötzlich einen Besuch absagt?</li>
+      </ul>
+    </div>
+
+    <div class="section-title">😊 Gefühle — So hast du dich schon mal gefühlt</div>
+    <div class="emotion-grid">
+      <div class="emotion-chip"><span class="emoji">😊</span>glücklich</div>
+      <div class="emotion-chip"><span class="emoji">😢</span>traurig</div>
+      <div class="emotion-chip"><span class="emoji">😰</span>besorgt</div>
+      <div class="emotion-chip"><span class="emoji">😠</span>enttäuscht</div>
+      <div class="emotion-chip"><span class="emoji">😨</span>ängstlich</div>
+      <div class="emotion-chip"><span class="emoji">😍</span>verliebt</div>
+      <div class="emotion-chip"><span class="emoji">🤩</span>begeistert</div>
+      <div class="emotion-chip"><span class="emoji">😲</span>aufgeregt</div>
+      <div class="emotion-chip"><span class="emoji">😤</span>stolz</div>
+      <div class="emotion-chip"><span class="emoji">😬</span>nervös</div>
+      <div class="emotion-chip"><span class="emoji">😌</span>zufrieden</div>
+      <div class="emotion-chip"><span class="emoji">😕</span>unsicher</div>
+    </div>
+
+    <div class="chips-box">
+      <h3>🔑 Schlüsselbegriffe</h3>
+      <div class="chips-wrap">
+        <span class="chip">das Gefühl</span>
+        <span class="chip">Gefühle verbergen</span>
+        <span class="chip">Interesse zeigen</span>
+        <span class="chip">nachfragen</span>
+        <span class="chip">reagieren</span>
+        <span class="chip">einwenden</span>
+        <span class="chip">aufrechterhalten</span>
+        <span class="chip">Wie war das nochmal?</span>
+        <span class="chip">Und wie hast du reagiert?</span>
+        <span class="chip">nochmal wiederholen</span>
+        <span class="chip">Wie denkst du darüber?</span>
+        <span class="chip">daran gedacht</span>
+      </div>
+    </div>
+
+    <div class="section-title">Kurztext: Gefühle und Gespräche</div>
+    <div class="lese-text">
+      <p>Es fällt vielen Menschen schwer, ihre <span class="vocab-hl" data-tip="feelings">Gefühle</span> offen zu zeigen. Manche sind sehr extrovertiert und zeigen ihre Gefühle immer sehr offen, während andere ihre wahren Gefühle lieber <span class="vocab-hl" data-tip="to hide/conceal">verbergen</span>. Mit <span class="vocab-hl" data-tip="asking follow-up questions">interessiertem Nachfragen</span> kann man seinem Gesprächspartner zeigen, dass man hören möchte, was er zu sagen hat.</p>
+      <p>Wenn man etwas nicht gut verstanden hat, ist es besser <span class="vocab-hl" data-tip="to ask back">nachzufragen</span> als irgendetwas zu antworten. Es ist nicht immer einfach, ein <span class="vocab-hl" data-tip="conversation">Gespräch</span> <span class="vocab-hl" data-tip="to maintain">aufrechtzuerhalten</span>. Manchmal <span class="vocab-hl" data-tip="to object / to raise an objection">wendet</span> man <span class="vocab-hl" data-tip="to object">ein</span>, dass das Thema zu schwierig oder zu persönlich ist.</p>
+      <p>Nützliche Redemittel im Gespräch sind zum Beispiel: „Und wie hast du darauf <span class="vocab-hl" data-tip="reacted">reagiert</span>?" oder „Könntest du das bitte nochmal wiederholen?" oder „Wie denkst du darüber?" Diese Ausdrücke helfen dabei, das Gespräch am Laufen zu halten und echtes Interesse zu zeigen.</p>
+    </div>
+
+    <div class="redemittel-box">
+      <h4>💬 Redemittel — Höflich nachfragen &amp; Interesse zeigen</h4>
+      <div class="redemittel-list">
+        <span class="redemittel-item">Und wie hast du darauf reagiert?</span>
+        <span class="redemittel-item">Wie war das nochmal?</span>
+        <span class="redemittel-item">Könntest du das bitte nochmal wiederholen?</span>
+        <span class="redemittel-item">Wie denkst du darüber?</span>
+        <span class="redemittel-item">Hast du schon mal daran gedacht, dass …?</span>
+        <span class="redemittel-item">Ich zeige meine Gefühle sehr offen.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: LÜCKENTEXT -->
+  <div class="tab-content" id="tab-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1488000/pexels-photo-1488000.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Gespräch zwischen zwei Menschen">
+
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-reset" onclick="resetLuecke()">↺ Neu starten</button>
+      </div>
+      
+</div>
+    <div class="score-box">Ergebnis: <span id="luecke-score">0</span> / 12 richtig</div>
+
+    <p style="font-size:0.9rem;color:#666;margin-bottom:14px;">Ergänze die fehlenden Wörter. Das Feedback erscheint sofort beim Tippen.</p>
+
+    <ul class="luecke-list" id="luecke-list">
+      <li class="luecke-item">
+        <span class="nr">1.</span>
+        <span>Es fällt mir schwer, meine</span>
+        <input class="luecke-inp" data-answer="gefühle" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false">
+        <span>zu verbergen.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">2.</span>
+        <span>Sie</span>
+        <input class="luecke-inp" data-answer="wendet" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:110px">
+        <span>ein, dass die junge Generation die ältere immer mehr vergisst.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">3.</span>
+        <span>Wenn man etwas nicht gut verstanden hat, ist es besser</span>
+        <input class="luecke-inp" data-answer="nachzufragen" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:150px">
+        <span>als irgendetwas zu antworten.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">4.</span>
+        <span>Es ist nicht immer einfach, ein</span>
+        <input class="luecke-inp" data-answer="gespräch" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:120px">
+        <span>aufrechtzuerhalten.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">5.</span>
+        <span>Er zeigt großes</span>
+        <input class="luecke-inp" data-answer="interesse" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:120px">
+        <span>dafür, was auf dem Bildschirm passiert.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">6.</span>
+        <span>Und wie hast du darauf</span>
+        <input class="luecke-inp" data-answer="reagiert" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:110px">
+        <span>?</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">7.</span>
+        <span>Ich bin sehr</span>
+        <input class="luecke-inp" data-answer="begeistert" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:120px">
+        <span>, wenn meine Familie mich überrascht besucht.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">8.</span>
+        <span>Sie war sehr</span>
+        <input class="luecke-inp" data-answer="enttäuscht" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:120px">
+        <span>, als ihre beste Freundin die Verabredung absagte.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">9.</span>
+        <span>Hast du schon mal</span>
+        <input class="luecke-inp" data-answer="daran" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:90px">
+        <span>gedacht, dass deine Handlungen Konsequenzen haben können?</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">10.</span>
+        <span>Er war so</span>
+        <input class="luecke-inp" data-answer="aufgeregt" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:110px">
+        <span>, dass er kaum schlafen konnte.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">11.</span>
+        <span>Könntest du das bitte nochmal</span>
+        <input class="luecke-inp" data-answer="wiederholen" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:140px">
+        <span>? Ich habe es nicht gut verstanden.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+      <li class="luecke-item">
+        <span class="nr">12.</span>
+        <span>Wie denkst du</span>
+        <input class="luecke-inp" data-answer="darüber" oninput="liveCheck(this)" onblur="liveCheck(this)" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false" style="width:100px">
+        <span>? Deine Meinung interessiert mich sehr.</span>
+        <span class="luecke-feedback"></span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- TAB 2: SATZBAU -->
+  <div class="tab-content" id="tab-2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Gespräch">
+
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-reset" onclick="resetAllSb()">↺ Alle neu</button>
+      </div>
+      
+</div>
+    <div class="score-box">Ergebnis: <span id="sb-score">0</span> / 7 richtig</div>
+
+    <p style="font-size:0.9rem;color:#666;margin-bottom:18px;">Ziehe die Wörter in die richtige Reihenfolge.</p>
+    <div id="sb-container"></div>
+  </div>
+
+  <!-- TAB 3: WORTSCHATZ -->
+  <div class="tab-content" id="tab-3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3807561/pexels-photo-3807561.jpeg?auto=compress&cs=tinysrgb&w=900&h=300&fit=crop" alt="Emotionen und Gefühle">
+
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-reset" onclick="resetVocab()">↺ Neu starten</button>
+      </div>
+      
+</div>
+    <div class="score-box">Ergebnis: <span id="vocab-score">0</span> / 12 Karten</div>
+
+    <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Tippe das deutsche Wort. Feedback erscheint sofort.</p>
+    <div class="vocab-grid" id="vocab-grid"></div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// ─── TIMER SYSTEM ────────────────────────────────────────────────────────────
+var TIMER_PREFIX='B2_1041X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+timerAutoStart(1);
+</script>
+</body>
+</html>

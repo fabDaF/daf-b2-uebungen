@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.1 – Evolutionstheorie | Lesen</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 28px 32px;
+}
+header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+header p { opacity: .85; font-size: .95rem; }
+nav {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f5f5f5;
+}
+.nav-btn{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 6px;
+  background: transparent;
+  cursor: pointer;
+  color: #555;
+  border-right: 1px solid #ddd;
+  transition: background .2s;
+  gap: 4px;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn .nav-emoji { font-size: 1.3rem; }
+.nav-btn .nav-label { font-size: .75rem; }
+.nav-btn.active {
+  background: #fff;
+  color: #667eea;
+  font-weight: 700;
+  border-bottom: 3px solid #667eea;
+}
+.nav-btn:hover:not(.active) { background: #ececec; }
+.tab { display: none; padding: 28px 32px; }
+.tab.active { display: block; }
+
+/* Control bar */
+.control-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.control-bar .buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.control-bar .timer-display {
+  margin-left: auto;
+  font-size: .85rem;
+  color: #555;
+  white-space: nowrap;
+}
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 600;
+  transition: background .2s;
+}
+.btn-primary { background: #667eea; color: #fff; }
+.btn-primary:hover { background: #5568d4; }
+.btn-secondary { background: #e0e0e0; color: #333; }
+.btn-secondary:hover { background: #ccc; }
+
+/* Score */
+.score-area { text-align: right; font-weight: 700; margin-bottom: 12px; color: #555; font-size: .9rem; }
+
+/* Vorentlastung */
+.intro-section { margin-bottom: 24px; }
+.intro-section h2 {
+  font-size: 1.1rem;
+  color: #667eea;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 6px;
+}
+.intro-questions { list-style: none; padding: 0; }
+.intro-questions li {
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: #f5f5f5;
+  border-left: 4px solid #667eea;
+  border-radius: 4px;
+  font-size: .95rem;
+}
+.vocab-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.chip {
+  background: #667eea;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.vocab-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.vp-item {
+  background: #f9f9f9;
+  border-left: 3px solid #667eea;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: .88rem;
+}
+.vp-item strong { color: #764ba2; }
+.vp-item .vp-en { font-size: .78rem; color: #888; }
+
+/* Lesetext */
+.read-text {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  text-align: justify;
+  max-width: 720px;
+  margin: 0 auto;
+  hyphens: auto;
+  color: #222;
+}
+.read-text p { margin-bottom: 1.1em; text-indent: 1.5em; }
+.read-text p:first-child { text-indent: 0; }
+.read-text h3 {
+  font-size: 1rem;
+  color: #667eea;
+  margin: 20px 0 8px;
+  text-indent: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+.vocab-hl {
+  background: #fff9c4;
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: help;
+  position: relative;
+}
+.vocab-hl:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: .8rem;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/* Lückentext */
+.gap-sentence {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+  font-size: .93rem;
+}
+.gap-sentence .nr { font-weight: 700; color: #764ba2; min-width: 22px; }
+.gap-inp {
+  border: none;
+  border-bottom: 2px solid #aaa;
+  padding: 2px 6px;
+  font-size: .93rem;
+  width: 195px;
+  outline: none;
+  background: transparent;
+  transition: border-color .2s;
+}
+.gap-inp:focus { border-color: #667eea; }
+.gap-inp.correct { border-color: #27ae60; color: #27ae60; }
+.gap-inp.wrong { border-color: #e74c3c; color: #e74c3c; }
+
+/* Richtig/Falsch */
+.rf-list { list-style: none; padding: 0; }
+.rf-item {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid #667eea;
+}
+.rf-question { font-size: .93rem; margin-bottom: 10px; color: #333; }
+.rf-buttons { display: flex; gap: 8px; }
+.rf-btn {
+  padding: 6px 18px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 700;
+  background: #fff;
+  transition: all .2s;
+}
+.rf-btn:hover:not(:disabled) { border-color: #667eea; }
+.rf-btn.selected-correct { background: #27ae60; color: #fff; border-color: #27ae60; }
+.rf-btn.selected-wrong { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+.rf-btn:disabled { cursor: default; opacity: .8; }
+.rf-feedback { font-size: .82rem; margin-top: 6px; font-weight: 700; min-height: 1em; }
+.rf-feedback.ok { color: #27ae60; }
+.rf-feedback.err { color: #e74c3c; }
+
+/* Satzbau */
+.sb-sentence {
+  margin-bottom: 24px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 14px;
+}
+.sb-label { font-size: .8rem; color: #888; margin-bottom: 8px; }
+.sb-drop-zone {
+  min-height: 44px;
+  background: #fff;
+  border: 2px dashed #ccc;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  transition: border-color .2s;
+}
+.sb-drop-zone.drag-over { border-color: #667eea; background: #f0eeff; }
+.sb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sb-chip {
+  padding: 6px 12px;
+  background: #667eea;
+  color: #fff;
+  border-radius: 6px;
+  cursor: grab;
+  font-size: .88rem;
+  font-weight: 600;
+  user-select: none;
+  transition: opacity .2s;
+}
+.sb-chip.punct { background: #764ba2; min-width: 28px; text-align: center; }
+.sb-chip.correct-chip { background: #27ae60; }
+.sb-chip.wrong-chip { background: #e74c3c; }
+.sb-chip:active { opacity: .7; cursor: grabbing; }
+.sb-feedback { font-size: .85rem; font-weight: 700; min-height: 1.2em; }
+.sb-feedback.ok { color: #27ae60; }
+.sb-feedback.err { color: #e74c3c; }
+
+.best-times { font-size: .8rem; color: #888; margin-top: 12px; }
+
+footer {
+  background: #f5f5f5;
+  text-align: center;
+  padding: 14px;
+  font-size: .8rem;
+  color: #888;
+  border-top: 1px solid #e0e0e0;
+}
+
+@media (max-width: 600px) {
+  .tab { padding: 18px 16px; }
+  .vocab-preview { grid-template-columns: 1fr; }
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Evolutionstheorie</h1>
+    <p>B2.1 · Einheit 3 · Lesen (Übung 1036)</p>
+  </header>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">📖</span>
+      <span class="nav-label">Lesetext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">🔘</span>
+      <span class="nav-label">Richtig/Falsch</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(4)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+  </nav>
+
+  <!-- Tab 0: Vorentlastung -->
+  <div class="tab active" id="tab0">
+    <div class="intro-section">
+      <h2>🧠 Einstiegsfragen</h2>
+      <ul class="intro-questions">
+        <li>Was war zuerst da — das Ei oder das Huhn? Wie hat das Leben auf der Erde begonnen?</li>
+        <li>Was weißt du über Charles Darwin? Wann lebte er und was entdeckte er?</li>
+        <li>Was bedeutet „natürliche Selektion"? Kannst du ein Beispiel nennen?</li>
+        <li>Hat sich der Mensch wirklich stark entwickelt? Geht die menschliche Evolution in die richtige Richtung?</li>
+      </ul>
+    </div>
+
+    <div class="intro-section">
+      <h2>📖 Schlüsselwörter</h2>
+      <div class="vocab-chips">
+        <span class="chip">die Selektion</span>
+        <span class="chip">die Reproduktion</span>
+        <span class="chip">die Variation</span>
+        <span class="chip">das Lebewesen</span>
+        <span class="chip">die Vererbung</span>
+        <span class="chip">die Genetik</span>
+        <span class="chip">vernichten</span>
+        <span class="chip">siegen</span>
+        <span class="chip">biologische Vielfalt</span>
+        <span class="chip">die Fortpflanzung</span>
+        <span class="chip">die Anpassung</span>
+        <span class="chip">die Herausforderung</span>
+      </div>
+    </div>
+
+    <div class="intro-section">
+      <h2>🔑 Wörter im Kontext</h2>
+      <div class="vocab-preview">
+        <div class="vp-item">
+          <div class="vp-en">to deal with / engage with</div>
+          <strong>sich mit etwas auseinandersetzen</strong><br>
+          Viele Wissenschaftler haben sich mit der Evolutionstheorie auseinandergesetzt.
+        </div>
+        <div class="vp-item">
+          <div class="vp-en">excited / nervous</div>
+          <strong>aufgeregt</strong><br>
+          Morgen habe ich eine Prüfung und bin so aufgeregt!
+        </div>
+        <div class="vp-item">
+          <div class="vp-en">to express feelings</div>
+          <strong>Gefühle ausdrücken</strong><br>
+          Nicht nur Menschen können ihre Gefühle ausdrücken.
+        </div>
+        <div class="vp-item">
+          <div class="vp-en">to destroy / annihilate</div>
+          <strong>vernichten</strong><br>
+          Die Umweltverschmutzung vernichtet unseren Planeten.
+        </div>
+        <div class="vp-item">
+          <div class="vp-en">biological diversity</div>
+          <strong>biologische Vielfalt</strong><br>
+          Die Natur ist für ihre biologische Vielfalt bekannt.
+        </div>
+        <div class="vp-item">
+          <div class="vp-en">to win / triumph</div>
+          <strong>siegen</strong><br>
+          Ist es wirklich so, dass das Gute über das Böse siegt?
+        </div>
+        <div class="vp-item">
+          <div class="vp-en">living being / organism</div>
+          <strong>das Lebewesen</strong><br>
+          Tiere und Menschen sind Lebewesen.
+        </div>
+        <div class="vp-item">
+          <div class="vp-en">challenge</div>
+          <strong>die Herausforderung</strong><br>
+          Eine Prüfung kann oft eine wahre Herausforderung sein.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 1: Lesetext -->
+  <div class="tab" id="tab1">
+    <div class="read-text">
+      <h3>Wie ist der Mensch entstanden?</h3>
+      <p>Wie ist der Mensch entstanden? Ein sehr komplexes, aber auch jahrelanges <span class="vocab-hl" data-tip="Tabu-Thema = taboo topic">Tabu-Thema</span>. Es gibt viele Wissenschaftler, die sich mit diesem Thema <span class="vocab-hl" data-tip="auseinandergesetzt = engaged with, dealt with">auseinandergesetzt</span> haben. Sogar der Grieche Aristoteles hat über eine mögliche Theorie der Evolution <span class="vocab-hl" data-tip="spekuliert = speculated">spekuliert</span>. Auch die Religion hat sich mit diesem Thema auseinandergesetzt; sicherlich ging in diesem Fall die Theorie von der <span class="vocab-hl" data-tip="Annahme = assumption">Annahme</span> aus, dass Gott den Menschen und die Welt geschaffen hat. Da die Kirche eine sehr wichtige und einflussreiche Rolle spielte, war diese Theorie sehr verbreitet und akzeptiert.</p>
+
+      <h3>Jean-Baptiste de Lamarck und Charles Darwin</h3>
+      <p>Einer der ersten Evolutionstheoretiker war eigentlich Jean-Baptiste de Lamarck, der Anfang des 19. Jahrhunderts über den <span class="vocab-hl" data-tip="Artenwandel = species change">Artenwandel</span> gesprochen hat. Er erklärte, dass verschiedene Informationen — zu diesem Zeitpunkt wusste man noch nicht, was Genetik bedeutet — <span class="vocab-hl" data-tip="vererbt = inherited">vererbt</span>, also an die Kinder weitergegeben werden. Außerdem ging er von einer <span class="vocab-hl" data-tip="biologische Vielfalt = biological diversity">biologischen Vielfalt</span> aus: nicht alle <span class="vocab-hl" data-tip="Lebewesen = living beings">Lebewesen</span> haben die gleichen <span class="vocab-hl" data-tip="Vorfahren = ancestors">Vorfahren</span>. Der bekannteste Theoretiker bleibt aber Charles Darwin, der 1859 das Buch <em>The Origin of Species</em> veröffentlichte.</p>
+
+      <p>Im Jahr 1831 begann er eine fünfjährige Reise auf der See. Er konnte die geologischen Eigenschaften der Kontinente und Inseln analysieren, die er besucht hatte. Er untersuchte viele Lebewesen und <span class="vocab-hl" data-tip="Fossilien = fossils">Fossilien</span> und fand viele gemeinsame Punkte zwischen ihnen. Seine <span class="vocab-hl" data-tip="Schlussfolgerungen = conclusions">Schlussfolgerungen</span> präsentierte er in seinem Buch. Hier spricht er über natürliche <span class="vocab-hl" data-tip="Selektion = selection">Selektion</span>, Reproduktion und Variation, also über Artenvielfalt und <span class="vocab-hl" data-tip="Vererbung = heredity / inheritance">Vererbung</span>.</p>
+
+      <h3>Natürliche Selektion</h3>
+      <p>Die Selektion ermöglicht die <span class="vocab-hl" data-tip="Anpassung = adaptation">Anpassung</span> der Individuen und automatisch ihre Evolution. Es liegt in der Natur des Lebewesens, sich in kritischen Situationen an die neuen Bedingungen aus der Natur anzupassen. Die Starken überleben, die Schwachen dagegen sterben aus. Der Wettbewerb zwischen den Spezies ist ein permanenter Prozess. Wichtig sind in diesem Fall zwei Aspekte: Sicherung der Nahrung und die <span class="vocab-hl" data-tip="Fortpflanzung = reproduction">Fortpflanzung</span>.</p>
+
+      <p>Die klimatischen Veränderungen der letzten Jahre haben unglücklicherweise diesen Evolutionsprozess stark beeinflusst und zu einer negativen Entwicklung mancher Arten geführt. Die Natur greift in diesem Fall ein und reduziert die Anzahl der Lebewesen aus der betreffenden Spezies. Darwins Theorie wurde dann im 20. Jahrhundert von der <span class="vocab-hl" data-tip="Genetik = genetics">Genetik</span> bestätigt. Diese hat bewiesen, dass <span class="vocab-hl" data-tip="Mutationen = mutations">Mutationen</span> und <span class="vocab-hl" data-tip="Rekombinationen = recombinations">Rekombinationen</span> zu dieser natürlichen Selektion beitragen.</p>
+
+      <h3>Widerstand und Debatte</h3>
+      <p>Seine Theorie hat im 19. Jahrhundert einen starken <span class="vocab-hl" data-tip="Widerstand = resistance">Widerstand</span> ausgelöst, denn sie brach mit den alten Dogmen. Die Kirche konnte nicht akzeptieren, dass die Lebewesen nicht durch göttliche <span class="vocab-hl" data-tip="Schöpfung = creation">Schöpfung</span> entstanden sind. Bis heute gibt es viele Debatten bezüglich dieser Theorie. Viele Wissenschaftler, Gelehrte und Bewohner der Welt finden, dass Darwins Theorie nicht der Realität entspricht und dass der Mensch von Gott geschaffen wurde.</p>
+
+      <h3>Darwins Theorie und die Genetik</h3>
+      <p>Interessant ist, dass Darwins Theorie sehr schnell bekannt wurde. Anfänglich sorgte sie für <span class="vocab-hl" data-tip="Aufregung = excitement / commotion">Aufregung</span>. Seine Zeitgenossen konnten nicht akzeptieren, dass der Mensch und der Affe gemeinsame Eigenschaften haben. Seine Theorie wurde von der Kirche als gefährlich beurteilt und auch heute wird sie nicht überall akzeptiert. Darwins Theorie ermöglichte die Entstehung eines sehr interessanten Faches — die Genetik. Heute hat sich die Genetik weiterentwickelt; sie hat die Möglichkeit dort einzugreifen, wo die Natur nicht weitermachen kann oder will.</p>
+
+      <p>Lebewesen verändern sich durch Mutation von Genen. Mit Hilfe der Genetik können Forscher diese Mutation beseitigen oder verbessern. Sicherlich stellt sich nun die Frage, ob in diesem Fall noch von natürlicher Selektion gesprochen werden kann. Klone und <span class="vocab-hl" data-tip="Embryos = embryos">Embryos</span> werden im Labor erzeugt — man spricht von <span class="vocab-hl" data-tip="künstlicher Reproduktion = artificial reproduction">künstlicher Reproduktion</span>. Zu Darwins Zeiten wäre das nicht möglich gewesen, aber heute ist es Realität. Das kann man auch als Evolution beschreiben.</p>
+    </div>
+  </div>
+
+  <!-- Tab 2: Lückentext -->
+  <div class="tab" id="tab2">
+    <div class="control-bar">
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="resetGaps()">🔄 Zurücksetzen</button>
+        <button class="btn btn-primary" onclick="showAnswers()">💡 Lösungen</button>
+      </div>
+      <div class="timer-display"><span>⏱ <span id="timer-2">0:00</span></span><span>🏆 <span id="best-2">--:--</span></span></div>
+    </div>
+    <div class="score-area" id="gapScore">0 / 12</div>
+    <div id="gapContainer"></div>
+    <div class="best-times" id="best-2"></div>
+  </div>
+
+  <!-- Tab 3: Richtig/Falsch -->
+  <div class="tab" id="tab3">
+    <div class="control-bar">
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="resetRF()">🔄 Zurücksetzen</button>
+      </div>
+      <div class="timer-display"><span>⏱ <span id="timer-3">0:00</span></span><span>🏆 <span id="best-3">--:--</span></span></div>
+    </div>
+    <div class="score-area" id="rfScore">0 / 6</div>
+    <ul class="rf-list" id="rfList"></ul>
+    <div class="best-times" id="best-3"></div>
+  </div>
+
+  <!-- Tab 4: Satzbau -->
+  <div class="tab" id="tab4">
+    <div class="control-bar">
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="resetAllSb()">🔄 Alle zurücksetzen</button>
+      </div>
+      <div class="timer-display"><span>⏱ <span id="timer-4">0:00</span></span><span>🏆 <span id="best-4">--:--</span></span></div>
+    </div>
+    <div id="sbContainer"></div>
+    <div class="best-times" id="best-4"></div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+var TIMER_PREFIX='B2_1036R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+}
+function timerResetOne(n) {
+  if (timers[n]) { clearInterval(timers[n].interval); timers[n] = { s:0, running:false, interval:null, done:false }; }
+  updateTimerDisplay(n);
+}
+function updateTimerDisplay(n) {
+  const el = document.getElementById('timer' + n + 'Display');
+  if (!el) return;
+  const s = timers[n] ? timers[n].s : 0;
+  const best = localStorage.getItem(TIMER_PREFIX + n);
+  el.textContent = `⏱ ${fmt(s)} | 🏆 ${best ? fmt(parseInt(best)) : '–'}`;
+}
+function fmt(s) { return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function loadBestTimes() {
+  [2,3,4].forEach(n => {
+    const el = document.getElementById('bestTimes' + n);
+    if (!el) return;
+    const best = localStorage.getItem(TIMER_PREFIX + n);
+    el.textContent = best ? `Beste Zeit: ${fmt(parseInt(best))}` : '';
+  });
+}
+loadBestTimes();
+
+// ── Lückentext ──────────────────────────────────────────────────
+const gapData = [
+  { pre:'Viele Wissenschaftler haben sich mit der Evolutionstheorie', answer:'auseinandergesetzt', post:'.' },
+  { pre:'Die Kirche spielte eine sehr wichtige und', answer:'einflussreiche', post:'Rolle in der Geschichte.' },
+  { pre:'Lamarck sprach Anfang des 19. Jahrhunderts über den', answer:'Artenwandel', post:'.' },
+  { pre:'Nicht alle Lebewesen haben die gleichen', answer:'Vorfahren', post:'.' },
+  { pre:'Die', answer:'Selektion', post:'ermöglicht die Anpassung der Individuen.' },
+  { pre:'Die Starken überleben, die Schwachen dagegen', answer:'sterben', post:'aus.' },
+  { pre:'Zwei wichtige Aspekte: Sicherung der Nahrung und die', answer:'Fortpflanzung', post:'.' },
+  { pre:'Darwins Theorie wurde im 20. Jahrhundert von der', answer:'Genetik', post:'bestätigt.' },
+  { pre:'Seine Theorie hat im 19. Jahrhundert einen starken', answer:'Widerstand', post:'ausgelöst.' },
+  { pre:'Die Kirche konnte nicht akzeptieren, dass Lebewesen nicht durch göttliche', answer:'Schöpfung', post:'entstanden sind.' },
+  { pre:'Klone werden im Labor erzeugt — man spricht von künstlicher', answer:'Reproduktion', post:'.' },
+  { pre:'Lebewesen verändern sich durch', answer:'Mutation', post:'von Genen.' },
+];
+
+function buildGaps() {
+  const c = document.getElementById('gapContainer');
+  c.innerHTML = '';
+  gapData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'gap-sentence';
+    div.innerHTML = `
+      <span class="nr">${i+1}.</span>
+      <span>${item.pre}</span>
+      <input class="gap-inp" type="text" placeholder="" data-answer="${item.answer.toLowerCase()}" oninput="liveCheck(this)">
+      <span>${item.post}</span>`;
+    c.appendChild(div);
+  });
+  updateGapScore();
+}
+function liveCheck(inp) {
+  const val = inp.value.trim().toLowerCase();
+  const ans = inp.dataset.answer;
+  if (val.length === 0) { inp.className = 'gap-inp'; }
+  else if (val === ans) { inp.className = 'gap-inp correct'; }
+  else if (ans.startsWith(val)) { inp.className = 'gap-inp'; }
+  else { inp.className = 'gap-inp wrong'; }
+  updateGapScore();
+  if (allGapsDone()) timerStop(2);
+}
+function updateGapScore() {
+  const inputs = document.querySelectorAll('.gap-inp');
+  let correct = 0;
+  inputs.forEach(inp => { if (inp.value.trim().toLowerCase() === inp.dataset.answer) correct++; });
+  document.getElementById('gapScore').textContent = correct + ' / ' + gapData.length;
+}
+function allGapsDone() {
+  return [...document.querySelectorAll('.gap-inp')].every(inp => inp.value.trim().toLowerCase() === inp.dataset.answer);
+}
+function resetGaps() {
+  document.querySelectorAll('.gap-inp').forEach(inp => { inp.value = ''; inp.className = 'gap-inp'; });
+  timerResetOne(2); timerAutoStart(2); updateGapScore();
+}
+function showAnswers() {
+  document.querySelectorAll('.gap-inp').forEach(inp => {
+    const a = inp.dataset.answer;
+    inp.value = a.charAt(0).toUpperCase() + a.slice(1);
+    inp.className = 'gap-inp correct';
+  });
+  updateGapScore();
+}
+buildGaps();
+
+// ── Richtig/Falsch ──────────────────────────────────────────────
+const rfData = [
+  { q:'Aristoteles war der erste Wissenschaftler, der eine Evolutionstheorie formulierte.', correct:false },
+  { q:'Lamarck erklärte, dass biologische Informationen vererbt und an Kinder weitergegeben werden.', correct:true },
+  { q:'Darwin veröffentlichte sein berühmtes Buch im Jahr 1831.', correct:false },
+  { q:'Die natürliche Selektion bedeutet: Die Starken überleben, die Schwachen sterben aus.', correct:true },
+  { q:'Darwins Theorie wurde von der Kirche im 19. Jahrhundert sofort akzeptiert.', correct:false },
+  { q:'Darwins Theorie ermöglichte die Entstehung der Genetik als wissenschaftliches Fach.', correct:true },
+];
+
+let rfAnswered = 0;
+
+function buildRF() {
+  const list = document.getElementById('rfList');
+  list.innerHTML = '';
+  rfAnswered = 0;
+  rfData.forEach((item, i) => {
+    const li = document.createElement('li');
+    li.className = 'rf-item';
+    li.innerHTML = `
+      <div class="rf-question">${i+1}. ${item.q}</div>
+      <div class="rf-buttons">
+        <button class="rf-btn" onclick="mcClick(this, true, ${item.correct})">✓ Richtig</button>
+        <button class="rf-btn" onclick="mcClick(this, false, ${!item.correct})">✗ Falsch</button>
+      </div>
+      <div class="rf-feedback" id="rff${i}"></div>
+    `;
+    list.appendChild(li);
+  });
+  updateRFScore();
+}
+
+function mcClick(btn, userSaysTrue, isCorrect) {
+  const btns = btn.parentElement.querySelectorAll('.rf-btn');
+  if (btns[0].disabled) return;
+  btns.forEach(b => b.disabled = true);
+  btn.className = 'rf-btn ' + (isCorrect ? 'selected-correct' : 'selected-wrong');
+  const fbIdx = [...document.querySelectorAll('.rf-feedback')].indexOf(btn.parentElement.nextElementSibling);
+  const fb = btn.parentElement.nextElementSibling;
+  fb.className = 'rf-feedback ' + (isCorrect ? 'ok' : 'err');
+  fb.textContent = isCorrect ? '✓ Richtig!' : '✗ Falsch.';
+  rfAnswered++;
+  updateRFScore();
+  if (rfAnswered === rfData.length) timerStop(3);
+}
+
+function updateRFScore() {
+  const correct = [...document.querySelectorAll('.rf-feedback.ok')].length;
+  document.getElementById('rfScore').textContent = correct + ' / ' + rfData.length;
+}
+
+function resetRF() {
+  buildRF();
+  timerResetOne(3);
+  timerAutoStart(3);
+}
+
+buildRF();
+
+// ── Satzbau ─────────────────────────────────────────────────────
+let sbDragged = null;
+
+const satzbauData = [
+  {
+    id:1, hint:'Perfekt mit Reflexivverb',
+    parts:['Viele Wissenschaftler', 'haben sich', 'mit der Evolutionstheorie', 'auseinandergesetzt', '.'],
+    valid:['Viele Wissenschaftler', 'haben sich', 'mit der Evolutionstheorie', 'auseinandergesetzt', '.']
+  },
+  {
+    id:2, hint:'Zeitangabe im Mittelfeld',
+    parts:['Charles Darwin', 'veröffentlichte', '1859', 'sein berühmtes Buch', 'über natürliche Selektion', '.'],
+    valid:['Charles Darwin', 'veröffentlichte', '1859', 'sein berühmtes Buch', 'über natürliche Selektion', '.']
+  },
+  {
+    id:3, hint:'Koordination mit dagegen',
+    parts:['Die Starken', 'überleben', ',', 'die Schwachen', 'dagegen', 'sterben aus', '.'],
+    valid:['Die Starken', 'überleben', ',', 'die Schwachen', 'dagegen', 'sterben aus', '.']
+  },
+  {
+    id:4, hint:'Perfekt im Hauptsatz',
+    parts:['Seine Theorie', 'hat', 'im 19. Jahrhundert', 'einen starken Widerstand', 'ausgelöst', '.'],
+    valid:['Seine Theorie', 'hat', 'im 19. Jahrhundert', 'einen starken Widerstand', 'ausgelöst', '.']
+  },
+  {
+    id:5, hint:'Nebensatz mit dass + Negation',
+    parts:['Die Kirche', 'konnte nicht akzeptieren', ',', 'dass Lebewesen', 'nicht durch göttliche Schöpfung', 'entstanden sind', '.'],
+    valid:['Die Kirche', 'konnte nicht akzeptieren', ',', 'dass Lebewesen', 'nicht durch göttliche Schöpfung', 'entstanden sind', '.']
+  },
+  {
+    id:6, hint:'Passiv mit Zeitangabe',
+    parts:['Darwins Theorie', 'wurde', 'im 20. Jahrhundert', 'von der Genetik', 'bestätigt', '.'],
+    valid:['Darwins Theorie', 'wurde', 'im 20. Jahrhundert', 'von der Genetik', 'bestätigt', '.']
+  },
+  {
+    id:7, hint:'Relativsatz',
+    parts:['Die Starken', 'überleben', ',', 'während', 'die Schwachen', 'aussterben', '.'],
+    valid:['Die Starken', 'überleben', ',', 'während', 'die Schwachen', 'aussterben', '.']
+  },
+];
+
+function buildSb() {
+  const c = document.getElementById('sbContainer');
+  c.innerHTML = '';
+  satzbauData.forEach(s => {
+    const shuffled = fisherYates([...s.parts]);
+    const div = document.createElement('div');
+    div.className = 'sb-sentence';
+    div.dataset.id = s.id;
+    div.innerHTML = `
+      <div class="sb-label"><em>${s.hint}</em></div>
+      <div class="sb-drop-zone" ondragover="dzOver(event)" ondrop="dzDrop(event,${s.id})" ondragleave="dzLeave(event)"></div>
+      <div class="sb-chips" id="chips${s.id}"></div>
+      <div class="sb-feedback" id="fb${s.id}"></div>
+    `;
+    c.appendChild(div);
+    const chipsEl = div.querySelector('.sb-chips');
+    shuffled.forEach(p => chipsEl.appendChild(makeChip(p, s.id)));
+  });
+}
+function fisherYates(arr) {
+  for (let i = arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+function makeChip(text, sid) {
+  const span = document.createElement('span');
+  span.className = 'sb-chip' + (text==='.' || text===',' ? ' punct' : '');
+  span.textContent = text;
+  span.draggable = true;
+  span.dataset.sid = sid;
+  span.addEventListener('dragstart', e => { sbDragged = span; e.dataTransfer.effectAllowed = 'move'; });
+  span.addEventListener('dragend', () => { sbDragged = null; });
+  span.addEventListener('click', () => {
+    const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
+    const pool = document.getElementById('chips' + sid);
+    if (span.parentElement === pool) zone.appendChild(span);
+    else pool.appendChild(span);
+    checkSb(sid);
+  });
+  return span;
+}
+function dzOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dzLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dzDrop(e, sid) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if (sbDragged && parseInt(sbDragged.dataset.sid) === sid) {
+    e.currentTarget.appendChild(sbDragged); checkSb(sid);
+  }
+}
+function checkSb(sid) {
+  const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
+  const fb = document.getElementById('fb' + sid);
+  const chips = [...zone.children].map(c => c.textContent);
+  const data = satzbauData.find(s => s.id === sid);
+  if (chips.length < data.valid.length) { fb.textContent = ''; return; }
+  const correct = chips.join(' ') === data.valid.join(' ');
+  fb.className = 'sb-feedback ' + (correct ? 'ok' : 'err');
+  fb.textContent = correct ? '✓ Richtig!' : '✗ Noch nicht richtig.';
+  [...zone.children].forEach(c => {
+    c.classList.remove('correct-chip','wrong-chip');
+    c.classList.add(correct ? 'correct-chip' : 'wrong-chip');
+  });
+  if (allSbDone()) timerStop(4);
+}
+function allSbDone() {
+  return satzbauData.every(s => {
+    const fb = document.getElementById('fb' + s.id);
+    return fb && fb.classList.contains('ok');
+  });
+}
+function resetSb(sid) {
+  const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
+  const pool = document.getElementById('chips' + sid);
+  const fb = document.getElementById('fb' + sid);
+  [...zone.children].forEach(c => { c.classList.remove('correct-chip','wrong-chip'); pool.appendChild(c); });
+  fb.textContent = ''; fb.className = 'sb-feedback';
+}
+function resetAllSb() {
+  satzbauData.forEach(s => resetSb(s.id));
+  timerResetOne(4); timerAutoStart(4);
+}
+buildSb();
+</script>
+</body>
+</html>

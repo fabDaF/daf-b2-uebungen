@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B2.1 · 1016R · Work &amp; Travel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  min-height:100vh;
+  padding:20px;
+}
+.container{
+  max-width:1000px;
+  margin:0 auto;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.2);
+  overflow:hidden;
+}
+.header{
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:#fff;
+  padding:24px 30px;
+  text-align:center;
+}
+.header h1{font-size:1.6rem;margin-bottom:6px}
+.header p{opacity:.9;font-size:.95rem}
+nav{
+  display:flex;
+  background:#f8f9fa;
+  border-bottom:2px solid #e9ecef;
+  padding:8px 12px 0;
+  gap:6px;
+}
+.nav-btn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:8px 4px;
+  border:1px solid #dee2e6;
+  border-bottom:none;
+  border-radius:8px 8px 0 0;
+  background:#e9ecef;
+  cursor:pointer;
+  color:#666;
+  transition:background .2s,color .2s;
+  gap:3px;
+  font-family:inherit;
+}
+.nav-btn:hover{background:#f0f0f0}
+.nav-btn.active{
+  background:#fff;
+  color:#667eea;
+  border-bottom:3px solid #667eea;
+  font-weight:600;
+}
+.nav-emoji{font-size:1.3rem;line-height:1}
+.nav-label{font-size:.73rem;line-height:1.2}
+.section{display:none;padding:24px 30px;min-height:300px}
+.section.active{display:block}
+.tab-banner{
+  width:100%;max-height:180px;object-fit:cover;border-radius:10px;
+  margin-bottom:20px;display:block;
+}
+/* Control bar */
+.control-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.control-bar .btns{display:flex;gap:8px;flex:1}
+.ctrl-btn{
+  padding:7px 14px;border:none;border-radius:6px;cursor:pointer;
+  font-size:.85rem;font-family:inherit;transition:opacity .2s;
+}
+.ctrl-btn:hover{opacity:.85}
+.btn-reset{background:#e9ecef;color:#555}
+.btn-next{background:#667eea;color:#fff}
+.timer-box{
+  display:flex;align-items:center;gap:8px;font-size:.85rem;color:#555;white-space:nowrap;
+}
+.timer-display{
+  background:#f0f4ff;border:1px solid #c7d2fe;border-radius:6px;
+  padding:4px 10px;font-family:monospace;min-width:52px;text-align:center;
+}
+.best-display{color:#764ba2;font-weight:600;min-width:42px}
+/* Vorentlastung */
+.vocab-pre-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.vpc{border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.vpc img{width:100%;height:110px;object-fit:cover;display:block}
+.vpc-body{padding:12px 14px}
+.vpc-de{font-size:1rem;font-weight:700;color:#333;margin-bottom:3px}
+.vpc-art{font-size:.8rem;color:#764ba2;font-weight:600;margin-bottom:4px}
+.vpc-en{font-size:.8rem;color:#888;margin-bottom:6px}
+.vpc-example{font-size:.8rem;color:#666;font-style:italic;line-height:1.4;border-top:1px solid #f0f0f0;padding-top:6px}
+/* Lesetext */
+.story-text{
+  font-family:Georgia,'Times New Roman',serif;
+  max-width:700px;
+  margin:0 auto;
+  font-size:1rem;
+  line-height:1.8;
+  text-align:justify;
+  hyphens:auto;
+  color:#222;
+}
+.story-text p{
+  margin-bottom:1em;
+  text-indent:1.5em;
+}
+.story-text p:first-of-type{text-indent:0}
+.story-title{
+  text-align:center;
+  font-family:Georgia,serif;
+  font-size:1.3rem;
+  color:#333;
+  margin-bottom:20px;
+  font-weight:700;
+}
+.vocab-hl{
+  background:#fef08a;
+  border-radius:3px;
+  padding:1px 3px;
+  cursor:help;
+  position:relative;
+}
+.vocab-hl::after{
+  content:attr(data-tip);
+  display:none;
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#333;
+  color:#fff;
+  font-size:.75rem;
+  padding:3px 8px;
+  border-radius:4px;
+  white-space:nowrap;
+  z-index:10;
+  font-family:'Segoe UI',sans-serif;
+  font-style:normal;
+}
+.vocab-hl:hover::after{display:block}
+/* Lückentext */
+.wortkasten{
+  background:#f0f4ff;border:1px solid #c7d2fe;border-radius:8px;
+  padding:14px 16px;margin-bottom:20px;line-height:2;font-size:.9rem;
+}
+.wortkasten strong{margin-right:12px;color:#333;display:inline-block}
+.luecken-list{list-style:none;padding:0}
+.luecken-list li{
+  display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;
+  padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:.95rem;line-height:1.6;
+}
+.luecken-list li:last-child{border-bottom:none}
+.luecken-num{min-width:26px;color:#667eea;font-weight:700;font-size:.85rem;flex-shrink:0}
+.luecken-inp{
+  border:none;border-bottom:2px solid #ccc;outline:none;
+  font-size:.95rem;font-family:inherit;padding:2px 4px;width:200px;
+  transition:border-color .2s;background:transparent;
+}
+.luecken-inp.wide{width:260px}
+.luecken-inp:focus{border-color:#667eea}
+.luecken-inp.correct{border-color:#28a745;color:#28a745}
+.luecken-inp.wrong{border-color:#dc3545;color:#dc3545}
+/* Multiple Choice */
+.mc-list{list-style:none;padding:0}
+.mc-item{
+  background:#f8f9fa;border-radius:10px;padding:16px 18px;margin-bottom:14px;
+}
+.mc-frage{font-size:.95rem;font-weight:600;color:#333;margin-bottom:12px}
+.mc-frage-nr{color:#667eea;margin-right:6px}
+.mc-opts{display:flex;flex-direction:column;gap:7px}
+.mc-opt{
+  background:#fff;border:2px solid #e0e0e0;border-radius:6px;
+  padding:8px 14px;cursor:pointer;font-size:.9rem;font-family:inherit;
+  text-align:left;transition:border-color .2s,background .2s;
+}
+.mc-opt:hover:not(:disabled){border-color:#667eea;background:#f0f4ff}
+.mc-opt:disabled{cursor:default}
+.mc-opt.mc-correct{border-color:#28a745;background:#d4edda;color:#155724;font-weight:600}
+.mc-opt.mc-wrong{border-color:#dc3545;background:#f8d7da;color:#721c24}
+/* Satzbau */
+.satzbau-wrap{background:#f8f9fa;border-radius:10px;padding:18px}
+.aufgabe-nr{font-size:.8rem;color:#888;margin-bottom:10px;font-weight:600}
+.chip-source{
+  display:flex;flex-wrap:wrap;gap:8px;min-height:52px;
+  background:#fff;border:2px dashed #c7d2fe;border-radius:8px;padding:10px;margin-bottom:12px;
+}
+.drop-zone{
+  display:flex;flex-wrap:wrap;gap:8px;min-height:54px;
+  background:#f0f4ff;border:2px dashed #667eea;border-radius:8px;padding:10px;
+}
+.chip{
+  background:#667eea;color:#fff;padding:7px 14px;border-radius:20px;
+  cursor:grab;font-size:.9rem;user-select:none;transition:opacity .2s,transform .1s;touch-action:none;
+}
+.chip:active{cursor:grabbing;transform:scale(1.05)}
+.chip.punct{background:#764ba2;min-width:28px;text-align:center;padding:7px 10px}
+.chip.correct{background:#28a745;cursor:default}
+.sb-feedback{margin-top:12px;font-size:.9rem;font-weight:600;min-height:1.4em;color:#28a745}
+/* Footer */
+.footer{text-align:center;padding:14px;font-size:.78rem;color:#aaa;border-top:1px solid #eee;background:#fafafa}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Work &amp; Travel</h1>
+    <p>B2.1 · Einheit 1 · Lektion 1016 · Lesetext</p>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">📋</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">📖</span>
+      <span class="nav-label">Lesetext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">📝</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">❓</span>
+      <span class="nav-label">Multiple Choice</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(4)">
+      <span class="nav-emoji">🧩</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+  </nav>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="section active" id="tab-0">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/1271619/pexels-photo-1271619.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Reisen und Abenteuer">
+
+    <h2 style="font-size:1.05rem;color:#333;margin-bottom:16px">📋 Schlüsselvokabular – Lies die Karten, bevor du den Text liest.</h2>
+
+    <div class="vocab-pre-grid" id="pre-vocab"></div>
+  </div>
+
+  <!-- TAB 1: LESETEXT -->
+  <div class="section" id="tab-1">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/1371360/pexels-photo-1371360.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Australien Natur">
+
+    <div class="story-title">Ein Jahr unter dem Südhimmel</div>
+
+    <div class="story-text">
+      <p>Sofia aus Wien hatte schon immer davon geträumt, einmal ein ganzes Jahr im Ausland zu verbringen. Nach ihrem Abitur hörte sie von einer Freundin zum ersten Mal von dem <span class="vocab-hl" data-tip="Working Holiday visa">Working-Holiday-Visum</span> — einem Programm, das jungen Menschen zwischen 18 und 30 Jahren erlaubt, bis zu zwölf Monate in einem anderen Land zu reisen und dabei wechselnde, bezahlte Jobs anzunehmen.</p>
+
+      <p>Der erste Schritt war, die <span class="vocab-hl" data-tip="travel budget">Reisekasse</span> aufzubessern. Bevor sie aufbrach, arbeitete Sofia sechs Monate in einem Wiener Café und sparte jeden Euro. Das <span class="vocab-hl" data-tip="minimum age">Mindestalter</span> für das australische Visum lag bei 18 Jahren — und Sofia war zu dem Zeitpunkt gerade 19 geworden. Eine weitere Bedingung war, dass man bei einem einzigen Arbeitgeber nicht länger als sechs Monate bleiben durfte.</p>
+
+      <p>Ihr erster <span class="vocab-hl" data-tip="stay, sojourn">Aufenthalt</span> führte sie nach Queensland. Dort pflückte sie drei Monate lang Tomaten auf einer Farm in der Nähe von Cairns. Die Arbeit war körperlich anstrengend und die Sonne brannte gnadenlos, aber Sofia betonte, sie habe dabei mehr über Australien und seine Menschen gelernt als in jedem Reiseführer. Nebenbei schloss sie Freundschaften mit Arbeitskolleginnen aus Irland, Japan und Brasilien. Das waren wertvolle <span class="vocab-hl" data-tip="experiences">Erfahrungen</span>, die ihr niemand nehmen konnte.</p>
+
+      <p>Nach dem Farmleben reiste Sofia weiter nach Sydney. Dort fand sie rasch eine Stelle als Kellnerin in einem Restaurant im Hafenviertel. Sie berichtete ihrer Familie, das Stadtleben sei ganz anders als das Leben auf dem Land — lauter, schneller, aber voller Möglichkeiten. Ihre <span class="vocab-hl" data-tip="language skills">Sprachkenntnisse</span> verbesserten sich von Monat zu Monat, und sie konnte bald fließend über alles Mögliche auf Englisch diskutieren.</p>
+
+      <p>Das Jahr in Australien war alles andere als eine gewöhnliche <span class="vocab-hl" data-tip="long-term trip">Langzeitreise</span>. Es war eine Schule des Lebens. „Das Working-Holiday-Programm hat mein <span class="vocab-hl" data-tip="self-confidence">Selbstbewusstsein</span> enorm gefördert", sagte Sofia rückblickend. „Ich habe gelernt, mit unbekannten Situationen umzugehen, mich selbst zu organisieren und Probleme eigenständig zu lösen." Sie kehrte als selbstständigere, weltgewandtere Person nach Hause zurück und hatte ihren Traum wahrhaftig <span class="vocab-hl" data-tip="to realize, make come true">verwirklicht</span>.</p>
+
+      <p>Wer <span class="vocab-hl" data-tip="adventurous">abenteuerlustig</span> ist und offen für Neues, dem kann ein Work-and-Travel-Jahr eine der wertvollsten Erfahrungen des Lebens sein — vorausgesetzt, man plant gut und bringt genug Offenheit und Flexibilität mit.</p>
+    </div>
+  </div>
+
+  <!-- TAB 2: LÜCKENTEXT -->
+  <div class="section" id="tab-2">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/261763/pexels-photo-261763.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Schreiben">
+
+    <div class="control-bar">
+      <div class="btns">
+        <button class="ctrl-btn btn-reset" onclick="resetLuecken()">↺ Reset</button>
+      </div>
+      <div class="timer-box">
+        ⏱ <span id="timer-2" class="timer-display">0:00</span>
+        🏆 <span id="best-2" class="best-display">–</span>
+      </div>
+    </div>
+
+    <div class="wortkasten">
+      <strong>abenteuerlustig</strong>
+      <strong>Aufenthalt</strong>
+      <strong>Erfahrungen</strong>
+      <strong>Gelegenheitsjobs</strong>
+      <strong>Langzeitreise</strong>
+      <strong>Mindestalter</strong>
+      <strong>Reisekasse</strong>
+      <strong>Selbstbewusstsein</strong>
+      <strong>Sprachkenntnisse</strong>
+      <strong>verwirklichen</strong>
+      <strong>Working-Holiday-Visum</strong>
+      <strong>Weltoffenheit</strong>
+    </div>
+
+    <ol class="luecken-list">
+      <li>
+        <span class="luecken-num">1.</span>
+        <span>Das</span>
+        <input class="luecken-inp wide" data-answer="Working-Holiday-Visum" oninput="liveCheck(this)" placeholder="">
+        <span>ermöglicht jungen Menschen, im Ausland zu reisen und zu arbeiten.</span>
+      </li>
+      <li>
+        <span class="luecken-num">2.</span>
+        <span>Bevor sie abreiste, wollte Sofia ihre</span>
+        <input class="luecken-inp" data-answer="Reisekasse" oninput="liveCheck(this)" placeholder="">
+        <span>mit Ersparnissen aufbessern.</span>
+      </li>
+      <li>
+        <span class="luecken-num">3.</span>
+        <span>Das</span>
+        <input class="luecken-inp" data-answer="Mindestalter" oninput="liveCheck(this)" placeholder="">
+        <span>für das australische Visum liegt bei 18 Jahren.</span>
+      </li>
+      <li>
+        <span class="luecken-num">4.</span>
+        <span>Ihr erster</span>
+        <input class="luecken-inp" data-answer="Aufenthalt" oninput="liveCheck(this)" placeholder="">
+        <span>dauerte drei Monate und führte sie nach Queensland.</span>
+      </li>
+      <li>
+        <span class="luecken-num">5.</span>
+        <span>Eine</span>
+        <input class="luecken-inp" data-answer="Langzeitreise" oninput="liveCheck(this)" placeholder="">
+        <span>bringt immer auch finanzielle Fragen mit sich.</span>
+      </li>
+      <li>
+        <span class="luecken-num">6.</span>
+        <span>Durch das Reisen verbesserten sich Sofias</span>
+        <input class="luecken-inp wide" data-answer="Sprachkenntnisse" oninput="liveCheck(this)" placeholder="">
+        <span>erheblich.</span>
+      </li>
+      <li>
+        <span class="luecken-num">7.</span>
+        <span>Das Auslandsjahr förderte ihr</span>
+        <input class="luecken-inp wide" data-answer="Selbstbewusstsein" oninput="liveCheck(this)" placeholder="">
+        <span>enorm.</span>
+      </li>
+      <li>
+        <span class="luecken-num">8.</span>
+        <span>Mit dem Visum kann man verschiedene</span>
+        <input class="luecken-inp wide" data-answer="Gelegenheitsjobs" oninput="liveCheck(this)" placeholder="">
+        <span>in verschiedenen Ländern annehmen.</span>
+      </li>
+      <li>
+        <span class="luecken-num">9.</span>
+        <span>Sofia konnte mit dem Programm ihren Traum</span>
+        <input class="luecken-inp" data-answer="verwirklichen" oninput="liveCheck(this)" placeholder="">
+        <span>.</span>
+      </li>
+      <li>
+        <span class="luecken-num">10.</span>
+        <span>Sie sammelte wertvolle</span>
+        <input class="luecken-inp" data-answer="Erfahrungen" oninput="liveCheck(this)" placeholder="">
+        <span>für ihren Lebenslauf und ihr Leben.</span>
+      </li>
+      <li>
+        <span class="luecken-num">11.</span>
+        <span>Wer</span>
+        <input class="luecken-inp" data-answer="abenteuerlustig" oninput="liveCheck(this)" placeholder="">
+        <span>ist, dem kann Work and Travel viel bieten.</span>
+      </li>
+      <li>
+        <span class="luecken-num">12.</span>
+        <span>Neben Abenteuerlust braucht man für Work and Travel auch</span>
+        <input class="luecken-inp" data-answer="Weltoffenheit" oninput="liveCheck(this)" placeholder="">
+        <span>.</span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- TAB 3: MULTIPLE CHOICE -->
+  <div class="section" id="tab-3">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/3184311/pexels-photo-3184311.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Fragen und Antworten">
+
+    <div class="control-bar">
+      <div class="btns">
+        <button class="ctrl-btn btn-reset" onclick="mcReset()">↺ Reset</button>
+      </div>
+      <div class="timer-box">
+        ⏱ <span id="timer-3" class="timer-display">0:00</span>
+        🏆 <span id="best-3" class="best-display">–</span>
+      </div>
+    </div>
+
+    <p style="font-size:.9rem;color:#555;margin-bottom:16px">Wähle die richtige Antwort zum Lesetext.</p>
+    <ul class="mc-list" id="mc-list"></ul>
+  </div>
+
+  <!-- TAB 4: SATZBAU -->
+  <div class="section" id="tab-4">
+    <img class="tab-banner"
+      src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800"
+      alt="Satzbau üben">
+
+    <div class="control-bar">
+      <div class="btns">
+        <button class="ctrl-btn btn-reset" onclick="sbReset()">↺ Reset</button>
+        <button class="ctrl-btn btn-next" onclick="sbNext()">→ Nächste</button>
+      </div>
+      <div class="timer-box">
+        ⏱ <span id="timer-4" class="timer-display">0:00</span>
+        🏆 <span id="best-4" class="best-display">–</span>
+      </div>
+    </div>
+
+    <div class="satzbau-wrap">
+      <div class="aufgabe-nr" id="sb-nr">Aufgabe 1 von 7</div>
+      <div id="sb-source" class="chip-source"></div>
+      <div id="sb-zone" class="drop-zone"></div>
+      <div id="sb-feedback" class="sb-feedback"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+
+</div><!-- /container -->
+
+<script>
+/* ===== TIMER SYSTEM ===== */
+const TIMER_PREFIX = 'B2_1016R_';
+const timers = {};
+function timerTick(n) {
+  if (!timers[n] || !timers[n].running) return;
+  timers[n].elapsed++;
+  const m = Math.floor(timers[n].elapsed / 60);
+  const s = timers[n].elapsed % 60;
+  const el = document.getElementById('timer-' + n);
+  if (el) el.textContent = m + ':' + String(s).padStart(2, '0');
+  timers[n].handle = setTimeout(() => timerTick(n), 1000);
+}
+function timerAutoStart(n) {
+  if (!timers[n]) timers[n] = { elapsed: 0, running: false, handle: null };
+  if (timers[n].running) return;
+  timers[n].running = true;
+  timerTick(n);
+}
+function timerStop(n) {
+  if (!timers[n] || !timers[n].running) return;
+  timers[n].running = false;
+  clearTimeout(timers[n].handle);
+  const key = TIMER_PREFIX + n;
+  const prev = localStorage.getItem(key);
+  if (!prev || timers[n].elapsed < parseInt(prev)) {
+    localStorage.setItem(key, timers[n].elapsed);
+    loadBestTimes();
+  }
+}
+function timerResetOne(n) {
+  if (timers[n]) { timers[n].running = false; clearTimeout(timers[n].handle); timers[n].elapsed = 0; }
+  const el = document.getElementById('timer-' + n);
+  if (el) el.textContent = '0:00';
+}
+function loadBestTimes() {
+  [2, 3, 4].forEach(n => {
+    const val = localStorage.getItem(TIMER_PREFIX + n);
+    const el = document.getElementById('best-' + n);
+    if (el && val) {
+      const sec = parseInt(val);
+      el.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+    }
+  });
+}
+loadBestTimes();
+
+/* ===== TAB NAVIGATION ===== */
+function showTab(n) {
+  document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === n));
+  document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === n));
+  if (n === 0) renderPreVocab();
+  if (n === 2) timerAutoStart(2);
+  if (n === 3) { renderMC(); timerAutoStart(3); }
+  if (n === 4) { sbInit(); timerAutoStart(4); }
+}
+
+/* ===== VORENTLASTUNG VOCAB ===== */
+const preVocabData = [
+  { de:'das Working-Holiday-Visum', art:'das · Pl: –', en:'Working Holiday visa', img:'1371360', example:'Das Working-Holiday-Visum ermöglicht Reisen und Arbeiten im Ausland.' },
+  { de:'die Reisekasse', art:'die · -n', en:'travel budget, travel fund', img:'3943723', example:'Sie sparte monatelang, um ihre Reisekasse aufzubessern.' },
+  { de:'der Gelegenheitsjob', art:'der · -s', en:'casual job, odd job', img:'3756679', example:'Mit Gelegenheitsjobs finanzierte sie ihre Weltreise.' },
+  { de:'die Langzeitreise', art:'die · -n', en:'long-term trip', img:'1271619', example:'Eine Langzeitreise erfordert sorgfältige finanzielle Planung.' },
+  { de:'das Mindestalter', art:'das · –', en:'minimum age', img:'1181671', example:'Das Mindestalter für das Programm liegt bei 18 Jahren.' },
+  { de:'der Aufenthalt', art:'der · -e', en:'stay, sojourn', img:'1643383', example:'Ihr Aufenthalt in Australien dauerte ein ganzes Jahr.' },
+  { de:'die Sprachkenntnisse', art:'Pl.', en:'language skills', img:'4050315', example:'Gute Sprachkenntnisse helfen bei der Jobsuche im Ausland.' },
+  { de:'das Selbstbewusstsein', art:'das · –', en:'self-confidence', img:'3807571', example:'Das Auslandsjahr hat ihr Selbstbewusstsein sehr gestärkt.' },
+  { de:'verwirklichen', art:'Verb', en:'to realize, make come true', img:'1370545', example:'Sie verwirklichte ihren Traum von einem Jahr in Australien.' },
+];
+let preVocabRendered = false;
+function renderPreVocab() {
+  if (preVocabRendered) return;
+  preVocabRendered = true;
+  const grid = document.getElementById('pre-vocab');
+  preVocabData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vpc';
+    const imgUrl = 'https://images.pexels.com/photos/' + v.img + '/pexels-photo-' + v.img + '.jpeg?auto=compress&cs=tinysrgb&w=400';
+    card.innerHTML = `
+      <img src="${imgUrl}" alt="${v.en}" onerror="this.style.display='none'">
+      <div class="vpc-body">
+        <div class="vpc-de">${v.de}</div>
+        <div class="vpc-art">${v.art}</div>
+        <div class="vpc-en">${v.en}</div>
+        <div class="vpc-example">${v.example}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+renderPreVocab();
+
+/* ===== LÜCKENTEXT ===== */
+function liveCheck(inp) {
+  const ans = inp.dataset.answer;
+  const val = inp.value;
+  if (!val) { inp.className = inp.className.replace(/ ?(correct|wrong)/g,''); return; }
+  const base = inp.className.replace(/ ?(correct|wrong)/g,'');
+  if (ans.toLowerCase().startsWith(val.toLowerCase())) {
+    inp.className = val.toLowerCase() === ans.toLowerCase() ? base + ' correct' : base;
+    if (inp.className.includes('correct')) checkAllLuecken();
+  } else {
+    inp.className = base + ' wrong';
+  }
+}
+function checkAllLuecken() {
+  const all = document.querySelectorAll('#tab-2 .luecken-inp');
+  if (Array.from(all).every(i => i.classList.contains('correct'))) timerStop(2);
+}
+function resetLuecken() {
+  document.querySelectorAll('#tab-2 .luecken-inp').forEach(inp => {
+    inp.value = '';
+    inp.className = inp.className.replace(/ ?(correct|wrong)/g,'');
+  });
+  timerResetOne(2);
+  timerAutoStart(2);
+}
+
+/* ===== MULTIPLE CHOICE ===== */
+const mcData = [
+  {
+    frage: 'Was ist das Mindestalter für das Working-Holiday-Visum in Australien?',
+    opts: ['16 Jahre', '18 Jahre', '21 Jahre', '25 Jahre'],
+    correct: 1
+  },
+  {
+    frage: 'Wie lange durfte Sofia bei einem einzigen Arbeitgeber bleiben?',
+    opts: ['3 Monate', '6 Monate', '9 Monate', '12 Monate'],
+    correct: 1
+  },
+  {
+    frage: 'Was machte Sofia auf der Farm in Queensland?',
+    opts: ['Kinder betreuen', 'Kellnern', 'Tomaten pflücken', 'Pferde versorgen'],
+    correct: 2
+  },
+  {
+    frage: 'Wo fand Sofia eine Stelle als Kellnerin?',
+    opts: ['Melbourne', 'Perth', 'Brisbane', 'Sydney'],
+    correct: 3
+  },
+  {
+    frage: 'Was hat das Work-and-Travel-Jahr laut Sofia besonders gefördert?',
+    opts: ['Ihre Kochkünste', 'Ihr Selbstbewusstsein', 'Ihren Lebenslauf', 'Ihre Mathematikkenntnisse'],
+    correct: 1
+  }
+];
+const mcAnswered = new Array(mcData.length).fill(false);
+let mcRendered = false;
+function renderMC() {
+  if (mcRendered) return;
+  mcRendered = true;
+  const list = document.getElementById('mc-list');
+  mcData.forEach((q, qi) => {
+    const li = document.createElement('li');
+    li.className = 'mc-item';
+    li.id = 'mc-q-' + qi;
+    const optsHTML = q.opts.map((o, oi) =>
+      `<button class="mc-opt" onclick="mcCheck(${qi},${oi})">${o}</button>`
+    ).join('');
+    li.innerHTML = `<div class="mc-frage"><span class="mc-frage-nr">${qi+1}.</span>${q.frage}</div><div class="mc-opts">${optsHTML}</div>`;
+    list.appendChild(li);
+  });
+}
+function mcCheck(qIdx, optIdx) {
+  const q = mcData[qIdx];
+  const container = document.getElementById('mc-q-' + qIdx);
+  const opts = container.querySelectorAll('.mc-opt');
+  opts.forEach((opt, i) => {
+    opt.disabled = true;
+    opt.classList.remove('mc-correct', 'mc-wrong');
+    if (i === q.correct) opt.classList.add('mc-correct');
+    if (i === optIdx && i !== q.correct) opt.classList.add('mc-wrong');
+  });
+  if (optIdx === q.correct) {
+    mcAnswered[qIdx] = true;
+    if (mcAnswered.every(a => a)) timerStop(3);
+  }
+}
+function mcReset() {
+  mcAnswered.fill(false);
+  document.querySelectorAll('.mc-opt').forEach(btn => {
+    btn.classList.remove('mc-correct', 'mc-wrong');
+    btn.disabled = false;
+  });
+  timerResetOne(3);
+  timerAutoStart(3);
+}
+
+/* ===== SATZBAU ===== */
+const satzbauData = [
+  {
+    parts: ['Das Working-Holiday-Visum', 'ermöglicht', 'jungen Menschen,', 'im Ausland', 'zu reisen und zu arbeiten', '.'],
+    valid: 'Das Working-Holiday-Visum ermöglicht jungen Menschen, im Ausland zu reisen und zu arbeiten.'
+  },
+  {
+    parts: ['Sofia', 'bewarb sich', 'um ein Working-Holiday-Visum', 'für Australien', '.'],
+    valid: 'Sofia bewarb sich um ein Working-Holiday-Visum für Australien.'
+  },
+  {
+    parts: ['Mit dem Visum', 'konnte sie', 'ihre Reisekasse', 'mit Gelegenheitsjobs', 'aufbessern', '.'],
+    valid: 'Mit dem Visum konnte sie ihre Reisekasse mit Gelegenheitsjobs aufbessern.'
+  },
+  {
+    parts: ['Das Auslandsjahr', 'förderte', 'ihr Selbstbewusstsein', 'und ihre Sprachkenntnisse', '.'],
+    valid: 'Das Auslandsjahr förderte ihr Selbstbewusstsein und ihre Sprachkenntnisse.'
+  },
+  {
+    parts: ['Sie sagte,', 'das Stadtleben', 'sei', 'ganz anders', 'als das Leben auf dem Land', '.'],
+    valid: 'Sie sagte, das Stadtleben sei ganz anders als das Leben auf dem Land.'
+  },
+  {
+    parts: ['Wer abenteuerlustig ist,', 'dem kann', 'Work and Travel', 'viele Erfahrungen', 'bieten', '.'],
+    valid: 'Wer abenteuerlustig ist, dem kann Work and Travel viele Erfahrungen bieten.'
+  },
+  {
+    parts: ['Sofia betonte,', 'sie', 'habe', 'beim Reisen', 'viel über Australien gelernt', '.'],
+    valid: 'Sofia betonte, sie habe beim Reisen viel über Australien gelernt.'
+  }
+];
+let sbCurrent = 0;
+let sbDragged = null;
+let sbInitialized = false;
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function sbInit() {
+  if (!sbInitialized) { setupDropZones(); sbInitialized = true; }
+  sbCurrent = 0;
+  sbRenderChips(satzbauData[0]);
+}
+function sbRenderChips(data) {
+  const src = document.getElementById('sb-source');
+  const zone = document.getElementById('sb-zone');
+  const fb = document.getElementById('sb-feedback');
+  src.innerHTML = ''; zone.innerHTML = ''; fb.textContent = '';
+  document.getElementById('sb-nr').textContent = 'Aufgabe ' + (sbCurrent + 1) + ' von ' + satzbauData.length;
+  shuffle(data.parts).forEach(p => src.appendChild(makeChip(p)));
+}
+function makeChip(text) {
+  const chip = document.createElement('div');
+  chip.className = 'chip' + (/^[.!?]$/.test(text) ? ' punct' : '');
+  chip.textContent = text;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', () => { sbDragged = chip; chip.style.opacity = '.5'; });
+  chip.addEventListener('dragend', () => { chip.style.opacity = '1'; sbDragged = null; });
+  chip.addEventListener('click', () => sbMoveChip(chip));
+  return chip;
+}
+function sbMoveChip(chip) {
+  const src = document.getElementById('sb-source');
+  const zone = document.getElementById('sb-zone');
+  if (chip.parentNode === src) zone.appendChild(chip);
+  else src.appendChild(chip);
+  sbCheckAnswer();
+}
+function setupDropZones() {
+  ['sb-zone', 'sb-source'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('dragover', e => e.preventDefault());
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      if (sbDragged && sbDragged.parentNode !== el) { el.appendChild(sbDragged); sbCheckAnswer(); }
+    });
+  });
+}
+function sbCheckAnswer() {
+  const zone = document.getElementById('sb-zone');
+  const fb = document.getElementById('sb-feedback');
+  const chips = Array.from(zone.querySelectorAll('.chip'));
+  if (!chips.length) { fb.textContent = ''; return; }
+  const built = chips.map(c => c.textContent).join(' ').replace(/ ([.!?])/g, '$1');
+  if (built === satzbauData[sbCurrent].valid) {
+    fb.textContent = '✓ Korrekt!';
+    chips.forEach(c => c.classList.add('correct'));
+    if (sbCurrent === satzbauData.length - 1) timerStop(4);
+  } else {
+    fb.textContent = '';
+  }
+}
+function sbReset() {
+  sbRenderChips(satzbauData[sbCurrent]);
+  timerResetOne(4);
+  timerAutoStart(4);
+}
+function sbNext() {
+  sbCurrent = (sbCurrent + 1) % satzbauData.length;
+  sbRenderChips(satzbauData[sbCurrent]);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1044X · Empathie und Verständnis</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 24px 32px;
+}
+.header h1 { font-size: 1.6rem; font-weight: 700; }
+.header p { opacity: 0.85; margin-top: 4px; font-size: 0.95rem; }
+.nav {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f8f8f8;
+}
+.nav-btn{
+  flex: 1;
+  background: none;
+  padding: 12px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: #555;
+  border-bottom: 3px solid transparent;
+  transition: background 0.2s;
+}
+.nav-btn:hover { background: #efefef; }
+.nav-btn.active { background: #fff; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
+.nav-emoji { font-size: 1.3rem; }
+.tab { display: none; padding: 28px 32px; }
+.tab.active { display: block; }
+.control-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.control-bar .buttons { display: flex; gap: 8px; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
+.btn-reset { background: #667eea; color: #fff; }
+.btn-reset:hover { background: #5a6fd6; }
+.timer-wrap { margin-left: auto; background: #f0f0f0; border-radius: 8px; padding: 6px 14px; font-size: 0.9rem; color: #444; font-family: monospace; }
+/* Vorentlastung */
+.fragen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.frage-card { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 12px 14px; font-size: 0.93rem; color: #333; }
+.chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { background: #667eea; color: #fff; border-radius: 20px; padding: 5px 14px; font-size: 0.85rem; }
+.kurztext { background: #fafafa; border-left: 4px solid #764ba2; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.75; color: #333; }
+.kurztext p + p { margin-top: 10px; }
+.redemittel { background: #f9f0ff; border-left: 4px solid #764ba2; border-radius: 8px; padding: 14px 18px; }
+.redemittel h3 { color: #764ba2; margin-bottom: 10px; font-size: 0.95rem; }
+.redemittel ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.redemittel ul li { background: #764ba2; color: #fff; border-radius: 20px; padding: 4px 12px; font-size: 0.83rem; }
+/* vocab highlight */
+.vocab-hl { background: #fff176; border-radius: 3px; padding: 0 2px; cursor: help; position: relative; }
+.vocab-hl[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+/* Lückentext */
+.score-bar { display: flex; align-items: center; gap: 12px; padding: 0 0 14px; font-size: 0.92rem; color: #555; }
+.score-val { font-weight: 700; font-size: 1.1rem; color: #667eea; }
+.luecke-list { list-style: none; counter-reset: item; }
+.luecke-list li {
+  counter-increment: item;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+.luecke-list li::before { content: counter(item) "."; color: #667eea; font-weight: 700; min-width: 22px; }
+.luecke-inp {
+  border: none;
+  border-bottom: 2px solid #ccc;
+  outline: none;
+  font-size: 0.93rem;
+  padding: 2px 6px;
+  width: 170px;
+  background: transparent;
+  transition: border-color 0.2s;
+}
+.luecke-inp:focus { border-color: #667eea; }
+.luecke-inp.ok { border-color: #43a047; background: #e8f5e9; }
+.luecke-inp.err { border-color: #e53935; background: #ffebee; }
+/* Satzbau */
+.sb-section { margin-bottom: 24px; }
+.sb-sentence-label { font-size: 0.85rem; color: #888; margin-bottom: 6px; }
+.sb-chips-src {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  min-height: 38px; padding: 6px;
+  background: #f5f5f5; border-radius: 6px; border: 1px dashed #ccc;
+  margin-bottom: 8px;
+}
+.sb-drop-zone {
+  min-height: 44px;
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  background: #f8f9ff;
+  margin-bottom: 6px;
+}
+.sb-drop-zone.drag-over { background: #e8eaff; }
+.chip-sb {
+  background: #667eea; color: #fff;
+  border-radius: 16px; padding: 5px 12px;
+  font-size: 0.85rem; cursor: grab; user-select: none;
+}
+.chip-sb.punct { background: #764ba2; }
+.chip-sb:active { cursor: grabbing; }
+.sb-fb { font-size: 0.85rem; min-height: 18px; font-weight: 600; }
+.sb-fb.ok { color: #43a047; }
+.sb-fb.err { color: #e53935; }
+/* Wortschatz */
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.vocab-card { border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
+.vocab-card-img { width: 100%; height: 130px; object-fit: cover; background: #eee; display: block; }
+.vocab-card-body { padding: 12px; }
+.word-display { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 8px; }
+.vocab-fields { display: flex; flex-direction: column; gap: 6px; }
+.vocab-field-row { display: flex; align-items: center; gap: 6px; }
+.vocab-field-label { font-size: 0.75rem; color: #888; min-width: 52px; }
+.vocab-inp {
+  flex: 1; border: 1px solid #ccc; border-radius: 4px;
+  padding: 4px 8px; font-size: 0.85rem; outline: none;
+}
+.vocab-inp:focus { border-color: #667eea; }
+.vocab-inp.ok { border-color: #43a047; background: #e8f5e9; }
+.vocab-inp.err { border-color: #e53935; background: #ffebee; }
+.footer { text-align: center; padding: 16px; font-size: 0.8rem; color: #888; border-top: 1px solid #f0f0f0; }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Empathie und Verständnis</h1>
+    <p>B2 · Einheit 4 · Kommunikation · 1044X</p>
+  </div>
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0,this)"><span class="nav-emoji">💬</span><span class="nav-label">Vorentlastung</span></div>
+    <div class="nav-btn" onclick="showTab(1,this)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+    <div class="nav-btn" onclick="showTab(2,this)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></div>
+    <div class="nav-btn" onclick="showTab(3,this)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+  </div>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="tab active" id="tab0">
+    <h2 style="color:#667eea;margin-bottom:16px;font-size:1.1rem;">Einstieg: Empathie und Verständnis</h2>
+    <div class="fragen-grid">
+      <div class="frage-card">Bist du eher der <strong>emotionale</strong> oder der <strong>rationale</strong> Typ?</div>
+      <div class="frage-card">Wie reagierst du, wenn dir jemand von einem Problem erzählt?</div>
+      <div class="frage-card">Wann fällt es dir schwer, für andere <strong>Verständnis aufzubringen</strong>?</div>
+      <div class="frage-card">Gibt es <em>zu viel</em> oder <em>zu wenig</em> Empathie? Wo siehst du die Grenzen?</div>
+    </div>
+    <p style="font-weight:600;color:#555;margin-bottom:8px;font-size:0.9rem;">Schlüsselwörter</p>
+    <div class="chips-wrap">
+      <span class="chip">nachempfinden</span>
+      <span class="chip">das Mitgefühl</span>
+      <span class="chip">die Empathie</span>
+      <span class="chip">empathiefähig</span>
+      <span class="chip">einfühlsam</span>
+      <span class="chip">die Einfühlsamkeit</span>
+      <span class="chip">Verständnis aufbringen</span>
+      <span class="chip">die Menschenmenge</span>
+      <span class="chip">das Massengefühl</span>
+      <span class="chip">beeinflussen</span>
+      <span class="chip">übertragen</span>
+      <span class="chip">feinfühlig sein</span>
+    </div>
+    <div class="kurztext">
+      <p><span class="vocab-hl" data-tip="empathy (noun)">Empathie</span> ist die Fähigkeit, die Gefühle anderer Menschen zu
+      <span class="vocab-hl" data-tip="to feel what another feels">nachempfinden</span>.
+      Wer viel <span class="vocab-hl" data-tip="compassion, sympathy">Mitgefühl</span> hat, leidet oft mit anderen mit.
+      Es kann jedoch auch schwierig sein, zu empathisch zu sein, wenn man die Probleme anderer zu seinen Problemen macht.
+      Manchmal fällt es uns schwer, für die Launen anderer
+      <span class="vocab-hl" data-tip="to show understanding">Verständnis aufzubringen</span>.</p>
+      <p>Die <span class="vocab-hl" data-tip="capacity for empathy">Empathiefähigkeit</span>
+      variiert von Mensch zu Mensch.
+      <span class="vocab-hl" data-tip="sensitivity, empathy">Einfühlsamkeit</span>
+      kann Gefühle auf andere
+      <span class="vocab-hl" data-tip="to transfer / transmit emotions">übertragen</span>
+      und so das <span class="vocab-hl" data-tip="collective emotion, mass feeling">Massengefühl</span>
+      in einer <span class="vocab-hl" data-tip="crowd">Menschenmenge</span>
+      <span class="vocab-hl" data-tip="to influence">beeinflussen</span>.
+      Sich in die Lage eines anderen zu versetzen — das ist wahre Empathie.</p>
+    </div>
+    <div class="redemittel">
+      <h3>Welche Wendungen drücken Empathie aus?</h3>
+      <ul>
+        <li>sich in jemanden hineinversetzen</li>
+        <li>sich in jemanden hineinfühlen</li>
+        <li>sich in die Lage eines anderen versetzen</li>
+        <li>jemandem glauben</li>
+        <li>feinfühlig sein</li>
+        <li>Ich kann das gut nachempfinden.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 1: LÜCKENTEXT -->
+  <div class="tab" id="tab1">
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
+      </div>
+      
+</div>
+    <div class="score-bar">Richtig: <span class="score-val" id="luecke-score">0</span> / 12</div>
+    <ul class="luecke-list" id="luecke-list">
+      <li>Ich kann deinen Schmerz gut <input class="luecke-inp" data-answer="nachempfinden" oninput="liveCheck(this)" placeholder=""> .</li>
+      <li>Wir haben viel <input class="luecke-inp" data-answer="mitgefühl" oninput="liveCheck(this)" placeholder=""> mit unserem kranken Freund.</li>
+      <li>Er zeigt <input class="luecke-inp" data-answer="empathie" oninput="liveCheck(this)" placeholder=""> für seine Frau.</li>
+      <li>Manchmal fällt es mir schwer, Verständnis <input class="luecke-inp" data-answer="aufzubringen" oninput="liveCheck(this)" placeholder=""> .</li>
+      <li>Wenn man dem Klischee glaubt, sind Frauen <input class="luecke-inp" data-answer="empathiefähiger" oninput="liveCheck(this)" placeholder=""> .</li>
+      <li>Ich liebe meine Freundin, weil sie so <input class="luecke-inp" data-answer="einfühlsam" oninput="liveCheck(this)" placeholder=""> ist.</li>
+      <li>Ich lasse mich nicht mehr von dir <input class="luecke-inp" data-answer="beeinflussen" oninput="liveCheck(this)" placeholder=""> !</li>
+      <li>Er <input class="luecke-inp" data-answer="überträgt" oninput="liveCheck(this)" placeholder=""> seine Gefühle auf sein Gegenüber.</li>
+      <li><input class="luecke-inp" data-answer="einfühlsamkeit" oninput="liveCheck(this)" placeholder=""> ist die größte Stärke meiner Freundin.</li>
+      <li>Ich fühle mich in einer <input class="luecke-inp" data-answer="menschenmenge" oninput="liveCheck(this)" placeholder=""> nicht so wohl.</li>
+      <li>Dieses <input class="luecke-inp" data-answer="massengefühl" oninput="liveCheck(this)" placeholder=""> bei Konzerten ist unbeschreiblich.</li>
+      <li>Man kann sich in die Lage eines anderen <input class="luecke-inp" data-answer="versetzen" oninput="liveCheck(this)" placeholder=""> .</li>
+    </ul>
+  </div>
+
+  <!-- TAB 2: SATZBAU -->
+  <div class="tab" id="tab2">
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+      </div>
+      
+</div>
+    <div id="sb-container"></div>
+  </div>
+
+  <!-- TAB 3: WORTSCHATZ -->
+  <div class="tab" id="tab3">
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-reset" onclick="resetVocab()">↺ Zurücksetzen</button>
+      </div>
+      
+</div>
+    <div class="score-bar">Richtig: <span class="score-val" id="vocab-score">0</span> / 12</div>
+    <div class="vocab-grid" id="vocab-grid"></div>
+  </div>
+
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
+
+<script>
+// === TIMER ===
+var TIMER_PREFIX='B2_1044X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
+// === TAB NAVIGATION ===
+function showTab(idx, btn) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (idx >= 1) timerAutoStart(idx);
+}
+
+// === LÜCKENTEXT ===
+function liveCheck(inp) {
+  const ans = inp.dataset.answer.toLowerCase().trim();
+  const val = inp.value.toLowerCase().trim();
+  if (val === '') { inp.className = 'luecke-inp'; updateLueckeScore(); return; }
+  if (ans.startsWith(val)) {
+    inp.className = val === ans ? 'luecke-inp ok' : 'luecke-inp';
+  } else {
+    inp.className = 'luecke-inp err';
+  }
+  updateLueckeScore();
+}
+function updateLueckeScore() {
+  const all = document.querySelectorAll('#luecke-list .luecke-inp');
+  let c = 0; all.forEach(i => { if (i.classList.contains('ok')) c++; });
+  document.getElementById('luecke-score').textContent = c;
+  if (c === 12) timerStop(1);
+}
+function resetLuecke() {
+  document.querySelectorAll('#luecke-list .luecke-inp').forEach(i => { i.value = ''; i.className = 'luecke-inp'; });
+  document.getElementById('luecke-score').textContent = '0';
+  timerResetOne(1);
+}
+
+// === SATZBAU ===
+let sbDragged = null;
+const satzbauData = [
+  { parts: ['Ich','kann','das','gut','nachempfinden','.'],
+    valid: ['Ich','kann','das','gut','nachempfinden','.'] },
+  { parts: ['Er','zeigt','Empathie','für','seine','Frau','.'],
+    valid: ['Er','zeigt','Empathie','für','seine','Frau','.'] },
+  { parts: ['Wir','fühlen','mit','dir','mit','.'],
+    valid: ['Wir','fühlen','mit','dir','mit','.'] },
+  { parts: ['Manchmal','fällt','es','mir','schwer,','Verständnis','aufzubringen','.'],
+    valid: ['Manchmal','fällt','es','mir','schwer,','Verständnis','aufzubringen','.'] },
+  { parts: ['Ich','lasse','mich','nicht mehr','von','dir','beeinflussen','.'],
+    valid: ['Ich','lasse','mich','nicht mehr','von','dir','beeinflussen','.'] },
+  { parts: ['Er','überträgt','seine','Gefühle','auf','sein','Gegenüber','.'],
+    valid: ['Er','überträgt','seine','Gefühle','auf','sein','Gegenüber','.'] },
+  { parts: ['Einfühlsamkeit','ist','die','größte','Stärke','meiner','Freundin','.'],
+    valid: ['Einfühlsamkeit','ist','die','größte','Stärke','meiner','Freundin','.'] }
+];
+const punctChars = ['.', ',', '!', '?', ';'];
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function makeChip(text, inSrc) {
+  const chip = document.createElement('div');
+  const base = text.replace(/[,!?;.]$/, '').trim();
+  chip.className = 'chip-sb' + (punctChars.includes(text) ? ' punct' : '');
+  chip.textContent = text;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', e => { sbDragged = chip; e.dataTransfer.effectAllowed = 'move'; });
+  chip.addEventListener('dragend', () => { sbDragged = null; });
+  if (inSrc) {
+    chip.addEventListener('click', () => {
+      chip.closest('.sb-section').querySelector('.sb-drop-zone').appendChild(chip);
+      checkSb(chip.closest('.sb-section'));
+    });
+  } else {
+    chip.addEventListener('click', () => {
+      chip.closest('.sb-section').querySelector('.sb-chips-src').appendChild(chip);
+      checkSb(chip.closest('.sb-section'));
+    });
+  }
+  return chip;
+}
+function buildSb() {
+  const container = document.getElementById('sb-container');
+  container.innerHTML = '';
+  satzbauData.forEach((data, idx) => {
+    const sec = document.createElement('div');
+    sec.className = 'sb-section';
+    sec.dataset.idx = idx;
+    sec.innerHTML = `<div class="sb-sentence-label">${idx + 1}.</div>
+      <div class="sb-chips-src"></div>
+      <div class="sb-drop-zone"></div>
+      <div class="sb-fb"></div>`;
+    const src = sec.querySelector('.sb-chips-src');
+    const dz = sec.querySelector('.sb-drop-zone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      if (sbDragged) { dz.appendChild(sbDragged); checkSb(sec); }
+    });
+    src.addEventListener('dragover', e => e.preventDefault());
+    src.addEventListener('drop', e => {
+      e.preventDefault();
+      if (sbDragged) { src.appendChild(sbDragged); checkSb(sec); }
+    });
+    shuffle(data.parts).forEach(p => src.appendChild(makeChip(p, true)));
+    container.appendChild(sec);
+  });
+}
+function checkSb(sec) {
+  const idx = parseInt(sec.dataset.idx);
+  const dz = sec.querySelector('.sb-drop-zone');
+  const fb = sec.querySelector('.sb-fb');
+  const chips = [...dz.querySelectorAll('.chip-sb')].map(c => c.textContent);
+  const valid = satzbauData[idx].valid;
+  if (chips.length === 0) { fb.textContent = ''; fb.className = 'sb-fb'; return; }
+  if (chips.length === valid.length && chips.every((c, i) => c === valid[i])) {
+    fb.textContent = '✓ Richtig!'; fb.className = 'sb-fb ok';
+    const allDone = [...document.querySelectorAll('.sb-section')].every(s => s.querySelector('.sb-fb.ok'));
+    if (allDone) timerStop(2);
+  } else {
+    fb.textContent = chips.length === valid.length ? '✗ Noch nicht richtig' : '';
+    fb.className = chips.length === valid.length ? 'sb-fb err' : 'sb-fb';
+  }
+}
+function resetAllSb() {
+  document.querySelectorAll('.sb-section').forEach(sec => {
+    const src = sec.querySelector('.sb-chips-src');
+    const dz = sec.querySelector('.sb-drop-zone');
+    const fb = sec.querySelector('.sb-fb');
+    [...dz.querySelectorAll('.chip-sb')].forEach(c => src.appendChild(c));
+    fb.textContent = ''; fb.className = 'sb-fb';
+  });
+  timerResetOne(2);
+}
+
+// === WORTSCHATZ ===
+const vocabData = [
+  { type:'n', art:'die', wort:'Empathie', plural:'-', img:'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?w=400' },
+  { type:'n', art:'das', wort:'Mitgefühl', plural:'-', img:'https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg?w=400' },
+  { type:'n', art:'das', wort:'Verständnis', plural:'-se', img:'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?w=400' },
+  { type:'n', art:'die', wort:'Empathiefähigkeit', plural:'-en', img:'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?w=400' },
+  { type:'n', art:'die', wort:'Einfühlsamkeit', plural:'-', img:'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?w=400' },
+  { type:'n', art:'die', wort:'Menschenmenge', plural:'-n', img:'https://images.pexels.com/photos/1005417/pexels-photo-1005417.jpeg?w=400' },
+  { type:'n', art:'das', wort:'Massengefühl', plural:'-e', img:'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?w=400' },
+  { type:'v', wort:'nachempfinden', label:'(Verb)', img:'https://images.pexels.com/photos/4126743/pexels-photo-4126743.jpeg?w=400' },
+  { type:'v', wort:'mitfühlen', label:'(Verb)', img:'https://images.pexels.com/photos/3807571/pexels-photo-3807571.jpeg?w=400' },
+  { type:'v', wort:'beeinflussen', label:'(Verb)', img:'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=400' },
+  { type:'v', wort:'übertragen', label:'(Verb)', img:'https://images.pexels.com/photos/3184432/pexels-photo-3184432.jpeg?w=400' },
+  { type:'v', wort:'einfühlsam', label:'(Adj.)', img:'https://images.pexels.com/photos/3184317/pexels-photo-3184317.jpeg?w=400' }
+];
+function buildVocab() {
+  const grid = document.getElementById('vocab-grid');
+  grid.innerHTML = '';
+  vocabData.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.dataset.idx = idx;
+    if (item.type === 'n') {
+      card.innerHTML = `<img class="vocab-card-img" src="${item.img}" alt="${item.wort}" loading="lazy">
+        <div class="vocab-card-body">
+          <div class="word-display">${item.wort}</div>
+          <div class="vocab-fields">
+            <div class="vocab-field-row"><span class="vocab-field-label">Artikel</span><input class="vocab-inp" data-idx="${idx}" data-field="art" placeholder="" oninput="vocabLiveCheck(this)"></div>
+            <div class="vocab-field-row"><span class="vocab-field-label">Deutsch</span><input class="vocab-inp" data-idx="${idx}" data-field="wort" placeholder="" oninput="vocabLiveCheck(this)"></div>
+            <div class="vocab-field-row"><span class="vocab-field-label">Plural</span><input class="vocab-inp" data-idx="${idx}" data-field="plural" placeholder="" oninput="vocabLiveCheck(this)"></div>
+          </div>
+        </div>`;
+    } else {
+      card.innerHTML = `<img class="vocab-card-img" src="${item.img}" alt="${item.wort}" loading="lazy">
+        <div class="vocab-card-body">
+          <div class="word-display">${item.wort} <span style="font-weight:400;font-size:0.85rem;color:#888;">${item.label}</span></div>
+          <div class="vocab-fields">
+            <div class="vocab-field-row"><span class="vocab-field-label">Deutsch</span><input class="vocab-inp" data-idx="${idx}" data-field="wort" placeholder="" oninput="vocabLiveCheck(this)"></div>
+          </div>
+        </div>`;
+    }
+    grid.appendChild(card);
+  });
+}
+function vocabLiveCheck(inp) {
+  const idx = parseInt(inp.dataset.idx);
+  const field = inp.dataset.field;
+  const ans = vocabData[idx][field].toLowerCase().trim();
+  const val = inp.value.toLowerCase().trim();
+  if (val === '') { inp.className = 'vocab-inp'; updateVocabScore(); return; }
+  if (ans.startsWith(val)) {
+    inp.className = val === ans ? 'vocab-inp ok' : 'vocab-inp';
+  } else {
+    inp.className = 'vocab-inp err';
+  }
+  updateVocabScore();
+}
+function updateVocabScore() {
+  let score = 0;
+  vocabData.forEach((item, idx) => {
+    const card = document.querySelector(`.vocab-card[data-idx="${idx}"]`);
+    if (!card) return;
+    const inputs = card.querySelectorAll('.vocab-inp');
+    if (inputs.length > 0 && [...inputs].every(i => i.classList.contains('ok'))) score++;
+  });
+  document.getElementById('vocab-score').textContent = score;
+  if (score === 12) timerStop(3);
+}
+function resetVocab() {
+  document.querySelectorAll('#vocab-grid .vocab-inp').forEach(i => { i.value = ''; i.className = 'vocab-inp'; });
+  document.getElementById('vocab-score').textContent = '0';
+  timerResetOne(3);
+}
+
+// === INIT ===
+buildSb();
+buildVocab();
+</script>
+</body>
+</html>

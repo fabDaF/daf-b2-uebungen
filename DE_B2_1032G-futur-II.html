@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1032G · Futur II</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;font-family:'Segoe UI',Arial,sans-serif}
+  .container{background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);width:100%;max-width:1000px;overflow:hidden}
+  header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 32px}
+  header h1{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+  header p{opacity:.85;font-size:.95rem}
+  nav{display:flex;background:#f0f0f0;border-bottom:2px solid #ddd}
+  .nav-btn{flex:1;background:none;border-right:1px solid #ddd;padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.72rem;color:#555;transition:background .2s}
+  .nav-btn:last-child{border-right:none}
+  .nav-btn .nav-emoji{font-size:1.3rem}
+  .nav-btn .nav-label{font-weight:600;text-align:center;line-height:1.2}
+  .nav-btn.active{background:#fff;border-bottom:3px solid #667eea;color:#667eea}
+  .nav-btn:hover:not(.active){background:#e8e8e8}
+  .tab{display:none;padding:28px 32px}
+  .tab.active{display:block}
+
+  /* control bar */
+  .control-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+  .ctrl-left{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:background .2s}
+  .btn-reset{background:#667eea;color:#fff}
+  .btn-reset:hover{background:#5568d4}
+  .timer-box{background:#f0f4ff;border:1px solid #c5cef7;border-radius:8px;padding:6px 14px;font-size:.9rem;font-weight:700;color:#667eea;white-space:nowrap}
+
+  /* tab banner */
+  .tab-banner{width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:22px;display:block}
+
+  /* Entdecken */
+  .discover-box{background:#fff8e1;border:2px solid #f0c040;border-radius:12px;padding:24px 28px;margin-bottom:24px;text-align:center}
+  .discover-box .quote{font-size:1.1rem;line-height:1.8;color:#333}
+  .discover-box .quote strong{color:#667eea}
+  .discover-box .quote em{color:#764ba2;font-style:normal;font-weight:700}
+  .discover-questions{background:#f0f4ff;border-radius:10px;padding:18px 22px;margin-top:16px}
+  .discover-questions h3{color:#667eea;margin-bottom:10px}
+  .discover-questions ol{padding-left:20px;line-height:2}
+
+  /* Regel */
+  .regel-section{margin-bottom:22px}
+  .regel-section h3{font-size:1rem;color:#667eea;border-left:4px solid #667eea;padding-left:10px;margin-bottom:12px}
+  .rule-box{background:#f0f4ff;border-radius:8px;padding:14px 18px;margin-bottom:10px;line-height:1.7;font-size:.93rem}
+  .rule-box strong{color:#764ba2}
+  .rule-box em{color:#667eea;font-style:normal;font-weight:600}
+  .compare-table{width:100%;border-collapse:collapse;margin:12px 0}
+  .compare-table th{background:#667eea;color:#fff;padding:10px 14px;text-align:left;font-size:.88rem}
+  .compare-table td{padding:10px 14px;border:1px solid #e0e0e0;font-size:.9rem;line-height:1.6}
+  .compare-table tr:nth-child(even) td{background:#f9f9ff}
+  .compare-table td strong{color:#667eea}
+  .compare-table td em{color:#764ba2;font-style:normal;font-weight:600}
+  .konjug-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .konjug-item{background:#f9f9ff;border:1px solid #e0e8ff;border-radius:6px;padding:8px 12px;font-size:.88rem}
+  .warn-box{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:12px 16px;font-size:.9rem;line-height:1.6}
+
+  /* Lückentext */
+  .luecken-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+  .luecken-list li{background:#f9f9f9;border-radius:8px;padding:14px 18px;line-height:1.7;font-size:.95rem}
+  .luecken-list li .hint{font-size:.78rem;color:#999;font-style:italic;margin-left:6px}
+  .luecken-list li input{border:none;border-bottom:2px solid #667eea;background:transparent;width:130px;font-size:.95rem;padding:2px 4px;outline:none;color:#333;transition:border-color .2s}
+  .luecken-list li input.correct{border-color:#27ae60;background:#eafaf1;color:#27ae60}
+  .luecken-list li input.wrong{border-color:#e74c3c}
+  .section-label{font-size:.8rem;font-weight:700;color:#764ba2;text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+
+  /* Satzbau */
+  .sb-sentence{margin-bottom:22px}
+  .sb-sentence .sb-prompt{display:none;font-size:.82rem;color:#888;margin-bottom:6px;font-style:italic}
+  .drop-zone{min-height:46px;border:2px dashed #667eea;border-radius:8px;padding:6px 10px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;background:#f8f8ff;align-items:center}
+  .chip-pool{display:flex;flex-wrap:wrap;gap:6px;min-height:36px}
+  .sb-chip{background:#667eea;color:#fff;border-radius:20px;padding:6px 12px;font-size:.85rem;cursor:grab;user-select:none;transition:opacity .2s}
+  .sb-chip.punct{background:#764ba2}
+  .sb-chip:active{cursor:grabbing;opacity:.7}
+  .sb-feedback{font-size:.82rem;margin-top:4px;min-height:18px;font-weight:600}
+  .sb-feedback.ok{color:#27ae60}
+  .sb-feedback.err{color:#e74c3c}
+
+  /* Wortschatz */
+  .vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .vocab-card{border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .vocab-card img{width:100%;height:130px;object-fit:cover;display:block}
+  .vocab-card .vc-body{padding:12px 14px}
+  .vocab-card .vc-en{font-size:.8rem;color:#999;margin-bottom:6px}
+  .vocab-card .vc-inputs{display:flex;flex-direction:column;gap:6px}
+  .vocab-card input{border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:.85rem;outline:none;width:100%;transition:border-color .2s}
+  .vocab-card input::placeholder{color:#bbb;font-size:.8rem}
+  .vocab-card input.correct{border-color:#27ae60;background:#eafaf1;color:#27ae60}
+  .vocab-card input.wrong{border-color:#e74c3c}
+  .vocab-card .vc-example{font-size:.78rem;color:#888;margin-top:8px;font-style:italic;line-height:1.4}
+
+  footer{text-align:center;padding:16px;font-size:.78rem;color:#888;border-top:1px solid #eee}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Futur II 🔮</h1>
+    <p>B2 · Einheit 3 · Lektion 1032 · Grammatik</p>
+  </header>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab(0)"><span class="nav-emoji">🔍</span><span class="nav-label">Entdecken</span></button>
+    <button class="nav-btn" onclick="showTab(1)"><span class="nav-emoji">📋</span><span class="nav-label">Regel</span></button>
+    <button class="nav-btn" onclick="showTab(2)"><span class="nav-emoji">✏️</span><span class="nav-label">Lücken&shy;text</span></button>
+    <button class="nav-btn" onclick="showTab(3)"><span class="nav-emoji">🔀</span><span class="nav-label">Satzbau</span></button>
+    <button class="nav-btn" onclick="showTab(4)"><span class="nav-emoji">📚</span><span class="nav-label">Verben</span></button>
+  </nav>
+
+  <!-- TAB 0: ENTDECKEN -->
+  <div class="tab active" id="tab0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1169754/pexels-photo-1169754.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Zukunft">
+    <div class="discover-box">
+      <div class="quote">
+        In 100.000 Jahren <strong>werden</strong> die Elefanten schon <em>ausgestorben sein</em>,<br>
+        aber morgen <strong>werde</strong> ich noch eine Herde Elefanten im Fernsehen <em>sehen</em>.
+      </div>
+    </div>
+    <div class="discover-questions">
+      <h3>🤔 Entdecke die Grammatik</h3>
+      <ol>
+        <li>Welche Zeitform wird im ersten Satzteil benutzt? Was ist typisch für diese Form?</li>
+        <li>Welche Zeitform steht im zweiten Satzteil? Kennst du diese schon?</li>
+        <li>Was ist der Unterschied zwischen den beiden Formen?</li>
+        <li>Welche der beiden Handlungen ist abgeschlossen, welche noch offen?</li>
+      </ol>
+    </div>
+    <div class="discover-box" style="margin-top:20px;background:#f0fff4;border-color:#27ae60">
+      <div class="quote" style="font-size:.95rem">
+        <strong>Er ist nicht gekommen.</strong> Er <strong style="color:#667eea">wird</strong> wohl den Zug <em style="color:#27ae60">verpasst haben</em>.
+        <br><br>
+        Sie <strong style="color:#667eea">werden</strong> wohl einen Unfall <em style="color:#27ae60">gehabt haben</em>.
+        <br>
+        In 20 Jahren <strong style="color:#667eea">werde</strong> ich schon mein Studium <em style="color:#27ae60">abgeschlossen haben</em>.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: REGEL -->
+  <div class="tab" id="tab1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/355952/pexels-photo-355952.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Grammatikregeln">
+
+    <div class="regel-section">
+      <h3>🔁 Futur I – Wiederholung</h3>
+      <div class="rule-box">
+        <strong>Verwendung:</strong> Eine Absicht für die Zukunft äußern · Eine Vermutung für die Gegenwart oder Zukunft äußern<br>
+        <strong>Bildung:</strong> <em>werden</em> + Grundform des Vollverbs
+      </div>
+      <div class="konjug-grid">
+        <div class="konjug-item">ich <strong>werde</strong> essen</div>
+        <div class="konjug-item">du <strong>wirst</strong> essen</div>
+        <div class="konjug-item">er/sie/es <strong>wird</strong> essen</div>
+        <div class="konjug-item">wir <strong>werden</strong> essen</div>
+        <div class="konjug-item">ihr <strong>werdet</strong> essen</div>
+        <div class="konjug-item">sie/Sie <strong>werden</strong> essen</div>
+      </div>
+      <table class="compare-table" style="margin-top:14px">
+        <tr><th>Präsens</th><th>Futur I</th></tr>
+        <tr><td>Maria <strong>besucht</strong> jetzt ein Gymnasium.</td><td>In zwei Jahren <strong>wird</strong> sie eine Universität <em>besuchen</em>.</td></tr>
+        <tr><td>Wir <strong>machen</strong> dieses Jahr Urlaub in Spanien.</td><td>Dieses Jahr <strong>werden</strong> wir Urlaub in Spanien <em>machen</em>.</td></tr>
+      </table>
+    </div>
+
+    <div class="regel-section">
+      <h3>🔮 Futur II – Verwendung</h3>
+      <div class="rule-box">
+        Das Futur II drückt aus:<br>
+        1. Eine <strong>Vermutung über eine Handlung in der Vergangenheit</strong><br>
+        2. Eine <strong>Vermutung</strong>, dass eine Handlung zu einem bestimmten Zeitpunkt <strong>in der Zukunft abgeschlossen</strong> sein wird
+      </div>
+      <table class="compare-table">
+        <tr><th>Verwendung</th><th>Beispiel</th></tr>
+        <tr><td>Vermutung über Vergangenheit</td><td>Sie <strong>werden</strong> wohl einen Unfall <em>gehabt haben</em>.</td></tr>
+        <tr><td>Abgeschlossene Handlung in der Zukunft</td><td>In 20 Jahren <strong>werde</strong> ich schon mein Studium <em>abgeschlossen haben</em>.</td></tr>
+      </table>
+    </div>
+
+    <div class="regel-section">
+      <h3>🏗️ Futur II – Bildung</h3>
+      <div class="rule-box">
+        <strong>Formel:</strong> <em>werden</em> + Partizip II + <em>sein / haben</em><br><br>
+        • <em>sein</em> → für <strong>Bewegungs- und Zustandsverben</strong> (wie im Perfekt)<br>
+        • <em>haben</em> → für <strong>alle anderen Verben</strong>
+      </div>
+      <table class="compare-table">
+        <tr><th>Futur II (werden + PII + sein/haben)</th><th>Beispiel</th></tr>
+        <tr><td>mit <em>sein</em></td><td>Ich <strong>werde</strong> morgen um 7:00 Uhr schon <em>aufgewacht sein</em>.</td></tr>
+        <tr><td>mit <em>sein</em></td><td>Er <strong>wird</strong> schon nach Hause <em>gegangen sein</em>.</td></tr>
+        <tr><td>mit <em>haben</em></td><td>Ihr <strong>werdet</strong> nach den Ferien das Buch schon <em>gelesen haben</em>.</td></tr>
+        <tr><td>mit <em>haben</em></td><td>Wir <strong>werden</strong> das Buch schon <em>gelesen haben</em>.</td></tr>
+      </table>
+    </div>
+
+    <div class="regel-section">
+      <h3>🔄 Futur II → Perfekt ersetzen</h3>
+      <div class="warn-box">
+        Das Futur II kann durch das <strong>Perfekt ersetzt</strong> werden — dann Vermutung durch Adverbien verdeutlichen: <strong>wohl, wahrscheinlich, vermutlich, vielleicht</strong>
+      </div>
+      <table class="compare-table" style="margin-top:12px">
+        <tr><th>Futur II</th><th>Perfekt (mit Adverb)</th></tr>
+        <tr><td>Er <strong>wird</strong> schon nach Hause <em>gegangen sein</em>.</td><td>Er <strong>ist</strong> wohl schon nach Hause <em>gegangen</em>.</td></tr>
+        <tr><td>Wir <strong>werden</strong> das Buch schon <em>gelesen haben</em>.</td><td>Wir <strong>haben</strong> das Buch wahrscheinlich <em>gelesen</em>.</td></tr>
+      </table>
+    </div>
+
+    <div class="regel-section">
+      <h3>❗ Futur II mit Negation</h3>
+      <div class="rule-box">
+        Oft benutzen wir Futur II mit einer <strong>Negation</strong>, wenn wir eine Hoffnung oder Vermutung ausdrücken oder wenn wir uns Sorgen um etwas machen.<br><br>
+        <em>„Sie ist bis jetzt noch nicht gekommen! Ich denke, es wird schon nichts passiert sein."</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: LÜCKENTEXT -->
+  <div class="tab" id="tab2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Schreiben">
+    <div class="control-bar">
+      <div class="ctrl-left">
+        <button class="btn btn-reset" onclick="resetLuecken()">↺ Neu starten</button>
+      </div>
+      <div class="timer-display"><span>⏱ <span id="timer-2">0:00</span></span><span>🏆 <span id="best-2">--:--</span></span></div>
+    </div>
+    <p style="margin-bottom:8px;color:#555;font-size:.9rem">Ergänze die fehlenden Verbformen. Das Feedback erscheint sofort.</p>
+
+    <div class="section-label">Teil A – Futur I</div>
+    <ol class="luecken-list" id="lueckenList">
+      <li>Morgen <input data-answer="wird" placeholder=""> Maria ihren ersten Schultag haben.<span class="hint">(haben, 3. Sg.)</span></li>
+      <li>In 20 Jahren <input data-answer="werden" placeholder=""> wir bestimmt ein neues Auto kaufen.<span class="hint">(kaufen, 1. Pl.)</span></li>
+      <li><input data-answer="werdet" placeholder=""> ihr ihn morgen anrufen?<span class="hint">(anrufen, 2. Pl.)</span></li>
+      <li>Ich <input data-answer="werde" placeholder=""> nach dem Kurs ein Glas Wasser trinken.<span class="hint">(trinken, 1. Sg.)</span></li>
+      <li>Du <input data-answer="wirst" placeholder=""> deine Hefte kaufen müssen.<span class="hint">(kaufen, 2. Sg.)</span></li>
+    </ol>
+
+    <div class="section-label" style="margin-top:20px">Teil B – Futur II</div>
+    <ol class="luecken-list" id="lueckenList2" start="6">
+      <li>In 20 Jahren werde ich schon mein Studium abgeschlossen <input data-answer="haben" placeholder="">.<span class="hint">(sein / haben?)</span></li>
+      <li>Im Jahr 2500 werden alle Leoparden schon ausgestorben <input data-answer="sein" placeholder="">.<span class="hint">(sein / haben?)</span></li>
+      <li>Sie werden wohl einen Unfall gehabt <input data-answer="haben" placeholder="">.<span class="hint">(sein / haben?)</span></li>
+      <li>Er wird schon nach Hause gegangen <input data-answer="sein" placeholder="">.<span class="hint">(sein / haben?)</span></li>
+      <li>Ich werde morgen um 7:00 Uhr schon <input data-answer="aufgewacht" placeholder=""> sein.<span class="hint">(Partizip II)</span></li>
+      <li>Die Menschen werden die Leoparden ausgerottet <input data-answer="haben" placeholder="">.<span class="hint">(sein / haben?)</span></li>
+      <li>Es wird schon nichts passiert <input data-answer="sein" placeholder="">.<span class="hint">(sein / haben?)</span></li>
+    </ol>
+  </div>
+
+  <!-- TAB 3: SATZBAU -->
+  <div class="tab" id="tab3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/256417/pexels-photo-256417.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Sätze bilden">
+    <div class="control-bar">
+      <div class="ctrl-left">
+        <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle neu</button>
+      </div>
+      <div class="timer-display"><span>⏱ <span id="timer-3">0:00</span></span><span>🏆 <span id="best-3">--:--</span></span></div>
+    </div>
+    <p style="margin-bottom:18px;color:#555;font-size:.9rem">Ordne die Chips zur richtigen Satzstruktur. Beachte: Futur I oder Futur II?</p>
+    <div id="sbContainer"></div>
+  </div>
+
+  <!-- TAB 4: VERBEN -->
+  <div class="tab" id="tab4">
+    <img class="tab-banner" src="https://images.pexels.com/photos/301926/pexels-photo-301926.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" alt="Verben">
+    <div class="control-bar">
+      <div class="ctrl-left">
+        <button class="btn btn-reset" onclick="resetVocab()">↺ Neu starten</button>
+      </div>
+      <div class="timer-display"><span>⏱ <span id="timer-4">0:00</span></span><span>🏆 <span id="best-4">--:--</span></span></div>
+    </div>
+    <p style="margin-bottom:18px;color:#555;font-size:.9rem">Tippe das Partizip II des Verbs (für Futur II benötigt).</p>
+    <div class="vocab-grid" id="vocabGrid"></div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+// ── TIMER SYSTEM ─────────────────────────────────────────────────────────────
+var TIMER_PREFIX='B2_1032G_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2,3,4].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+}
+function loadBestTimes(){
+  [2,3,4].forEach(n=>{
+    const best=localStorage.getItem(timerKey(n));
+    if(best){ const el=document.getElementById('timer'+n); if(el) el.title='Bestzeit: '+best; }
+  });
+}
+loadBestTimes();
+
+// ── TAB NAVIGATION ────────────────────────────────────────────────────────────
+function showTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===n));
+}
+
+// ── LÜCKENTEXT ────────────────────────────────────────────────────────────────
+let lueckenStarted=false;
+function liveCheck(inp){
+  if(!lueckenStarted){ lueckenStarted=true; timerAutoStart(2); }
+  const val=inp.value.trim().toLowerCase();
+  const ans=inp.dataset.answer.toLowerCase();
+  if(!val){ inp.classList.remove('correct','wrong'); return; }
+  if(ans.startsWith(val)){ inp.classList.remove('wrong'); if(val===ans){ inp.classList.add('correct'); checkAllLuecken(); }}
+  else{ inp.classList.remove('correct'); inp.classList.add('wrong'); }
+}
+function checkAllLuecken(){
+  const all=[...document.querySelectorAll('#lueckenList input, #lueckenList2 input')];
+  if(all.every(i=>i.classList.contains('correct'))) timerStop(2);
+}
+function resetLuecken(){
+  document.querySelectorAll('#lueckenList input, #lueckenList2 input').forEach(i=>{ i.value=''; i.classList.remove('correct','wrong'); });
+  lueckenStarted=false; timerResetOne(2);
+}
+document.querySelectorAll('#lueckenList input, #lueckenList2 input').forEach(i=>i.addEventListener('input',()=>liveCheck(i)));
+
+// ── SATZBAU ───────────────────────────────────────────────────────────────────
+const satzbauData=[
+  {parts:['Morgen','werde','ich','noch eine Herde Elefanten','sehen','.'],valid:['Morgen','werde','ich','noch eine Herde Elefanten','sehen','.'],hint:'Futur I'},
+  {parts:['In 20 Jahren','werden','wir','bestimmt','ein neues Auto','kaufen','.'],valid:['In 20 Jahren','werden','wir','bestimmt','ein neues Auto','kaufen','.'],hint:'Futur I'},
+  {parts:['Sie','werden','wohl','einen Unfall','gehabt haben','.'],valid:['Sie','werden','wohl','einen Unfall','gehabt haben','.'],hint:'Futur II (Vermutung Vergangenheit)'},
+  {parts:['Im Jahr 2500','werden','alle Leoparden','schon ausgestorben','sein','.'],valid:['Im Jahr 2500','werden','alle Leoparden','schon ausgestorben','sein','.'],hint:'Futur II (abgeschlossene Handlung)'},
+  {parts:['Er','wird','schon','nach Hause','gegangen sein','.'],valid:['Er','wird','schon','nach Hause','gegangen sein','.'],hint:'Futur II (mit sein)'},
+  {parts:['Man','wird','diesbezüglich','schon eine Lösung','gefunden haben','.'],valid:['Man','wird','diesbezüglich','schon eine Lösung','gefunden haben','.'],hint:'Futur II (mit haben)'},
+  {parts:['Es','wird','schon','nichts','passiert sein','.'],valid:['Es','wird','schon','nichts','passiert sein','.'],hint:'Futur II mit Negation'}
+];
+
+let sbDragged=null;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function makeChip(text){
+  const c=document.createElement('span');
+  c.className='sb-chip'+(text==='.'?' punct':'');
+  c.textContent=text; c.draggable=true;
+  c.addEventListener('dragstart',e=>{sbDragged=c;e.dataTransfer.effectAllowed='move';});
+  c.addEventListener('dragend',()=>sbDragged=null);
+  return c;
+}
+function buildSb(){
+  const wrap=document.getElementById('sbContainer'); wrap.innerHTML='';
+  satzbauData.forEach((s,sIdx)=>{
+    const div=document.createElement('div'); div.className='sb-sentence';
+    div.innerHTML=`<div class="sb-prompt"><em>${s.hint}</em></div>`;
+    const zone=document.createElement('div'); zone.className='drop-zone';
+    zone.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';});
+    zone.addEventListener('drop',e=>{e.preventDefault();if(sbDragged) zone.appendChild(sbDragged);checkSb(sIdx,zone,fb,pool);});
+    const fb=document.createElement('div'); fb.className='sb-feedback';
+    const pool=document.createElement('div'); pool.className='chip-pool';
+    pool.addEventListener('dragover',e=>{e.preventDefault();});
+    pool.addEventListener('drop',e=>{e.preventDefault();if(sbDragged) pool.appendChild(sbDragged);fb.textContent='';fb.className='sb-feedback';});
+    shuffle([...s.parts]).forEach(p=>pool.appendChild(makeChip(p)));
+    const resetBtn=document.createElement('button');
+    resetBtn.className='btn btn-reset'; resetBtn.style.cssText='margin-top:6px;font-size:.78rem;padding:4px 10px';
+    resetBtn.textContent='↺'; resetBtn.onclick=()=>resetSb(sIdx,zone,fb,pool,s.parts);
+    div.appendChild(zone); div.appendChild(fb); div.appendChild(pool); div.appendChild(resetBtn);
+    wrap.appendChild(div);
+  });
+}
+function checkSb(sIdx,zone,fb,pool){
+  if(pool.children.length>0){fb.textContent='';fb.className='sb-feedback';return;}
+  const chips=[...zone.children].map(c=>c.textContent);
+  if(JSON.stringify(chips)===JSON.stringify(satzbauData[sIdx].valid)){
+    fb.textContent='✓ Richtig!';fb.className='sb-feedback ok'; checkAllSb();
+  } else {fb.textContent='✗ Noch nicht richtig.';fb.className='sb-feedback err';}
+}
+function checkAllSb(){
+  const fbs=document.querySelectorAll('#sbContainer .sb-feedback');
+  if([...fbs].every(f=>f.classList.contains('ok'))) timerStop(3);
+}
+function resetSb(sIdx,zone,fb,pool,parts){
+  zone.innerHTML='';fb.textContent='';fb.className='sb-feedback';pool.innerHTML='';
+  shuffle([...parts]).forEach(p=>pool.appendChild(makeChip(p)));
+}
+function resetAllSb(){ buildSb(); timerResetOne(3); }
+let sbStarted=false;
+document.getElementById('tab3').addEventListener('click',()=>{if(!sbStarted){sbStarted=true;timerAutoStart(3);}},true);
+buildSb();
+
+// ── VERBEN (Partizip II) ──────────────────────────────────────────────────────
+const vocabData=[
+  {en:'aufwachen (Hilfsverb: sein)',wort:'aufgewacht',img:'1028742',ex:'Ich werde morgen um 7 Uhr schon aufgewacht sein.'},
+  {en:'aussterben (Hilfsverb: sein)',wort:'ausgestorben',img:'47547',ex:'Im Jahr 2500 werden alle Leoparden schon ausgestorben sein.'},
+  {en:'gehen (Hilfsverb: sein)',wort:'gegangen',img:'1198264',ex:'Er wird schon nach Hause gegangen sein.'},
+  {en:'ausrotten (Hilfsverb: haben)',wort:'ausgerottet',img:'1661179',ex:'Die Menschen werden die Leoparden ausgerottet haben.'},
+  {en:'abschließen (Hilfsverb: haben)',wort:'abgeschlossen',img:'267885',ex:'In 20 Jahren werde ich mein Studium abgeschlossen haben.'},
+  {en:'finden (Hilfsverb: haben)',wort:'gefunden',img:'5935782',ex:'Man wird diesbezüglich schon eine Lösung gefunden haben.'},
+  {en:'lesen (Hilfsverb: haben)',wort:'gelesen',img:'159866',ex:'Ihr werdet nach den Ferien das Buch schon gelesen haben.'},
+  {en:'verpassen (Hilfsverb: haben)',wort:'verpasst',img:'1468341',ex:'Er wird wohl den Zug verpasst haben.'},
+  {en:'entwickeln (Hilfsverb: haben)',wort:'entwickelt',img:'3861969',ex:'Vielleicht wird man andere Spezies entwickelt haben.'},
+  {en:'passieren (Hilfsverb: sein)',wort:'passiert',img:'1007966',ex:'Es wird schon nichts passiert sein.'},
+  {en:'kaufen (Hilfsverb: haben)',wort:'gekauft',img:'5632390',ex:'In 21 Jahren werden wir das Auto schon gekauft haben.'},
+  {en:'haben (Hilfsverb: haben)',wort:'gehabt',img:'3182812',ex:'Übermorgen wird Maria ihren ersten Schultag schon gehabt haben.'}
+];
+
+let vocabStarted=false;
+function vocabLiveCheck(inp){
+  if(!vocabStarted){vocabStarted=true;timerAutoStart(4);}
+  const val=inp.value.trim().toLowerCase();
+  const ans=inp.dataset.answer.toLowerCase();
+  if(!val){inp.classList.remove('correct','wrong');return;}
+  if(ans.startsWith(val)){inp.classList.remove('wrong');if(val===ans){inp.classList.add('correct');checkAllVocab();}}
+  else{inp.classList.remove('correct');inp.classList.add('wrong');}
+}
+function checkAllVocab(){
+  if([...document.querySelectorAll('#vocabGrid input')].every(i=>i.classList.contains('correct'))) timerStop(4);
+}
+function resetVocab(){
+  document.querySelectorAll('#vocabGrid input').forEach(i=>{i.value='';i.classList.remove('correct','wrong');});
+  vocabStarted=false;timerResetOne(4);
+}
+function buildVocab(){
+  const grid=document.getElementById('vocabGrid');
+  vocabData.forEach(v=>{
+    const card=document.createElement('div'); card.className='vocab-card';
+    card.innerHTML=`<img src="https://images.pexels.com/photos/${v.img}/pexels-photo-${v.img}.jpeg?auto=compress&cs=tinysrgb&w=280&h=130&fit=crop" alt="" loading="lazy">`;
+    const body=document.createElement('div'); body.className='vc-body';
+    body.innerHTML=`<div class="vc-en">Infinitiv: <strong>${v.en.split('(')[0].trim()}</strong><br><span style="font-size:.75rem;color:#aaa">${v.en.includes('(')? '('+v.en.split('(')[1]:''}</span></div>`;
+    const inputs=document.createElement('div'); inputs.className='vc-inputs';
+    const iWort=document.createElement('input');
+    iWort.placeholder='Partizip II'; iWort.dataset.answer=v.wort.toLowerCase();
+    iWort.addEventListener('input',()=>vocabLiveCheck(iWort));
+    inputs.appendChild(iWort);
+    body.appendChild(inputs);
+    body.innerHTML+=`<div class="vc-example">${v.ex}</div>`;
+    card.appendChild(body); grid.appendChild(card);
+  });
+}
+buildVocab();
+</script>
+</body>
+</html>

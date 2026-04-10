@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Das Erasmus-Programm – B2.1 · 1013R</title>
+<style>
+/* ── GLOBAL ──────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+/* ── NAVIGATION ──────────────────────────────────────────── */
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+/* ── SECTIONS ────────────────────────────────────────────── */
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 28px 30px; }
+
+/* ── TAB-BANNER ──────────────────────────────────────────── */
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+
+/* ── CONTROL-BAR ─────────────────────────────────────────── */
+.timer-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { border-color: #667eea; color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* ── HILFE-BOX ───────────────────────────────────────────── */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+/* ── VORENTLASTUNG ───────────────────────────────────────── */
+.vorent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.vorent-card { background: #f3f4ff; border-radius: 10px; padding: 12px 15px; border-left: 3px solid #667eea; }
+.vorent-card .de { font-weight: 700; color: #283593; font-size: 0.95rem; }
+.vorent-card .en { font-size: 0.8rem; color: #888; margin-top: 3px; }
+.vorent-card .bsp { font-size: 0.78rem; color: #666; margin-top: 4px; font-style: italic; line-height: 1.4; }
+.frage-box { background: #fff8e1; border-left: 4px solid #f9a825; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 20px; }
+.frage-box p { color: #555; font-size: 0.97rem; line-height: 1.6; }
+.frage-box strong { color: #e65100; }
+
+/* ── LESETEXT ────────────────────────────────────────────── */
+.story-text { font-family: Georgia, 'Times New Roman', serif; max-width: 700px; margin: 0 auto; font-size: 1.05rem; line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.story-text h2 { font-size: 1.4rem; color: #283593; margin-bottom: 20px; font-family: Georgia, serif; text-align: left; }
+.story-text p { margin-bottom: 1.2em; text-indent: 1.4em; }
+.story-text p:first-of-type { text-indent: 0; }
+.vocab-hl { background: #fff9c4; border-radius: 3px; padding: 0 3px; cursor: help; border-bottom: 1px dotted #f9a825; }
+
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+.wordbox { background: #f3e5f5; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.9em; color: #555; line-height: 1.8; }
+.wordbox strong { color: #6a1b9a; }
+.luecken-item { margin-bottom: 14px; font-size: 0.97rem; line-height: 2; color: #333; }
+.luecken-inp { border: none; border-bottom: 2px solid #9c27b0; padding: 2px 6px; font-size: 0.95em; font-family: inherit; outline: none; min-width: 140px; text-align: center; background: transparent; transition: border-color .2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #43a047; background: #e8f5e9; color: #1b5e20; border-radius: 4px 4px 0 0; }
+.luecken-inp.no { border-bottom-color: #e53935; background: #ffebee; color: #b71c1c; border-radius: 4px 4px 0 0; }
+
+/* ── MULTIPLE CHOICE ─────────────────────────────────────── */
+.mc-item { background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; border: 1px solid #c5cae9; }
+.mc-item h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; font-weight: 600; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-opt { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: #fff; cursor: pointer; font-size: 0.91rem; transition: all .2s; }
+.mc-opt:hover { border-color: #667eea; background: #f3f4ff; }
+.mc-opt.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; pointer-events: none; }
+.mc-opt.wrong { border-color: #e53935; background: #ffebee; color: #b71c1c; pointer-events: none; }
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer { background: #f8f9fa; border-top: 1px solid #eee; text-align: center; padding: 12px 20px; font-size: 0.78em; color: #aaa; }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <span class="big-emoji">🎓</span>
+  <h1>Das Erasmus-Programm</h1>
+  <p>B2.1 · Einheit 1 · 1013R · Lesetext</p>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
+    <span class="nav-emoji">📋</span><span class="nav-label">Vorentlastung</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
+    <span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
+    <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
+    <span class="nav-emoji">❓</span><span class="nav-label">Multiple Choice</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(4)">
+    <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+  </div>
+</div>
+
+<!-- TAB 0: VORENTLASTUNG -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Studierende an der Uni">
+  <div class="sec-inner">
+
+    <div class="frage-box">
+      <p><strong>Zum Nachdenken:</strong> Hast du schon einmal von jemandem gehört, der ein Auslandssemester über Erasmus gemacht hat? Was weißt du über das Programm? Kennst du den Namen Erasmus von Rotterdam?</p>
+    </div>
+
+    <h3 style="color:#3949ab; margin-bottom:14px; font-size:1.05rem;">🔑 Schlüsselwörter im Text</h3>
+    <div class="vorent-grid">
+      <div class="vorent-card">
+        <div class="de">das Stipendium, -ien</div>
+        <div class="en">scholarship / grant</div>
+        <div class="bsp">Das Stipendium wird von der EU vergeben.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Förderung, -en</div>
+        <div class="en">funding / support</div>
+        <div class="bsp">Die finanzielle Förderung ermöglicht das Auslandsstudium.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Humanismus</div>
+        <div class="en">humanism</div>
+        <div class="bsp">Der Humanismus betonte die Würde des Menschen.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">das Akronym, -e</div>
+        <div class="en">acronym</div>
+        <div class="bsp">ERASMUS ist ein Akronym aus englischen Wörtern.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Lebenslauf, -läufe</div>
+        <div class="en">CV / résumé</div>
+        <div class="bsp">Der Lebenslauf muss vollständig eingereicht werden.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">das Motivationsschreiben</div>
+        <div class="en">personal statement</div>
+        <div class="bsp">Im Motivationsschreiben erklärt man seine Ziele.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Sprachnachweis, -e</div>
+        <div class="en">language certificate</div>
+        <div class="bsp">Ein Sprachnachweis auf B2-Niveau wird benötigt.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Partneruniversität, -en</div>
+        <div class="en">partner university</div>
+        <div class="bsp">Der Platz wird von der Partneruniversität vergeben.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">das Empfehlungsschreiben</div>
+        <div class="en">letter of recommendation</div>
+        <div class="bsp">Ein Empfehlungsschreiben muss von einem Professor ausgestellt werden.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TAB 1: LESETEXT -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Europa von oben">
+  <div class="sec-inner">
+    <div class="story-text" id="lesetext">
+      <h2>Drei Millionen zweite Chancen — das Erasmus-Programm</h2>
+
+      <p>Jedes Jahr werden mehr als 300.000 <span class="vocab-hl" title="scholarship">Stipendien</span> vergeben, mit denen Studierende ein oder zwei Semester im europäischen Ausland verbringen können. Seit dem Start des Erasmus-Programms im Jahr 1987 haben insgesamt über drei Millionen junge Europäer von dieser Möglichkeit profitiert. Die Frage, die sich viele stellen, lautet: Wer hat diesen Traum überhaupt möglich gemacht?</p>
+
+      <p>Die Antwort führt ins 15. Jahrhundert zurück. Erasmus von Rotterdam, ein niederländischer Gelehrter und bedeutender Vertreter des <span class="vocab-hl" title="humanism">Humanismus</span>, reiste zu einer Zeit durch Europa, als akademischer Austausch noch von wochenlangen Reisen zu Pferd abhing. Er studierte und lehrte in Paris, besuchte Universitäten in England, Deutschland, Italien und der Schweiz und pflegte Kontakte zu den wichtigsten Denkern seiner Epoche. Sein zentrales Ziel war es, allen Menschen — unabhängig von Herkunft oder gesellschaftlichem Stand — Bildungschancen zu ermöglichen.</p>
+
+      <p>Über 500 Jahre später wurde dieses Ideal von der Europäischen Union aufgegriffen und zu einem der erfolgreichsten Förderprogramme des Kontinents ausgebaut. Das Programm trägt seinen Namen nicht nur zu Ehren des Humanisten: ERASMUS ist auch ein <span class="vocab-hl" title="acronym">Akronym</span>, das aus den Anfangsbuchstaben der englischen Bezeichnung <em>European Region Action Scheme for the Mobility of University Students</em> zusammengesetzt wurde — ein glücklicher Zufall, der aus dem Programm ein europäisches Markenzeichen gemacht hat.</p>
+
+      <p>Wer am Erasmus-Programm teilnehmen möchte, muss zunächst eine vollständige Bewerbung einreichen. Dazu werden ein <span class="vocab-hl" title="CV / résumé">Lebenslauf</span>, ein <span class="vocab-hl" title="personal statement">Motivationsschreiben</span>, ein <span class="vocab-hl" title="language certificate">Sprachnachweis</span> sowie in vielen Fällen ein <span class="vocab-hl" title="letter of recommendation">Empfehlungsschreiben</span> benötigt. Die Unterlagen müssen rechtzeitig bei der eigenen Hochschule eingereicht werden, die dann den Platz an der <span class="vocab-hl" title="partner university">Partneruniversität</span> vermittelt. Der Semesterbeitrag an der Gastuniversität wird in der Regel erlassen; zusätzlich wird ein monatliches <span class="vocab-hl" title="scholarship">Stipendium</span> ausgezahlt.</p>
+
+      <p>Die Frage nach dem Mehrwert stellt sich kaum noch. Erasmus-Studierende berichten regelmäßig, dass nicht nur ihre Fremdsprachenkenntnisse verbessert werden, sondern auch ihre Fähigkeit, in unbekannten Situationen eigenständig zu handeln. Freundschaften, die während eines Auslandssemesters geschlossen werden, halten oft ein Leben lang. Dass das Programm seit seiner Einführung auf über 33 Teilnehmerländer ausgeweitet worden ist, spricht für sich.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: LÜCKENTEXT -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/5905709/pexels-photo-5905709.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben lernen">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="timerResetOne(2)">↺ Reset</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">0:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+    <div class="wordbox">
+      <strong>Wortkasten:</strong> ausgebaut &nbsp;·&nbsp; ausgezahlt &nbsp;·&nbsp; eingeführt &nbsp;·&nbsp; eingereicht &nbsp;·&nbsp; ermöglicht &nbsp;·&nbsp; erlassen &nbsp;·&nbsp; profitiert &nbsp;·&nbsp; verbessert &nbsp;·&nbsp; vergeben &nbsp;·&nbsp; vermittelt &nbsp;·&nbsp; ausgeweitet &nbsp;·&nbsp; zusammengesetzt
+    </div>
+    <div class="hilfe-box">Ergänze die Lücken — Feedback erscheint sofort.</div>
+    <div id="lueckenContainer"></div>
+  </div>
+</div>
+
+<!-- TAB 3: MULTIPLE CHOICE -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1181396/pexels-photo-1181396.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Prüfung Multiple Choice">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="mcReset()">↺ Reset</button>
+        <button class="btn" onclick="timerResetOne(3)">↺ Zeit</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Wähle die richtige Antwort — nur ein Klick genügt.</div>
+    <div id="mcContainer"></div>
+  </div>
+</div>
+
+<!-- TAB 4: SATZBAU -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Teamarbeit">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="sbResetAll()">↺ Alle</button>
+        <button class="btn" onclick="timerResetOne(4)">↺ Zeit</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">0:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Klicke einen Chip an, dann klicke auf die Zone — oder ziehe ihn.</div>
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
+
+<script>
+/* ── TIMER ───────────────────────────────────────────────── */
+var TIMER_PREFIX='B2_1013R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+      var b2=localStorage.getItem(TIMER_PREFIX+2); if(b2){ var el2=document.getElementById('best-'+2); if(el2) el2.textContent=fmtTime(parseInt(b2)); }
+      var b3=localStorage.getItem(TIMER_PREFIX+3); if(b3){ var el3=document.getElementById('best-'+3); if(el3) el3.textContent=fmtTime(parseInt(b3)); }
+      var b4=localStorage.getItem(TIMER_PREFIX+4); if(b4){ var el4=document.getElementById('best-'+4); if(el4) el4.textContent=fmtTime(parseInt(b4)); }
+});
+
+/* ── NAVIGATION ──────────────────────────────────────────── */
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [2,3,4].forEach(function(i){ timerStop(i); });
+
+
+}
+
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+var lueckenData = [
+  { pre: 'Seit 1987 haben über drei Millionen Studierende vom Erasmus-Programm ', ans: 'profitiert', post: '.' },
+  { pre: 'Jedes Jahr werden mehr als 300.000 Stipendien an junge Europäer ', ans: 'vergeben', post: '.' },
+  { pre: 'Das Bildungsideal von Erasmus von Rotterdam wurde von der EU zu einem großen Förderprogramm ', ans: 'ausgebaut', post: '.' },
+  { pre: 'Der Name ERASMUS wurde aus den Anfangsbuchstaben englischer Wörter ', ans: 'zusammengesetzt', post: '.' },
+  { pre: 'Die eigene Hochschule ', ans: 'vermittelt', post: ' den Platz an der Partneruniversität.' },
+  { pre: 'Die Bewerbungsunterlagen müssen rechtzeitig bei der Hochschule ', ans: 'eingereicht', post: ' werden.' },
+  { pre: 'Der Semesterbeitrag an der Gastuniversität wird in der Regel ', ans: 'erlassen', post: '.' },
+  { pre: 'Zusätzlich zum Erlass des Semesterbeitrags wird ein monatliches Stipendium ', ans: 'ausgezahlt', post: '.' },
+  { pre: 'Durch das Erasmus-Jahr werden die Fremdsprachenkenntnisse deutlich ', ans: 'verbessert', post: '.' },
+  { pre: 'Das Programm wurde seit seiner Einführung auf über 33 Länder ', ans: 'ausgeweitet', post: '.' },
+  { pre: 'Das Erasmus-Programm wurde 1987 von der EU ', ans: 'eingeführt', post: ' und wächst seitdem stetig.' },
+  { pre: 'Das Programm hat es Millionen von Studierenden ', ans: 'ermöglicht', post: ', im Ausland zu studieren.' }
+];
+
+function liveCheck(inp){
+  var ans = inp.dataset.answer;
+  var v = inp.value.trim();
+  if(!v){ inp.classList.remove('ok','no'); return; }
+  if(ans.toLowerCase().indexOf(v.toLowerCase())===0 && v.length < ans.length){
+    inp.classList.remove('ok','no'); return;
+  }
+  inp.classList.toggle('ok', v.toLowerCase()===ans.toLowerCase());
+  inp.classList.toggle('no', v.toLowerCase()!==ans.toLowerCase());
+}
+
+function buildLuecken(){
+  var c = document.getElementById('lueckenContainer');
+  c.innerHTML = '';
+  lueckenData.forEach(function(d){
+    var div = document.createElement('div');
+    div.className = 'luecken-item';
+    div.innerHTML = d.pre +
+      '<input class="luecken-inp" type="text" data-answer="'+d.ans+'" placeholder="" autocomplete="off" oninput="liveCheck(this)">' +
+      d.post;
+    c.appendChild(div);
+  });
+}
+
+/* ── MULTIPLE CHOICE ─────────────────────────────────────── */
+var mcData = [
+  { frage: 'Wann wurde das Erasmus-Programm der EU gestartet?',
+    opts: ['1977', '1987', '1997', '2007'], correct: 1 },
+  { frage: 'Wofür steht die Abkürzung ERASMUS?',
+    opts: [
+      'European Research Action for Students in Modern Universities',
+      'European Region Action Scheme for the Mobility of University Students',
+      'European Regional Academic Support for Migrant University Students',
+      'European Rates and Achievements in Modern Universities and Schools'
+    ], correct: 1 },
+  { frage: 'Was war das zentrale Ziel von Erasmus von Rotterdam?',
+    opts: [
+      'Europa politisch zu vereinen',
+      'Eine neue Sprache für Europa zu schaffen',
+      'Allen Menschen Bildungschancen zu ermöglichen',
+      'Das römische Recht in ganz Europa einzuführen'
+    ], correct: 2 },
+  { frage: 'Was wird an der Gastuniversität für Erasmus-Studierende in der Regel erlassen?',
+    opts: ['Das Empfehlungsschreiben', 'Das Motivationsschreiben', 'Der Sprachnachweis', 'Der Semesterbeitrag'], correct: 3 },
+  { frage: 'Auf wie viele Teilnehmerländer wurde das Erasmus-Programm ausgeweitet?',
+    opts: ['Über 15 Länder', 'Über 25 Länder', 'Über 33 Länder', 'Über 50 Länder'], correct: 2 }
+];
+
+function mcCheck(qIdx, optIdx){
+  var item = mcData[qIdx];
+  var opts = document.querySelectorAll('#mc-q-'+qIdx+' .mc-opt');
+  opts.forEach(function(o, i){
+    if(i===item.correct) o.classList.add('correct');
+    else if(i===optIdx) o.classList.add('wrong');
+    opts.forEach(function(x){ x.onclick=null; });
+  });
+
+function buildMC(){
+  var c = document.getElementById('mcContainer');
+  c.innerHTML = '';
+  mcData.forEach(function(q, qi){
+    var div = document.createElement('div');
+    div.className = 'mc-item'; div.id = 'mc-q-'+qi;
+    var h = document.createElement('h4');
+    h.textContent = q.frage;
+    div.appendChild(h);
+    var opts = document.createElement('div');
+    opts.className = 'mc-options';
+    q.opts.forEach(function(o, oi){
+      var btn = document.createElement('button');
+      btn.className = 'mc-opt';
+      btn.textContent = o;
+      btn.onclick = function(){ mcCheck(qi, oi); };
+      opts.appendChild(btn);
+    });
+    div.appendChild(opts);
+    c.appendChild(div);
+  });
+
+function mcReset(){
+  buildMC();
+  timerResetOne(3);
+}
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+var satzbauData = [
+  { parts: ['Das', 'Programm', 'wird', 'von', 'der', 'Europäischen', 'Union', 'gefördert'],
+    valid: [['Das', 'Programm', 'wird', 'von', 'der', 'Europäischen', 'Union', 'gefördert']], punct: '.' },
+  { parts: ['Die', 'Bewerbung', 'muss', 'rechtzeitig', 'bei', 'der', 'Hochschule', 'eingereicht', 'werden'],
+    valid: [['Die', 'Bewerbung', 'muss', 'rechtzeitig', 'bei', 'der', 'Hochschule', 'eingereicht', 'werden']], punct: '.' },
+  { parts: ['Der', 'Semesterbeitrag', 'wird', 'an', 'der', 'Gastuniversität', 'erlassen'],
+    valid: [['Der', 'Semesterbeitrag', 'wird', 'an', 'der', 'Gastuniversität', 'erlassen']], punct: '.' },
+  { parts: ['Das', 'Stipendium', 'wird', 'monatlich', 'an', 'die', 'Studierenden', 'ausgezahlt'],
+    valid: [['Das', 'Stipendium', 'wird', 'monatlich', 'an', 'die', 'Studierenden', 'ausgezahlt']], punct: '.' },
+  { parts: ['Die', 'Fremdsprachenkenntnisse', 'werden', 'durch', 'das', 'Auslandsjahr', 'verbessert'],
+    valid: [['Die', 'Fremdsprachenkenntnisse', 'werden', 'durch', 'das', 'Auslandsjahr', 'verbessert']], punct: '.' },
+  { parts: ['Der', 'Lebenslauf', 'und', 'das', 'Motivationsschreiben', 'müssen', 'eingereicht', 'werden'],
+    valid: [['Der', 'Lebenslauf', 'und', 'das', 'Motivationsschreiben', 'müssen', 'eingereicht', 'werden']], punct: '.' },
+  { parts: ['Das', 'Programm', 'ist', 'auf', 'über', 'dreiunddreißig', 'Länder', 'ausgeweitet', 'worden'],
+    valid: [['Das', 'Programm', 'ist', 'auf', 'über', 'dreiunddreißig', 'Länder', 'ausgeweitet', 'worden']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+  }
+  return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
+
+function sbCapitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    if (isProper) {
+      c.textContent = orig;
+    } else {
+      c.textContent = (i === 0) ? sbCapitalize(orig) : orig;
+    }
+  });
+}
+
+function sbMakeChip(word) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip;
+    timerAutoStart(4);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+  });
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = '';
+    sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+}
+
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) {
+    return JSON.stringify(v) === JSON.stringify(order);
+  });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-' + idx);
+  var fb   = document.getElementById('sb-fb-' + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) {
+      c.classList.remove('correct', 'incorrect');
+    });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(4);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) timerStop(4);
+}
+
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-' + idx);
+  var fb   = document.getElementById('sb-fb-' + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var chip = allChips[word];
+    if (chip) {
+      chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = '';
+  fb.className = 'satzbau-feedback';
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+
+    var bank = document.createElement('div');
+    bank.className = 'chips-container';
+    bank.id = 'sb-bank-' + idx;
+
+    var row = document.createElement('div');
+    row.className = 'sentence-builder';
+    row.id = 'sb-row-' + idx;
+
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback';
+    fb.id = 'sb-fb-' + idx;
+
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn';
+    solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() {
+      sbShowSolution(parseInt(this.getAttribute('data-idx')));
+    });
+
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() {
+      sbResetOne(parseInt(this.getAttribute('data-idx')));
+    });
+
+    btnRow.appendChild(solveBtn);
+    btnRow.appendChild(resetBtn);
+
+    item.appendChild(bank);
+    item.appendChild(row);
+    item.appendChild(fb);
+    item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+
+function resetSatzbau() { initSatzbau(); }
+
+/* ── INIT ────────────────────────────────────────────────── */
+buildLuecken();
+buildMC();
+initSatzbau();
+
+}</script>
+</body>
+</html>

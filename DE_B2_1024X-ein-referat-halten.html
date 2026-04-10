@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2 · 1024X · Ein Referat halten</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',sans-serif;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;justify-content:center;align-items:flex-start;padding:20px;}
+    .container{background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);max-width:1000px;width:100%;overflow:hidden;}
+
+    /* Header */
+    .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px;text-align:center;}
+    .header h1{font-size:1.8em;font-weight:700;margin-bottom:6px;}
+    .header p{opacity:.85;font-size:1em;}
+
+    /* Nav */
+    .nav{display:flex;background:#f8f9fa;border-bottom:1px solid #e0e0e0;}
+    .nav-btn{flex:1;padding:14px 8px;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;border-bottom:3px solid transparent;transition:all .2s;}
+    .nav-btn:hover{background:#f0f0f0;color:#333;}
+    .nav-btn.active{background:white;color:#667eea;border-bottom:3px solid #667eea;font-weight:600;}
+    .nav-emoji{font-size:1.4em;}
+    .nav-label{font-size:.78em;}
+
+    /* Tabs */
+    .tab{display:none;padding:30px;}
+    .tab.active{display:block;}
+    .tab-banner{width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:24px;}
+
+    /* Control bar */
+    .control-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+    .btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;transition:all .2s;}
+    .btn-reset{background:#f0f0f0;color:#555;}
+    .btn-reset:hover{background:#e0e0e0;}
+    .btn-shuffle{background:#667eea;color:white;}
+    .btn-shuffle:hover{background:#5a6fd6;}
+    .timer-display{margin-left:auto;background:#f8f9fa;border:1px solid #dee2e6;border-radius:6px;padding:6px 14px;font-family:monospace;font-size:1em;color:#495057;min-width:110px;text-align:center;}
+    .best-time{font-size:.78em;color:#888;}
+
+    /* Section title */
+    .section-title{font-size:1.1em;font-weight:700;color:#333;margin:0 0 14px;padding-bottom:6px;border-bottom:2px solid #667eea;}
+
+    /* Vorentlastung */
+    .fragen-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;}
+    .frage-card{background:#f0f4ff;border-left:4px solid #667eea;border-radius:8px;padding:14px 16px;font-size:.95em;line-height:1.5;}
+    .keyword-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
+    .keyword-chip{background:#667eea;color:white;border-radius:20px;padding:8px 14px;text-align:center;font-size:.88em;font-weight:600;}
+    .tips-list{list-style:none;margin-bottom:0;}
+    .tips-list li{padding:10px 14px;border-left:3px solid #764ba2;background:#f8f0ff;border-radius:4px;margin-bottom:8px;font-size:.92em;line-height:1.5;}
+    .tips-list li::before{content:"✓ ";color:#764ba2;font-weight:700;}
+
+    /* Lückentext */
+    .luecke-list{list-style:none;counter-reset:luecke;}
+    .luecke-item{counter-increment:luecke;display:flex;align-items:baseline;gap:10px;padding:11px 0;border-bottom:1px solid #f0f0f0;}
+    .luecke-item::before{content:counter(luecke)".";font-weight:700;color:#667eea;min-width:22px;}
+    .luecke-item label{flex:1;font-size:.95em;line-height:1.7;}
+    .gap-input{border:none;border-bottom:2px solid #667eea;padding:3px 8px;font-size:.95em;min-width:150px;outline:none;background:transparent;color:#333;transition:border-color .2s;}
+    .gap-input:focus{border-bottom-color:#764ba2;}
+    .gap-input.correct{border-bottom-color:#28a745;color:#28a745;}
+    .gap-input.wrong{border-bottom-color:#dc3545;color:#dc3545;}
+
+    /* Satzbau */
+    .satzbau-item{margin-bottom:28px;}
+    .sentence-num{font-weight:700;color:#667eea;font-size:.88em;margin-bottom:8px;}
+    .chip-pool{display:flex;flex-wrap:wrap;gap:8px;min-height:46px;padding:8px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;}
+    .drop-zone{display:flex;flex-wrap:wrap;gap:8px;min-height:46px;padding:8px;background:#f0f4ff;border:2px dashed #667eea;border-radius:8px;}
+    .chip{background:#667eea;color:white;border-radius:16px;padding:6px 14px;font-size:.88em;cursor:grab;user-select:none;transition:all .2s;}
+    .chip:hover{background:#5a6fd6;transform:translateY(-1px);}
+    .chip.punct{background:#764ba2;}
+    .chip.correct-chip{background:#28a745 !important;}
+    .satzbau-feedback{font-size:.88em;margin-top:4px;min-height:20px;}
+
+    /* Wortschatz */
+    .vocab-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+    .vocab-card{border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;background:white;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+    .vocab-card img{width:100%;height:130px;object-fit:cover;}
+    .vocab-card-body{padding:12px;}
+    .vocab-en{font-size:.82em;color:#888;margin-bottom:6px;}
+    .vocab-inputs{display:flex;flex-direction:column;gap:4px;}
+    .vocab-inp{border:none;border-bottom:1px solid #ddd;padding:4px 2px;font-size:.85em;outline:none;width:100%;transition:border-color .2s;}
+    .vocab-inp:focus{border-bottom-color:#667eea;}
+    .vocab-inp.correct{border-bottom-color:#28a745;color:#28a745;}
+    .vocab-inp.wrong{border-bottom-color:#dc3545;color:#dc3545;}
+    .vocab-inp::placeholder{color:#bbb;}
+
+    /* Footer */
+    .footer{background:#f8f9fa;border-top:1px solid #e0e0e0;padding:14px 30px;text-align:center;font-size:.8em;color:#888;}
+
+    @media(max-width:600px){
+      .fragen-grid{grid-template-columns:1fr;}
+      .keyword-grid{grid-template-columns:repeat(2,1fr);}
+      .vocab-cards{grid-template-columns:repeat(2,1fr);}
+    }
+  
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Ein Referat halten</h1>
+    <p>B2.1 · Einheit 2 · Kommunikation · Lektion 1024X</p>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
+
+  <!-- ═══ Tab 0: Vorentlastung ═══ -->
+  <div class="tab active" id="tab0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&w=1000" alt="Vortrag vorbereiten">
+
+    <p class="section-title">Einstieg: Vorbereitung von Vorträgen</p>
+    <div class="fragen-grid">
+      <div class="frage-card">Wie bereitest du dich auf Vorträge vor?</div>
+      <div class="frage-card">Was war das Thema deines letzten Vortrages?</div>
+      <div class="frage-card">Wenn du über ein Buch erzählen solltest, welches würdest du wählen? Warum?</div>
+      <div class="frage-card">Bist du nervös, wenn du einen Vortrag halten musst? Wie gehst du damit um?</div>
+    </div>
+
+    <p class="section-title">Schlüsselwörter</p>
+    <div class="keyword-grid">
+      <div class="keyword-chip">das Referat</div>
+      <div class="keyword-chip">die Präsentation</div>
+      <div class="keyword-chip">der Vortrag</div>
+      <div class="keyword-chip">die Notiz</div>
+      <div class="keyword-chip">die Karteikarte</div>
+      <div class="keyword-chip">die Vorbereitung</div>
+      <div class="keyword-chip">der Inhalt</div>
+      <div class="keyword-chip">das Lampenfieber</div>
+      <div class="keyword-chip">die Nervosität</div>
+      <div class="keyword-chip">aufschreiben</div>
+      <div class="keyword-chip">sich vorbereiten</div>
+      <div class="keyword-chip">vortragen</div>
+    </div>
+
+    <p class="section-title">Vorbereitungstipps für ein Referat</p>
+    <ul class="tips-list">
+      <li>Schreibe kurze Stichpunkte auf Karteikarten oder Notizzettel.</li>
+      <li>Schreibe deine Ideen bereits während der Vorbereitung auf.</li>
+      <li>Beim Vortrag darfst du in deine Notizen schauen – aber nicht vorlesen!</li>
+      <li>Verwende in PowerPoint-Folien nicht zu viel Text.</li>
+      <li>Probe den Vortrag vorher vor Freunden, um die Nervosität zu verringern.</li>
+      <li>Gib zu Beginn einen Überblick über den Inhalt (Inhaltsverzeichnis).</li>
+      <li>Stelle zwischendurch Fragen an die Zuhörer, damit sie aufmerksam bleiben.</li>
+    </ul>
+  </div>
+
+  <!-- ═══ Tab 1: Lückentext ═══ -->
+  <div class="tab" id="tab1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/261909/pexels-photo-261909.jpeg?auto=compress&w=1000" alt="Notizen schreiben">
+    <div class="control-bar">
+      <div class="btn btn-reset" onclick="resetLuecke()">🔄 Zurücksetzen</button>
+      
+</div>
+
+    <p class="section-title">Lückentext: Ein Referat halten</p>
+    <ol class="luecke-list">
+      <li class="luecke-item"><label>Eine Präsentation informiert den <input class="gap-input" data-answer="Zuhörer" oninput="liveCheck(this)" placeholder=""> über ein bestimmtes Thema.</label></li>
+      <li class="luecke-item"><label>Es ist sinnvoll, sich <input class="gap-input" data-answer="Notizen" oninput="liveCheck(this)" placeholder=""> zum Vortrag zu machen, sodass man frei sprechen kann.</label></li>
+      <li class="luecke-item"><label>Diese schreibt man am besten in der <input class="gap-input" data-answer="Vorbereitung" oninput="liveCheck(this)" placeholder=""> auf.</label></li>
+      <li class="luecke-item"><label>Alternativ kann man sie auf <input class="gap-input" data-answer="Karteikarten" oninput="liveCheck(this)" placeholder=""> schreiben.</label></li>
+      <li class="luecke-item"><label>Es ist sinnvoll, zu Beginn der Präsentation einen Überblick zum <input class="gap-input" data-answer="Inhalt" oninput="liveCheck(this)" placeholder=""> zu geben.</label></li>
+      <li class="luecke-item"><label><input class="gap-input" data-answer="Vortragen" oninput="liveCheck(this)" placeholder=""> ist das Gleiche wie einen Vortrag halten.</label></li>
+      <li class="luecke-item"><label>Bevor sie auf die Bühne müssen, sind viele Leute sehr aufgeregt. Sie haben <input class="gap-input" data-answer="Lampenfieber" oninput="liveCheck(this)" placeholder="">.</label></li>
+      <li class="luecke-item"><label>Menschen haben verschiedene <input class="gap-input" data-answer="Lesegewohnheiten" oninput="liveCheck(this)" placeholder="">.</label></li>
+      <li class="luecke-item"><label>Ein Ritual ist eine wiederkehrende <input class="gap-input" data-answer="Abfolge" oninput="liveCheck(this)" placeholder=""> von Handlungen.</label></li>
+      <li class="luecke-item"><label>Gegen die <input class="gap-input" data-answer="Nervosität" oninput="liveCheck(this)" placeholder=""> helfen bestimmte Rituale.</label></li>
+      <li class="luecke-item"><label>Wenn man kurz den Inhalt eines Buches wiedergibt, ist das eine <input class="gap-input" data-answer="Inhaltsangabe" oninput="liveCheck(this)" placeholder="">.</label></li>
+      <li class="luecke-item"><label>Damit einem die Zuhörer nicht entgleiten, kann man zwischendurch mal eine <input class="gap-input" data-answer="Frage" oninput="liveCheck(this)" placeholder=""> an sie stellen.</label></li>
+    </ol>
+  </div>
+
+  <!-- ═══ Tab 2: Satzbau ═══ -->
+  <div class="tab" id="tab2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&w=1000" alt="Vortrag halten">
+    <div class="control-bar">
+      <div class="btn btn-reset" onclick="resetSatzbau()">🔄 Zurücksetzen</button>
+      <div class="btn btn-shuffle" onclick="shuffleSatzbau()">🔀 Mischen</button>
+      
+</div>
+
+    <p class="section-title">Satzbau: Bring die Wörter in die richtige Reihenfolge!</p>
+    <div id="satzbauContainer"></div>
+  </div>
+
+  <!-- ═══ Tab 3: Wortschatz ═══ -->
+  <div class="tab" id="tab3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg?auto=compress&w=1000" alt="Bücher / Wortschatz">
+    <div class="control-bar">
+      <div class="btn btn-reset" onclick="resetVocab()">🔄 Zurücksetzen</button>
+      
+</div>
+
+    <p class="section-title">Wortschatz: Gib den deutschen Begriff ein!</p>
+    <div class="vocab-cards" id="vocabContainer"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
+
+<script>
+var TIMER_PREFIX='B2_1024X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+
+});</script>
+</body>
+</html>

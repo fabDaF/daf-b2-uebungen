@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.1 – Sind Zoos moralisch richtig? | Kommunikation</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 28px 32px;
+}
+header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+header p { opacity: .85; font-size: .95rem; }
+nav {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f5f5f5;
+}
+.nav-btn{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 6px;
+  background: transparent;
+  cursor: pointer;
+  color: #555;
+  border-right: 1px solid #ddd;
+  transition: background .2s;
+  gap: 4px;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn .nav-emoji { font-size: 1.3rem; }
+.nav-btn .nav-label { font-size: .75rem; }
+.nav-btn.active {
+  background: #fff;
+  color: #667eea;
+  font-weight: 700;
+  border-bottom: 3px solid #667eea;
+}
+.nav-btn:hover:not(.active) { background: #ececec; }
+.tab { display: none; padding: 28px 32px; }
+.tab.active { display: block; }
+
+/* Control bar */
+.control-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.control-bar .buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.control-bar .timer-display {
+  margin-left: auto;
+  font-size: .85rem;
+  color: #555;
+  white-space: nowrap;
+}
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 600;
+  transition: background .2s;
+}
+.btn-primary { background: #667eea; color: #fff; }
+.btn-primary:hover { background: #5568d4; }
+.btn-secondary { background: #e0e0e0; color: #333; }
+.btn-secondary:hover { background: #ccc; }
+
+/* Score */
+.score-area { text-align: right; font-weight: 700; margin-bottom: 12px; color: #555; font-size: .9rem; }
+
+/* Vorentlastung */
+.intro-section { margin-bottom: 24px; }
+.intro-section h2 {
+  font-size: 1.1rem;
+  color: #667eea;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 6px;
+}
+.intro-questions { list-style: none; padding: 0; }
+.intro-questions li {
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: #f5f5f5;
+  border-left: 4px solid #667eea;
+  border-radius: 4px;
+  font-size: .95rem;
+}
+.vocab-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.chip {
+  background: #667eea;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.pro-kontra {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.pro-box, .kontra-box {
+  border-radius: 8px;
+  padding: 14px;
+}
+.pro-box { background: #e8f5e9; border: 1px solid #a5d6a7; }
+.kontra-box { background: #fce4ec; border: 1px solid #f48fb1; }
+.pro-box h3 { color: #388e3c; font-size: .95rem; margin-bottom: 8px; }
+.kontra-box h3 { color: #c62828; font-size: .95rem; margin-bottom: 8px; }
+.pro-box li, .kontra-box li {
+  font-size: .88rem;
+  margin-bottom: 5px;
+  margin-left: 16px;
+}
+.redemittel-box {
+  background: #f0eeff;
+  border: 1px solid #c5baf5;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-top: 12px;
+}
+.redemittel-box h3 { font-size: .95rem; color: #764ba2; margin-bottom: 10px; }
+.redemittel-item {
+  padding: 6px 0;
+  font-size: .9rem;
+  border-bottom: 1px solid #ddd;
+  color: #333;
+}
+.redemittel-item:last-child { border-bottom: none; }
+.read-text {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  text-align: justify;
+  max-width: 720px;
+  margin: 16px auto 0;
+  hyphens: auto;
+  color: #222;
+}
+.read-text p { margin-bottom: 1em; text-indent: 1.5em; }
+.read-text p:first-child { text-indent: 0; }
+
+/* vocab-hl */
+.vocab-hl {
+  background: #fff9c4;
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: help;
+  position: relative;
+}
+.vocab-hl:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: .8rem;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/* Lückentext */
+.gap-sentence {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+  font-size: .93rem;
+}
+.gap-sentence .nr {
+  font-weight: 700;
+  color: #764ba2;
+  min-width: 22px;
+}
+.gap-inp {
+  border: none;
+  border-bottom: 2px solid #aaa;
+  padding: 2px 6px;
+  font-size: .93rem;
+  width: 180px;
+  outline: none;
+  background: transparent;
+  transition: border-color .2s;
+}
+.gap-inp:focus { border-color: #667eea; }
+.gap-inp.correct { border-color: #27ae60; color: #27ae60; }
+.gap-inp.wrong { border-color: #e74c3c; color: #e74c3c; }
+
+/* Satzbau */
+.sb-sentence {
+  margin-bottom: 24px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 14px;
+}
+.sb-label {
+  font-size: .8rem;
+  color: #888;
+  margin-bottom: 8px;
+}
+.sb-drop-zone {
+  min-height: 44px;
+  background: #fff;
+  border: 2px dashed #ccc;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  transition: border-color .2s;
+}
+.sb-drop-zone.drag-over { border-color: #667eea; background: #f0eeff; }
+.sb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sb-chip {
+  padding: 6px 12px;
+  background: #667eea;
+  color: #fff;
+  border-radius: 6px;
+  cursor: grab;
+  font-size: .88rem;
+  font-weight: 600;
+  user-select: none;
+  transition: opacity .2s;
+}
+.sb-chip.punct {
+  background: #764ba2;
+  min-width: 28px;
+  text-align: center;
+}
+.sb-chip.correct-chip { background: #27ae60; }
+.sb-chip.wrong-chip { background: #e74c3c; }
+.sb-chip:active { opacity: .7; cursor: grabbing; }
+.sb-feedback { font-size: .85rem; font-weight: 700; min-height: 1.2em; }
+.sb-feedback.ok { color: #27ae60; }
+.sb-feedback.err { color: #e74c3c; }
+
+/* Wortschatz */
+.vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+.vocab-card {
+  background: #f9f9f9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.vocab-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+.vocab-card-body { padding: 12px; }
+.vocab-card-body .en { font-size: .8rem; color: #888; margin-bottom: 4px; }
+.vocab-card-body .example { font-size: .8rem; color: #666; font-style: italic; margin-bottom: 8px; }
+.vocab-inp-row { display: flex; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
+.vocab-inp {
+  border: none;
+  border-bottom: 2px solid #ccc;
+  padding: 3px 5px;
+  font-size: .85rem;
+  flex: 1;
+  min-width: 60px;
+  outline: none;
+  background: transparent;
+}
+.vocab-inp:focus { border-color: #667eea; }
+.vocab-inp.correct { border-color: #27ae60; color: #27ae60; }
+.vocab-inp.wrong { border-color: #e74c3c; color: #e74c3c; }
+.vocab-label { font-size: .72rem; color: #999; margin-bottom: 2px; }
+
+/* Best times */
+.best-times { font-size: .8rem; color: #888; margin-top: 12px; }
+
+/* Footer */
+footer {
+  background: #f5f5f5;
+  text-align: center;
+  padding: 14px;
+  font-size: .8rem;
+  color: #888;
+  border-top: 1px solid #e0e0e0;
+}
+
+@media (max-width: 600px) {
+  .tab { padding: 18px 16px; }
+  .pro-kontra { grid-template-columns: 1fr; }
+  .vocab-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Sind Zoos moralisch richtig?</h1>
+    <p>B2.1 · Einheit 3 · Kommunikation (Übung 1034)</p>
+  </header>
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
+
+  <!-- Tab 0: Vorentlastung -->
+  <div class="tab active" id="tab0">
+    <div class="intro-section">
+      <h2>🧠 Einstiegsfragen</h2>
+      <ul class="intro-questions">
+        <li>Warst du schon einmal in einem Zoo? Was war dein schönstes Erlebnis dort?</li>
+        <li>Was denkst du: Sind Zoos für die Tiere eher positiv oder negativ?</li>
+        <li>Welche Argumente gibt es für Zoos? Welche dagegen?</li>
+        <li>Wie können wir bedrohte Tierarten schützen, wenn nicht durch Zoos?</li>
+      </ul>
+    </div>
+
+    <div class="intro-section">
+      <h2>📖 Schlüsselwörter</h2>
+      <div class="vocab-chips">
+        <span class="chip">die Moral</span>
+        <span class="chip">der Käfig</span>
+        <span class="chip">der Lebensraum</span>
+        <span class="chip">einsperren</span>
+        <span class="chip">freilebend</span>
+        <span class="chip">das Tierschutzgesetz</span>
+        <span class="chip">das Grundrecht</span>
+        <span class="chip">debattieren</span>
+        <span class="chip">rechtfertigen</span>
+        <span class="chip">bezweifeln</span>
+        <span class="chip">die Misshandlung</span>
+        <span class="chip">artgerechte Tierhaltung</span>
+      </div>
+    </div>
+
+    <div class="intro-section">
+      <h2>⚖️ Pro und Kontra: Zoos</h2>
+      <div class="pro-kontra">
+        <div class="pro-box">
+          <h3>✅ Dafür</h3>
+          <ul>
+            <li>Zoos schützen bedrohte Tierarten vor dem Aussterben</li>
+            <li>Sie fördern Bildung und Bewusstsein für Natur</li>
+            <li>Zoos finanzieren Tierschutzprojekte weltweit</li>
+            <li>In freier Wildbahn überleben viele Tiere nicht</li>
+          </ul>
+        </div>
+        <div class="kontra-box">
+          <h3>❌ Dagegen</h3>
+          <ul>
+            <li>Tiere sind eingesperrt und haben wenig Platz</li>
+            <li>Käfige sind oft zu klein für natürliches Verhalten</li>
+            <li>Zoos dienen vor allem der Unterhaltung von Menschen</li>
+            <li>Artgerechte Tierhaltung ist kaum gewährleistet</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="intro-section">
+      <h2>💬 Redemittel: Meinungen äußern und argumentieren</h2>
+      <div class="redemittel-box">
+        <h3>Für die Debatte</h3>
+        <div class="redemittel-item">Meiner Meinung nach sind Zoos positiv, weil ...</div>
+        <div class="redemittel-item">Ich bin davon überzeugt, dass ...</div>
+        <div class="redemittel-item">Ich bezweifle, dass Zoos wirklich zum Tierschutz beitragen.</div>
+        <div class="redemittel-item">Dafür spricht, dass ... / Dagegen spricht, dass ...</div>
+        <div class="redemittel-item">Kritisch betrachtet werden Tierrechte oft nicht eingehalten.</div>
+        <div class="redemittel-item">Ich stehe zu meiner Meinung, weil ...</div>
+        <div class="redemittel-item">Ich könnte darüber endlos debattieren.</div>
+      </div>
+    </div>
+
+    <div class="intro-section">
+      <h2>📰 Lesetext: Zoos und Tierschutz</h2>
+      <div class="read-text">
+        <p>Zoos dienen nicht unbedingt dem <span class="vocab-hl" data-tip="Tierschutz = animal protection">Tierschutz</span>, sondern sie stellen ein Mittel für die Unterhaltung von Menschen dar. Immer mehr Zoos unterstützen aber mit ihren <span class="vocab-hl" data-tip="Einnahmen = revenues/income">Einnahmen</span> verschiedene Tierschutzprojekte. Viele vom Aussterben bedrohte Spezies finden hier Schutz.</p>
+        <p>Andererseits sind die Tiere hier <span class="vocab-hl" data-tip="eingesperrt = locked up, imprisoned">eingesperrt</span>. Wildkatzen, Bären und Elefanten werden nie genug Platz in einem Zoo haben, um ein normales Leben führen zu können – auch können sie hier nicht jagen. Ohne Zoos würden die Menschen aber nur sehr wenig über exotische Tierarten wissen.</p>
+        <p>Die Frage, ob Zoos <span class="vocab-hl" data-tip="moralisch = morally">moralisch</span> <span class="vocab-hl" data-tip="rechtfertigbar = justifiable">rechtfertigbar</span> sind, lässt sich nicht einfach beantworten. Es gibt gute <span class="vocab-hl" data-tip="Argumente = arguments">Argumente</span> auf beiden Seiten der Debatte. Wie ist Ihre Meinung dazu?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 1: Lückentext -->
+  <div class="tab" id="tab1">
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-secondary" onclick="resetGaps()">🔄 Zurücksetzen</button>
+        <div class="btn btn-primary" onclick="showAnswers()">💡 Lösungen</button>
+      </div>
+      
+</div>
+    <div class="score-area" id="gapScore">0 / 12</div>
+    <div id="gapContainer"></div>
+    <div class="best-times" id="best-1"></div>
+  </div>
+
+  <!-- Tab 2: Satzbau -->
+  <div class="tab" id="tab2">
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-secondary" onclick="resetAllSb()">🔄 Alle zurücksetzen</button>
+      </div>
+      
+</div>
+    <div id="sbContainer"></div>
+    <div class="best-times" id="best-2"></div>
+  </div>
+
+  <!-- Tab 3: Wortschatz -->
+  <div class="tab" id="tab3">
+    <div class="control-bar">
+      <div class="buttons">
+        <div class="btn btn-secondary" onclick="resetVocab()">🔄 Zurücksetzen</button>
+      </div>
+      
+</div>
+    <div class="score-area" id="vocabScore">0 / 12</div>
+    <div class="vocab-grid" id="vocabContainer"></div>
+    <div class="best-times" id="best-3"></div>
+  </div>
+
+  <footer>© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</footer>
+</div>
+
+<script>
+var TIMER_PREFIX='B2_1034X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [1,2,3].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+function updateTimerDisplay(n) {
+  const el = document.getElementById('timer' + n + 'Display');
+  if (!el) return;
+  const s = timers[n] ? timers[n].s : 0;
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  const best = localStorage.getItem(TIMER_PREFIX + n);
+  const bestStr = best ? fmtTime(parseInt(best)) : '–';
+  el.textContent = `⏱ ${mm}:${ss} | 🏆 ${bestStr}`;
+}
+function loadBestTimes() {
+  [1,2,3].forEach(n => {
+    const el = document.getElementById('bestTimes' + n);
+    if (!el) return;
+    const best = localStorage.getItem(TIMER_PREFIX + n);
+    el.textContent = best ? `Beste Zeit: ${fmtTime(parseInt(best))}` : '';
+  });
+}
+loadBestTimes();
+
+// ── Lückentext ──────────────────────────────────────────────────
+const gapData = [
+  { pre: 'Die artgerechte', answer: 'Tierhaltung', post: 'ist in vielen Zoos nicht gewährleistet.' },
+  { pre: 'Der', answer: 'Käfig', post: 'für den Löwen ist im Zoo oft viel zu klein.' },
+  { pre: '', answer: 'Freilebende', post: 'Tiere haben mehr Raum und Freiheit als Zootiere.' },
+  { pre: 'Das', answer: 'Tierschutzgesetz', post: 'schützt Tiere vor Misshandlung und Vernachlässigung.' },
+  { pre: 'Die', answer: 'Misshandlung', post: 'von Tieren in Zoos sollte strenger bestraft werden.' },
+  { pre: 'Ein Zoo-Besuch ist für viele Kinder ein unvergessliches', answer: 'Erlebnis', post: '.' },
+  { pre: 'In freier', answer: 'Wildbahn', post: 'können Tiere ihr natürliches Verhalten zeigen.' },
+  { pre: 'Der natürliche', answer: 'Lebensraum', post: 'von Elefanten umfasst riesige Gebiete.' },
+  { pre: 'Die', answer: 'Entspannung', post: 'der Tiere leidet unter den engen Bedingungen im Zoo.' },
+  { pre: 'Es ist schwer zu', answer: 'rechtfertigen', post: ', warum Wildtiere eingesperrt werden müssen.' },
+  { pre: 'Tierrechte sind ein wichtiges', answer: 'Grundrecht', post: 'in einer zivilisierten Gesellschaft.' },
+  { pre: 'Ich', answer: 'bezweifle', post: ', ob Zoos wirklich zum Schutz bedrohter Tierarten beitragen.' },
+];
+
+function buildGaps() {
+  const c = document.getElementById('gapContainer');
+  c.innerHTML = '';
+  gapData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'gap-sentence';
+    div.innerHTML = `
+      <span class="nr">${i+1}.</span>
+      <span>${item.pre}</span>
+      <input class="gap-inp" type="text" placeholder="" data-answer="${item.answer.toLowerCase()}" data-idx="${i}" oninput="liveCheck(this)">
+      <span>${item.post}</span>`;
+    c.appendChild(div);
+  });
+  updateGapScore();
+}
+
+function liveCheck(inp) {
+  const val = inp.value.trim().toLowerCase();
+  const ans = inp.dataset.answer;
+  if (val.length === 0) {
+    inp.className = 'gap-inp';
+  } else if (val === ans) {
+    inp.className = 'gap-inp correct';
+  } else if (ans.startsWith(val)) {
+    inp.className = 'gap-inp';
+  } else {
+    inp.className = 'gap-inp wrong';
+  }
+  updateGapScore();
+  if (allGapsDone()) timerStop(1);
+}
+
+function updateGapScore() {
+  const inputs = document.querySelectorAll('.gap-inp');
+  let correct = 0;
+  inputs.forEach(inp => {
+    if (inp.value.trim().toLowerCase() === inp.dataset.answer) correct++;
+  });
+  document.getElementById('gapScore').textContent = correct + ' / ' + gapData.length;
+}
+
+function allGapsDone() {
+  const inputs = document.querySelectorAll('.gap-inp');
+  return [...inputs].every(inp => inp.value.trim().toLowerCase() === inp.dataset.answer);
+}
+
+function resetGaps() {
+  document.querySelectorAll('.gap-inp').forEach(inp => {
+    inp.value = '';
+    inp.className = 'gap-inp';
+  });
+  timerResetOne(1);
+  timerAutoStart(1);
+  updateGapScore();
+}
+
+function showAnswers() {
+  document.querySelectorAll('.gap-inp').forEach(inp => {
+    const ans = inp.dataset.answer;
+    inp.value = ans.charAt(0).toUpperCase() + ans.slice(1);
+    inp.className = 'gap-inp correct';
+  });
+  updateGapScore();
+}
+
+buildGaps();
+
+// ── Satzbau ─────────────────────────────────────────────────────
+let sbDragged = null;
+
+const satzbauData = [
+  {
+    id: 1,
+    parts: ['In freier Wildbahn', 'können viele Tiere', 'ihr natürliches Verhalten', 'zeigen', '.'],
+    valid: ['In freier Wildbahn', 'können viele Tiere', 'ihr natürliches Verhalten', 'zeigen', '.'],
+    hint: 'Inversion nach Adverbial'
+  },
+  {
+    id: 2,
+    parts: ['Ich bin davon überzeugt', ',', 'dass Zoos', 'wichtig', 'für bedrohte Tierarten', 'sind', '.'],
+    valid: ['Ich bin davon überzeugt', ',', 'dass Zoos', 'wichtig', 'für bedrohte Tierarten', 'sind', '.'],
+    hint: 'Nebensatz mit dass'
+  },
+  {
+    id: 3,
+    parts: ['Die artgerechte Tierhaltung', 'ist in vielen Zoos', 'leider', 'nicht gewährleistet', '.'],
+    valid: ['Die artgerechte Tierhaltung', 'ist in vielen Zoos', 'leider', 'nicht gewährleistet', '.'],
+    hint: 'Negation mit nicht'
+  },
+  {
+    id: 4,
+    parts: ['Man sollte', 'die Situation', 'der Tiere im Zoo', 'kritisch', 'betrachten', '.'],
+    valid: ['Man sollte', 'die Situation', 'der Tiere im Zoo', 'kritisch', 'betrachten', '.'],
+    hint: 'Modalverb + Infinitiv am Ende'
+  },
+  {
+    id: 5,
+    parts: ['Das Tierschutzgesetz', 'schützt Tiere', 'vor Misshandlung', 'und Vernachlässigung', '.'],
+    valid: ['Das Tierschutzgesetz', 'schützt Tiere', 'vor Misshandlung', 'und Vernachlässigung', '.'],
+    hint: 'Präpositionalergänzung'
+  },
+  {
+    id: 6,
+    parts: ['Zu seiner Meinung', 'zu stehen', 'ist sehr wichtig', 'in einer Debatte', '.'],
+    valid: ['Zu seiner Meinung', 'zu stehen', 'ist sehr wichtig', 'in einer Debatte', '.'],
+    hint: 'Infinitivsatz als Subjekt'
+  },
+  {
+    id: 7,
+    parts: ['Viele Zoos', 'unterstützen', 'Projekte', 'zum Schutz', 'bedrohter Tierarten', '.'],
+    valid: ['Viele Zoos', 'unterstützen', 'Projekte', 'zum Schutz', 'bedrohter Tierarten', '.'],
+    hint: 'Genitivattribut'
+  },
+];
+
+function buildSb() {
+  const c = document.getElementById('sbContainer');
+  c.innerHTML = '';
+  satzbauData.forEach(s => {
+    const shuffled = fisherYates([...s.parts]);
+    const div = document.createElement('div');
+    div.className = 'sb-sentence';
+    div.dataset.id = s.id;
+    div.innerHTML = `
+      <div class="sb-label"><em>${s.hint}</em></div>
+      <div class="sb-drop-zone" ondragover="dzOver(event)" ondrop="dzDrop(event,${s.id})" ondragleave="dzLeave(event)"></div>
+      <div class="sb-chips" id="chips${s.id}"></div>
+      <div class="sb-feedback" id="fb${s.id}"></div>
+    `;
+    c.appendChild(div);
+    const chipsEl = div.querySelector('.sb-chips');
+    shuffled.forEach(p => chipsEl.appendChild(makeChip(p, s.id)));
+  });
+}
+
+function fisherYates(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function makeChip(text, sid) {
+  const span = document.createElement('span');
+  span.className = 'sb-chip' + (text === '.' || text === ',' ? ' punct' : '');
+  span.textContent = text;
+  span.draggable = true;
+  span.dataset.sid = sid;
+  span.addEventListener('dragstart', e => {
+    sbDragged = span;
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  span.addEventListener('dragend', () => { sbDragged = null; });
+  span.addEventListener('click', () => {
+    const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
+    const pool = document.getElementById('chips' + sid);
+    if (span.parentElement === pool) {
+      zone.appendChild(span);
+    } else {
+      pool.appendChild(span);
+    }
+    checkSb(sid);
+  });
+  return span;
+}
+
+function dzOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function dzLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function dzDrop(e, sid) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (sbDragged && parseInt(sbDragged.dataset.sid) === sid) {
+    e.currentTarget.appendChild(sbDragged);
+    checkSb(sid);
+  }
+}
+
+function checkSb(sid) {
+  const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
+  const fb = document.getElementById('fb' + sid);
+  const chips = [...zone.children].map(c => c.textContent);
+  const data = satzbauData.find(s => s.id === sid);
+  if (chips.length === 0) { fb.textContent = ''; return; }
+  if (chips.length < data.valid.length) { fb.textContent = ''; return; }
+  const correct = chips.join(' ') === data.valid.join(' ');
+  fb.className = 'sb-feedback ' + (correct ? 'ok' : 'err');
+  fb.textContent = correct ? '✓ Richtig!' : '✗ Noch nicht richtig.';
+  [...zone.children].forEach(c => {
+    c.classList.remove('correct-chip', 'wrong-chip');
+    c.classList.add(correct ? 'correct-chip' : 'wrong-chip');
+  });
+  if (allSbDone()) timerStop(2);
+}
+
+function allSbDone() {
+  return satzbauData.every(s => {
+    const fb = document.getElementById('fb' + s.id);
+    return fb && fb.classList.contains('ok');
+  });
+}
+
+function resetSb(sid) {
+  const zone = document.querySelector(`.sb-sentence[data-id="${sid}"] .sb-drop-zone`);
+  const pool = document.getElementById('chips' + sid);
+  const fb = document.getElementById('fb' + sid);
+  [...zone.children].forEach(c => {
+    c.classList.remove('correct-chip', 'wrong-chip');
+    pool.appendChild(c);
+  });
+  fb.textContent = '';
+  fb.className = 'sb-feedback';
+}
+
+function resetAllSb() {
+  satzbauData.forEach(s => resetSb(s.id));
+  timerResetOne(2);
+  timerAutoStart(2);
+}
+
+buildSb();
+
+// ── Wortschatz ──────────────────────────────────────────────────
+const vocabData = [
+  { type:'n', en:'relaxation', de:'Entspannung', art:'die', plural:'-en',
+    ex:'Die Entspannung ist sehr wichtig für das Wohlbefinden eines Menschen.',
+    img:'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg?w=400' },
+  { type:'n', en:'experience / event', de:'Erlebnis', art:'das', plural:'-se',
+    ex:'Ich hatte heute im Zoo ein interessantes Erlebnis.',
+    img:'https://images.pexels.com/photos/39317/chimp-animal-farm-fauna-39317.jpeg?w=400' },
+  { type:'n', en:'mistreatment', de:'Misshandlung', art:'die', plural:'-en',
+    ex:'Die Misshandlung sollte viel strenger bestraft werden.',
+    img:'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?w=400' },
+  { type:'n', en:'morality', de:'Moral', art:'die', plural:'-',
+    ex:'Moral und Ethik sind zwei Zweige der Philosophie, welche unser Leben beeinflussen.',
+    img:'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg?w=400' },
+  { type:'n', en:'justification', de:'Rechtfertigung', art:'die', plural:'-en',
+    ex:'Das ist längst keine Rechtfertigung für seine Handlungen.',
+    img:'https://images.pexels.com/photos/6077123/pexels-photo-6077123.jpeg?w=400' },
+  { type:'n', en:'argument', de:'Argument', art:'das', plural:'-e',
+    ex:'Hast du auch Argumente, um deine Meinung zu vertreten?',
+    img:'https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?w=400' },
+  { type:'n', en:'fundamental right', de:'Grundrecht', art:'das', plural:'-e',
+    ex:'Religiöse Freiheit ist ein klassisches Grundrecht.',
+    img:'https://images.pexels.com/photos/5668858/pexels-photo-5668858.jpeg?w=400' },
+  { type:'n', en:'animal protection law', de:'Tierschutzgesetz', art:'das', plural:'-e',
+    ex:'Nicht in allen Ländern sind Tierschutzgesetze gut geregelt.',
+    img:'https://images.pexels.com/photos/1571561/pexels-photo-1571561.jpeg?w=400' },
+  { type:'n', en:'cage', de:'Käfig', art:'der', plural:'Käfige',
+    ex:'In vielen Zoos leben die Tiere in Käfigen.',
+    img:'https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?w=400' },
+  { type:'n', en:'habitat / living space', de:'Lebensraum', art:'der', plural:'Lebensräume',
+    ex:'Der Lebensraum vieler Tiere ist im Zoo sehr eingeengt.',
+    img:'https://images.pexels.com/photos/631292/pexels-photo-631292.jpeg?w=400' },
+  { type:'v', en:'to lock up / imprison', de:'einsperren',
+    ex:'Gesetze sind oft zu mild – Tierquäler sollte man einsperren.',
+    img:'https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?w=400' },
+  { type:'v', en:'to debate', de:'debattieren',
+    ex:'Ich könnte darüber endlos debattieren.',
+    img:'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?w=400' },
+];
+
+function buildVocab() {
+  const grid = document.getElementById('vocabContainer');
+  grid.innerHTML = '';
+  vocabData.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    const isNoun = v.type === 'n';
+    card.innerHTML = `
+      <img src="${v.img}" alt="${v.de}" loading="lazy">
+      <div class="vocab-card-body">
+        <div class="en">${v.en}</div>
+        <div class="example">${v.ex}</div>
+        ${isNoun ? `
+        <div class="vocab-label">Artikel</div>
+        <div class="vocab-inp-row">
+          <input class="vocab-inp" type="text" placeholder="" data-answer="${v.art.toLowerCase()}" data-vidx="${i}" data-field="art" oninput="vocabLiveCheck(this)">
+        </div>
+        <div class="vocab-label">Deutsch</div>
+        <div class="vocab-inp-row">
+          <input class="vocab-inp" type="text" placeholder="" data-answer="${v.de.toLowerCase()}" data-vidx="${i}" data-field="de" oninput="vocabLiveCheck(this)">
+        </div>
+        <div class="vocab-label">Plural</div>
+        <div class="vocab-inp-row">
+          <input class="vocab-inp" type="text" placeholder="" data-answer="${v.plural.toLowerCase()}" data-vidx="${i}" data-field="plural" oninput="vocabLiveCheck(this)">
+        </div>
+        ` : `
+        <div class="vocab-label">Deutsch</div>
+        <div class="vocab-inp-row">
+          <input class="vocab-inp" type="text" placeholder="" data-answer="${v.de.toLowerCase()}" data-vidx="${i}" data-field="de" oninput="vocabLiveCheck(this)">
+        </div>
+        `}
+      </div>`;
+    grid.appendChild(card);
+  });
+  updateVocabScore();
+}
+
+function vocabLiveCheck(inp) {
+  const val = inp.value.trim().toLowerCase();
+  const ans = inp.dataset.answer;
+  if (val.length === 0) { inp.className = 'vocab-inp'; return; }
+  if (val === ans) {
+    inp.className = 'vocab-inp correct';
+  } else if (ans.startsWith(val)) {
+    inp.className = 'vocab-inp';
+  } else {
+    inp.className = 'vocab-inp wrong';
+  }
+  updateVocabScore();
+  if (allVocabDone()) timerStop(3);
+}
+
+function updateVocabScore() {
+  let correct = 0;
+  vocabData.forEach((v, i) => {
+    const inputs = document.querySelectorAll(`[data-vidx="${i}"]`);
+    const allCorrect = [...inputs].every(inp => inp.value.trim().toLowerCase() === inp.dataset.answer);
+    if (allCorrect && inputs.length > 0) correct++;
+  });
+  document.getElementById('vocabScore').textContent = correct + ' / ' + vocabData.length;
+}
+
+function allVocabDone() {
+  let correct = 0;
+  vocabData.forEach((v, i) => {
+    const inputs = document.querySelectorAll(`[data-vidx="${i}"]`);
+    const allCorrect = [...inputs].every(inp => inp.value.trim().toLowerCase() === inp.dataset.answer);
+    if (allCorrect && inputs.length > 0) correct++;
+  });
+  return correct === vocabData.length;
+}
+
+function resetVocab() {
+  document.querySelectorAll('#vocabContainer .vocab-inp').forEach(inp => {
+    inp.value = '';
+    inp.className = 'vocab-inp';
+  });
+  timerResetOne(3);
+  timerAutoStart(3);
+  updateVocabScore();
+}
+
+buildVocab();
+</script>
+</body>
+</html>

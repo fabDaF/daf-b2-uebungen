@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · 1056R · Wohin bringt uns das Internet?</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px 30px;
+  }
+  .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+  .header p { font-size: 0.9rem; opacity: 0.85; }
+  .nav {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    overflow-x: auto;
+  }
+  .nav-btn{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    min-width: 80px;
+    border-right: 1px solid #e9ecef;
+  }
+  .nav-btn:last-child { border-right: none; }
+  .nav-btn .nav-emoji { font-size: 1.3rem; margin-bottom: 3px; }
+  .nav-btn .nav-label { font-size: 0.75rem; }
+  .nav-btn:hover { background: #e9ecef; color: #333; }
+  .nav-btn.active { background: white; border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
+  .tab-content { display: none; padding: 28px 30px; }
+  .tab-content.active { display: block; }
+  .tab-banner {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* VORENTLASTUNG */
+  .vpc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .vpc-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 14px;
+    border-left: 4px solid #667eea;
+  }
+  .vpc-word { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 4px; }
+  .vpc-en { font-size: 0.82rem; color: #667eea; margin-bottom: 6px; font-style: italic; }
+  .vpc-ex { font-size: 0.85rem; color: #555; line-height: 1.45; }
+  .einstieg-box {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
+    border-radius: 8px;
+    padding: 18px;
+    margin-top: 16px;
+  }
+  .einstieg-box h3 { font-size: 0.95rem; color: #667eea; margin-bottom: 12px; font-weight: 600; }
+  .einstieg-box ol { padding-left: 20px; }
+  .einstieg-box li { font-size: 0.9rem; color: #444; margin-bottom: 8px; line-height: 1.5; }
+
+  /* LESETEXT */
+  .story-text {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #333;
+    text-align: justify;
+    hyphens: auto;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .story-text h2 {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1.1rem;
+    color: #667eea;
+    font-weight: 700;
+    margin: 22px 0 10px;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 4px;
+  }
+  .story-text p { margin-bottom: 14px; text-indent: 1.4em; }
+  .story-text p:first-of-type { text-indent: 0; }
+  .vocab-hl {
+    background: #fff59d;
+    padding: 0 2px;
+    border-radius: 2px;
+    cursor: help;
+    position: relative;
+  }
+  .vocab-hl:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .intro-quote {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
+    border-left: 4px solid #667eea;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 20px;
+    font-family: Georgia, serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* LÜCKENTEXT */
+  .control-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .control-bar .btn-group { display: flex; gap: 8px; }
+  .btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn-reset { background: #e9ecef; color: #555; }
+  .btn-reset:hover { background: #dee2e6; }
+  .timer-display {
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .luecke-text {
+    font-size: 0.95rem;
+    line-height: 2.4;
+    color: #333;
+  }
+  .luecke-text p { margin-bottom: 10px; }
+  .gap-input {
+    border: none;
+    border-bottom: 2px solid #667eea;
+    outline: none;
+    font-size: 0.95rem;
+    padding: 2px 4px;
+    width: 160px;
+    background: transparent;
+    color: #333;
+    text-align: left;
+    transition: border-color 0.2s;
+  }
+  .gap-input.correct { border-color: #28a745; background: #d4edda; border-radius: 4px; color: #155724; }
+  .gap-input.wrong { border-color: #dc3545; }
+  .score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
+  #luecke-score { font-weight: 700; color: #667eea; }
+
+  /* RICHTIG/FALSCH */
+  .rf-list { list-style: none; padding: 0; }
+  .rf-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rf-question { font-size: 0.95rem; color: #333; line-height: 1.5; font-weight: 500; }
+  .rf-buttons { display: flex; gap: 10px; }
+  .rf-btn {
+    padding: 6px 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .rf-btn:hover:not(:disabled) { border-color: #667eea; color: #667eea; }
+  .rf-btn.correct { background: #28a745; border-color: #28a745; color: white; }
+  .rf-btn.wrong { background: #dc3545; border-color: #dc3545; color: white; }
+  .rf-btn:disabled { cursor: default; opacity: 0.8; }
+  #rf-score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
+  #rf-score { font-weight: 700; color: #667eea; }
+
+  /* SATZBAU */
+  .sb-sentences { display: flex; flex-direction: column; gap: 22px; }
+  .sb-item { background: #f8f9fa; border-radius: 8px; padding: 16px; }
+  .sb-drop-zone {
+    min-height: 44px;
+    background: white;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .sb-drop-zone.drag-over { border-color: #667eea; background: #f0f4ff; }
+  .sb-chip-pool { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .sb-chip {
+    background: #667eea;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: grab;
+    font-size: 0.85rem;
+    font-weight: 500;
+    user-select: none;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .sb-chip:active { cursor: grabbing; transform: scale(1.05); }
+  .sb-chip.punct { background: #9c6dd6; }
+  .sb-chip.in-zone { background: #5a67d8; }
+  .sb-chip.ghost { opacity: 0.35; }
+  .sb-feedback { font-size: 0.83rem; min-height: 20px; margin-top: 4px; }
+  .sb-feedback.ok { color: #28a745; font-weight: 600; }
+  .sb-feedback.err { color: #dc3545; }
+  #sb-score-row { margin-top: 14px; font-size: 0.9rem; color: #555; }
+  #sb-score { font-weight: 700; color: #667eea; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.78rem;
+    color: #aaa;
+    border-top: 1px solid #e9ecef;
+    margin-top: 10px;
+  }
+
+/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
+.container { overflow: hidden; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 3px solid #667eea;
+}
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: block;
+}
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn {
+        flex: 1 1 33%;
+        min-width: 0;
+        font-size: 0.8em;
+        padding: 10px 6px;
+        border-right: 1px solid #ddd;
+    }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Pflicht-Fix B2.1 ─────────────────────────────────── */
+body { padding: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; }
+.lese-text  { max-width: 600px; margin: 0 auto; }
+.rf-list    { max-width: 650px; margin: 0 auto; }
+/* ──────────────────────────────────────────────────────── */
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Wohin bringt uns das Internet?</h1>
+    <p>B2 · Einheit 5 · Lektion 1056 · Lesen</p>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">💬</span>
+      <span class="nav-label">Vorentlastung</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">📖</span>
+      <span class="nav-label">Lesetext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">🔘</span>
+      <span class="nav-label">Richtig/Falsch</span>
+    </button>
+    <button class="nav-btn" onclick="showTab(4)">
+      <span class="nav-emoji">🔀</span>
+      <span class="nav-label">Satzbau</span>
+    </button>
+  </nav>
+
+  <!-- TAB 0: VORENTLASTUNG -->
+  <div class="tab-content active" id="tab-0">
+    <img src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Internet und Medien">
+
+    <div class="vpc-grid">
+      <div class="vpc-card">
+        <div class="vpc-word">der Einfluss, -&#868;e</div>
+        <div class="vpc-en">influence</div>
+        <div class="vpc-ex">„Der Einfluss der Medien nimmt ständig zu."</div>
+      </div>
+      <div class="vpc-card">
+        <div class="vpc-word">die Informationsflut, -</div>
+        <div class="vpc-en">information overload</div>
+        <div class="vpc-ex">„Das größte Problem der Computertechnik ist die Informationsflut."</div>
+      </div>
+      <div class="vpc-card">
+        <div class="vpc-word">das Massenmedium, Massenmedien</div>
+        <div class="vpc-en">mass medium</div>
+        <div class="vpc-ex">„Das Internet ist das größte unkontrollierte Massenmedium der Welt."</div>
+      </div>
+      <div class="vpc-card">
+        <div class="vpc-word">die Zensur, -en</div>
+        <div class="vpc-en">censorship</div>
+        <div class="vpc-ex">„Eine Zensur des Internets ist technisch kaum möglich."</div>
+      </div>
+      <div class="vpc-card">
+        <div class="vpc-word">die Vereinsamung, -</div>
+        <div class="vpc-en">social isolation</div>
+        <div class="vpc-ex">„Soziale Medien können auch zur Vereinsamung führen."</div>
+      </div>
+      <div class="vpc-card">
+        <div class="vpc-word">die Anonymität, -</div>
+        <div class="vpc-en">anonymity</div>
+        <div class="vpc-ex">„Die Anonymität im Internet wird zunehmen."</div>
+      </div>
+      <div class="vpc-card">
+        <div class="vpc-word">die Nutzung, -en</div>
+        <div class="vpc-en">use, usage</div>
+        <div class="vpc-ex">„Die Nutzung von sozialen Netzwerken wächst weltweit."</div>
+      </div>
+      <div class="vpc-card">
+        <div class="vpc-word">die Gemeinschaft, -en</div>
+        <div class="vpc-en">community</div>
+        <div class="vpc-ex">„Solidarität und Gemeinschaft sind wichtige gesellschaftliche Werte."</div>
+      </div>
+    </div>
+
+    <div class="einstieg-box">
+      <h3>🗣️ Einstiegsfragen — Diskutieren Sie!</h3>
+      <ol>
+        <li>Hat das Internet Ihrer Meinung nach mehr positive oder mehr negative Auswirkungen auf die Gesellschaft?</li>
+        <li>Haben soziale Medien Ihnen geholfen, neue Freundschaften zu schließen, oder haben sie Sie eher isoliert?</li>
+        <li>Sollten Regierungen das Internet zensieren dürfen? Wann wäre das gerechtfertigt?</li>
+        <li>Wie hat das Internet Ihren Alltag in den letzten zehn Jahren verändert?</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- TAB 1: LESETEXT -->
+  <div class="tab-content" id="tab-1">
+    <img src="https://images.pexels.com/photos/518543/pexels-photo-518543.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Lesetext">
+
+    <div class="intro-quote">
+      „Kommunikation ist ein dem Menschen angeborenes Bedürfnis. Heutzutage findet Kommunikation nicht nur face-to-face statt, sondern vor allem auf medialem Wege."
+    </div>
+
+    <div class="story-text">
+      <h2>Medien und Macht</h2>
+      <p>Der <span class="vocab-hl" data-tip="influence">Einfluss</span> und die Macht der Medien nehmen ständig zu. Sie bestimmen unser Bild von der Wirklichkeit und beeinflussen uns in dem, was wir für wesentlich, notwendig und richtig halten. Der Kampf um Medienpräsenz und um <span class="vocab-hl" data-tip="influence">Einfluss</span> auf die Medien zielt deswegen auch auf den Erwerb und Erhalt von politischer und gesellschaftlicher Macht. Kein Wunder, dass sich angesichts der zunehmenden Macht der Medien auch die kritischen und mahnenden Stimmen häufen. Löst das Internet große Weltprobleme oder droht ein Informations-Overkill?</p>
+
+      <h2>Die Informationsflut</h2>
+      <p>Das größte Problem der Computertechnik ist die <span class="vocab-hl" data-tip="information overload">Informationsflut</span>. Die Informationsmenge wächst und wächst und welche Folgen führt dies mit sich? Daten sind mittlerweile in einer solchen Menge vorhanden, dass sie zu einer Art Abfall verkommen und wir zu Müllschluckern. Trotzdem hat noch keiner erkannt, dass das Internet für keines der wirklich wichtigen Probleme in unserer Zeit eine Lösung bietet. Wenn in Ghana oder in einem anderen Land der Erde Kinder verhungern, die Kriminalität zunimmt, wenn Rassismus und Sexismus unser gesellschaftliches Leben verderben, dann liegt das nicht an einem Mangel an Information. Dennoch scheint es, als ob das Internet den Weg in eine neue schöne Welt ebnet.</p>
+
+      <h2>Das Internet als Massenmedium</h2>
+      <p>Viele Menschen kaufen im Internet ein, bilden sich, lesen Zeitung oder kommunizieren miteinander. Man kann aber auch beschimpft werden oder seinen Computer von einem Hacker durchwühlen lassen. Vom Langweiler, der seine Lebensgeschichte ausbreitet, bis zum medizinischen Fachgespräch ist alles drin. Jeder kann im Internet offenbaren, was ihn beschäftigt. Der Mediengigant hat keinen Chef, keine Zentrale. Kein Konzern hat ihn aufgebaut, sondern Studenten, Professoren, Computerfreaks und Hunderte von neu gegründeten Firmen sorgen für den Betrieb des größten unkontrollierten <span class="vocab-hl" data-tip="mass medium">Massenmediums</span> der Welt.</p>
+
+      <h2>Zensur und Intelligenz</h2>
+      <p>Eine <span class="vocab-hl" data-tip="censorship">Zensur</span> findet nicht statt, weil sie technisch nicht möglich ist. Manche Staaten verbieten den Zugang zum Netz, andere versuchen zu lauschen – das ist aber auch alles was sie tun können. Hinzu kommt, dass die Menge der zur Verfügung stehenden Informationen seither gewaltig gewachsen ist und die Spezialisten immer gescheiter werden. Aber ist die Bevölkerung deswegen viel intelligenter als vor 50 Jahren?</p>
+      <p>Es ist zweifelhaft, ob die heutige Jugend deshalb auch mehr von Geschichte, Psychologie oder Politik versteht. Und was passiert mit Bibliotheken und anderen gesellschaftlichen Einrichtungen? Wird deren Publikum ausbleiben, weil sich demnächst jeder vom Schreibtisch aus online Informationen beschaffen kann? Oder werden Bibliotheken wichtiger, weil dort Fachleute arbeiten, die durch den Informationsdschungel führen können?</p>
+
+      <h2>Soziale Medien</h2>
+      <p>Und nicht zu vergessen die <span class="vocab-hl" data-tip="use, usage">Nutzung</span> von sozialen Medien oder sogenannten Social Media. Durch soziale Netzwerke wie Facebook, Twitter, Instagram und Co sind wir heutzutage mit der ganzen Welt vernetzt, und müssen dafür nicht einmal das Haus verlassen. Dabei wissen wir über alles und jeden Bescheid. Wer gestern geheiratet hat, morgen ins Fitnessstudio geht oder was der Kollege heute zu Mittag gegessen hat. Somit wird der Schein erhalten, wir seien soziale Wesen mit hunderten von Freunden. Auch die Partnersuche läuft in der heutigen Gesellschaft oft online vonstatten. Es mag eine weitere Option sein und für manche, die einsam sind und Bedrückendes auf dem Herzen haben, mag es ein heilsames Ventil sein.</p>
+
+      <h2>Anonymität und Vereinsamung</h2>
+      <p>Ein scheinbar gegenläufiger Trend dazu ist, sich online nicht selber erkennen zu geben, sondern sich hinter einer Vielzahl erfundener Persönlichkeiten zu verstecken. Leibhaftig einem anderen Menschen zu begegnen könnte deshalb zu einem beängstigenden Erlebnis werden, das man lieber vermeidet. Die <span class="vocab-hl" data-tip="anonymity">Anonymität</span> wird zunehmen. Somit können soziale Medien auch zur <span class="vocab-hl" data-tip="social isolation">Vereinsamung</span> führen. Anstatt draußen realen Kontakt zu realen Menschen herzustellen, sitzen wir alleine vor dem Fernseher oder Laptop.</p>
+
+      <h2>Zukunft des Internets</h2>
+      <p>Gesellschaftlich wichtige Werte wie Solidarität und <span class="vocab-hl" data-tip="community">Gemeinschaft</span> werden zerstört. Die Menschen kaufen von zuhause ein, wählen Parlamente von zuhause, erledigen Bankgeschäfte und erhalten alle gewünschten Informationen, ohne auch nur einen Schritt aus der Haustür zu setzen. Wie fast alles im Internet ist auch seine Zukunft nicht vorhersehbar. Doch eines ist gewiss: Das Internet wird als Mutter der Multimedia-Revolution in die Geschichte eingehen.</p>
+    </div>
+  </div>
+
+  <!-- TAB 2: LÜCKENTEXT -->
+  <div class="tab-content" id="tab-2">
+    <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Lückentext">
+
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetLuecke()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display"><span>⏱ <span id="timer-2">0:00</span></span><span>🏆 <span id="best-2">--:--</span></span></div>
+    </div>
+
+    <div class="luecke-text">
+      <p>1. &nbsp;Der <input class="gap-input" data-answer="einfluss" oninput="liveCheck(this)" placeholder=""> der Medien auf unser Leben nimmt ständig zu.</p>
+      <p>2. &nbsp;Das größte Problem des Internets ist die <input class="gap-input" data-answer="informationsflut" oninput="liveCheck(this)" placeholder="">, weil einfach zu viele Informationen vorhanden sind.</p>
+      <p>3. &nbsp;Da so viele Daten existieren, die niemand wirklich braucht, werden wir zu <input class="gap-input" data-answer="müllschluckern" oninput="liveCheck(this)" placeholder="">.</p>
+      <p>4. &nbsp;Das Internet ist das größte unkontrollierte <input class="gap-input" data-answer="massenmedium" oninput="liveCheck(this)" placeholder=""> der Welt.</p>
+      <p>5. &nbsp;Eine <input class="gap-input" data-answer="zensur" oninput="liveCheck(this)" placeholder=""> des Internets ist technisch kaum möglich.</p>
+      <p>6. &nbsp;Im Internet kann man die <input class="gap-input" data-answer="anonymität" oninput="liveCheck(this)" placeholder=""> genießen und anonym bleiben.</p>
+      <p>7. &nbsp;Soziale Medien können paradoxerweise zur <input class="gap-input" data-answer="vereinsamung" oninput="liveCheck(this)" placeholder=""> führen.</p>
+      <p>8. &nbsp;Gesellschaftliche Werte wie Solidarität und <input class="gap-input" data-answer="gemeinschaft" oninput="liveCheck(this)" placeholder=""> werden durch das Internet manchmal geschwächt.</p>
+      <p>9. &nbsp;Die <input class="gap-input" data-answer="nutzung" oninput="liveCheck(this)" placeholder=""> von sozialen Netzwerken wie Facebook wächst weltweit.</p>
+      <p>10. Manche Staaten versuchen, den Zugang zum <input class="gap-input" data-answer="netz" oninput="liveCheck(this)" placeholder=""> zu kontrollieren.</p>
+      <p>11. Es ist <input class="gap-input" data-answer="zweifelhaft" oninput="liveCheck(this)" placeholder="">, ob die heutige Jugend durch das Internet intelligenter wird.</p>
+      <p>12. Die Zukunft des Internets ist nicht <input class="gap-input" data-answer="vorhersehbar" oninput="liveCheck(this)" placeholder="">.</p>
+    </div>
+    <div class="score-row">Richtig: <span id="luecke-score">0</span> / 12</div>
+  </div>
+
+  <!-- TAB 3: RICHTIG/FALSCH -->
+  <div class="tab-content" id="tab-3">
+    <img src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Richtig oder Falsch">
+
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetRF()">↺ Zurücksetzen</button>
+      </div>
+      <div class="timer-display" id="timer3-display">⏱ 00:00</div>
+    </div>
+
+    <ul class="rf-list">
+      <li class="rf-item">
+        <div class="rf-question">1. &nbsp;Der Autor hat insgesamt eine positive Meinung zum Internet.</div>
+        <div class="rf-buttons">
+          <button class="rf-btn" onclick="mcClick(this, true, false)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, false)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <div class="rf-question">2. &nbsp;In der Welt herrscht ein Mangel an Informationen.</div>
+        <div class="rf-buttons">
+          <button class="rf-btn" onclick="mcClick(this, true, false)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, false)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <div class="rf-question">3. &nbsp;Viele Menschen sehen das Internet mittlerweile kritischer.</div>
+        <div class="rf-buttons">
+          <button class="rf-btn" onclick="mcClick(this, true, true)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, true)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <div class="rf-question">4. &nbsp;Das Internet löst viele der wirklich wichtigen Probleme der Welt.</div>
+        <div class="rf-buttons">
+          <button class="rf-btn" onclick="mcClick(this, true, false)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, false)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <div class="rf-question">5. &nbsp;Wir lassen uns vom Internet stark beeinflussen.</div>
+        <div class="rf-buttons">
+          <button class="rf-btn" onclick="mcClick(this, true, true)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, true)">Falsch</button>
+        </div>
+      </li>
+      <li class="rf-item">
+        <div class="rf-question">6. &nbsp;Das größte Problem der Computertechnik ist die Informationsebbe (= zu wenig Informationen).</div>
+        <div class="rf-buttons">
+          <button class="rf-btn" onclick="mcClick(this, true, false)">Richtig</button>
+          <button class="rf-btn" onclick="mcClick(this, false, false)">Falsch</button>
+        </div>
+      </li>
+    </ul>
+    <div id="rf-score-row">Richtig: <span id="rf-score">0</span> / 6</div>
+  </div>
+
+  <!-- TAB 4: SATZBAU -->
+  <div class="tab-content" id="tab-4">
+    <img src="https://images.pexels.com/photos/3278320/pexels-photo-3278320.jpeg?auto=compress&cs=tinysrgb&w=1000&h=180&fit=crop" class="tab-banner" alt="Satzbau">
+
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetAllSb()">↺ Alle zurücksetzen</button>
+      </div>
+      <div class="timer-display" id="timer4-display">⏱ 00:00</div>
+    </div>
+
+    <div class="sb-sentences" id="sb-container"></div>
+    <div id="sb-score-row">Richtig: <span id="sb-score">0</span> / 7</div>
+  </div>
+
+  <div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
+
+<script>
+// ─── TAB NAVIGATION ───────────────────────────────────────────────
+function showTab(n) {
+  document.querySelectorAll('.tab-content').forEach((t,i) => t.classList.toggle('active', i===n));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+}
+
+// ─── TIMER SYSTEM ─────────────────────────────────────────────────
+var TIMER_PREFIX='B2_1056R_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+document.addEventListener('DOMContentLoaded',function(){
+  [2].forEach(function(n){
+    var b=localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+
+function fmtTime(s) {
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+
+function updateTimerDisplay(n, done=false) {
+  const el = document.getElementById('timer'+n+'-display');
+  if (!el) return;
+  const t = timers[n] || {secs:0};
+  const best = loadBestTime(n);
+  const bestStr = best !== null ? ' · Best: ' + fmtTime(best) : '';
+  el.textContent = (done ? '✅ ' : '⏱ ') + fmtTime(t.secs) + bestStr;
+}
+
+function saveBestTime(n, secs) {
+  try { localStorage.setItem(TIMER_PREFIX+'best'+n, secs); } catch(e){}
+}
+function loadBestTime(n) {
+  try { const v = localStorage.getItem(TIMER_PREFIX+'best'+n); return v !== null ? parseInt(v) : null; } catch(e){ return null; }
+}
+
+// ─── LÜCKENTEXT ───────────────────────────────────────────────────
+let lueckeStarted = false;
+function liveCheck(inp) {
+  if (!lueckeStarted) { lueckeStarted = true; timerStart(2); }
+  const ans = inp.dataset.answer.toLowerCase();
+  const val = inp.value.toLowerCase().trim();
+  if (ans.startsWith(val) && val.length > 0) {
+    inp.classList.remove('wrong');
+  } else if (val.length > 0) {
+    inp.classList.remove('correct');
+    inp.classList.add('wrong');
+  }
+  if (val === ans) {
+    inp.classList.remove('wrong');
+    inp.classList.add('correct');
+  }
+  updateLueckeScore();
+}
+
+function updateLueckeScore() {
+  const all = document.querySelectorAll('#tab-2 .gap-input');
+  const correct = [...all].filter(i => i.classList.contains('correct')).length;
+  document.getElementById('luecke-score').textContent = correct;
+  if (correct === all.length) timerStop(2);
+}
+
+function resetLuecke() {
+  document.querySelectorAll('#tab-2 .gap-input').forEach(i => {
+    i.value = '';
+    i.classList.remove('correct','wrong');
+  });
+  timerReset(2);
+  lueckeStarted = false;
+  updateLueckeScore();
+}
+
+// ─── RICHTIG/FALSCH ───────────────────────────────────────────────
+let rfAnswered = 0;
+let rfScore = 0;
+let rfStarted = false;
+
+function mcClick(btn, userSaysTrue, statementIsTrue) {
+  const item = btn.closest('.rf-item');
+  if (item.dataset.done) return;
+  item.dataset.done = '1';
+  if (!rfStarted) { rfStarted = true; timerStart(3); }
+  const correct = (userSaysTrue === statementIsTrue);
+  const buttons = item.querySelectorAll('.rf-btn');
+  buttons.forEach(b => b.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    buttons.forEach(b => {
+      if ((b.textContent === 'Richtig') === statementIsTrue) b.classList.add('correct');
+    });
+  }
+  if (correct) rfScore++;
+  rfAnswered++;
+  document.getElementById('rf-score').textContent = rfScore;
+  if (rfAnswered === 6) timerStop(3);
+}
+
+function resetRF() {
+  rfAnswered = 0; rfScore = 0; rfStarted = false;
+  document.getElementById('rf-score').textContent = '0';
+  document.querySelectorAll('.rf-item').forEach(item => {
+    delete item.dataset.done;
+    item.querySelectorAll('.rf-btn').forEach(b => {
+      b.disabled = false;
+      b.classList.remove('correct','wrong');
+    });
+  });
+  timerReset(3);
+}
+
+// ─── SATZBAU ──────────────────────────────────────────────────────
+let sbDragged = null;
+let sbScore = 0;
+let sbStarted = false;
+
+const sbSentences = [
+  { parts: ['Der','Einfluss','der Medien','nimmt','ständig','zu','.'] },
+  { parts: ['Das','Internet','löst','keine','der wirklich wichtigen Probleme','.'] },
+  { parts: ['Soziale Medien','können','auch','zur Vereinsamung','führen','.'] },
+  { parts: ['Die','Anonymität','wird','zunehmen','.'] },
+  { parts: ['Das','Internet','ist','das größte','unkontrollierte','Massenmedium','der Welt','.'] },
+  { parts: ['Eine','Zensur','findet','technisch','nicht','statt','.'] },
+  { parts: ['Das','Internet','wird','als Mutter','der Multimedia-Revolution','in die Geschichte','eingehen','.'] }
+];
+
+const PUNCT = ['.','!','?',',',';',':'];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function makeChip(word, inZone=false) {
+  const chip = document.createElement('span');
+  chip.className = 'sb-chip' + (PUNCT.includes(word) ? ' punct' : '') + (inZone ? ' in-zone' : '');
+  chip.textContent = word;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', e => {
+    sbDragged = chip;
+    setTimeout(() => chip.classList.add('ghost'), 0);
+  });
+  chip.addEventListener('dragend', () => chip.classList.remove('ghost'));
+  return chip;
+}
+
+function buildSb() {
+  const container = document.getElementById('sb-container');
+  container.innerHTML = '';
+  sbSentences.forEach((sent, idx) => {
+    const item = document.createElement('div');
+    item.className = 'sb-item';
+    item.dataset.idx = idx;
+
+    const zone = document.createElement('div');
+    zone.className = 'sb-drop-zone';
+    zone.dataset.idx = idx;
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (sbDragged) {
+        zone.appendChild(sbDragged);
+        sbDragged.classList.add('in-zone');
+        checkSb(idx);
+        if (!sbStarted) { sbStarted = true; timerStart(4); }
+      }
+    });
+
+    const pool = document.createElement('div');
+    pool.className = 'sb-chip-pool';
+    pool.dataset.idx = idx;
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => {
+      e.preventDefault();
+      if (sbDragged) {
+        pool.appendChild(sbDragged);
+        sbDragged.classList.remove('in-zone');
+        checkSb(idx);
+      }
+    });
+
+    const feedback = document.createElement('div');
+    feedback.className = 'sb-feedback';
+    feedback.dataset.idx = idx;
+
+    const shuffled = shuffle(sent.parts);
+    shuffled.forEach(w => pool.appendChild(makeChip(w)));
+
+    item.appendChild(zone);
+    item.appendChild(pool);
+    item.appendChild(feedback);
+    container.appendChild(item);
+  });
+}
+
+function checkSb(idx) {
+  const zone = document.querySelector('.sb-drop-zone[data-idx="'+idx+'"]');
+  const feedback = document.querySelector('.sb-feedback[data-idx="'+idx+'"]');
+  const chips = [...zone.querySelectorAll('.sb-chip')].map(c => c.textContent);
+  const correct = sbSentences[idx].parts;
+  if (chips.length === correct.length && chips.every((c,i) => c === correct[i])) {
+    feedback.className = 'sb-feedback ok';
+    feedback.textContent = '✓ Richtig!';
+    updateSbScore();
+  } else if (chips.length === correct.length) {
+    feedback.className = 'sb-feedback err';
+    feedback.textContent = '✗ Nicht ganz richtig – versuche es noch einmal.';
+    updateSbScore();
+  } else {
+    feedback.className = 'sb-feedback';
+    feedback.textContent = '';
+  }
+}
+
+function updateSbScore() {
+  const correct = document.querySelectorAll('.sb-feedback.ok').length;
+  sbScore = correct;
+  document.getElementById('sb-score').textContent = correct;
+  if (correct === sbSentences.length) timerStop(4);
+}
+
+function resetAllSb() {
+  sbScore = 0; sbStarted = false;
+  document.getElementById('sb-score').textContent = '0';
+  timerReset(4);
+  buildSb();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+buildSb();
+updateTimerDisplay(2);
+updateTimerDisplay(3);
+updateTimerDisplay(4);
+timerAutoStart(2);
+
+function timerAutoStart(n) {
+  timerStart(n);
+}
+</script>
+</body>
+</html>
