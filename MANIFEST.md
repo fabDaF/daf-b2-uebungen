@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-10 12:05. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-10 13:02. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)
 
@@ -78,13 +78,13 @@ _Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml)_
 
 ### `daf-c1-uebungen`
 
-_C1-Lektionen (klein, wird schrittweise aufgebaut)_
+_C1-Lektionen: 7 Grammatik-Einheiten (Nominalstil, Modalverben, Sonderstellung, Verbpräfixe, Genitiv, Modalpartikeln, Kommasetzung) + Masterplan_
 
 - **Lokal:** `htmlS/C1`
 - **Remote:** https://github.com/fabDaF/daf-c1-uebungen.git
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-c1-uebungen/
 - **Dashboard basis:** `https://fabdaf.github.io/daf-c1-uebungen/`
-- **Erwartung:** ≥1 tracked files, ≥1 HTML
+- **Erwartung:** ≥8 tracked files, ≥7 HTML
 
 ### `daf-materialien`
 
@@ -140,9 +140,6 @@ _Privatschüler-Material Caroline Deters (WKV = Württembergische Versicherung):
 Jeder Eintrag hier ist ein dokumentierter, aber noch nicht behobener Zustand. `verify_manifest.py` wertet sie nicht als Fehler, solange sie hier stehen. Sobald behoben → aus `MANIFEST.yaml` entfernen und neu rendern.
 
 ### 🟡 Mittel
-
-**c1_untracked_files** (seit 2026-04-10, Owner: frank)  
-htmlS/C1 hat nur 1 getrackte HTML-Datei (DE_C1_1011G-nominalstil.html), aber 7 HTML-Dateien physisch vorhanden. 6 Dateien sind ungetrackt. Klärungsbedarf: sollen sie committed werden oder sind sie Entwürfe?
 
 **launchd_backup_not_activated** (seit 2026-04-10, Owner: frank)  
 Automatisches Backup via launchd ist vorbereitet (backup/com.fabdaf.backup.plist), aber noch nicht geladen. Siehe backup/INSTALL.md.
