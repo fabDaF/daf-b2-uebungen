@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2.1 – Wortbildungen</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+}
+
+.section { display: none; }
+.section.active { display: block; }
+.tab-banner { width: 100%; height: 200px; object-fit: cover; display: block; }
+.sec-inner { padding: 26px; }
+
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 0.82em; color: #888; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { border-color: #667eea; color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+/* Entdeckungs-Tab */
+.entdeck-intro { background: #f3e5f5; border-radius: 12px; padding: 18px 22px; margin-bottom: 20px; border-left: 5px solid #9c27b0; font-size: 0.97rem; line-height: 1.75; }
+.entdeck-intro h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.05rem; }
+.hl { background: #e1bee7; border-radius: 4px; padding: 0 4px; color: #4a148c; font-weight: 700; }
+.mc-step { display: none; background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; border: 1px solid #c5cae9; }
+.mc-step.active { display: block; }
+.mc-step h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-btn { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: #fff; cursor: pointer; text-align: left; font-size: 0.92rem; transition: all .2s; }
+.mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
+.mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+.mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+.mc-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 1.3em; }
+.mc-feedback.ok { color: #2e7d32; font-weight: 700; }
+.mc-feedback.err { color: #c62828; }
+.progress-dots { display: flex; gap: 8px; margin-bottom: 20px; }
+.pdot { width: 14px; height: 14px; border-radius: 50%; background: #c5cae9; transition: background .3s; }
+.pdot.done { background: #667eea; }
+.regel-karte { display: none; background: linear-gradient(135deg, #e8eaf6, #ede7f6); border-radius: 14px; padding: 22px 26px; border-left: 5px solid #3949ab; margin-top: 10px; }
+.regel-karte h3 { color: #1a237e; margin-bottom: 12px; font-size: 1.05rem; }
+.regel-karte ul { margin-left: 18px; }
+.regel-karte li { color: #333; line-height: 1.8; font-size: 0.95rem; }
+.regel-karte .rk-example { background: #fff; border-radius: 8px; padding: 10px 14px; margin-top: 12px; border-left: 3px solid #7c4dff; font-size: 0.9rem; color: #333; }
+.regel-karte .rk-example b { color: #3949ab; }
+
+/* Lückentext */
+.luecken-item { background: #fafbff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 12px; font-size: 0.95em; line-height: 1.7; color: #333; }
+input.blank { border: none; border-bottom: 2px solid #c5cae9; border-radius: 0; padding: 2px 4px; font-size: 0.95em; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; background: transparent; margin: 0 2px; }
+input.blank:focus { border-color: #667eea; }
+input.blank.correct { border-color: #27ae60; color: #27ae60; font-weight: 600; }
+input.blank.wrong { border-color: #e74c3c; color: #e74c3c; }
+
+/* Zuordnung */
+.zuordnung-categories { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+.zuordnung-cat { background: #f0f0f0; border: 2px dashed #ccc; border-radius: 10px; padding: 12px; min-height: 100px; transition: background .2s; }
+.zuordnung-cat.dragover { background: #e8eaff; border-color: #667eea; }
+.zuordnung-cat-title { font-weight: 700; color: #667eea; text-align: center; margin-bottom: 8px; font-size: 0.95em; border-bottom: 1px solid #ddd; padding-bottom: 6px; }
+.chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 60px; margin-bottom: 14px; transition: background .2s; }
+.chip-bank.dragover { background: #e8eaff; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+.chip.correct { background: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
+.chip.wrong { background: #e74c3c !important; border-color: #e74c3c !important; color: white !important; }
+
+/* Satzbau */
+.satzbau-item { background: #fafbff; padding: 16px 20px; margin-bottom: 20px; border-radius: 12px; border-left: 4px solid #667eea; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+
+/* Footer */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+    <h1>Wortbildungen</h1>
+    <p>B2.1 – Lektion 1042G · Grammatik</p>
+    <div class="big-emoji">🔤</div>
+</div>
+
+<div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)">
+        <span class="nav-emoji">📖</span>
+        <span class="nav-label">Entdecken</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(1)">
+        <span class="nav-emoji">✏️</span>
+        <span class="nav-label">Negation</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(2)">
+        <span class="nav-emoji">🔀</span>
+        <span class="nav-label">Verbpräfixe</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(3)">
+        <span class="nav-emoji">🔀</span>
+        <span class="nav-label">Adjektive</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(4)">
+        <span class="nav-emoji">✏️</span>
+        <span class="nav-label">Suffixe</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(5)">
+        <span class="nav-emoji">🧩</span>
+        <span class="nav-label">Satzbau</span>
+    </div>
+</div>
+
+<!-- SEC-0: Entdecken -->
+<div class="section active" id="sec-0">
+    <img class="tab-banner" src="https://placehold.co/1000x200/667eea/white?text=Entdecken" alt="Entdecken">
+    <div class="sec-inner">
+        <div class="entdeck-intro">
+            <h3>🔍 Schau dir diese Wörter an — was fällt dir auf?</h3>
+            <p>Die Butter in der Pfanne <span class="hl">zer</span>fließt langsam.</p>
+            <p>Ralf hat Susis Kleid rosa <span class="hl">ver</span>färbt.</p>
+            <p>Das Getränk ist völlig <span class="hl">alkohol</span>frei.</p>
+            <p>Hast du diese neue lactose<span class="hl">freie</span> Milch probiert?</p>
+            <p>Diese Symptome sind völlig <span class="hl">a</span>typisch für diese Jahreszeit.</p>
+            <p>Das Ausdrücken meiner Gefühle fällt mir <span class="hl">schwer</span>.</p>
+        </div>
+
+        <div class="progress-dots">
+            <div class="pdot" id="pdot0"></div>
+            <div class="pdot" id="pdot1"></div>
+            <div class="pdot" id="pdot2"></div>
+            <div class="pdot" id="pdot3"></div>
+        </div>
+
+        <div class="mc-step active" id="mc-step0">
+            <h4>Schritt 1: Was passiert bei Wortbildung?</h4>
+            <div class="mc-options">
+                <button class="mc-btn" onclick="mcCheck(0, this, false)">Man ersetzt ein Wort durch ein anderes Wort.</button>
+                <button class="mc-btn" onclick="mcCheck(0, this, true)">Man kombiniert Präfixe, Suffixe oder andere Wörter mit Nomen, Verben oder Adjektiven, um neue Bedeutungen zu erzeugen.</button>
+                <button class="mc-btn" onclick="mcCheck(0, this, false)">Man übersetzt Wörter aus anderen Sprachen direkt ins Deutsche.</button>
+            </div>
+            <div class="mc-feedback" id="mcfb0"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step1">
+            <h4>Schritt 2: „atypisch", „illegal", „unromantisch" — was leisten diese Präfixe?</h4>
+            <div class="mc-options">
+                <button class="mc-btn" onclick="mcCheck(1, this, false)">Sie verstärken die Bedeutung des Ausgangswortes.</button>
+                <button class="mc-btn" onclick="mcCheck(1, this, true)">Sie bilden das Gegenteil — sie negieren das Ausgangswort.</button>
+                <button class="mc-btn" onclick="mcCheck(1, this, false)">Sie machen das Wort zu einem Verb.</button>
+            </div>
+            <div class="mc-feedback" id="mcfb1"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step2">
+            <h4>Schritt 3: „zerfließen", „verfärben", „entfärben" — was ist der Unterschied?</h4>
+            <div class="mc-options">
+                <button class="mc-btn" onclick="mcCheck(2, this, false)">Alle drei bedeuten dasselbe — das Präfix ändert nur den Klang.</button>
+                <button class="mc-btn" onclick="mcCheck(2, this, true)">Jedes Präfix verändert die Bedeutung: zer- = kaputt/geteilt, ver- = unerwünschtes Resultat, ent- = etwas verschwindet/wird weggenommen.</button>
+                <button class="mc-btn" onclick="mcCheck(2, this, false)">Das Präfix zeigt nur die Zeit an (Vergangenheit / Gegenwart).</button>
+            </div>
+            <div class="mc-feedback" id="mcfb2"></div>
+        </div>
+
+        <div class="mc-step" id="mc-step3">
+            <h4>Schritt 4: „Das Ausdrücken meiner Gefühle fällt mir schwer." — was ist „das Ausdrücken"?</h4>
+            <div class="mc-options">
+                <button class="mc-btn" onclick="mcCheck(3, this, false)">Ein normales Adjektiv, das einen Zustand beschreibt.</button>
+                <button class="mc-btn" onclick="mcCheck(3, this, false)">Eine Konjugationsform des Verbs ausdrücken im Präteritum.</button>
+                <button class="mc-btn" onclick="mcCheck(3, this, true)">Ein nominalisiertes Verb — der Infinitiv wird mit Artikel zu einem Nomen (immer neutral, immer großgeschrieben).</button>
+            </div>
+            <div class="mc-feedback" id="mcfb3"></div>
+        </div>
+
+        <div class="regel-karte" id="regelkarte">
+            <h3>📌 Die Regeln der Wortbildung</h3>
+            <ul>
+                <li><strong>Negationspräfixe</strong> (a-, des-, in-, il-, ir-, un-, miss-): bilden das Gegenteil von Adjektiven und Nomen.</li>
+                <li><strong>Verbpräfixe</strong> zer-, ver-, ent- sind <em>nicht trennbar</em> und verändern die Bedeutung des Verbs grundlegend.</li>
+                <li><strong>Farbadjektive</strong>: hell- und dunkel- geben Farbnuancen an (hellbraun, dunkelgrün).</li>
+                <li><strong>Zusammengesetzte Adjektive</strong>: Nomen + Adjektiv verstärken die Eigenschaft (schneeweiß, steinhart, mausetot).</li>
+                <li><strong>Suffix -frei</strong>: etwas ist nicht vorhanden / nicht nötig (alkoholfrei, bügelfrei).</li>
+                <li><strong>Suffix -fähig</strong>: jemand oder etwas kann etwas (leistungsfähig, lernfähig).</li>
+                <li><strong>Suffix -nis</strong>: aus Verben/Adjektiven werden abstrakte Nomen (das Verständnis, die Erkenntnis).</li>
+                <li><strong>Nominalisierung</strong>: Jedes Verb kann zu einem Nomen werden — Infinitiv + Artikel (das Warten, das Denken).</li>
+            </ul>
+            <div class="rk-example">
+                <b>illegal · unromantisch · zerfließen · schneeweiß · alkoholfrei · das Ausdrücken</b>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SEC-1: Lückentext Negation -->
+<div class="section" id="sec-1">
+    <img class="tab-banner" src="https://placehold.co/1000x200/764ba2/white?text=Negation" alt="Negation">
+    <div class="sec-inner">
+        <h2>✏️ Negation mit Präfixen</h2>
+        <div class="control-bar">
+            <div class="btn-row">
+                <button class="btn" onclick="showLoesung(1)">Lösungen</button>
+                <button class="btn" onclick="resetTab(1)">Neu starten</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-1">00:00</span></span>
+                <span class="best-time">🏆 <span id="best-1">--:--</span></span>
+            </div>
+        </div>
+        <div class="hilfe-box">
+            <strong>Wortkasten:</strong> atypisch · Desinteresse · unromantisch · intransparent · irreparabel · illegal · Misserfolg · desorientiert · schneeweiß · illoyal · unmöglich · Missverständnis
+        </div>
+        <div id="luecke1-container">
+            <div class="luecken-item">Diese Symptome sind völlig <input type="text" class="blank" data-answer="atypisch" oninput="liveCheck(this); timerAutoStart(1)"> für diese Jahreszeit.</div>
+            <div class="luecken-item">Ich habe mich im Wald völlig <input type="text" class="blank" data-answer="desorientiert" oninput="liveCheck(this); timerAutoStart(1)"> und fand den Weg nicht mehr.</div>
+            <div class="luecken-item">Er zeigte komplettes <input type="text" class="blank" data-answer="Desinteresse" oninput="liveCheck(this); timerAutoStart(1)"> an dem Projekt.</div>
+            <div class="luecken-item">Das Kleid wurde in einem <input type="text" class="blank" data-answer="schneeweiß" oninput="liveCheck(this); timerAutoStart(1)">en Stoff geliefert.</div>
+            <div class="luecken-item">Das Parken hier ist völlig <input type="text" class="blank" data-answer="illegal" oninput="liveCheck(this); timerAutoStart(1)">.</div>
+            <div class="luecken-item">Die Verhandlung war für alle Seiten total <input type="text" class="blank" data-answer="unromantisch" oninput="liveCheck(this); timerAutoStart(1)">.</div>
+            <div class="luecken-item">Die Buchhaltung der Firma ist völlig <input type="text" class="blank" data-answer="intransparent" oninput="liveCheck(this); timerAutoStart(1)">.</div>
+            <div class="luecken-item">Der Motor ist nach dem Unfall <input type="text" class="blank" data-answer="irreparabel" oninput="liveCheck(this); timerAutoStart(1)">.</div>
+            <div class="luecken-item">Das Projekt war leider ein totaler <input type="text" class="blank" data-answer="Misserfolg" oninput="liveCheck(this); timerAutoStart(1)">.</div>
+            <div class="luecken-item">Es ist fast <input type="text" class="blank" data-answer="unmöglich" oninput="liveCheck(this); timerAutoStart(1)">, bei diesem Lärm zu schlafen.</div>
+            <div class="luecken-item">Er war seinem Chef gegenüber völlig <input type="text" class="blank" data-answer="illoyal" oninput="liveCheck(this); timerAutoStart(1)">.</div>
+            <div class="luecken-item">Das war ein großes <input type="text" class="blank" data-answer="Missverständnis" oninput="liveCheck(this); timerAutoStart(1)"> zwischen uns beiden.</div>
+        </div>
+    </div>
+</div>
+
+<!-- SEC-2: Lückentext Verbpräfixe -->
+<div class="section" id="sec-2">
+    <img class="tab-banner" src="https://placehold.co/1000x200/667eea/white?text=Verbpr%C3%A4fixe" alt="Verbpräfixe">
+    <div class="sec-inner">
+        <h2>✏️ Verbpräfixe ergänzen</h2>
+        <div class="control-bar">
+            <div class="btn-row">
+                <button class="btn" onclick="showLoesung(2)">Lösungen</button>
+                <button class="btn" onclick="resetTab(2)">Neu starten</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+                <span class="best-time">🏆 <span id="best-2">--:--</span></span>
+            </div>
+        </div>
+        <div class="hilfe-box">
+            <strong>Aufgabe:</strong> Ergänze das passende Verbpräfix (<em>zer-, ver-, ent-</em> oder <em>miss-</em>). Der Verbstamm steht bereits da — du tippst nur das Präfix!
+        </div>
+        <div id="luecke2-container">
+            <div class="luecken-item">Die Kinder haben das Papier in kleine Stücke <input type="text" class="blank" data-answer="zer" oninput="liveCheck(this); timerAutoStart(2)">rissen.</div>
+            <div class="luecken-item">Er hat sich im dunklen Wald völlig <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">laufen.</div>
+            <div class="luecken-item">Die Firma hat 200 Mitarbeiter <input type="text" class="blank" data-answer="ent" oninput="liveCheck(this); timerAutoStart(2)">lassen.</div>
+            <div class="luecken-item">Das Experiment ist leider <input type="text" class="blank" data-answer="miss" oninput="liveCheck(this); timerAutoStart(2)">lungen.</div>
+            <div class="luecken-item">Mein Bruder hat die Suppe total <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">salzen.</div>
+            <div class="luecken-item">Der Sturm hat viele Häuser <input type="text" class="blank" data-answer="zer" oninput="liveCheck(this); timerAutoStart(2)">stört.</div>
+            <div class="luecken-item">Mit diesem Mittel kann man Flecken <input type="text" class="blank" data-answer="ent" oninput="liveCheck(this); timerAutoStart(2)">färben.</div>
+            <div class="luecken-item">Das weiße T-Shirt hat sich rot <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">färbt.</div>
+            <div class="luecken-item">Er hat das Holz im Kamin völlig <input type="text" class="blank" data-answer="ver" oninput="liveCheck(this); timerAutoStart(2)">brannt.</div>
+            <div class="luecken-item">Das Glas ist auf dem Boden <input type="text" class="blank" data-answer="zer" oninput="liveCheck(this); timerAutoStart(2)">brochen.</div>
+            <div class="luecken-item">Der Schüler hat die Aufgabe total <input type="text" class="blank" data-answer="miss" oninput="liveCheck(this); timerAutoStart(2)">verstanden.</div>
+            <div class="luecken-item">Man muss die Kirschen vor dem Backen <input type="text" class="blank" data-answer="ent" oninput="liveCheck(this); timerAutoStart(2)">kernen.</div>
+        </div>
+    </div>
+</div>
+
+<!-- SEC-3: Zuordnung Adjektive -->
+<div class="section" id="sec-3">
+    <img class="tab-banner" src="https://placehold.co/1000x200/764ba2/white?text=Adjektive" alt="Adjektive">
+    <div class="sec-inner">
+        <h2>🔀 Zusammengesetzte Adjektive</h2>
+        <div class="control-bar">
+            <div class="btn-row">
+                <button class="btn" onclick="resetZuo(3)">Neu starten</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+                <span class="best-time">🏆 <span id="best-3">--:--</span></span>
+            </div>
+        </div>
+        <div class="hilfe-box">
+            Ordne die Adjektive: Verstärkung durch <strong>Nomen-Präfix</strong> (z.B. schneeweiß, steinhart) oder Farbnuance durch <strong>hell- / dunkel-</strong>?
+        </div>
+        <div class="chip-bank" id="bank3"></div>
+        <div class="zuordnung-categories">
+            <div class="zuordnung-cat" id="cat3-verst" data-cat="verst">
+                <div class="zuordnung-cat-title">Verstärkung (Nomen + Adj.)</div>
+            </div>
+            <div class="zuordnung-cat" id="cat3-farbe" data-cat="farbe">
+                <div class="zuordnung-cat-title">Farbnuance (hell- / dunkel-)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SEC-4: Lückentext Suffixe -->
+<div class="section" id="sec-4">
+    <img class="tab-banner" src="https://placehold.co/1000x200/667eea/white?text=Suffixe" alt="Suffixe">
+    <div class="sec-inner">
+        <h2>✏️ Suffixe anwenden</h2>
+        <div class="control-bar">
+            <div class="btn-row">
+                <button class="btn" onclick="showLoesung(4)">Lösungen</button>
+                <button class="btn" onclick="resetTab(4)">Neu starten</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+                <span class="best-time">🏆 <span id="best-4">--:--</span></span>
+            </div>
+        </div>
+        <div class="hilfe-box">
+            <strong>Wortkasten:</strong> Bassist · Verständnis · alkoholfrei · leistungsfähig · Geheimnis · Kolumnist · rezeptfrei · lernfähig · Kapitalisten · akzentfrei · bügelfrei · sorgenfrei
+        </div>
+        <div id="luecke4-container">
+            <div class="luecken-item">Ich spiele seit 10 Jahren Bass. Ich bin auch <input type="text" class="blank" data-answer="Bassist" oninput="liveCheck(this); timerAutoStart(4)"> in einer Band.</div>
+            <div class="luecken-item">Dieses Getränk hat keinen Alkohol. Es ist <input type="text" class="blank" data-answer="alkoholfrei" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+            <div class="luecken-item">Du hast kaum noch Akzent im Deutschen. Du sprichst fast <input type="text" class="blank" data-answer="akzentfrei" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+            <div class="luecken-item">Das war ein großes <input type="text" class="blank" data-answer="Verständnis" oninput="liveCheck(this); timerAutoStart(4)"> von beiden Seiten.</div>
+            <div class="luecken-item">Sie hat das tiefe <input type="text" class="blank" data-answer="Geheimnis" oninput="liveCheck(this); timerAutoStart(4)"> endlich gelüftet.</div>
+            <div class="luecken-item">Er schreibt regelmäßig für die Zeitung. Er ist <input type="text" class="blank" data-answer="Kolumnist" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+            <div class="luecken-item">Als Mutter ist man selten <input type="text" class="blank" data-answer="sorgenfrei" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+            <div class="luecken-item">Das Hemd aus diesem Stoff ist <input type="text" class="blank" data-answer="bügelfrei" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+            <div class="luecken-item">Das Medikament ist ohne Rezept erhältlich. Es ist <input type="text" class="blank" data-answer="rezeptfrei" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+            <div class="luecken-item">Er besitzt viel Kapital. Man nennt ihn einen <input type="text" class="blank" data-answer="Kapitalisten" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+            <div class="luecken-item">Die Maschine ist voll <input type="text" class="blank" data-answer="leistungsfähig" oninput="liveCheck(this); timerAutoStart(4)"> und arbeitet ohne Störungen.</div>
+            <div class="luecken-item">Ein guter Schüler ist immer auch <input type="text" class="blank" data-answer="lernfähig" oninput="liveCheck(this); timerAutoStart(4)">.</div>
+        </div>
+    </div>
+</div>
+
+<!-- SEC-5: Satzbau -->
+<div class="section" id="sec-5">
+    <img class="tab-banner" src="https://placehold.co/1000x200/764ba2/white?text=Satzbau" alt="Satzbau">
+    <div class="sec-inner">
+        <h2>🧩 Satzbau mit nominalisierten Verben</h2>
+        <div class="control-bar">
+            <div class="btn-row">
+                <button class="btn" onclick="sbSolveAll()">Lösungen</button>
+                <button class="btn" onclick="resetSatzbau()">Neu starten</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-5">00:00</span></span>
+                <span class="best-time">🏆 <span id="best-5">--:--</span></span>
+            </div>
+        </div>
+        <div id="satzbauContainer"></div>
+    </div>
+</div>
+
+<div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+</div><!-- /container -->
+
+<script>
+/* ===== TAB NAVIGATION ===== */
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
+}
+
+/* ===== TIMER SYSTEM ===== */
+var TIMER_PREFIX = 'wortbildung_1042G_';
+var timerStarted = [false, false, false, false, false, false];
+var timerRunning = [false, false, false, false, false, false];
+var timerSeconds = [0, 0, 0, 0, 0, 0];
+var timerIntervals = [null, null, null, null, null, null];
+
+function fmtTime(s) {
+    var m = Math.floor(s / 60), ss = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (ss < 10 ? '0' : '') + ss;
+}
+
+function timerAutoStart(n) {
+    if (timerStarted[n]) return;
+    timerStarted[n] = true;
+    timerRunning[n] = true;
+    timerIntervals[n] = setInterval(function() {
+        timerSeconds[n]++;
+        var el = document.getElementById('timer-' + n);
+        if (el) el.textContent = fmtTime(timerSeconds[n]);
+    }, 1000);
+}
+
+function timerStop(n) {
+    if (!timerRunning[n]) return;
+    timerRunning[n] = false;
+    clearInterval(timerIntervals[n]);
+    timerIntervals[n] = null;
+    var key = TIMER_PREFIX + 'best_' + n;
+    var prev = localStorage.getItem(key);
+    if (!prev || timerSeconds[n] < parseInt(prev, 10)) {
+        localStorage.setItem(key, timerSeconds[n]);
+    }
+    updateBest(n);
+}
+
+function updateBest(n) {
+    var el = document.getElementById('best-' + n);
+    if (!el) return;
+    var v = localStorage.getItem(TIMER_PREFIX + 'best_' + n);
+    el.textContent = v ? fmtTime(parseInt(v, 10)) : '--:--';
+}
+
+function resetTimer(n) {
+    clearInterval(timerIntervals[n]);
+    timerIntervals[n] = null;
+    timerStarted[n] = false;
+    timerRunning[n] = false;
+    timerSeconds[n] = 0;
+    var el = document.getElementById('timer-' + n);
+    if (el) el.textContent = '00:00';
+}
+
+/* ===== MC-SYSTEM (Entdecken) ===== */
+var mcDone = [false, false, false, false];
+
+function mcCheck(step, btn, correct) {
+    var btns = btn.parentElement.querySelectorAll('.mc-btn');
+    btns.forEach(function(b) { b.disabled = true; b.classList.remove('correct', 'wrong'); });
+    var fb = document.getElementById('mcfb' + step);
+    if (correct) {
+        btn.classList.add('correct');
+        fb.textContent = '✓ Richtig! Weiter zum nächsten Schritt.';
+        fb.className = 'mc-feedback ok';
+        mcDone[step] = true;
+        document.getElementById('pdot' + step).classList.add('done');
+        setTimeout(function() {
+            var next = document.getElementById('mc-step' + (step + 1));
+            if (next) { next.classList.add('active'); }
+            else { document.getElementById('regelkarte').style.display = 'block'; }
+        }, 700);
+    } else {
+        btn.classList.add('wrong');
+        fb.textContent = '✗ Nicht ganz — schau nochmal genau hin.';
+        fb.className = 'mc-feedback err';
+        setTimeout(function() {
+            btns.forEach(function(b) { b.disabled = false; b.classList.remove('wrong', 'correct'); });
+            fb.textContent = '';
+            fb.className = 'mc-feedback';
+        }, 1400);
+    }
+}
+
+/* ===== LIVE-CHECK (Lückentext) ===== */
+function liveCheck(inp) {
+    var val = inp.value.trim().toLowerCase();
+    var ans = (inp.dataset.answer || '').toLowerCase();
+    inp.classList.remove('correct', 'wrong');
+    if (!val) return;
+    if (val === ans) {
+        inp.classList.add('correct');
+        checkAllCorrect(inp);
+    } else if (ans.indexOf(val) === 0) {
+        /* neutral: Präfix passt noch */
+    } else {
+        inp.classList.add('wrong');
+    }
+}
+
+function checkAllCorrect(inp) {
+    var sec = inp.closest('.section');
+    if (!sec) return;
+    var blanks = sec.querySelectorAll('input.blank');
+    var allDone = true;
+    blanks.forEach(function(b) { if (!b.classList.contains('correct')) allDone = false; });
+    if (allDone && blanks.length > 0) {
+        var tabIdx = parseInt(sec.id.replace('sec-', ''), 10);
+        timerStop(tabIdx);
+    }
+}
+
+function showLoesung(tabIdx) {
+    var sec = document.getElementById('sec-' + tabIdx);
+    if (!sec) return;
+    sec.querySelectorAll('input.blank').forEach(function(inp) {
+        inp.value = inp.dataset.answer;
+        inp.classList.add('correct');
+        inp.classList.remove('wrong');
+    });
+    timerStop(tabIdx);
+}
+
+function resetTab(tabIdx) {
+    var sec = document.getElementById('sec-' + tabIdx);
+    if (!sec) return;
+    sec.querySelectorAll('input.blank').forEach(function(inp) {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+    });
+    resetTimer(tabIdx);
+}
+
+/* ===== ZUORDNUNG (Tabs 2 + 3) ===== */
+var draggedChip = null;
+
+var zuo3Data = [
+    { w: 'schneeweiß', cat: 'verst' },
+    { w: 'rabenschwarz', cat: 'verst' },
+    { w: 'steinhart', cat: 'verst' },
+    { w: 'butterweich', cat: 'verst' },
+    { w: 'mausetot', cat: 'verst' },
+    { w: 'bettelarm', cat: 'verst' },
+    { w: 'bildschön', cat: 'verst' },
+    { w: 'quicklebendig', cat: 'verst' },
+    { w: 'hellbraun', cat: 'farbe' },
+    { w: 'dunkelblau', cat: 'farbe' },
+    { w: 'hellgrün', cat: 'farbe' },
+    { w: 'dunkelrot', cat: 'farbe' },
+    { w: 'hellgrau', cat: 'farbe' },
+    { w: 'dunkelgelb', cat: 'farbe' }
+];
+
+function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+}
+
+function makeZuoChip(text, cat, tabIdx) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = text;
+    chip.dataset.cat = cat;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        draggedChip = chip;
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        draggedChip = null;
+    });
+    chip.addEventListener('click', function() {
+        timerAutoStart(tabIdx);
+        var inZone = chip.closest('.zuordnung-cat');
+        if (inZone) {
+            document.getElementById('bank' + tabIdx).appendChild(chip);
+        }
+        colorAllZuordnung(tabIdx);
+    });
+    return chip;
+}
+
+function registerZuoZone(zone, tabIdx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zone.classList.add('dragover');
+    });
+    zone.addEventListener('dragleave', function() {
+        zone.classList.remove('dragover');
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (!draggedChip) return;
+        zone.appendChild(draggedChip);
+        draggedChip = null;
+        timerAutoStart(tabIdx);
+        colorAllZuordnung(tabIdx);
+    });
+}
+
+function registerZuoBank(bank, tabIdx) {
+    bank.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        bank.classList.add('dragover');
+    });
+    bank.addEventListener('dragleave', function() {
+        bank.classList.remove('dragover');
+    });
+    bank.addEventListener('drop', function(e) {
+        e.preventDefault();
+        bank.classList.remove('dragover');
+        if (!draggedChip) return;
+        bank.appendChild(draggedChip);
+        draggedChip = null;
+        colorAllZuordnung(tabIdx);
+    });
+}
+
+function colorAllZuordnung(tabIdx) {
+    var sec = document.getElementById('sec-' + tabIdx);
+    var data = zuo3Data;
+    sec.querySelectorAll('.chip').forEach(function(chip) {
+        var zone = chip.closest('.zuordnung-cat');
+        if (zone) {
+            chip.classList.remove('correct', 'wrong');
+            chip.classList.add(chip.dataset.cat === zone.dataset.cat ? 'correct' : 'wrong');
+        } else {
+            chip.classList.remove('correct', 'wrong');
+        }
+    });
+    var ok = sec.querySelectorAll('.zuordnung-cat .chip.correct').length;
+    if (ok === data.length) timerStop(tabIdx);
+}
+
+function initZuo(tabIdx) {
+    var data = zuo3Data;
+    var bank = document.getElementById('bank' + tabIdx);
+    bank.innerHTML = '';
+    registerZuoBank(bank, tabIdx);
+    var sec = document.getElementById('sec-' + tabIdx);
+    sec.querySelectorAll('.zuordnung-cat').forEach(function(zone) {
+        while (zone.children.length > 1) zone.removeChild(zone.lastChild);
+        registerZuoZone(zone, tabIdx);
+    });
+    shuffle(data).forEach(function(item) {
+        bank.appendChild(makeZuoChip(item.w, item.cat, tabIdx));
+    });
+}
+
+function resetZuo(tabIdx) {
+    resetTimer(tabIdx);
+    var bank = document.getElementById('bank' + tabIdx);
+    bank.innerHTML = '';
+    var sec = document.getElementById('sec-' + tabIdx);
+    sec.querySelectorAll('.zuordnung-cat').forEach(function(zone) {
+        while (zone.children.length > 1) zone.removeChild(zone.lastChild);
+    });
+    var data = zuo3Data;
+    shuffle(data).forEach(function(item) {
+        bank.appendChild(makeZuoChip(item.w, item.cat, tabIdx));
+    });
+}
+
+/* ===== SATZBAU (Tab 5) ===== */
+var satzbauData = [
+    { parts: ['das', 'Ausdrücken', 'meiner', 'Gefühle', 'fällt', 'mir', 'schwer'],
+      valid: [['das', 'Ausdrücken', 'meiner', 'Gefühle', 'fällt', 'mir', 'schwer']], punct: '.' },
+    { parts: ['ich', 'bin', 'genervt', 'vom', 'langen', 'Warten'],
+      valid: [['ich', 'bin', 'genervt', 'vom', 'langen', 'Warten']], punct: '.' },
+    { parts: ['die', 'Zeit', 'des', 'ständigen', 'Mitfühlens', 'ist', 'vorbei'],
+      valid: [['die', 'Zeit', 'des', 'ständigen', 'Mitfühlens', 'ist', 'vorbei']], punct: '.' },
+    { parts: ['das', 'Wiederholen', 'der', 'Vokabeln', 'hilft', 'beim', 'Lernen'],
+      valid: [['das', 'Wiederholen', 'der', 'Vokabeln', 'hilft', 'beim', 'Lernen']], punct: '.' },
+    { parts: ['das', 'Denken', 'in', 'Kategorien', 'kann', 'einschränken'],
+      valid: [['das', 'Denken', 'in', 'Kategorien', 'kann', 'einschränken']], punct: '.' },
+    { parts: ['nach', 'dem', 'Laufen', 'fühle', 'ich', 'mich', 'besser'],
+      valid: [['nach', 'dem', 'Laufen', 'fühle', 'ich', 'mich', 'besser']], punct: '.' },
+    { parts: ['das', 'Zuhören', 'ist', 'eine', 'wichtige', 'Fähigkeit'],
+      valid: [['das', 'Zuhören', 'ist', 'eine', 'wichtige', 'Fähigkeit']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function sbUpdateCapitalization(row) {
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        c.textContent = isProper ? orig : (i === 0 ? sbCapitalize(orig) : orig);
+    });
+}
+
+function sbMakeChip(word, idx) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.dataset.sbIdx = String(idx);
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        timerAutoStart(5);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else {
+            zone.appendChild(sbDragged);
+        }
+        sbDragged = null;
+        var row = document.getElementById('sb-row-' + idx);
+        sbUpdateCapitalization(row);
+        sbCheckAuto(idx);
+    });
+}
+
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        var ex = row.querySelector('.sb-punkt');
+        if (ex) ex.parentNode.removeChild(ex);
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        timerAutoStart(5);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct';
+            fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge — verschiebe die Chips!';
+        }
+    }, 500);
+}
+
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk) timerStop(5);
+}
+
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    var ex = row.querySelector('.sb-punkt');
+    if (ex) ex.parentNode.removeChild(ex);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild) row.removeChild(row.firstChild);
+    solution.forEach(function(word) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbSolveAll() {
+    satzbauData.forEach(function(_, i) { sbShowSolution(i); });
+}
+
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild) row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    fb.className = 'satzbau-feedback';
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = parts[i]; parts[i] = parts[j]; parts[j] = t;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+}
+
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        var bank = document.createElement('div');
+        bank.className = 'chips-container';
+        bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div');
+        row.className = 'sentence-builder';
+        row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback';
+        fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var t = parts[i]; parts[i] = parts[j]; parts[j] = t;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn';
+        solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn';
+        resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+        btnRow.appendChild(solveBtn);
+        btnRow.appendChild(resetBtn);
+        item.appendChild(bank);
+        item.appendChild(row);
+        item.appendChild(fb);
+        item.appendChild(btnRow);
+        container.appendChild(item);
+    });
+}
+
+function resetSatzbau() {
+    resetTimer(5);
+    initSatzbau();
+}
+
+/* ===== INIT ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    /* Auto-Breite für Lückentext-Inputs */
+    document.querySelectorAll('input.blank').forEach(function(inp) {
+        var ans = inp.dataset.answer || '';
+        inp.style.width = (ans.length + 4) + 'ch';
+    });
+    /* Zuordnung initialisieren */
+    initZuo(3);
+    /* Satzbau initialisieren */
+    initSatzbau();
+    /* Best-Times laden */
+    for (var i = 1; i <= 5; i++) { updateBest(i); }
+});
+</script>
+</body>
+</html>
