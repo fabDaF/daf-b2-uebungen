@@ -763,6 +763,18 @@ function sbShowSolution(idx) {
     setTimeout(function() { sbCheckAuto(idx); }, 100);
 }
 function sbShowAllSolutions() { satzbauData.forEach(function(_, i) { sbShowSolution(i); }); }
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; fb.className = 'satzbau-feedback';
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp; }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+}
 function initSatzbau() {
     var container = document.getElementById('satzbauContainer');
     container.innerHTML = '';
@@ -775,11 +787,17 @@ function initSatzbau() {
         for (var i = parts.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp; }
         parts.forEach(function(word) { bankEl.appendChild(sbMakeChip(word, idx)); });
         sbRegisterZone(bankEl, idx); sbRegisterZone(rowEl, idx);
-        item.appendChild(bankEl); item.appendChild(rowEl); item.appendChild(fbEl);
+        var btnRow = document.createElement('div'); btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+        var btnS = document.createElement('button'); btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
+        btnS.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+        var btnR = document.createElement('button'); btnR.className = 'btn'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
+        btnR.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+        btnRow.appendChild(btnS); btnRow.appendChild(btnR);
+        item.appendChild(bankEl); item.appendChild(rowEl); item.appendChild(fbEl); item.appendChild(btnRow);
         container.appendChild(item);
     });
 }
-function resetSatzbau() { initSatzbau(); }
+function resetSatzbau() { satzbauData.forEach(function(_, idx) { sbResetOne(idx); }); }
 
 /* ── Wortschatz (Tab 5, Timer 4) ───────────────────────────────────────── */
 var WORTSCHATZ = [
