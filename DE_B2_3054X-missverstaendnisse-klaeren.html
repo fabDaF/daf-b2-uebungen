@@ -495,7 +495,7 @@ function initSatzbau() {
     var btnRow = document.createElement('div');
     btnRow.className = 'sb-btn-row';
     var btnSolve = document.createElement('button');
-    btnSolve.textContent = '💡 Lösung';
+    btnSolve.textContent = 'Lösen';
     btnSolve.onclick = (function(i) { return function() { sbShowSolution(i); }; })(idx);
     var btnReset = document.createElement('button');
     btnReset.textContent = '↺ Neustart';
@@ -618,10 +618,21 @@ function sbUpdateCapitalization(idx) {
 }
 
 function sbCheckAuto(idx) {
+  setTimeout(function(){
+    var row = document.getElementById('sb-row-' + idx);
+    var data = SATZBAU[idx];
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    if (chips.length !== data.parts.length) return;
+    sbColorRow(idx);
+    sbCheckAllDone();
+  }, 500);
+}
+
+function sbColorRow(idx) {
   var row = document.getElementById('sb-row-' + idx);
   var data = SATZBAU[idx];
   var chips = Array.from(row.querySelectorAll('.chip'));
-  if (chips.length !== data.parts.length) return;
+  if (chips.length !== data.parts.length) return false;
   var isCorrect = data.valid.some(function(v) {
     if (chips.length !== v.length) return false;
     return chips.every(function(c, i) {
@@ -634,7 +645,7 @@ function sbCheckAuto(idx) {
   });
   var fb = document.getElementById('sb-fb-' + idx);
   if (fb) fb.textContent = isCorrect ? '✓ Richtig!' : '✗ Noch nicht richtig.';
-  if (isCorrect) sbCheckAllDone();
+  return isCorrect;
 }
 
 function sbCheckAllDone() {
