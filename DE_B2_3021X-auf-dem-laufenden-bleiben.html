@@ -244,7 +244,11 @@
       .nav-btn{ font-size: 0.75rem; padding: 12px 8px; border-bottom:1px solid #ddd;flex:1;}
       .nav-btn .emoji { font-size: 1.1rem; }
     }
-  
+  .satzbau-feedback { font-size: 0.88rem; font-weight: 600; margin-top: 4px; min-height: 1.2em; }
+  .satzbau-feedback.correct { color: #27ae60; }
+  .satzbau-feedback.incorrect { color: #e74c3c; }
+  .chip.incorrect { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+
 /* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
 .container { overflow: hidden; }
 .nav {
@@ -396,6 +400,43 @@
   </div>
 
   <script>
+// ── Daten ────────────────────────────────────────────────────────
+var lueckenData = [
+  { text: 'Viele Leser abonnieren einen <input class="blank" data-answer="Newsletter" placeholder="Newsletter" style="width:110px">, um täglich aktuelle Nachrichten per E-Mail zu erhalten.' },
+  { text: 'Der <input class="blank" data-answer="Algorithmus" placeholder="Algorithmus" style="width:110px"> der sozialen Medien entscheidet, welche Inhalte du in deinem Feed siehst.' },
+  { text: 'Mit einem <input class="blank" data-answer="Abonnement" placeholder="Abonnement" style="width:110px"> kannst du alle Artikel einer Zeitung ohne Werbeunterbrechungen lesen.' },
+  { text: 'Es ist wichtig, Nachrichten aus mehr als einer <input class="blank" data-answer="Quelle" placeholder="Quelle" style="width:75px"> zu lesen, um sich ein vollständiges Bild zu machen.' },
+  { text: 'Der hohe <input class="blank" data-answer="Medienkonsum" placeholder="Medienkonsum" style="width:130px"> vieler Jugendlicher ist ein oft diskutiertes gesellschaftliches Thema.' },
+  { text: 'Der wöchentliche Nachrichten-<input class="blank" data-answer="Podcast" placeholder="Podcast" style="width:80px"> des öffentlich-rechtlichen Senders hat Millionen von Abonnenten.' }
+];
+
+var satzbauData = [
+  { parts: ['Wer', 'informiert', 'sein', 'will', ',', 'sollte', 'verschiedene', 'Quellen', 'nutzen', '.'],
+    valid: [['Wer', 'informiert', 'sein', 'will', ',', 'sollte', 'verschiedene', 'Quellen', 'nutzen', '.']] },
+  { parts: ['Die', 'Nachrichten-App', 'schickt', 'mir', 'täglich', 'aktuelle', 'Meldungen', 'aufs', 'Handy', '.'],
+    valid: [['Die', 'Nachrichten-App', 'schickt', 'mir', 'täglich', 'aktuelle', 'Meldungen', 'aufs', 'Handy', '.']] },
+  { parts: ['Soziale', 'Medien', 'können', 'zur', 'Verbreitung', 'von', 'Falschinformationen', 'beitragen', '.'],
+    valid: [['Soziale', 'Medien', 'können', 'zur', 'Verbreitung', 'von', 'Falschinformationen', 'beitragen', '.']] },
+  { parts: ['Der', 'Podcast', 'bietet', 'tiefgehende', 'Analysen', 'zu', 'aktuellen', 'Themen', '.'],
+    valid: [['Der', 'Podcast', 'bietet', 'tiefgehende', 'Analysen', 'zu', 'aktuellen', 'Themen', '.']] },
+  { parts: ['Ein', 'guter', 'Journalist', 'prüft', 'jede', 'Information', 'vor', 'der', 'Veröffentlichung', '.'],
+    valid: [['Ein', 'guter', 'Journalist', 'prüft', 'jede', 'Information', 'vor', 'der', 'Veröffentlichung', '.']] },
+  { parts: ['Der', 'Algorithmus', 'filtert', 'automatisch', ',', 'welche', 'Nachrichten', 'du', 'siehst', '.'],
+    valid: [['Der', 'Algorithmus', 'filtert', 'automatisch', ',', 'welche', 'Nachrichten', 'du', 'siehst', '.']] }
+];
+
+var vocabData = [
+  { en: 'the news portal', art: 'das', word: 'Nachrichtenportal', plural: 'Nachrichtenportale' },
+  { en: 'the podcast', art: 'der', word: 'Podcast', plural: 'Podcasts' },
+  { en: 'the subscription', art: 'das', word: 'Abonnement', plural: 'Abonnements' },
+  { en: 'the algorithm', art: 'der', word: 'Algorithmus', plural: 'Algorithmen' },
+  { en: 'the source', art: 'die', word: 'Quelle', plural: 'Quellen' },
+  { en: 'the newsletter', art: 'der', word: 'Newsletter', plural: 'Newsletter' },
+  { en: 'the media consumption', art: 'der', word: 'Medienkonsum', plural: '–' },
+  { en: 'the misinformation', art: 'die', word: 'Falschinformation', plural: 'Falschinformationen' }
+];
+
+// ── Tab-Navigation ───────────────────────────────────────────────
 function switchTab(n){
   var tabs=document.querySelectorAll('.tab-content');
   if(!tabs.length)tabs=document.querySelectorAll('.tab');
@@ -483,145 +524,156 @@ document.addEventListener('DOMContentLoaded',function(){
       timerResetOne(1);
     }
 
-    // Satzbau
-    function shuffleArr(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
+    // ── Satzbau (Tab 2) ─────────────────────────────────────────
+    var sbDragged = null;
+
+    function sbMakeChip(word, idx) {
+      var chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = word;
+      chip.draggable = true;
+      chip.dataset.word = word;
+      chip.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', '');
+        sbDragged = chip;
+      });
+      chip.addEventListener('click', function() {
+        var bank = document.getElementById('sb-bank-' + idx);
+        var row  = document.getElementById('sb-row-'  + idx);
+        if (chip.parentNode === bank) { row.appendChild(chip); }
+        else { bank.appendChild(chip); }
+        sbCheckAuto(idx);
+      });
+      return chip;
     }
 
-    function renderSatzbau() {
+    function sbColorRow(idx) {
+      var row = document.getElementById('sb-row-' + idx);
+      var fb  = document.getElementById('sb-fb-'  + idx);
+      if (!row) return false;
+      var chips = row.querySelectorAll('.chip');
+      var placed = Array.from(chips).map(function(c){ return c.textContent; });
+      var valid = satzbauData[idx].valid;
+      var ok = valid.some(function(v){
+        return v.length === placed.length && v.every(function(w,i){ return w === placed[i]; });
+      });
+      row.classList.remove('correct','incorrect');
+      chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
+      if (placed.length > 0) {
+        if (ok) {
+          row.classList.add('correct');
+          chips.forEach(function(c){ c.classList.add('correct'); });
+          fb.textContent = '✓ Richtig!'; fb.className = 'satzbau-feedback correct';
+        } else {
+          row.classList.add('incorrect');
+          chips.forEach(function(c){ c.classList.add('incorrect'); });
+          fb.textContent = '✗ Noch nicht ganz.'; fb.className = 'satzbau-feedback incorrect';
+        }
+      } else {
+        fb.textContent = ''; fb.className = 'satzbau-feedback';
+      }
+      return ok;
+    }
+
+    function sbResetOne(idx) {
+      var bank = document.getElementById('sb-bank-' + idx);
+      var row  = document.getElementById('sb-row-'  + idx);
+      var fb   = document.getElementById('sb-fb-'   + idx);
+      while (bank.firstChild) bank.removeChild(bank.firstChild);
+      while (row.firstChild)  row.removeChild(row.firstChild);
+      row.classList.remove('correct', 'incorrect');
+      fb.textContent = ''; fb.className = 'satzbau-feedback';
+      var parts = satzbauData[idx].parts.slice();
+      for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+      }
+      parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
+    }
+
+    function sbShowSolution(idx) {
+      var bank = document.getElementById('sb-bank-' + idx);
+      var row  = document.getElementById('sb-row-'  + idx);
+      while (bank.firstChild) bank.removeChild(bank.firstChild);
+      while (row.firstChild)  row.removeChild(row.firstChild);
+      satzbauData[idx].valid[0].forEach(function(word){ row.appendChild(sbMakeChip(word, idx)); });
+      sbColorRow(idx);
+    }
+
+    function sbCheckAuto(idx) {
+      var bank = document.getElementById('sb-bank-' + idx);
+      var row  = document.getElementById('sb-row-'  + idx);
+      setTimeout(function(){
+        if (bank.querySelectorAll('.chip').length > 0) { return; }
+        timerAutoStart(2);
+        sbColorRow(idx);
+        var allOk = satzbauData.every(function(_, i){ return sbColorRow(i); });
+        if (allOk) timerStop(2);
+      }, 500);
+    }
+
+    function initSatzbau() {
       var cont = document.getElementById('satzbauContainer2');
       cont.innerHTML = '';
-      satzbauData.forEach((item, idx) => {
-        var div = document.createElement('div');
-        div.style.marginBottom = '20px';
-        var label = document.createElement('div');
-        label.style.fontSize = '0.85rem';
-        label.style.color = '#666';
-        label.style.marginBottom = '8px';
-        label.style.fontWeight = '500';
-        div.appendChild(label);
+      satzbauData.forEach(function(data, idx) {
+        var item = document.createElement('div');
+        item.style.marginBottom = '24px';
 
         var bank = document.createElement('div');
+        bank.id = 'sb-bank-' + idx;
         bank.className = 'chip-bank';
-        var shuffled = shuffleArr([...item.words]);
-        shuffled.forEach(word => {
-          var chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.textContent = word;
-          chip.draggable = true;
-          chip.dataset.idx = idx;
-          chip.dataset.word = word;
-          chip.addEventListener('dragstart', function(e) {
-            e.dataTransfer.setData('text/plain', '');
-            sbDragged = chip;
-          });
-          chip.addEventListener('dragend', function() {
-            colorSbChips(idx);
-          });
-          bank.appendChild(chip);
-        });
-        div.appendChild(bank);
 
-        var zone = document.createElement('div');
-        zone.className = 'drop-zone';
-        zone.dataset.idx = idx;
-        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-        zone.addEventListener('drop', function(e) {
+        var row = document.createElement('div');
+        row.id = 'sb-row-' + idx;
+        row.className = 'drop-zone';
+        row.addEventListener('dragover', function(e){ e.preventDefault(); row.classList.add('dragover'); });
+        row.addEventListener('dragleave', function(){ row.classList.remove('dragover'); });
+        row.addEventListener('drop', function(e){
+          e.preventDefault(); row.classList.remove('dragover');
+          if (sbDragged) { row.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
+        });
+        bank.addEventListener('dragover', function(e){ e.preventDefault(); });
+        bank.addEventListener('drop', function(e){
           e.preventDefault();
-          zone.classList.remove('dragover');
-          if (sbDragged) {
-            zone.appendChild(sbDragged);
-            colorSbChips(idx);
-          }
+          if (sbDragged) { bank.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
         });
-        div.appendChild(zone);
-        cont.appendChild(div);
-      });
 
-    function colorSbChips(idx) {
-      timerAutoStart(2);
-      var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
-      if (!zone) return;
-      var chips = zone.querySelectorAll('.chip');
-      var text = Array.from(chips).map(c => c.textContent).join(' ');
-      satzbauData[idx].words.forEach(word => {
-        var chip = zone.querySelector('.chip[data-word="' + word + '"]');
-        if (chip) chip.classList.remove('correct', 'wrong');
-      });
-      if (text === satzbauData[idx].correct) {
-        chips.forEach(c => c.classList.add('correct'));
-      }
-      checkSatzbau2();
-    }
+        var fb = document.createElement('div');
+        fb.id = 'sb-fb-' + idx;
+        fb.className = 'satzbau-feedback';
 
-    function checkSatzbau2() {
-      var allOk = true;
-      satzbauData.forEach((_, idx) => {
-        var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
-        var text = Array.from(zone.querySelectorAll('.chip')).map(c => c.textContent).join(' ');
-        if (text !== satzbauData[idx].correct) allOk = false;
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+        var btnS = document.createElement('button');
+        btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
+        btnS.addEventListener('click', function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+        var btnR = document.createElement('button');
+        btnR.className = 'btn btn-reset'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
+        btnR.addEventListener('click', function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+        btnRow.appendChild(btnS); btnRow.appendChild(btnR);
+
+        item.appendChild(bank);
+        item.appendChild(row);
+        item.appendChild(fb);
+        item.appendChild(btnRow);
+        cont.appendChild(item);
+
+        var parts = data.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
       });
-      if (allOk) timerStop(2);
     }
 
     function resetTab2() {
-      renderSatzbau();
+      satzbauData.forEach(function(_, idx){ sbResetOne(idx); });
       timerResetOne(2);
     }
 
-    // Wortschatz
-    function renderVocab3() {
-      var cont = document.getElementById('vocabContainer3');
-      cont.innerHTML = '';
-      vocabData.forEach((item, idx) => {
-        var div = document.createElement('div');
-        div.className = 'vocab-item';
-
-        var en = document.createElement('div');
-        en.className = 'vocab-en';
-        en.textContent = item.en;
-
-        var arrow = document.createElement('div');
-        arrow.className = 'vocab-arrow';
-        arrow.textContent = '→';
-
-        var inputs = document.createElement('div');
-        inputs.className = 'vocab-inputs';
-
-        var artInp = document.createElement('input');
-        artInp.className = 'art';
-        artInp.dataset.answer = item.art;
-        artInp.placeholder = 'Art.';
-        artInp.addEventListener('input', function() { liveCheckVocab(this, 'art', idx); });
-
-        var wortInp = document.createElement('input');
-        wortInp.className = 'wort';
-        wortInp.dataset.answer = item.word;
-        wortInp.placeholder = 'Wort';
-        wortInp.addEventListener('input', function() { liveCheckVocab(this, 'word', idx); });
-
-        var pluralInp = document.createElement('input');
-        pluralInp.className = 'plural';
-        pluralInp.dataset.answer = item.plural;
-        pluralInp.placeholder = 'Plural';
-        pluralInp.addEventListener('input', function() { liveCheckVocab(this, 'plural', idx); });
-
-        inputs.appendChild(artInp);
-        inputs.appendChild(wortInp);
-        inputs.appendChild(pluralInp);
-
-        div.appendChild(en);
-        div.appendChild(arrow);
-        div.appendChild(inputs);
-        cont.appendChild(div);
-      });
-
-    function liveCheckVocab(inp, field, idx) {
+    // ── Wortschatz (Tab 3) ───────────────────────────────────────
+    function liveCheckVocab(inp) {
       timerAutoStart(3);
       var val = inp.value.trim().toLowerCase();
       var ans = (inp.dataset.answer || '').toLowerCase();
@@ -640,12 +692,12 @@ document.addEventListener('DOMContentLoaded',function(){
     function checkVocab3() {
       var inputs = document.querySelectorAll('#tab3 input');
       if (inputs.length === 0) return;
-      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
+      var allOk = Array.from(inputs).every(function(i){ return i.classList.contains('correct'); });
       if (allOk) timerStop(3);
     }
 
     function showVocabSolution3() {
-      document.querySelectorAll('#tab3 input').forEach(inp => {
+      document.querySelectorAll('#tab3 input').forEach(function(inp){
         inp.value = inp.dataset.answer;
         inp.classList.add('correct');
       });
@@ -653,30 +705,76 @@ document.addEventListener('DOMContentLoaded',function(){
     }
 
     function resetTab3() {
-      document.querySelectorAll('#tab3 input').forEach(inp => {
+      document.querySelectorAll('#tab3 input').forEach(function(inp){
         inp.value = '';
         inp.classList.remove('correct', 'wrong');
       });
       timerResetOne(3);
     }
 
-    // Init
+    function renderVocab3() {
+      var cont = document.getElementById('vocabContainer3');
+      cont.innerHTML = '';
+      vocabData.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'vocab-item';
+
+        var en = document.createElement('div');
+        en.className = 'vocab-en';
+        en.textContent = item.en;
+
+        var arrow = document.createElement('div');
+        arrow.className = 'vocab-arrow';
+        arrow.textContent = '→';
+
+        var inputs = document.createElement('div');
+        inputs.className = 'vocab-inputs';
+
+        var artInp = document.createElement('input');
+        artInp.className = 'art';
+        artInp.dataset.answer = item.art;
+        artInp.placeholder = 'Art.';
+        artInp.addEventListener('input', function(){ liveCheckVocab(this); });
+
+        var wortInp = document.createElement('input');
+        wortInp.className = 'wort';
+        wortInp.dataset.answer = item.word;
+        wortInp.placeholder = 'Wort';
+        wortInp.addEventListener('input', function(){ liveCheckVocab(this); });
+
+        var pluralInp = document.createElement('input');
+        pluralInp.className = 'plural';
+        pluralInp.dataset.answer = item.plural;
+        pluralInp.placeholder = 'Plural';
+        pluralInp.addEventListener('input', function(){ liveCheckVocab(this); });
+
+        inputs.appendChild(artInp);
+        inputs.appendChild(wortInp);
+        inputs.appendChild(pluralInp);
+
+        div.appendChild(en);
+        div.appendChild(arrow);
+        div.appendChild(inputs);
+        cont.appendChild(div);
+      });
+    }
+
+    // ── Init ─────────────────────────────────────────────────────
     function initPage() {
       var lueckeCont = document.getElementById('lueckenContainer1');
       lueckeCont.innerHTML = '';
-      lueckenData.forEach(item => {
+      lueckenData.forEach(function(item){
         var div = document.createElement('div');
         div.className = 'sentence-block';
         div.innerHTML = item.text;
-        div.querySelector('input').addEventListener('input', function() { liveCheck1(this); });
+        div.querySelector('input').addEventListener('input', function(){ liveCheck1(this); });
         lueckeCont.appendChild(div);
       });
-      renderSatzbau();
+      initSatzbau();
       renderVocab3();
     }
 
     document.addEventListener('DOMContentLoaded', initPage);
-  
-}}</script>
+  </script>
 </body>
 </html>
