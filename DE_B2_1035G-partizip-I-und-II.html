@@ -427,8 +427,8 @@
 
     var satzbauData = [
         {
-            parts: ['die', 'spielenden', 'Kinder', 'sind', 'sehr', 'gl\u00FCcklich'],
-            valid: [['die', 'spielenden', 'Kinder', 'sind', 'sehr', 'gl\u00FCcklich']],
+            parts: ['die', 'spielenden', 'Kinder', 'im', 'Park', 'sind', 'sehr', 'gl\u00FCcklich'],
+            valid: [['die', 'spielenden', 'Kinder', 'im', 'Park', 'sind', 'sehr', 'gl\u00FCcklich']],
             punct: '.'
         },
         {
@@ -437,13 +437,13 @@
             punct: '.'
         },
         {
-            parts: ['der', 'wartende', 'Passagier', 'wurde', 'immer', 'ungeduldiger'],
-            valid: [['der', 'wartende', 'Passagier', 'wurde', 'immer', 'ungeduldiger']],
+            parts: ['der', 'wartende', 'Passagier', 'am', 'Gate', 'wurde', 'immer', 'ungeduldiger'],
+            valid: [['der', 'wartende', 'Passagier', 'am', 'Gate', 'wurde', 'immer', 'ungeduldiger']],
             punct: '.'
         },
         {
-            parts: ['freilebende', 'Tiere', 'k\u00F6nnen', 'sich', 'besser', 'vermehren'],
-            valid: [['freilebende', 'Tiere', 'k\u00F6nnen', 'sich', 'besser', 'vermehren']],
+            parts: ['freilebende', 'Tiere', 'in', 'der', 'Natur', 'k\u00F6nnen', 'sich', 'besser', 'vermehren'],
+            valid: [['freilebende', 'Tiere', 'in', 'der', 'Natur', 'k\u00F6nnen', 'sich', 'besser', 'vermehren']],
             punct: '.'
         },
         {
@@ -457,8 +457,8 @@
             punct: '.'
         },
         {
-            parts: ['das', 'verletzte', 'Tier', 'wurde', 'sofort', 'behandelt'],
-            valid: [['das', 'verletzte', 'Tier', 'wurde', 'sofort', 'behandelt']],
+            parts: ['das', 'schwer', 'verletzte', 'Tier', 'wurde', 'sofort', 'vom', 'Tierarzt', 'behandelt'],
+            valid: [['das', 'schwer', 'verletzte', 'Tier', 'wurde', 'sofort', 'vom', 'Tierarzt', 'behandelt']],
             punct: '.'
         }
     ];
@@ -965,6 +965,18 @@
             container.appendChild(div);
         });
     }
+    function sbResetOne(idx) {
+        var bank = document.getElementById('sb-bank-' + idx);
+        var row  = document.getElementById('sb-row-'  + idx);
+        var fb   = document.getElementById('sb-fb-'   + idx);
+        Array.from(row.querySelectorAll('.chip')).forEach(function(c) { c.classList.remove('correct','incorrect'); bank.appendChild(c); });
+        var punkt = row.querySelector('.sb-punkt'); if (punkt) punkt.remove();
+        row.classList.remove('correct','incorrect');
+        fb.textContent = ''; fb.className = 'satzbau-feedback';
+        var chips = Array.from(bank.querySelectorAll('.chip'));
+        for (var i = chips.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); bank.insertBefore(chips[j],chips[i]); }
+        chips.forEach(function(c) { c.textContent = c.dataset.orig; });
+    }
 
     function initSatzbau() {
         satzbauData.forEach(function(ex, idx) {
@@ -984,6 +996,17 @@
 
             sbRegisterZone(bank, idx);
             sbRegisterZone(row, idx);
+
+            var parent = bank.parentNode;
+            if (parent && !parent.querySelector('.sb-btn-row')) {
+                var btnRow = document.createElement('div'); btnRow.className = 'sb-btn-row'; btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+                var btnS = document.createElement('button'); btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
+                btnS.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+                var btnR = document.createElement('button'); btnR.className = 'btn'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
+                btnR.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+                btnRow.appendChild(btnS); btnRow.appendChild(btnR);
+                parent.appendChild(btnRow);
+            }
         });
     }
 
