@@ -754,6 +754,19 @@ function sbShowAllSolutions() {
   timerStop(3);
 }
 
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-'+idx);
+  var row  = document.getElementById('sb-row-' +idx);
+  var fb   = document.getElementById('sb-fb-'  +idx);
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ c.classList.remove('correct','incorrect'); bank.appendChild(c); });
+  var punkt = row.querySelector('.sb-punkt'); if (punkt) punkt.remove();
+  row.classList.remove('correct','incorrect');
+  if (fb) { fb.textContent = ''; fb.className = 'satzbau-feedback'; }
+  var chips = Array.from(bank.querySelectorAll('.chip'));
+  for (var i = chips.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); bank.insertBefore(chips[j],chips[i]); }
+  chips.forEach(function(c){ c.textContent = c.dataset.orig; });
+}
+
 function initSatzbau() {
   satzbauData.forEach(function(ex, idx) {
     var bank = document.getElementById('sb-bank-'+idx);
@@ -771,10 +784,20 @@ function initSatzbau() {
     parts.forEach(function(word){ bank.appendChild(sbMakeChip(word)); });
     sbRegisterZone(bank, idx);
     sbRegisterZone(row, idx);
+    var parent = bank.parentNode;
+    if (parent && !parent.querySelector('.sb-btn-row')) {
+      var btnRow = document.createElement('div'); btnRow.className = 'sb-btn-row'; btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+      var btnS = document.createElement('button'); btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
+      btnS.addEventListener('click', function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+      var btnR = document.createElement('button'); btnR.className = 'btn'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
+      btnR.addEventListener('click', function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+      btnRow.appendChild(btnS); btnRow.appendChild(btnR);
+      parent.appendChild(btnRow);
+    }
   });
 }
 
-function resetSatzbau() { initSatzbau(); }
+function resetSatzbau() { satzbauData.forEach(function(_,idx){ sbResetOne(idx); }); }
 
 // ═══════════════════════════════════════════════════════════════
 // Wortschatz (Tab 5, timer index 4)
