@@ -227,7 +227,7 @@ function initSatzbau(){
     task.appendChild(row);
     var fb=document.createElement('div');fb.className='sb-feedback';fb.id='sb-fb-'+idx;task.appendChild(fb);
     var btnRow=document.createElement('div');btnRow.className='sb-btn-row';
-    var bS=document.createElement('button');bS.textContent='💡 Lösung';bS.onclick=(function(i){return function(){sbShowSolution(i);};})(idx);
+    var bS=document.createElement('button');bS.textContent='Lösen';bS.onclick=(function(i){return function(){sbShowSolution(i);};})(idx);
     var bR=document.createElement('button');bR.textContent='↺ Neustart';bR.onclick=(function(i){return function(){sbResetOne(i);};})(idx);
     btnRow.appendChild(bS);btnRow.appendChild(bR);task.appendChild(btnRow);
     sbRegisterZone(bank,idx);sbRegisterZone(row,idx);
@@ -265,7 +265,14 @@ function sbRegisterZone(el,idx){
 }
 function sbGetDragAfter(c,x){var els=Array.from(c.querySelectorAll('.chip:not(.dragging)'));return els.reduce(function(cl,ch){var box=ch.getBoundingClientRect();var off=x-box.left-box.width/2;if(off<0&&off>cl.offset)return{offset:off,element:ch};return cl;},{offset:Number.NEGATIVE_INFINITY}).element;}
 function sbUpdateCapitalization(idx){var row=document.getElementById('sb-row-'+idx);if(!row)return;var chips=Array.from(row.querySelectorAll('.chip'));chips.forEach(function(chip,i){var w=chip.dataset.orig;if(w===','||w===';')return;chip.textContent=(i===0)?w.charAt(0).toUpperCase()+w.slice(1):w.toLowerCase();});}
-function sbCheckAuto(idx){var row=document.getElementById('sb-row-'+idx);var data=SATZBAU[idx];var chips=Array.from(row.querySelectorAll('.chip'));if(chips.length!==data.parts.length)return;var ok=data.valid.some(function(v){if(chips.length!==v.length)return false;return chips.every(function(c,i){return c.dataset.orig.toLowerCase()===v[i].toLowerCase();});});chips.forEach(function(c){c.classList.remove('correct','wrong');c.classList.add(ok?'correct':'wrong');});var fb=document.getElementById('sb-fb-'+idx);if(fb)fb.textContent=ok?'✓ Richtig!':'✗ Noch nicht richtig.';if(ok)sbCheckAllDone();}
+function sbCheckAuto(idx){
+  setTimeout(function(){
+    var row=document.getElementById('sb-row-'+idx);var data=SATZBAU[idx];var chips=Array.from(row.querySelectorAll('.chip'));
+    if(chips.length!==data.parts.length)return;
+    sbColorRow(idx);sbCheckAllDone();
+  },500);
+}
+function sbColorRow(idx){var row=document.getElementById('sb-row-'+idx);var data=SATZBAU[idx];var chips=Array.from(row.querySelectorAll('.chip'));if(chips.length!==data.parts.length)return false;var ok=data.valid.some(function(v){if(chips.length!==v.length)return false;return chips.every(function(c,i){return c.dataset.orig.toLowerCase()===v[i].toLowerCase();});});chips.forEach(function(c){c.classList.remove('correct','wrong');c.classList.add(ok?'correct':'wrong');});var fb=document.getElementById('sb-fb-'+idx);if(fb)fb.textContent=ok?'✓ Richtig!':'✗ Noch nicht richtig.';return ok;}
 function sbCheckAllDone(){var allOk=SATZBAU.every(function(data,idx){var row=document.getElementById('sb-row-'+idx);var chips=Array.from(row.querySelectorAll('.chip'));return data.valid.some(function(v){if(chips.length!==v.length)return false;return chips.every(function(c,i){return c.dataset.orig.toLowerCase()===v[i].toLowerCase();});});});if(allOk)stopTimer(3);}
 function sbShowSolution(idx){var row=document.getElementById('sb-row-'+idx);var bank=document.getElementById('sb-bank-'+idx);var data=SATZBAU[idx];var all=Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));row.querySelectorAll('.chip').forEach(function(c){bank.appendChild(c);});data.valid[0].forEach(function(word){var chip=all.find(function(c){return c.dataset.orig.toLowerCase()===word.toLowerCase()&&c.parentElement===bank;});if(chip){var p=row.querySelector('.sb-punkt');if(p)row.insertBefore(chip,p);else row.appendChild(chip);}});sbUpdateCapitalization(idx);sbCheckAuto(idx);stopTimer(3);}
 function sbResetOne(idx){var row=document.getElementById('sb-row-'+idx);var bank=document.getElementById('sb-bank-'+idx);Array.from(row.querySelectorAll('.chip')).forEach(function(c){c.classList.remove('correct','wrong');bank.appendChild(c);});var fb=document.getElementById('sb-fb-'+idx);if(fb)fb.textContent='';}
