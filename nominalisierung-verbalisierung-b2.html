@@ -537,29 +537,29 @@ const FVG_DATA = [
 var satzbauData = [
     // ── Bestehende einfache Sätze (mit Vorsatz als Kontext) ──
     { vorsatz: 'Der Ausschuss hat eine schnelle Entscheidung getroffen.',
-      parts: ['Der', 'Ausschuss', 'hat', 'schnell', 'entschieden'],
-      valid: [['Der','Ausschuss','hat','schnell','entschieden']], punct:'.' },
+      parts: ['Der', 'Ausschuss', 'hat', 'darüber', 'sehr', 'schnell', 'entschieden'],
+      valid: [['Der','Ausschuss','hat','darüber','sehr','schnell','entschieden']], punct:'.' },
     { vorsatz: 'Die Parteien haben eine Vereinbarung zur Kostenteilung abgeschlossen.',
       parts: ['Die', 'Parteien', 'haben', 'vereinbart', ',', 'die', 'Kosten', 'zu', 'teilen'],
       valid: [['Die','Parteien','haben','vereinbart',',','die','Kosten','zu','teilen']], punct:'.' },
     { vorsatz: 'Die Einführung neuer Regelungen steht bevor.',
-      parts: ['Neue', 'Regelungen', 'werden', 'bald', 'eingeführt'],
-      valid: [['Neue','Regelungen','werden','bald','eingeführt']], punct:'.' },
+      parts: ['Die', 'neuen', 'Regelungen', 'werden', 'sehr', 'bald', 'eingeführt'],
+      valid: [['Die','neuen','Regelungen','werden','sehr','bald','eingeführt']], punct:'.' },
     { vorsatz: 'Die Entwicklung einer neuen Lösung ist geplant.',
       parts: ['Es', 'ist', 'geplant', ',', 'eine', 'neue', 'Lösung', 'zu', 'entwickeln'],
       valid: [['Es','ist','geplant',',','eine','neue','Lösung','zu','entwickeln']], punct:'.' },
     { vorsatz: 'Die Prüfung der Unterlagen ist abgeschlossen.',
-      parts: ['Die', 'Unterlagen', 'wurden', 'sorgfältig', 'geprüft'],
-      valid: [['Die','Unterlagen','wurden','sorgfältig','geprüft']], punct:'.' },
+      parts: ['Die', 'Unterlagen', 'wurden', 'gründlich', 'und', 'sorgfältig', 'geprüft'],
+      valid: [['Die','Unterlagen','wurden','gründlich','und','sorgfältig','geprüft']], punct:'.' },
     { vorsatz: 'Das Projekt hat die offizielle Genehmigung erhalten.',
-      parts: ['Das', 'Projekt', 'wurde', 'offiziell', 'genehmigt'],
-      valid: [['Das','Projekt','wurde','offiziell','genehmigt']], punct:'.' },
+      parts: ['Das', 'Projekt', 'wurde', 'nach', 'langer', 'Prüfung', 'genehmigt'],
+      valid: [['Das','Projekt','wurde','nach','langer','Prüfung','genehmigt']], punct:'.' },
     { vorsatz: 'Die Experten haben konstruktive Kritik am Plan geübt.',
       parts: ['Die', 'Experten', 'haben', 'den', 'Plan', 'konstruktiv', 'kritisiert'],
       valid: [['Die','Experten','haben','den','Plan','konstruktiv','kritisiert']], punct:'.' },
     { vorsatz: 'Die Verhandlung der Parteien ist gescheitert.',
-      parts: ['Die', 'Parteien', 'haben', 'erfolglos', 'verhandelt'],
-      valid: [['Die','Parteien','haben','erfolglos','verhandelt']], punct:'.' },
+      parts: ['Die', 'Parteien', 'haben', 'lange', 'und', 'erfolglos', 'verhandelt'],
+      valid: [['Die','Parteien','haben','lange','und','erfolglos','verhandelt']], punct:'.' },
     // ── Mattmüller Prüfungsaufgaben — Verbalisierung ──
     { vorsatz: '(Verbalisierung) Das Arbeitsgedächtnis ist u.a. für die Kontrolle von negativen Emotionen zuständig.',
       parts: ['Das', 'Arbeitsgedächtnis', 'ist', 'u.a.', 'dafür', 'zuständig', ',', 'negative', 'Emotionen', 'zu', 'kontrollieren'],
@@ -1276,6 +1276,30 @@ function sbShowSolution(idx) {
     setTimeout(function() { sbCheckAuto(idx); }, 100);
 }
 
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var allChips = [];
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        allChips.push(c);
+    });
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        allChips.push(c);
+    });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    for (var i = allChips.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = allChips[i]; allChips[i] = allChips[j]; allChips[j] = tmp;
+    }
+    allChips.forEach(function(c) { bank.appendChild(c); });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+}
+
 function initSatzbau() {
     var container = document.getElementById('satzbauContainer');
     container.innerHTML = '';
@@ -1325,6 +1349,21 @@ function initSatzbau() {
         item.appendChild(bank);
         item.appendChild(row);
         item.appendChild(fb);
+
+        var btnRow = document.createElement('div');
+        btnRow.className = 'sb-btn-row';
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn btn-solve';
+        solveBtn.textContent = 'Lösen';
+        (function(i) { solveBtn.addEventListener('click', function() { sbShowSolution(i); }); })(idx);
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn btn-reset';
+        resetBtn.textContent = 'Neustart';
+        (function(i) { resetBtn.addEventListener('click', function() { sbResetOne(i); }); })(idx);
+        btnRow.appendChild(solveBtn);
+        btnRow.appendChild(resetBtn);
+        item.appendChild(btnRow);
+
         container.appendChild(item);
     });
 }
