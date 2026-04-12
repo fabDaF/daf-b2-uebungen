@@ -567,7 +567,7 @@ function initSatzbau() {
     task.appendChild(row);
     var fb = document.createElement('div'); fb.className = 'sb-feedback'; fb.id = 'sb-fb-'+idx; task.appendChild(fb);
     var btnRow = document.createElement('div'); btnRow.className = 'sb-btn-row';
-    var btnS = document.createElement('button'); btnS.textContent = '💡 Lösung';
+    var btnS = document.createElement('button'); btnS.textContent = 'Lösen';
     btnS.onclick = (function(i){return function(){sbShowSolution(i);};})(idx);
     var btnR = document.createElement('button'); btnR.textContent = '↺ Neustart';
     btnR.onclick = (function(i){return function(){sbResetOne(i);};})(idx);
@@ -645,9 +645,19 @@ function sbUpdateCapitalization(idx) {
 }
 
 function sbCheckAuto(idx) {
+  setTimeout(function(){
+    var row = document.getElementById('sb-row-'+idx); var data = SATZBAU[idx];
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    if (chips.length !== data.parts.length) return;
+    sbColorRow(idx);
+    sbCheckAllDone();
+  }, 500);
+}
+
+function sbColorRow(idx) {
   var row = document.getElementById('sb-row-'+idx); var data = SATZBAU[idx];
   var chips = Array.from(row.querySelectorAll('.chip'));
-  if (chips.length !== data.parts.length) return;
+  if (chips.length !== data.parts.length) return false;
   var ok = data.valid.some(function(v) {
     if (chips.length !== v.length) return false;
     return chips.every(function(c,i){ return c.dataset.orig.toLowerCase() === v[i].toLowerCase(); });
@@ -655,7 +665,7 @@ function sbCheckAuto(idx) {
   chips.forEach(function(c){ c.classList.remove('correct','wrong'); c.classList.add(ok?'correct':'wrong'); });
   var fb = document.getElementById('sb-fb-'+idx);
   if (fb) fb.textContent = ok ? '✓ Richtig!' : '✗ Noch nicht richtig.';
-  if (ok) sbCheckAllDone();
+  return ok;
 }
 
 function sbCheckAllDone() {
