@@ -932,6 +932,20 @@ function buildSbHTML() {
     });
 }
 
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    var fb   = document.getElementById('sb-fb-'   + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct','incorrect');
+    if (fb) { fb.textContent = ''; fb.className = 'satzbau-feedback'; }
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+    sbRegisterZone(bank, idx); sbRegisterZone(row, idx);
+}
+
 function initSatzbau() {
     satzbauData.forEach(function(ex, idx) {
         var bank = document.getElementById('sb-bank-' + idx);
@@ -951,6 +965,17 @@ function initSatzbau() {
 
         sbRegisterZone(bank, idx);
         sbRegisterZone(row, idx);
+
+        var parent = bank.parentNode;
+        if (parent && !parent.querySelector('.sb-btn-row')) {
+            var btnRow = document.createElement('div'); btnRow.className = 'sb-btn-row'; btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+            var btnS = document.createElement('button'); btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
+            btnS.addEventListener('click', function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+            var btnR = document.createElement('button'); btnR.className = 'btn'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
+            btnR.addEventListener('click', function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+            btnRow.appendChild(btnS); btnRow.appendChild(btnR);
+            parent.appendChild(btnRow);
+        }
     });
 }
 
