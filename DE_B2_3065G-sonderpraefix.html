@@ -299,6 +299,19 @@ document.addEventListener('DOMContentLoaded',function(){
         var div = document.createElement('div');
         div.className = 'luecke-satz';
         div.innerHTML = item.text;
+        var btnRow = document.createElement('div');
+        btnRow.className = 'sb-btn-row';
+        var btnS = document.createElement('button');
+        btnS.textContent = 'Lösen';
+        btnS.className = 'btn-satzbau';
+        btnS.onclick = (function(i){ return function(){ sbShowSolution(i); }; })(idx);
+        var btnR = document.createElement('button');
+        btnR.textContent = 'Neustart';
+        btnR.className = 'btn-satzbau';
+        btnR.onclick = (function(i){ return function(){ sbResetOne(i); }; })(idx);
+        btnRow.appendChild(btnS);
+        btnRow.appendChild(btnR);
+        div.appendChild(btnRow);
         cont.appendChild(div);
       });
 
@@ -328,7 +341,53 @@ document.addEventListener('DOMContentLoaded',function(){
 
     var sbDragged = null;
 
-    function initSB() {
+    function initSatzbau() { initSB(); }
+
+function sbColorRow(idx) {
+    var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+    if (!dropz) return false;
+    var chips = dropz.querySelectorAll('.chip');
+    var isOk = chips.length === sbData[idx].correct.length &&
+        Array.from(chips).every(function(c, i) { return c.textContent === sbData[idx].correct[i]; });
+    var div = dropz.parentElement;
+    if (div) {
+        div.classList.remove('correct-row', 'wrong-row');
+        if (chips.length > 0) div.classList.add(isOk ? 'correct-row' : 'wrong-row');
+    }
+    return isOk;
+}
+
+function sbCheckAuto(idx) { setTimeout(function() { sbColorRow(idx); }, 500); }
+
+function sbShowSolution(idx) {
+    var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+    if (!dropz) return;
+    var div = dropz.parentElement;
+    var bankEl = div ? div.querySelector('.chip-bank') : null;
+    if (!bankEl) return;
+    var allChips = Array.from(bankEl.querySelectorAll('.chip'))
+        .concat(Array.from(dropz.querySelectorAll('.chip')));
+    allChips.forEach(function(c) { bankEl.appendChild(c); });
+    dropz.innerHTML = '';
+    var available = Array.from(bankEl.querySelectorAll('.chip'));
+    sbData[idx].correct.forEach(function(word) {
+        var chip = available.find(function(c) { return c.textContent === word; });
+        if (chip) { dropz.appendChild(chip); available.splice(available.indexOf(chip), 1); }
+    });
+    sbColorRow(idx);
+}
+
+function sbResetOne(idx) {
+    var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+    if (!dropz) return;
+    var div = dropz.parentElement;
+    var bankEl = div ? div.querySelector('.chip-bank') : null;
+    if (!bankEl) return;
+    Array.from(dropz.querySelectorAll('.chip')).forEach(function(c) { bankEl.appendChild(c); });
+    if (div) div.classList.remove('correct-row', 'wrong-row');
+}
+
+function initSB() {
       var cont = document.getElementById('sb-container');
       cont.innerHTML = '';
       sbData.forEach(function(item, idx) {

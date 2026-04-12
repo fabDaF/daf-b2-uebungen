@@ -35,6 +35,9 @@
     .timer-row { display: flex; align-items: center; gap: 12px; background: white; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); font-size: 0.85rem; color: #666; }
     .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
     .btn-row { display: flex; gap: 12px; margin-bottom: 14px; }
+.sb-btn-row { display:flex; gap:8px; margin-top:6px; }
+.btn-satzbau { background:none; border:1px solid #ddd; border-radius:6px; padding:4px 12px; font-size:0.82em; color:#888; cursor:pointer; transition:all 0.15s; font-weight:500; }
+.btn-satzbau:hover { border-color:#667eea; color:#667eea; }
     .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
     .btn-show { background: #e8eaff; color: #3949ab; }
     .btn-reset { background: #f0f2f5; color: #666; }
@@ -258,7 +261,53 @@ document.addEventListener('DOMContentLoaded',function(){
 
     var sbDragged = null;
 
-    function initSB() { var cont = document.getElementById('sb-container'); cont.innerHTML = ''; sbData.forEach(function(item, idx) { var div = document.createElement('div'); div.className = 'sb-satz'; var bank = document.createElement('div'); bank.className = 'chip-bank'; var shuffled = item.chips.slice().sort(function() { return Math.random() - 0.5; }); shuffled.forEach(function(word) { var chip = document.createElement('div'); chip.className = 'chip'; chip.textContent = word; chip.draggable = true; chip.dataset.idx = idx; chip.addEventListener('dragstart', function(e) { sbDragged = chip; }); chip.addEventListener('dragend', colorAllSB); bank.appendChild(chip); }); div.appendChild(bank); var dropzone = document.createElement('div'); dropzone.className = 'drop-row'; dropzone.dataset.idx = idx; dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); }); dropzone.addEventListener('dragleave', function() { this.classList.remove('dragover'); }); dropzone.addEventListener('drop', function(e) { e.preventDefault(); this.classList.remove('dragover'); if (sbDragged) { this.appendChild(sbDragged); colorAllSB(); } }); div.appendChild(dropzone); cont.appendChild(div); }); }
+    function initSatzbau() { initSB(); }
+
+function sbColorRow(idx) {
+    var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+    if (!dropz) return false;
+    var chips = dropz.querySelectorAll('.chip');
+    var isOk = chips.length === sbData[idx].correct.length &&
+        Array.from(chips).every(function(c, i) { return c.textContent === sbData[idx].correct[i]; });
+    var div = dropz.parentElement;
+    if (div) {
+        div.classList.remove('correct-row', 'wrong-row');
+        if (chips.length > 0) div.classList.add(isOk ? 'correct-row' : 'wrong-row');
+    }
+    return isOk;
+}
+
+function sbCheckAuto(idx) { setTimeout(function() { sbColorRow(idx); }, 500); }
+
+function sbShowSolution(idx) {
+    var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+    if (!dropz) return;
+    var div = dropz.parentElement;
+    var bankEl = div ? div.querySelector('.chip-bank') : null;
+    if (!bankEl) return;
+    var allChips = Array.from(bankEl.querySelectorAll('.chip'))
+        .concat(Array.from(dropz.querySelectorAll('.chip')));
+    allChips.forEach(function(c) { bankEl.appendChild(c); });
+    dropz.innerHTML = '';
+    var available = Array.from(bankEl.querySelectorAll('.chip'));
+    sbData[idx].correct.forEach(function(word) {
+        var chip = available.find(function(c) { return c.textContent === word; });
+        if (chip) { dropz.appendChild(chip); available.splice(available.indexOf(chip), 1); }
+    });
+    sbColorRow(idx);
+}
+
+function sbResetOne(idx) {
+    var dropz = document.querySelector('.drop-row[data-idx="' + idx + '"]');
+    if (!dropz) return;
+    var div = dropz.parentElement;
+    var bankEl = div ? div.querySelector('.chip-bank') : null;
+    if (!bankEl) return;
+    Array.from(dropz.querySelectorAll('.chip')).forEach(function(c) { bankEl.appendChild(c); });
+    if (div) div.classList.remove('correct-row', 'wrong-row');
+}
+
+function initSB() { var cont = document.getElementById('sb-container'); cont.innerHTML = ''; sbData.forEach(function(item, idx) { var div = document.createElement('div'); div.className = 'sb-satz'; var bank = document.createElement('div'); bank.className = 'chip-bank'; var shuffled = item.chips.slice().sort(function() { return Math.random() - 0.5; }); shuffled.forEach(function(word) { var chip = document.createElement('div'); chip.className = 'chip'; chip.textContent = word; chip.draggable = true; chip.dataset.idx = idx; chip.addEventListener('dragstart', function(e) { sbDragged = chip; }); chip.addEventListener('dragend', colorAllSB); bank.appendChild(chip); }); div.appendChild(bank); var dropzone = document.createElement('div'); dropzone.className = 'drop-row'; dropzone.dataset.idx = idx; dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); }); dropzone.addEventListener('dragleave', function() { this.classList.remove('dragover'); }); dropzone.addEventListener('drop', function(e) { e.preventDefault(); this.classList.remove('dragover'); if (sbDragged) { this.appendChild(sbDragged); colorAllSB(); } }); div.appendChild(dropzone); cont.appendChild(div); }); }
 
     function colorAllSB() { sbData.forEach(function(_, idx) { colorSB(idx); }); timerAutoStart(2); }
 
