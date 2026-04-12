@@ -31,6 +31,10 @@
     .chip:active { cursor: grabbing; transform: scale(1.04); }
     .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
     .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .chip.incorrect { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
+    .satzbau-feedback { font-size: 0.88rem; font-weight: 600; margin-top: 4px; min-height: 1.2em; }
+    .satzbau-feedback.correct { color: #27ae60; }
+    .satzbau-feedback.incorrect { color: #e74c3c; }
     .chip-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 16px; min-height: 50px; }
     .drop-zone { min-height: 80px; border: 2px dashed #c5cae9; border-radius: 10px; padding: 12px; background: #fafbff; margin-bottom: 16px; transition: background 0.2s; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; align-content: flex-start; }
     .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
@@ -273,84 +277,161 @@ document.addEventListener('DOMContentLoaded',function(){
     }
 
     var satzbauData = [
-      { words: ['Die', 'Steuererklärung', 'wird', 'jedes', 'Jahr', 'beim', 'Finanzamt', 'eingereicht', '.'], correct: 'Die Steuererklärung wird jedes Jahr beim Finanzamt eingereicht .' },
-      { words: ['Das', 'Finanzamt', 'prüft', ',', 'ob', 'die', 'Steuern', 'korrekt', 'sind', '.'], correct: 'Das Finanzamt prüft , ob die Steuern korrekt sind .' },
-      { words: ['Mit', 'ELSTER', 'können', 'Sie', 'die', 'Steuererklärung', 'online', 'einreichen', '.'], correct: 'Mit ELSTER können Sie die Steuererklärung online einreichen .' },
-      { words: ['Die', 'Frist', 'für', 'die', 'Abgabe', 'ist', 'der', '31.', 'Dezember', '.'], correct: 'Die Frist für die Abgabe ist der 31. Dezember .' },
-      { words: ['Oft', 'gibt', 'es', 'eine', 'Steuererstattung', 'zurück', '.'], correct: 'Oft gibt es eine Steuererstattung zurück .' }
+      { parts: ['Die', 'Steuererklärung', 'wird', 'jedes', 'Jahr', 'beim', 'Finanzamt', 'eingereicht', '.'],
+        valid: [['Die', 'Steuererklärung', 'wird', 'jedes', 'Jahr', 'beim', 'Finanzamt', 'eingereicht', '.']] },
+      { parts: ['Das', 'Finanzamt', 'prüft', ',', 'ob', 'die', 'Steuern', 'korrekt', 'sind', '.'],
+        valid: [['Das', 'Finanzamt', 'prüft', ',', 'ob', 'die', 'Steuern', 'korrekt', 'sind', '.']] },
+      { parts: ['Mit', 'ELSTER', 'können', 'Sie', 'die', 'Steuererklärung', 'online', 'einreichen', '.'],
+        valid: [['Mit', 'ELSTER', 'können', 'Sie', 'die', 'Steuererklärung', 'online', 'einreichen', '.']] },
+      { parts: ['Die', 'Frist', 'für', 'die', 'Abgabe', 'ist', 'der', '31.', 'Dezember', '.'],
+        valid: [['Die', 'Frist', 'für', 'die', 'Abgabe', 'ist', 'der', '31.', 'Dezember', '.']] },
+      { parts: ['Oft', 'gibt', 'es', 'am', 'Ende', 'eine', 'Steuererstattung', '.'],
+        valid: [['Oft', 'gibt', 'es', 'am', 'Ende', 'eine', 'Steuererstattung', '.']] }
     ];
 
-    function shuffleArr(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
+    var sbDragged = null;
+
+    function sbMakeChip(word, idx) {
+      var chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = word;
+      chip.draggable = true;
+      chip.dataset.word = word;
+      chip.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', '');
+        sbDragged = chip;
+      });
+      chip.addEventListener('click', function() {
+        var bank = document.getElementById('sb-bank-' + idx);
+        var row  = document.getElementById('sb-row-'  + idx);
+        if (chip.parentNode === bank) { row.appendChild(chip); }
+        else { bank.appendChild(chip); }
+        sbCheckAuto(idx);
+      });
+      return chip;
     }
 
-    function renderSatzbau() {
+    function sbColorRow(idx) {
+      var row = document.getElementById('sb-row-' + idx);
+      var fb  = document.getElementById('sb-fb-'  + idx);
+      if (!row) return false;
+      var chips = row.querySelectorAll('.chip');
+      var placed = Array.from(chips).map(function(c){ return c.textContent; });
+      var valid = satzbauData[idx].valid;
+      var ok = valid.some(function(v){
+        return v.length === placed.length && v.every(function(w,i){ return w === placed[i]; });
+      });
+      row.classList.remove('correct','incorrect');
+      chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
+      if (placed.length > 0) {
+        if (ok) {
+          row.classList.add('correct');
+          chips.forEach(function(c){ c.classList.add('correct'); });
+          fb.textContent = '✓ Richtig!'; fb.className = 'satzbau-feedback correct';
+        } else {
+          row.classList.add('incorrect');
+          chips.forEach(function(c){ c.classList.add('incorrect'); });
+          fb.textContent = '✗ Noch nicht ganz.'; fb.className = 'satzbau-feedback incorrect';
+        }
+      } else {
+        fb.textContent = ''; fb.className = 'satzbau-feedback';
+      }
+      return ok;
+    }
+
+    function sbResetOne(idx) {
+      var bank = document.getElementById('sb-bank-' + idx);
+      var row  = document.getElementById('sb-row-'  + idx);
+      var fb   = document.getElementById('sb-fb-'   + idx);
+      while (bank.firstChild) bank.removeChild(bank.firstChild);
+      while (row.firstChild)  row.removeChild(row.firstChild);
+      row.classList.remove('correct', 'incorrect');
+      fb.textContent = ''; fb.className = 'satzbau-feedback';
+      var parts = satzbauData[idx].parts.slice();
+      for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+      }
+      parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
+    }
+
+    function sbShowSolution(idx) {
+      var bank = document.getElementById('sb-bank-' + idx);
+      var row  = document.getElementById('sb-row-'  + idx);
+      while (bank.firstChild) bank.removeChild(bank.firstChild);
+      while (row.firstChild)  row.removeChild(row.firstChild);
+      satzbauData[idx].valid[0].forEach(function(word){ row.appendChild(sbMakeChip(word, idx)); });
+      sbColorRow(idx);
+    }
+
+    function sbCheckAuto(idx) {
+      var bank = document.getElementById('sb-bank-' + idx);
+      setTimeout(function(){
+        if (bank.querySelectorAll('.chip').length > 0) { return; }
+        timerAutoStart(2);
+        sbColorRow(idx);
+        var allOk = satzbauData.every(function(_, i){ return sbColorRow(i); });
+        if (allOk) timerStop(2);
+      }, 500);
+    }
+
+    function initSatzbau() {
       var cont = document.getElementById('satzbauContainer');
       cont.innerHTML = '';
-      satzbauData.forEach((item, idx) => {
-        var div = document.createElement('div');
-        div.style.marginBottom = '20px';
+      satzbauData.forEach(function(data, idx) {
+        var item = document.createElement('div');
+        item.style.marginBottom = '24px';
+
         var bank = document.createElement('div');
+        bank.id = 'sb-bank-' + idx;
         bank.className = 'chip-bank';
-        var shuffled = shuffleArr([...item.words]);
-        shuffled.forEach(word => {
-          var chip = document.createElement('div');
-          chip.className = 'chip';
-          chip.textContent = word;
-          chip.draggable = true;
-          chip.dataset.idx = idx;
-          chip.dataset.word = word;
-          chip.addEventListener('dragstart', function(e) {
-            e.dataTransfer.setData('text/plain', '');
-            sbDragged = chip;
-          });
-          chip.addEventListener('dragend', function() {
-            colorSbChips(idx);
-          });
-          bank.appendChild(chip);
+
+        var row = document.createElement('div');
+        row.id = 'sb-row-' + idx;
+        row.className = 'drop-zone';
+        row.addEventListener('dragover', function(e){ e.preventDefault(); row.classList.add('dragover'); });
+        row.addEventListener('dragleave', function(){ row.classList.remove('dragover'); });
+        row.addEventListener('drop', function(e){
+          e.preventDefault(); row.classList.remove('dragover');
+          if (sbDragged) { row.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
         });
-        div.appendChild(bank);
-        var zone = document.createElement('div');
-        zone.className = 'drop-zone';
-        zone.dataset.idx = idx;
-        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-        zone.addEventListener('drop', function(e) {
+        bank.addEventListener('dragover', function(e){ e.preventDefault(); });
+        bank.addEventListener('drop', function(e){
           e.preventDefault();
-          zone.classList.remove('dragover');
-          if (sbDragged) { zone.appendChild(sbDragged); colorSbChips(idx); }
+          if (sbDragged) { bank.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
         });
-        div.appendChild(zone);
-        cont.appendChild(div);
-      });
 
-    function colorSbChips(idx) {
-      timerAutoStart(2);
-      var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
-      if (!zone) return;
-      var chips = zone.querySelectorAll('.chip');
-      var text = Array.from(chips).map(c => c.textContent).join(' ');
-      chips.forEach(c => c.classList.remove('correct', 'wrong'));
-      if (text === satzbauData[idx].correct) { chips.forEach(c => c.classList.add('correct')); }
-      checkSbAll();
-    }
+        var fb = document.createElement('div');
+        fb.id = 'sb-fb-' + idx;
+        fb.className = 'satzbau-feedback';
 
-    function checkSbAll() {
-      var allOk = true;
-      satzbauData.forEach((_, idx) => {
-        var zone = document.querySelector('[data-idx="' + idx + '"].drop-zone');
-        var text = Array.from(zone.querySelectorAll('.chip')).map(c => c.textContent).join(' ');
-        if (text !== satzbauData[idx].correct) allOk = false;
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+        var btnS = document.createElement('button');
+        btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
+        btnS.addEventListener('click', function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+        var btnR = document.createElement('button');
+        btnR.className = 'btn btn-reset'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
+        btnR.addEventListener('click', function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+        btnRow.appendChild(btnS); btnRow.appendChild(btnR);
+
+        item.appendChild(bank);
+        item.appendChild(row);
+        item.appendChild(fb);
+        item.appendChild(btnRow);
+        cont.appendChild(item);
+
+        var parts = data.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
       });
-      if (allOk) timerStop(2);
     }
 
     function resetSatzbau() {
-      renderSatzbau();
+      satzbauData.forEach(function(_, idx){ sbResetOne(idx); });
       timerResetOne(2);
     }
 
@@ -445,12 +526,11 @@ document.addEventListener('DOMContentLoaded',function(){
         div.innerHTML = item.text;
         lueckeCont.appendChild(div);
       });
-      renderSatzbau();
+      initSatzbau();
       renderVocab();
     }
 
     document.addEventListener('DOMContentLoaded', initPage);
-  
-}}</script>
+  </script>
 </body>
 </html>
