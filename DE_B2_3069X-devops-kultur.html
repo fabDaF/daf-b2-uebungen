@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 – Lektion 3069X · DevOps-Kultur</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    transition: all 0.3s;
+    font-size: 0.92em;
+    font-weight: 500;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+@media (max-width: 600px) { .tab-banner { max-height: 120px; } }
+.sec-inner { padding: 28px; }
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+.section-title { font-size: 1.4em; font-weight: 700; color: #667eea; margin-bottom: 8px; }
+.section-sub { color: #888; font-size: 0.92em; margin-bottom: 20px; }
+
+/* Vorentlastung */
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 4px; }
+.vocab-card { background: #f8f9ff; border: 1px solid #dde3ff; border-radius: 10px; padding: 14px 16px; }
+.vocab-term { font-weight: 700; color: #667eea; font-size: 1.05em; margin-bottom: 5px; }
+.vocab-def { color: #555; font-size: 0.92em; line-height: 1.5; }
+
+/* Lesetext */
+.lese-text {
+    max-width: 640px;
+    margin: 0 auto;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.0em;
+    line-height: 1.9;
+    color: #1a1a1a;
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+}
+.lese-text h3 { font-size: 1.05em; color: #667eea; margin: 22px 0 6px 0; font-family: 'Segoe UI', sans-serif; }
+.lese-text p { margin-bottom: 1em; text-indent: 1.4em; }
+.lese-text p:first-child { text-indent: 0; }
+.story-source { margin-top: 24px; color: #aaa; font-size: 0.8em; text-align: right; max-width: 640px; margin-left: auto; margin-right: auto; }
+.vocab-hl { background: #ffe9a0; border-radius: 3px; padding: 1px 3px; font-weight: 600; cursor: help; }
+
+/* Genus */
+.genus-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border: 1px dashed #bbb; border-radius: 10px; min-height: 60px; margin-bottom: 18px; }
+.genus-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 600px) { .genus-grid { grid-template-columns: 1fr 1fr; } }
+.genus-zone-wrap { display: flex; flex-direction: column; align-items: center; }
+.genus-label { font-size: 1.3em; font-weight: 700; color: #667eea; margin-bottom: 8px; padding: 4px 18px; background: #eef0ff; border-radius: 20px; }
+.drop-zone { min-height: 80px; border-radius: 10px; border: 2px dashed #c5cae9; padding: 8px; background: #fafbff; width: 100%; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; transition: background 0.2s; }
+.drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
+
+/* Chips */
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.wrong { background: #e74c3c; border-color: #e74c3c; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.chip.punct-chip { background: #f8f8f8; border: 2px solid #667eea; padding: 8px 16px; color: #333; font-weight: 700; font-size: 1.3em; min-width: 18px; text-align: center; }
+
+/* Lückentext */
+.luecken-item { background: #f8f9ff; padding: 14px 18px; margin-bottom: 12px; border-radius: 10px; border-left: 4px solid #667eea; line-height: 2.0; font-size: 0.95em; }
+input.blank {
+    border: none;
+    border-bottom: 2px solid #667eea;
+    background: transparent;
+    padding: 3px 6px;
+    font-family: inherit;
+    font-size: 0.95em;
+    outline: none;
+    transition: all 0.2s;
+    min-width: 4ch;
+}
+input.blank:focus { border-bottom-color: #764ba2; }
+input.blank.ok { border-bottom-color: #27ae60; color: #27ae60; font-weight: 700; }
+input.blank.no { border-bottom-color: #e74c3c; color: #e74c3c; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+.wortkasten { background: #f3e5f5; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.88em; color: #5a3e9e; line-height: 1.7; }
+
+/* Multiple Choice */
+.mc-exercise { background: #f8f9ff; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px; border-left: 4px solid #667eea; }
+.mc-question { font-size: 1.0em; color: #333; margin-bottom: 10px; line-height: 1.5; }
+.mc-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.mc-opt { padding: 4px 14px; border: 1.5px solid #c5cae9; border-radius: 20px; background: #fff; cursor: pointer; font-size: 11px; letter-spacing: 0.3px; transition: all .2s; }
+.mc-opt:hover { border-color: #667eea; background: #eef0ff; }
+.mc-opt.correct { border-color: #27ae60; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+.mc-opt.wrong { border-color: #e74c3c; background: #ffebee; color: #c62828; }
+.mc-opt:disabled { cursor: not-allowed; opacity: 0.7; }
+
+/* Satzbau */
+.satzbau-item { background: #fafbff; border: 1px solid #e0e4ff; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+
+/* Wortschatz */
+#wortschatzContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 600px) { #wortschatzContainer { grid-template-columns: 1fr; } }
+
+/* Footer */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* Responsive Nav */
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.75em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .sec-inner { padding: 16px; }
+    .genus-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>DevOps-Kultur</h1>
+    <p>B2 – Lektion 3069X · Lesen &amp; Verstehen</p>
+    <div class="big-emoji">💻</div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)">
+      <span class="nav-emoji">📖</span>
+      <span class="nav-label">Vorentlastung</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(1)">
+      <span class="nav-emoji">📄</span>
+      <span class="nav-label">Lesetext</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(2)">
+      <span class="nav-emoji">🔤</span>
+      <span class="nav-label">Genus</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(3)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lückentext</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(4)">
+      <span class="nav-emoji">☑️</span>
+      <span class="nav-label">Multiple Choice</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(5)">
+      <span class="nav-emoji">🧩</span>
+      <span class="nav-label">Satzbau</span>
+    </div>
+    <div class="nav-btn" onclick="showSection(6)">
+      <span class="nav-emoji">📝</span>
+      <span class="nav-label">Wortschatz</span>
+    </div>
+  </div>
+
+  <!-- TAB 0: Vorentlastung -->
+  <div class="section active" id="sec-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Team-Besprechung im modernen Büro">
+    <div class="sec-inner">
+      <div class="section-title">📖 Vorentlastung</div>
+      <div class="section-sub">Lerne zentrale Fachbegriffe, bevor du den Text liest.</div>
+      <div id="vorentlastungGrid" class="vocab-grid"></div>
+    </div>
+  </div>
+
+  <!-- TAB 1: Lesetext -->
+  <div class="section" id="sec-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Moderne Zusammenarbeit im Büro">
+    <div class="sec-inner">
+      <div class="section-title">📄 DevOps-Kultur: Haltungen, die Teams transformieren</div>
+      <div class="section-sub">Lies den Artikel und achte auf die markierten Fachbegriffe.</div>
+      <div class="lese-text">
+        <p>In der modernen Softwareentwicklung reicht technisches Können allein nicht aus. Entscheidend ist, wie Teams denken, kommunizieren und gemeinsam handeln. Das OpenCulture Habit Kit, entwickelt für DevOps-Teams, formuliert fünf grundlegende <span class="vocab-hl" title="eine tief verankerte Einstellung, die Handlungen prägt">Haltungen</span>, die hochleistungsfähige Organisationen von durchschnittlichen unterscheiden.</p>
+
+        <h3>Haltung 1: Wir lieben unsere Kunden</h3>
+        <p>Die kundenzentrierte Haltung geht weit über gelegentliche Zufriedenheitsbefragungen hinaus. Teams, die diese Haltung verkörpern, sammeln systematisch <span class="vocab-hl" title="Rückmeldungen von Nutzern über Erfahrungen mit einem Produkt">Nutzerfeedback</span> und integrieren es in jeden <span class="vocab-hl" title="ein sich wiederholender Verbesserungszyklus">Iterationszyklus</span>. Entscheidungen werden transparent dokumentiert, sodass Kunden nachvollziehen können, welche Überlegungen hinter Priorisierungen stehen. Charakteristisch für diese Haltung ist die Bereitschaft, eigene Annahmen regelmäßig durch direkte Nutzerkontakte zu überprüfen.</p>
+
+        <h3>Haltung 2: Wir lieben Technologie</h3>
+        <p>Technologiebegeisterung ist in DevOps-Teams keine Selbstverständlichkeit, sondern eine kultivierte Praxis. Teams reservieren bewusst Zeit für das Erkunden neuer Werkzeuge und Methoden – nicht als Selbstzweck, sondern im Dienst konkreter Lieferziele. Eine gesunde <span class="vocab-hl" title="der gemeinsame Umgang eines Teams mit Fehlern und Misserfolgen">Fehlerkultur</span> ist dabei unabdingbar: Misserfolge werden nicht sanktioniert, sondern als Lernchance in strukturierten Retrospektiven ausgewertet. Entscheidend ist, dass Wissenstransfer nicht auf Entwickler beschränkt bleibt, sondern alle Teammitglieder einschließt.</p>
+
+        <h3>Haltung 3: Wir liefern das scheinbar Unmögliche</h3>
+        <p>Ambitionierte Lieferziele erzeugen Druck – eine Realität, die hochfunktionale Teams nicht verdrängen, sondern produktiv nutzen. Wöchentliche Reflexionsrunden, in denen Teammitglieder offen benennen, was sich gerade unüberwindbar anfühlt, schaffen einen geschützten Rahmen für das gemeinsame Problemlösen. Dabei geht es weniger um heroische Einzelleistungen als vielmehr um die strukturierte Beseitigung von <span class="vocab-hl" title="Faktoren, die einen Prozess blockieren oder verlangsamen">Hindernissen</span>. Fortschritte – auch inkrementelle – werden aktiv sichtbar gemacht, um die kollektive Motivation aufrechtzuerhalten.</p>
+
+        <h3>Haltung 4: Wir gewinnen zusammen</h3>
+        <p>Die kollaborative Haltung untergräbt die Logik individueller Schuldzuweisungen. Wenn Deployments scheitern oder Fristen verfehlt werden, fragt ein reifes Team nicht „Wer ist schuld?", sondern „Was können wir systemisch verbessern?" Informationen werden proaktiv geteilt, Entscheidungen gemeinsam getroffen und Erfolge kollektiv gefeiert. Diese <span class="vocab-hl" title="radikale Offenheit gegenüber allen Beteiligten">Transparenz</span> senkt nicht nur die Reibungsverluste an <span class="vocab-hl" title="Berührungspunkte zwischen Systemen oder Abteilungen">Schnittstellen</span>, sondern stärkt das gegenseitige Vertrauen nachhaltig.</p>
+
+        <h3>Haltung 5: Wir genießen unsere Arbeit</h3>
+        <p>Intrinsische Motivation ist kein Luxus, sondern ein Wettbewerbsvorteil. Teams, in denen Freude an der Arbeit gelebt wird, zeigen niedrigere Fluktuation, höhere Kreativität und belastbarere Ergebnisse. Führungskräfte, die diese Haltung fördern, schaffen Bedingungen, unter denen kontinuierliches Lernen und persönliches Wachstum selbstverständlich sind. Regelmäßige Erfolgsfeierlichkeiten – auch für kleine Meilensteine – sind kein weicher Faktor, sondern ein bewusstes Steuerungsinstrument.</p>
+
+        <p>Die fünf Haltungen des OpenCulture Habit Kits lassen sich nicht durch das Einführen einzelner Praktiken erzwingen. Sie entstehen, wenn Strukturen, Anreize und Führungsverhalten konsequent auf dieselben Werte ausgerichtet sind. DevOps ist damit weniger ein technisches Rahmenwerk als ein kulturelles Transformationsprojekt.</p>
+      </div>
+      <div class="story-source">Quelle: Adaptiert nach OpenCulture Habit Kit – DevOps Edition · B2 – Lektion 3069X</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Genus -->
+  <div class="section" id="sec-genus">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Technologie und Zusammenarbeit">
+    <div class="sec-inner">
+      <h2>🔤 Genus</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showGenusLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetGenus(); resetTimer(2);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-2">00:00</span></span>
+          <span>🏆 <span id="best-2">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Ziehe jedes Nomen in die richtige Spalte: <strong>der</strong>, <strong>die</strong>, <strong>das</strong> oder <strong>Plural</strong>.</div>
+      <div id="genus-bank" class="genus-bank"></div>
+      <div class="genus-grid">
+        <div class="genus-zone-wrap">
+          <div class="genus-label">der</div>
+          <div class="drop-zone" id="zone-der" data-cat="der"></div>
+        </div>
+        <div class="genus-zone-wrap">
+          <div class="genus-label">die</div>
+          <div class="drop-zone" id="zone-die" data-cat="die"></div>
+        </div>
+        <div class="genus-zone-wrap">
+          <div class="genus-label">das</div>
+          <div class="drop-zone" id="zone-das" data-cat="das"></div>
+        </div>
+        <div class="genus-zone-wrap">
+          <div class="genus-label">Plural</div>
+          <div class="drop-zone" id="zone-pl" data-cat="pl"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Lückentext -->
+  <div class="section" id="sec-luecke">
+    <img class="tab-banner" src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Notizen schreiben am Schreibtisch">
+    <div class="sec-inner">
+      <h2>✏️ Lückentext</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showLueckeLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetLuecke(); resetTimer(3);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-3">00:00</span></span>
+          <span>🏆 <span id="best-3">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Ergänze die fehlenden Wörter. Die Wörter stehen im Kasten.</div>
+      <div class="wortkasten" id="wortkasten-luecke"></div>
+      <div id="lueckenContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Multiple Choice -->
+  <div class="section" id="sec-mc">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3182781/pexels-photo-3182781.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Team diskutiert Ergebnisse">
+    <div class="sec-inner">
+      <h2>☑️ Multiple Choice</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showMCLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetMC(); resetTimer(4);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-4">00:00</span></span>
+          <span>🏆 <span id="best-4">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Wähle die richtige Antwort. Klicke auf eine Option.</div>
+      <div id="mcContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: Satzbau -->
+  <div class="section" id="sec-satzbau">
+    <img class="tab-banner" src="https://images.pexels.com/photos/3182765/pexels-photo-3182765.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Coding und Zusammenarbeit">
+    <div class="sec-inner">
+      <h2>🧩 Satzbau</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="sbShowSolution()">Lösungen</button>
+          <button class="btn" onclick="sbReset(); resetTimer(5);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span>⏱ <span id="timer-5">00:00</span></span>
+          <span>🏆 <span id="best-5">--:--</span></span>
+        </div>
+      </div>
+      <div class="hilfe-box">Bringe die Wörter in die richtige Reihenfolge. Klicke auf ein Wort, um es zu platzieren.</div>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 6: Wortschatz -->
+  <div class="section" id="sec-wortschatz">
+    <img class="tab-banner" src="https://images.pexels.com/photos/4144923/pexels-photo-4144923.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Digitale Kommunikation und Netzwerke">
+    <div class="sec-inner">
+      <h2>📝 Wortschatz</h2>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="wortschatzCheck()">Prüfen</button>
+          <button class="btn" onclick="initWortschatz()">Neu starten</button>
+        </div>
+        <div class="timer-display"></div>
+      </div>
+      <div class="hilfe-box">
+        Nomen: Schreibe den Artikel (<em>der / die / das</em>) und die Pluralform.<br>
+        Verben &amp; Adjektive: Übersetze das Wort ins Englische.
+      </div>
+      <div id="wortschatzContainer"></div>
+    </div>
+  </div>
+
+</div><!-- /.container -->
+
+<div class="author-footer">
+  Erstellt von <span class="author-name"><a href="mailto:frankburkert@gmx.net">Frank Burkert</a></span> ·
+  Basierend auf Quasthoff, Uwe M. (2011): <em>Deutschkompetenz.</em> Stuttgart: Klett · B2 – Lektion 3069X
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATEN
+// ═══════════════════════════════════════════════════════
+
+var VORENTLASTUNG = [
+  { term: "die Haltung, -en",            def: "eine tief verankerte Einstellung oder Überzeugung, die das Handeln einer Person oder eines Teams dauerhaft prägt" },
+  { term: "der Iterationszyklus, -zyklen", def: "ein sich wiederholender Verbesserungskreislauf, in dem Produkte oder Prozesse schrittweise weiterentwickelt werden" },
+  { term: "die Fehlerkultur, -en",        def: "die Art und Weise, wie ein Team oder eine Organisation mit Fehlern, Misserfolgen und Rückschlägen umgeht" },
+  { term: "das Deployment, -s",           def: "die Bereitstellung einer neuen Software-Version im laufenden Betrieb" },
+  { term: "die Retrospektive, -n",        def: "eine strukturierte Reflexionsrunde am Ende eines Projektzyklus, in der ein Team Stärken und Schwächen analysiert" },
+  { term: "die Transparenz (nur Sg.)",    def: "die radikale Offenlegung von Informationen, Entscheidungen und Prozessen gegenüber allen Beteiligten" },
+  { term: "die Schnittstelle, -n",        def: "der Berührungspunkt zwischen zwei Systemen, Abteilungen oder Prozessen, an dem Informationen ausgetauscht werden" },
+  { term: "das Hindernis, -se",           def: "ein Faktor, der einen Prozess verlangsamt oder blockiert und aktiv beseitigt werden muss" },
+  { term: "intrinsisch (Adj.)",           def: "von innen heraus motiviert, ohne äußeren Druck oder externe Belohnung" },
+  { term: "inkrementell (Adj.)",          def: "in kleinen, aufeinander aufbauenden Schritten voranschreitend" },
+];
+
+var GENUS_DATA = [
+  { word: "💡 Iterationszyklus", cat: "der" },
+  { word: "🔍 Retrospektive",    cat: "die" },
+  { word: "🛡️ Transparenz",      cat: "die" },
+  { word: "🔗 Schnittstelle",    cat: "die" },
+  { word: "🚀 Deployment",       cat: "das" },
+  { word: "❌ Hindernis",         cat: "das" },
+  { word: "🏆 Wettbewerbsvorteil", cat: "der" },
+  { word: "📋 Rahmenwerk",        cat: "das" },
+  { word: "🎯 Meilenstein",       cat: "der" },
+  { word: "⚙️ Praktiken",         cat: "pl" },
+  { word: "💬 Rückmeldungen",     cat: "pl" },
+  { word: "🏗️ Strukturen",        cat: "pl" },
+  { word: "📈 Fluktuation",       cat: "die" },
+  { word: "🧩 Anreize",           cat: "pl" },
+  { word: "🤝 Vertrauen",         cat: "das" },
+];
+
+var LUECKE_DATA = [
+  { pre: "Teams integrieren Nutzerfeedback in jeden ", ans: "Iterationszyklus", post: ", um Produkte kontinuierlich zu verbessern." },
+  { pre: "Eine gesunde ", ans: "Fehlerkultur", post: " behandelt Misserfolge nicht als Versagen, sondern als strukturierte Lernchance." },
+  { pre: "Wissenstransfer darf nicht auf Entwickler beschränkt bleiben, sondern muss alle ", ans: "Teammitglieder", post: " einschließen." },
+  { pre: "Wöchentliche Reflexionsrunden schaffen einen geschützten Rahmen für das gemeinsame ", ans: "Problemlösen", post: "." },
+  { pre: "Ein reifes Team fragt nach einem gescheiterten Deployment nicht nach einem ", ans: "Schuldigen", post: "." },
+  { pre: "Transparenz senkt die Reibungsverluste an ", ans: "Schnittstellen", post: " und stärkt das gegenseitige Vertrauen." },
+  { pre: "Intrinsische Motivation ist kein Luxus, sondern ein echter ", ans: "Wettbewerbsvorteil", post: "." },
+  { pre: "Führungskräfte schaffen Bedingungen, unter denen kontinuierliches Lernen ", ans: "selbstverständlich", post: " ist." },
+  { pre: "DevOps ist weniger ein technisches Rahmenwerk als ein kulturelles ", ans: "Transformationsprojekt", post: "." },
+  { pre: "Entscheidungen werden transparent dokumentiert, sodass Kunden die ", ans: "Priorisierungen", post: " nachvollziehen können." },
+];
+
+var MC_DATA = [
+  { q: "Was unterscheidet laut Text hochleistungsfähige Organisationen von durchschnittlichen?",
+    opts: ["ihre technische Infrastruktur", "die Art, wie Teams denken und kommunizieren", "die Größe ihres Entwicklerteams", "die Anzahl ihrer Deployments pro Tag"],
+    correct: 1 },
+  { q: "Wie geht eine kundenzentrierte Haltung laut Text über gelegentliche Befragungen hinaus?",
+    opts: ["durch monatliche Zufriedenheitsberichte", "durch systematisches Sammeln und Integrieren von Nutzerfeedback in jeden Zyklus", "durch externe Marktforschungsinstitute", "durch jährliche Kundengespräche"],
+    correct: 1 },
+  { q: "Wozu dient laut Text die wöchentliche Frage nach dem, was sich unmöglich anfühlt?",
+    opts: ["zur Leistungskontrolle der Mitarbeiter", "zur Dokumentation von Fehlern", "als geschützter Rahmen für kollektives Problemlösen", "zur Motivation durch Wettbewerb"],
+    correct: 2 },
+  { q: "Was versteht der Text unter dem Begriff ‚Fehlerkultur'?",
+    opts: ["das Sanktionieren von Fehlern", "das Verbergen von Problemen vor dem Management", "die strukturierte Auswertung von Misserfolgen als Lernchance", "die Suche nach Schuldigen nach einem Fehler"],
+    correct: 2 },
+  { q: "Wie wird im Text Transparenz definiert?",
+    opts: ["das gelegentliche Teilen von Erfolgsmeldungen", "die radikale Offenlegung von Informationen und Entscheidungen gegenüber allen Beteiligten", "die Veröffentlichung von Quartalszahlen", "das Recht auf Dateneinsicht"],
+    correct: 1 },
+  { q: "Welche Wirkung hat Transparenz laut Text auf Schnittstellen?",
+    opts: ["Sie erhöht die Komplexität.", "Sie schafft mehr bürokratischen Aufwand.", "Sie senkt die Reibungsverluste und stärkt das Vertrauen.", "Sie macht Schnittstellen überflüssig."],
+    correct: 2 },
+  { q: "Warum bezeichnet der Text intrinsische Motivation als ‚Wettbewerbsvorteil'?",
+    opts: ["weil sie keine Kosten verursacht", "weil Teams mit innerer Motivation weniger Gehalt fordern", "weil sie mit niedrigerer Fluktuation, höherer Kreativität und belastbareren Ergebnissen einhergeht", "weil sie gesetzlich vorgeschrieben ist"],
+    correct: 2 },
+  { q: "Welche Schlussfolgerung zieht der Text über das Einführen einzelner Praktiken?",
+    opts: ["Es genügt, eine Praktik konsequent umzusetzen.", "Einzelne Praktiken können die Haltungen nicht erzwingen.", "Die Praktiken sind wichtiger als die Haltungen.", "Neue Praktiken ersetzen Strukturen vollständig."],
+    correct: 1 },
+  { q: "Wie beschreibt der Text Erfolgsfeierlichkeiten bei Meilensteinen?",
+    opts: ["als unnötigen weichen Faktor", "als optionale Teamaktivität", "als bewusstes Steuerungsinstrument", "als zeitraubendes Ritual"],
+    correct: 2 },
+  { q: "Als was definiert der Text DevOps in seinem Fazit?",
+    opts: ["als technisches Betriebsmodell", "als Methode zur Kostensenkung", "als kulturelles Transformationsprojekt", "als agile Entwicklungsmethode"],
+    correct: 2 },
+];
+
+var satzbauData = [
+  { parts: ["Teams", "sammeln", "systematisch", "Nutzerfeedback", "und", "integrieren", "es", "in", "jeden", "Zyklus"], valid: ["Teams", "sammeln", "systematisch", "Nutzerfeedback", "und", "integrieren", "es", "in", "jeden", "Zyklus"], punct: "." },
+  { parts: ["Fehler", "werden", "nicht", "sanktioniert", "sondern", "als", "Lernchance", "ausgewertet"], valid: ["Fehler", "werden", "nicht", "sanktioniert", "sondern", "als", "Lernchance", "ausgewertet"], punct: "." },
+  { parts: ["Ein", "reifes", "Team", "sucht", "nicht", "nach", "einem", "Schuldigen"], valid: ["Ein", "reifes", "Team", "sucht", "nicht", "nach", "einem", "Schuldigen"], punct: "." },
+  { parts: ["Transparenz", "stärkt", "das", "gegenseitige", "Vertrauen", "nachhaltig"], valid: ["Transparenz", "stärkt", "das", "gegenseitige", "Vertrauen", "nachhaltig"], punct: "." },
+  { parts: ["Intrinsische", "Motivation", "ist", "ein", "echter", "Wettbewerbsvorteil"], valid: ["Intrinsische", "Motivation", "ist", "ein", "echter", "Wettbewerbsvorteil"], punct: "." },
+  { parts: ["Informationen", "werden", "proaktiv", "mit", "allen", "Beteiligten", "geteilt"], valid: ["Informationen", "werden", "proaktiv", "mit", "allen", "Beteiligten", "geteilt"], punct: "." },
+  { parts: ["Führungskräfte", "schaffen", "Bedingungen", "für", "kontinuierliches", "Lernen"], valid: ["Führungskräfte", "schaffen", "Bedingungen", "für", "kontinuierliches", "Lernen"], punct: "." },
+  { parts: ["Fortschritte", "werden", "aktiv", "sichtbar", "gemacht"], valid: ["Fortschritte", "werden", "aktiv", "sichtbar", "gemacht"], punct: "." },
+  { parts: ["DevOps", "ist", "ein", "kulturelles", "Transformationsprojekt"], valid: ["DevOps", "ist", "ein", "kulturelles", "Transformationsprojekt"], punct: "." },
+  { parts: ["Alle", "Teammitglieder", "werden", "in", "den", "Wissenstransfer", "einbezogen"], valid: ["Alle", "Teammitglieder", "werden", "in", "den", "Wissenstransfer", "einbezogen"], punct: "." },
+];
+
+var WORTSCHATZ = [
+  { word: "die Haltung",              type: "n", plural: "die Haltungen" },
+  { word: "der Iterationszyklus",     type: "n", plural: "die Iterationszyklen" },
+  { word: "die Fehlerkultur",         type: "n", plural: "die Fehlerkulturen" },
+  { word: "das Deployment",           type: "n", plural: "die Deployments" },
+  { word: "die Retrospektive",        type: "n", plural: "die Retrospektiven" },
+  { word: "die Schnittstelle",        type: "n", plural: "die Schnittstellen" },
+  { word: "das Hindernis",            type: "n", plural: "die Hindernisse" },
+  { word: "der Meilenstein",          type: "n", plural: "die Meilensteine" },
+  { word: "die Fluktuation",          type: "n", plural: "die Fluktuationen" },
+  { word: "der Wettbewerbsvorteil",   type: "n", plural: "die Wettbewerbsvorteile" },
+  { word: "das Rahmenwerk",           type: "n", plural: "die Rahmenwerke" },
+  { word: "das Vertrauen",            type: "n", plural: "— (kein Plural)" },
+  { word: "integrieren",              type: "p", translation: "to integrate" },
+  { word: "priorisieren",             type: "p", translation: "to prioritize" },
+  { word: "dokumentieren",            type: "p", translation: "to document" },
+  { word: "sanktionieren",            type: "p", translation: "to sanction / penalize" },
+  { word: "intrinsisch",              type: "p", translation: "intrinsic" },
+  { word: "inkrementell",             type: "p", translation: "incremental" },
+  { word: "proaktiv",                 type: "p", translation: "proactive" },
+  { word: "transparent",              type: "p", translation: "transparent" },
+];
+
+// ═══════════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════════
+var BEST_KEY = 'best_3069B2_';
+var _tv = {}, _ti = {}, _tr = {};
+
+function _pad(n) { return String(n).padStart(2,'0'); }
+function _fmt(s) { return _pad(Math.floor(s/60))+':'+_pad(s%60); }
+
+function timerAutoStart(n) {
+  if (_tv[n]) return;
+  _tv[n] = true;
+  _tr[n] = 0;
+  clearInterval(_ti[n]);
+  _ti[n] = setInterval(function() {
+    _tr[n]++;
+    var el = document.getElementById('timer-'+n);
+    if (el) el.textContent = _fmt(_tr[n]);
+  }, 1000);
+  var best = localStorage.getItem(BEST_KEY+n);
+  var bel = document.getElementById('best-'+n);
+  if (bel) bel.textContent = best ? _fmt(parseInt(best)) : '--:--';
+}
+
+function timerStop(n) {
+  if (!_tv[n]) return;
+  clearInterval(_ti[n]);
+  var prev = localStorage.getItem(BEST_KEY+n);
+  if (!prev || _tr[n] < parseInt(prev)) {
+    localStorage.setItem(BEST_KEY+n, _tr[n]);
+    var bel = document.getElementById('best-'+n);
+    if (bel) bel.textContent = _fmt(_tr[n]);
+  }
+  _tv[n] = false;
+}
+function stopTimer(n) { timerStop(n); }
+
+function resetTimer(n) {
+  clearInterval(_ti[n]);
+  _tv[n] = false; _tr[n] = 0;
+  var el = document.getElementById('timer-'+n);
+  if (el) el.textContent = '00:00';
+}
+
+function initTimers(tabs) {
+  tabs.forEach(function(n) {
+    var el = document.getElementById('timer-'+n);
+    if (el) el.textContent = '00:00';
+    var best = localStorage.getItem(BEST_KEY+n);
+    var bel = document.getElementById('best-'+n);
+    if (bel) bel.textContent = best ? _fmt(parseInt(best)) : '--:--';
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════
+var TIMER_TABS = { 1:2, 2:3, 3:4, 4:5, 5:6 };
+
+function showSection(idx) {
+  var secs = document.querySelectorAll('.section');
+  var btns = document.querySelectorAll('.nav-btn');
+  secs.forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  btns.forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+  var tIdx = TIMER_TABS[idx];
+  if (tIdx) timerAutoStart(tIdx);
+}
+
+// ═══════════════════════════════════════════════════════
+// VORENTLASTUNG
+// ═══════════════════════════════════════════════════════
+function buildVorentlastung() {
+  var grid = document.getElementById('vorentlastungGrid');
+  if (!grid) return;
+  VORENTLASTUNG.forEach(function(item) {
+    var card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.innerHTML = '<div class="vocab-term">'+item.term+'</div><div class="vocab-def">'+item.def+'</div>';
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// GENUS
+// ═══════════════════════════════════════════════════════
+var draggedChip = null;
+
+function buildGenus() {
+  var bank = document.getElementById('genus-bank');
+  if (!bank) return;
+  var shuffled = GENUS_DATA.slice().sort(function(){return Math.random()-0.5;});
+  shuffled.forEach(function(item) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = item.word;
+    chip.dataset.cat = item.cat;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e){ draggedChip=chip; e.dataTransfer.effectAllowed='move'; });
+    chip.addEventListener('dragend', function(){ draggedChip=null; });
+    bank.appendChild(chip);
+  });
+  document.querySelectorAll('.drop-zone').forEach(function(zone){
+    zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function(){ zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e){
+      e.preventDefault(); zone.classList.remove('dragover');
+      if (!draggedChip) return;
+      zone.appendChild(draggedChip);
+      var correct = draggedChip.dataset.cat === zone.dataset.cat;
+      draggedChip.classList.toggle('correct', correct);
+      draggedChip.classList.toggle('wrong', !correct);
+      timerStop(2);
+    });
+  });
+}
+
+function showGenusLoesung() {
+  timerStop(2);
+  GENUS_DATA.forEach(function(item) {
+    document.querySelectorAll('.chip').forEach(function(chip){
+      if (chip.textContent.trim() === item.word.trim()) {
+        var zone = document.getElementById('zone-'+item.cat);
+        if (zone) { zone.appendChild(chip); chip.className='chip correct'; }
+      }
+    });
+  });
+}
+
+function resetGenus() {
+  var bank = document.getElementById('genus-bank');
+  if (!bank) return;
+  document.querySelectorAll('.drop-zone .chip').forEach(function(chip){
+    chip.className='chip';
+    bank.appendChild(chip);
+  });
+  var shuffled = Array.from(bank.children).sort(function(){return Math.random()-0.5;});
+  shuffled.forEach(function(c){ bank.appendChild(c); });
+}
+
+// ═══════════════════════════════════════════════════════
+// LÜCKENTEXT
+// ═══════════════════════════════════════════════════════
+function buildLuecke() {
+  var wk = document.getElementById('wortkasten-luecke');
+  var ct = document.getElementById('lueckenContainer');
+  if (!wk || !ct) return;
+  var words = LUECKE_DATA.map(function(d){ return d.ans; }).sort(function(){return Math.random()-0.5;});
+  wk.textContent = words.join(' · ');
+  LUECKE_DATA.forEach(function(item, i) {
+    var ph = item.ans;
+    var w = Math.max(ph.length * 1.1, 8) + 'ch';
+    var div = document.createElement('div');
+    div.className = 'luecken-item';
+    div.innerHTML = item.pre +
+      '<input class="blank" id="blank-'+i+'" type="text" placeholder="'+ph+'" style="width:'+w+'">' +
+      item.post;
+    var inp = div.querySelector('input');
+    inp.addEventListener('input', function(){ liveCheck(inp, item.ans, i); });
+    ct.appendChild(div);
+  });
+}
+
+function liveCheck(inp, ans, i) {
+  var val = inp.value.trim();
+  if (!val) { inp.className='blank'; return; }
+  var ok = val.toLowerCase() === ans.toLowerCase();
+  inp.className = ok ? 'blank ok' : 'blank no';
+  if (ok) {
+    var allOk = LUECKE_DATA.every(function(_,j){
+      var el = document.getElementById('blank-'+j);
+      return el && el.classList.contains('ok');
+    });
+    if (allOk) timerStop(3);
+  }
+}
+
+function showLueckeLoesung() {
+  timerStop(3);
+  LUECKE_DATA.forEach(function(item, i){
+    var inp = document.getElementById('blank-'+i);
+    if (inp) { inp.value=item.ans; inp.className='blank correct'; }
+  });
+}
+
+function resetLuecke() {
+  LUECKE_DATA.forEach(function(_,i){
+    var inp = document.getElementById('blank-'+i);
+    if (inp) { inp.value=''; inp.className='blank'; }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// MULTIPLE CHOICE
+// ═══════════════════════════════════════════════════════
+function buildMC() {
+  var ct = document.getElementById('mcContainer');
+  if (!ct) return;
+  MC_DATA.forEach(function(item, qi) {
+    var div = document.createElement('div');
+    div.className = 'mc-exercise';
+    var optsHtml = item.opts.map(function(opt, oi){
+      return '<button class="mc-opt" onclick="checkMC(this,'+qi+','+oi+')">'+opt+'</button>';
+    }).join('');
+    div.innerHTML = '<div class="mc-question">'+(qi+1)+'. '+item.q+'</div><div class="mc-opts">'+optsHtml+'</div>';
+    ct.appendChild(div);
+  });
+}
+
+function checkMC(btn, qi, oi) {
+  var ex = btn.closest('.mc-exercise');
+  if (ex.querySelector('.correct')) return;
+  var btns = ex.querySelectorAll('.mc-opt');
+  btns.forEach(function(b){ b.disabled=true; });
+  btn.classList.add(oi===MC_DATA[qi].correct ? 'correct' : 'wrong');
+  if (oi===MC_DATA[qi].correct) {
+    var allOk = document.querySelectorAll('.mc-exercise .correct').length === MC_DATA.length;
+    if (allOk) timerStop(4);
+  }
+}
+
+function showMCLoesung() {
+  timerStop(4);
+  MC_DATA.forEach(function(item, qi){
+    var ex = document.querySelectorAll('.mc-exercise')[qi];
+    if (!ex) return;
+    var btns = ex.querySelectorAll('.mc-opt');
+    btns.forEach(function(b,oi){ b.disabled=true; if(oi===item.correct) b.classList.add('correct'); });
+  });
+}
+
+function resetMC() {
+  MC_DATA.forEach(function(_,qi){
+    var ex = document.querySelectorAll('.mc-exercise')[qi];
+    if (!ex) return;
+    ex.querySelectorAll('.mc-opt').forEach(function(b){
+      b.disabled=false; b.classList.remove('correct','wrong');
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SATZBAU
+// ═══════════════════════════════════════════════════════
+var sbDragged = null;
+
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', function(){ zone.classList.remove('dragover'); });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.classList.remove('dragover');
+    if (!sbDragged) return;
+    if (sbDragged.dataset.sbIdx !== String(idx)) return;
+    zone.appendChild(sbDragged);
+    sbCheckAuto(idx);
+  });
+}
+
+function buildSatzbau() {
+  var ct = document.getElementById('satzbauContainer');
+  if (!ct) return;
+  satzbauData.forEach(function(item, idx) {
+    var shuffled = item.parts.slice().sort(function(){return Math.random()-0.5;});
+    var chipsHtml = shuffled.map(function(p){
+      return '<div class="chip" draggable="true" data-word="'+p+'" data-sb-idx="'+idx+'">'+p+'</div>';
+    }).join('');
+    var div = document.createElement('div');
+    div.className = 'satzbau-item';
+    div.innerHTML =
+      '<div class="chips-container" id="chips-'+idx+'">'+chipsHtml+'</div>'+
+      '<div class="sentence-builder" id="builder-'+idx+'"></div>'+
+      '<div class="satzbau-feedback" id="sfb-'+idx+'"></div>';
+    ct.appendChild(div);
+    var builder = div.querySelector('#builder-'+idx);
+    sbRegisterZone(builder, idx);
+    div.querySelectorAll('.chip').forEach(function(chip){
+      chip.addEventListener('dragstart', function(e){ sbDragged=chip; e.dataTransfer.effectAllowed='move'; });
+      chip.addEventListener('dragend', function(){ sbDragged=null; });
+      chip.addEventListener('click', function(){
+        var isInBuilder = chip.closest('.sentence-builder');
+        if (isInBuilder) {
+          document.getElementById('chips-'+idx).appendChild(chip);
+        } else {
+          document.getElementById('builder-'+idx).appendChild(chip);
+        }
+        sbCheckAuto(idx);
+      });
+    });
+    sbRegisterZone(div.querySelector('#chips-'+idx), idx);
+  });
+}
+
+function sbCheckAuto(idx) {
+  var builder = document.getElementById('builder-'+idx);
+  var fb = document.getElementById('sfb-'+idx);
+  var chips = Array.from(builder.querySelectorAll('.chip'));
+  var item = satzbauData[idx];
+  if (chips.length < item.valid.length) { builder.className='sentence-builder'; if(fb) fb.textContent=''; return; }
+  var attempt = chips.map(function(c){ return c.dataset.word; });
+  var correct = attempt.join(' ') === item.valid.join(' ');
+  builder.className = correct ? 'sentence-builder correct' : 'sentence-builder incorrect';
+  if (fb) {
+    fb.textContent = correct ? '✓ Richtig! ' + item.valid.join(' ') + item.punct : '✗ Noch nicht ganz richtig.';
+    fb.className = correct ? 'satzbau-feedback correct' : 'satzbau-feedback incorrect';
+  }
+  if (correct) {
+    var allDone = satzbauData.every(function(_,i){
+      var b = document.getElementById('builder-'+i);
+      return b && b.classList.contains('correct');
+    });
+    if (allDone) timerStop(5);
+  }
+}
+
+function sbShowSolution() {
+  timerStop(5);
+  satzbauData.forEach(function(item, idx){
+    var builder = document.getElementById('builder-'+idx);
+    var chipsBox = document.getElementById('chips-'+idx);
+    if (!builder) return;
+    Array.from(chipsBox.querySelectorAll('.chip')).forEach(function(c){ builder.appendChild(c); });
+    var chips = Array.from(builder.querySelectorAll('.chip'));
+    chips.sort(function(a,b){ return item.valid.indexOf(a.dataset.word) - item.valid.indexOf(b.dataset.word); });
+    chips.forEach(function(c){ builder.appendChild(c); });
+    builder.className = 'sentence-builder correct';
+    var fb = document.getElementById('sfb-'+idx);
+    if (fb) { fb.textContent='✓ Lösung: '+item.valid.join(' ')+item.punct; fb.className='satzbau-feedback correct'; }
+  });
+}
+
+function sbReset() {
+  satzbauData.forEach(function(item, idx){
+    var chipsBox = document.getElementById('chips-'+idx);
+    var builder = document.getElementById('builder-'+idx);
+    var fb = document.getElementById('sfb-'+idx);
+    if (!chipsBox || !builder) return;
+    Array.from(builder.querySelectorAll('.chip')).forEach(function(c){ chipsBox.appendChild(c); });
+    builder.className='sentence-builder';
+    if (fb) { fb.textContent=''; fb.className='satzbau-feedback'; }
+    var chips = Array.from(chipsBox.querySelectorAll('.chip'));
+    chips.sort(function(){return Math.random()-0.5;});
+    chips.forEach(function(c){ chipsBox.appendChild(c); });
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// WORTSCHATZ
+// ═══════════════════════════════════════════════════════
+function initWortschatz() {
+  var ct = document.getElementById('wortschatzContainer');
+  if (!ct) return;
+  ct.innerHTML = '';
+  WORTSCHATZ.forEach(function(item, i) {
+    var div = document.createElement('div');
+    div.style.cssText = 'background:#f8f9ff;border:1px solid #dde3ff;border-radius:10px;padding:12px 14px;';
+    if (item.type === 'n') {
+      div.innerHTML =
+        '<div style="font-weight:700;color:#667eea;margin-bottom:6px;">'+item.word+'</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+        '<input type="text" id="ws-art-'+i+'" placeholder="Artikel (der/die/das)" style="flex:1;min-width:120px;border:1px solid #c5cae9;border-radius:6px;padding:5px 8px;font-size:0.88em;">'+
+        '<input type="text" id="ws-pl-'+i+'" placeholder="Plural" style="flex:1;min-width:120px;border:1px solid #c5cae9;border-radius:6px;padding:5px 8px;font-size:0.88em;">'+
+        '</div>';
+    } else {
+      div.innerHTML =
+        '<div style="font-weight:700;color:#667eea;margin-bottom:6px;">'+item.word+'</div>'+
+        '<input type="text" id="ws-tr-'+i+'" placeholder="Englische Übersetzung" style="width:100%;border:1px solid #c5cae9;border-radius:6px;padding:5px 8px;font-size:0.88em;">';
+    }
+    ct.appendChild(div);
+  });
+}
+
+function wortschatzCheck() {
+  WORTSCHATZ.forEach(function(item, i) {
+    if (item.type === 'n') {
+      var artEl = document.getElementById('ws-art-'+i);
+      var plEl  = document.getElementById('ws-pl-'+i);
+      if (!artEl || !plEl) return;
+      var correctArt = item.plural.split(' ')[0].toLowerCase();
+      var artOk = artEl.value.trim().toLowerCase() === correctArt;
+      artEl.style.borderColor = artOk ? '#27ae60' : '#e74c3c';
+      artEl.style.color       = artOk ? '#27ae60' : '#e74c3c';
+      var plVal = plEl.value.trim().toLowerCase();
+      var plCorrect = item.plural.toLowerCase();
+      var plOk = plVal === plCorrect || plVal === plCorrect.replace(/^die\s+/i,'');
+      plEl.style.borderColor = plOk ? '#27ae60' : '#e74c3c';
+      plEl.style.color       = plOk ? '#27ae60' : '#e74c3c';
+    } else {
+      var trEl = document.getElementById('ws-tr-'+i);
+      if (!trEl) return;
+      var trOk = trEl.value.trim().toLowerCase() === item.translation.toLowerCase();
+      trEl.style.borderColor = trOk ? '#27ae60' : '#e74c3c';
+      trEl.style.color       = trOk ? '#27ae60' : '#e74c3c';
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// HIGHLIGHT VOCAB IN TEXT
+// ═══════════════════════════════════════════════════════
+function highlightVocabInText() {
+  // already manually marked in the HTML with .vocab-hl spans
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  initTimers([2,3,4,5,6]);
+  buildVorentlastung();
+  buildGenus();
+  buildLuecke();
+  buildMC();
+  buildSatzbau();
+  initWortschatz();
+});
+</script>
+</body>
+</html>
