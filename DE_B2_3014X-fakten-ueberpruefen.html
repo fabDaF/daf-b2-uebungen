@@ -1,702 +1,891 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fakten überprüfen — Deutsch Lernen fabDaF B2.3</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 40px 30px;
-      text-align: center;
-    }
-    .header h1 { font-size: 1.8rem; margin-bottom: 5px; }
-    .header p { font-size: 0.95rem; opacity: 0.95; }
-    .nav {
-      display: flex;
-      flex-wrap: nowrap;
-      background: #f8f9fa;
-      overflow-x: auto;
-      border-top: 1px solid #ddd;
-      border-left: 1px solid #ddd;
-      border-right: 1px solid #ddd;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 15px;
-      background: #f8f9fa;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.3s;
-      border: none;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: none; }
-    .nav-btn:hover { background: #f0f2f5; }
-    .nav-btn.active {
-      background: white;
-      color: #667eea;
-      font-weight: 700;
-      border-bottom: 3px solid #667eea;
-    }
-    .nav-emoji { font-size: 1.4rem; }
-    .nav-label { font-weight: 600; color: #333; }
-    .content { padding: 30px; }
-    .tab { display: none; }
-    .tab.active { display: block; }
-    .intro-card {
-      background: #f3e5f5;
-      border-radius: 12px;
-      padding: 22px 26px;
-      margin-bottom: 20px;
-      border-left: 5px solid #9c27b0;
-      font-size: 0.97rem;
-      line-height: 1.75;
-      color: #333;
-    }
-    .intro-card h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.1rem; }
-    .intro-card ul { margin-left: 18px; margin-top: 12px; }
-    .intro-card li { margin-bottom: 10px; }
-    .help-box {
-      background: #e8f4fd;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      border-left: 4px solid #0288d1;
-      font-size: 0.9rem;
-      color: #01579b;
-    }
-    .timer-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      border-radius: 10px;
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
-    .best-time { color: #f39c12; font-weight: 600; }
-    .btn-row { display: flex; gap: 10px; margin-bottom: 20px; }
-    .btn {
-      padding: 9px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn:hover { background: #764ba2; }
-    input.blank {
-      border: 2px solid #c5cae9;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-      background: white;
-      margin: 0 2px;
-    }
-    input.blank:focus { border-color: #667eea; }
-    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
-    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
-    .correction-hint {
-      font-size: 0.78rem;
-      color: #27ae60;
-      font-weight: 700;
-      margin-left: 4px;
-      white-space: nowrap;
-    }
-    .chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      cursor: grab;
-      font-size: 0.85rem;
-      font-weight: 600;
-      user-select: none;
-      transition: transform 0.15s, opacity 0.15s;
-      white-space: nowrap;
-      display: inline-block;
-      margin: 4px 4px 4px 0;
-    }
-    .chip:active { cursor: grabbing; transform: scale(1.04); }
-    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-    .sentence-builder {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      min-height: 44px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 2px dashed #c5cae9;
-      background: #fafbff;
-      margin-bottom: 6px;
-    }
-    .sentence-builder.dragover { background: #e8eaff; border-color: #667eea; }
-    .chips-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      margin-bottom: 6px;
-      min-height: 54px;
-    }
-    .sb-punkt { color: #999; font-weight: 700; font-size: 1.1rem; margin-left: 4px; }
-    .sb-insert-cursor { width: 3px; height: 22px; background: #667eea; border-radius: 2px; }
-    .sb-btn-row { display: flex; gap: 8px; margin-top: 4px; }
-    .sb-btn-row .btn {
-      padding: 6px 16px; font-size: 0.85em;
-      background: #f5f7ff; color: #667eea;
-      border: 1px solid #c5cff5; border-radius: 8px;
-    }
-    .sb-btn-row .btn:hover { background: #667eea; color: white; border-color: #667eea; }
-    .author-footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 16px;
-      font-size: 0.8rem;
-      color: #aaa;
-      border-top: 1px solid #f0f2f5;
-    }
-    .author-footer a { color: #aaa; }
-    .author-name { font-weight: 700; }
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .header h1 { font-size: 1.2rem; }
-      .nav { flex-wrap: wrap; }
-      .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fakten überprüfen – B2.3 · 3014X</title>
+<style>
+/* ── GLOBAL ──────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+/* ── NAVIGATION ──────────────────────────────────────────── */
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+/* ── SECTIONS ────────────────────────────────────────────── */
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 28px 30px; }
+
+/* ── TAB-BANNER ──────────────────────────────────────────── */
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+
+/* ── CONTROL-BAR ─────────────────────────────────────────── */
+.timer-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* ── HILFE-BOX ───────────────────────────────────────────── */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+/* ── VORENTLASTUNG ───────────────────────────────────────── */
+.vorent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.vorent-card { background: #f3f4ff; border-radius: 10px; padding: 12px 15px; border-left: 3px solid #667eea; }
+.vorent-card .de { font-weight: 700; color: #283593; font-size: 0.95rem; }
+.vorent-card .en { font-size: 0.8rem; color: #888; margin-top: 3px; }
+.vorent-card .bsp { font-size: 0.78rem; color: #666; margin-top: 4px; font-style: italic; line-height: 1.4; }
+.frage-box { background: #fff8e1; border-left: 4px solid #f9a825; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 20px; }
+.frage-box p { color: #555; font-size: 0.97rem; line-height: 1.6; }
+.frage-box strong { color: #e65100; }
+
+/* ── LESETEXT ────────────────────────────────────────────── */
+.story-text { font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; font-size: 1.05rem; line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.story-text h2 { font-size: 1.4rem; color: #283593; margin-bottom: 20px; font-family: Georgia, serif; text-align: left; }
+.story-text p { margin-bottom: 1.2em; text-indent: 1.4em; }
+.story-text p:first-of-type { text-indent: 0; }
+.vocab-hl { background: #fff9c4; border-radius: 3px; padding: 0 3px; cursor: help; border-bottom: 1px dotted #f9a825; }
+
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+.wordbox { background: #f3e5f5; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.9em; color: #555; line-height: 1.8; }
+.wordbox strong { color: #6a1b9a; }
+.luecken-item { margin-bottom: 14px; font-size: 0.97rem; line-height: 2; color: #333; }
+.luecken-inp { border: none; border-bottom: 2px solid #9c27b0; padding: 2px 6px; font-size: 0.95em; font-family: inherit; outline: none; min-width: 140px; text-align: center; background: transparent; transition: border-color .2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #43a047; background: #e8f5e9; color: #1b5e20; border-radius: 4px 4px 0 0; }
+.luecken-inp.no { border-bottom-color: #e53935; background: #ffebee; color: #b71c1c; border-radius: 4px 4px 0 0; }
+
+/* ── MULTIPLE CHOICE ─────────────────────────────────────── */
+.mc-item { background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; border: 1px solid #c5cae9; }
+.mc-item h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; font-weight: 600; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-opt { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: #fff; cursor: pointer; font-size: 0.91rem; transition: all .2s; text-align: left; font-family: inherit; }
+.mc-opt:hover { border-color: #667eea; background: #f3f4ff; }
+.mc-opt.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; pointer-events: none; }
+.mc-opt.wrong { border-color: #e53935; background: #ffebee; color: #b71c1c; pointer-events: none; }
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.sb-btn-row { display:flex; gap:8px; margin-top:10px; }
+.sb-btn-row .btn { padding:6px 16px; font-size:0.85em; color:#667eea; border-color:#c5cff5; border-radius:8px; background:#f5f7ff; }
+.sb-btn-row .btn:hover { background:#667eea; color:white; border-color:#667eea; }
+
+/* ── WORTSCHATZ ──────────────────────────────────────────── */
+#wortschatzContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#wortschatzContainer .luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 12px 16px; margin-bottom: 0; }
+.ws-prompt { font-weight: 600; color: #4a148c; font-size: 1.0em; margin-bottom: 8px; }
+.ws-inputs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+input.blank { border: none; border-bottom: 2px solid #667eea; background: transparent; padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none; transition: all 0.2s; min-width: 4ch; }
+input.blank:focus { border-bottom-color: #764ba2; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #1b5e20; }
+input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #b71c1c; }
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer { background: #f8f9fa; border-top: 1px solid #eee; text-align: center; padding: 12px 20px; font-size: 0.78em; color: #aaa; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+    #wortschatzContainer { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Fakten überprüfen</h1>
-      <p>B2.3 – Lektion 3014X · Kommunikation</p>
-    </div>
-    <div class="nav">
-      <button class="nav-btn active" onclick="showTab(0)">
-        <span class="nav-emoji">🚀</span>
-        <span class="nav-label">Einstieg</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(1)">
-        <span class="nav-emoji">✏️</span>
-        <span class="nav-label">Lückentext</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(2)">
-        <span class="nav-emoji">🔀</span>
-        <span class="nav-label">Satzbau</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(3)">
-        <span class="nav-emoji">📚</span>
-        <span class="nav-label">Wortschatz</span>
-      </button>
-    </div>
+<div class="container">
 
-    <div class="content">
+<!-- HEADER -->
+<div class="header">
+  <span class="big-emoji">🔎</span>
+  <h1>Fakten überprüfen</h1>
+  <p>B2.3 – Lektion 3014X · Kommunikation</p>
+</div>
 
-      <!-- TAB 0: Einstieg -->
-      <div class="tab active" id="tab0">
-        <div class="intro-card">
-          <h3>Was heißt eigentlich „einen Fakt überprüfen"?</h3>
-          <p>Nie zuvor waren so viele Informationen so leicht verfügbar — und nie zuvor war es so wichtig, zwischen Fakt und Gerücht unterscheiden zu können. In sozialen Netzwerken verbreiten sich falsche Behauptungen in Minuten. Seriöse Redaktionen beschäftigen heute eigene „Fact-Checker", deren einziger Beruf es ist, Aussagen auf ihren Wahrheitsgehalt zu prüfen.</p>
-          <p style="margin-top: 12px;">Dabei helfen fünf einfache Fragen:</p>
-          <ul>
-            <li><strong>Woher stammt die Information?</strong> Prüfe die Quelle: Handelt es sich um eine anerkannte Institution, eine Fachzeitschrift oder um einen anonymen Social-Media-Account?</li>
-            <li><strong>Bestätigen andere Quellen die Behauptung?</strong> Wenn nur eine einzige Seite eine spektakuläre Aussage trägt, ist Skepsis angebracht.</li>
-            <li><strong>Werden Belege genannt?</strong> Seriöse Texte verweisen auf Studien, Zahlen oder Expertinnen — unseriöse argumentieren mit Bauchgefühl.</li>
-            <li><strong>Unterscheide ich Fakt und Meinung?</strong> „Die Temperatur steigt seit 1900 um 1,1 °C" ist ein Fakt. „Das ist kein Grund zur Sorge" ist eine Meinung.</li>
-            <li><strong>Prüfe deine eigene Neigung:</strong> Der sogenannte <em>Bestätigungsfehler</em> lässt uns Informationen bevorzugen, die unsere Überzeugungen stützen — eine der häufigsten Denkfallen überhaupt.</li>
-          </ul>
-        </div>
-      </div>
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
+    <span class="nav-emoji">📋</span><span class="nav-label">Vorentlastung</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
+    <span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
+    <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
+    <span class="nav-emoji">❓</span><span class="nav-label">Multiple Choice</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(4)">
+    <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(5)">
+    <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
+  </div>
+</div>
 
-      <!-- TAB 1: Lückentext -->
-      <div class="tab" id="tab1">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-1">0:00</span>
-          <span class="best-time" id="best-1"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="showLueckeLoesung(1)">Lösungen</button>
-          <button class="btn" onclick="resetLuecke(1); timerResetOne(1);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Setze die passenden Begriffe zum Thema „Faktencheck" ein.
-        </div>
-        <div id="luecke-container-1"></div>
-      </div>
+<!-- TAB 0: VORENTLASTUNG -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Recherche und Bücher">
+  <div class="sec-inner">
 
-      <!-- TAB 2: Satzbau -->
-      <div class="tab" id="tab2">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-2">0:00</span>
-          <span class="best-time" id="best-2"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="resetSatzbau(2); timerResetOne(2);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Ordne die Satzteile in die richtige Reihenfolge.
-        </div>
-        <div id="satzbau-container-2"></div>
-      </div>
-
-      <!-- TAB 3: Wortschatz -->
-      <div class="tab" id="tab3">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-3">0:00</span>
-          <span class="best-time" id="best-3"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="showVocabLoesung(3)">Lösungen</button>
-          <button class="btn" onclick="resetVocab(3); timerResetOne(3);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Übersetze die Nomen ins Deutsche. Format: Artikel + Wort + Plural.
-        </div>
-        <div id="vocab-container-3"></div>
-      </div>
-
+    <div class="frage-box">
+      <p><strong>Zum Nachdenken:</strong> Wie oft am Tag siehst du eine Behauptung im Internet — und wie oft prüfst du sie tatsächlich nach? Kennst du den Begriff „Bestätigungsfehler"? Und was macht eigentlich eine seriöse von einer unseriösen Quelle unterscheidbar?</p>
     </div>
 
-    <div class="author-footer">
-      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    <h3 style="color:#3949ab; margin-bottom:14px; font-size:1.05rem;">🔑 Schlüsselwörter im Text</h3>
+    <div class="vorent-grid">
+      <div class="vorent-card">
+        <div class="de">die Quelle, -n</div>
+        <div class="en">source</div>
+        <div class="bsp">Die Quelle der Information muss überprüft werden.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Behauptung, -en</div>
+        <div class="en">claim / allegation</div>
+        <div class="bsp">Die Behauptung wurde ohne Beleg veröffentlicht.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Beleg, -e</div>
+        <div class="en">evidence / proof</div>
+        <div class="bsp">Seriöse Texte nennen Belege für ihre Aussagen.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Fakt, -en</div>
+        <div class="en">fact</div>
+        <div class="bsp">Zahlen und Messwerte sind überprüfbare Fakten.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Meinung, -en</div>
+        <div class="en">opinion</div>
+        <div class="bsp">Eine Meinung lässt sich weder beweisen noch widerlegen.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Bestätigungsfehler</div>
+        <div class="en">confirmation bias</div>
+        <div class="bsp">Der Bestätigungsfehler verzerrt unser Urteil unbemerkt.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Recherche, -n</div>
+        <div class="en">research / investigation</div>
+        <div class="bsp">Ohne gründliche Recherche entstehen Falschmeldungen.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Redaktion, -en</div>
+        <div class="en">editorial department</div>
+        <div class="bsp">Die Redaktion beschäftigt eigene Fact-Checker.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Wahrheitsgehalt</div>
+        <div class="en">truth content / veracity</div>
+        <div class="bsp">Jede Aussage wird auf ihren Wahrheitsgehalt geprüft.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Denkfalle, -n</div>
+        <div class="en">cognitive trap</div>
+        <div class="bsp">Vorurteile sind typische Denkfallen.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TAB 1: LESETEXT -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1181396/pexels-photo-1181396.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Prüfen und Recherchieren">
+  <div class="sec-inner">
+    <div class="story-text" id="lesetext">
+      <h2>Fünf Fragen — und die Wahrheit hat es schwerer</h2>
+
+      <p>Nie zuvor in der Geschichte waren so viele Informationen so leicht verfügbar — und nie zuvor war es so wichtig, zwischen Fakt und Gerücht unterscheiden zu können. In sozialen Netzwerken verbreiten sich falsche Behauptungen in Minuten, oft schneller als ihre Richtigstellung. Seriöse Redaktionen beschäftigen heute eigene Fact-Checker, deren einziger Beruf darin besteht, Aussagen auf ihren <span class="vocab-hl" title="truth content">Wahrheitsgehalt</span> zu prüfen.</p>
+
+      <p>Die erste Frage, die jede <span class="vocab-hl" title="research">Recherche</span> begleiten sollte, lautet: Woher stammt die Information? Eine anerkannte Fachzeitschrift, eine Universität oder eine etablierte Nachrichtenagentur hat einen anderen Status als ein anonymer Social-Media-Account. Nicht jede Quelle ist per Definition zuverlässig, aber manche sind es systematisch weniger.</p>
+
+      <p>Die zweite Frage greift dort, wo die erste unsicher bleibt: Bestätigen andere, unabhängige Quellen die Behauptung? Eine spektakuläre Aussage, die nur auf einer einzigen Seite auftaucht, ist ein Warnsignal. Seriöse Nachrichten lassen sich in der Regel an mehreren Stellen nachprüfen.</p>
+
+      <p>Die dritte Frage betrifft die <span class="vocab-hl" title="evidence">Belege</span>. Wer eine Aussage trifft, sollte auch sagen können, worauf sie fußt — auf einer Studie, auf Zahlen, auf Expertinnen und Experten. Unseriöse Texte dagegen argumentieren mit Bauchgefühl, moralischer Empörung oder pauschalen Verweisen auf „die Wissenschaft".</p>
+
+      <p>Die vierte Frage trennt zwei Ebenen, die im Alltag oft durcheinandergeraten: <span class="vocab-hl" title="fact">Fakt</span> und <span class="vocab-hl" title="opinion">Meinung</span>. „Die durchschnittliche Temperatur ist seit 1900 um etwa 1,1 Grad Celsius gestiegen" ist ein Fakt, den Messstationen belegen. „Das ist kein Grund zur Sorge" ist eine Meinung. Der Unterschied ist nicht akademisch — er entscheidet darüber, worüber man streiten kann und worüber nicht.</p>
+
+      <p>Die fünfte Frage richtet sich nach innen: Welcher Information glaube ich zu schnell, weil sie mir ohnehin gefällt? Der sogenannte <span class="vocab-hl" title="confirmation bias">Bestätigungsfehler</span> lässt uns jene Nachrichten bevorzugen, die unsere bereits bestehenden Überzeugungen stützen — und jene verwerfen, die uns widersprechen. Er ist eine der hartnäckigsten <span class="vocab-hl" title="cognitive traps">Denkfallen</span> überhaupt. Wer ihn kennt, hat ihn noch nicht überwunden, aber er ist der erste Schritt.</p>
     </div>
   </div>
+</div>
 
-  <script>
-    function showTab(n){
-      document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===n);});
-      document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
-    }
+<!-- TAB 2: LÜCKENTEXT -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Notieren">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="timerResetOne(2)">↺ Reset</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">0:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+    <div class="wordbox">
+      <strong>Wortkasten:</strong> Quelle &nbsp;·&nbsp; Belege &nbsp;·&nbsp; Fakt &nbsp;·&nbsp; Meinung &nbsp;·&nbsp; Bestätigungsfehler &nbsp;·&nbsp; Fact-Checker &nbsp;·&nbsp; Behauptung &nbsp;·&nbsp; Woher
+    </div>
+    <div class="hilfe-box">Ergänze die Lücken — Feedback erscheint sofort.</div>
+    <div id="lueckenContainer"></div>
+  </div>
+</div>
 
-    var TIMER_PREFIX='B2_3014X_';
-    var timerStarted=[false,false,false,false,false];
-    var timerRunning=[false,false,false,false,false];
-    var timerSeconds=[0,0,0,0,0];
-    var timerIntervals=[null,null,null,null,null];
-    function timerAutoStart(n){
-      if(timerStarted[n]) return;
-      timerStarted[n]=true; timerRunning[n]=true;
-      timerIntervals[n]=setInterval(function(){
-        timerSeconds[n]++;
-        var el=document.getElementById('timer-'+n);
-        if(el) el.textContent=fmtTime(timerSeconds[n]);
-      },1000);
-    }
-    function timerStop(n){
-      if(!timerRunning[n]) return;
-      clearInterval(timerIntervals[n]); timerRunning[n]=false;
-      var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-      if(timerSeconds[n]>0&&timerSeconds[n]<best){
-        localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-        var el=document.getElementById('best-'+n);
-        if(el) el.textContent='🏆 '+fmtTime(timerSeconds[n]);
-      }
-    }
-    function timerResetOne(n){
-      clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-      var el=document.getElementById('timer-'+n);
-      if(el) el.textContent='0:00';
-    }
-    function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-    function loadBestTimes(){
-      for(var i=1;i<=3;i++){
-        var v=localStorage.getItem(TIMER_PREFIX+i);
-        if(v){ var el=document.getElementById('best-'+i); if(el) el.textContent='🏆 '+fmtTime(parseInt(v)); }
-      }
-    }
+<!-- TAB 3: MULTIPLE CHOICE -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800" alt="Strategisches Denken">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="mcReset()">↺ Reset</button>
+        <button class="btn" onclick="timerResetOne(3)">↺ Zeit</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Wähle die richtige Antwort — nur ein Klick genügt.</div>
+    <div id="mcContainer"></div>
+  </div>
+</div>
 
-    function liveCheck(inp){
-      var user=(inp.value||'').trim();
-      var answer=inp.dataset.answer||'';
-      if(inp.classList.contains('art')){ user=user.toLowerCase(); answer=answer.toLowerCase(); }
-      inp.classList.remove('correct','wrong');
-      var hint=inp.nextElementSibling;
-      if(hint && hint.classList.contains('correction-hint')) hint.remove();
-      if(!user) return;
-      if(user===answer){ inp.classList.add('correct'); }
-      else if(answer.toLowerCase().indexOf(user.toLowerCase())===0){ /* Präfix */ }
-      else { inp.classList.add('wrong'); }
-    }
-    function showHint(inp){
-      var answer=inp.dataset.answer||'';
-      var user=(inp.value||'').trim();
-      var isArt=inp.classList.contains('art');
-      var match=isArt?(user.toLowerCase()===answer.toLowerCase()):(user===answer);
-      var existing=inp.nextElementSibling;
-      if(existing && existing.classList.contains('correction-hint')) existing.remove();
-      if(match){ inp.classList.remove('wrong'); inp.classList.add('correct'); }
-      else {
-        inp.classList.remove('correct'); inp.classList.add('wrong');
-        var h=document.createElement('span');
-        h.className='correction-hint';
-        h.textContent=' → '+answer;
-        inp.insertAdjacentElement('afterend',h);
-      }
-    }
+<!-- TAB 4: SATZBAU -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3741681/pexels-photo-3741681.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Gemeinsam arbeiten">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="sbResetAll()">↺ Alle</button>
+        <button class="btn" onclick="timerResetOne(4)">↺ Zeit</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">0:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Klicke einen Chip an, dann klicke auf die Zone — oder ziehe ihn.</div>
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
 
-    // ── Lückentext ───────────────────────────────────────────
-    var LUECKEN_DATA = [
-      { segs:[{t:'Bevor du eine Nachricht teilst, prüfe zuerst die '},{b:'Quelle',s:'m'},{t:'.'}] },
-      { segs:[{t:'Seriöse Artikel nennen '},{b:'Belege',s:'m'},{t:', unseriöse appellieren an Gefühle.'}] },
-      { segs:[{t:'„Die Temperatur steigt um 1,1 °C" ist ein '},{b:'Fakt',s:'s'},{t:', „Das ist harmlos" dagegen eine '},{b:'Meinung',s:'m'},{t:'.'}] },
-      { segs:[{t:'Der sogenannte '},{b:'Bestätigungsfehler',s:'l'},{t:' lässt uns jene Informationen bevorzugen, die unsere Überzeugungen stützen.'}] },
-      { segs:[{t:'Redaktionen beschäftigen eigene '},{b:'Fact-Checker',s:'m'},{t:', die Aussagen auf ihren Wahrheitsgehalt prüfen.'}] },
-      { segs:[{t:'Eine einzelne, spektakuläre '},{b:'Behauptung',s:'m'},{t:' ohne weitere Bestätigung sollte skeptisch machen.'}] },
-      { segs:[{t:'Gute Recherche beginnt mit einer einfachen Frage: '},{b:'Woher',s:'s'},{t:' stammt die Information?'}] }
-    ];
+<!-- TAB 5: WORTSCHATZ -->
+<div class="section" id="sec-5">
+  <img class="tab-banner" src="https://images.pexels.com/photos/267669/pexels-photo-267669.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wörterbuch">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetWortschatz(); timerResetOne(5);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-5">0:00</span></span>
+        <span>🏆 <span id="best-5">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Übersetze Artikel, Wort und Plural. Groß-/Kleinschreibung zählt.</div>
+    <div id="wortschatzContainer"></div>
+  </div>
+</div>
 
-    function lueckeInit(){
-      var cont=document.getElementById('luecke-container-1');
-      cont.innerHTML='';
-      LUECKEN_DATA.forEach(function(item){
-        var sent=document.createElement('div');
-        sent.style.marginBottom='14px';
-        item.segs.forEach(function(seg){
-          if(seg.t){
-            sent.appendChild(document.createTextNode(seg.t));
-          } else {
-            var inp=document.createElement('input');
-            inp.className='blank';
-            inp.type='text';
-            inp.dataset.answer=seg.b;
-            inp.style.width=(seg.s==='s'?'60px':seg.s==='m'?'120px':'180px');
-            inp.addEventListener('input',function(){
-              timerAutoStart(1);
-              liveCheck(this);
-              checkLueckeAllOk(1);
-            });
-            sent.appendChild(inp);
-          }
-        });
-        cont.appendChild(sent);
-      });
-    }
-    function checkLueckeAllOk(n){
-      var inputs=document.querySelectorAll('#luecke-container-'+n+' input.blank');
-      var allOk=inputs.length>0 && Array.from(inputs).every(function(i){return i.classList.contains('correct');});
-      if(allOk) timerStop(n);
-    }
-    function showLueckeLoesung(n){
-      document.querySelectorAll('#luecke-container-'+n+' input.blank').forEach(function(inp){ showHint(inp); });
-      timerStop(n);
-    }
-    function resetLuecke(n){
-      document.querySelectorAll('#luecke-container-'+n+' input.blank').forEach(function(inp){
-        inp.value='';
-        inp.classList.remove('correct','wrong');
-        var h=inp.nextElementSibling;
-        if(h && h.classList.contains('correction-hint')) h.remove();
-      });
-    }
+<!-- FOOTER -->
+<div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
 
-    // ── Satzbau ──────────────────────────────────────────────
-    var SATZBAU_DATA = [
-      { parts:['prüfe','die','Quelle','bevor','du','eine','Nachricht','teilst'],
-        valid:[['prüfe','die','Quelle','bevor','du','eine','Nachricht','teilst']], punct:'!' },
-      { parts:['seriöse','Texte','verweisen','auf','Studien','und','Expertinnen'],
-        valid:[['seriöse','Texte','verweisen','auf','Studien','und','Expertinnen']], punct:'.' },
-      { parts:['der','Bestätigungsfehler','ist','eine','häufige','Denkfalle'],
-        valid:[['der','Bestätigungsfehler','ist','eine','häufige','Denkfalle']], punct:'.' },
-      { parts:['Redaktionen','beschäftigen','heute','eigene','Fact-Checker'],
-        valid:[['Redaktionen','beschäftigen','heute','eigene','Fact-Checker']], punct:'.' },
-      { parts:['Fakten','muss','man','von','Meinungen','unterscheiden'],
-        valid:[['Fakten','muss','man','von','Meinungen','unterscheiden']], punct:'.' }
-    ];
+<script>
+/* ── TIMER ───────────────────────────────────────────────── */
+var TIMER_PREFIX='B2_3014X_';
+var timerStarted=[false,false,false,false,false,false,false];
+var timerRunning=[false,false,false,false,false,false,false];
+var timerSeconds=[0,0,0,0,0,0,0];
+var timerIntervals=[null,null,null,null,null,null,null];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n]=true; timerRunning[n]=true;
+  timerIntervals[n]=setInterval(function(){
+    timerSeconds[n]++;
+    var el=document.getElementById('timer-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  },1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n]=false;
+  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
+  if(timerSeconds[n]>0&&timerSeconds[n]<best){
+    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
+    var el=document.getElementById('best-'+n);
+    if(el) el.textContent=fmtTime(timerSeconds[n]);
+  }
+  timerSeconds[n]=0; timerStarted[n]=false;
+  var td=document.getElementById('timer-'+n);
+  if(td) td.textContent='0:00';
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
+  var el=document.getElementById('timer-'+n);
+  if(el) el.textContent='0:00';
+}
+function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
 
-    var sbDragged=null;
+/* ── NAVIGATION ──────────────────────────────────────────── */
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [2,3,4,5].forEach(function(i){ timerStop(i); });
+}
 
-    function sbMakeChip(word,idx){
-      var chip=document.createElement('div');
-      chip.className='chip';
-      chip.dataset.orig=word;
-      chip.dataset.sentIdx=idx;
-      chip.draggable=true;
-      chip.addEventListener('dragstart',function(e){
-        sbDragged=chip;
-        e.dataTransfer.setData('text/plain','');
-        timerAutoStart(2);
-      });
-      chip.addEventListener('click',function(){
-        timerAutoStart(2);
-        var row=document.querySelector('#satzbau-container-2 .sentence-builder[data-idx="'+idx+'"]');
-        var bank=document.querySelector('#satzbau-container-2 .chips-container[data-idx="'+idx+'"]');
-        if(chip.parentElement===bank){
-          var cursor=row.querySelector('.sb-insert-cursor');
-          if(cursor) row.insertBefore(chip,cursor); else row.appendChild(chip);
-        } else {
-          bank.appendChild(chip);
-        }
-        sbUpdateCapitalization(idx);
-        sbCheckAuto(idx);
-      });
-      return chip;
-    }
-    function sbRegisterZone(el,idx){
-      el.addEventListener('dragover',function(e){
-        e.preventDefault();
-        el.classList.add('dragover');
-        var cursor=el.querySelector('.sb-insert-cursor');
-        if(cursor) cursor.remove();
-        if(el.classList.contains('sentence-builder')){
-          var afterEl=sbGetDragAfterElement(el,e.clientX);
-          var newCursor=document.createElement('div');
-          newCursor.className='sb-insert-cursor';
-          if(afterEl) el.insertBefore(newCursor,afterEl); else el.appendChild(newCursor);
-        }
-      });
-      el.addEventListener('dragleave',function(e){
-        if(!el.contains(e.relatedTarget)){
-          el.classList.remove('dragover');
-          var cursor=el.querySelector('.sb-insert-cursor');
-          if(cursor) cursor.remove();
-        }
-      });
-      el.addEventListener('drop',function(e){
-        e.preventDefault();
-        el.classList.remove('dragover');
-        var cursor=el.querySelector('.sb-insert-cursor');
-        if(sbDragged && sbDragged.dataset.sentIdx===String(idx)){
-          if(el.classList.contains('sentence-builder')){
-            if(cursor) el.insertBefore(sbDragged,cursor); else el.appendChild(sbDragged);
-          } else {
-            el.appendChild(sbDragged);
-          }
-          sbDragged=null;
-          if(cursor) cursor.remove();
-          sbUpdateCapitalization(idx);
-          sbCheckAuto(idx);
-        }
-      });
-    }
-    function sbGetDragAfterElement(container,x){
-      var els=Array.from(container.querySelectorAll('.chip:not(.dragging)'));
-      return els.reduce(function(closest,child){
-        var box=child.getBoundingClientRect();
-        var offset=x-box.left-box.width/2;
-        if(offset<0 && offset>closest.offset) return {offset:offset,element:child};
-        return closest;
-      },{offset:Number.NEGATIVE_INFINITY}).element;
-    }
-    function sbUpdateCapitalization(idx){
-      var row=document.querySelector('#satzbau-container-2 .sentence-builder[data-idx="'+idx+'"]');
-      if(!row) return;
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      chips.forEach(function(chip,i){
-        var w=chip.dataset.orig;
-        if(w===',' || w===';') return;
-        chip.textContent=(i===0)?w.charAt(0).toUpperCase()+w.slice(1):w;
-      });
-    }
-    function sbColorRow(idx){
-      var row=document.querySelector('#satzbau-container-2 .sentence-builder[data-idx="'+idx+'"]');
-      if(!row) return;
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      var data=SATZBAU_DATA[idx];
-      var isCorrect=data.valid.some(function(validArr){
-        if(chips.length!==validArr.length) return false;
-        return chips.every(function(chip,i){ return chip.dataset.orig.toLowerCase()===validArr[i].toLowerCase(); });
-      });
-      chips.forEach(function(chip){
-        chip.classList.remove('correct','wrong');
-        chip.classList.add(isCorrect?'correct':'wrong');
-      });
-      return isCorrect;
-    }
-    function sbCheckAuto(idx){
-      var row=document.querySelector('#satzbau-container-2 .sentence-builder[data-idx="'+idx+'"]');
-      var data=SATZBAU_DATA[idx];
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      if(chips.length===data.parts.length){
-        sbColorRow(idx);
-        sbCheckAllDone(2);
-      }
-    }
-    function sbCheckAllDone(n){
-      var allCorrect=SATZBAU_DATA.every(function(_,idx){
-        var row=document.querySelector('#satzbau-container-2 .sentence-builder[data-idx="'+idx+'"]');
-        var chips=Array.from(row.querySelectorAll('.chip'));
-        var data=SATZBAU_DATA[idx];
-        return data.valid.some(function(validArr){
-          if(chips.length!==validArr.length) return false;
-          return chips.every(function(chip,i){ return chip.dataset.orig.toLowerCase()===validArr[i].toLowerCase(); });
-        });
-      });
-      if(allCorrect) timerStop(n);
-    }
-    function sbShowSolution(idx){
-      var row=document.querySelector('#satzbau-container-2 .sentence-builder[data-idx="'+idx+'"]');
-      var bank=document.querySelector('#satzbau-container-2 .chips-container[data-idx="'+idx+'"]');
-      var data=SATZBAU_DATA[idx];
-      var allChips=Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));
-      row.querySelectorAll('.chip').forEach(function(c){ bank.appendChild(c); });
-      data.valid[0].forEach(function(word){
-        var chip=allChips.find(function(c){ return c.dataset.orig===word && c.parentElement===bank; });
-        if(chip) row.appendChild(chip);
-      });
-      sbUpdateCapitalization(idx);
-      sbColorRow(idx);
-      sbCheckAllDone(2);
-    }
-    function sbResetOne(idx){
-      var row=document.querySelector('#satzbau-container-2 .sentence-builder[data-idx="'+idx+'"]');
-      var bank=document.querySelector('#satzbau-container-2 .chips-container[data-idx="'+idx+'"]');
-      Array.from(row.querySelectorAll('.chip')).forEach(function(c){
-        c.classList.remove('correct','wrong');
-        bank.appendChild(c);
-      });
-      sbUpdateCapitalization(idx);
-    }
-    function initSatzbau(){
-      var container=document.getElementById('satzbau-container-2');
-      container.innerHTML='';
-      SATZBAU_DATA.forEach(function(data,idx){
-        var wrapper=document.createElement('div');
-        wrapper.style.marginBottom='18px';
-        var row=document.createElement('div');
-        row.className='sentence-builder';
-        row.dataset.idx=idx;
-        sbRegisterZone(row,idx);
-        var punct=document.createElement('span');
-        punct.className='sb-punkt';
-        punct.textContent=data.punct||'.';
-        row.appendChild(punct);
-        var bank=document.createElement('div');
-        bank.className='chips-container';
-        bank.dataset.idx=idx;
-        sbRegisterZone(bank,idx);
-        var shuffled=data.parts.slice().sort(function(){return Math.random()-0.5;});
-        shuffled.forEach(function(word){ bank.appendChild(sbMakeChip(word,idx)); });
-        var btnRow=document.createElement('div');
-        btnRow.className='sb-btn-row';
-        var btnLösen=document.createElement('button');
-        btnLösen.className='btn';
-        btnLösen.textContent='Lösen';
-        btnLösen.onclick=(function(i){return function(){ sbShowSolution(i); };})(idx);
-        var btnReset=document.createElement('button');
-        btnReset.className='btn';
-        btnReset.textContent='↺ Neustart';
-        btnReset.onclick=(function(i){return function(){ sbResetOne(i); };})(idx);
-        btnRow.appendChild(btnLösen);
-        btnRow.appendChild(btnReset);
-        wrapper.appendChild(row);
-        wrapper.appendChild(bank);
-        wrapper.appendChild(btnRow);
-        container.appendChild(wrapper);
-      });
-    }
-    function resetSatzbau(n){
-      SATZBAU_DATA.forEach(function(_,idx){ sbResetOne(idx); });
-    }
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+var lueckenData = [
+  { pre: 'Bevor du eine Nachricht teilst, prüfe zuerst die ', ans: 'Quelle', post: '.' },
+  { pre: 'Seriöse Artikel nennen ', ans: 'Belege', post: ', unseriöse appellieren an Gefühle.' },
+  { pre: '„Die Temperatur steigt um 1,1 °C" ist ein ', ans: 'Fakt', post: '.' },
+  { pre: '„Das ist harmlos" ist dagegen eine ', ans: 'Meinung', post: '.' },
+  { pre: 'Der sogenannte ', ans: 'Bestätigungsfehler', post: ' lässt uns Informationen bevorzugen, die unsere Überzeugungen stützen.' },
+  { pre: 'Redaktionen beschäftigen eigene ', ans: 'Fact-Checker', post: ', die Aussagen auf ihren Wahrheitsgehalt prüfen.' },
+  { pre: 'Eine einzelne, spektakuläre ', ans: 'Behauptung', post: ' ohne Bestätigung sollte skeptisch machen.' },
+  { pre: 'Gute Recherche beginnt mit einer einfachen Frage: ', ans: 'Woher', post: ' stammt die Information?' }
+];
 
-    // ── Wortschatz ───────────────────────────────────────────
-    var WORTSCHATZ = [
-      { en:'the source', artikel:'die', de:'Quelle', plural:'Quellen' },
-      { en:'the claim', artikel:'die', de:'Behauptung', plural:'Behauptungen' },
-      { en:'the evidence', artikel:'der', de:'Beleg', plural:'Belege' },
-      { en:'the fact', artikel:'der', de:'Fakt', plural:'Fakten' },
-      { en:'the opinion', artikel:'die', de:'Meinung', plural:'Meinungen' },
-      { en:'the bias (confirmation bias)', artikel:'der', de:'Bestätigungsfehler', plural:'Bestätigungsfehler' },
-      { en:'the research', artikel:'die', de:'Recherche', plural:'Recherchen' },
-      { en:'the editor', artikel:'die', de:'Redaktion', plural:'Redaktionen' }
-    ];
+function liveCheck(inp){
+  var ans = inp.dataset.answer;
+  var v = inp.value.trim();
+  if(!v){ inp.classList.remove('ok','no'); return; }
+  if(ans.toLowerCase().indexOf(v.toLowerCase())===0 && v.length < ans.length){
+    inp.classList.remove('ok','no'); return;
+  }
+  inp.classList.toggle('ok', v.toLowerCase()===ans.toLowerCase());
+  inp.classList.toggle('no', v.toLowerCase()!==ans.toLowerCase());
+  if(v.toLowerCase()===ans.toLowerCase()){
+    timerAutoStart(2);
+    checkLueckenAllOk();
+  } else {
+    timerAutoStart(2);
+  }
+}
 
-    function vocabInit(){
-      var cont=document.getElementById('vocab-container-3');
-      cont.innerHTML='';
-      var shuffled=WORTSCHATZ.slice().sort(function(){return Math.random()-0.5;});
-      shuffled.forEach(function(item){
-        var div=document.createElement('div');
-        div.style.cssText='background:#f8f9ff;padding:12px 16px;margin-bottom:10px;border-radius:10px;border-left:4px solid #667eea;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
-        var en=document.createElement('span');
-        en.style.cssText='font-weight:600;color:#764ba2;min-width:180px;font-size:0.92rem;';
-        en.textContent=item.en;
-        div.appendChild(en);
-        var arrow=document.createElement('span');
-        arrow.style.cssText='color:#999;';
-        arrow.textContent='→';
-        div.appendChild(arrow);
-        var inputs=document.createElement('span');
-        inputs.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
-        ['art','wort','plural'].forEach(function(field){
-          var inp=document.createElement('input');
-          inp.className='blank '+field;
-          inp.dataset.field=field;
-          inp.dataset.answer=item[field==='art'?'artikel':field==='wort'?'de':'plural'];
-          inp.placeholder=field==='art'?'der/die/das':field==='wort'?'Deutsch':'Plural';
-          inp.style.width=field==='art'?'80px':field==='wort'?'170px':'170px';
-          inp.addEventListener('input',function(){
-            timerAutoStart(3);
-            liveCheck(this);
-            checkVocabAllOk(3);
-          });
-          inputs.appendChild(inp);
-        });
-        div.appendChild(inputs);
-        cont.appendChild(div);
-      });
-    }
-    function checkVocabAllOk(n){
-      var all=document.querySelectorAll('#vocab-container-'+n+' input.blank');
-      var allOk=all.length>0 && Array.from(all).every(function(i){return i.classList.contains('correct');});
-      if(allOk) timerStop(n);
-    }
-    function showVocabLoesung(n){
-      document.querySelectorAll('#vocab-container-'+n+' input.blank').forEach(function(inp){ showHint(inp); });
-      timerStop(n);
-    }
-    function resetVocab(n){
-      document.querySelectorAll('#vocab-container-'+n+' input.blank').forEach(function(inp){
-        inp.value='';
-        inp.classList.remove('correct','wrong');
-        var h=inp.nextElementSibling;
-        if(h && h.classList.contains('correction-hint')) h.remove();
-      });
-    }
+function checkLueckenAllOk(){
+  var inputs = document.querySelectorAll('#lueckenContainer .luecken-inp');
+  var all = Array.from(inputs).every(function(i){ return i.classList.contains('ok'); });
+  if(all && inputs.length) timerStop(2);
+}
 
-    // ── INIT ─────────────────────────────────────────────────
-    lueckeInit();
-    initSatzbau();
-    vocabInit();
-    loadBestTimes();
-  </script>
+function buildLuecken(){
+  var c = document.getElementById('lueckenContainer');
+  c.innerHTML = '';
+  lueckenData.forEach(function(d){
+    var div = document.createElement('div');
+    div.className = 'luecken-item';
+    div.innerHTML = d.pre +
+      '<input class="luecken-inp" type="text" data-answer="'+d.ans+'" placeholder="" autocomplete="off" oninput="liveCheck(this)">' +
+      d.post;
+    c.appendChild(div);
+  });
+}
+
+/* ── MULTIPLE CHOICE ─────────────────────────────────────── */
+var mcData = [
+  { frage: 'Welche Frage gehört laut Text NICHT zu den fünf Prüffragen?',
+    opts: [
+      'Woher stammt die Information?',
+      'Bestätigen andere Quellen die Behauptung?',
+      'Wie viele Menschen teilen die Nachricht?',
+      'Werden Belege genannt?'
+    ], correct: 2 },
+  { frage: 'Was ist laut Text der Unterschied zwischen Fakt und Meinung?',
+    opts: [
+      'Fakten sind wichtiger als Meinungen.',
+      'Fakten sind überprüfbar, Meinungen nicht.',
+      'Meinungen sind immer falsch.',
+      'Fakten kommen nur aus der Wissenschaft.'
+    ], correct: 1 },
+  { frage: 'Was ist der „Bestätigungsfehler"?',
+    opts: [
+      'Ein Rechenfehler in Statistiken.',
+      'Ein Übersetzungsfehler in Nachrichten.',
+      'Die Tendenz, Informationen zu bevorzugen, die unsere Überzeugungen stützen.',
+      'Die Bestätigung einer falschen Quelle durch mehrere Autoren.'
+    ], correct: 2 },
+  { frage: 'Wann ist laut Text besondere Skepsis angebracht?',
+    opts: [
+      'Wenn eine spektakuläre Behauptung nur auf einer einzigen Seite auftaucht.',
+      'Wenn eine Behauptung in einer Fachzeitschrift erscheint.',
+      'Wenn eine Behauptung von einer Universität stammt.',
+      'Wenn eine Behauptung mit Zahlen belegt wird.'
+    ], correct: 0 },
+  { frage: 'Womit argumentieren laut Text unseriöse Texte?',
+    opts: [
+      'Mit Studien und Expertinnen.',
+      'Mit Statistiken und Messwerten.',
+      'Mit Bauchgefühl und moralischer Empörung.',
+      'Mit historischen Quellen.'
+    ], correct: 2 },
+  { frage: 'Welche Aufgabe haben Fact-Checker in Redaktionen?',
+    opts: [
+      'Sie schreiben die Schlagzeilen.',
+      'Sie prüfen Aussagen auf ihren Wahrheitsgehalt.',
+      'Sie entscheiden, welche Meinungen gedruckt werden.',
+      'Sie übersetzen fremdsprachige Nachrichten.'
+    ], correct: 1 }
+];
+
+function mcCheck(qIdx, optIdx){
+  var item = mcData[qIdx];
+  var opts = document.querySelectorAll('#mc-q-'+qIdx+' .mc-opt');
+  opts.forEach(function(o, i){
+    if(i===item.correct) o.classList.add('correct');
+    else if(i===optIdx) o.classList.add('wrong');
+    o.onclick=null;
+  });
+  timerAutoStart(3);
+  mcCheckAllDone();
+}
+
+function mcCheckAllDone(){
+  var allAnswered = mcData.every(function(_, i){
+    var item = document.getElementById('mc-q-'+i);
+    return item && item.querySelector('.mc-opt.correct');
+  });
+  if(allAnswered) timerStop(3);
+}
+
+function buildMC(){
+  var c = document.getElementById('mcContainer');
+  c.innerHTML = '';
+  mcData.forEach(function(q, qi){
+    var div = document.createElement('div');
+    div.className = 'mc-item'; div.id = 'mc-q-'+qi;
+    var h = document.createElement('h4');
+    h.textContent = q.frage;
+    div.appendChild(h);
+    var opts = document.createElement('div');
+    opts.className = 'mc-options';
+    q.opts.forEach(function(o, oi){
+      var btn = document.createElement('button');
+      btn.className = 'mc-opt';
+      btn.textContent = o;
+      btn.onclick = function(){ mcCheck(qi, oi); };
+      opts.appendChild(btn);
+    });
+    div.appendChild(opts);
+    c.appendChild(div);
+  });
+}
+
+function mcReset(){
+  buildMC();
+  timerResetOne(3);
+}
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+var satzbauData = [
+  { parts: ['prüfe', 'die', 'Quelle', ',', 'bevor', 'du', 'eine', 'Nachricht', 'teilst'],
+    valid: [['prüfe', 'die', 'Quelle', ',', 'bevor', 'du', 'eine', 'Nachricht', 'teilst']], punct: '!' },
+  { parts: ['seriöse', 'Texte', 'verweisen', 'auf', 'Studien', 'und', 'Expertinnen'],
+    valid: [['seriöse', 'Texte', 'verweisen', 'auf', 'Studien', 'und', 'Expertinnen']], punct: '.' },
+  { parts: ['der', 'Bestätigungsfehler', 'ist', 'eine', 'der', 'hartnäckigsten', 'Denkfallen', 'überhaupt'],
+    valid: [['der', 'Bestätigungsfehler', 'ist', 'eine', 'der', 'hartnäckigsten', 'Denkfallen', 'überhaupt']], punct: '.' },
+  { parts: ['viele', 'Redaktionen', 'beschäftigen', 'heute', 'eigene', 'Fact-Checker'],
+    valid: [['viele', 'Redaktionen', 'beschäftigen', 'heute', 'eigene', 'Fact-Checker']], punct: '.' },
+  { parts: ['Fakten', 'muss', 'man', 'von', 'Meinungen', 'unterscheiden', 'können'],
+    valid: [['Fakten', 'muss', 'man', 'von', 'Meinungen', 'unterscheiden', 'können']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+  }
+  return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
+
+function sbCapitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    if (isProper) {
+      c.textContent = orig;
+    } else {
+      c.textContent = (i === 0) ? sbCapitalize(orig) : orig;
+    }
+  });
+}
+
+function sbMakeChip(word) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip;
+    timerAutoStart(4);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+  });
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = '';
+    sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
+  chip.addEventListener('click', function() {
+    timerAutoStart(4);
+    var parent = chip.parentNode;
+    var idx = parent.id.split('-').pop();
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    if (parent === bank) row.appendChild(chip);
+    else bank.appendChild(chip);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(parseInt(idx));
+  });
+  return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+}
+
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) {
+    return JSON.stringify(v) === JSON.stringify(order);
+  });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-' + idx);
+  var fb   = document.getElementById('sb-fb-' + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) {
+      c.classList.remove('correct', 'incorrect');
+    });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(4);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) timerStop(4);
+}
+
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-' + idx);
+  var fb   = document.getElementById('sb-fb-' + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var chip = allChips[word];
+    if (chip) {
+      chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = '';
+  fb.className = 'satzbau-feedback';
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+
+    var bank = document.createElement('div');
+    bank.className = 'chips-container';
+    bank.id = 'sb-bank-' + idx;
+
+    var row = document.createElement('div');
+    row.className = 'sentence-builder';
+    row.id = 'sb-row-' + idx;
+
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback';
+    fb.id = 'sb-fb-' + idx;
+
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+
+    var btnRow = document.createElement('div');
+    btnRow.className = 'sb-btn-row';
+
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn';
+    solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() {
+      sbShowSolution(parseInt(this.getAttribute('data-idx')));
+    });
+
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() {
+      sbResetOne(parseInt(this.getAttribute('data-idx')));
+    });
+
+    btnRow.appendChild(solveBtn);
+    btnRow.appendChild(resetBtn);
+
+    item.appendChild(bank);
+    item.appendChild(row);
+    item.appendChild(fb);
+    item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+
+function sbResetAll() { timerResetOne(4); initSatzbau(); }
+
+/* ── WORTSCHATZ ──────────────────────────────────────────── */
+var WORTSCHATZ = [
+  { en: 'the source',                       artikel: 'die', de: 'Quelle',             plural: 'Quellen' },
+  { en: 'the claim',                        artikel: 'die', de: 'Behauptung',         plural: 'Behauptungen' },
+  { en: 'the evidence',                     artikel: 'der', de: 'Beleg',              plural: 'Belege' },
+  { en: 'the fact',                         artikel: 'der', de: 'Fakt',               plural: 'Fakten' },
+  { en: 'the opinion',                      artikel: 'die', de: 'Meinung',            plural: 'Meinungen' },
+  { en: 'the confirmation bias',            artikel: 'der', de: 'Bestätigungsfehler', plural: 'Bestätigungsfehler' },
+  { en: 'the research / investigation',     artikel: 'die', de: 'Recherche',          plural: 'Recherchen' },
+  { en: 'the editorial department',         artikel: 'die', de: 'Redaktion',          plural: 'Redaktionen' }
+];
+
+function wortschatzCheck(inp){
+  var answer = inp.dataset.answer || '';
+  var val = (inp.value || '').trim();
+  var isArtikel = inp.classList.contains('art');
+  inp.classList.remove('correct','wrong');
+  if(!val) return;
+  var match = isArtikel ? (val.toLowerCase() === answer.toLowerCase()) : (val === answer);
+  if(match) inp.classList.add('correct');
+  else {
+    var lc = answer.toLowerCase();
+    if(isArtikel ? lc.indexOf(val.toLowerCase()) !== 0 : answer.indexOf(val) !== 0){
+      inp.classList.add('wrong');
+    }
+  }
+}
+
+function checkWortschatzAllOk(){
+  var inputs = document.querySelectorAll('#wortschatzContainer input.blank');
+  var all = Array.from(inputs).every(function(i){ return i.classList.contains('correct') || i.disabled; });
+  if(all && inputs.length) timerStop(5);
+}
+
+function initWortschatz(){
+  var c = document.getElementById('wortschatzContainer');
+  c.innerHTML = '';
+  WORTSCHATZ.forEach(function(item){
+    var card = document.createElement('div');
+    card.className = 'luecken-item';
+
+    var prompt = document.createElement('div');
+    prompt.className = 'ws-prompt';
+    prompt.textContent = item.en;
+    card.appendChild(prompt);
+
+    var inputs = document.createElement('div');
+    inputs.className = 'ws-inputs';
+
+    var artInp = document.createElement('input');
+    artInp.type = 'text'; artInp.className = 'blank art'; artInp.placeholder = 'Artikel';
+    artInp.style.width = '70px'; artInp.dataset.answer = item.artikel;
+    artInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    inputs.appendChild(artInp);
+
+    var wordInp = document.createElement('input');
+    wordInp.type = 'text'; wordInp.className = 'blank word'; wordInp.placeholder = 'Wort';
+    wordInp.style.width = '160px'; wordInp.dataset.answer = item.de;
+    wordInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    inputs.appendChild(wordInp);
+
+    var plInp = document.createElement('input');
+    plInp.type = 'text'; plInp.className = 'blank plural'; plInp.placeholder = 'Plural';
+    plInp.style.width = '170px'; plInp.dataset.answer = item.plural;
+    if(item.plural === '–'){
+      plInp.value = '–'; plInp.disabled = true; plInp.classList.add('correct'); plInp.style.opacity = '0.6';
+    } else {
+      plInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    }
+    inputs.appendChild(plInp);
+
+    card.appendChild(inputs);
+    c.appendChild(card);
+  });
+}
+
+function showWortschatzLoesung(){
+  document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp){
+    if(inp.disabled) return;
+    inp.value = inp.dataset.answer;
+    inp.classList.remove('wrong'); inp.classList.add('correct');
+  });
+  timerStop(5);
+}
+
+function resetWortschatz(){
+  document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp){
+    if(inp.disabled) return;
+    inp.value = ''; inp.classList.remove('correct','wrong');
+  });
+}
+
+/* ── INIT ────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  buildLuecken();
+  buildMC();
+  initSatzbau();
+  initWortschatz();
+  [2,3,4,5].forEach(function(n){
+    var b = localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+  });
+});
+</script>
 </body>
 </html>
