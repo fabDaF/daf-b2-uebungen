@@ -1,895 +1,884 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Die Geschichte der Mythologie — Deutsch Lernen fabDaF B2.3</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 40px 30px;
-      text-align: center;
-    }
-    .header h1 { font-size: 1.8rem; margin-bottom: 5px; }
-    .header p { font-size: 0.95rem; opacity: 0.95; }
-    .nav {
-      display: flex;
-      flex-wrap: nowrap;
-      background: #f8f9fa;
-      overflow-x: auto;
-      border-top: 1px solid #ddd;
-      border-left: 1px solid #ddd;
-      border-right: 1px solid #ddd;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 15px;
-      background: #f8f9fa;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.3s;
-      border: none;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: none; }
-    .nav-btn:hover { background: #f0f2f5; }
-    .nav-btn.active {
-      background: white;
-      color: #667eea;
-      font-weight: 700;
-      border-bottom: 3px solid #667eea;
-    }
-    .nav-emoji { font-size: 1.4rem; }
-    .nav-label { font-weight: 600; color: #333; }
-    .content { padding: 30px; }
-    .tab { display: none; }
-    .tab.active { display: block; }
-    .help-box {
-      background: #e8f4fd;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      border-left: 4px solid #0288d1;
-      font-size: 0.9rem;
-      color: #01579b;
-    }
-    .timer-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      border-radius: 10px;
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
-    .best-time { color: #f39c12; font-weight: 600; }
-    .btn-row { display: flex; gap: 10px; margin-bottom: 20px; }
-    .btn {
-      padding: 9px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn:hover { background: #764ba2; }
-    input.blank {
-      border: 2px solid #c5cae9;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-      background: white;
-      margin: 0 2px;
-    }
-    input.blank:focus { border-color: #667eea; }
-    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
-    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
-    .correction-hint {
-      font-size: 0.78rem;
-      color: #27ae60;
-      font-weight: 700;
-      margin-left: 4px;
-      white-space: nowrap;
-    }
-    .chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      cursor: grab;
-      font-size: 0.85rem;
-      font-weight: 600;
-      user-select: none;
-      transition: transform 0.15s, opacity 0.15s;
-      white-space: nowrap;
-      display: inline-block;
-      margin: 4px 4px 4px 0;
-    }
-    .chip:active { cursor: grabbing; transform: scale(1.04); }
-    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-    .sentence-builder {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      min-height: 44px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 2px dashed #c5cae9;
-      background: #fafbff;
-      margin-bottom: 6px;
-    }
-    .sentence-builder.dragover { background: #e8eaff; border-color: #667eea; }
-    .chips-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      margin-bottom: 6px;
-      min-height: 54px;
-    }
-    .sb-punkt { color: #999; font-weight: 700; font-size: 1.1rem; margin-left: 4px; }
-    .sb-insert-cursor { width: 3px; height: 22px; background: #667eea; border-radius: 2px; }
-    .sb-btn-row { display: flex; gap: 8px; margin-top: 4px; }
-    .sb-btn-row .btn {
-      padding: 6px 16px; font-size: 0.85em;
-      background: #f5f7ff; color: #667eea;
-      border: 1px solid #c5cff5; border-radius: 8px;
-    }
-    .sb-btn-row .btn:hover { background: #667eea; color: white; border-color: #667eea; }
-    .vocab-box {
-      background: #f8f9ff;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border-left: 4px solid #667eea;
-    }
-    .vocab-word { font-weight: 700; color: #764ba2; font-size: 1rem; display: block; margin-bottom: 4px; }
-    .vocab-de { color: #333; font-size: 0.95em; }
-    .vocab-example { color: #555; font-size: 0.88em; font-style: italic; margin-top: 6px; }
-    .mc-item {
-      background: #fafbff;
-      border: 1px solid #c5cae9;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 14px;
-    }
-    .mc-question { font-weight: 600; color: #3949ab; margin-bottom: 10px; }
-    .mc-options { display: flex; flex-direction: column; gap: 8px; }
-    .mc-btn {
-      padding: 9px 16px;
-      border: 2px solid #c5cae9;
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      text-align: left;
-      font-size: 0.92rem;
-      transition: all 0.2s;
-      font-family: inherit;
-    }
-    .mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
-    .mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
-    .mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
-    .reading-text {
-      background: #fafbff;
-      padding: 24px 28px;
-      border-radius: 10px;
-      border-left: 4px solid #667eea;
-      line-height: 1.85;
-      font-size: 0.97rem;
-      color: #2c3e50;
-      margin-bottom: 20px;
-      font-family: Georgia, 'Times New Roman', serif;
-      text-align: justify;
-      hyphens: auto;
-    }
-    .reading-text h3 {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      color: #3949ab;
-      font-size: 1.15rem;
-      margin-bottom: 14px;
-      text-align: left;
-    }
-    .reading-text p { margin-bottom: 14px; text-indent: 1.6em; }
-    .reading-text p:first-of-type { text-indent: 0; }
-    .author-footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 16px;
-      font-size: 0.8rem;
-      color: #aaa;
-      border-top: 1px solid #f0f2f5;
-    }
-    .author-footer a { color: #aaa; }
-    .author-name { font-weight: 700; }
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .header h1 { font-size: 1.2rem; }
-      .nav { flex-wrap: wrap; }
-      .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Die Geschichte der Mythologie – B2.3 · 3013R</title>
+<style>
+/* ── GLOBAL ──────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+/* ── NAVIGATION ──────────────────────────────────────────── */
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+/* ── SECTIONS ────────────────────────────────────────────── */
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 28px 30px; }
+
+/* ── TAB-BANNER ──────────────────────────────────────────── */
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); display: block; }
+
+/* ── CONTROL-BAR ─────────────────────────────────────────── */
+.timer-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* ── HILFE-BOX ───────────────────────────────────────────── */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+.frage-box { background: #fff8e1; border-left: 4px solid #f9a825; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 20px; }
+.frage-box p { color: #555; font-size: 0.97rem; line-height: 1.6; }
+.frage-box strong { color: #e65100; }
+
+/* ── VORENTLASTUNG ───────────────────────────────────────── */
+.vorent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.vorent-card { background: #f3f4ff; border-radius: 10px; padding: 12px 15px; border-left: 3px solid #667eea; }
+.vorent-card .de { font-weight: 700; color: #283593; font-size: 0.95rem; }
+.vorent-card .en { font-size: 0.8rem; color: #888; margin-top: 3px; font-style: italic; }
+.vorent-card .bsp { font-size: 0.82rem; color: #555; margin-top: 5px; line-height: 1.4; }
+
+/* ── LESETEXT ────────────────────────────────────────────── */
+.story-text { font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; font-size: 1.05rem; line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.story-text h2 { font-size: 1.4rem; color: #283593; margin-bottom: 20px; font-family: Georgia, serif; text-align: left; }
+.story-text p { margin-bottom: 1.2em; text-indent: 1.4em; }
+.story-text p:first-of-type { text-indent: 0; }
+.vocab-hl { background: #fff9c4; border-radius: 3px; padding: 0 3px; cursor: help; border-bottom: 1px dotted #f9a825; }
+
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+.wordbox { background: #f3e5f5; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.9em; color: #555; line-height: 1.8; }
+.wordbox strong { color: #6a1b9a; }
+.luecken-item { margin-bottom: 14px; font-size: 0.97rem; line-height: 2; color: #333; }
+.luecken-inp { border: none; border-bottom: 2px solid #9c27b0; padding: 2px 6px; font-size: 0.95em; font-family: inherit; outline: none; min-width: 4ch; text-align: center; background: transparent; transition: border-color .2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #43a047; background: #e8f5e9; color: #1b5e20; border-radius: 4px 4px 0 0; }
+.luecken-inp.no { border-bottom-color: #e53935; background: #ffebee; color: #b71c1c; border-radius: 4px 4px 0 0; }
+
+/* ── MULTIPLE CHOICE ─────────────────────────────────────── */
+.mc-item { background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; border: 1px solid #c5cae9; }
+.mc-item h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; font-weight: 600; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-opt { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: #fff; cursor: pointer; font-size: 0.91rem; transition: all .2s; text-align: left; }
+.mc-opt:hover { border-color: #667eea; background: #f3f4ff; }
+.mc-opt.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; pointer-events: none; }
+.mc-opt.wrong { border-color: #e53935; background: #ffebee; color: #b71c1c; pointer-events: none; }
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.sb-btn-row { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ── WORTSCHATZ ──────────────────────────────────────────── */
+#wortschatzContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#wortschatzContainer .luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 12px 16px; margin-bottom: 0; }
+.ws-prompt { font-weight: 600; color: #4a148c; font-size: 1.0em; margin-bottom: 8px; }
+.ws-inputs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+input.blank { border: none; border-bottom: 2px solid #667eea; background: transparent; padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none; transition: all .2s; min-width: 4ch; }
+input.blank:focus { border-bottom-color: #9c27b0; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer { background: #f8f9fa; border-top: 1px solid #eee; text-align: center; padding: 12px 20px; font-size: 0.78em; color: #aaa; }
+
+/* ── MOBILE ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+    .sec-inner { padding: 18px 16px; }
+    #wortschatzContainer { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Die Geschichte der Mythologie</h1>
-      <p>B2.3 – Lektion 3013R · Lesen</p>
-    </div>
-    <div class="nav">
-      <button class="nav-btn active" onclick="showTab(0)">
-        <span class="nav-emoji">🌅</span>
-        <span class="nav-label">Vorentlastung</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(1)">
-        <span class="nav-emoji">📖</span>
-        <span class="nav-label">Lesetext</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(2)">
-        <span class="nav-emoji">✏️</span>
-        <span class="nav-label">Lückentext</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(3)">
-        <span class="nav-emoji">❓</span>
-        <span class="nav-label">Multiple Choice</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(4)">
-        <span class="nav-emoji">🔀</span>
-        <span class="nav-label">Satzbau</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(5)">
-        <span class="nav-emoji">📚</span>
-        <span class="nav-label">Wortschatz</span>
-      </button>
-    </div>
+<div class="container">
 
-    <div class="content">
+<!-- HEADER -->
+<div class="header">
+  <h1>Die Geschichte der Mythologie</h1>
+  <p>B2.3 – Lektion 3013R · Lesen</p>
+  <span class="big-emoji">🏛️</span>
+</div>
 
-      <!-- TAB 0: Vorentlastung -->
-      <div class="tab active" id="tab0">
-        <div class="help-box">
-          <strong>Vor dem Lesen:</strong> Diese Begriffe begegnen dir im Text. Lies sie in Ruhe durch — du brauchst sie, um den Artikel über die Geschichte der Mythologie zu verstehen.
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">der Mythos (Pl. die Mythen)</span>
-          <span class="vocab-de">eine überlieferte Erzählung von Göttern, Helden oder dem Ursprung der Welt.</span>
-          <span class="vocab-example">„Der Mythos von Prometheus erzählt, wie die Menschen das Feuer bekamen."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">die Antike</span>
-          <span class="vocab-de">Zeitalter der griechischen und römischen Hochkulturen (ca. 800 v. Chr. bis 500 n. Chr.).</span>
-          <span class="vocab-example">„In der Antike dichtete Homer seine Epen."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">die Gottheit (Pl. die Gottheiten)</span>
-          <span class="vocab-de">ein göttliches Wesen; ein Gott oder eine Göttin.</span>
-          <span class="vocab-example">„Die Ägypter verehrten zahlreiche Gottheiten."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">übernatürlich</span>
-          <span class="vocab-de">jenseits der Naturgesetze; nicht wissenschaftlich erklärbar.</span>
-          <span class="vocab-example">„In Mythen wirken übernatürliche Kräfte."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">der Schöpfungsmythos</span>
-          <span class="vocab-de">eine Erzählung, die erklärt, wie die Welt entstanden ist.</span>
-          <span class="vocab-example">„Fast jede Kultur besitzt einen eigenen Schöpfungsmythos."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">überliefern</span>
-          <span class="vocab-de">eine Geschichte, ein Wissen oder einen Brauch von einer Generation zur nächsten weitergeben.</span>
-          <span class="vocab-example">„Viele Mythen wurden zuerst mündlich überliefert."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">Werte vermitteln</span>
-          <span class="vocab-de">jemandem moralische Vorstellungen von richtig und falsch beibringen.</span>
-          <span class="vocab-example">„Mythen vermitteln die Werte einer Gesellschaft."</span>
-        </div>
-      </div>
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
+    <span class="nav-emoji">📋</span><span class="nav-label">Vorentlastung</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
+    <span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
+    <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
+    <span class="nav-emoji">❓</span><span class="nav-label">Multiple Choice</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(4)">
+    <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(5)">
+    <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
+  </div>
+</div>
 
-      <!-- TAB 1: Lesetext -->
-      <div class="tab" id="tab1">
-        <div class="reading-text">
-          <h3>Warum die Menschheit Mythen erzählt — eine kurze Geschichte</h3>
-          <p>Lange bevor Menschen lesen und schreiben konnten, erzählten sie sich Geschichten. Geschichten von Göttern, die den Himmel tragen. Von Helden, die Ungeheuer besiegen. Von Naturkräften, die einst Gesichter und Stimmen hatten. Wir nennen diese Erzählungen heute Mythen — und sie sind weit mehr als hübsche Märchen. Sie waren über Jahrtausende hinweg das wichtigste Werkzeug, mit dem sich der Mensch die Welt erklärte.</p>
-          <p>Die großen mythologischen Traditionen Europas, des Nahen Ostens und Asiens entstanden in der Antike. In Griechenland dichtete Homer im 8. Jahrhundert v. Chr. die Epen „Ilias" und „Odyssee". Dort erscheinen die Götter des Olymp erstaunlich menschlich: Sie lieben, streiten, täuschen und rächen sich. Sie sind mächtig, aber nicht makellos. Genau diese Mischung aus übernatürlicher Kraft und menschlicher Schwäche machte sie unvergesslich — und hat bis heute Schriftsteller, Maler und Filmemacher inspiriert.</p>
-          <p>Anders klingt die Welt der nordischen Mythen. Die Wikinger erzählten von Odin, dem einäugigen Gott der Weisheit, von Thor, der mit seinem Hammer die Blitze schleudert, und vom Weltuntergang Ragnarök, an dessen Ende selbst die Götter fallen. Noch anders die ägyptische Tradition: Hier ging es um den ewigen Kreislauf von Tod und Wiedergeburt, verkörpert im Sonnengott Re, der jede Nacht durch die Unterwelt reist und jeden Morgen neu aufsteigt.</p>
-          <p>Warum aber brauchten all diese Kulturen überhaupt solche Geschichten? Die moderne Psychologie gibt eine einleuchtende Antwort: Mythen helfen dem Menschen, Sinn zu stiften. Sie bringen das Unverständliche — Geburt, Tod, Naturkatastrophen, Liebe, Verrat — in eine erzählbare Form. Der Psychoanalytiker Carl Gustav Jung sprach von „Archetypen": immer wiederkehrenden Grundmustern, die offenbar tief in unserer Seele verankert sind.</p>
-          <p>Mythen sind also keine Lügen. Sie sind kulturelle Werkzeuge. Sie vermitteln Werte und Normen, sie zeigen, was in einer Gesellschaft als mutig, klug oder verwerflich gilt. Die Geschichte des Prometheus etwa, der den Göttern das Feuer stahl und den Menschen brachte, erzählt von der Sehnsucht nach Wissen — und vom hohen Preis, den Ungehorsam kosten kann.</p>
-          <p>Heute wissen wir, dass die Erde keine Scheibe und der Donner kein zorniger Gott ist. Die moderne Wissenschaft erklärt die Welt durch Beobachtung und Experiment, nicht durch Erzählung. Und doch sind die alten Mythen nicht verschwunden. Sie leben weiter in Romanen, Filmen und Videospielen — und in der schlichten Wahrheit, dass Menschen, damals wie heute, über sich selbst Geschichten erzählen müssen, um zu begreifen, wer sie sind.</p>
-        </div>
-      </div>
+<!-- TAB 0: VORENTLASTUNG -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bücher und Wissen">
+  <div class="sec-inner">
 
-      <!-- TAB 2: Lückentext -->
-      <div class="tab" id="tab2">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-2">0:00</span>
-          <span class="best-time" id="best-2"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="showLueckeLoesung(2)">Lösungen</button>
-          <button class="btn" onclick="resetLuecke(2); timerResetOne(2);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Ergänze die Lücken mit passenden Wörtern aus dem Text.
-        </div>
-        <div id="luecke-container-2"></div>
-      </div>
-
-      <!-- TAB 3: Multiple Choice -->
-      <div class="tab" id="tab3">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-3">0:00</span>
-          <span class="best-time" id="best-3"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="resetMC(3); timerResetOne(3);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Wähle die Antwort, die laut Text richtig ist.
-        </div>
-        <div id="mc-container-3"></div>
-      </div>
-
-      <!-- TAB 4: Satzbau -->
-      <div class="tab" id="tab4">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-4">0:00</span>
-          <span class="best-time" id="best-4"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="resetSatzbau(4); timerResetOne(4);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Bringe die Satzteile in die richtige Reihenfolge. Du kannst die Chips ziehen oder anklicken.
-        </div>
-        <div id="satzbau-container-4"></div>
-      </div>
-
-      <!-- TAB 5: Wortschatz -->
-      <div class="tab" id="tab5">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-5">0:00</span>
-          <span class="best-time" id="best-5"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="showVocabLoesung(5)">Lösungen</button>
-          <button class="btn" onclick="resetVocab(5); timerResetOne(5);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Übersetze die Nomen ins Deutsche. Format: Artikel + Wort + Plural.
-        </div>
-        <div id="vocab-container-5"></div>
-      </div>
-
+    <div class="frage-box">
+      <p><strong>Zum Nachdenken:</strong> Welche Mythen kennst du? Hast du schon einmal von Zeus, Thor oder Prometheus gehört? Warum erzählen Menschen seit Jahrtausenden solche Geschichten?</p>
     </div>
 
-    <div class="author-footer">
-      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    <h3 style="color:#3949ab; margin-bottom:14px; font-size:1.05rem;">🔑 Schlüsselwörter im Text</h3>
+    <div class="vorent-grid">
+      <div class="vorent-card">
+        <div class="de">der Mythos, -en</div>
+        <div class="en">myth</div>
+        <div class="bsp">Der Mythos von Prometheus erzählt, wie die Menschen das Feuer bekamen.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Antike</div>
+        <div class="en">antiquity</div>
+        <div class="bsp">In der Antike dichtete Homer seine Epen.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Gottheit, -en</div>
+        <div class="en">deity</div>
+        <div class="bsp">Die Ägypter verehrten zahlreiche Gottheiten.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">übernatürlich</div>
+        <div class="en">supernatural</div>
+        <div class="bsp">In Mythen wirken übernatürliche Kräfte.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Schöpfungsmythos, -en</div>
+        <div class="en">creation myth</div>
+        <div class="bsp">Fast jede Kultur besitzt einen eigenen Schöpfungsmythos.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">überliefern</div>
+        <div class="en">to hand down</div>
+        <div class="bsp">Viele Mythen wurden zuerst mündlich überliefert.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">Werte vermitteln</div>
+        <div class="en">to convey values</div>
+        <div class="bsp">Mythen vermitteln die Werte einer Gesellschaft.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Archetyp, -en</div>
+        <div class="en">archetype</div>
+        <div class="bsp">Jung sprach von Archetypen, die in der menschlichen Seele verankert sind.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Held, -en</div>
+        <div class="en">hero</div>
+        <div class="bsp">In jedem Mythos steht ein Held vor einer schweren Prüfung.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Unterwelt, -en</div>
+        <div class="en">underworld</div>
+        <div class="bsp">Der Sonnengott Re reist jede Nacht durch die Unterwelt.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">die Wiedergeburt, -en</div>
+        <div class="en">rebirth</div>
+        <div class="bsp">Die ägyptische Mythologie erzählt vom Kreislauf aus Tod und Wiedergeburt.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">das Feuer</div>
+        <div class="en">fire</div>
+        <div class="bsp">Prometheus stahl den Göttern das Feuer für die Menschen.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TAB 1: LESETEXT -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1603650/pexels-photo-1603650.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Griechischer Tempel">
+  <div class="sec-inner">
+    <div class="story-text">
+      <h2>Warum die Menschheit Mythen erzählt</h2>
+
+      <p>Lange bevor Menschen lesen und schreiben konnten, erzählten sie sich Geschichten. Geschichten von Göttern, die den Himmel tragen. Von Helden, die Ungeheuer besiegen. Von Naturkräften, die einst Gesichter und Stimmen hatten. Wir nennen diese Erzählungen heute <span class="vocab-hl" title="myths">Mythen</span> — und sie sind weit mehr als hübsche Märchen. Sie waren über Jahrtausende hinweg das wichtigste Werkzeug, mit dem sich der Mensch die Welt erklärte.</p>
+
+      <p>Die großen mythologischen Traditionen Europas, des Nahen Ostens und Asiens entstanden in der <span class="vocab-hl" title="antiquity">Antike</span>. In Griechenland dichtete Homer im 8. Jahrhundert v. Chr. die Epen „Ilias" und „Odyssee". Dort erscheinen die Götter des Olymp erstaunlich menschlich: Sie lieben, streiten, täuschen und rächen sich. Sie sind mächtig, aber nicht makellos. Genau diese Mischung aus <span class="vocab-hl" title="supernatural">übernatürlicher</span> Kraft und menschlicher Schwäche machte sie unvergesslich — und hat bis heute Schriftsteller, Maler und Filmemacher inspiriert.</p>
+
+      <p>Anders klingt die Welt der nordischen Mythen. Die Wikinger erzählten von Odin, dem einäugigen Gott der Weisheit, von Thor, der mit seinem Hammer die Blitze schleudert, und vom Weltuntergang Ragnarök, an dessen Ende selbst die Götter fallen. Noch anders die ägyptische Tradition: Hier ging es um den ewigen Kreislauf von Tod und <span class="vocab-hl" title="rebirth">Wiedergeburt</span>, verkörpert im Sonnengott Re, der jede Nacht durch die <span class="vocab-hl" title="underworld">Unterwelt</span> reist und jeden Morgen neu aufsteigt.</p>
+
+      <p>Warum aber brauchten all diese Kulturen überhaupt solche Geschichten? Die moderne Psychologie gibt eine einleuchtende Antwort: Mythen helfen dem Menschen, Sinn zu stiften. Sie bringen das Unverständliche — Geburt, Tod, Naturkatastrophen, Liebe, Verrat — in eine erzählbare Form. Der Psychoanalytiker Carl Gustav Jung sprach von <span class="vocab-hl" title="archetypes">Archetypen</span>: immer wiederkehrenden Grundmustern, die offenbar tief in unserer Seele verankert sind.</p>
+
+      <p>Mythen sind also keine Lügen. Sie sind kulturelle Werkzeuge. Sie <span class="vocab-hl" title="convey values">vermitteln</span> Werte und Normen, sie zeigen, was in einer Gesellschaft als mutig, klug oder verwerflich gilt. Die Geschichte des Prometheus etwa, der den Göttern das <span class="vocab-hl" title="fire">Feuer</span> stahl und den Menschen brachte, erzählt von der Sehnsucht nach Wissen — und vom hohen Preis, den Ungehorsam kosten kann.</p>
+
+      <p>Heute wissen wir, dass die Erde keine Scheibe und der Donner kein zorniger Gott ist. Die moderne Wissenschaft erklärt die Welt durch Beobachtung und Experiment, nicht durch Erzählung. Und doch sind die alten Mythen nicht verschwunden. Sie leben weiter in Romanen, Filmen und Videospielen — und in der schlichten Wahrheit, dass Menschen, damals wie heute, über sich selbst Geschichten erzählen müssen, um zu begreifen, wer sie sind.</p>
     </div>
   </div>
+</div>
 
-  <script>
-    function showTab(n){
-      document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===n);});
-      document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
-    }
+<!-- TAB 2: LÜCKENTEXT -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Notizen schreiben">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="showLueckeLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetLuecke(); timerResetOne(2);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">0:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ergänze die Lücken mit passenden Begriffen aus dem Text. Feedback erscheint sofort.</div>
+    <div id="lueckenContainer"></div>
+  </div>
+</div>
 
-    // ── Timer ────────────────────────────────────────────────
-    var TIMER_PREFIX='B2_3013R_';
-    var timerStarted=[false,false,false,false,false,false,false];
-    var timerRunning=[false,false,false,false,false,false,false];
-    var timerSeconds=[0,0,0,0,0,0,0];
-    var timerIntervals=[null,null,null,null,null,null,null];
-    function timerAutoStart(n){
-      if(timerStarted[n]) return;
-      timerStarted[n]=true; timerRunning[n]=true;
-      timerIntervals[n]=setInterval(function(){
-        timerSeconds[n]++;
-        var el=document.getElementById('timer-'+n);
-        if(el) el.textContent=fmtTime(timerSeconds[n]);
-      },1000);
-    }
-    function timerStop(n){
-      if(!timerRunning[n]) return;
-      clearInterval(timerIntervals[n]); timerRunning[n]=false;
-      var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-      if(timerSeconds[n]>0&&timerSeconds[n]<best){
-        localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-        var el=document.getElementById('best-'+n);
-        if(el) el.textContent='🏆 '+fmtTime(timerSeconds[n]);
-      }
-    }
-    function timerResetOne(n){
-      clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-      var el=document.getElementById('timer-'+n);
-      if(el) el.textContent='0:00';
-    }
-    function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-    function loadBestTimes(){
-      for(var i=2;i<=5;i++){
-        var v=localStorage.getItem(TIMER_PREFIX+i);
-        if(v){ var el=document.getElementById('best-'+i); if(el) el.textContent='🏆 '+fmtTime(parseInt(v)); }
-      }
-    }
+<!-- TAB 3: MULTIPLE CHOICE -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/7974/pexels-photo-7974.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fragen und Antworten">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="mcReset()">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Wähle die Antwort, die laut Text richtig ist.</div>
+    <div id="mcContainer"></div>
+  </div>
+</div>
 
-    // ── Helfer ───────────────────────────────────────────────
-    function liveCheck(inp){
-      var user=(inp.value||'').trim();
-      var answer=inp.dataset.answer||'';
-      if(inp.classList.contains('art')){ user=user.toLowerCase(); answer=answer.toLowerCase(); }
-      inp.classList.remove('correct','wrong');
-      var hint=inp.nextElementSibling;
-      if(hint && hint.classList.contains('correction-hint')) hint.remove();
-      if(!user) return;
-      if(user===answer){ inp.classList.add('correct'); }
-      else if(answer.toLowerCase().indexOf(user.toLowerCase())===0){ /* Präfix, noch warten */ }
-      else { inp.classList.add('wrong'); }
-    }
-    function showHint(inp){
-      var answer=inp.dataset.answer||'';
-      var user=(inp.value||'').trim();
-      var isArt=inp.classList.contains('art');
-      var match=isArt?(user.toLowerCase()===answer.toLowerCase()):(user===answer);
-      var existing=inp.nextElementSibling;
-      if(existing && existing.classList.contains('correction-hint')) existing.remove();
-      if(match){ inp.classList.remove('wrong'); inp.classList.add('correct'); }
-      else {
-        inp.classList.remove('correct'); inp.classList.add('wrong');
-        var h=document.createElement('span');
-        h.className='correction-hint';
-        h.textContent=' → '+answer;
-        inp.insertAdjacentElement('afterend',h);
-      }
-    }
+<!-- TAB 4: SATZBAU -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3741681/pexels-photo-3741681.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Puzzle-Teile">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="sbResetAll()">Alle zurücksetzen</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">0:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Klicke einen Chip an und dann die Zone — oder ziehe ihn per Drag &amp; Drop.</div>
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
 
-    // ── Lückentext ───────────────────────────────────────────
-    var LUECKEN_DATA = [
-      { segs: [{t:'Mythen entstehen, um '},{b:'Naturphänomene',s:'l'},{t:' und existenzielle Fragen zu erklären.'}] },
-      { segs: [{t:'Homers Epen wurden im '},{b:'8.',s:'s'},{t:' Jahrhundert v. Chr. verfasst.'}] },
-      { segs: [{t:'Die Götter des '},{b:'Olymp',s:'m'},{t:' sind mächtig, aber nicht makellos.'}] },
-      { segs: [{t:'Thor schleudert mit seinem '},{b:'Hammer',s:'m'},{t:' die Blitze.'}] },
-      { segs: [{t:'Der Sonnengott '},{b:'Re',s:'s'},{t:' reist jede Nacht durch die Unterwelt.'}] },
-      { segs: [{t:'Jung nannte die wiederkehrenden Grundmuster in Mythen '},{b:'Archetypen',s:'m'},{t:'.'}] },
-      { segs: [{t:'Mythen sind keine Lügen, sondern kulturelle '},{b:'Werkzeuge',s:'m'},{t:'.'}] },
-      { segs: [{t:'Prometheus stahl den Göttern das '},{b:'Feuer',s:'s'},{t:' für die Menschen.'}] }
-    ];
+<!-- TAB 5: WORTSCHATZ -->
+<div class="section" id="sec-5">
+  <img class="tab-banner" src="https://images.pexels.com/photos/267669/pexels-photo-267669.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wörterbuch">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetWortschatz(); timerResetOne(5);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-5">0:00</span></span>
+        <span>🏆 <span id="best-5">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Übersetze die Nomen ins Deutsche: Artikel + Wort + Plural.</div>
+    <div id="wortschatzContainer"></div>
+  </div>
+</div>
 
-    function lueckeInit(){
-      var cont=document.getElementById('luecke-container-2');
-      cont.innerHTML='';
-      LUECKEN_DATA.forEach(function(item,idx){
-        var sent=document.createElement('div');
-        sent.style.marginBottom='14px';
-        item.segs.forEach(function(seg){
-          if(seg.t){
-            sent.appendChild(document.createTextNode(seg.t));
-          } else {
-            var inp=document.createElement('input');
-            inp.className='blank';
-            inp.type='text';
-            inp.dataset.answer=seg.b;
-            inp.style.width=(seg.s==='s'?'60px':seg.s==='m'?'110px':'170px');
-            inp.addEventListener('input',function(){
-              timerAutoStart(2);
-              liveCheck(this);
-              checkLueckeAllOk(2);
-            });
-            sent.appendChild(inp);
-          }
-        });
-        cont.appendChild(sent);
-      });
-    }
-    function checkLueckeAllOk(n){
-      var inputs=document.querySelectorAll('#luecke-container-'+n+' input.blank');
-      var allOk=inputs.length>0 && Array.from(inputs).every(function(i){return i.classList.contains('correct');});
-      if(allOk) timerStop(n);
-    }
-    function showLueckeLoesung(n){
-      document.querySelectorAll('#luecke-container-'+n+' input.blank').forEach(function(inp){ showHint(inp); });
-      timerStop(n);
-    }
-    function resetLuecke(n){
-      document.querySelectorAll('#luecke-container-'+n+' input.blank').forEach(function(inp){
-        inp.value='';
-        inp.classList.remove('correct','wrong');
-        var h=inp.nextElementSibling;
-        if(h && h.classList.contains('correction-hint')) h.remove();
-      });
-    }
+<!-- FOOTER -->
+<div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
 
-    // ── Multiple Choice ──────────────────────────────────────
-    var MC_DATA = [
-      { q: 'Was beschreibt der Text als Kernfunktion von Mythen?',
-        options: [
-          { t: 'Mythen dienen vor allem der Unterhaltung.', c: false },
-          { t: 'Mythen helfen dem Menschen, Sinn zu stiften und das Unverständliche zu erzählen.', c: true },
-          { t: 'Mythen ersetzen die Wissenschaft bei der Erklärung der Welt.', c: false }
-        ] },
-      { q: 'Welche Eigenschaft zeichnet die griechischen Götter laut Text aus?',
-        options: [
-          { t: 'Sie sind fehlerlos und stehen moralisch über den Menschen.', c: false },
-          { t: 'Sie sind übernatürlich mächtig, zugleich aber menschlich fehlbar.', c: true },
-          { t: 'Sie erscheinen nur in der modernen Literatur.', c: false }
-        ] },
-      { q: 'Was bedeutet das Ragnarök in der nordischen Mythologie?',
-        options: [
-          { t: 'Die Wiedergeburt eines Gottes.', c: false },
-          { t: 'Den Weltuntergang, bei dem auch die Götter fallen.', c: true },
-          { t: 'Ein Fest zu Ehren Odins.', c: false }
-        ] },
-      { q: 'Wofür stehen Jungs „Archetypen"?',
-        options: [
-          { t: 'Für antike Bildhauerwerke.', c: false },
-          { t: 'Für tief in der Seele verankerte, wiederkehrende Grundmuster.', c: true },
-          { t: 'Für die Hauptfiguren bestimmter Romane.', c: false }
-        ] },
-      { q: 'Welche Botschaft trägt laut Text der Prometheus-Mythos?',
-        options: [
-          { t: 'Ungehorsam wird immer belohnt.', c: false },
-          { t: 'Wissen und Fortschritt haben einen Preis.', c: true },
-          { t: 'Die Götter sind den Menschen gleichgültig.', c: false }
-        ] }
-    ];
+<script>
+/* ── TIMER ───────────────────────────────────────────────── */
+var TIMER_PREFIX = 'B2_3013R_';
+var timerStarted = [false,false,false,false,false,false,false];
+var timerRunning = [false,false,false,false,false,false,false];
+var timerSeconds = [0,0,0,0,0,0,0];
+var timerIntervals = [null,null,null,null,null,null,null];
 
-    function mcInit(){
-      var cont=document.getElementById('mc-container-3');
-      cont.innerHTML='';
-      MC_DATA.forEach(function(item,idx){
-        var div=document.createElement('div');
-        div.className='mc-item';
-        var q=document.createElement('div');
-        q.className='mc-question';
-        q.textContent=(idx+1)+'. '+item.q;
-        div.appendChild(q);
-        var opts=document.createElement('div');
-        opts.className='mc-options';
-        item.options.forEach(function(o){
-          var b=document.createElement('button');
-          b.className='mc-btn';
-          b.textContent=o.t;
-          b.dataset.correct=o.c?'1':'0';
-          b.addEventListener('click',function(){
-            timerAutoStart(3);
-            mcAnswer(div,b,o.c);
-          });
-          opts.appendChild(b);
-        });
-        div.appendChild(opts);
-        cont.appendChild(div);
-      });
-    }
-    function mcAnswer(item,btn,correct){
-      var buttons=item.querySelectorAll('.mc-btn');
-      if(correct){
-        btn.classList.add('correct');
-        buttons.forEach(function(b){ b.disabled=true; b.style.cursor='default'; });
-        checkMCAllDone(3);
-      } else {
-        btn.classList.add('wrong');
-        btn.disabled=true;
-      }
-    }
-    function checkMCAllDone(n){
-      var items=document.querySelectorAll('#mc-container-'+n+' .mc-item');
-      var allDone=Array.from(items).every(function(it){ return it.querySelector('.mc-btn.correct'); });
-      if(allDone) timerStop(n);
-    }
-    function resetMC(n){
-      document.querySelectorAll('#mc-container-'+n+' .mc-btn').forEach(function(b){
-        b.classList.remove('correct','wrong');
-        b.disabled=false;
-        b.style.cursor='pointer';
-      });
-    }
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n] = true; timerRunning[n] = true;
+  timerIntervals[n] = setInterval(function(){
+    timerSeconds[n]++;
+    var el = document.getElementById('timer-'+n);
+    if(el) el.textContent = fmtTime(timerSeconds[n]);
+  }, 1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n] = false;
+  var best = parseInt(localStorage.getItem(TIMER_PREFIX+n) || '999999');
+  if(timerSeconds[n] > 0 && timerSeconds[n] < best){
+    localStorage.setItem(TIMER_PREFIX+n, timerSeconds[n]);
+    var el = document.getElementById('best-'+n);
+    if(el) el.textContent = fmtTime(timerSeconds[n]);
+  }
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]);
+  timerRunning[n] = false; timerStarted[n] = false; timerSeconds[n] = 0;
+  var el = document.getElementById('timer-'+n);
+  if(el) el.textContent = '0:00';
+}
+function fmtTime(s){ var m = Math.floor(s/60); var sec = s%60; return m+':'+(sec<10?'0':'')+sec; }
 
-    // ── Satzbau ──────────────────────────────────────────────
-    var SATZBAU_DATA = [
-      { parts:['Homer','dichtete','seine','Epen','in','der','Antike'],
-        valid:[['Homer','dichtete','seine','Epen','in','der','Antike']], punct:'.' },
-      { parts:['die','Wikinger','erzählten','Mythen','von','Odin','und','Thor'],
-        valid:[['die','Wikinger','erzählten','Mythen','von','Odin','und','Thor']], punct:'.' },
-      { parts:['die','Götter','des','Olymp','sind','mächtig','und','fehlbar'],
-        valid:[['die','Götter','des','Olymp','sind','mächtig','und','fehlbar']], punct:'.' },
-      { parts:['Mythen','vermitteln','die','Werte','einer','Gesellschaft'],
-        valid:[['Mythen','vermitteln','die','Werte','einer','Gesellschaft']], punct:'.' },
-      { parts:['Prometheus','stahl','den','Göttern','das','Feuer'],
-        valid:[['Prometheus','stahl','den','Göttern','das','Feuer']], punct:'.' }
-    ];
+/* ── NAVIGATION ──────────────────────────────────────────── */
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [2,3,4,5].forEach(function(i){ timerStop(i); });
+}
 
-    var sbDragged=null;
+/* ── LÜCKENTEXT ──────────────────────────────────────────── */
+var lueckenData = [
+  { pre: 'Mythen waren über Jahrtausende hinweg das wichtigste ',    ans: 'Werkzeug',     post: ', mit dem sich der Mensch die Welt erklärte.' },
+  { pre: 'Homer dichtete im 8. Jahrhundert v. Chr. die Epen „Ilias" und „',  ans: 'Odyssee',  post: '".' },
+  { pre: 'Die Götter des ',         ans: 'Olymp',        post: ' sind mächtig, aber nicht makellos.' },
+  { pre: 'Thor schleudert mit seinem ',  ans: 'Hammer',   post: ' die Blitze.' },
+  { pre: 'Am Ende des Weltuntergangs ',  ans: 'Ragnarök', post: ' fallen sogar die Götter.' },
+  { pre: 'Der Sonnengott Re reist jede Nacht durch die ',  ans: 'Unterwelt', post: '.' },
+  { pre: 'Jung nannte die wiederkehrenden Grundmuster in Mythen ',  ans: 'Archetypen', post: '.' },
+  { pre: 'Prometheus stahl den Göttern das ',  ans: 'Feuer', post: ' und brachte es den Menschen.' }
+];
 
-    function sbMakeChip(word,idx){
-      var chip=document.createElement('div');
-      chip.className='chip';
-      chip.dataset.orig=word;
-      chip.dataset.sentIdx=idx;
-      chip.draggable=true;
-      chip.addEventListener('dragstart',function(e){
-        sbDragged=chip;
-        e.dataTransfer.setData('text/plain','');
-        timerAutoStart(4);
-      });
-      chip.addEventListener('click',function(){
-        timerAutoStart(4);
-        var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-        var bank=document.querySelector('#satzbau-container-4 .chips-container[data-idx="'+idx+'"]');
-        if(chip.parentElement===bank){
-          var cursor=row.querySelector('.sb-insert-cursor');
-          if(cursor) row.insertBefore(chip,cursor); else row.appendChild(chip);
-        } else {
-          bank.appendChild(chip);
-        }
-        sbUpdateCapitalization(idx);
-        sbCheckAuto(idx);
-      });
-      return chip;
-    }
-    function sbRegisterZone(el,idx){
-      el.addEventListener('dragover',function(e){
-        e.preventDefault();
-        el.classList.add('dragover');
-        var cursor=el.querySelector('.sb-insert-cursor');
-        if(cursor) cursor.remove();
-        if(el.classList.contains('sentence-builder')){
-          var afterEl=sbGetDragAfterElement(el,e.clientX);
-          var newCursor=document.createElement('div');
-          newCursor.className='sb-insert-cursor';
-          if(afterEl) el.insertBefore(newCursor,afterEl); else el.appendChild(newCursor);
-        }
-      });
-      el.addEventListener('dragleave',function(e){
-        if(!el.contains(e.relatedTarget)){
-          el.classList.remove('dragover');
-          var cursor=el.querySelector('.sb-insert-cursor');
-          if(cursor) cursor.remove();
-        }
-      });
-      el.addEventListener('drop',function(e){
-        e.preventDefault();
-        el.classList.remove('dragover');
-        var cursor=el.querySelector('.sb-insert-cursor');
-        if(sbDragged && sbDragged.dataset.sentIdx===String(idx)){
-          if(el.classList.contains('sentence-builder')){
-            if(cursor) el.insertBefore(sbDragged,cursor); else el.appendChild(sbDragged);
-          } else {
-            el.appendChild(sbDragged);
-          }
-          sbDragged=null;
-          if(cursor) cursor.remove();
-          sbUpdateCapitalization(idx);
-          sbCheckAuto(idx);
-        }
-      });
-    }
-    function sbGetDragAfterElement(container,x){
-      var els=Array.from(container.querySelectorAll('.chip:not(.dragging)'));
-      return els.reduce(function(closest,child){
-        var box=child.getBoundingClientRect();
-        var offset=x-box.left-box.width/2;
-        if(offset<0 && offset>closest.offset) return {offset:offset,element:child};
-        return closest;
-      },{offset:Number.NEGATIVE_INFINITY}).element;
-    }
-    function sbUpdateCapitalization(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      if(!row) return;
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      chips.forEach(function(chip,i){
-        var w=chip.dataset.orig;
-        if(w===',' || w===';') return;
-        chip.textContent=(i===0)?w.charAt(0).toUpperCase()+w.slice(1):w;
-      });
-    }
-    function sbColorRow(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      if(!row) return;
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      var data=SATZBAU_DATA[idx];
-      var isCorrect=data.valid.some(function(validArr){
-        if(chips.length!==validArr.length) return false;
-        return chips.every(function(chip,i){ return chip.dataset.orig.toLowerCase()===validArr[i].toLowerCase(); });
-      });
-      chips.forEach(function(chip){
-        chip.classList.remove('correct','wrong');
-        chip.classList.add(isCorrect?'correct':'wrong');
-      });
-      return isCorrect;
-    }
-    function sbCheckAuto(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      var data=SATZBAU_DATA[idx];
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      if(chips.length===data.parts.length){
-        sbColorRow(idx);
-        sbCheckAllDone(4);
-      }
-    }
-    function sbCheckAllDone(n){
-      var allCorrect=SATZBAU_DATA.every(function(_,idx){
-        var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-        var chips=Array.from(row.querySelectorAll('.chip'));
-        var data=SATZBAU_DATA[idx];
-        return data.valid.some(function(validArr){
-          if(chips.length!==validArr.length) return false;
-          return chips.every(function(chip,i){ return chip.dataset.orig.toLowerCase()===validArr[i].toLowerCase(); });
-        });
-      });
-      if(allCorrect) timerStop(n);
-    }
-    function sbShowSolution(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      var bank=document.querySelector('#satzbau-container-4 .chips-container[data-idx="'+idx+'"]');
-      var data=SATZBAU_DATA[idx];
-      var allChips=Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));
-      row.querySelectorAll('.chip').forEach(function(c){ bank.appendChild(c); });
-      data.valid[0].forEach(function(word){
-        var chip=allChips.find(function(c){ return c.dataset.orig===word && c.parentElement===bank; });
-        if(chip) row.appendChild(chip);
-      });
-      sbUpdateCapitalization(idx);
-      sbColorRow(idx);
-      sbCheckAllDone(4);
-    }
-    function sbResetOne(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      var bank=document.querySelector('#satzbau-container-4 .chips-container[data-idx="'+idx+'"]');
-      Array.from(row.querySelectorAll('.chip')).forEach(function(c){
-        c.classList.remove('correct','wrong');
-        bank.appendChild(c);
-      });
-      sbUpdateCapitalization(idx);
-    }
-    function initSatzbau(){
-      var container=document.getElementById('satzbau-container-4');
-      container.innerHTML='';
-      SATZBAU_DATA.forEach(function(data,idx){
-        var wrapper=document.createElement('div');
-        wrapper.style.marginBottom='18px';
-        var row=document.createElement('div');
-        row.className='sentence-builder';
-        row.dataset.idx=idx;
-        sbRegisterZone(row,idx);
-        var punct=document.createElement('span');
-        punct.className='sb-punkt';
-        punct.textContent=data.punct||'.';
-        row.appendChild(punct);
-        var bank=document.createElement('div');
-        bank.className='chips-container';
-        bank.dataset.idx=idx;
-        sbRegisterZone(bank,idx);
-        var shuffled=data.parts.slice().sort(function(){return Math.random()-0.5;});
-        shuffled.forEach(function(word){ bank.appendChild(sbMakeChip(word,idx)); });
-        var btnRow=document.createElement('div');
-        btnRow.className='sb-btn-row';
-        var btnLösen=document.createElement('button');
-        btnLösen.className='btn';
-        btnLösen.textContent='Lösen';
-        btnLösen.onclick=(function(i){return function(){ sbShowSolution(i); };})(idx);
-        var btnReset=document.createElement('button');
-        btnReset.className='btn';
-        btnReset.textContent='↺ Neustart';
-        btnReset.onclick=(function(i){return function(){ sbResetOne(i); };})(idx);
-        btnRow.appendChild(btnLösen);
-        btnRow.appendChild(btnReset);
-        wrapper.appendChild(row);
-        wrapper.appendChild(bank);
-        wrapper.appendChild(btnRow);
-        container.appendChild(wrapper);
-      });
-    }
-    function resetSatzbau(n){
-      SATZBAU_DATA.forEach(function(_,idx){ sbResetOne(idx); });
-    }
+function liveCheck(inp){
+  var ans = inp.dataset.answer;
+  var v = inp.value.trim();
+  if(!v){ inp.classList.remove('ok','no'); return; }
+  if(v.toLowerCase() === ans.toLowerCase()){ inp.classList.remove('no'); inp.classList.add('ok'); return; }
+  if(ans.toLowerCase().indexOf(v.toLowerCase()) === 0){ inp.classList.remove('ok','no'); return; }
+  inp.classList.remove('ok'); inp.classList.add('no');
+}
 
-    // ── Wortschatz ───────────────────────────────────────────
-    var WORTSCHATZ = [
-      { en:'the myth', artikel:'der', de:'Mythos', plural:'Mythen' },
-      { en:'the antiquity', artikel:'die', de:'Antike', plural:'—' },
-      { en:'the deity', artikel:'die', de:'Gottheit', plural:'Gottheiten' },
-      { en:'the creation myth', artikel:'der', de:'Schöpfungsmythos', plural:'Schöpfungsmythen' },
-      { en:'the archetype', artikel:'der', de:'Archetyp', plural:'Archetypen' },
-      { en:'the hero', artikel:'der', de:'Held', plural:'Helden' },
-      { en:'the underworld', artikel:'die', de:'Unterwelt', plural:'Unterwelten' },
-      { en:'the rebirth', artikel:'die', de:'Wiedergeburt', plural:'Wiedergeburten' }
-    ];
+function buildLuecken(){
+  var c = document.getElementById('lueckenContainer');
+  c.innerHTML = '';
+  lueckenData.forEach(function(d){
+    var div = document.createElement('div');
+    div.className = 'luecken-item';
+    var w = Math.max(d.ans.length + 4, 6);
+    div.innerHTML = d.pre +
+      '<input class="luecken-inp" type="text" data-answer="'+d.ans+'" placeholder="" autocomplete="off" style="width:'+w+'ch" oninput="timerAutoStart(2); liveCheck(this); checkLueckeAllOk();">' +
+      d.post;
+    c.appendChild(div);
+  });
+}
 
-    function vocabInit(){
-      var cont=document.getElementById('vocab-container-5');
-      cont.innerHTML='';
-      var shuffled=WORTSCHATZ.slice().sort(function(){return Math.random()-0.5;});
-      shuffled.forEach(function(item){
-        var div=document.createElement('div');
-        div.style.cssText='background:#f8f9ff;padding:12px 16px;margin-bottom:10px;border-radius:10px;border-left:4px solid #667eea;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
-        var en=document.createElement('span');
-        en.style.cssText='font-weight:600;color:#764ba2;min-width:160px;font-size:0.92rem;';
-        en.textContent=item.en;
-        div.appendChild(en);
-        var arrow=document.createElement('span');
-        arrow.style.cssText='color:#999;';
-        arrow.textContent='→';
-        div.appendChild(arrow);
-        var inputs=document.createElement('span');
-        inputs.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
-        ['art','wort','plural'].forEach(function(field){
-          var inp=document.createElement('input');
-          inp.className='blank '+field;
-          inp.dataset.field=field;
-          inp.dataset.answer=item[field==='art'?'artikel':field==='wort'?'de':'plural'];
-          inp.placeholder=field==='art'?'der/die/das':field==='wort'?'Deutsch':'Plural';
-          inp.style.width=field==='art'?'80px':field==='wort'?'150px':'150px';
-          inp.addEventListener('input',function(){
-            timerAutoStart(5);
-            liveCheck(this);
-            checkVocabAllOk(5);
-          });
-          inputs.appendChild(inp);
-        });
-        div.appendChild(inputs);
-        cont.appendChild(div);
-      });
-    }
-    function checkVocabAllOk(n){
-      var all=document.querySelectorAll('#vocab-container-'+n+' input.blank');
-      var allOk=all.length>0 && Array.from(all).every(function(i){return i.classList.contains('correct');});
-      if(allOk) timerStop(n);
-    }
-    function showVocabLoesung(n){
-      document.querySelectorAll('#vocab-container-'+n+' input.blank').forEach(function(inp){ showHint(inp); });
-      timerStop(n);
-    }
-    function resetVocab(n){
-      document.querySelectorAll('#vocab-container-'+n+' input.blank').forEach(function(inp){
-        inp.value='';
-        inp.classList.remove('correct','wrong');
-        var h=inp.nextElementSibling;
-        if(h && h.classList.contains('correction-hint')) h.remove();
-      });
-    }
+function checkLueckeAllOk(){
+  var inputs = document.querySelectorAll('#lueckenContainer .luecken-inp');
+  var all = Array.from(inputs).every(function(i){ return i.classList.contains('ok'); });
+  if(all && inputs.length) timerStop(2);
+}
 
-    // ── INIT ─────────────────────────────────────────────────
-    lueckeInit();
-    mcInit();
-    initSatzbau();
-    vocabInit();
-    loadBestTimes();
-  </script>
+function showLueckeLoesung(){
+  document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp){
+    inp.value = inp.dataset.answer;
+    inp.classList.remove('no'); inp.classList.add('ok');
+  });
+  timerStop(2);
+}
+
+function resetLuecke(){
+  document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp){
+    inp.value = ''; inp.classList.remove('ok','no');
+  });
+}
+
+/* ── MULTIPLE CHOICE ─────────────────────────────────────── */
+var mcData = [
+  { frage: 'Was beschreibt der Text als Kernfunktion von Mythen?',
+    opts: [
+      'Mythen dienen vor allem der Unterhaltung.',
+      'Mythen helfen dem Menschen, Sinn zu stiften und das Unverständliche zu erzählen.',
+      'Mythen ersetzen die Wissenschaft bei der Erklärung der Welt.'
+    ], correct: 1 },
+  { frage: 'Welche Eigenschaft zeichnet die griechischen Götter laut Text aus?',
+    opts: [
+      'Sie sind fehlerlos und stehen moralisch über den Menschen.',
+      'Sie sind übernatürlich mächtig, zugleich aber menschlich fehlbar.',
+      'Sie erscheinen nur in der modernen Literatur.'
+    ], correct: 1 },
+  { frage: 'Was bedeutet Ragnarök in der nordischen Mythologie?',
+    opts: [
+      'Die Wiedergeburt eines Gottes.',
+      'Den Weltuntergang, bei dem auch die Götter fallen.',
+      'Ein Fest zu Ehren Odins.'
+    ], correct: 1 },
+  { frage: 'Wofür stehen Jungs „Archetypen"?',
+    opts: [
+      'Für antike Bildhauerwerke.',
+      'Für tief in der Seele verankerte, wiederkehrende Grundmuster.',
+      'Für die Hauptfiguren bestimmter Romane.'
+    ], correct: 1 },
+  { frage: 'Welche Botschaft trägt laut Text der Prometheus-Mythos?',
+    opts: [
+      'Ungehorsam wird immer belohnt.',
+      'Wissen und Fortschritt haben einen Preis.',
+      'Die Götter sind den Menschen gleichgültig.'
+    ], correct: 1 }
+];
+
+function mcCheck(qIdx, optIdx){
+  var item = mcData[qIdx];
+  var opts = document.querySelectorAll('#mc-q-'+qIdx+' .mc-opt');
+  timerAutoStart(3);
+  opts.forEach(function(o, i){
+    if(i === item.correct) o.classList.add('correct');
+    else if(i === optIdx) o.classList.add('wrong');
+  });
+  if(optIdx === item.correct){
+    opts.forEach(function(x){ x.onclick = null; });
+    checkMCAllDone();
+  }
+}
+
+function checkMCAllDone(){
+  var items = document.querySelectorAll('#mcContainer .mc-item');
+  var all = Array.from(items).every(function(it){ return it.querySelector('.mc-opt.correct'); });
+  if(all) timerStop(3);
+}
+
+function buildMC(){
+  var c = document.getElementById('mcContainer');
+  c.innerHTML = '';
+  mcData.forEach(function(q, qi){
+    var div = document.createElement('div');
+    div.className = 'mc-item'; div.id = 'mc-q-'+qi;
+    var h = document.createElement('h4');
+    h.textContent = (qi+1)+'. '+q.frage;
+    div.appendChild(h);
+    var opts = document.createElement('div');
+    opts.className = 'mc-options';
+    q.opts.forEach(function(o, oi){
+      var btn = document.createElement('button');
+      btn.className = 'mc-opt';
+      btn.textContent = o;
+      btn.onclick = function(){ mcCheck(qi, oi); };
+      opts.appendChild(btn);
+    });
+    div.appendChild(opts);
+    c.appendChild(div);
+  });
+}
+
+function mcReset(){
+  buildMC();
+  timerResetOne(3);
+}
+
+/* ── SATZBAU ─────────────────────────────────────────────── */
+var satzbauData = [
+  { parts: ['Homer', 'dichtete', 'seine', 'Epen', 'im', 'achten', 'Jahrhundert', 'vor', 'Christus'],
+    valid: [['Homer', 'dichtete', 'seine', 'Epen', 'im', 'achten', 'Jahrhundert', 'vor', 'Christus']], punct: '.' },
+  { parts: ['die', 'Wikinger', 'erzählten', 'von', 'Odin', ',', 'dem', 'einäugigen', 'Gott', 'der', 'Weisheit'],
+    valid: [['die', 'Wikinger', 'erzählten', 'von', 'Odin', ',', 'dem', 'einäugigen', 'Gott', 'der', 'Weisheit']], punct: '.' },
+  { parts: ['die', 'Götter', 'des', 'Olymp', 'sind', 'mächtig', ',', 'aber', 'nicht', 'makellos'],
+    valid: [['die', 'Götter', 'des', 'Olymp', 'sind', 'mächtig', ',', 'aber', 'nicht', 'makellos']], punct: '.' },
+  { parts: ['Mythen', 'vermitteln', 'die', 'Werte', 'und', 'Normen', 'einer', 'Gesellschaft'],
+    valid: [['Mythen', 'vermitteln', 'die', 'Werte', 'und', 'Normen', 'einer', 'Gesellschaft']], punct: '.' },
+  { parts: ['Prometheus', 'stahl', 'den', 'Göttern', 'das', 'Feuer', 'und', 'brachte', 'es', 'den', 'Menschen'],
+    valid: [['Prometheus', 'stahl', 'den', 'Göttern', 'das', 'Feuer', 'und', 'brachte', 'es', 'den', 'Menschen']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+  }
+  return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
+
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    if (orig === ',' || orig === ';') { c.textContent = orig; return; }
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    if (isProper) c.textContent = orig;
+    else c.textContent = (i === 0) ? sbCapitalize(orig) : orig;
+  });
+}
+
+function sbMakeChip(word, sbIdx) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.dataset.sbIdx = String(sbIdx);
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip;
+    timerAutoStart(4);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+  });
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = '';
+    sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
+  chip.addEventListener('click', function() {
+    var idx = parseInt(chip.dataset.sbIdx);
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    if (chip.parentElement === bank) row.appendChild(chip);
+    else bank.appendChild(chip);
+    timerAutoStart(4);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+  return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+}
+
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) {
+    return JSON.stringify(v) === JSON.stringify(order);
+  });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) {
+      c.classList.remove('correct', 'incorrect');
+    });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(4);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) timerStop(4);
+}
+
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var chip = allChips[word];
+    if (chip) {
+      chip.textContent = (i === 0 && word !== ',') ? sbCapitalize(word) : word;
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = '';
+  fb.className = 'satzbau-feedback';
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+}
+
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+
+    var bank = document.createElement('div');
+    bank.className = 'chips-container';
+    bank.id = 'sb-bank-' + idx;
+
+    var row = document.createElement('div');
+    row.className = 'sentence-builder';
+    row.id = 'sb-row-' + idx;
+
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback';
+    fb.id = 'sb-fb-' + idx;
+
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+
+    var btnRow = document.createElement('div');
+    btnRow.className = 'sb-btn-row';
+
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn';
+    solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() {
+      sbShowSolution(parseInt(this.getAttribute('data-idx')));
+    });
+
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() {
+      sbResetOne(parseInt(this.getAttribute('data-idx')));
+    });
+
+    btnRow.appendChild(solveBtn);
+    btnRow.appendChild(resetBtn);
+
+    item.appendChild(bank);
+    item.appendChild(row);
+    item.appendChild(fb);
+    item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+
+function sbResetAll() { timerResetOne(4); initSatzbau(); }
+
+/* ── WORTSCHATZ ──────────────────────────────────────────── */
+var WORTSCHATZ = [
+  { en: 'the myth',            artikel: 'der', de: 'Mythos',          plural: 'Mythen' },
+  { en: 'the antiquity',       artikel: 'die', de: 'Antike',          plural: '–' },
+  { en: 'the deity',           artikel: 'die', de: 'Gottheit',        plural: 'Gottheiten' },
+  { en: 'the creation myth',   artikel: 'der', de: 'Schöpfungsmythos', plural: 'Schöpfungsmythen' },
+  { en: 'the archetype',       artikel: 'der', de: 'Archetyp',        plural: 'Archetypen' },
+  { en: 'the hero',            artikel: 'der', de: 'Held',            plural: 'Helden' },
+  { en: 'the underworld',      artikel: 'die', de: 'Unterwelt',       plural: 'Unterwelten' },
+  { en: 'the rebirth',         artikel: 'die', de: 'Wiedergeburt',    plural: 'Wiedergeburten' }
+];
+
+function wortschatzCheck(inp){
+  var answer = inp.dataset.answer || '';
+  var val = (inp.value || '').trim();
+  var isArtikel = inp.classList.contains('art');
+  inp.classList.remove('correct','wrong');
+  if(!val) return;
+  var match = isArtikel ? (val.toLowerCase() === answer.toLowerCase()) : (val === answer);
+  if(match) inp.classList.add('correct');
+  else {
+    var lc = answer.toLowerCase();
+    if(isArtikel ? lc.indexOf(val.toLowerCase()) !== 0 : answer.indexOf(val) !== 0){
+      inp.classList.add('wrong');
+    }
+  }
+}
+
+function checkWortschatzAllOk(){
+  var inputs = document.querySelectorAll('#wortschatzContainer input.blank');
+  var all = Array.from(inputs).every(function(i){ return i.classList.contains('correct') || i.disabled; });
+  if(all && inputs.length) timerStop(5);
+}
+
+function initWortschatz(){
+  var c = document.getElementById('wortschatzContainer');
+  c.innerHTML = '';
+  WORTSCHATZ.forEach(function(item){
+    var card = document.createElement('div');
+    card.className = 'luecken-item';
+
+    var prompt = document.createElement('div');
+    prompt.className = 'ws-prompt';
+    prompt.textContent = item.en;
+    card.appendChild(prompt);
+
+    var inputs = document.createElement('div');
+    inputs.className = 'ws-inputs';
+
+    var artInp = document.createElement('input');
+    artInp.type = 'text'; artInp.className = 'blank art'; artInp.placeholder = 'Artikel';
+    artInp.style.width = '70px'; artInp.dataset.answer = item.artikel;
+    artInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    inputs.appendChild(artInp);
+
+    var wordInp = document.createElement('input');
+    wordInp.type = 'text'; wordInp.className = 'blank word'; wordInp.placeholder = 'Wort';
+    wordInp.style.width = '160px'; wordInp.dataset.answer = item.de;
+    wordInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    inputs.appendChild(wordInp);
+
+    var plInp = document.createElement('input');
+    plInp.type = 'text'; plInp.className = 'blank plural'; plInp.placeholder = 'Plural';
+    plInp.style.width = '140px'; plInp.dataset.answer = item.plural;
+    if(item.plural === '–'){
+      plInp.value = '–'; plInp.disabled = true; plInp.classList.add('correct'); plInp.style.opacity = '0.6';
+    } else {
+      plInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    }
+    inputs.appendChild(plInp);
+
+    card.appendChild(inputs);
+    c.appendChild(card);
+  });
+}
+
+function showWortschatzLoesung(){
+  document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp){
+    if(inp.disabled) return;
+    inp.value = inp.dataset.answer;
+    inp.classList.remove('wrong'); inp.classList.add('correct');
+  });
+  timerStop(5);
+}
+
+function resetWortschatz(){
+  document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp){
+    if(inp.disabled) return;
+    inp.value = ''; inp.classList.remove('correct','wrong');
+  });
+}
+
+/* ── INIT ────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  buildLuecken();
+  buildMC();
+  initSatzbau();
+  initWortschatz();
+  [2,3,4,5].forEach(function(n){
+    var b = localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el = document.getElementById('best-'+n); if(el) el.textContent = fmtTime(parseInt(b)); }
+  });
+});
+</script>
 </body>
 </html>
