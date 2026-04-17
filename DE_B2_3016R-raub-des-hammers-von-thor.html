@@ -1,904 +1,741 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Der Raub des Hammers von Thor — Deutsch Lernen fabDaF B2.3</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 40px 30px;
-      text-align: center;
-    }
-    .header h1 { font-size: 1.8rem; margin-bottom: 5px; }
-    .header p { font-size: 0.95rem; opacity: 0.95; }
-    .nav {
-      display: flex;
-      flex-wrap: nowrap;
-      background: #f8f9fa;
-      overflow-x: auto;
-      border-top: 1px solid #ddd;
-      border-left: 1px solid #ddd;
-      border-right: 1px solid #ddd;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 15px;
-      background: #f8f9fa;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.3s;
-      border: none;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: none; }
-    .nav-btn:hover { background: #f0f2f5; }
-    .nav-btn.active {
-      background: white;
-      color: #667eea;
-      font-weight: 700;
-      border-bottom: 3px solid #667eea;
-    }
-    .nav-emoji { font-size: 1.4rem; }
-    .nav-label { font-weight: 600; color: #333; }
-    .content { padding: 30px; }
-    .tab { display: none; }
-    .tab.active { display: block; }
-    .help-box {
-      background: #e8f4fd;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      border-left: 4px solid #0288d1;
-      font-size: 0.9rem;
-      color: #01579b;
-    }
-    .timer-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      border-radius: 10px;
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
-    .best-time { color: #f39c12; font-weight: 600; }
-    .btn-row { display: flex; gap: 10px; margin-bottom: 20px; }
-    .btn {
-      padding: 9px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn:hover { background: #764ba2; }
-    input.blank {
-      border: 2px solid #c5cae9;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-      background: white;
-      margin: 0 2px;
-    }
-    input.blank:focus { border-color: #667eea; }
-    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
-    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
-    .correction-hint {
-      font-size: 0.78rem;
-      color: #27ae60;
-      font-weight: 700;
-      margin-left: 4px;
-      white-space: nowrap;
-    }
-    .chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      cursor: grab;
-      font-size: 0.85rem;
-      font-weight: 600;
-      user-select: none;
-      transition: transform 0.15s, opacity 0.15s;
-      white-space: nowrap;
-      display: inline-block;
-      margin: 4px 4px 4px 0;
-    }
-    .chip:active { cursor: grabbing; transform: scale(1.04); }
-    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-    .sentence-builder {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      min-height: 44px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 2px dashed #c5cae9;
-      background: #fafbff;
-      margin-bottom: 6px;
-    }
-    .sentence-builder.dragover { background: #e8eaff; border-color: #667eea; }
-    .chips-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      margin-bottom: 6px;
-      min-height: 54px;
-    }
-    .sb-punkt { color: #999; font-weight: 700; font-size: 1.1rem; margin-left: 4px; }
-    .sb-insert-cursor { width: 3px; height: 22px; background: #667eea; border-radius: 2px; }
-    .sb-btn-row { display: flex; gap: 8px; margin-top: 4px; }
-    .sb-btn-row .btn {
-      padding: 6px 16px; font-size: 0.85em;
-      background: #f5f7ff; color: #667eea;
-      border: 1px solid #c5cff5; border-radius: 8px;
-    }
-    .sb-btn-row .btn:hover { background: #667eea; color: white; border-color: #667eea; }
-    .vocab-box {
-      background: #f8f9ff;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border-left: 4px solid #667eea;
-    }
-    .vocab-word { font-weight: 700; color: #764ba2; font-size: 1rem; display: block; margin-bottom: 4px; }
-    .vocab-de { color: #333; font-size: 0.95em; }
-    .vocab-example { color: #555; font-size: 0.88em; font-style: italic; margin-top: 6px; }
-    .mc-item {
-      background: #fafbff;
-      border: 1px solid #c5cae9;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 14px;
-    }
-    .mc-question { font-weight: 600; color: #3949ab; margin-bottom: 10px; }
-    .mc-options { display: flex; flex-direction: column; gap: 8px; }
-    .mc-btn {
-      padding: 9px 16px;
-      border: 2px solid #c5cae9;
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      text-align: left;
-      font-size: 0.92rem;
-      transition: all 0.2s;
-      font-family: inherit;
-    }
-    .mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
-    .mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
-    .mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
-    .reading-text {
-      background: #fafbff;
-      padding: 24px 28px;
-      border-radius: 10px;
-      border-left: 4px solid #667eea;
-      line-height: 1.85;
-      font-size: 0.97rem;
-      color: #2c3e50;
-      margin-bottom: 20px;
-      font-family: Georgia, 'Times New Roman', serif;
-      text-align: justify;
-      hyphens: auto;
-    }
-    .reading-text h3 {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      color: #3949ab;
-      font-size: 1.15rem;
-      margin-bottom: 14px;
-      text-align: left;
-    }
-    .reading-text p { margin-bottom: 14px; text-indent: 1.6em; }
-    .reading-text p:first-of-type { text-indent: 0; }
-    .reading-text em { color: #764ba2; }
-    .author-footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 16px;
-      font-size: 0.8rem;
-      color: #aaa;
-      border-top: 1px solid #f0f2f5;
-    }
-    .author-footer a { color: #aaa; }
-    .author-name { font-weight: 700; }
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .header h1 { font-size: 1.2rem; }
-      .nav { flex-wrap: wrap; }
-      .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Der Raub des Hammers von Thor – B2.3 · 3016R</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 28px 30px; }
+
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); display: block; }
+
+.timer-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+.frage-box { background: #fff8e1; border-left: 4px solid #f9a825; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 20px; }
+.frage-box p { color: #555; font-size: 0.97rem; line-height: 1.6; }
+.frage-box strong { color: #e65100; }
+
+.vorent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.vorent-card { background: #f3f4ff; border-radius: 10px; padding: 12px 15px; border-left: 3px solid #667eea; }
+.vorent-card .de { font-weight: 700; color: #283593; font-size: 0.95rem; }
+.vorent-card .en { font-size: 0.8rem; color: #888; margin-top: 3px; font-style: italic; }
+.vorent-card .bsp { font-size: 0.82rem; color: #555; margin-top: 5px; line-height: 1.4; }
+
+.story-text { font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; font-size: 1.05rem; line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.story-text h2 { font-size: 1.4rem; color: #283593; margin-bottom: 20px; font-family: Georgia, serif; text-align: left; }
+.story-text p { margin-bottom: 1.2em; text-indent: 1.4em; }
+.story-text p:first-of-type { text-indent: 0; }
+.story-text em { color: #764ba2; font-style: italic; }
+.vocab-hl { background: #fff9c4; border-radius: 3px; padding: 0 3px; cursor: help; border-bottom: 1px dotted #f9a825; }
+
+.luecken-item { margin-bottom: 14px; font-size: 0.97rem; line-height: 2; color: #333; }
+.luecken-inp { border: none; border-bottom: 2px solid #9c27b0; padding: 2px 6px; font-size: 0.95em; font-family: inherit; outline: none; min-width: 4ch; text-align: center; background: transparent; transition: border-color .2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #43a047; background: #e8f5e9; color: #1b5e20; border-radius: 4px 4px 0 0; }
+.luecken-inp.no { border-bottom-color: #e53935; background: #ffebee; color: #b71c1c; border-radius: 4px 4px 0 0; }
+
+.mc-item { background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; border: 1px solid #c5cae9; }
+.mc-item h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; font-weight: 600; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-opt { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: #fff; cursor: pointer; font-size: 0.91rem; transition: all .2s; text-align: left; }
+.mc-opt:hover { border-color: #667eea; background: #f3f4ff; }
+.mc-opt.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; pointer-events: none; }
+.mc-opt.wrong { border-color: #e53935; background: #ffebee; color: #b71c1c; pointer-events: none; }
+
+.satzbau-item { margin-bottom: 28px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.sb-btn-row { display: flex; gap: 8px; margin-top: 10px; }
+
+#wortschatzContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#wortschatzContainer .luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 12px 16px; margin-bottom: 0; }
+.ws-prompt { font-weight: 600; color: #4a148c; font-size: 1.0em; margin-bottom: 8px; }
+.ws-inputs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+input.blank { border: none; border-bottom: 2px solid #667eea; background: transparent; padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none; transition: all .2s; min-width: 4ch; }
+input.blank:focus { border-bottom-color: #9c27b0; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
+input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
+
+.footer { background: #f8f9fa; border-top: 1px solid #eee; text-align: center; padding: 12px 20px; font-size: 0.78em; color: #aaa; }
+
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+    .sec-inner { padding: 18px 16px; }
+    #wortschatzContainer { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Der Raub des Hammers von Thor</h1>
-      <p>B2.3 – Lektion 3016R · Lesen</p>
+<div class="container">
+
+<div class="header">
+  <h1>Der Raub des Hammers von Thor</h1>
+  <p>B2.3 – Lektion 3016R · Lesen</p>
+  <span class="big-emoji">🔨</span>
+</div>
+
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
+    <span class="nav-emoji">📋</span><span class="nav-label">Vorentlastung</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
+    <span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
+    <span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
+    <span class="nav-emoji">❓</span><span class="nav-label">Multiple Choice</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(4)">
+    <span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(5)">
+    <span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span>
+  </div>
+</div>
+
+<!-- TAB 0: VORENTLASTUNG -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz">
+  <div class="sec-inner">
+    <div class="frage-box">
+      <p><strong>Zum Nachdenken:</strong> Kennst du nordische Mythen? Was weißt du über Thor, Loki und die Welt der Wikinger?</p>
     </div>
-    <div class="nav">
-      <button class="nav-btn active" onclick="showTab(0)">
-        <span class="nav-emoji">🌅</span>
-        <span class="nav-label">Vorentlastung</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(1)">
-        <span class="nav-emoji">📖</span>
-        <span class="nav-label">Lesetext</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(2)">
-        <span class="nav-emoji">✏️</span>
-        <span class="nav-label">Lückentext</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(3)">
-        <span class="nav-emoji">❓</span>
-        <span class="nav-label">Multiple Choice</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(4)">
-        <span class="nav-emoji">🔀</span>
-        <span class="nav-label">Satzbau</span>
-      </button>
-      <button class="nav-btn" onclick="showTab(5)">
-        <span class="nav-emoji">📚</span>
-        <span class="nav-label">Wortschatz</span>
-      </button>
-    </div>
-
-    <div class="content">
-
-      <!-- TAB 0: Vorentlastung -->
-      <div class="tab active" id="tab0">
-        <div class="help-box">
-          <strong>Vor dem Lesen:</strong> Diese Figuren und Begriffe begegnen dir in der Geschichte. Mach dich kurz mit ihnen vertraut.
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">Thor</span>
-          <span class="vocab-de">der Donnergott der nordischen Mythologie, kräftig, mutig, ein wenig grob.</span>
-          <span class="vocab-example">„Thor rollte mit seinem Wagen über die Wolken und ließ es donnern."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">Loki</span>
-          <span class="vocab-de">der listige Gott, halb Gott, halb Riese — ein Trickster, der oft zwischen Hilfe und Chaos schwankt.</span>
-          <span class="vocab-example">„Auf Lokis Einfälle war nie ganz Verlass."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">Mjölnir (der Hammer)</span>
-          <span class="vocab-de">Thors magischer Hammer; er kehrt nach jedem Wurf in die Hand des Gottes zurück und ist die stärkste Waffe der Götter.</span>
-          <span class="vocab-example">„Ohne Mjölnir wäre Asgard den Riesen schutzlos ausgeliefert."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">der Riese (Pl. die Riesen)</span>
-          <span class="vocab-de">ein riesengroßes Wesen, meistens feindlich gegenüber den Göttern; wohnt in Jötunheim.</span>
-          <span class="vocab-example">„Die Riesen und die Götter lebten in ewiger Feindschaft."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">Freyja</span>
-          <span class="vocab-de">die Göttin der Liebe und der Schönheit; sie fährt einen von Katzen gezogenen Wagen.</span>
-          <span class="vocab-example">„Freyja galt als die schönste unter den Göttinnen."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">die List</span>
-          <span class="vocab-de">kluge Täuschung; ein cleverer Plan, bei dem man den Gegner hereinlegt.</span>
-          <span class="vocab-example">„Mit einer List gelang es ihnen, den Riesen zu überlisten."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">sich verkleiden (als)</span>
-          <span class="vocab-de">fremde Kleidung anziehen, um jemand anderes zu erscheinen.</span>
-          <span class="vocab-example">„Thor musste sich als Braut verkleiden."</span>
-        </div>
-        <div class="vocab-box">
-          <span class="vocab-word">der Brautschleier</span>
-          <span class="vocab-de">der durchscheinende Stoff, mit dem eine Braut ihr Gesicht verhüllt.</span>
-          <span class="vocab-example">„Unter dem Brautschleier wartete niemand Geringerer als Thor."</span>
-        </div>
+    <h3 style="color:#3949ab; margin-bottom:14px; font-size:1.05rem;">🔑 Personen und Begriffe</h3>
+    <div class="vorent-grid">
+      <div class="vorent-card">
+        <div class="de">Thor</div>
+        <div class="en">Thor (god of thunder)</div>
+        <div class="bsp">Thor rollte mit seinem Wagen über die Wolken und ließ es donnern.</div>
       </div>
-
-      <!-- TAB 1: Lesetext -->
-      <div class="tab" id="tab1">
-        <div class="reading-text">
-          <h3>Der Raub des Hammers — eine Geschichte aus der Edda</h3>
-          <p>Eines Morgens erwachte Thor und griff — wie jeden Morgen — nach seinem Hammer Mjölnir. Doch diesmal tastete seine Hand ins Leere. Der Hammer war fort. Thor tobte. Sein Bart zitterte, seine Augen blitzten. Ohne Mjölnir war er nicht mehr der Donnergott, der die Riesen zurückhielt; er war nur noch ein starker, aber verwundbarer Mann.</p>
-          <p>Loki, der listige, erbot sich, nachzuforschen. Er lieh sich Freyjas Federhemd, flog über Land und Meer und kam schließlich nach Jötunheim, ins Reich der Riesen. Dort saß der Riesenkönig <em>Thrym</em> auf einem Hügel und flocht goldene Halsbänder für seine Hunde. Mit breitem Grinsen gab er zu: Ja, er habe den Hammer, er habe ihn tief unter der Erde vergraben, acht Meilen tief. Und zurückgeben werde er ihn nur unter einer Bedingung: Er wolle die schöne Freyja zur Frau.</p>
-          <p>Als Loki in Asgard die Forderung überbrachte, weigerte sich Freyja entschieden. Sie sei keine Ware, erklärte sie – und ihr Halsband, das berühmte Brísingamen, sei vor Zorn beinahe zersprungen. So versammelten sich die Götter zum Rat. Wie bekam man den Hammer zurück, ohne die Göttin zu opfern?</p>
-          <p>Heimdall, der weitsichtige Wächter, schlug vor, was keiner zu denken gewagt hatte: Thor solle selbst als Braut auftreten. Man würde ihm Freyjas Kleid geben, einen Schleier vor das Gesicht ziehen und ihn zu den Riesen führen. Thor empörte sich lautstark: Er, der stärkste der Götter, solle sich als Frau verkleiden? Doch Loki lachte und versprach, als Brautjungfer mitzugehen. Am Ende siegte die Not über den Stolz.</p>
-          <p>In Thryms Halle war die Hochzeitstafel reichlich gedeckt. Die „Braut" aß einen ganzen Ochsen, acht Lachse und trank drei Fässer Met. Thrym wunderte sich: Nie habe er eine Frau mit solchem Appetit gesehen. Loki, schlagfertig wie immer, erklärte, Freyja habe acht Nächte lang vor Sehnsucht nicht gegessen. Thrym war gerührt. Als er aber unter den Schleier blicken wollte, trafen ihn Thors Augen wie zwei Blitze. Auch hier fand Loki eine Erklärung: Acht Nächte lang habe die Braut vor Sehnsucht nicht geschlafen.</p>
-          <p>Dann kam der entscheidende Moment. Um die Hochzeit zu weihen, ließ Thrym den Hammer herbeiholen und legte ihn in den Schoß der Braut. Sobald Thors Finger den Griff berührten, war alles vorüber. Er sprang auf, der Schleier flog zur Seite, und Mjölnir wirbelte durch die Halle wie ein Blitz. Thrym fiel als Erster, die anderen Riesen folgten. Am Abend kehrte Thor, in Freyjas zerrissenem Kleid und mit dem Hammer in der Hand, nach Asgard zurück — und die Götter feierten, dass ihr Schutz wieder sicher war.</p>
-        </div>
+      <div class="vorent-card">
+        <div class="de">Loki</div>
+        <div class="en">Loki (trickster god)</div>
+        <div class="bsp">Auf Lokis Einfälle war nie ganz Verlass.</div>
       </div>
-
-      <!-- TAB 2: Lückentext -->
-      <div class="tab" id="tab2">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-2">0:00</span>
-          <span class="best-time" id="best-2"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="showLueckeLoesung(2)">Lösungen</button>
-          <button class="btn" onclick="resetLuecke(2); timerResetOne(2);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Ergänze die Lücken mit passenden Wörtern aus dem Text.
-        </div>
-        <div id="luecke-container-2"></div>
+      <div class="vorent-card">
+        <div class="de">Mjölnir (der Hammer)</div>
+        <div class="en">Mjölnir (the hammer)</div>
+        <div class="bsp">Ohne Mjölnir wäre Asgard den Riesen schutzlos ausgeliefert.</div>
       </div>
-
-      <!-- TAB 3: Multiple Choice -->
-      <div class="tab" id="tab3">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-3">0:00</span>
-          <span class="best-time" id="best-3"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="resetMC(3); timerResetOne(3);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Wähle die Antwort, die laut Text richtig ist.
-        </div>
-        <div id="mc-container-3"></div>
+      <div class="vorent-card">
+        <div class="de">der Riese, -n</div>
+        <div class="en">giant</div>
+        <div class="bsp">Die Riesen und die Götter lebten in ewiger Feindschaft.</div>
       </div>
-
-      <!-- TAB 4: Satzbau -->
-      <div class="tab" id="tab4">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-4">0:00</span>
-          <span class="best-time" id="best-4"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="resetSatzbau(4); timerResetOne(4);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Bringe die Satzteile in die richtige Reihenfolge.
-        </div>
-        <div id="satzbau-container-4"></div>
+      <div class="vorent-card">
+        <div class="de">Freyja</div>
+        <div class="en">Freyja (goddess of love)</div>
+        <div class="bsp">Freyja galt als die schönste unter den Göttinnen.</div>
       </div>
-
-      <!-- TAB 5: Wortschatz -->
-      <div class="tab" id="tab5">
-        <div class="timer-row">
-          ⏱ <span class="timer-display" id="timer-5">0:00</span>
-          <span class="best-time" id="best-5"></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="showVocabLoesung(5)">Lösungen</button>
-          <button class="btn" onclick="resetVocab(5); timerResetOne(5);">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Übersetze die Nomen ins Deutsche. Format: Artikel + Wort + Plural.
-        </div>
-        <div id="vocab-container-5"></div>
+      <div class="vorent-card">
+        <div class="de">die List, -en</div>
+        <div class="en">ruse / cunning</div>
+        <div class="bsp">Mit einer List gelang es ihnen, den Riesen zu überlisten.</div>
       </div>
-
-    </div>
-
-    <div class="author-footer">
-      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+      <div class="vorent-card">
+        <div class="de">sich verkleiden (als)</div>
+        <div class="en">to disguise oneself (as)</div>
+        <div class="bsp">Thor musste sich als Braut verkleiden.</div>
+      </div>
+      <div class="vorent-card">
+        <div class="de">der Brautschleier</div>
+        <div class="en">bridal veil</div>
+        <div class="bsp">Unter dem Brautschleier wartete niemand Geringerer als Thor.</div>
+      </div>
     </div>
   </div>
+</div>
 
-  <script>
-    function showTab(n){
-      document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===n);});
-      document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
-    }
+<!-- TAB 1: LESETEXT -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1933239/pexels-photo-1933239.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Nordische Landschaft">
+  <div class="sec-inner">
+    <div class="story-text">
+      <h2>Der Raub des Hammers — eine Geschichte aus der Edda</h2>
+      <p>Eines Morgens erwachte Thor und griff — wie jeden Morgen — nach seinem <span class="vocab-hl" title="hammer">Hammer</span> Mjölnir. Doch diesmal tastete seine Hand ins Leere. Der Hammer war fort. Thor tobte. Sein Bart zitterte, seine Augen blitzten. Ohne Mjölnir war er nicht mehr der Donnergott, der die <span class="vocab-hl" title="giants">Riesen</span> zurückhielt; er war nur noch ein starker, aber verwundbarer Mann.</p>
+      <p>Loki, der listige, erbot sich, nachzuforschen. Er lieh sich Freyjas Federhemd, flog über Land und Meer und kam schließlich nach Jötunheim, ins Reich der Riesen. Dort saß der Riesenkönig <em>Thrym</em> auf einem Hügel und flocht goldene Halsbänder für seine Hunde. Mit breitem Grinsen gab er zu: Ja, er habe den Hammer, er habe ihn tief unter der Erde vergraben, acht Meilen tief. Und zurückgeben werde er ihn nur unter einer Bedingung: Er wolle die schöne Freyja zur Frau.</p>
+      <p>Als Loki in Asgard die Forderung überbrachte, weigerte sich Freyja entschieden. Sie sei keine Ware, erklärte sie — und ihr Halsband, das berühmte Brísingamen, sei vor Zorn beinahe zersprungen. So versammelten sich die Götter zum Rat. Wie bekam man den Hammer zurück, ohne die Göttin zu opfern?</p>
+      <p>Heimdall, der weitsichtige Wächter, schlug vor, was keiner zu denken gewagt hatte: Thor solle selbst als <span class="vocab-hl" title="bride">Braut</span> auftreten. Man würde ihm Freyjas Kleid geben, einen <span class="vocab-hl" title="veil">Schleier</span> vor das Gesicht ziehen und ihn zu den Riesen führen. Thor empörte sich lautstark: Er, der stärkste der Götter, solle sich als Frau verkleiden? Doch Loki lachte und versprach, als Brautjungfer mitzugehen. Am Ende siegte die Not über den Stolz.</p>
+      <p>In Thryms Halle war die Hochzeitstafel reichlich gedeckt. Die „Braut" aß einen ganzen Ochsen, acht Lachse und trank drei Fässer Met. Thrym wunderte sich: Nie habe er eine Frau mit solchem Appetit gesehen. Loki, schlagfertig wie immer, erklärte, Freyja habe acht Nächte lang vor Sehnsucht nicht gegessen. Thrym war gerührt. Als er aber unter den Schleier blicken wollte, trafen ihn Thors Augen wie zwei Blitze. Auch hier fand Loki eine Erklärung: Acht Nächte lang habe die Braut vor Sehnsucht nicht geschlafen.</p>
+      <p>Dann kam der entscheidende Moment. Um die Hochzeit zu weihen, ließ Thrym den Hammer herbeiholen und legte ihn in den Schoß der Braut. Sobald Thors Finger den Griff berührten, war alles vorüber. Er sprang auf, der Schleier flog zur Seite, und Mjölnir wirbelte durch die Halle wie ein Blitz. Thrym fiel als Erster, die anderen Riesen folgten. Am Abend kehrte Thor, in Freyjas zerrissenem Kleid und mit dem Hammer in der Hand, nach Asgard zurück — und die Götter feierten, dass ihr Schutz wieder sicher war.</p>
+    </div>
+  </div>
+</div>
 
-    var TIMER_PREFIX='B2_3016R_';
-    var timerStarted=[false,false,false,false,false,false,false];
-    var timerRunning=[false,false,false,false,false,false,false];
-    var timerSeconds=[0,0,0,0,0,0,0];
-    var timerIntervals=[null,null,null,null,null,null,null];
-    function timerAutoStart(n){
-      if(timerStarted[n]) return;
-      timerStarted[n]=true; timerRunning[n]=true;
-      timerIntervals[n]=setInterval(function(){
-        timerSeconds[n]++;
-        var el=document.getElementById('timer-'+n);
-        if(el) el.textContent=fmtTime(timerSeconds[n]);
-      },1000);
-    }
-    function timerStop(n){
-      if(!timerRunning[n]) return;
-      clearInterval(timerIntervals[n]); timerRunning[n]=false;
-      var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-      if(timerSeconds[n]>0&&timerSeconds[n]<best){
-        localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-        var el=document.getElementById('best-'+n);
-        if(el) el.textContent='🏆 '+fmtTime(timerSeconds[n]);
-      }
-    }
-    function timerResetOne(n){
-      clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-      var el=document.getElementById('timer-'+n);
-      if(el) el.textContent='0:00';
-    }
-    function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-    function loadBestTimes(){
-      for(var i=2;i<=5;i++){
-        var v=localStorage.getItem(TIMER_PREFIX+i);
-        if(v){ var el=document.getElementById('best-'+i); if(el) el.textContent='🏆 '+fmtTime(parseInt(v)); }
-      }
-    }
+<!-- TAB 2: LÜCKENTEXT -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="showLueckeLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetLuecke(); timerResetOne(2);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">0:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ergänze die Lücken — Feedback erscheint sofort.</div>
+    <div id="lueckenContainer"></div>
+  </div>
+</div>
 
-    function liveCheck(inp){
-      var user=(inp.value||'').trim();
-      var answer=inp.dataset.answer||'';
-      if(inp.classList.contains('art')){ user=user.toLowerCase(); answer=answer.toLowerCase(); }
-      inp.classList.remove('correct','wrong');
-      var hint=inp.nextElementSibling;
-      if(hint && hint.classList.contains('correction-hint')) hint.remove();
-      if(!user) return;
-      if(user===answer){ inp.classList.add('correct'); }
-      else if(answer.toLowerCase().indexOf(user.toLowerCase())===0){ /* Präfix */ }
-      else { inp.classList.add('wrong'); }
-    }
-    function showHint(inp){
-      var answer=inp.dataset.answer||'';
-      var user=(inp.value||'').trim();
-      var isArt=inp.classList.contains('art');
-      var match=isArt?(user.toLowerCase()===answer.toLowerCase()):(user===answer);
-      var existing=inp.nextElementSibling;
-      if(existing && existing.classList.contains('correction-hint')) existing.remove();
-      if(match){ inp.classList.remove('wrong'); inp.classList.add('correct'); }
-      else {
-        inp.classList.remove('correct'); inp.classList.add('wrong');
-        var h=document.createElement('span');
-        h.className='correction-hint';
-        h.textContent=' → '+answer;
-        inp.insertAdjacentElement('afterend',h);
-      }
-    }
+<!-- TAB 3: MULTIPLE CHOICE -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/7974/pexels-photo-7974.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fragen">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="mcReset()">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">0:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Wähle die Antwort, die laut Text richtig ist.</div>
+    <div id="mcContainer"></div>
+  </div>
+</div>
 
-    // ── Lückentext ───────────────────────────────────────────
-    var LUECKEN_DATA = [
-      { segs:[{t:'Thor griff nach seinem '},{b:'Hammer',s:'m'},{t:', doch seine Hand tastete ins Leere.'}] },
-      { segs:[{t:'Der listige Gott '},{b:'Loki',s:'s'},{t:' erbot sich, den Hammer zu suchen.'}] },
-      { segs:[{t:'Thrym hatte den Hammer acht '},{b:'Meilen',s:'m'},{t:' tief unter der Erde vergraben.'}] },
-      { segs:[{t:'Als Braut verlangte der Riese '},{b:'Freyja',s:'m'},{t:'.'}] },
-      { segs:[{t:'Heimdall schlug vor, dass Thor sich als '},{b:'Braut',s:'s'},{t:' verkleiden solle.'}] },
-      { segs:[{t:'In Thryms Halle aß „die Braut" einen ganzen '},{b:'Ochsen',s:'m'},{t:' und acht Lachse.'}] },
-      { segs:[{t:'Als Thor den '},{b:'Griff',s:'s'},{t:' des Hammers berührte, begann der Kampf.'}] },
-      { segs:[{t:'Am Ende kehrte Thor siegreich nach '},{b:'Asgard',s:'m'},{t:' zurück.'}] }
-    ];
+<!-- TAB 4: SATZBAU -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3741681/pexels-photo-3741681.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Satzbau">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="sbResetAll()">Alle zurücksetzen</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">0:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Klicke einen Chip an und dann die Zone — oder ziehe ihn per Drag &amp; Drop.</div>
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
 
-    function lueckeInit(){
-      var cont=document.getElementById('luecke-container-2');
-      cont.innerHTML='';
-      LUECKEN_DATA.forEach(function(item){
-        var sent=document.createElement('div');
-        sent.style.marginBottom='14px';
-        item.segs.forEach(function(seg){
-          if(seg.t){
-            sent.appendChild(document.createTextNode(seg.t));
-          } else {
-            var inp=document.createElement('input');
-            inp.className='blank';
-            inp.type='text';
-            inp.dataset.answer=seg.b;
-            inp.style.width=(seg.s==='s'?'70px':seg.s==='m'?'110px':'170px');
-            inp.addEventListener('input',function(){
-              timerAutoStart(2);
-              liveCheck(this);
-              checkLueckeAllOk(2);
-            });
-            sent.appendChild(inp);
-          }
-        });
-        cont.appendChild(sent);
-      });
-    }
-    function checkLueckeAllOk(n){
-      var inputs=document.querySelectorAll('#luecke-container-'+n+' input.blank');
-      var allOk=inputs.length>0 && Array.from(inputs).every(function(i){return i.classList.contains('correct');});
-      if(allOk) timerStop(n);
-    }
-    function showLueckeLoesung(n){
-      document.querySelectorAll('#luecke-container-'+n+' input.blank').forEach(function(inp){ showHint(inp); });
-      timerStop(n);
-    }
-    function resetLuecke(n){
-      document.querySelectorAll('#luecke-container-'+n+' input.blank').forEach(function(inp){
-        inp.value='';
-        inp.classList.remove('correct','wrong');
-        var h=inp.nextElementSibling;
-        if(h && h.classList.contains('correction-hint')) h.remove();
-      });
-    }
+<!-- TAB 5: WORTSCHATZ -->
+<div class="section" id="sec-5">
+  <img class="tab-banner" src="https://images.pexels.com/photos/267669/pexels-photo-267669.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wörterbuch">
+  <div class="sec-inner">
+    <div class="timer-controls">
+      <div class="btn-row">
+        <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetWortschatz(); timerResetOne(5);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-5">0:00</span></span>
+        <span>🏆 <span id="best-5">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Übersetze die Nomen ins Deutsche: Artikel + Wort + Plural.</div>
+    <div id="wortschatzContainer"></div>
+  </div>
+</div>
 
-    // ── Multiple Choice ──────────────────────────────────────
-    var MC_DATA = [
-      { q:'Was bemerkt Thor, als er am Morgen erwacht?',
-        options:[
-          { t:'Dass sein Wagen verschwunden ist.', c:false },
-          { t:'Dass sein Hammer Mjölnir fehlt.', c:true },
-          { t:'Dass Loki aus Asgard geflohen ist.', c:false }
-        ] },
-      { q:'Warum reist Loki nach Jötunheim?',
-        options:[
-          { t:'Um Freyja zu warnen.', c:false },
-          { t:'Um Heimdall Gesellschaft zu leisten.', c:false },
-          { t:'Um herauszufinden, wer den Hammer hat.', c:true }
-        ] },
-      { q:'Was fordert Thrym als Gegenleistung für den Hammer?',
-        options:[
-          { t:'Gold und Silber aus Asgard.', c:false },
-          { t:'Die Göttin Freyja zur Frau.', c:true },
-          { t:'Lokis Federhemd.', c:false }
-        ] },
-      { q:'Warum wundert sich Thrym beim Hochzeitsmahl?',
-        options:[
-          { t:'Weil die Braut einen ungewöhnlich großen Appetit hat.', c:true },
-          { t:'Weil der Schleier zu lang ist.', c:false },
-          { t:'Weil Loki singt.', c:false }
-        ] },
-      { q:'Wie gelangt Thor wieder an seinen Hammer?',
-        options:[
-          { t:'Er stiehlt ihn, während Thrym schläft.', c:false },
-          { t:'Thrym legt den Hammer zur Weihe in den Schoß der Braut.', c:true },
-          { t:'Heimdall bringt ihn heimlich nach Asgard.', c:false }
-        ] },
-      { q:'Welches Thema trägt die Geschichte?',
-        options:[
-          { t:'Stolz muss vor der Not weichen — und List schlägt Gewalt.', c:true },
-          { t:'Die Götter sind den Riesen immer überlegen.', c:false },
-          { t:'Hochzeiten sind in Asgard gefährlich.', c:false }
-        ] }
-    ];
+<div class="footer">© Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com</div>
+</div>
 
-    function mcInit(){
-      var cont=document.getElementById('mc-container-3');
-      cont.innerHTML='';
-      MC_DATA.forEach(function(item,idx){
-        var div=document.createElement('div');
-        div.className='mc-item';
-        var q=document.createElement('div');
-        q.className='mc-question';
-        q.textContent=(idx+1)+'. '+item.q;
-        div.appendChild(q);
-        var opts=document.createElement('div');
-        opts.className='mc-options';
-        item.options.forEach(function(o){
-          var b=document.createElement('button');
-          b.className='mc-btn';
-          b.textContent=o.t;
-          b.dataset.correct=o.c?'1':'0';
-          b.addEventListener('click',function(){
-            timerAutoStart(3);
-            mcAnswer(div,b,o.c);
-          });
-          opts.appendChild(b);
-        });
-        div.appendChild(opts);
-        cont.appendChild(div);
-      });
-    }
-    function mcAnswer(item,btn,correct){
-      if(correct){
-        btn.classList.add('correct');
-        item.querySelectorAll('.mc-btn').forEach(function(b){ b.disabled=true; b.style.cursor='default'; });
-        checkMCAllDone(3);
-      } else {
-        btn.classList.add('wrong');
-        btn.disabled=true;
-      }
-    }
-    function checkMCAllDone(n){
-      var items=document.querySelectorAll('#mc-container-'+n+' .mc-item');
-      var allDone=Array.from(items).every(function(it){ return it.querySelector('.mc-btn.correct'); });
-      if(allDone) timerStop(n);
-    }
-    function resetMC(n){
-      document.querySelectorAll('#mc-container-'+n+' .mc-btn').forEach(function(b){
-        b.classList.remove('correct','wrong');
-        b.disabled=false;
-        b.style.cursor='pointer';
-      });
-    }
+<script>
+var TIMER_PREFIX = 'B2_3016R_';
+var timerStarted = [false,false,false,false,false,false,false];
+var timerRunning = [false,false,false,false,false,false,false];
+var timerSeconds = [0,0,0,0,0,0,0];
+var timerIntervals = [null,null,null,null,null,null,null];
 
-    // ── Satzbau ──────────────────────────────────────────────
-    var SATZBAU_DATA = [
-      { parts:['Thor','griff','am','Morgen','nach','seinem','Hammer'],
-        valid:[['Thor','griff','am','Morgen','nach','seinem','Hammer']], punct:'.' },
-      { parts:['Loki','flog','in','Freyjas','Federhemd','nach','Jötunheim'],
-        valid:[['Loki','flog','in','Freyjas','Federhemd','nach','Jötunheim']], punct:'.' },
-      { parts:['Thrym','verlangte','die','schöne','Freyja','als','Braut'],
-        valid:[['Thrym','verlangte','die','schöne','Freyja','als','Braut']], punct:'.' },
-      { parts:['Thor','verkleidete','sich','als','Braut'],
-        valid:[['Thor','verkleidete','sich','als','Braut']], punct:'.' },
-      { parts:['am','Ende','kehrte','Thor','siegreich','nach','Asgard','zurück'],
-        valid:[['am','Ende','kehrte','Thor','siegreich','nach','Asgard','zurück']], punct:'.' }
-    ];
+function timerAutoStart(n){
+  if(timerStarted[n]) return;
+  timerStarted[n] = true; timerRunning[n] = true;
+  timerIntervals[n] = setInterval(function(){
+    timerSeconds[n]++;
+    var el = document.getElementById('timer-'+n);
+    if(el) el.textContent = fmtTime(timerSeconds[n]);
+  }, 1000);
+}
+function timerStop(n){
+  if(!timerRunning[n]) return;
+  clearInterval(timerIntervals[n]); timerRunning[n] = false;
+  var best = parseInt(localStorage.getItem(TIMER_PREFIX+n) || '999999');
+  if(timerSeconds[n] > 0 && timerSeconds[n] < best){
+    localStorage.setItem(TIMER_PREFIX+n, timerSeconds[n]);
+    var el = document.getElementById('best-'+n);
+    if(el) el.textContent = fmtTime(timerSeconds[n]);
+  }
+}
+function timerResetOne(n){
+  clearInterval(timerIntervals[n]);
+  timerRunning[n] = false; timerStarted[n] = false; timerSeconds[n] = 0;
+  var el = document.getElementById('timer-'+n);
+  if(el) el.textContent = '0:00';
+}
+function fmtTime(s){ var m = Math.floor(s/60); var sec = s%60; return m+':'+(sec<10?'0':'')+sec; }
 
-    var sbDragged=null;
+function showSection(n){
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===n); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===n); });
+  [2,3,4,5].forEach(function(i){ timerStop(i); });
+}
 
-    function sbMakeChip(word,idx){
-      var chip=document.createElement('div');
-      chip.className='chip';
-      chip.dataset.orig=word;
-      chip.dataset.sentIdx=idx;
-      chip.draggable=true;
-      chip.addEventListener('dragstart',function(e){
-        sbDragged=chip;
-        e.dataTransfer.setData('text/plain','');
-        timerAutoStart(4);
-      });
-      chip.addEventListener('click',function(){
-        timerAutoStart(4);
-        var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-        var bank=document.querySelector('#satzbau-container-4 .chips-container[data-idx="'+idx+'"]');
-        if(chip.parentElement===bank){
-          var cursor=row.querySelector('.sb-insert-cursor');
-          if(cursor) row.insertBefore(chip,cursor); else row.appendChild(chip);
-        } else {
-          bank.appendChild(chip);
-        }
-        sbUpdateCapitalization(idx);
-        sbCheckAuto(idx);
-      });
-      return chip;
-    }
-    function sbRegisterZone(el,idx){
-      el.addEventListener('dragover',function(e){
-        e.preventDefault();
-        el.classList.add('dragover');
-        var cursor=el.querySelector('.sb-insert-cursor');
-        if(cursor) cursor.remove();
-        if(el.classList.contains('sentence-builder')){
-          var afterEl=sbGetDragAfterElement(el,e.clientX);
-          var newCursor=document.createElement('div');
-          newCursor.className='sb-insert-cursor';
-          if(afterEl) el.insertBefore(newCursor,afterEl); else el.appendChild(newCursor);
-        }
-      });
-      el.addEventListener('dragleave',function(e){
-        if(!el.contains(e.relatedTarget)){
-          el.classList.remove('dragover');
-          var cursor=el.querySelector('.sb-insert-cursor');
-          if(cursor) cursor.remove();
-        }
-      });
-      el.addEventListener('drop',function(e){
-        e.preventDefault();
-        el.classList.remove('dragover');
-        var cursor=el.querySelector('.sb-insert-cursor');
-        if(sbDragged && sbDragged.dataset.sentIdx===String(idx)){
-          if(el.classList.contains('sentence-builder')){
-            if(cursor) el.insertBefore(sbDragged,cursor); else el.appendChild(sbDragged);
-          } else {
-            el.appendChild(sbDragged);
-          }
-          sbDragged=null;
-          if(cursor) cursor.remove();
-          sbUpdateCapitalization(idx);
-          sbCheckAuto(idx);
-        }
-      });
-    }
-    function sbGetDragAfterElement(container,x){
-      var els=Array.from(container.querySelectorAll('.chip:not(.dragging)'));
-      return els.reduce(function(closest,child){
-        var box=child.getBoundingClientRect();
-        var offset=x-box.left-box.width/2;
-        if(offset<0 && offset>closest.offset) return {offset:offset,element:child};
-        return closest;
-      },{offset:Number.NEGATIVE_INFINITY}).element;
-    }
-    function sbUpdateCapitalization(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      if(!row) return;
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      chips.forEach(function(chip,i){
-        var w=chip.dataset.orig;
-        if(w===',' || w===';') return;
-        chip.textContent=(i===0)?w.charAt(0).toUpperCase()+w.slice(1):w;
-      });
-    }
-    function sbColorRow(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      if(!row) return;
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      var data=SATZBAU_DATA[idx];
-      var isCorrect=data.valid.some(function(validArr){
-        if(chips.length!==validArr.length) return false;
-        return chips.every(function(chip,i){ return chip.dataset.orig.toLowerCase()===validArr[i].toLowerCase(); });
-      });
-      chips.forEach(function(chip){
-        chip.classList.remove('correct','wrong');
-        chip.classList.add(isCorrect?'correct':'wrong');
-      });
-      return isCorrect;
-    }
-    function sbCheckAuto(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      var data=SATZBAU_DATA[idx];
-      var chips=Array.from(row.querySelectorAll('.chip'));
-      if(chips.length===data.parts.length){
-        sbColorRow(idx);
-        sbCheckAllDone(4);
-      }
-    }
-    function sbCheckAllDone(n){
-      var allCorrect=SATZBAU_DATA.every(function(_,idx){
-        var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-        var chips=Array.from(row.querySelectorAll('.chip'));
-        var data=SATZBAU_DATA[idx];
-        return data.valid.some(function(validArr){
-          if(chips.length!==validArr.length) return false;
-          return chips.every(function(chip,i){ return chip.dataset.orig.toLowerCase()===validArr[i].toLowerCase(); });
-        });
-      });
-      if(allCorrect) timerStop(n);
-    }
-    function sbShowSolution(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      var bank=document.querySelector('#satzbau-container-4 .chips-container[data-idx="'+idx+'"]');
-      var data=SATZBAU_DATA[idx];
-      var allChips=Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));
-      row.querySelectorAll('.chip').forEach(function(c){ bank.appendChild(c); });
-      data.valid[0].forEach(function(word){
-        var chip=allChips.find(function(c){ return c.dataset.orig===word && c.parentElement===bank; });
-        if(chip) row.appendChild(chip);
-      });
-      sbUpdateCapitalization(idx);
-      sbColorRow(idx);
-      sbCheckAllDone(4);
-    }
-    function sbResetOne(idx){
-      var row=document.querySelector('#satzbau-container-4 .sentence-builder[data-idx="'+idx+'"]');
-      var bank=document.querySelector('#satzbau-container-4 .chips-container[data-idx="'+idx+'"]');
-      Array.from(row.querySelectorAll('.chip')).forEach(function(c){
-        c.classList.remove('correct','wrong');
-        bank.appendChild(c);
-      });
-      sbUpdateCapitalization(idx);
-    }
-    function initSatzbau(){
-      var container=document.getElementById('satzbau-container-4');
-      container.innerHTML='';
-      SATZBAU_DATA.forEach(function(data,idx){
-        var wrapper=document.createElement('div');
-        wrapper.style.marginBottom='18px';
-        var row=document.createElement('div');
-        row.className='sentence-builder';
-        row.dataset.idx=idx;
-        sbRegisterZone(row,idx);
-        var punct=document.createElement('span');
-        punct.className='sb-punkt';
-        punct.textContent=data.punct||'.';
-        row.appendChild(punct);
-        var bank=document.createElement('div');
-        bank.className='chips-container';
-        bank.dataset.idx=idx;
-        sbRegisterZone(bank,idx);
-        var shuffled=data.parts.slice().sort(function(){return Math.random()-0.5;});
-        shuffled.forEach(function(word){ bank.appendChild(sbMakeChip(word,idx)); });
-        var btnRow=document.createElement('div');
-        btnRow.className='sb-btn-row';
-        var btnLösen=document.createElement('button');
-        btnLösen.className='btn';
-        btnLösen.textContent='Lösen';
-        btnLösen.onclick=(function(i){return function(){ sbShowSolution(i); };})(idx);
-        var btnReset=document.createElement('button');
-        btnReset.className='btn';
-        btnReset.textContent='↺ Neustart';
-        btnReset.onclick=(function(i){return function(){ sbResetOne(i); };})(idx);
-        btnRow.appendChild(btnLösen);
-        btnRow.appendChild(btnReset);
-        wrapper.appendChild(row);
-        wrapper.appendChild(bank);
-        wrapper.appendChild(btnRow);
-        container.appendChild(wrapper);
-      });
-    }
-    function resetSatzbau(n){
-      SATZBAU_DATA.forEach(function(_,idx){ sbResetOne(idx); });
-    }
+/* ── LÜCKENTEXT ────────────────────────────────────────────── */
+var lueckenData = [
+  { pre: 'Thor griff nach seinem ',            ans: 'Hammer',  post: ', doch seine Hand tastete ins Leere.' },
+  { pre: 'Der listige Gott ',                  ans: 'Loki',    post: ' erbot sich, den Hammer zu suchen.' },
+  { pre: 'Thrym hatte den Hammer acht ',       ans: 'Meilen',  post: ' tief unter der Erde vergraben.' },
+  { pre: 'Als Braut verlangte der Riese ',     ans: 'Freyja',  post: '.' },
+  { pre: 'Heimdall schlug vor, dass Thor sich als ', ans: 'Braut', post: ' verkleiden solle.' },
+  { pre: 'In Thryms Halle aß „die Braut" einen ganzen ', ans: 'Ochsen', post: ' und acht Lachse.' },
+  { pre: 'Als Thor den ',                      ans: 'Griff',   post: ' des Hammers berührte, begann der Kampf.' },
+  { pre: 'Am Ende kehrte Thor siegreich nach ', ans: 'Asgard', post: ' zurück.' }
+];
 
-    // ── Wortschatz ───────────────────────────────────────────
-    var WORTSCHATZ = [
-      { en:'the hammer', artikel:'der', de:'Hammer', plural:'Hämmer' },
-      { en:'the giant', artikel:'der', de:'Riese', plural:'Riesen' },
-      { en:'the cunning / trick', artikel:'die', de:'List', plural:'Listen' },
-      { en:'the bride', artikel:'die', de:'Braut', plural:'Bräute' },
-      { en:'the veil', artikel:'der', de:'Schleier', plural:'Schleier' },
-      { en:'the thunder', artikel:'der', de:'Donner', plural:'—' },
-      { en:'the weapon', artikel:'die', de:'Waffe', plural:'Waffen' },
-      { en:'the wedding feast', artikel:'das', de:'Hochzeitsmahl', plural:'Hochzeitsmähler' }
-    ];
+function liveCheck(inp){
+  var ans = inp.dataset.answer;
+  var v = inp.value.trim();
+  if(!v){ inp.classList.remove('ok','no'); return; }
+  if(v.toLowerCase() === ans.toLowerCase()){ inp.classList.remove('no'); inp.classList.add('ok'); return; }
+  if(ans.toLowerCase().indexOf(v.toLowerCase()) === 0){ inp.classList.remove('ok','no'); return; }
+  inp.classList.remove('ok'); inp.classList.add('no');
+}
 
-    function vocabInit(){
-      var cont=document.getElementById('vocab-container-5');
-      cont.innerHTML='';
-      var shuffled=WORTSCHATZ.slice().sort(function(){return Math.random()-0.5;});
-      shuffled.forEach(function(item){
-        var div=document.createElement('div');
-        div.style.cssText='background:#f8f9ff;padding:12px 16px;margin-bottom:10px;border-radius:10px;border-left:4px solid #667eea;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
-        var en=document.createElement('span');
-        en.style.cssText='font-weight:600;color:#764ba2;min-width:170px;font-size:0.92rem;';
-        en.textContent=item.en;
-        div.appendChild(en);
-        var arrow=document.createElement('span');
-        arrow.style.cssText='color:#999;';
-        arrow.textContent='→';
-        div.appendChild(arrow);
-        var inputs=document.createElement('span');
-        inputs.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
-        ['art','wort','plural'].forEach(function(field){
-          var inp=document.createElement('input');
-          inp.className='blank '+field;
-          inp.dataset.field=field;
-          inp.dataset.answer=item[field==='art'?'artikel':field==='wort'?'de':'plural'];
-          inp.placeholder=field==='art'?'der/die/das':field==='wort'?'Deutsch':'Plural';
-          inp.style.width=field==='art'?'80px':field==='wort'?'160px':'160px';
-          inp.addEventListener('input',function(){
-            timerAutoStart(5);
-            liveCheck(this);
-            checkVocabAllOk(5);
-          });
-          inputs.appendChild(inp);
-        });
-        div.appendChild(inputs);
-        cont.appendChild(div);
-      });
-    }
-    function checkVocabAllOk(n){
-      var all=document.querySelectorAll('#vocab-container-'+n+' input.blank');
-      var allOk=all.length>0 && Array.from(all).every(function(i){return i.classList.contains('correct');});
-      if(allOk) timerStop(n);
-    }
-    function showVocabLoesung(n){
-      document.querySelectorAll('#vocab-container-'+n+' input.blank').forEach(function(inp){ showHint(inp); });
-      timerStop(n);
-    }
-    function resetVocab(n){
-      document.querySelectorAll('#vocab-container-'+n+' input.blank').forEach(function(inp){
-        inp.value='';
-        inp.classList.remove('correct','wrong');
-        var h=inp.nextElementSibling;
-        if(h && h.classList.contains('correction-hint')) h.remove();
-      });
-    }
+function buildLuecken(){
+  var c = document.getElementById('lueckenContainer');
+  c.innerHTML = '';
+  lueckenData.forEach(function(d){
+    var div = document.createElement('div');
+    div.className = 'luecken-item';
+    var w = Math.max(d.ans.length + 4, 6);
+    div.innerHTML = d.pre +
+      '<input class="luecken-inp" type="text" data-answer="'+d.ans+'" placeholder="" autocomplete="off" style="width:'+w+'ch" oninput="timerAutoStart(2); liveCheck(this); checkLueckeAllOk();">' +
+      d.post;
+    c.appendChild(div);
+  });
+}
+function checkLueckeAllOk(){
+  var inputs = document.querySelectorAll('#lueckenContainer .luecken-inp');
+  var all = Array.from(inputs).every(function(i){ return i.classList.contains('ok'); });
+  if(all && inputs.length) timerStop(2);
+}
+function showLueckeLoesung(){
+  document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp){
+    inp.value = inp.dataset.answer; inp.classList.remove('no'); inp.classList.add('ok');
+  });
+  timerStop(2);
+}
+function resetLuecke(){
+  document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp){
+    inp.value = ''; inp.classList.remove('ok','no');
+  });
+}
 
-    // ── INIT ─────────────────────────────────────────────────
-    lueckeInit();
-    mcInit();
-    initSatzbau();
-    vocabInit();
-    loadBestTimes();
-  </script>
+/* ── MULTIPLE CHOICE ───────────────────────────────────────── */
+var mcData = [
+  { frage: 'Was bemerkt Thor, als er am Morgen erwacht?',
+    opts: ['Dass sein Wagen verschwunden ist.', 'Dass sein Hammer Mjölnir fehlt.', 'Dass Loki aus Asgard geflohen ist.'], correct: 1 },
+  { frage: 'Warum reist Loki nach Jötunheim?',
+    opts: ['Um Freyja zu warnen.', 'Um Heimdall Gesellschaft zu leisten.', 'Um herauszufinden, wer den Hammer hat.'], correct: 2 },
+  { frage: 'Was fordert Thrym als Gegenleistung für den Hammer?',
+    opts: ['Gold und Silber aus Asgard.', 'Die Göttin Freyja zur Frau.', 'Lokis Federhemd.'], correct: 1 },
+  { frage: 'Warum wundert sich Thrym beim Hochzeitsmahl?',
+    opts: ['Weil die Braut einen ungewöhnlich großen Appetit hat.', 'Weil der Schleier zu lang ist.', 'Weil Loki singt.'], correct: 0 },
+  { frage: 'Wie gelangt Thor wieder an seinen Hammer?',
+    opts: ['Er stiehlt ihn, während Thrym schläft.', 'Thrym legt den Hammer zur Weihe in den Schoß der Braut.', 'Heimdall bringt ihn heimlich nach Asgard.'], correct: 1 },
+  { frage: 'Welches Thema trägt die Geschichte?',
+    opts: ['Stolz muss vor der Not weichen — und List schlägt Gewalt.', 'Die Götter sind den Riesen immer überlegen.', 'Hochzeiten sind in Asgard gefährlich.'], correct: 0 }
+];
+
+function mcCheck(qIdx, optIdx){
+  var item = mcData[qIdx];
+  var opts = document.querySelectorAll('#mc-q-'+qIdx+' .mc-opt');
+  timerAutoStart(3);
+  opts.forEach(function(o, i){
+    if(i === item.correct) o.classList.add('correct');
+    else if(i === optIdx) o.classList.add('wrong');
+  });
+  if(optIdx === item.correct){
+    opts.forEach(function(x){ x.onclick = null; });
+    checkMCAllDone();
+  }
+}
+function checkMCAllDone(){
+  var items = document.querySelectorAll('#mcContainer .mc-item');
+  var all = Array.from(items).every(function(it){ return it.querySelector('.mc-opt.correct'); });
+  if(all) timerStop(3);
+}
+function buildMC(){
+  var c = document.getElementById('mcContainer');
+  c.innerHTML = '';
+  mcData.forEach(function(q, qi){
+    var div = document.createElement('div');
+    div.className = 'mc-item'; div.id = 'mc-q-'+qi;
+    var h = document.createElement('h4');
+    h.textContent = (qi+1)+'. '+q.frage;
+    div.appendChild(h);
+    var opts = document.createElement('div');
+    opts.className = 'mc-options';
+    q.opts.forEach(function(o, oi){
+      var btn = document.createElement('button');
+      btn.className = 'mc-opt';
+      btn.textContent = o;
+      btn.onclick = function(){ mcCheck(qi, oi); };
+      opts.appendChild(btn);
+    });
+    div.appendChild(opts);
+    c.appendChild(div);
+  });
+}
+function mcReset(){ buildMC(); timerResetOne(3); }
+
+/* ── SATZBAU ───────────────────────────────────────────────── */
+var satzbauData = [
+  { parts: ['Thor', 'griff', 'am', 'Morgen', 'nach', 'seinem', 'Hammer'],
+    valid: [['Thor', 'griff', 'am', 'Morgen', 'nach', 'seinem', 'Hammer']], punct: '.' },
+  { parts: ['Loki', 'flog', 'in', 'Freyjas', 'Federhemd', 'nach', 'Jötunheim'],
+    valid: [['Loki', 'flog', 'in', 'Freyjas', 'Federhemd', 'nach', 'Jötunheim']], punct: '.' },
+  { parts: ['Thrym', 'verlangte', 'die', 'schöne', 'Freyja', 'als', 'Braut'],
+    valid: [['Thrym', 'verlangte', 'die', 'schöne', 'Freyja', 'als', 'Braut']], punct: '.' },
+  { parts: ['Thor', 'verkleidete', 'sich', 'widerwillig', 'als', 'Braut'],
+    valid: [['Thor', 'verkleidete', 'sich', 'widerwillig', 'als', 'Braut']], punct: '.' },
+  { parts: ['am', 'Ende', 'kehrte', 'Thor', 'siegreich', 'nach', 'Asgard', 'zurück'],
+    valid: [['am', 'Ende', 'kehrte', 'Thor', 'siegreich', 'nach', 'Asgard', 'zurück']], punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+  }
+  return c;
+}
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    if (orig === ',' || orig === ';') { c.textContent = orig; return; }
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    if (isProper) c.textContent = orig;
+    else c.textContent = (i === 0) ? sbCapitalize(orig) : orig;
+  });
+}
+function sbMakeChip(word, sbIdx) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.dataset.sbIdx = String(sbIdx);
+  chip.draggable = true;
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip; timerAutoStart(4);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+  });
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = ''; sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
+  chip.addEventListener('click', function() {
+    var idx = parseInt(chip.dataset.sbIdx);
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-'  + idx);
+    if (chip.parentElement === bank) row.appendChild(chip);
+    else bank.appendChild(chip);
+    timerAutoStart(4);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+  return chip;
+}
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor); zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) { return JSON.stringify(v) === JSON.stringify(order); });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = ''; return;
+  }
+  setTimeout(function() {
+    timerAutoStart(4);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) timerStop(4);
+}
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = {};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c)  { allChips[c.dataset.orig] = c; });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var chip = allChips[word];
+    if (chip) {
+      chip.textContent = (i === 0 && word !== ',') ? sbCapitalize(word) : word;
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row  = document.getElementById('sb-row-'  + idx);
+  var fb   = document.getElementById('sb-fb-'   + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild)  row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = ''; fb.className = 'satzbau-feedback';
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+}
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+    var bank = document.createElement('div'); bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+    var row  = document.createElement('div'); row.className  = 'sentence-builder'; row.id  = 'sb-row-'  + idx;
+    var fb   = document.createElement('div'); fb.className   = 'satzbau-feedback'; fb.id   = 'sb-fb-'   + idx;
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+    sbRegisterZone(bank, idx); sbRegisterZone(row, idx);
+    var btnRow = document.createElement('div'); btnRow.className = 'sb-btn-row';
+    var solveBtn = document.createElement('button'); solveBtn.className = 'btn'; solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn = document.createElement('button'); resetBtn.className = 'btn'; resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn); btnRow.appendChild(resetBtn);
+    item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+function sbResetAll() { timerResetOne(4); initSatzbau(); }
+
+/* ── WORTSCHATZ ────────────────────────────────────────────── */
+var WORTSCHATZ = [
+  { en: 'the hammer',        artikel: 'der', de: 'Hammer',       plural: 'Hämmer' },
+  { en: 'the giant',         artikel: 'der', de: 'Riese',        plural: 'Riesen' },
+  { en: 'the cunning / trick', artikel: 'die', de: 'List',        plural: 'Listen' },
+  { en: 'the bride',         artikel: 'die', de: 'Braut',        plural: 'Bräute' },
+  { en: 'the veil',          artikel: 'der', de: 'Schleier',     plural: 'Schleier' },
+  { en: 'the thunder',       artikel: 'der', de: 'Donner',       plural: '–' },
+  { en: 'the weapon',        artikel: 'die', de: 'Waffe',        plural: 'Waffen' },
+  { en: 'the wedding feast', artikel: 'das', de: 'Hochzeitsmahl', plural: 'Hochzeitsmähler' }
+];
+
+function wortschatzCheck(inp){
+  var answer = inp.dataset.answer || '';
+  var val = (inp.value || '').trim();
+  var isArtikel = inp.classList.contains('art');
+  inp.classList.remove('correct','wrong');
+  if(!val) return;
+  var match = isArtikel ? (val.toLowerCase() === answer.toLowerCase()) : (val === answer);
+  if(match) inp.classList.add('correct');
+  else {
+    var lc = answer.toLowerCase();
+    if(isArtikel ? lc.indexOf(val.toLowerCase()) !== 0 : answer.indexOf(val) !== 0){
+      inp.classList.add('wrong');
+    }
+  }
+}
+function checkWortschatzAllOk(){
+  var inputs = document.querySelectorAll('#wortschatzContainer input.blank');
+  var all = Array.from(inputs).every(function(i){ return i.classList.contains('correct') || i.disabled; });
+  if(all && inputs.length) timerStop(5);
+}
+function initWortschatz(){
+  var c = document.getElementById('wortschatzContainer');
+  c.innerHTML = '';
+  WORTSCHATZ.forEach(function(item){
+    var card = document.createElement('div');
+    card.className = 'luecken-item';
+    var prompt = document.createElement('div');
+    prompt.className = 'ws-prompt';
+    prompt.textContent = item.en;
+    card.appendChild(prompt);
+    var inputs = document.createElement('div');
+    inputs.className = 'ws-inputs';
+    var artInp = document.createElement('input');
+    artInp.type = 'text'; artInp.className = 'blank art'; artInp.placeholder = 'Artikel';
+    artInp.style.width = '70px'; artInp.dataset.answer = item.artikel;
+    artInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    inputs.appendChild(artInp);
+    var wordInp = document.createElement('input');
+    wordInp.type = 'text'; wordInp.className = 'blank word'; wordInp.placeholder = 'Wort';
+    wordInp.style.width = '160px'; wordInp.dataset.answer = item.de;
+    wordInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    inputs.appendChild(wordInp);
+    var plInp = document.createElement('input');
+    plInp.type = 'text'; plInp.className = 'blank plural'; plInp.placeholder = 'Plural';
+    plInp.style.width = '140px'; plInp.dataset.answer = item.plural;
+    if(item.plural === '–'){
+      plInp.value = '–'; plInp.disabled = true; plInp.classList.add('correct'); plInp.style.opacity = '0.6';
+    } else {
+      plInp.addEventListener('input', function(){ timerAutoStart(5); wortschatzCheck(this); checkWortschatzAllOk(); });
+    }
+    inputs.appendChild(plInp);
+    card.appendChild(inputs);
+    c.appendChild(card);
+  });
+}
+function showWortschatzLoesung(){
+  document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp){
+    if(inp.disabled) return;
+    inp.value = inp.dataset.answer;
+    inp.classList.remove('wrong'); inp.classList.add('correct');
+  });
+  timerStop(5);
+}
+function resetWortschatz(){
+  document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp){
+    if(inp.disabled) return;
+    inp.value = ''; inp.classList.remove('correct','wrong');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  buildLuecken(); buildMC(); initSatzbau(); initWortschatz();
+  [2,3,4,5].forEach(function(n){
+    var b = localStorage.getItem(TIMER_PREFIX+n);
+    if(b){ var el = document.getElementById('best-'+n); if(el) el.textContent = fmtTime(parseInt(b)); }
+  });
+});
+</script>
 </body>
 </html>
