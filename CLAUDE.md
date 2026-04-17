@@ -84,18 +84,34 @@ anzulegen geht nicht über `gh` oder `curl`. Workaround: Chrome MCP auf
 github.com/new navigieren. Dokumentiert im Konsolidierungs-Bericht
 `backup/KONSOLIDIERUNG_20260410.md`.
 
-**Stale git locks — mount-resistenter Workaround (2026-04-13).**
+**Stale git locks — der saubere Workaround (2026-04-17).**
 `.git/index.lock` und `.git/HEAD.lock` können vom Cowork-Sandbox **nicht
-gelöscht** werden (APFS-Mount-Einschränkung). `find .git -name "*.lock"
--delete` funktioniert deshalb NICHT. Stattdessen:
+gelöscht** werden (APFS-Mount-Einschränkung, `Operation not permitted`).
+Auch `os.unlink` und `rm -f` scheitern.
 
-1. Blobs direkt schreiben: `git hash-object -w DATEI`
-2. Neuen Tree bauen: `git ls-tree HEAD | (Dateien ersetzen) | git mktree`
-3. Commit-Objekt erzeugen: `git commit-tree TREE -p PARENT -m "msg"`
-4. Ref direkt überschreiben (Write-Tool): `.git/refs/heads/main` = neuer SHA
-5. Pushen: `git push origin main`
+Die Lösung ist ein **alternativer Index** außerhalb des Repos:
 
-Das umgeht index.lock und HEAD.lock vollständig.
+```bash
+export GIT_INDEX_FILE=/tmp/alt-index
+rm -f /tmp/alt-index /tmp/alt-index.lock
+git read-tree HEAD                          # lädt HEAD-Tree in Alt-Index
+git update-index --add DATEI1 DATEI2 ...    # Dateien normal adden
+TREE=$(git write-tree)                      # neuer Tree-SHA
+PARENT=$(git rev-parse HEAD)
+COMMIT=$(git commit-tree $TREE -p $PARENT -m "msg")
+echo "$COMMIT" > .git/refs/heads/main       # oder Write-Tool wenn echo blockiert
+git push origin main                        # pusht normal
+```
+
+Damit läuft der komplette git-Workflow normal — `write-tree`,
+`update-index`, `commit-tree` — ohne je `.git/index.lock` zu berühren.
+Kein Low-Level-Plumbing mit `git mktree` mehr nötig.
+
+Anschließend noch `.git/refs/remotes/origin/main` via Write-Tool auf den
+neuen Commit-SHA setzen, damit `git status` nicht "ahead" meldet.
+
+Die `warning: unable to unlink '.git/objects/*/tmp_obj_*'`-Meldungen
+sind kosmetisch — die Objekte liegen korrekt im Store.
 
 ## Wenn du etwas Neues hinzufügst
 
