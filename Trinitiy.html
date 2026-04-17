@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Magic Five — Deutsche Deklination</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Be+Vietnam+Pro:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #0b0c10;
+    --card: #14161e;
+    --card2: #1a1d28;
+    --text: #e4e2dc;
+    --muted: #7a7770;
+    --border: #252830;
+    --kasus-nom: #2d8a3e;
+    --kasus-akk: #2255bb;
+    --kasus-dat: #c43030;
+    --kasus-gen: #c4a820;
+    --sig-r: #e04040;
+    --sig-e: #3a8fdd;
+    --sig-s: #e0a820;
+    --sig-m: #40b860;
+    --sig-n: #a855f7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .serif { font-family: 'Instrument Serif', serif; }
+
+  /* ── Nav dots ── */
+  .step-nav {
+    position: fixed;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    z-index: 100;
+  }
+  .step-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--muted);
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .step-dot.active {
+    background: var(--text);
+    border-color: var(--text);
+    transform: scale(1.3);
+  }
+
+  /* ── Sections ── */
+  section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+    position: relative;
+  }
+
+  .step-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    text-align: center;
+    margin-bottom: 0.8rem;
+  }
+
+  .step-sub {
+    color: var(--muted);
+    font-size: 0.92rem;
+    text-align: center;
+    max-width: 540px;
+    margin-bottom: 2rem;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-align: center;
+    animation: bobble 2s ease-in-out infinite;
+  }
+  .scroll-hint .arrow { display: block; font-size: 1.4rem; margin-top: 0.2rem; }
+  @keyframes bobble {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ═══════════════════════════════ */
+  /* STEP 1: The Formula            */
+  /* ═══════════════════════════════ */
+  .formula-visual {
+    display: flex;
+    align-items: stretch;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+  }
+  .fv-group {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    text-align: center;
+    min-width: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .fv-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .fv-items { display: flex; flex-direction: column; gap: 0.25rem; }
+  .fv-item {
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-content: center;
+  }
+  .fv-code {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.05rem;
+    min-width: 1rem;
+    text-align: right;
+  }
+  .fv-count {
+    margin-top: 0.6rem;
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.6rem;
+    color: var(--text);
+  }
+  .formula-op {
+    color: var(--muted);
+    font-size: 1.5rem;
+    align-self: center;
+  }
+  .fv-result {
+    background: rgba(224, 64, 64, 0.08);
+    border-color: rgba(224, 64, 64, 0.25);
+  }
+  .fv-big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  /* ═══════════════════════════════ */
+  /* STEP 2: The 24 Trinities       */
+  /* ═══════════════════════════════ */
+  #step2 .big-number {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(6rem, 20vw, 16rem);
+    line-height: 1;
+    color: var(--text);
+    opacity: 0.06;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .trinity-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+    max-width: 520px;
+    z-index: 1;
+  }
+
+  .trinity-group-label {
+    grid-column: 1 / -1;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    padding: 0.6rem 0 0.2rem;
+    border-bottom: 1px solid var(--border);
+    margin-top: 0.3rem;
+  }
+  .trinity-group-label:first-child { margin-top: 0; }
+
+  .trinity-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.5rem;
+    text-align: center;
+    transition: all 0.5s ease;
+    cursor: default;
+  }
+
+  .trinity-card .trinity-code {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+
+  .trinity-card .trinity-meaning {
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+    line-height: 1.2;
+  }
+
+  .trinity-card .trinity-signal {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.2rem;
+    margin-top: 0.25rem;
+    opacity: 0.5;
+  }
+
+  /* Signal colors after reveal */
+  .trinity-grid.revealed .trinity-card { border-color: transparent; }
+  .trinity-grid.revealed .trinity-card[data-sig="r"] { background: var(--sig-r); color: #fff; }
+  .trinity-grid.revealed .trinity-card[data-sig="e"] { background: var(--sig-e); color: #fff; }
+  .trinity-grid.revealed .trinity-card[data-sig="s"] { background: var(--sig-s); color: #fff; }
+  .trinity-grid.revealed .trinity-card[data-sig="m"] { background: var(--sig-m); color: #fff; }
+  .trinity-grid.revealed .trinity-card[data-sig="n"] { background: var(--sig-n); color: #fff; }
+  .trinity-grid.revealed .trinity-card .trinity-meaning { color: rgba(255,255,255,0.7); }
+  .trinity-grid.revealed .trinity-card .trinity-signal { opacity: 1; }
+  .trinity-grid.revealed .trinity-card[data-sig="s"] .trinity-meaning { color: rgba(0,0,0,0.6); }
+  .trinity-grid.revealed .trinity-card[data-sig="s"] { color: #1a1a1a; }
+
+  .reveal-btn {
+    background: var(--card2);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 0.8rem 2rem;
+    border-radius: 40px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 1;
+    margin-top: 1.5rem;
+  }
+  .reveal-btn:hover {
+    border-color: var(--text);
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .signal-legend {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.2rem;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.6s;
+  }
+  .signal-legend.visible { opacity: 1; }
+  .signal-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+  }
+  .sig-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .sig-count { font-weight: 300; color: var(--muted); font-size: 0.7rem; margin-left: 0.15rem; }
+
+  /* collapse message */
+  .collapse-msg {
+    z-index: 1;
+    margin-top: 1.5rem;
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.2rem;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.6s;
+    color: var(--muted);
+  }
+  .collapse-msg.visible { opacity: 1; }
+  .collapse-msg em { color: var(--text); font-style: italic; }
+
+  /* ═══════════════════════════════ */
+  /* STEP 3: The Magic Five         */
+  /* ═══════════════════════════════ */
+  .m5-tagline {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .kasus-legend {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.78rem;
+  }
+  .kasus-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  .kasus-chip.active { opacity: 1; font-weight: 700; }
+  .kasus-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  .m5-wrap {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.2rem;
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 700px;
+    overflow-x: auto;
+  }
+  .m5-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .m5-table thead th {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.7rem;
+    padding: 0.5rem 0.3rem;
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+    cursor: pointer;
+    transition: text-shadow 0.3s;
+  }
+  .m5-table thead th:hover { text-shadow: 0 0 20px rgba(255,255,255,0.35); }
+  .m5-table thead th .th-sub {
+    display: block;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .m5-table td {
+    height: 68px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: 2px solid var(--bg);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    vertical-align: middle;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .m5-table td:not(.empty):hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+    z-index: 2;
+  }
+  .m5-table td.active-cell {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px #fff, 0 4px 24px rgba(0,0,0,0.5);
+    z-index: 3;
+  }
+  .m5-table td.empty { background: transparent; cursor: default; }
+  .m5-table td.dimmed { opacity: 0.15; transform: none !important; }
+  .m5-table td.nom { background: var(--kasus-nom); }
+  .m5-table td.akk { background: var(--kasus-akk); }
+  .m5-table td.dat { background: var(--kasus-dat); }
+  .m5-table td.gen { background: var(--kasus-gen); }
+
+  .info-panel {
+    margin-top: 1.2rem;
+    width: 100%;
+    max-width: 700px;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 1.3rem;
+    min-height: 80px;
+  }
+  .info-default { color: var(--muted); text-align: center; font-size: 0.85rem; padding: 0.6rem 0; }
+  .info-active { display: none; }
+  .info-active.visible { display: block; }
+  .info-signal-big { font-family: 'Instrument Serif', serif; font-size: 2rem; }
+  .kasus-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .kasus-tag.nom-t { background: var(--kasus-nom); }
+  .kasus-tag.akk-t { background: var(--kasus-akk); }
+  .kasus-tag.dat-t { background: var(--kasus-dat); }
+  .kasus-tag.gen-t { background: var(--kasus-gen); }
+  .info-example-box {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    margin-top: 0.7rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+  .info-example-box .ex-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+  }
+  .sig-hl {
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    padding: 1px 3px;
+    border-radius: 3px;
+  }
+
+  @media (max-width: 550px) {
+    .formula-visual { gap: 0.4rem; }
+    .fv-group { padding: 0.5rem 0.6rem; min-width: 80px; }
+    .fv-item { font-size: 0.7rem; }
+    .trinity-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    .trinity-card { padding: 0.4rem 0.3rem; }
+    .trinity-card .trinity-code { font-size: 0.95rem; }
+    .trinity-card .trinity-meaning { font-size: 0.55rem; }
+    .m5-table thead th { font-size: 1.3rem; }
+    .m5-table td { height: 54px; font-size: 0.7rem; }
+    .step-nav { right: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="step-nav">
+  <div class="step-dot active" data-target="step1"></div>
+  <div class="step-dot" data-target="step2"></div>
+  <div class="step-dot" data-target="step3"></div>
+</nav>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- STEP 1: Die Formel                     -->
+<!-- ═══════════════════════════════════════ -->
+<section id="step1">
+  <div class="step-title">Drei mal zwei mal vier</div>
+  <p class="step-sub">
+    Die deutsche Deklination wird bestimmt durch eine <em>Trinity</em>:<br>
+    Genus, Numerus und Kasus. Zusammen ergeben sie…
+  </p>
+
+  <div class="formula-visual">
+    <div class="fv-group">
+      <div class="fv-label">Genus</div>
+      <div class="fv-items">
+        <div class="fv-item"><span class="fv-code">r</span> maskulin</div>
+        <div class="fv-item"><span class="fv-code">s</span> neutrum</div>
+        <div class="fv-item"><span class="fv-code">e</span> feminin</div>
+      </div>
+      <div class="fv-count">3</div>
+    </div>
+    <span class="formula-op">×</span>
+    <div class="fv-group">
+      <div class="fv-label">Numerus</div>
+      <div class="fv-items">
+        <div class="fv-item"><span class="fv-code">S</span> Singular</div>
+        <div class="fv-item"><span class="fv-code">P</span> Plural</div>
+      </div>
+      <div class="fv-count">2</div>
+      <div style="font-size:0.62rem;color:var(--muted);margin-top:0.4rem;line-height:1.3">
+        Im Plural entfällt<br>das Genus → <span class="fv-code" style="font-size:0.85rem">–</span>
+      </div>
+    </div>
+    <span class="formula-op">×</span>
+    <div class="fv-group">
+      <div class="fv-label">Kasus</div>
+      <div class="fv-items">
+        <div class="fv-item"><span class="fv-code">N</span> Nominativ</div>
+        <div class="fv-item"><span class="fv-code">A</span> Akkusativ</div>
+        <div class="fv-item"><span class="fv-code">D</span> Dativ</div>
+        <div class="fv-item"><span class="fv-code">G</span> Genitiv</div>
+      </div>
+      <div class="fv-count">4</div>
+    </div>
+    <span class="formula-op">=</span>
+    <div class="fv-group fv-result">
+      <div class="fv-label">Trinities</div>
+      <div class="fv-big">24</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">weiter<span class="arrow">↓</span></div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- STEP 2: Alle 24 Trinities              -->
+<!-- ═══════════════════════════════════════ -->
+<section id="step2">
+  <div class="big-number">24</div>
+
+  <div class="step-title">24 Trinities</div>
+  <p class="step-sub">
+    Jede Trinity ist eine einzigartige Kombination aus Genus, Numerus und Kasus.
+    Das sind alle 24:
+  </p>
+
+  <div class="trinity-grid" id="trinityGrid">
+    <!-- Singular: mask (r) -->
+    <div class="trinity-group-label">maskulin · Singular</div>
+    <div class="trinity-card" data-sig="r">
+      <div class="trinity-code">r, S, N</div>
+      <div class="trinity-meaning">Nom</div>
+      <div class="trinity-signal">r</div>
+    </div>
+    <div class="trinity-card" data-sig="n">
+      <div class="trinity-code">r, S, A</div>
+      <div class="trinity-meaning">Akk</div>
+      <div class="trinity-signal">n</div>
+    </div>
+    <div class="trinity-card" data-sig="m">
+      <div class="trinity-code">r, S, D</div>
+      <div class="trinity-meaning">Dat</div>
+      <div class="trinity-signal">m</div>
+    </div>
+    <div class="trinity-card" data-sig="s">
+      <div class="trinity-code">r, S, G</div>
+      <div class="trinity-meaning">Gen</div>
+      <div class="trinity-signal">s</div>
+    </div>
+
+    <!-- Singular: neut (s) -->
+    <div class="trinity-group-label">neutrum · Singular</div>
+    <div class="trinity-card" data-sig="s">
+      <div class="trinity-code">s, S, N</div>
+      <div class="trinity-meaning">Nom</div>
+      <div class="trinity-signal">s</div>
+    </div>
+    <div class="trinity-card" data-sig="s">
+      <div class="trinity-code">s, S, A</div>
+      <div class="trinity-meaning">Akk</div>
+      <div class="trinity-signal">s</div>
+    </div>
+    <div class="trinity-card" data-sig="m">
+      <div class="trinity-code">s, S, D</div>
+      <div class="trinity-meaning">Dat</div>
+      <div class="trinity-signal">m</div>
+    </div>
+    <div class="trinity-card" data-sig="s">
+      <div class="trinity-code">s, S, G</div>
+      <div class="trinity-meaning">Gen</div>
+      <div class="trinity-signal">s</div>
+    </div>
+
+    <!-- Singular: fem (e) -->
+    <div class="trinity-group-label">feminin · Singular</div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">e, S, N</div>
+      <div class="trinity-meaning">Nom</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">e, S, A</div>
+      <div class="trinity-meaning">Akk</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="r">
+      <div class="trinity-code">e, S, D</div>
+      <div class="trinity-meaning">Dat</div>
+      <div class="trinity-signal">r</div>
+    </div>
+    <div class="trinity-card" data-sig="r">
+      <div class="trinity-code">e, S, G</div>
+      <div class="trinity-meaning">Gen</div>
+      <div class="trinity-signal">r</div>
+    </div>
+
+    <!-- Plural: mask (r) -->
+    <div class="trinity-group-label">maskulin · Plural</div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">r, P, N</div>
+      <div class="trinity-meaning">Nom</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">r, P, A</div>
+      <div class="trinity-meaning">Akk</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="n">
+      <div class="trinity-code">r, P, D</div>
+      <div class="trinity-meaning">Dat</div>
+      <div class="trinity-signal">n</div>
+    </div>
+    <div class="trinity-card" data-sig="r">
+      <div class="trinity-code">r, P, G</div>
+      <div class="trinity-meaning">Gen</div>
+      <div class="trinity-signal">r</div>
+    </div>
+
+    <!-- Plural: neut (s) -->
+    <div class="trinity-group-label">neutrum · Plural</div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">s, P, N</div>
+      <div class="trinity-meaning">Nom</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">s, P, A</div>
+      <div class="trinity-meaning">Akk</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="n">
+      <div class="trinity-code">s, P, D</div>
+      <div class="trinity-meaning">Dat</div>
+      <div class="trinity-signal">n</div>
+    </div>
+    <div class="trinity-card" data-sig="r">
+      <div class="trinity-code">s, P, G</div>
+      <div class="trinity-meaning">Gen</div>
+      <div class="trinity-signal">r</div>
+    </div>
+
+    <!-- Plural: fem (e) -->
+    <div class="trinity-group-label">feminin · Plural</div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">e, P, N</div>
+      <div class="trinity-meaning">Nom</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="e">
+      <div class="trinity-code">e, P, A</div>
+      <div class="trinity-meaning">Akk</div>
+      <div class="trinity-signal">e</div>
+    </div>
+    <div class="trinity-card" data-sig="n">
+      <div class="trinity-code">e, P, D</div>
+      <div class="trinity-meaning">Dat</div>
+      <div class="trinity-signal">n</div>
+    </div>
+    <div class="trinity-card" data-sig="r">
+      <div class="trinity-code">e, P, G</div>
+      <div class="trinity-meaning">Gen</div>
+      <div class="trinity-signal">r</div>
+    </div>
+  </div>
+
+  <button class="reveal-btn" id="revealBtn">Signale aufdecken</button>
+
+  <div class="signal-legend" id="sigLegend">
+    <div class="signal-chip"><div class="sig-dot" style="background:var(--sig-r)"></div>r<span class="sig-count">× 6</span></div>
+    <div class="signal-chip"><div class="sig-dot" style="background:var(--sig-e)"></div>e<span class="sig-count">× 8</span></div>
+    <div class="signal-chip"><div class="sig-dot" style="background:var(--sig-s)"></div>s<span class="sig-count">× 4</span></div>
+    <div class="signal-chip"><div class="sig-dot" style="background:var(--sig-m)"></div>m<span class="sig-count">× 2</span></div>
+    <div class="signal-chip"><div class="sig-dot" style="background:var(--sig-n)"></div>n<span class="sig-count">× 4</span></div>
+  </div>
+
+  <div class="collapse-msg" id="collapseMsg">
+    24 Trinities. Aber nur <em>5 Signale</em>.
+  </div>
+
+  <div class="scroll-hint">weiter<span class="arrow">↓</span></div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- STEP 3: The Magic Five                 -->
+<!-- ═══════════════════════════════════════ -->
+<section id="step3">
+  <div class="step-title">The Magic Five</div>
+  <div class="m5-tagline">Five to rule them all.</div>
+
+  <div class="kasus-legend">
+    <div class="kasus-chip" data-kasus="nom"><div class="kasus-dot" style="background:var(--kasus-nom)"></div> Nominativ</div>
+    <div class="kasus-chip" data-kasus="akk"><div class="kasus-dot" style="background:var(--kasus-akk)"></div> Akkusativ</div>
+    <div class="kasus-chip" data-kasus="dat"><div class="kasus-dot" style="background:var(--kasus-dat)"></div> Dativ</div>
+    <div class="kasus-chip" data-kasus="gen"><div class="kasus-dot" style="background:var(--kasus-gen)"></div> Genitiv</div>
+  </div>
+
+  <div class="m5-wrap">
+    <table class="m5-table" id="m5Table">
+      <thead>
+        <tr>
+          <th data-col="r">r</th>
+          <th data-col="e">e</th>
+          <th data-col="s">s</th>
+          <th data-col="m">m</th>
+          <th data-col="n">n</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="nom" data-signal="r" data-id="r1"><div class="cell-content">r, S, N</div></td>
+          <td class="nom" data-signal="e" data-id="e1"><div class="cell-content">e, S, N</div></td>
+          <td class="gen" data-signal="s" data-id="s1"><div class="cell-content">r, S, G</div></td>
+          <td class="dat" data-signal="m" data-id="m1"><div class="cell-content">r, S, D</div></td>
+          <td class="akk" data-signal="n" data-id="n1"><div class="cell-content">r, S, A</div></td>
+        </tr>
+        <tr>
+          <td class="gen" data-signal="r" data-id="r2"><div class="cell-content">–, P, G</div></td>
+          <td class="akk" data-signal="e" data-id="e2"><div class="cell-content">e, S, A</div></td>
+          <td class="gen" data-signal="s" data-id="s2"><div class="cell-content">s, S, G</div></td>
+          <td class="dat" data-signal="m" data-id="m2"><div class="cell-content">s, S, D</div></td>
+          <td class="dat" data-signal="n" data-id="n2"><div class="cell-content">–, P, D</div></td>
+        </tr>
+        <tr>
+          <td class="gen" data-signal="r" data-id="r3"><div class="cell-content">e, S, G</div></td>
+          <td class="nom" data-signal="e" data-id="e3"><div class="cell-content">–, P, N</div></td>
+          <td class="nom" data-signal="s" data-id="s3"><div class="cell-content">s, S, N</div></td>
+          <td class="empty"></td>
+          <td class="empty"></td>
+        </tr>
+        <tr>
+          <td class="dat" data-signal="r" data-id="r4"><div class="cell-content">e, S, D</div></td>
+          <td class="akk" data-signal="e" data-id="e4"><div class="cell-content">–, P, A</div></td>
+          <td class="akk" data-signal="s" data-id="s4"><div class="cell-content">s, S, A</div></td>
+          <td class="empty"></td>
+          <td class="empty"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-panel" id="infoPanel">
+    <div class="info-default" id="infoDefault">Klicke auf eine Zelle, um die Trinity aufzulösen.</div>
+    <div class="info-active" id="infoActive"></div>
+  </div>
+</section>
+
+<script>
+// ── Reveal ──
+const revealBtn = document.getElementById('revealBtn');
+const trinityGrid = document.getElementById('trinityGrid');
+const sigLegend = document.getElementById('sigLegend');
+const collapseMsg = document.getElementById('collapseMsg');
+let revealed = false;
+
+revealBtn.addEventListener('click', () => {
+  revealed = !revealed;
+  trinityGrid.classList.toggle('revealed', revealed);
+  sigLegend.classList.toggle('visible', revealed);
+  collapseMsg.classList.toggle('visible', revealed);
+  revealBtn.textContent = revealed ? 'Trinities anzeigen' : 'Signale aufdecken';
+});
+
+// ── Nav ──
+const dots = document.querySelectorAll('.step-dot');
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.getElementById(dot.dataset.target).scrollIntoView({ behavior: 'smooth' });
+  });
+});
+const sections = document.querySelectorAll('section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      dots.forEach(d => d.classList.remove('active'));
+      const dot = document.querySelector(`.step-dot[data-target="${e.target.id}"]`);
+      if (dot) dot.classList.add('active');
+    }
+  });
+}, { threshold: 0.4 });
+sections.forEach(s => observer.observe(s));
+
+// ── Magic Five (Step 3) ──
+const cellData = {
+  r1: { signal:'r', genus:'maskulin', numerus:'Singular', kasus:'Nominativ', kasusClass:'nom-t',
+    meaning:'Maskulin, Singular, Nominativ – das Subjekt.',
+    examples:[['de<r>','Der Mann liest.'],['diese<r>','Dieser Stuhl ist neu.'],['große<r>','Ein großer Hund bellt.']] },
+  r2: { signal:'r', genus:'– (genusneutral)', numerus:'Plural', kasus:'Genitiv', kasusClass:'gen-t',
+    meaning:'Plural, Genitiv – im Plural entfällt das Genus.',
+    examples:[['de<r>','Die Farbe der Häuser.'],['diese<r>','Das Ende dieser Tage.'],['unsere<r>','Die Stimme unserer Kinder.']] },
+  r3: { signal:'r', genus:'feminin', numerus:'Singular', kasus:'Genitiv', kasusClass:'gen-t',
+    meaning:'Feminin, Singular, Genitiv.',
+    examples:[['de<r>','Die Farbe der Blume.'],['diese<r>','Wegen dieser Idee.'],['jede<r>','Trotz jeder Warnung.']] },
+  r4: { signal:'r', genus:'feminin', numerus:'Singular', kasus:'Dativ', kasusClass:'dat-t',
+    meaning:'Feminin, Singular, Dativ.',
+    examples:[['de<r>','Er gibt der Frau das Buch.'],['diese<r>','Mit dieser Methode.'],['kleine<r>','Mit kleiner Hoffnung.']] },
+  e1: { signal:'e', genus:'feminin', numerus:'Singular', kasus:'Nominativ', kasusClass:'nom-t',
+    meaning:'Feminin, Singular, Nominativ.',
+    examples:[['di<e>','Die Lampe leuchtet.'],['dies<e>','Diese Idee ist gut.'],['groß<e>','Eine große Stadt wächst.']] },
+  e2: { signal:'e', genus:'feminin', numerus:'Singular', kasus:'Akkusativ', kasusClass:'akk-t',
+    meaning:'Feminin, Singular, Akkusativ.',
+    examples:[['di<e>','Ich sehe die Lampe.'],['dies<e>','Er kauft diese Tasche.'],['groß<e>','Sie hat eine große Wohnung.']] },
+  e3: { signal:'e', genus:'– (genusneutral)', numerus:'Plural', kasus:'Nominativ', kasusClass:'nom-t',
+    meaning:'Plural, Nominativ – Genus entfällt im Plural.',
+    examples:[['di<e>','Die Kinder spielen.'],['dies<e>','Diese Bücher sind gut.'],['all<e>','Alle Gäste kommen.']] },
+  e4: { signal:'e', genus:'– (genusneutral)', numerus:'Plural', kasus:'Akkusativ', kasusClass:'akk-t',
+    meaning:'Plural, Akkusativ – Genus entfällt im Plural.',
+    examples:[['di<e>','Ich sehe die Kinder.'],['dies<e>','Er liest diese Bücher.'],['all<e>','Sie kennt alle Leute.']] },
+  s1: { signal:'s', genus:'maskulin', numerus:'Singular', kasus:'Genitiv', kasusClass:'gen-t',
+    meaning:'Maskulin, Singular, Genitiv.',
+    examples:[['de<s>','Die Farbe des Himmels.'],['diese<s>','Wegen dieses Fehlers.'],['jede<s>','Trotz jedes Versuchs.']] },
+  s2: { signal:'s', genus:'neutrum', numerus:'Singular', kasus:'Genitiv', kasusClass:'gen-t',
+    meaning:'Neutrum, Singular, Genitiv.',
+    examples:[['de<s>','Die Tür des Hauses.'],['diese<s>','Wegen dieses Problems.'],['meine<s>','Die Farbe meines Autos.']] },
+  s3: { signal:'s', genus:'neutrum', numerus:'Singular', kasus:'Nominativ', kasusClass:'nom-t',
+    meaning:'Neutrum, Singular, Nominativ.',
+    examples:[['da<s>','Das Kind spielt.'],['diese<s>','Dieses Buch ist toll.'],['kleine<s>','Ein kleines Haus steht dort.']] },
+  s4: { signal:'s', genus:'neutrum', numerus:'Singular', kasus:'Akkusativ', kasusClass:'akk-t',
+    meaning:'Neutrum, Singular, Akkusativ.',
+    examples:[['da<s>','Ich sehe das Kind.'],['diese<s>','Er liest dieses Buch.'],['kleine<s>','Sie hat ein kleines Haus.']] },
+  m1: { signal:'m', genus:'maskulin', numerus:'Singular', kasus:'Dativ', kasusClass:'dat-t',
+    meaning:'Maskulin, Singular, Dativ.',
+    examples:[['de<m>','Er hilft dem Mann.'],['diese<m>','Mit diesem Stuhl.'],['große<m>','Bei großem Lärm.']] },
+  m2: { signal:'m', genus:'neutrum', numerus:'Singular', kasus:'Dativ', kasusClass:'dat-t',
+    meaning:'Neutrum, Singular, Dativ.',
+    examples:[['de<m>','In dem Haus.'],['diese<m>','Mit diesem Buch.'],['kleine<m>','Bei kleinem Budget.']] },
+  n1: { signal:'n', genus:'maskulin', numerus:'Singular', kasus:'Akkusativ', kasusClass:'akk-t',
+    meaning:'Maskulin, Singular, Akkusativ.',
+    examples:[['de<n>','Ich sehe den Mann.'],['diese<n>','Ich kaufe diesen Tisch.'],['große<n>','Er hat einen großen Hund.']] },
+  n2: { signal:'n', genus:'– (genusneutral)', numerus:'Plural', kasus:'Dativ', kasusClass:'dat-t',
+    meaning:'Plural, Dativ – Genus entfällt im Plural.',
+    examples:[['de<n>','Er hilft den Kindern.'],['diese<n>','Mit diesen Büchern.'],['alle<n>','In allen Städten.']] }
+};
+
+const m5Cells = document.querySelectorAll('.m5-table td[data-id]');
+const m5Headers = document.querySelectorAll('.m5-table thead th[data-col]');
+const m5AllTds = document.querySelectorAll('.m5-table td');
+const infoDefault = document.getElementById('infoDefault');
+const infoActive = document.getElementById('infoActive');
+const kasusChips = document.querySelectorAll('.kasus-chip');
+
+function clearM5() {
+  m5Cells.forEach(c => c.classList.remove('active-cell','dimmed'));
+  m5Headers.forEach(h => h.classList.remove('active'));
+  kasusChips.forEach(l => l.classList.remove('active'));
+}
+
+function fmtEx(ex) {
+  const [form, sentence] = ex;
+  const m = form.match(/^(.+)<(.+)>$/);
+  if (!m) return `${form} – ${sentence}`;
+  return `${m[1]}<span class="sig-hl">${m[2]}</span> → ${sentence}`;
+}
+
+function showCell(id) {
+  const d = cellData[id]; if (!d) return;
+  clearM5();
+  document.querySelector(`td[data-id="${id}"]`).classList.add('active-cell');
+  m5AllTds.forEach(td => {
+    if (!td.classList.contains('empty') && td.dataset.signal && td.dataset.signal !== d.signal)
+      td.classList.add('dimmed');
+  });
+  const th = document.querySelector(`.m5-table th[data-col="${d.signal}"]`);
+  if (th) th.classList.add('active');
+  const kasusNames = d.kasus.split(' / ').map(k => k.trim().toLowerCase().slice(0,3));
+  kasusChips.forEach(l => { if (kasusNames.includes(l.dataset.kasus)) l.classList.add('active'); });
+  const exHtml = d.examples.map(ex => `<div>${fmtEx(ex)}</div>`).join('');
+  infoActive.innerHTML = `
+    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.6rem">
+      <div class="info-signal-big">${d.signal}</div>
+      <span class="kasus-tag ${d.kasusClass}">${d.kasus}</span>
+    </div>
+    <div style="font-size:0.88rem"><strong>${d.genus}</strong> · ${d.numerus}</div>
+    <div style="margin:0.4rem 0;color:var(--muted);font-size:0.82rem">${d.meaning}</div>
+    <div class="info-example-box">
+      <div class="ex-label">Beispiele</div>
+      ${exHtml}
+    </div>`;
+  infoDefault.style.display = 'none';
+  infoActive.classList.add('visible');
+}
+
+m5Cells.forEach(c => c.addEventListener('click', () => showCell(c.dataset.id)));
+
+const signalDesc = {
+  r: 'de<b>r</b>, diese<b>r</b>, welche<b>r</b>, große<b>r</b>, meine<b>r</b>, jede<b>r</b>…',
+  e: 'di<b>e</b>, dies<b>e</b>, welch<b>e</b>, groß<b>e</b>, mein<b>e</b>, jed<b>e</b>…',
+  s: 'da<b>s</b>, de<b>s</b>, diese<b>s</b>, welche<b>s</b>, große<b>s</b>, meine<b>s</b>…',
+  m: 'de<b>m</b>, diese<b>m</b>, welche<b>m</b>, große<b>m</b>, meine<b>m</b>, jede<b>m</b>…',
+  n: 'de<b>n</b>, diese<b>n</b>, welche<b>n</b>, große<b>n</b>, meine<b>n</b>, jede<b>n</b>…'
+};
+
+m5Headers.forEach(th => th.addEventListener('click', () => {
+  const sig = th.dataset.col;
+  clearM5();
+  th.classList.add('active');
+  m5AllTds.forEach(td => {
+    if (!td.classList.contains('empty') && td.dataset.signal && td.dataset.signal !== sig)
+      td.classList.add('dimmed');
+  });
+  const cols = [...m5Cells].filter(c => c.dataset.signal === sig);
+  const trinities = cols.map(c => {
+    const d = cellData[c.dataset.id];
+    return `<span class="kasus-tag ${d.kasusClass}">${d.kasus}</span> ${d.genus}, ${d.numerus}`;
+  }).join('<br>');
+  infoActive.innerHTML = `
+    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.6rem">
+      <div class="info-signal-big">${sig}</div>
+    </div>
+    <div style="margin:0.3rem 0;font-size:0.82rem;color:var(--muted)">${signalDesc[sig]}</div>
+    <div class="info-example-box">
+      <div class="ex-label">Trinity-Kombinationen</div>
+      ${trinities}
+    </div>`;
+  infoDefault.style.display = 'none';
+  infoActive.classList.add('visible');
+}));
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('td[data-id]') && !e.target.closest('.m5-table thead th[data-col]')) {
+    clearM5();
+    infoDefault.style.display = '';
+    infoActive.classList.remove('visible');
+    infoActive.innerHTML = '';
+  }
+});
+</script>
+</body>
+</html>

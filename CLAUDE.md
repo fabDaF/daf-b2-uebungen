@@ -84,10 +84,18 @@ anzulegen geht nicht über `gh` oder `curl`. Workaround: Chrome MCP auf
 github.com/new navigieren. Dokumentiert im Konsolidierungs-Bericht
 `backup/KONSOLIDIERUNG_20260410.md`.
 
-**Stale git locks.** `.git/index.lock`, `.git/HEAD.lock` oder
-`.git/refs/remotes/origin/main.lock` können nach abgebrochenen
-Operationen bleiben. Lösung: `find .git -name "*.lock" -delete` und
-neu versuchen.
+**Stale git locks — mount-resistenter Workaround (2026-04-13).**
+`.git/index.lock` und `.git/HEAD.lock` können vom Cowork-Sandbox **nicht
+gelöscht** werden (APFS-Mount-Einschränkung). `find .git -name "*.lock"
+-delete` funktioniert deshalb NICHT. Stattdessen:
+
+1. Blobs direkt schreiben: `git hash-object -w DATEI`
+2. Neuen Tree bauen: `git ls-tree HEAD | (Dateien ersetzen) | git mktree`
+3. Commit-Objekt erzeugen: `git commit-tree TREE -p PARENT -m "msg"`
+4. Ref direkt überschreiben (Write-Tool): `.git/refs/heads/main` = neuer SHA
+5. Pushen: `git push origin main`
+
+Das umgeht index.lock und HEAD.lock vollständig.
 
 ## Wenn du etwas Neues hinzufügst
 

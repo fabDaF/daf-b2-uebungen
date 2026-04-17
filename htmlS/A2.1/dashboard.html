@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fabDaF – Kursübersicht</title>
+  <style>
+    :root {
+      --a11-color: #D4A574;
+      --a11-dark:  #B8895E;
+      --a11-light: #F5E6D3;
+      --a12-color: #667eea;
+      --a12-dark:  #4a5fd4;
+      --a12-light: #e8ecff;
+      --a21-color: #27ae60;
+      --a21-dark:  #1e8449;
+      --a21-light: #d5f5e3;
+      --a22-color: #00897b;
+      --a22-dark:  #00695c;
+      --a22-light: #e0f2f1;
+      --grund-color: #9c27b0;
+      --grund-dark:  #7b1fa2;
+      --grund-light: #f3e5f5;
+      --lueck-color: #e67e22;
+      --lueck-dark:  #d35400;
+      --lueck-light: #fef5e7;
+      --arch-color: #5c6bc0;
+      --arch-dark:  #3949ab;
+      --arch-light: #e8eaf6;
+      --b11-color: #7b1fa2;
+      --b11-dark:  #6a1b9a;
+      --b11-light: #f3e5f5;
+      --b2-color:  #b71c1c;
+      --b2-dark:   #7f0000;
+      --b2-light:  #ffebee;
+      --wkv-color: #1565c0;
+      --wkv-dark:  #0d47a1;
+      --wkv-light: #e3f2fd;
+      --c1-color:  #1a237e;
+      --c1-dark:   #0d1757;
+      --c1-light:  #e8eaf6;
+      --devops-color: #00838f;
+      --devops-dark:  #006064;
+      --devops-light: #e0f7fa;
+      --text-dark: #1a1a2e;
+      --bg: #f4f6fb;
+      --radius: 12px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%);
+      color: #fff;
+      padding: 1.8rem 2rem;
+      text-align: center;
+    }
+    .header h1 { font-size: 1.8rem; margin-bottom: 0.2rem; letter-spacing: 1px; }
+    .header p  { opacity: 0.75; font-size: 0.9rem; }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 860px; margin: 1.8rem auto; padding: 0 1.2rem 3rem; }
+
+    /* ── NIVEAU-BLOCK ── */
+    .niveau { margin-bottom: 1rem; border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.10); }
+
+    .niveau-header {
+      display: flex; align-items: center; gap: 0.9rem;
+      padding: 1rem 1.3rem;
+      cursor: pointer;
+      user-select: none;
+      transition: filter 0.2s;
+    }
+    .niveau-header:hover { filter: brightness(1.06); }
+    .niveau-header .chv { margin-left: auto; font-size: 0.95rem; transition: transform 0.25s; }
+    .niveau.open > .niveau-header .chv { transform: rotate(180deg); }
+
+    .niveau-badge {
+      font-size: 1rem; font-weight: 800;
+      background: rgba(255,255,255,0.25);
+      padding: 3px 13px; border-radius: 20px;
+    }
+    .niveau-title { font-size: 1.05rem; font-weight: 700; }
+    .niveau-count { font-size: 0.8rem; opacity: 0.82; }
+
+    .niveau-a11 > .niveau-header { background: linear-gradient(135deg, var(--a11-color), var(--a11-dark)); color: #3a2010; }
+    .niveau-a12 > .niveau-header { background: linear-gradient(135deg, var(--a12-color), var(--a12-dark)); color: #fff; }
+    .niveau-a21 > .niveau-header { background: linear-gradient(135deg, var(--a21-color), var(--a21-dark)); color: #fff; }
+    .niveau-a22 > .niveau-header { background: linear-gradient(135deg, var(--a22-color), var(--a22-dark)); color: #fff; }
+    .niveau-grund > .niveau-header { background: linear-gradient(135deg, var(--grund-color), var(--grund-dark)); color: #fff; }
+    .niveau-lueck > .niveau-header { background: linear-gradient(135deg, var(--lueck-color), var(--lueck-dark)); color: #fff; }
+    .niveau-arch > .niveau-header { background: linear-gradient(135deg, var(--arch-color), var(--arch-dark)); color: #fff; }
+    .niveau-b11 > .niveau-header,
+    .niveau-b12 > .niveau-header,
+    .niveau-b13 > .niveau-header  { background: linear-gradient(135deg, var(--b11-color), var(--b11-dark));  color: #fff; }
+    .niveau-b21 > .niveau-header,
+    .niveau-b22 > .niveau-header,
+    .niveau-b23 > .niveau-header  { background: linear-gradient(135deg, var(--b2-color),  var(--b2-dark));   color: #fff; }
+    .niveau-wkv > .niveau-header  { background: linear-gradient(135deg, var(--wkv-color), var(--wkv-dark));  color: #fff; }
+    .niveau-c1     > .niveau-header  { background: linear-gradient(135deg, var(--c1-color),     var(--c1-dark));     color: #fff; }
+    .niveau-devops > .niveau-header  { background: linear-gradient(135deg, var(--devops-color), var(--devops-dark)); color: #fff; }
+
+    /* ── NIVEAU-BODY ── */
+    .niveau-body { display: none; background: #fff; padding: 0.7rem 0.8rem; }
+    .niveau.open > .niveau-body { display: block; }
+
+    /* ── EINHEIT ── */
+    .einheit { margin-bottom: 0.5rem; border: 1px solid #e4e8f5; border-radius: 9px; overflow: hidden; }
+
+    .einheit-header {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.65rem 0.9rem;
+      cursor: pointer;
+      background: #f7f8ff;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .niveau-a11 .einheit-header { background: #fdf8f3; }
+    .niveau-a21 .einheit-header { background: #f0faf4; }
+    .niveau-a22 .einheit-header { background: #e8f5f3; }
+    .niveau-grund .einheit-header { background: #faf3fc; }
+    .niveau-lueck .einheit-header { background: #fef9f2; }
+    .niveau-arch .einheit-header { background: #eef0fa; }
+    .niveau-b11  .einheit-header,
+    .niveau-b12  .einheit-header,
+    .niveau-b13  .einheit-header { background: #faf3fc; }
+    .niveau-b21  .einheit-header,
+    .niveau-b22  .einheit-header,
+    .niveau-b23  .einheit-header { background: #fff5f5; }
+    .niveau-c1   .einheit-header { background: #e8eaf6; }
+
+    .einheit-header:hover { filter: brightness(0.97); }
+    .einheit-header .chv { margin-left: auto; font-size: 0.85rem; transition: transform 0.2s; }
+    .einheit.open > .einheit-header .chv { transform: rotate(180deg); }
+
+    .einheit-nr {
+      font-weight: 700; font-size: 0.78rem;
+      padding: 2px 9px; border-radius: 11px;
+      background: rgba(0,0,0,0.07);
+      white-space: nowrap;
+    }
+    .einheit-titel { font-weight: 600; font-size: 0.92rem; flex: 1; }
+
+    .btn-einheit-senden {
+      padding: 3px 11px; border: none; border-radius: 12px;
+      font-size: 0.74rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+    .btn-einheit-senden:hover { opacity: 0.8; }
+    .niveau-a11 .btn-einheit-senden { background: var(--a11-color); color: #3a2010; }
+    .niveau-a12 .btn-einheit-senden { background: var(--a12-color); color: #fff; }
+    .niveau-a21 .btn-einheit-senden { background: var(--a21-color); color: #fff; }
+    .niveau-a22 .btn-einheit-senden { background: var(--a22-color); color: #fff; }
+    .niveau-grund .btn-einheit-senden { background: var(--grund-color); color: #fff; }
+    .niveau-b11  .btn-einheit-senden  { background: var(--b11-color);  color: #fff; }
+    .niveau-b21  .btn-einheit-senden,
+    .niveau-b22  .btn-einheit-senden,
+    .niveau-b23  .btn-einheit-senden  { background: var(--b2-color);   color: #fff; }
+    .niveau-c1     .btn-einheit-senden  { background: var(--c1-color);     color: #fff; }
+    .niveau-devops .btn-einheit-senden  { background: var(--devops-color); color: #fff; }
+
+    /* ── EINHEIT-BODY ── */
+    .einheit-body { display: none; }
+    .einheit.open > .einheit-body { display: block; }
+
+    /* ── KARTE ── */
+    .karte {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.55rem 1rem;
+      border-top: 1px solid #f0f2f8;
+      transition: background 0.12s;
+    }
+    .karte:hover { background: #f9faff; }
+    .niveau-a11 .karte:hover { background: #fdf6ee; }
+    .niveau-a21 .karte:hover { background: #eafaf1; }
+    .niveau-a22 .karte:hover { background: #e0f2f1; }
+    .niveau-grund .karte:hover { background: #faf3fc; }
+    .niveau-b11  .karte:hover  { background: #f3e5f5; }
+    .niveau-b21  .karte:hover,
+    .niveau-b22  .karte:hover,
+    .niveau-b23  .karte:hover  { background: #ffebee; }
+    .niveau-c1   .karte:hover  { background: #e8eaf6; }
+
+    .karte-typ {
+      font-size: 0.68rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 9px;
+      white-space: nowrap; flex-shrink: 0;
+      min-width: 80px; text-align: center;
+    }
+    .tv  { background: #e8f5e9; color: #2e7d32; }
+    .tg  { background: #e3f2fd; color: #1565c0; }
+    .tx  { background: #fff3e0; color: #e65100; }
+    .tc  { background: #fce4ec; color: #c62828; }
+    .tr  { background: #f3e5f5; color: #6a1b9a; }
+    .tw  { background: #e0f7fa; color: #00695c; }
+    .ts  { background: #fce4ec; color: #ad1457; }
+
+    .karte-titel { flex: 1; font-size: 0.88rem; }
+
+    .karte-aktionen { display: flex; gap: 0.4rem; margin-left: auto; flex-shrink: 0; }
+    /* ── TEST-BADGE ── */
+    .test-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin-left: 8px; flex-shrink: 0; }
+    .test-badge.bestanden { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .test-badge.fehler { background: #fce4ec; color: #c62828; border: 1px solid #ef9a9a; }
+    .test-badge .badge-detail { font-weight: 400; opacity: 0.8; }
+
+    .btn-oeffnen {
+      padding: 4px 13px; border-radius: 12px; border: none;
+      font-size: 0.76rem; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+      transition: opacity 0.2s; display: inline-block;
+    }
+    .btn-oeffnen:hover { opacity: 0.8; }
+    .niveau-a11 .btn-oeffnen { background: var(--a11-color); color: #3a2010; }
+    .niveau-a12 .btn-oeffnen { background: var(--a12-color); color: #fff; }
+    .niveau-a21 .btn-oeffnen { background: var(--a21-color); color: #fff; }
+    .niveau-a22 .btn-oeffnen { background: var(--a22-color); color: #fff; }
+    .niveau-grund .btn-oeffnen { background: var(--grund-color); color: #fff; }
+    .niveau-b11  .btn-oeffnen  { background: var(--b11-color);  color: #fff; }
+    .niveau-b21  .btn-oeffnen,
+    .niveau-b22  .btn-oeffnen,
+    .niveau-b23  .btn-oeffnen  { background: var(--b2-color);   color: #fff; }
+    .niveau-c1     .btn-oeffnen  { background: var(--c1-color);     color: #fff; }
+    .niveau-devops .btn-oeffnen  { background: var(--devops-color); color: #fff; }
+
+    .btn-mail {
+      padding: 4px 11px; border-radius: 12px;
+      border: 1.5px solid #bbb; background: #fff;
+      font-size: 0.76rem; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+      text-decoration: none; display: inline-block; color: #333;
+    }
+    .btn-mail:hover { background: #f0f0f0; }
+
+    .btn-wa {
+      padding: 4px 11px; border-radius: 12px;
+      border: 1.5px solid #25d366; background: #fff;
+      font-size: 0.76rem; font-weight: 700;
+      color: #128c4a; cursor: pointer;
+      text-decoration: none; display: inline-block;
+      transition: background 0.15s;
+    }
+    .btn-wa:hover { background: #e8fdf0; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.aktiv { display: flex; }
+    .modal {
+      background: #fff; border-radius: 14px;
+      padding: 1.8rem; max-width: 480px; width: 92%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .modal h3 { font-size: 1.05rem; margin-bottom: 0.25rem; }
+    .modal-betreff { font-size: 0.85rem; color: #666; font-style: italic; margin-bottom: 1.3rem; }
+
+    .modal-optionen { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; }
+
+    .btn-send-option {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.75rem 1rem; border-radius: 10px;
+      border: 2px solid #e0e4ef; background: #f7f8ff;
+      cursor: pointer; font-size: 0.9rem; font-weight: 600;
+      text-decoration: none; color: var(--text-dark);
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+    }
+    .btn-send-option:hover { border-color: #667eea; background: #eef0ff; }
+    .btn-send-option .ico { font-size: 1.3rem; }
+    .btn-send-option .lbl { flex: 1; text-align: left; }
+    .btn-send-option .sub { font-size: 0.75rem; font-weight: 400; color: #888; }
+
+    .btn-abbrechen {
+      width: 100%; padding: 0.6rem;
+      border: 1.5px solid #ddd; background: none;
+      border-radius: 8px; font-size: 0.88rem;
+      color: #666; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-abbrechen:hover { background: #f5f5f5; }
+
+    /* ── SUCHFELD ── */
+    .search-bar {
+      max-width: 860px; margin: 1.4rem auto 0; padding: 0 1.2rem;
+    }
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap::before {
+      content: '🔍';
+      position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+      font-size: 1rem; pointer-events: none;
+    }
+    #searchInput {
+      width: 100%; padding: 0.75rem 1rem 0.75rem 2.6rem;
+      border: 2px solid #dde3f5; border-radius: 30px;
+      font-size: 0.97rem; font-family: inherit;
+      background: #fff; color: var(--text-dark);
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    #searchInput:focus {
+      border-color: #667eea;
+      box-shadow: 0 2px 12px rgba(102,126,234,0.18);
+    }
+    #searchInput::placeholder { color: #aab; }
+    #noResults {
+      text-align: center; padding: 2.5rem 1rem;
+      color: #999; font-size: 0.95rem; display: none;
+    }
+    .search-highlight {
+      background: #fff176; border-radius: 3px; padding: 0 1px;
+    }
+
+    /* ── AUSWAHL-MODUS ── */
+    .karte-cb {
+      appearance: none; -webkit-appearance: none;
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 2px solid #c5cae9; background: #fff;
+      cursor: pointer; flex-shrink: 0; margin-right: 4px;
+      transition: all 0.15s; align-self: center;
+    }
+    .karte-cb:checked { background: #667eea; border-color: #667eea; }
+    .karte-cb:checked::after {
+      content: '✓'; color: white; font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; height: 100%;
+    }
+    .karte.ausgewaehlt { background: #eef0ff; border-left: 3px solid #667eea; }
+
+    /* ── AUSWAHL-AKTIONSLEISTE ── */
+    #auswahlLeiste {
+      position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
+      background: #2d3a8c; color: white; border-radius: 14px;
+      padding: 0.75rem 1.4rem; display: flex; align-items: center; gap: 1rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.28); z-index: 500;
+      transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      min-width: 360px; max-width: 90vw;
+      font-size: 0.9rem; font-weight: 600;
+    }
+    #auswahlLeiste.sichtbar { bottom: 24px; }
+    #auswahlAnzahl { font-weight: 700; font-size: 1rem; margin-right: 2px; }
+    .leiste-btn {
+      padding: 6px 14px; border-radius: 20px;
+      border: none; cursor: pointer; font-size: 0.82rem; font-weight: 700;
+      transition: opacity 0.15s;
+    }
+    .leiste-btn:hover { opacity: 0.85; }
+    .leiste-btn-mail { background: #f0f0f0; color: #222; }
+    .leiste-btn-wa { background: #25d366; color: white; }
+    .leiste-btn-clear { background: transparent; color: rgba(255,255,255,0.6); border: 1.5px solid rgba(255,255,255,0.3); font-size: 0.78rem; }
+
+    /* ── FOOTER ── */
+    .footer { text-align: center; padding: 1.5rem; font-size: 0.78rem; color: #aaa; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📚 fabDaF – Kursübersicht</h1>
+  <p>Alle Kursmaterialien · zugeklappt nach Niveau und Einheit</p>
+</div>
+
+<div class="search-bar">
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Grammatikthema, Lektion oder Dateinummer suchen …" autocomplete="off" spellcheck="false">
+  </div>
+</div>
+<div id="noResults">Keine Lektionen gefunden für „<span id="noResultsTerm"></span>"</div>
+
+<div class="container" id="main"></div>
+
+<div class="footer">© Frank Burkert · fabDaF · Deutsch als Fremdsprache</div>
+
+<!-- AUSWAHL-AKTIONSLEISTE -->
+<div id="auswahlLeiste">
+  <span>📋 <span id="auswahlAnzahl">0</span> Lektionen ausgewählt</span>
+  <button class="leiste-btn leiste-btn-mail" onclick="auswahlSendenMail()">✉ E-Mail</button>
+  <a class="leiste-btn leiste-btn-wa" id="auswahlWABtn" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
+  <button class="leiste-btn leiste-btn-clear" onclick="auswahlAufheben()">✕ Aufheben</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>Lektion versenden</h3>
+    <div class="modal-betreff" id="modalBetreff"></div>
+    <div class="modal-optionen">
+      <button class="btn-send-option" id="btnMail" onclick="sendeMail()">
+        <span class="ico">✉️</span>
+        <span class="lbl">Per E-Mail senden<br><span class="sub">Öffnet Outlook Web — Empfänger aus Adressbuch wählen</span></span>
+      </button>
+      <a class="btn-send-option" id="btnWA" href="#" target="_blank" rel="noopener">
+        <span class="ico">💬</span>
+        <span class="lbl">Per WhatsApp senden<br><span class="sub">Öffnet WhatsApp Web mit vorausgefülltem Text</span></span>
+      </a>
+    </div>
+    <button class="btn-abbrechen" onclick="schliesseModal()">Abbrechen</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  KURSDATEN
+// ═══════════════════════════════════════════════════════
+const KURSE = [
+  {
+    id: 'a11', label: 'A1.1',
+    titel: 'Deutsch A1.1 – Grundkurs',
+    basis: 'https://fabdaf.github.io/daf-a1-uebungen/',
+    einheiten: [
+      { nr: 'Grundlagen', titel: 'Grammatik-Grundlagen', karten: [
+        { typ:'G', label:'G – Grammatik',  titel:'Der, die oder das? – Genus',  file:'DE_A1_1000G-der-die-das-genus.html', tags:'genus artikel bestimmter artikel der die das' },
+        { typ:'G', label:'G – Grammatik',  titel:'Nebensätze – weil & dass',    file:'DE_A1_1133G-nebensaetze-weil-und-dass.html', tags:'nebensatz konjunktion weil dass subordination' },
+      ]},
+      { nr:'Einheit 1', titel:'Hallo!', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Hallo!',                                        file:'DE_A1_1011V-hallo.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Wie schreibt man das?',                     file:'DE_A1_1012X-wie-schreibt-man-das.html' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann im Deutschunterricht klarkommen',     file:'DE_A1_1014C-ich-kann-im-deutschunterricht-klarkommen.html' },
+        { typ:'R', label:'R – Lesetext',   titel:'Montag in Berlin',                             file:'DE_A1_1014R-montag-in-berlin.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'sein und haben',                               file:'DE_A1_1017G-sein-und-haben.html', tags:'hilfsverben konjugation präsens' },
+      ]},
+      { nr:'Einheit 2', titel:'Wie geht es dir?', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Wie geht es dir?',                             file:'DE_A1_1021V-wie-geht-es-dir.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Woher kommst du?',                         file:'DE_A1_1022X-woher-kommst-du.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Regelmäßige Verben im Präsens',                file:'DE_A1_1023G-regelmaessige-verben-im-praesens.html' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann mich vorstellen',                    file:'DE_A1_1024C-ich-kann-mich-vorstellen.html' },
+        { typ:'R', label:'R – Lesetext',   titel:'Die Party',                                   file:'DE_A1_1024R-die-party.html' },
+      ]},
+      { nr:'Einheit 3', titel:'Eins, zwei, drei …', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Eins, zwei, drei',                             file:'DE_A1_103V-eins-zwei-drei.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Mehr über mich',                           file:'DE_A1_1032X-mehr-ueber-mich.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Die Verben sein und haben',                   file:'DE_A1_1033G-die-verben-sein-und-haben.html' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann persönliche Daten angeben',          file:'DE_A1_1034C-ich-kann-persoenliche-daten-angeben.html' },
+        { typ:'R', label:'R – Lesetext',   titel:'Omas Geburtstag',                             file:'DE_A1_1034R-omas-geburtstag.html' },
+      ]},
+      { nr:'Einheit 4', titel:'Zahlen, bitte!', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Wichtige regelmäßige Verben',                  file:'DE_A1_1041V-wichtige-regelmaessige-verben.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Zahlen, bitte!',                           file:'DE_A1_1042X-zahlen-bitte.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Alles über Fragen',                           file:'DE_A1_1043G-alles-ueber-fragen.html' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann einen Kaffee bestellen',             file:'DE_A1_1044C-ich-kann-einen-kaffee-bestellen.html' },
+        { typ:'R', label:'R – Lesetext',   titel:'Neuanfang',                                   file:'DE_A1_1044R-neuanfang.html' },
+      ]},
+      { nr:'Einheit 5', titel:'Mein Beruf', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Mein Beruf',                                   file:'DE_A1_1051V-mein-beruf.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Über meine Arbeit sprechen',               file:'DE_A1_1052X-ueber-meine-arbeit-sprechen.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Verben mit Vokalwechsel',                     file:'DE_A1_1053G-verben-mit-vokalwechsel.html', tags:'vokalwechsel starke verben e→i a→ä fahren laufen' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann über meine Arbeit sprechen',         file:'DE_A1_1054C-ich-kann-ueber-meine-arbeit-sprechen.html' },
+        { typ:'R', label:'R – Lesetext',   titel:'Ein Wochenende in Berlin',                    file:'DE_A1_1054R-ein-wochenende-in-berlin.html' },
+      ]},
+      { nr:'Einheit 6', titel:'Die Zeit im 24-Stunden-Format', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Die Zeit im 24-Stunden-Format',               file:'DE_A1_1061V-die-zeit-im-24-stunden-format.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Über die Zeit sprechen',                   file:'DE_A1_1062X-ueber-die-zeit-sprechen.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Wann machst du …?',                           file:'DE_A1_1063G-wann-machst-du.html', tags:'zeitangaben temporale präpositionen uhrzeit' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann über die Zeit sprechen',             file:'DE_A1_1064C-ich-kann-ueber-die-zeit-sprechen.html' },
+        { typ:'R', label:'R – Lesetext',   titel:'Glückliche Hühner',                           file:'DE_A1_1064R-glueckliche-huehner.html' },
+      ]},
+      { nr:'Einheit 7', titel:'Ein Treffen ausmachen', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Die Wochentage',                              file:'DE_A1_1071V-die-wochentage.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Ein Treffen ausmachen',                   file:'DE_A1_1072X-ein-treffen-ausmachen.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Monate, Daten und Jahre',                    file:'DE_A1_1073G-monate-daten-und-jahre.html' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann ein Treffen vereinbaren',            file:'DE_A1_1074C-ich-kann-ein-treffen-vereinbaren.html' },
+      ]},
+      { nr:'Einheit 8', titel:'Mein Arbeitstag', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Trennbare Verben im Alltag',                  file:'DE_A1_1081V-trennbare-verben-im-alltag.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Mein Arbeitstag',                         file:'DE_A1_1082X-mein-arbeitstag.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Die Wortstellung im Deutschen',               file:'DE_A1_1083G-die-wortstellung-im-deutschen.html', tags:'wortstellung satzstellung verbzweit verb zweite position topikalisierung' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann über meinen Zeitplan sprechen',      file:'DE_A1_1084C-ich-kann-ueber-meinen-zeitplan-sprechen.html' },
+      ]},
+      { nr:'Einheit 9', titel:'Das mag ich!', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Hobbys und Freizeit',                         file:'DE_A1_1091V-hobbys-und-freizeit.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Das mag ich!',                             file:'DE_A1_1092X-das-mag-ich.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Die Verneinung im Deutschen',                 file:'DE_A1_1093G-die-verneinung-im-deutschen.html' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann sagen, was ich mag',                 file:'DE_A1_1094C-ich-kann-sagen-was-ich-mag.html' },
+      ]},
+      { nr:'Einheit 10', titel:'Essen und Trinken', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Essen und Trinken',                           file:'DE_A1_1101V-essen-und-trinken.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Wichtige Ausdrücke beim Einkaufen',       file:'DE_A1_1102X-wichtige-ausdruecke-beim-einkaufen.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Nominativ und Akkusativ',                     file:'DE_A1_1103G-nominativ-und-akkusativ.html', tags:'kasus nominativ akkusativ fälle' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann Lebensmittel einkaufen',             file:'DE_A1_1104C-ich-kann-lebensmittel-einkaufen.html' },
+      ]},
+      { nr:'Einheit 11', titel:'Verkehrsmittel', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Verkehrsmittel',                              file:'DE_A1_1111V-verkehrsmittel.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Am Bahnhof',                              file:'DE_A1_1112X-am-bahnhof.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Der Dativ nach Präpositionen',               file:'DE_A1_1113G-der-dativ-nach-praepositionen.html' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann Verkehrsmittel nutzen',              file:'DE_A1_1114C-ich-kann-verkehrsmittel-nutzen.html' },
+      ]},
+      { nr:'Einheit 12', titel:'Beim Bürgeramt', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Beim Bürgeramt',                              file:'DE_A1_1121V-beim-buergeramt.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Eine To-do-Liste',                        file:'DE_A1_1122X-eine-to-do-liste.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Die Modalverben',                             file:'DE_A1_1123G-die-modalverben.html', tags:'modalverben können müssen wollen dürfen sollen mögen' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Ich kann eine To-do-Liste schreiben',         file:'DE_A1_1124C-ich-kann-eine-to-do-liste-schreiben.html' },
+        { typ:'G', label:'G – Grammatik',  titel:'Partizip II als Adjektiv',                   file:'partizip2-als-adjektiv-uebungen.html', tags:'partizip adjektiv pp2 perfekt' },
+        { typ:'C', label:'C – Lerncheck',  titel:'Lernziele A1.1 erreicht',                    file:'DE_A1_1131C-lernziele-a1.1-erreicht.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'a12', label: 'A1.2',
+    titel: 'Deutsch A1.2 – Aufbaukurs',
+    basis: 'https://fabdaf.github.io/daf-a1-uebungen/',
+    einheiten: [
+      { nr:'Einheit 1', titel:'Wohnung & Möbel', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'Wohnung & Möbel',               file:'DE_A1_2011V-wohnung-und-moebel.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'Possessivartikel im Singular',  file:'DE_A1_2012G-possessivartikel-im-singular.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Möbel kaufen',                  file:'DE_A1_2013X-moebel-kaufen.html' },
+        { typ:'C', label:'C – Lerncheck',     titel:'Lerncheck: Wohnung & Möbel',   file:'DE_A1_2014C-lerncheck-wohnung-und-moebel.html' },
+      ]},
+      { nr:'Einheit 2', titel:'Meine Stadt', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'Meine Stadt',                      file:'DE_A1_2021V-meine-stadt.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'Wegbeschreibung & Imperativ',      file:'DE_A1_2022G-wegbeschreibung-und-imperativ.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Öffentliche Verkehrsmittel',       file:'DE_A1_2023X-oeffentliche-verkehrsmittel.html' },
+        { typ:'C', label:'C – Lerncheck',     titel:'Lerncheck: Stadt & Wegbeschreibung', file:'DE_A1_2024C-lerncheck-stadt-und-wegbeschreibung.html' },
+      ]},
+      { nr:'Einheit 3', titel:'Geschäfte & Besorgungen', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'Geschäfte & Besorgungen',          file:'DE_A1_2031V-geschaefte-und-besorgungen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'Lokale Präpositionen mit Dativ',   file:'DE_A1_2032G-lokale-praepositionen-mit-dativ.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Bei der Post',                     file:'DE_A1_2033X-bei-der-post.html' },
+        { typ:'C', label:'C – Lerncheck',     titel:'Lerncheck: In der Stadt erledigen',file:'DE_A1_2034C-lerncheck-in-der-stadt-erledigen.html' },
+      ]},
+      { nr:'Einheit 4', titel:'Kleidung & Farben', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'Kleidung und Farben',              file:'DE_A1_2041V-kleidung-und-farben.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'Welch- und dies-',                 file:'DE_A1_2042G-welch-und-dies.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Shoppen und bezahlen',             file:'DE_A1_2043X-shoppen-und-bezahlen.html' },
+        { typ:'C', label:'C – Lerncheck',     titel:'Lerncheck: Kleidung kaufen',       file:'DE_A1_2044C-lerncheck-kleidung-kaufen.html' },
+      ]},
+      { nr:'Einheit 5', titel:'Essen & Trinken', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'Essen und Trinken',                file:'DE_A1_2051V-essen-und-trinken.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'Präteritum von sein und haben',    file:'DE_A1_2052G-praeteritum-von-sein-und-haben.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Im Restaurant bestellen',          file:'DE_A1_2053X-im-restaurant-bestellen.html' },
+        { typ:'C', label:'C – Lerncheck',     titel:'Lerncheck: Im Restaurant',         file:'DE_A1_2054C-lerncheck-im-restaurant.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'Familie & Verwandtschaft',         file:'familie-verwandtschaft-uebungen.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'Körper & Gesundheit',              file:'koerper-gesundheit-uebungen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'Termine machen & absagen',         file:'termine-machen-uebungen.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'Wetter & Jahreszeiten',            file:'wetter-jahreszeiten-uebungen.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'a21', label: 'A2.1',
+    titel: 'Deutsch A2.1 – Mittelstufe',
+    basis: 'https://fabdaf.github.io/daf-a2-uebungen/',
+    einheiten: [
+      { nr:'Einheit 1', titel:'Meine Freunde', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'1011V · Meine Freunde – Vokabeln',         file:'DE_A2_1011V-meine-freunde.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1012X · Meine Freunde – Extra-Übungen',    file:'DE_A2_1012X-meine-freunde.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1013G · Das Plusquamperfekt',              file:'DE_A2_1013G-plusquamperfekt.html', tags:'vergangenheit perfekt plusquamperfekt hatte war' },
+        { typ:'R', label:'R – Lesetext',      titel:'1014R · Die Hochzeit',                     file:'DE_A2_1014R-die-hochzeit.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'1015V · Gefühle & Stimmungen',             file:'DE_A2_1015V-gefuehle.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1016X · Höflichkeit – duzen & siezen',     file:'DE_A2_1016X-hoeflichkeit.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1017G · Präpositionen mit Akk. und Dativ', file:'DE_A2_1017G-praepositionen.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'1018S · Diphthonge & Sprechen',            file:'DE_A2_1018S-diphthonge.html', tags:'aussprache phonetik diphthong /aɪ/ /aʊ/ /ɔʏ/ ei au eu vokale zwielaut' },
+      ]},
+      { nr:'Einheit 2', titel:'Bewerbungen', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'1021V · Die Arbeitswelt',                  file:'DE_A2_1021V-die-arbeitswelt.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1022X · Bewerbungen',                      file:'DE_A2_1022X-bewerbungen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1023G · Verben mit Dativ',                 file:'DE_A2_1023G-verben-mit-dativ.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'1024R · Die neue Sekretärin',              file:'DE_A2_1024R-die-neue-sekretaerin.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'1025V · Die Firma',                        file:'DE_A2_1025V-die-firma.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1026X · Am Telefon',                       file:'DE_A2_1026X-am-telefon.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1027G · Wechselpräpositionen',             file:'DE_A2_1027G-wechselpraepositionen.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'1028S · Über die Arbeit reden',            file:'DE_A2_1028S-ueber-die-arbeit-reden.html', tags:'aussprache phonetik nasale /m/ /n/ nasal m-laut n-laut sprechen' },
+      ]},
+      { nr:'Einheit 3', titel:'Wohnen', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'1031V · Einziehen und Ausziehen',          file:'DE_A2_1031V-einziehen-und-ausziehen.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1032X · Wo und Wohin?',                    file:'DE_A2_1032X-wo-und-wohin.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1033G · Komparativ',                       file:'DE_A2_1033G-komparativ.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'1034R · Die neue Wohnung',                 file:'DE_A2_1034R-die-neue-wohnung.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'1035V · Mein Zuhause',                     file:'DE_A2_1035V-mein-zuhause.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1036X · Temporale Präpositionen',          file:'DE_A2_1036X-temporale-praepositionen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1037G · Superlativ',                       file:'DE_A2_1037G-superlativ.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'1038S · Über die Wohnung reden',           file:'DE_A2_1038S-ueber-die-wohnung-reden.html', tags:'aussprache phonetik ng-laut /ŋ/ ng nasal ng-aussprache sing lang sprechen' },
+      ]},
+      { nr:'Einheit 4', titel:'Stadtleben', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'1041V · Stadtleben – Stadt-Vokabular',     file:'DE_A2_1041V-stadtleben.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1042X · Die Meinung sagen (dass)',         file:'DE_A2_1042X-die-meinung-sagen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1043G · Nebensätze mit dass und weil',     file:'DE_A2_1043G-nebensaetze-dass-weil.html', tags:'nebensatz subordination konjunktion wortstellung verb am ende' },
+        { typ:'R', label:'R – Lesetext',      titel:'1044R · Das erste Date',                   file:'DE_A2_1044R-das-erste-date.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'1045V · Kunst und Kultur',                 file:'DE_A2_1045V-kunst-und-kultur.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1046X · Temporale Adverbien',              file:'DE_A2_1046X-temporale-adverbien.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1047G · Reflexive Verben',                 file:'DE_A2_1047G-reflexive-verben.html', tags:'reflexiv sich mich dich uns euch reflexivpronomen' },
+        { typ:'S', label:'S – Sprechen',      titel:'1048S · Über kulturelle Interessen sprechen', file:'DE_A2_1048S-kulturelle-interessen.html', tags:'aussprache phonetik ch ach-laut /x/ ich-laut /ç/ sch /ʃ/ st sp sch-laut ch-aussprache sprechen' },
+      ]},
+      { nr:'Einheit 5', titel:'Sport & Freizeit', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'1051V · Sport treiben',                    file:'DE_A2_1051V-sport-treiben.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1052X · Wortbildung – Suffixe',            file:'DE_A2_1052X-wortbildung-suffixe.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1053G · Der-Wörter und ein-Wörter',        file:'DE_A2_1053G-der-ein-woerter.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'1054R · Eine neue Sportart',               file:'DE_A2_1054R-eine-neue-sportart.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'1055V · Fit bleiben',                      file:'DE_A2_1055V-fit-bleiben.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1056X · Das Verb lassen',                  file:'DE_A2_1056X-verb-lassen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1057G · Adjektivendungen',                 file:'DE_A2_1057G-adjektivendungen.html', tags:'adjektiv deklination endungen stark schwach gemischt' },
+        { typ:'S', label:'S – Sprechen',      titel:'1058S · Über Sport und Freizeit sprechen', file:'DE_A2_1058S-sport-freizeit-sprechen.html', tags:'aussprache phonetik f v w /f/ /v/ f-laut v-laut w-laut stimmhaft stimmlos sprechen' },
+      ]},
+      { nr:'Einheit 6', titel:'Zukunft & Pläne', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'1061V · Pläne machen',                     file:'DE_A2_1061V-plaene-machen.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1062X · Sätze mit wenn, dann',             file:'DE_A2_1062X-wenn-dann.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1063G · Futur I mit werden',               file:'DE_A2_1063G-futur-I.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'1064R · Pläne für die Zukunft',            file:'DE_A2_1064R-plaene-zukunft.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'1065V · Zukunftspläne',                    file:'DE_A2_1065V-zukunftsplaene.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1066X · Genus & Adjektivendungen',         file:'DE_A2_1066X-genus-adjektive.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'1067G · Modalverben (Wiederholung)',       file:'DE_A2_1067G-modalverben.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'1068S · Über die Zukunft sprechen',        file:'DE_A2_1068S-zukunft-sprechen.html', tags:'aussprache phonetik pf /pf/ pf-laut affrikat sprechen' },
+      ]},
+      { nr:'Einheit 7', titel:'Wiederholung', karten: [
+        { typ:'W', label:'W – Wiederholung',  titel:'1071W · Einen Brief schreiben',            file:'DE_A2_1071W-einen-brief-schreiben.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'1072S · Eine Unterhaltung (Abschluss)',    file:'DE_A2_1072S-eine-unterhaltung.html', tags:'aussprache sprechen konversation dialog' },
+      ]},
+    ]
+  },
+  {
+    id: 'a22', label: 'A2.2',
+    titel: 'Deutsch A2.2 – Mittelstufe II',
+    basis: 'https://fabdaf.github.io/daf-a2-uebungen/',
+    einheiten: [
+      { nr:'Einheit 1', titel:'Sinneswahrnehmungen & Essen', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'2011V · Sinneswahrnehmungen',              file:'DE_A2_2011V-sinneswahrnehmungen.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'2012X · Im Feinkostladen',                 file:'DE_A2_2012X-im-feinkostladen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2013G · Indirekte Rede',                   file:'DE_A2_2013G-indirekte-rede.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'2014R · Ein neuer Ernährungsplan',          file:'DE_A2_2014R-ein-neuer-ernaehrungsplan.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'2015V · Deutsches Essen',                  file:'DE_A2_2015V-deutsches-essen.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'2016X · Rezepte',                          file:'DE_A2_2016X-rezepte.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2017G · Das Passiv',                       file:'DE_A2_2017G-passiv.html', tags:'passiv werden partizip aktiv vorgangspassiv zustandspassiv' },
+        { typ:'S', label:'S – Sprechen',      titel:'2018S · Eine Unterhaltung über Essen',      file:'DE_A2_2018S-eine-unterhaltung-ueber-essen.html' },
+      ]},
+      { nr:'Einheit 2', titel:'Reisen & Sehenswürdigkeiten', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'2021V · Reisen und Sehenswürdigkeiten',     file:'DE_A2_2021V-reisen-und-sehenswuerdigkeiten.html' },
+        { typ:'X', label:'X – Extra',         titel:'2022X · Mein letzter Urlaub',               file:'DE_A2_2022X-mein-letzter-urlaub.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2023G · Position Konnektoren',               file:'DE_A2_2023G-position-konnektoren.html' },
+        { typ:'R', label:'R – Lesen',          titel:'2024R · Mein bester Urlaub',                  file:'DE_A2_2024R-mein-bester-urlaub.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'2025V · Gespräche im Hotel',                  file:'DE_A2_2025V-gespraeche-im-hotel.html' },
+        { typ:'X', label:'X – Extra',         titel:'2026X · Versteh mich nicht falsch',            file:'DE_A2_2026X-versteh-mich-nicht-falsch.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2027G · Lokal- und Direktionaladverbien',      file:'DE_A2_2027G-lokal-direktionaladverbien.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'2028S · Erzähl von deinen Reisen',             file:'DE_A2_2028S-erzaehl-von-deinen-reisen.html' },
+      ]},
+      { nr:'Einheit 3', titel:'Dienstleistungen & Kleidung', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'2031V · Dienstleistungen erwerben',            file:'DE_A2_2031V-dienstleistungen-erwerben.html' },
+        { typ:'X', label:'X – Extra',         titel:'2032X · Was soll ich anziehen?',               file:'DE_A2_2032X-was-soll-ich-anziehen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2033G · Das Präteritum',                       file:'DE_A2_2033G-praeteritum.html', tags:'vergangenheit erzählzeit simple past imperfekt war hatte' },
+        { typ:'R', label:'R – Lesetext',      titel:'2034R · Eine Woche voller Missgeschicke',      file:'DE_A2_2034R-eine-woche-voller-missgeschicke.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'2035V · Das Geld',                             file:'DE_A2_2035V-das-geld.html' },
+        { typ:'X', label:'X – Extra',         titel:'2036X · Beim Einwohnermeldeamt',               file:'DE_A2_2036X-beim-einwohnermeldeamt.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2037G · Modalpartikeln',                       file:'DE_A2_2037G-modalpartikeln.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'2038S · Unterhaltung über Kleidung und Dienstleistungen', file:'DE_A2_2038S-unterhaltung-kleidung-dienstleistungen.html' },
+      ]},
+      { nr:'Einheit 4', titel:'Ausbildung & Biografie', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'2041V · Die Ausbildung',                    file:'DE_A2_2041V-die-ausbildung.html' },
+        { typ:'X', label:'X – Extra',         titel:'2042X · Einen Lebenslauf schreiben',        file:'DE_A2_2042X-einen-lebenslauf-schreiben.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2043G · Konjunktiv II',                     file:'DE_A2_2043G-konjunktiv-II.html', tags:'konjunktiv würde wäre hätte irrealis höflichkeit' },
+        { typ:'R', label:'R – Lesetext',      titel:'2044R · Hermines Geschichte',               file:'DE_A2_2044R-hermines-geschichte.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'2045V · Meine Biografie',                   file:'DE_A2_2045V-meine-biografie.html' },
+        { typ:'X', label:'X – Extra',         titel:'2046X · Finalsätze',                        file:'DE_A2_2046X-finalsaetze.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2047G · Kasus-Wiederholung',                file:'DE_A2_2047G-kasus-wiederholung.html', tags:'kasus nominativ akkusativ dativ genitiv fälle' },
+        { typ:'S', label:'S – Sprechen',      titel:'2048S · Mein Werdegang',                    file:'DE_A2_2048S-mein-werdegang.html' },
+      ]},
+      { nr:'Einheit 5', titel:'Technologie & Medien', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'2051V · Technologie',                       file:'DE_A2_2051V-technologie.html' },
+        { typ:'X', label:'X – Extra',         titel:'2052X · Eine E-Mail schreiben',             file:'DE_A2_2052X-email-schreiben.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2053G · Indefinitpronomen',                 file:'DE_A2_2053G-indefinitpronomen.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'2054R · Soziale Netzwerke',                 file:'DE_A2_2054R-soziale-netzwerke.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'2055V · Medien',                            file:'DE_A2_2055V-medien.html' },
+        { typ:'X', label:'X – Extra',         titel:'2056X · Auf dem Laufenden bleiben',         file:'DE_A2_2056X-auf-dem-laufenden-bleiben.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'2057G · Der Genitiv',                       file:'DE_A2_2057G-genitiv.html', tags:'genitiv kasus s-genitiv von besitz zugehörigkeit' },
+        { typ:'S', label:'S – Sprechen',      titel:'2058S · Medien und Technologie',             file:'DE_A2_2058S-medien-und-technologie.html' },
+      ]},
+      { nr:'Einheit 6', titel:'Wanderlust & Natur', karten: [
+        { typ:'V', label:'V – Wortschatz',    titel:'2061V · Die Wanderlust',                    file:'DE_A2_2061V-die-wanderlust.html' },
+        { typ:'X', label:'X – Extra',          titel:'2062X · Häufige Präfixe von Verben',         file:'DE_A2_2062X-haeufige-praefixe-von-verben.html' },
+        { typ:'G', label:'G – Grammatik',      titel:'2063G · Verben mit fester Präposition',        file:'DE_A2_2063G-verben-mit-fester-praeposition.html' },
+        { typ:'R', label:'R – Lesetext',       titel:'2064R · In der Natur',                          file:'DE_A2_2064R-in-der-natur.html' },
+        { typ:'V', label:'V – Wortschatz',    titel:'2065V · Die Umwelt und die Tiere',               file:'DE_A2_2065V-umwelt-und-tiere.html' },
+        { typ:'X', label:'X – Extra',          titel:'2066X · Lokale und Wechselpräpositionen',         file:'DE_A2_2066X-lokale-und-wechselpraepositionen.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 18.03.2026' },
+        { typ:'G', label:'G – Grammatik',      titel:'2067G · Mehr über Adjektivendungen',               file:'DE_A2_2067G-adjektivendungen.html',      badge:'bestanden', badgeInfo:'5/5 Tabs · 18.03.2026' },
+        { typ:'S', label:'S – Sprechen',       titel:'2068S · Über die Natur sprechen',                  file:'DE_A2_2068S-ueber-die-natur-sprechen.html' },
+        { typ:'W', label:'W – Schreiben',      titel:'2071W · Ein persönlicher Brief',                   file:'DE_A2_2071W-ein-persoenlicher-brief.html' },
+        { typ:'S', label:'S – Sprechen',       titel:'2072S · Ich erzähle von mir',                      file:'DE_A2_2072S-ich-erzaehle-von-mir.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'b11', label: 'B1.1',
+    titel: 'Deutsch B1.1 – Beruf & Gesellschaft',
+    basis: 'https://fabdaf.github.io/daf-b1-uebungen/',
+    einheiten: [
+      { nr: 'Einheit 1', titel: 'Beruf & Bewerbung', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1011X · Das Vorstellungsgespräch',            file:'DE_B1_1011X-vorstellungsgespraech.html',            badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1012G · Konjunktiv II der Modalverben',       file:'DE_B1_1012G-konjunktiv-modalverben.html',           badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1013R · Neue Berufe',                          file:'DE_B1_1013R-neue-berufe.html',                      badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1014X · Einen Vertrag verhandeln',             file:'DE_B1_1014X-vertrag-verhandeln.html',               badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1015G · Temporaladverbien',                    file:'DE_B1_1015G-temporaladverbien.html',                badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1016R · Kulturelle Unterschiede am Arbeitsplatz', file:'DE_B1_1016R-kulturelle-unterschiede.html',      badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1017X · Besprechungen in der Firma',           file:'DE_B1_1017X-besprechungen.html',                   badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'1018S · Ein Gespräch mit dem Vorgesetzten',    file:'DE_B1_1018S-vorgesetztengespraech.html',            badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+      ]},
+      { nr: 'Einheit 2', titel: 'Umwelt & Natur', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1021X · Umweltprobleme und Umweltschutz',      file:'DE_B1_1021X-umweltprobleme.html',                  badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1022G · Zweiteilige Präpositionen',            file:'DE_B1_1022G-zweiteilige-praepositionen.html',       badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1023R · Luftverschmutzung',                    file:'DE_B1_1023R-luftverschmutzung.html',               badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1024X · Umweltschutz und Recycling',           file:'DE_B1_1024X-umweltschutz-recycling.html',          badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1025G · Mehr über Adjektive',                  file:'DE_B1_1025G-adjektive-als-nomen.html',             badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1026R · Vom Menschen ausgelöste Katastrophen', file:'DE_B1_1026R-vom-menschen-ausgeloeste-katastrophen.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1027X · Naturkatastrophen',                    file:'DE_B1_1027X-naturkatastrophen.html',               badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'1028S · Wie umweltbewusst bist du?',           file:'DE_B1_1028S-wie-umweltbewusst-bist-du.html',       badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+      ]},
+      { nr:'Einheit 3', titel:'Kultur & Identität', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1031X · Identität und Sprachkultur',           file:'DE_B1_1031X-identitaet-und-sprachkultur.html',     badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1032G · Mehr über Lokaladverbien',             file:'DE_B1_1032G-mehr-ueber-lokaladverbien.html',       badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1033R · Berlin – multikulturelle Stadt',       file:'DE_B1_1033R-berlin-multikulturell.html',           badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1034X · Multikulturalismus',                   file:'DE_B1_1034X-multikulturalismus.html',              badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1035G · Infinitivkonstruktionen',              file:'DE_B1_1035G-infinitivkonstruktionen.html',         badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1036R · Deutsche Traditionen',                 file:'DE_B1_1036R-deutsche-traditionen.html',            badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1037X · Globalisierung',                       file:'DE_B1_1037X-globalisierung.html',                  badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'1038S · Die kulturelle Vielfalt',              file:'DE_B1_1038S-kulturelle-vielfalt.html',             badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+      ]},
+      { nr:'Einheit 4', titel:'Digital & Medien', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1041X · Privatsphäre in einer vernetzten Welt', file:'DE_B1_1041X-privatsphaere.html',                 badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1042G · Mehr über Pronomen',                  file:'DE_B1_1042G-mehr-ueber-pronomen.html',             badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1043R · Partnersuche online',                  file:'DE_B1_1043R-partnersuche-online.html',            badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1044X · Online einkaufen',                     file:'DE_B1_1044X-online-einkaufen.html',               badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1045G · Mehr über die Negation',               file:'DE_B1_1045G-mehr-ueber-die-negation.html',        badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1046R · Mit Fake News umgehen',                file:'DE_B1_1046R-fake-news.html',                      badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1047X · Sprache im Journalismus',              file:'DE_B1_1047X-sprache-im-journalismus.html',        badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'1048S · Über Online-Sicherheit diskutieren',   file:'DE_B1_1048S-online-sicherheit.html',              badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+      ]},
+      { nr:'Einheit 5', titel:'Stadt & Land', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1051X · Landflucht',                           file:'DE_B1_1051X-landflucht.html',                     badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1052G · Mehr über den Genitiv',                file:'DE_B1_1052G-mehr-ueber-den-genitiv.html',         badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1053R · Kulturelle Angebote in der Großstadt', file:'DE_B1_1053R-kulturelle-angebote.html',            badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1054X · Eine Wohnung mieten',                  file:'DE_B1_1054X-eine-wohnung-mieten.html',            badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1055G · Infinitiv mit zu',                     file:'DE_B1_1055G-infinitiv-mit-zu.html',               badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1056R · Das Leben auf dem Land',               file:'DE_B1_1056R-das-leben-auf-dem-land.html',         badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1057X · Heimweh',                              file:'DE_B1_1057X-heimweh.html',                        badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'1058S · Der beste Ort zum Leben',              file:'DE_B1_1058S-der-beste-ort-zum-leben.html',        badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+      ]},
+      { nr:'Einheit 6', titel:'Geschichte', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1061X · Historische Ereignisse',               file:'DE_B1_1061X-historische-ereignisse.html',         badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1062G · Das Verb lassen',                     file:'DE_B1_1062G-das-verb-lassen.html',                badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1063R · Der Fall der Berliner Mauer',          file:'DE_B1_1063R-der-fall-der-berliner-mauer.html',    badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1064X · Historische Persönlichkeiten',         file:'DE_B1_1064X-historische-persoenlichkeiten.html',  badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'1065G · Mehr über das Verb werden',            file:'DE_B1_1065G-mehr-ueber-das-verb-werden.html',     badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'1066R · Immanuel Kant',                        file:'DE_B1_1066R-immanuel-kant.html',                  badge:'bestanden', badgeInfo:'6/6 Tabs · 20.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'1067X · Chronologisch erzählen',               file:'DE_B1_1067X-chronologisch-erzaehlen.html',        badge:'bestanden', badgeInfo:'5/5 Tabs · 20.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'1068S · Über historische Fakten sprechen',     file:'DE_B1_1068S-ueber-historische-fakten-sprechen.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+      ]},
+      { nr:'Einheit 7', titel:'Schreiben', karten: [
+        { typ:'W', label:'W – Schreiben', titel:'1071W · Schreibe ein Motivationsschreiben',        file:'DE_B1_1071W-schreibe-ein-motivationsschreiben.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'W', label:'W – Schreiben', titel:'1072W · Verfasse einen Beschwerdebrief',           file:'DE_B1_1072W-verfasse-einen-beschwerdebrief.html',   badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+      ]},
+    ]
+  },
+  {
+    id: 'b12', label: 'B1.2',
+    titel: 'Deutsch B1.2 – Gesellschaft & Kultur',
+    basis: 'https://fabdaf.github.io/daf-b1-uebungen/',
+    einheiten: [
+      { nr:'Einheit 1', titel:'Werbung & Marketing', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2011X · Werbekampagne',                        file:'DE_B1_2011X-werbekampagne.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2012G · Mischverben',                          file:'DE_B1_2012G-mischverben.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2013R · Werbegeschichte',                      file:'DE_B1_2013R-werbegeschichte.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2014X · Werbung beschreiben',                  file:'DE_B1_2014X-werbung-beschreiben.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2015G · Nullartikel',                          file:'DE_B1_2015G-nullartikel.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2016R · Marketingstrategien',                  file:'DE_B1_2016R-marketingstrategien.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2017X · Die Zukunft der Werbung',              file:'DE_B1_2017X-die-zukunft-der-werbung.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'2018S · Über Werbekampagnen sprechen',         file:'DE_B1_2018S-ueber-werbekampagnen-sprechen.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+      ]},
+      { nr:'Einheit 2', titel:'Subkultur & Mainstream', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2021X · Urbane Szenen',                        file:'DE_B1_2021X-urbane-szenen.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2022G · Zusätzliches über das Futur I',        file:'DE_B1_2022G-futur-i.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2023R · Die Mainstream-Kultur',                file:'DE_B1_2023R-mainstream-kultur.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2024X · An einer Diskussion teilnehmen',       file:'DE_B1_2024X-an-einer-diskussion-teilnehmen.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2025G · Konjunktiv II der Modalverben',        file:'DE_B1_2025G-konjunktiv-ii-modalverben.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2026R · Reisen als Subkultur',                 file:'DE_B1_2026R-reisen-als-subkultur.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2027X · Tattoos und Piercings',                file:'DE_B1_2027X-tattoos-und-piercings.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'2028S · Über Subkulturen sprechen',            file:'DE_B1_2028S-ueber-subkulturen-sprechen.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+      ]},
+      { nr:'Einheit 3', titel:'Familie & Gefühle', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2031X · Familienstrukturen',                   file:'DE_B1_2031X-familienstrukturen.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2032G · Partizip II als Adjektiv',             file:'DE_B1_2032G-partizip-ii-als-adjektiv.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2033R · Adoption',                             file:'DE_B1_2033R-adoption.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2034X · Gefühle ausdrücken',                   file:'DE_B1_2034X-gefuehle-ausdruecken.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2035G · Zusätzliches über Infinitivsätze',     file:'DE_B1_2035G-infinitivsaetze.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2036R · Bikulturelle Familien',                file:'DE_B1_2036R-bikulturelle-familien.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2037X · Was ist Liebe?',                       file:'DE_B1_2037X-was-ist-liebe.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'2038S · Über Familien und Gefühle sprechen',   file:'DE_B1_2038S-ueber-familien-und-gefuehle-sprechen.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+      ]},
+      { nr:'Einheit 4', titel:'Medien & Entertainment', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2041X · Film- und Theaterkritik',              file:'DE_B1_2041X-film-und-theaterkritik.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2042G · Indirekte Fragesätze',                 file:'DE_B1_2042G-indirekte-fragesaetze.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2043R · Mehr Folgen, bitte!',                  file:'DE_B1_2043R-mehr-folgen-bitte.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2044X · Gefühle über Dinge und Ereignisse',    file:'DE_B1_2044X-gefuehle-ueber-dinge-und-ereignisse.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2045G · Passiversatzformen',                   file:'DE_B1_2045G-passiversatzformen.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2046R · Video-on-Demand',                      file:'DE_B1_2046R-video-on-demand.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2047X · Einen Grund äußern',                   file:'DE_B1_2047X-einen-grund-aeussern.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'2048S · Shows und Programme',                  file:'DE_B1_2048S-shows-und-programme.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+      ]},
+      { nr:'Einheit 5', titel:'Leben im Ausland', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2051X · Ins Ausland übersiedeln',              file:'DE_B1_2051X-ins-ausland-uebersiedeln.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2052G · Mehr zum Perfekt',                     file:'DE_B1_2052G-mehr-zum-perfekt.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2053R · Ein Auslandspraktikum machen',         file:'DE_B1_2053R-ein-auslandspraktikum-machen.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2054X · Internationale Erfahrungen',           file:'DE_B1_2054X-internationale-erfahrungen.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2055G · Plusquamperfekt mit Modalverben',      file:'DE_B1_2055G-plusquamperfekt-mit-modalverben.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2056R · Sprachassistenz in Deutschland',       file:'DE_B1_2056R-sprachassistenz-in-deutschland.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2057X · Möglichkeiten ausdrücken',             file:'DE_B1_2057X-moeglichkeiten-ausdruecken.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'2058S · Über das Leben im Ausland diskutieren', file:'DE_B1_2058S-ueber-das-leben-im-ausland-diskutieren.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+      ]},
+      { nr:'Einheit 6', titel:'DIY & Nachhaltigkeit', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2061X · Mach es selbst!',                      file:'DE_B1_2061X-mach-es-selbst.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2062G · Relativsatz',                          file:'DE_B1_2062G-relativsatz.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2063R · Ein Haus renovieren',                  file:'DE_B1_2063R-ein-haus-renovieren.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2064X · Lokaler Handel',                       file:'DE_B1_2064X-lokaler-handel.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'G', label:'G – Grammatik',     titel:'2065G · Komplementsatz',                       file:'DE_B1_2065G-komplementsatz.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+        { typ:'R', label:'R – Lesetext',      titel:'2066R · Aus Müll basteln',                     file:'DE_B1_2066R-aus-muell-basteln.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'X', label:'X – Kommunikation', titel:'2067X · Gegensatz und Ausnahme ausdrücken',    file:'DE_B1_2067X-gegensatz-und-ausnahme.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'S', label:'S – Sprechen',      titel:'2068S · Mit neuen Fähigkeiten das Leben ändern', file:'DE_B1_2068S-mit-neuen-faehigkeiten-das-leben-aendern.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 21.03.2026' },
+      ]},
+      { nr:'Einheit 7', titel:'Schreiben', karten: [
+        { typ:'W', label:'W – Schreiben', titel:'2071W · Ein Skript für einen Dialog schreiben',    file:'DE_B1_2071W-ein-skript-fuer-einen-dialog-schreiben.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+        { typ:'W', label:'W – Schreiben', titel:'2072W · Eine Werbeanzeige schreiben',              file:'DE_B1_2072W-eine-werbeanzeige-schreiben.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 21.03.2026' },
+      ]},
+    ]
+  },
+  {
+    id: 'b13', label: 'B1.3',
+    titel: 'Deutsch B1.3 – Sport, Bildung & Gesellschaft',
+    basis: 'https://fabdaf.github.io/daf-b1-uebungen/',
+    einheiten: [
+      { nr:'Einheit 1', titel:'Spiele & Sport', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3011X · Die Kultur der Brettspiele',              file:'DE_B1_3011X-die-kultur-der-brettspiele.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3012G · Mehr über Infinitivsätze',                file:'DE_B1_3012G-mehr-ueber-infinitivsaetze.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3013R · Die Olympischen Spiele',                  file:'DE_B1_3013R-die-olympischen-spiele.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3014X · Konsequenzen ausdrücken',                 file:'DE_B1_3014X-konsequenzen-ausdruecken.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3015G · Partizip I',                              file:'DE_B1_3015G-partizip-i.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3016R · Mit Spielzeug aufwachsen',                file:'DE_B1_3016R-mit-spielzeug-aufwachsen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3017X · Spielstände und Klassifizierungen',       file:'DE_B1_3017X-spielstaende-und-klassifizierungen.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'3018S · Über verschiedene Spielarten sprechen',   file:'DE_B1_3018S-ueber-verschiedene-spielarten-sprechen.html' },
+      ]},
+      { nr:'Einheit 2', titel:'Prominente & Berühmtheiten', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3021X · Ich habe etwas dazu zu sagen',            file:'DE_B1_3021X-ich-habe-etwas-dazu-zu-sagen.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3022G · Verben mit situativer Ergänzung',         file:'DE_B1_3022G-verben-mit-situativer-ergaenzung.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3023R · Lebensweise der Berühmtheiten',           file:'DE_B1_3023R-lebensweise-der-beruehmtheiten.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3024X · Gesprächig werden',                       file:'DE_B1_3024X-gespraechig-werden.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3025G · Verben mit Direktivergänzung',            file:'DE_B1_3025G-verben-mit-direktivergaenzung.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3026R · Bekannte Autoren',                        file:'DE_B1_3026R-bekannte-autoren.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3027X · Ratschläge geben',                        file:'DE_B1_3027X-ratschlaege-geben.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'3028S · Verhalten berühmter Personen besprechen', file:'DE_B1_3028S-verhalten-beruehmter-personen-besprechen.html' },
+      ]},
+      { nr:'Einheit 3', titel:'Bildung & Schule', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3031X · Das Studentenleben',                      file:'DE_B1_3031X-das-studentenleben.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3032G · Akkusativ-Ergänzungen',                   file:'DE_B1_3032G-akkusativ-ergaenzungen.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3033R · Das deutsche Schulsystem',                file:'DE_B1_3033R-das-deutsche-schulsystem.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3034X · Das Benotungssystem',                     file:'DE_B1_3034X-das-benotungssystem.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3035G · Subjektive Bedeutung der Modalverben',    file:'DE_B1_3035G-subjektive-bedeutung-der-modalverben.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3036R · Mehrsprachig aufwachsen',                 file:'DE_B1_3036R-mehrsprachig-aufwachsen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3037X · Sich um einen Studienplatz bewerben',     file:'DE_B1_3037X-sich-um-einen-studienplatz-bewerben.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'3038S · Über Bildung diskutieren',                file:'DE_B1_3038S-ueber-bildung-diskutieren.html' },
+      ]},
+      { nr:'Einheit 4', titel:'Konsum & Medien', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3041X · Bewusstes Konsumverhalten',               file:'DE_B1_3041X-bewusstes-konsumverhalten.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3042G · Bedeutungen des Verbs melden',            file:'DE_B1_3042G-bedeutungen-des-verbs-melden.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3043R · Der Einfluss der Medien auf das Konsumverhalten', file:'DE_B1_3043R-der-einfluss-der-medien-auf-das-konsumverhalten.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3044X · Eine komplexe Situation erklären',        file:'DE_B1_3044X-eine-komplexe-situation-erklaeren.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3045G · Nominativ-, Akkusativ- und Dativergänzung', file:'DE_B1_3045G-nominativ-akkusativ-und-dativergaenzung.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3046R · Die Rückverfolgbarkeit der Produkte',     file:'DE_B1_3046R-die-rueckverfolgbarkeit-der-produkte.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3047X · Eine Präsentation vorbereiten',           file:'DE_B1_3047X-eine-praesentation-vorbereiten.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'3048S · Über Konsumverhalten sprechen',           file:'DE_B1_3048S-ueber-konsumverhalten-sprechen.html' },
+      ]},
+      { nr:'Einheit 5', titel:'Science-Fiction & Fiktion', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3051X · Utopische und dystopische Fiktion',       file:'DE_B1_3051X-utopische-und-dystopische-fiktion.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3052G · Feste Wortverbindungen',                  file:'DE_B1_3052G-feste-wortverbindungen.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3053R · Apokalyptische und postapokalyptische Fiktion', file:'DE_B1_3053R-apokalyptische-und-postapokalyptische-fiktion.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3054X · Strukturen der Narration',                file:'DE_B1_3054X-strukturen-der-narration.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3055G · Reziprokpronomen',                        file:'DE_B1_3055G-reziprokpronomen.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3056R · Futuristische Science-Fiction',           file:'DE_B1_3056R-futuristische-science-fiction.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3057X · Vager und gezielter Sprachgebrauch',      file:'DE_B1_3057X-vager-und-gezielter-sprachgebrauch.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'3058S · Über Science-Fiction sprechen',           file:'DE_B1_3058S-ueber-science-fiction-sprechen.html' },
+      ]},
+      { nr:'Einheit 6', titel:'Schönheit & Aussehen', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3061X · Äußeres Erscheinungsbild',               file:'DE_B1_3061X-aeusseres-erscheinungsbild.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3062G · Komparativ und Superlativ',               file:'DE_B1_3062G-komparativ-und-superlativ.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3063R · Schönheitsideale im Wandel der Zeit',     file:'DE_B1_3063R-schoenheitsideale-im-wandel-der-zeit.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3064X · Mode und Kleidungsstil',                  file:'DE_B1_3064X-mode-und-kleidungsstil.html' },
+        { typ:'G', label:'G – Grammatik',     titel:'3065G · Adjektivdeklination',                     file:'DE_B1_3065G-adjektivdeklination.html' },
+        { typ:'R', label:'R – Lesetext',      titel:'3066R · Körperbild und Selbstakzeptanz',          file:'DE_B1_3066R-koerperbild-und-selbstakzeptanz.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3067X · Kosmetik und Körperpflege',               file:'DE_B1_3067X-kosmetik-und-koerperpflege.html' },
+        { typ:'S', label:'S – Sprechen',      titel:'3068S · Über Schönheit sprechen',                 file:'DE_B1_3068S-ueber-schoenheit-sprechen.html' },
+      ]},
+      { nr:'Einheit 7', titel:'Schreiben', karten: [
+        { typ:'W', label:'W – Schreiben', titel:'3071W · Eine Biografie schreiben',                    file:'DE_B1_3071W-eine-biografie-schreiben.html' },
+        { typ:'W', label:'W – Schreiben', titel:'3072W · Einen Artikel schreiben',                     file:'DE_B1_3072W-einen-artikel-schreiben.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'grund', label: 'Grundlagen',
+    titel: 'Niveauübergreifende Grundlagen',
+    basis: 'https://fabdaf.github.io/daf-materialien/',
+    einheiten: [
+      { nr: 'Grammatik', titel: 'Grammatik-Vertiefung', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'Adjektivdeklination – Magic Five',                file:'Grundlagen/Grammatik/adjektivdeklination-magic-five.html', tags:'adjektiv deklination endungen magic five stark schwach gemischt' },
+        { typ:'G', label:'G – Grammatik', titel:'Adjektivdeklination – Nom. & Akk. (Familie)',     file:'Grundlagen/Grammatik/adjdekl-nom-akk-familie.html' },
+        { typ:'G', label:'G – Grammatik', titel:'Adjektivdeklination',                             file:'Grundlagen/Grammatik/adjektivdeklination.html' },
+        { typ:'G', label:'G – Grammatik', titel:'Verben mit Präpositionen',                        file:'Grundlagen/Grammatik/verben_praep_v1.html' },
+        { typ:'G', label:'G – Grammatik', titel:'Vokalwechsel komplett',                           file:'Grundlagen/Grammatik/vokalwechsel_komplett.html', tags:'vokalwechsel aussprache starke verben' },
+        { typ:'G', label:'G – Grammatik', titel:'Präpositionen: auf',                              file:'Grundlagen/Grammatik/auf.html' },
+        { typ:'G', label:'G – Grammatik', titel:'Perfekt – Interaktive Übung',                     file:'Grundlagen/Grammatik/Perfekt Übung Interaktiv-2.html', tags:'perfekt vergangenheit haben sein partizip' },
+        { typ:'G', label:'G – Grammatik', titel:'Modalsätze: Instrumental & Komparativ (B2)',      file:'Grundlagen/Grammatik/modalsaetze-instrumental-komparativ.html' },
+        { typ:'G', label:'G – Grammatik', titel:'Modalsätze: Restriktiv & Substitutiv (B2)',       file:'Grundlagen/Grammatik/modalsaetze-restriktiv-substitutiv.html' },
+        { typ:'G', label:'G – Grammatik', titel:'Partizip II – Die 100 häufigsten Verben',          file:'Grundlagen/Grammatik/partizip2-bildung-100verben.html', tags:'partizip perfekt pp2 unregelmäßige verben liste' },
+        { typ:'G', label:'G – Grammatik', titel:'Kausale & konsekutive Konnektoren (B1)',          file:'Grundlagen/Grammatik/konnektoren-kausal-konsekutiv.html', badge:'bestanden', badgeInfo:'5/5 Tabs · 17.03.2026' },
+      ]},
+      { nr: 'Kollokationen', titel: 'Kollokationen (B1+)', karten: [
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 1 – Bewusstmachung',                       file:'Grundlagen/Kollokationen/kollokationen-teil1-bewusstmachung.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 2 – Meinung & Gespräch',                   file:'Grundlagen/Kollokationen/kollokationen-teil2-meinung-gespraech.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 3 – Gesundheit',                           file:'Grundlagen/Kollokationen/kollokationen-teil3-gesundheit.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 4 – Wirtschaft & Arbeit',                  file:'Grundlagen/Kollokationen/kollokationen-teil4-wirtschaft-arbeit.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 5 – Beziehungen & Gefühle',                file:'Grundlagen/Kollokationen/kollokationen-teil5-beziehungen-gefuehle.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 6 – Recht & Ordnung',                      file:'Grundlagen/Kollokationen/kollokationen-teil6-recht-ordnung.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 7 – Bildung & Wissenschaft',               file:'Grundlagen/Kollokationen/kollokationen-teil7-bildung-wissenschaft.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 8 – Politik & Gesellschaft',                file:'Grundlagen/Kollokationen/kollokationen-teil8-politik-gesellschaft.html' },
+        { typ:'V', label:'V – Wortschatz', titel:'Teil 9 – Medien & Kommunikation',               file:'Grundlagen/Kollokationen/kollokationen-teil9-medien-kommunikation.html' },
+      ]},
+      { nr: 'Lesetexte', titel: 'Texte und Lesen (B1+)', karten: [
+        { typ:'R', label:'R – Lesetext', titel:'Kannitverstan (Hebel)',                              file:'Texte und Lesen/kannitverstan-uebungen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Der Mensch (Tucholsky)',                             file:'Texte und Lesen/der-mensch-tucholsky-uebungen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Vor dem Gesetz (Kafka)',                             file:'Texte und Lesen/vor-dem-gesetz-uebungen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Der vergessliche Stadtschreiber',                    file:'Texte und Lesen/der-vergessliche-stadtschreiber-uebungen-modern.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Brief an eine Maschine',                            file:'Texte und Lesen/brief-an-eine-maschine.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Das Trolley-Problem',                               file:'Texte und Lesen/trolley_vollversion.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Verbraucherzentrale',                               file:'Texte und Lesen/verbraucherzentrale_komplett.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Bikman (Teil 3)',                                    file:'Texte und Lesen/Bikman 3.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Die Eskalationsfalle (B2)',                           file:'Texte und Lesen/DE_B2_Eskalationsfalle-Iran.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Chinas Aufstieg (B2)',                                file:'Texte und Lesen/DE_B2_Chinas-Aufstieg.html' },
+      ]},
+      { nr: 'Sachbuch', titel: 'Warum wir krank werden (B2)', karten: [
+        { typ:'R', label:'R – Lesetext', titel:'Geleitwort',                                        file:'Warum wir krank werden/geleitwort_voll.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Einleitung',                                        file:'Warum wir krank werden/einleitung_vollversion.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Kapitel 1, Teil 2',                                  file:'Warum wir krank werden/kap1_teil2_voll.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Kapitel 1, Teil 3',                                  file:'Warum wir krank werden/kap1_teil3_voll.html' },
+        { typ:'R', label:'R – Lesetext', titel:'Kapitel 2 – Herzgesundheit',                        file:'Warum wir krank werden/kap2_herzgesundheit_voll.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'lueck', label: 'Lückentexte',
+    titel: 'Lückentexte Mattmüller',
+    basis: 'https://fabdaf.github.io/daf-lueckentexte/',
+    einheiten: [
+      { nr: 'Teil A', titel: 'Lückentexte A01–A20', karten: [
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte A01–A02', file:'lueckentexte-teil-a-01-02.html' },
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte A01–A05', file:'lueckentexte-teil-a-01-05.html' },
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte A06–A10', file:'lueckentexte-teil-a-06-10.html' },
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte A11–A15', file:'lueckentexte-teil-a-11-15.html' },
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte A16–A20', file:'lueckentexte-teil-a-16-20.html' },
+      ]},
+      { nr: 'Teil B', titel: 'Lückentexte B01–B20', karten: [
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte B01–B05', file:'lueckentexte-teil-b-01-05.html' },
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte B06–B10', file:'lueckentexte-teil-b-06-10.html' },
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte B11–B15', file:'lueckentexte-teil-b-11-15.html' },
+        { typ:'W', label:'W – Lückentext', titel:'Lückentexte B16–B20', file:'lueckentexte-teil-b-16-20.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'arch', label: 'Architektur',
+    titel: 'Deutsch für Architekten und Bauingenieure (B1+)',
+    basis: 'https://fabdaf.github.io/daf-architektur/',
+    einheiten: [
+      { nr: 'Kapitel 4', titel: 'Bauprojektarten', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 4 · Bauprojektarten – Hochbau, Tiefbau, Bestandsbau', file:'Bauprojektarten-Interaktiv.html' },
+      ]},
+      { nr: 'Kapitel 8', titel: 'Bauelemente', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 8 · Bauelemente – Tragwerk, Hülle, Fenster/Türen', file:'Kap08-Bauelemente.html' },
+      ]},
+      { nr: 'Kapitel 9', titel: 'Baustoffe', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 9 · Baustoffe – Beton, Holz, Stahl + Vorgangspassiv', file:'Kap09-Baustoffe.html' },
+      ]},
+      { nr: 'Kapitel 10', titel: 'Haustechnik', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 10 · Haustechnik – TGA, GEG, Nachhaltigkeit', file:'Kap10-Haustechnik.html' },
+      ]},
+      { nr: 'Kapitel 12', titel: 'Vorplanung (LP 2)', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 12 · Vorplanung – E-Mails, Zeichnungstypen, Präpositionen', file:'Kap12-Vorplanung.html' },
+      ]},
+      { nr: 'Kapitel 13', titel: 'Entwurfsplanung (LP 3)', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 13 · Entwurfsplanung – Entwurfsbeschreibung, Telefonate', file:'Kap13-Entwurfsplanung.html', badge:'bestanden', badgeInfo:'6/6 Tabs · 26.03.2026' },
+      ]},
+      { nr: 'Kapitel 14', titel: 'Genehmigungsplanung (LP 4)', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 14 · Genehmigungsplanung – Bauantrag, NVV, Aktenvermerke', file:'Kap14-Genehmigung.html' },
+      ]},
+      { nr: 'Kapitel 15', titel: 'Ausführungsplanung (LP 5)', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Kap. 15 · Ausführungsplanung – Detailzeichnungen, Abkürzungen', file:'Kap15-Ausfuehrung.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'b21', label: 'B2.1',
+    titel: 'Deutsch B2.1 – Auslandsjahr · Literatur · Umwelt · Gefühle · Internet · Philosophie',
+    basis: 'https://fabdaf.github.io/daf-b2-uebungen/',
+    einheiten: [
+      { nr: 'Einheit 1', titel: 'Auslandsjahr & Austausch', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1011X · Ein Jahr im Ausland: sich bewerben, über Pläne sprechen', file:'DE_B2_1011X-ein-jahr-im-ausland.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1012G · Das Passiv: Vorgangs- und Zustandspassiv', file:'DE_B2_1012G-passiv.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1013R · Das Erasmus-Programm: Geschichte und Bewerbung', file:'DE_B2_1013R-erasmus.html' },
+        { typ:'X', label:'X – Extra-Übungen', titel:'1014X · Jobs für Austauschstudenten', file:'DE_B2_1014X-jobs-fuer-austauschstudenten.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1015G · Konjunktiv I – Indirekte Rede', file:'DE_B2_1015G-konjunktiv-1.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1016R · Work & Travel – Das Working-Holiday-Visum', file:'DE_B2_1016R-work-and-travel.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1017X · Beim Bürgeramt – Behördendeutsch', file:'DE_B2_1017X-beim-buergeramt.html' },
+        { typ:'S', label:'S – Sprechen', titel:'1018S · Mein Auslandsjahr! – Sprechen & Wortschatz', file:'DE_B2_1018S-mein-auslandsjahr.html' },
+      ]},
+      { nr: 'Einheit 2', titel: 'Literatur & Sprache', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1021X · Kurze literarische Textsorten & Stilmittel', file:'DE_B2_1021X-kurze-literarische-textsorten.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1022G · Nomen und Adjektive mit Präpositionen', file:'DE_B2_1022G-nomen-adjektive-praepositionen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1023R · Rotkäppchen und der Wolf', file:'DE_B2_1023R-rotkaeppchen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1024X · Ein Referat halten', file:'DE_B2_1024X-ein-referat-halten.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1025G · Wiederholung Konjunktiv I und II', file:'DE_B2_1025G-wiederholung-konjunktiv.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1026R · Es gibt keinen Neuschnee', file:'DE_B2_1026R-es-gibt-keinen-neuschnee.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1027X · Eine Kurzgeschichte schreiben', file:'DE_B2_1027X-eine-kurzgeschichte-schreiben.html' },
+        { typ:'S', label:'S – Sprechen', titel:'1028S · Alles über Bücher!', file:'DE_B2_1028S-alles-ueber-buecher.html' },
+      ]},
+      { nr: 'Einheit 3', titel: 'Privilegierte Spezies', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1031X · Privilegierte Spezies', file:'DE_B2_1031X-privilegierte-spezies.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1032G · Futur II', file:'DE_B2_1032G-futur-II.html' },
+        { typ:'R', label:'R – Lesen', titel:'1033R · Der Dodo – eine ausgestorbene Spezies', file:'DE_B2_1033R-der-dodo.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1034X · Sind Zoos moralisch richtig?', file:'DE_B2_1034X-sind-zoos-moralisch-richtig.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1035G · Partizip I und Partizip II', file:'DE_B2_1035G-partizip-I-und-II.html' },
+        { typ:'R', label:'R – Lesen', titel:'1036R · Evolutionstheorie', file:'DE_B2_1036R-evolutionstheorie.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1037X · Wie reagiere ich auf Umweltprobleme?', file:'DE_B2_1037X-wie-reagiere-ich-auf-umweltprobleme.html' },
+        { typ:'S', label:'S – Sprechen', titel:'1038S · Umweltprobleme', file:'DE_B2_1038S-umweltprobleme.html' },
+      ]},
+      { nr: 'Einheit 4', titel: 'Gefühle & KI', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1041X · Ausdruck von Gefühlen', file:'DE_B2_1041X-ausdruck-von-gefuehlen.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1042G · Wortbildungen: Präfixe, Suffixe, Nominalisierung', file:'DE_B2_1042G-wortbildungen.html' },
+        { typ:'R', label:'R – Lesen', titel:'1043R · Menschliche Mängel', file:'DE_B2_1043R-menschliche-maengel.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1044X · Empathie und Verständnis', file:'DE_B2_1044X-empathie-und-verstaendnis.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1045G · Vergleichssätze', file:'DE_B2_1045G-vergleichssaetze.html' },
+        { typ:'R', label:'R – Lesen', titel:'1046R · Künstliche Intelligenz', file:'DE_B2_1046R-kuenstliche-intelligenz.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1047X · Satzglieder erkennen', file:'DE_B2_1047X-satzglieder-erkennen.html' },
+        { typ:'S', label:'S – Sprechen', titel:'1048S · Ich fühle mich…', file:'DE_B2_1048S-ich-fuehle-mich.html' },
+      ]},
+      { nr: 'Einheit 5', titel: 'Die Zukunft des Internets', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1051X · Die Zukunft des Internets', file:'DE_B2_1051X-zukunft-des-internets.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1052G · Graduierung der Adjektive', file:'DE_B2_1052G-graduierung-adjektive.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1053R · Die Möglichkeiten des Internets', file:'DE_B2_1053R-moeglichkeiten-des-internets.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1054X · Der Blogeintrag', file:'DE_B2_1054X-der-blogeintrag.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1055G · Es und das', file:'DE_B2_1055G-es-und-das.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1056R · Wohin bringt uns das Internet?', file:'DE_B2_1056R-wohin-bringt-uns-das-internet.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1057X · Isoliert in einem sozialen Netzwerk', file:'DE_B2_1057X-isoliert-in-einem-sozialen-netzwerk.html' },
+        { typ:'S', label:'S – Sprechen', titel:'1058S · Das Internet und ich', file:'DE_B2_1058S-internet.html' },
+      ]},
+      { nr: 'Einheit 6', titel: 'Philosophie & Karma', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'1061X · Die Person ist anderer Meinung', file:'DE_B2_1061X-die-person-ist-anderer-meinung.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1062G · Weitere Wortbildungen: Komposition, Fugenelemente, Derivation', file:'DE_B2_1062G-weitere-wortbildungen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1063R · Karma', file:'DE_B2_1063R-karma.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1064X · Jemanden überzeugen', file:'DE_B2_1064X-ueberzeugen.html' },
+        { typ:'G', label:'G – Grammatik', titel:'1065G · Adverbiale Bestimmungen', file:'DE_B2_1065G-adverbiale-bestimmungen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'1066R · Zen und Feng Shui', file:'DE_B2_1066R-zen-feng-shui.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'1067X · Aberglauben', file:'DE_B2_1067X-aberglauben.html' },
+        { typ:'S', label:'S – Sprechen', titel:'1068S · Verschiedene Ansichten', file:'DE_B2_1068S-verschiedene-ansichten.html' },
+      ]},
+      { nr: 'Einheit 7', titel: 'Schreiben', karten: [
+        { typ:'W', label:'W – Schreibwerkstatt', titel:'Brian Johnson über 5-MeO-DMT · Gelenktes Schreiben, Zusammenfassung, Stellungnahme', file:'DE_B2_DMT-Johnson-Schreibwerkstatt.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'b22', label: 'B2.2',
+    titel: 'Deutsch B2.2 – Interkulturalismus · Urbanismus · Musik · Gaming · Wissenschaft · Wirtschaft',
+    basis: 'https://fabdaf.github.io/daf-b2-uebungen/',
+    einheiten: [
+      { nr: 'Einheit 1', titel: 'Interkulturalismus & Büroalltag', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2011X · Verhandeln', file:'DE_B2_2011X-verhandeln.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2012G · Temporalsatz', file:'DE_B2_2012G-temporalsatz.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2013R · Kulturschock im Büro', file:'DE_B2_2013R-kulturschock.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2014X · Teamarbeit', file:'DE_B2_2014X-teamarbeit.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2015G · Funktionsverbgefüge', file:'DE_B2_2015G-funktionsverbgefuege.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2016R · Bürosprache: Anglizismen', file:'DE_B2_2016R-burosprache.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2017X · Eine Konferenz vorbereiten', file:'DE_B2_2017X-konferenz.html' },
+        { typ:'S', label:'S – Sprechen', titel:'2018S · Interkulturalismus im Büro', file:'DE_B2_2018S-interkulturalismus.html' },
+      ]},
+      { nr: 'Einheit 2', titel: 'Urbanismus & Stadt', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2021X · Eine ideale Stadt', file:'DE_B2_2021X-ideale-stadt.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2022G · Kausal-, Konditional- und Finalsätze', file:'DE_B2_2022G-kausal-konditional.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2023R · Smart Cities', file:'DE_B2_2023R-smart-cities.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2024X · Mobilität in der Stadt', file:'DE_B2_2024X-mobilitaet.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2025G · Zustandspassiv und Vorgangspassiv', file:'DE_B2_2025G-zustandspassiv.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2026R · Gentrifizierung', file:'DE_B2_2026R-gentrifizierung.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2027X · Eine Grafik beschreiben', file:'DE_B2_2027X-grafik-beschreiben.html' },
+        { typ:'S', label:'S – Sprechen', titel:'2028S · Alles über Urbanismus', file:'DE_B2_2028S-urbanismus.html' },
+      ]},
+      { nr: 'Einheit 3', titel: 'Musik & Subkulturen', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2031X · Eine Kritik zum Musikalbum schreiben', file:'DE_B2_2031X-musikrezension.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2032G · Restriktiv- und Substitutivsatz', file:'DE_B2_2032G-restriktiv-substitutivsatz.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2033R · DE_B2_2033R-subkulturen-musik', file:'DE_B2_2033R-subkulturen-musik.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2034X · DE_B2_2034X-musikevent-planen', file:'DE_B2_2034X-musikevent-planen.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2035G · Restriktivsatz — Vertiefung und Übungen', file:'DE_B2_2035G-restriktivsatz-vertiefung.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2036R · Musik- und Subkulturen (Lesen)', file:'DE_B2_2036R-subkulturen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2037X · Ein Lied verstehen und analysieren', file:'DE_B2_2037X-lied-verstehen.html' },
+        { typ:'S', label:'S – Sprechen', titel:'2038S · Alles über Musikkulturen', file:'DE_B2_2038S-musikkulturen.html' },
+      ]},
+      { nr: 'Einheit 4', titel: 'Gaming & digitale Spielkultur', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2041X · Cozy Gaming', file:'DE_B2_2041X-videospiele-kunst-unterhaltung.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2042G · Relativpronomen im Genitiv', file:'DE_B2_2042G-relativpronomen-genitiv.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2043R · Die Rückkehr des stillen Spielens', file:'DE_B2_2043R-rueckkehr-des-stillen-spielens.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2044X · Lootbox-Ethik', file:'DE_B2_2044X-argumentieren.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2045G · Präpositionaladverbien', file:'DE_B2_2045G-praepositionaladverbien.html' },
+        { typ:'W', label:'W – Wortschatz', titel:'2046W · Die Sprache des Spielens', file:'DE_B2_2046W-sprache-des-spielens.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2047X · Streaming als Arbeit', file:'DE_B2_2047X-komplexe-infinitivsaetze.html' },
+        { typ:'S', label:'S – Sprechen', titel:'2048S · Über Gaming sprechen', file:'DE_B2_2048S-alles-ueber-videospiele.html' },
+      ]},
+      { nr: 'Einheit 5', titel: 'Wissenschaft & Forschung', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2051X · Die Wissenschaft', file:'DE_B2_2051X-die-wissenschaft.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2052G · Wechselpräpositionen', file:'DE_B2_2052G-wechselpraepositionen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2053R · Neue medizinische Entdeckungen', file:'DE_B2_2053R-medizinische-entdeckungen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2054X · Eine Debatte führen', file:'DE_B2_2054X-debatte-fuehren.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2055G · Wiederholung Konjunktiv II', file:'DE_B2_2055G-wiederholung-konjunktiv.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2056R · Das Higgs-Teilchen', file:'DE_B2_2056R-higgs-teilchen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2057X · Eine Grafik beschreiben', file:'DE_B2_2057X-grafik-beschreiben.html' },
+        { typ:'S', label:'S – Sprechen', titel:'2058S · Über Wissenschaft sprechen', file:'DE_B2_2058S-neue-wissenschaft.html' },
+      ]},
+      { nr: 'Einheit 6', titel: 'Wirtschaft & Konsum', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'2061X · Was ist Wirtschaft?', file:'DE_B2_2061X-was-ist-wirtschaft.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2062G · Gradpartikeln', file:'DE_B2_2062G-gradpartikeln.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2063R · Tauschwirtschaft', file:'DE_B2_2063R-tauschwirtschaft.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2064X · Lösungen vorschlagen', file:'DE_B2_2064X-loesungen-vorschlagen.html' },
+        { typ:'G', label:'G – Grammatik', titel:'2065G · Modalpartikeln', file:'DE_B2_2065G-modalpartikeln.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2066R · Sharing Economy', file:'DE_B2_2066R-wirtschaft-des-teilens.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'2067X · Einen Text zusammenfassen', file:'DE_B2_2067X-text-zusammenfassen.html' },
+        { typ:'S', label:'S – Sprechen', titel:'2068S · Alles über alternative Wirtschaft', file:'DE_B2_2068S-alternative-wirtschaft.html' },
+      ]},
+      { nr: 'Einheit 7', titel: 'Schreiben', karten: [
+        { typ:'W', label:'W – Schreiben', titel:'2071W · Ein professionelles Bewerbungsschreiben', file:'DE_B2_2071W-bewerbungsschreiben.html' },
+        { typ:'W', label:'W – Schreiben', titel:'2072W · Einen Beschwerdebrief schreiben', file:'DE_B2_2072W-beschwerdebrief.html' },
+        { typ:'R', label:'R – Lesetext', titel:'2073R · Diktat: Eine Bewerbung', file:'DE_B2_2073R-diktat-eine-bewerbung.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'b23', label: 'B2.3',
+    titel: 'Deutsch B2.3 – Mythen · Digitalisierung · Weltall · Sprachen · Politik · Arbeit',
+    basis: 'https://fabdaf.github.io/daf-b2-uebungen/',
+    einheiten: [
+      { nr: 'Einheit 1', titel: 'Mythen & Wissen', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3011X · Mythos und Wissen', file:'DE_B2_3011X-mythos-und-wissen.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3012G · Funktionsverbgefüge', file:'DE_B2_3012G-funktionsverbgefuege.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3013R · Die Geschichte der Mythologie', file:'DE_B2_3013R-die-geschichte-der-mythologie.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3014X · Fakten überprüfen', file:'DE_B2_3014X-fakten-ueberpruefen.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3015G · Präpositionen mit Genitiv', file:'DE_B2_3015G-praepositionen-genitiv.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3016R · Der Raub des Hammers von Thor', file:'DE_B2_3016R-raub-des-hammers-von-thor.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3017X · Gedanken und Überzeugungen', file:'DE_B2_3017X-gedanken-und-ueberzeugungen.html' },
+        { typ:'S', label:'S – Sprechen', titel:'3018S · Lass uns über Mythen sprechen', file:'DE_B2_3018S-ueber-mythen-sprechen.html' },
+      ]},
+      { nr: 'Einheit 2', titel: 'Digitalisierung & Medien', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3021X · Auf dem Laufenden bleiben', file:'DE_B2_3021X-auf-dem-laufenden-bleiben.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3022G · Irreale Sätze', file:'DE_B2_3022G-irreale-saetze.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3023R · Vom Aussterben der Zeitung', file:'DE_B2_3023R-vom-aussterben-der-zeitung.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3024X · Klare und deutliche Sprache', file:'DE_B2_3024X-klare-und-deutliche-sprache.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3025G · Konzessiv- und Konsekutivsatz', file:'DE_B2_3025G-konzessiv-konsekutivsatz.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3026R · Neue Kompetenzen durch Digitalisierung', file:'DE_B2_3026R-neue-kompetenzen-digitalisierung.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3027X · Steuererklärung', file:'DE_B2_3027X-steuererklaerung.html' },
+        { typ:'S', label:'S – Sprechen', titel:'3028S · Digitalisierung', file:'DE_B2_3028S-digitalisierung.html' },
+      ]},
+      { nr: 'Einheit 3', titel: 'Weltall & Astronomie', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3031X · Erforschung des Universums', file:'DE_B2_3031X-erforschung-des-universums.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3032G · Wichtige Kommaregeln', file:'DE_B2_3032G-wichtige-kommaregeln.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3033R · Gibt es Leben im Weltall?', file:'DE_B2_3033R-gibt-es-leben-im-weltall.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3034X · Erklärungshypothesen im Weltall', file:'DE_B2_3034X-erklaerungshypothesen-weltall.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3035G · ️ Adversativsätze', file:'DE_B2_3035G-adversativsaetze.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3036R · ⏳ Durch Wurmlöcher reisen', file:'DE_B2_3036R-durch-wurmloecher-reisen.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3037X · ️ Formelle und informelle Sprache', file:'DE_B2_3037X-formelle-und-informelle-sprache.html' },
+        { typ:'S', label:'S – Sprechen', titel:'3038S · Vom Universum sprechen', file:'DE_B2_3038S-vom-universum-sprechen.html' },
+      ]},
+      { nr: 'Einheit 4', titel: 'Sprachen & Linguistik', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3041X · Durch die Sprachen der Welt', file:'DE_B2_3041X-durch-die-sprachen-der-welt.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3042G · Konjunktiv — Erweiterter Gebrauch', file:'DE_B2_3042G-konjunktiv-erweiterter-gebrauch.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3043R · Die Sapir-Whorf-Hypothese', file:'DE_B2_3043R-sapir-whorf-hypothese.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3044X · Redewendungen und Idiome', file:'DE_B2_3044X-redewendungen-und-idiome.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3045G · Nebensätze mit Subjunktionen', file:'DE_B2_3045G-nebensaetze-subjunktionen.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3046R · Sprachfamilien', file:'DE_B2_3046R-sprachfamilien.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3047X · Passiversatz mit „sich lassen"', file:'DE_B2_3047X-passiversatz-sich-lassen.html' },
+        { typ:'S', label:'S – Sprechen', titel:'3048S · ️ Von Sprachen sprechen', file:'DE_B2_3048S-von-sprachen-sprechen.html' },
+      ]},
+      { nr: 'Einheit 5', titel: 'Politik & Gesellschaft', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3051X · Wortschatz Politik', file:'DE_B2_3051X-wortschatz-politik.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3052G · Modalverben fortgeschritten', file:'DE_B2_3052G-modalverben-fortgeschritten.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3053R · Die Europäische Union', file:'DE_B2_3053R-die-europaeische-union.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3054X · Missverständnisse klären', file:'DE_B2_3054X-missverstaendnisse-klaeren.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3055G · Konjunktiv mit Modalpartikeln', file:'DE_B2_3055G-konjunktiv-modalpartikeln.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3056R · NRO und Cyberaktivismus', file:'DE_B2_3056R-nro-und-cyberaktivismus.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3057X · Stellung nehmen', file:'DE_B2_3057X-stellung-nehmen.html' },
+        { typ:'S', label:'S – Sprechen', titel:'3058S · Politik und Gesellschaft', file:'DE_B2_3058S-politik-und-gesellschaft.html' },
+      ]},
+      { nr: 'Einheit 6', titel: 'Arbeit & Beruf', karten: [
+        { typ:'X', label:'X – Kommunikation', titel:'3061X · Mein Berufsweg', file:'DE_B2_3061X-mein-berufsweg.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3062G · Die Verlaufsform', file:'DE_B2_3062G-die-verlaufsform.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3063R · Selbstständigkeit und Unternehmertum', file:'DE_B2_3063R-selbststaendigkeit-und-unternehmertum.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3064X · Das Mitarbeitergespräch', file:'DE_B2_3064X-mitarbeitergespraech.html' },
+        { typ:'G', label:'G – Grammatik', titel:'3065G · Sonderpräfixe', file:'DE_B2_3065G-sonderpraefix.html' },
+        { typ:'R', label:'R – Lesetext', titel:'3066R · Arbeit und Burnout', file:'DE_B2_3066R-arbeit-und-burnout.html' },
+        { typ:'X', label:'X – Kommunikation', titel:'3067X · Verhandeln auf Berufsebene', file:'DE_B2_3067X-verhandeln-auf-berufsebene.html' },
+        { typ:'S', label:'S – Sprechen', titel:'3068S · Vom Berufsalltag sprechen', file:'DE_B2_3068S-vom-berufsalltag-sprechen.html' },
+      ]},
+      { nr: 'Einheit 7', titel: 'Schreiben', karten: [
+        { typ:'W', label:'W – Schreiben', titel:'3071W · Einen Bericht schreiben', file:'DE_B2_3071W-einen-bericht-schreiben.html' },
+        { typ:'W', label:'W – Schreiben', titel:'3072W · Eine Stellungnahme schreiben', file:'DE_B2_3072W-eine-stellungnahme-schreiben.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'wkv', label: 'WKV – Schülermaterial',
+    titel: 'Zurich WKV – Caroline Deters (B2/C1)',
+    basis: 'https://fabdaf.github.io/daf-wkv-uebungen/',
+    einheiten: [
+      { nr: 'WKV-1', titel: 'Vertragssprache · AVB Zurich Kreditversicherung (B2/C1)', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Vertragssprache · AVB Zurich WKV Zmart', file:'WKV-Vertragssprache.html' },
+      ]},
+      { nr: 'WKV-2', titel: 'Geschäfts-Email · Internes Angebot WKV (B2)', karten: [
+        { typ:'X', label:'X – Interaktiv', titel:'Geschäfts-Email · WKV-Angebot ABC Bank', file:'WKV-Geschaeftsemail.html' },
+      ]},
+      { nr: 'WKV-3', titel: 'Komposita & Funktionsverbgefüge · Nominalisierung (B2/C1)', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'Komposita & FVG als Nominalisierungsfaktor', file:'WKV-Komposita-FVG.html' },
+      ]},
+    ]
+  },
+  {
+    id: 'c1', label: 'C1 Grammatik',
+    titel: 'Deutsch C1 – Grammatik für Fortgeschrittene',
+    basis: 'https://fabdaf.github.io/daf-c1-uebungen/',
+    einheiten: [
+      { nr: '101x', titel: 'Schriftsprache & Stil — Nominalstil', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'1011G · Nominalstil & Funktionsverbgefüge', file:'DE_C1_1011G-nominalstil.html', tags:'nominalstil funktionsverbgefüge fvg nominalisierung schriftsprache c1', badge:'bestanden', badgeInfo:'5/5 Tabs · 28.03.2026' },
+      ]},
+      { nr: '102x', titel: 'Modalität & Nuance — Subjektive Modalverben', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'1021G · Subjektive Modalverben', file:'DE_C1_1021G-subjektive-modalverben.html', tags:'modalverben subjektiv bedeutung müssen sollen können dürfen wollen mögen c1', badge:'bestanden', badgeInfo:'5/5 Tabs · 28.03.2026' },
+      ]},
+      { nr: '103x', titel: 'Satzarchitektur — Sonderstellung im Satz', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'1031G · Sonderstellung im Satz', file:'DE_C1_1031G-sonderstellung-satz.html', tags:'ausklammerung vorfeldbesetzung linksherausstellung rechtsherausstellung parenthese satzarchitektur c1', badge:'bestanden', badgeInfo:'5/5 Tabs · 28.03.2026' },
+      ]},
+      { nr: '104x', titel: 'Wortbildung & Bedeutung — Variable Verbpräfixe', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'1041G · Variable Verbpräfixe', file:'DE_C1_1041G-variable-verbpraefixe.html', tags:'verbpräfixe trennbar untrennbar um über durch unter wortbildung c1', badge:'bestanden', badgeInfo:'5/5 Tabs · 28.03.2026' },
+      ]},
+      { nr: '105x', titel: 'Formale Sprache — Verben mit Genitiv', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'1051G · Verben mit Genitiv', file:'DE_C1_1051G-verben-genitiv.html', tags:'genitiv verben sich bedienen gedenken ermangeln formale sprache c1', badge:'bestanden', badgeInfo:'5/5 Tabs · 28.03.2026' },
+      ]},
+      { nr: '106x', titel: 'Gesprochene Sprache — Modalpartikeln', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'1061G · Modalpartikeln', file:'DE_C1_1061G-modalpartikeln.html', tags:'modalpartikeln doch ja denn mal eben halt schon wohl bloß eigentlich ruhig c1', badge:'bestanden', badgeInfo:'5/5 Tabs · 28.03.2026' },
+      ]},
+      { nr: '107x', titel: 'Schriftliche Korrektheit — Kommasetzung', karten: [
+        { typ:'G', label:'G – Grammatik', titel:'1071G · Kommasetzung & Rechtschreibung', file:'DE_C1_1071G-kommasetzung.html', tags:'komma kommasetzung nebensatz infinitivgruppe partizipialgruppe dass das seit seid wider wieder c1', badge:'bestanden', badgeInfo:'5/5 Tabs · 28.03.2026' },
+      ]},
+    ]
+  },
+  {
+    id: 'devops', label: 'DevOps',
+    titel: 'OpenCulture – DevOps-Teamkultur (B1 · B2 · C1)',
+    basis: null,
+    einheiten: [
+      { nr: 'B1', titel: 'DevOps-Kultur — B1-Niveau', karten: [
+        { typ:'X', label:'X – Textarbeit', titel:'3069X · DevOps-Kultur', file:'https://fabdaf.github.io/daf-b1-uebungen/DE_B1_3069X-devops-kultur.html', tags:'devops teamkultur haltungen zusammenarbeit lieferung technologie b1' },
+      ]},
+      { nr: 'B2', titel: 'DevOps-Kultur — B2-Niveau', karten: [
+        { typ:'X', label:'X – Textarbeit', titel:'B2 · DevOps-Kultur', file:'https://fabdaf.github.io/daf-b2-uebungen/DE_B2_3069X-devops-kultur.html', tags:'devops teamkultur haltungen zusammenarbeit lieferung technologie b2' },
+      ]},
+      { nr: 'C1', titel: 'DevOps-Kultur — C1-Niveau', karten: [
+        { typ:'X', label:'X – Textarbeit', titel:'C1 · DevOps-Kultur', file:'https://fabdaf.github.io/daf-c1-uebungen/DE_C1_3069X-devops-kultur.html', tags:'devops teamkultur haltungen zusammenarbeit lieferung technologie c1' },
+      ]},
+    ]
+  }
+];
+
+const TYP_CSS = { V:'tv', G:'tg', X:'tx', C:'tc', R:'tr', W:'tw', S:'ts' };
+
+// Basis-URL für Kurse ohne eigene Hosting-URL: aktuelle Seite als Basis nehmen
+const LOCAL_BASE = window.location.href.replace(/\/[^/]*$/, '/');
+
+function resolveUrl(basis, file) {
+  if (file.startsWith('http')) return file;
+  if (basis) return basis + encodeURI(file);
+  return LOCAL_BASE + encodeURI(file);
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODAL-STATE
+// ═══════════════════════════════════════════════════════
+let _titel = '';
+let _urls  = [];
+
+// ═══════════════════════════════════════════════════════
+//  RENDERN
+// ═══════════════════════════════════════════════════════
+function render() {
+  const main = document.getElementById('main');
+  KURSE.forEach(kurs => {
+    const anzE = kurs.einheiten.length;
+    const anzK = kurs.einheiten.reduce((s,e) => s + e.karten.length, 0);
+
+    const nDiv = document.createElement('div');
+    nDiv.className = `niveau niveau-${kurs.id}`;
+    nDiv.innerHTML = `
+      <div class="niveau-header" onclick="toggleNiveau(this)">
+        <span class="niveau-badge">${kurs.label}</span>
+        <span class="niveau-title">${kurs.titel}</span>
+        <span class="niveau-count">${anzE} Einheiten · ${anzK} Dateien</span>
+        <span class="chv">▼</span>
+      </div>
+      <div class="niveau-body"></div>`;
+    main.appendChild(nDiv);
+
+    const body = nDiv.querySelector('.niveau-body');
+
+    kurs.einheiten.forEach((einheit, ei) => {
+      const eId    = `e_${kurs.id}_${ei}`;
+      const allUrls = einheit.karten.map(k => resolveUrl(kurs.basis, k.file));
+      const allTitel = `${einheit.nr} – ${einheit.titel} (${kurs.label})`;
+
+      const kartenHTML = einheit.karten.map(k => {
+        const url = resolveUrl(kurs.basis, k.file);
+        const tEsc = k.titel.replace(/'/g, "\\'");
+        const uEsc = url.replace(/'/g, "\\'");
+        return `
+          <div class="karte" data-file="${k.file}" data-tags="${(k.tags||'').toLowerCase()}" data-url="${url}" data-titel="${k.titel.replace(/"/g,'&quot;')}">
+            <input type="checkbox" class="karte-cb" title="Auswählen" onclick="karteToggle(this)">
+            <span class="karte-typ ${TYP_CSS[k.typ]||'tv'}">${k.label}</span>
+            <span class="karte-titel">${k.titel}</span>
+            ${k.badge ? `<div class="test-badge ${k.badge==='bestanden'?'bestanden':'fehler'}">${k.badge==='bestanden'?'✅ Geprüft':'❌ Fehler'} <span class="badge-detail">· ${k.badgeInfo||''}</span></div>` : ''}
+            <div class="karte-aktionen">
+              <a class="btn-oeffnen" href="${url}" target="_blank">Öffnen</a>
+              <button class="btn-mail" onclick="oeffneModal('${tEsc}','${uEsc}')">✉</button>
+              <a class="btn-wa" href="${waUrl(k.titel, url)}" target="_blank" rel="noopener">💬</a>
+            </div>
+          </div>`;
+      }).join('');
+
+      const eDiv = document.createElement('div');
+      eDiv.className = 'einheit';
+      eDiv.id = eId;
+      eDiv.innerHTML = `
+        <div class="einheit-header" onclick="toggleEinheit('${eId}', event)">
+          <span class="einheit-nr">${einheit.nr}</span>
+          <span class="einheit-titel">${einheit.titel}</span>
+          <button class="btn-einheit-senden" data-titel="${allTitel.replace(/"/g,'&quot;')}" data-urls="${encodeURIComponent(JSON.stringify(allUrls))}">
+            ✉ Einheit senden
+          </button>
+          <span class="chv">▼</span>
+        </div>
+        <div class="einheit-body">
+          <div class="karten-liste">${kartenHTML}</div>
+        </div>`;
+
+      // Event-Listener für den "Einheit senden"-Button
+      eDiv.querySelector('.btn-einheit-senden').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const titel = this.getAttribute('data-titel');
+        const urls = JSON.parse(decodeURIComponent(this.getAttribute('data-urls')));
+        oeffneModalListe(titel, urls);
+      });
+      body.appendChild(eDiv);
+    });
+  });
+}
+
+function waUrl(titel, url) {
+  return 'https://wa.me/?text=' + encodeURIComponent(
+    'Hier ist dein Lernmaterial für die nächste Stunde:\n' + titel + '\n' + url
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleNiveau(header) {
+  header.closest('.niveau').classList.toggle('open');
+}
+function toggleEinheit(id, event) {
+  if (event.target.closest('button')) return;
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════════════
+function oeffneModal(titel, url) {
+  _titel = titel;
+  _urls  = [url];
+  document.getElementById('modalBetreff').textContent = titel;
+  aktualisiereWAEinheit();
+  document.getElementById('modalOverlay').classList.add('aktiv');
+}
+
+function oeffneModalListe(titel, urls) {
+  _titel = titel;
+  _urls  = urls;
+  document.getElementById('modalBetreff').textContent = titel;
+  aktualisiereWAEinheit();
+  document.getElementById('modalOverlay').classList.add('aktiv');
+}
+
+function aktualisiereWAEinheit() {
+  const text = _urls.length === 1
+    ? 'Hier ist dein Lernmaterial für die nächste Stunde:\n' + _titel + '\n' + _urls[0]
+    : 'Hier ist dein Lernmaterial für die nächste Stunde:\n\n' + _urls.join('\n');
+  document.getElementById('btnWA').href = 'https://wa.me/?text=' + encodeURIComponent(text);
+}
+
+// E-Mail via Outlook Web Compose-Link — richtiges Konto, Adressbuch verfügbar
+function sendeMail() {
+  const betreff = 'fabDaF – ' + _titel;
+
+  const body =
+    'Hallo,\n\n' +
+    'hier ist dein Lernmaterial für die nächste Stunde:\n\n' +
+    _urls.join('\n\n') +
+    '\n\nEinfach auf den Link klicken – die Übung öffnet sich direkt im Browser.\n\n' +
+    'Viel Erfolg!\n\n' +
+    '— Frank Burkert · fabDaF';
+
+  const outlookUrl = 'https://outlook.office.com/mail/deeplink/compose' +
+    '?from=frankburkert%40fabdaf.onmicrosoft.com' +
+    '&subject=' + encodeURIComponent(betreff) +
+    '&body=' + encodeURIComponent(body);
+
+  window.open(outlookUrl, '_blank');
+  schliesseModal();
+}
+
+function schliesseModal() {
+  document.getElementById('modalOverlay').classList.remove('aktiv');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) schliesseModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') schliesseModal();
+});
+
+// ═══════════════════════════════════════════════════════
+//  MEHRFACH-AUSWAHL
+// ═══════════════════════════════════════════════════════
+function karteToggle(cb) {
+  const karte = cb.closest('.karte');
+  karte.classList.toggle('ausgewaehlt', cb.checked);
+  aktualisiereAuswahlLeiste();
+}
+
+function aktualisiereAuswahlLeiste() {
+  const ausgewaehlt = document.querySelectorAll('.karte-cb:checked');
+  const leiste = document.getElementById('auswahlLeiste');
+  document.getElementById('auswahlAnzahl').textContent = ausgewaehlt.length;
+  leiste.classList.toggle('sichtbar', ausgewaehlt.length > 0);
+  if (ausgewaehlt.length > 0) {
+    const urls = Array.from(ausgewaehlt).map(cb => cb.closest('.karte').getAttribute('data-url'));
+    const text = 'Hier sind deine Lernmaterialien für die nächste Stunde:\n\n' + urls.join('\n');
+    document.getElementById('auswahlWABtn').href = 'https://wa.me/?text=' + encodeURIComponent(text);
+  }
+}
+
+function auswahlSendenMail() {
+  const ausgewaehlt = document.querySelectorAll('.karte-cb:checked');
+  const urls = Array.from(ausgewaehlt).map(cb => cb.closest('.karte').getAttribute('data-url'));
+  const titel = Array.from(ausgewaehlt).map(cb => cb.closest('.karte').getAttribute('data-titel')).join(', ');
+  _titel = ausgewaehlt.length === 1 ? titel : ausgewaehlt.length + ' Lektionen';
+  _urls = urls;
+  document.getElementById('modalBetreff').textContent = _titel;
+  aktualisiereWAEinheit();
+  document.getElementById('modalOverlay').classList.add('aktiv');
+}
+
+function auswahlAufheben() {
+  document.querySelectorAll('.karte-cb:checked').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.karte').classList.remove('ausgewaehlt');
+  });
+  aktualisiereAuswahlLeiste();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUCHE
+// ═══════════════════════════════════════════════════════
+function hl(text, q) {
+  if (!q) return text;
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return text.replace(re, '<mark class="search-highlight">$1</mark>');
+}
+
+document.getElementById('searchInput').addEventListener('input', function () {
+  const q = this.value.trim().toLowerCase();
+  let anyVisible = false;
+
+  document.querySelectorAll('.niveau').forEach(function (niv) {
+    let nivHit = false;
+
+    niv.querySelectorAll('.einheit').forEach(function (ein) {
+      let einHit = false;
+
+      ein.querySelectorAll('.karte').forEach(function (karte) {
+        const titelEl = karte.querySelector('.karte-titel');
+        const typEl   = karte.querySelector('.karte-typ');
+        if (!titelEl) return;
+
+        const rawTitel = titelEl.getAttribute('data-raw') || titelEl.textContent;
+        const rawTyp   = typEl ? (typEl.getAttribute('data-raw') || typEl.textContent) : '';
+        // data-raw sichern (einmalig)
+        if (!titelEl.getAttribute('data-raw')) titelEl.setAttribute('data-raw', rawTitel);
+        if (typEl && !typEl.getAttribute('data-raw')) typEl.setAttribute('data-raw', rawTyp);
+
+        const rawFile = karte.getAttribute('data-file') || '';
+        const rawTags = karte.getAttribute('data-tags') || '';
+        const haystack = [rawTitel, rawTyp, rawFile, rawTags].join(' ').toLowerCase();
+        const match = !q || haystack.includes(q);
+        karte.style.display = match ? '' : 'none';
+        if (match) {
+          einHit = true;
+          titelEl.innerHTML = hl(rawTitel, q);
+        } else {
+          titelEl.innerHTML = rawTitel;
+        }
+      });
+
+      ein.style.display = einHit ? '' : 'none';
+      if (einHit) {
+        nivHit = true;
+        // Einheit aufklappen bei aktiver Suche, zuklappen wenn leer
+        if (q) {
+          ein.classList.add('open');
+        } else {
+          ein.classList.remove('open');
+        }
+      }
+    });
+
+    niv.style.display = nivHit ? '' : 'none';
+    if (nivHit) {
+      anyVisible = true;
+      if (q) niv.classList.add('open');
+      else   niv.classList.remove('open');
+    }
+  });
+
+  const noR = document.getElementById('noResults');
+  noR.style.display = anyVisible ? 'none' : 'block';
+  document.getElementById('noResultsTerm').textContent = this.value.trim();
+});
+
+// ═══════════════════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
