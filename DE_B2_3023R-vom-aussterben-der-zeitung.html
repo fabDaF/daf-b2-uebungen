@@ -1,770 +1,408 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3023R – Vom Aussterben der Zeitung</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-    .header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
-    .header p, .header .subtitle { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
-    .header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
-    .tab-nav {
-      display: flex;
-      border-bottom: 2px solid #eee;
-      background: #fafbfc;
-      overflow-x: auto;
-    }
-    .nav-btn{
-      flex: 1;
-      padding: 16px 12px;
-      
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: #666;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      transition: all 0.3s;
-      
-    border-bottom:1px solid #ddd;}
-    .nav-btn:hover { background: #f0f2f5; color: #333; }
-    .nav-btn.active {
-      color: #667eea;
-      border-bottom: 3px solid #667eea;
-      background: white;
-    }
-    .nav-btn .nav-emoji { font-size: 1.4rem; }
-    .content-area {
-      padding: 30px;
-      min-height: 500px;
-    }
-    .tab { display: none; }
-    .tab.active { display: block; }
-    .help-box {
-      background: #e8f4fd;
-      border-left: 4px solid #0099ff;
-      padding: 14px 16px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 0.95rem;
-      color: #003d66;
-    }
-    .vorentlastung-box {
-      background: #f0e8ff;
-      border-left: 4px solid #9c27b0;
-      padding: 16px 18px;
-      margin-bottom: 16px;
-      border-radius: 8px;
-    }
-    .vorentlastung-box h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1rem; }
-    .vocab-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-    .vocab-tag {
-      background: #e1bee7;
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 0.85rem;
-      color: #4a148c;
-      font-weight: 600;
-    }
-    .reading-text {
-      background: #fafbff;
-      border-left: 4px solid #667eea;
-      padding: 18px 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      line-height: 1.9;
-      font-size: 0.98rem;
-      color: #333;
-    }
-    .reading-text p { margin-bottom: 14px; }
-    .reading-text .highlight { background: #fff4e6; padding: 0 3px; border-radius: 2px; }
-    input.blank {
-      border: 2px solid #c5cae9;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-      background: white;
-      margin: 0 2px;
-    }
-    input.blank:focus { border-color: #667eea; }
-    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
-    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
-    .mc-option {
-      padding: 10px 14px;
-      margin-bottom: 8px;
-      border: 2px solid #c5cae9;
-      border-radius: 8px;
-      background: white;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-    .mc-option:hover { border-color: #667eea; background: #f3f4ff; }
-    .mc-option.correct { border-color: #27ae60; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
-    .mc-option.wrong { border-color: #e74c3c; background: #ffebee; color: #c62828; }
-    .chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      cursor: grab;
-      font-size: 0.85rem;
-      font-weight: 600;
-      user-select: none;
-      transition: transform 0.15s;
-      white-space: nowrap;
-      display: inline-block;
-      margin: 4px;
-    }
-    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-    .chip.incorrect { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-    .satzbau-feedback { font-size: 0.88rem; font-weight: 600; margin-top: 4px; min-height: 1.2em; }
-    .satzbau-feedback.correct { color: #27ae60; }
-    .satzbau-feedback.incorrect { color: #e74c3c; }
-    .chip-bank {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      min-height: 50px;
-    }
-    .drop-zone {
-      min-height: 80px;
-      border: 2px dashed #c5cae9;
-      border-radius: 10px;
-      padding: 12px;
-      background: #fafbff;
-      margin-bottom: 16px;
-      transition: background 0.2s;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: flex-start;
-      align-content: flex-start;
-    }
-    .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
-    .timer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: white;
-      border-radius: 10px;
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-      color: #666;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-    }
-    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: background 0.3s;
-    }
-    .btn:hover { background: #764ba2; }
-    .btn-reset { background: #f39c12; }
-    .btn-reset:hover { background: #d68910; }
-    .sentence-block {
-      background: #fafbff;
-      border-left: 4px solid #667eea;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-      line-height: 1.8;
-      font-size: 0.95rem;
-    }
-    .author-footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 16px;
-      font-size: 0.8rem;
-      color: #aaa;
-    }
-    .author-footer a { color: #aaa; }
-    .author-name { font-weight: 700; }
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .header h1 { font-size: 1.3rem; }
-      .content-area { padding: 16px; }
-      .nav-btn{ font-size: 0.75rem; padding: 12px 8px; border-bottom:1px solid #ddd;flex:1;}
-      .nav-btn .nav-emoji { font-size: 1.1rem; }
-    }
-  
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
-.sb-btn-row { display:flex; gap:8px; margin-top:10px; }
-    .sb-btn-row .btn { padding:6px 16px; font-size:0.85em; color:#667eea; border-color:#c5cff5; border-radius:8px; background:#f5f7ff; }
-    .sb-btn-row .btn:hover { background:#667eea; color:white; border-color:#667eea; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3023R – Vom Aussterben der Zeitung</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; padding:20px; min-height:100vh; }
+.container { max-width:1000px; margin:0 auto; background:white; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.2); overflow:hidden; }
+.header { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:30px; text-align:center; }
+.header h1 { font-size:2.2em; font-family:Georgia,'Times New Roman',serif; margin-bottom:8px; }
+.header p { font-size:1.1em; font-family:Georgia,'Times New Roman',serif; opacity:0.95; }
+.header .big-emoji { font-size:2.6em; display:block; margin-top:8px; }
+.tab-nav { display:flex; border-bottom:2px solid #eee; background:#fafbfc; flex-wrap:wrap; }
+.nav-btn { flex:1; min-width:120px; padding:16px 8px; text-align:center; cursor:pointer; border-right:1px solid #eee; transition:all .2s; font-size:.95em; color:#555; user-select:none; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.nav-btn:hover { background:#f0f2f5; }
+.nav-btn.active { background:white; color:#667eea; font-weight:600; border-bottom:3px solid #667eea; margin-bottom:-2px; }
+.nav-emoji { font-size:1.4em; }
+.nav-label { font-size:.9em; }
+.section { display:none; padding:0; }
+.section.active { display:block; }
+.tab-banner { width:100%; max-height:180px; object-fit:cover; display:block; }
+.sec-inner { padding:30px; }
+.section h2 { color:#333; margin-bottom:18px; font-size:1.5em; border-bottom:3px solid #667eea; padding-bottom:10px; }
+.instructions { background:#f8f9ff; padding:14px 18px; border-left:4px solid #667eea; border-radius:6px; margin-bottom:18px; color:#444; font-size:.98em; }
+.control-bar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:#f8f9ff; padding:12px 16px; border-radius:8px; margin-bottom:20px; }
+.btn-row { display:flex; gap:10px; flex-wrap:wrap; }
+.btn { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-size:.95em; font-weight:600; transition:transform .15s,box-shadow .15s; }
+.btn:hover { transform:translateY(-1px); box-shadow:0 4px 10px rgba(102,126,234,.35); }
+.btn.secondary { background:#eceffc; color:#444; }
+.timer-display { font-family:'Courier New',monospace; font-size:1.1em; color:#555; }
+
+/* Vorentlastung cards */
+.pre-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; margin-bottom:20px; }
+.pre-card { background:#fff; border:2px solid #e0e4f0; border-radius:10px; padding:18px; transition:all .2s; }
+.pre-card h3 { color:#667eea; margin-bottom:8px; font-size:1.05em; }
+.pre-card p { color:#555; line-height:1.5; font-size:.95em; }
+
+/* Lesetext */
+.story-text { max-width:600px; margin:0 auto 20px; font-family:Georgia,'Times New Roman',serif; font-size:1.05em; line-height:1.8; text-align:justify; hyphens:auto; color:#2c2c2c; }
+.story-text p { margin-bottom:1em; text-indent:1.4em; }
+.story-text p:first-of-type { text-indent:0; }
+.story-text p:first-of-type::first-letter { font-size:2.6em; float:left; font-weight:bold; line-height:1; padding:4px 8px 0 0; color:#667eea; }
+.section-title { font-family:Georgia,serif; font-size:1.3em; color:#667eea; text-align:center; margin:26px auto 14px; max-width:600px; border-bottom:1px solid #e0e4f0; padding-bottom:8px; }
+.vocab-hl { background:#fff9c4; padding:1px 3px; border-radius:3px; font-weight:600; cursor:help; }
+.dialog { border-left:3px solid #764ba2; padding:6px 0 6px 14px; margin:12px 0; font-style:italic; color:#555; }
+.story-img { display:block; max-width:600px; width:100%; margin:16px auto; border-radius:8px; }
+.img-caption { max-width:600px; margin:-10px auto 18px; text-align:center; font-size:.9em; font-style:italic; color:#777; }
+
+/* Richtig/Falsch */
+.rf-list { max-width:650px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+.rf-item { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 18px; background:#f8f9ff; border:2px solid #e0e4f0; border-radius:10px; }
+.rf-item.correct { background:#e8f5e8; border-color:#4caf50; }
+.rf-item.wrong { background:#ffebee; border-color:#e74c3c; }
+.rf-text { flex:1; color:#333; font-size:.98em; line-height:1.5; }
+.rf-buttons { display:flex; gap:6px; }
+.rf-btn { padding:6px 14px; border:2px solid #cfd4e5; background:white; color:#555; border-radius:6px; cursor:pointer; font-weight:600; transition:all .2s; }
+.rf-btn.selected { background:#667eea; color:white; border-color:#667eea; }
+
+/* Wortschatz */
+.ws-list { display:flex; flex-direction:column; gap:12px; }
+.ws-item { display:grid; grid-template-columns:2fr 1fr; gap:12px; padding:12px 16px; background:#f8f9ff; border:2px solid #e0e4f0; border-radius:10px; align-items:center; }
+.ws-item.correct { background:#e8f5e8; border-color:#4caf50; }
+.ws-item.wrong { background:#ffebee; border-color:#e74c3c; }
+.ws-item input { padding:8px 12px; border:2px solid #cfd4e5; border-radius:6px; font-size:.95em; outline:none; }
+.ws-item input:focus { border-color:#667eea; }
+.ws-question { color:#333; font-size:.98em; line-height:1.5; }
+
+/* Lückentext */
+.luecken-list { display:flex; flex-direction:column; gap:14px; max-width:700px; margin:0 auto; }
+.luecken-item { padding:14px 18px; background:#f8f9ff; border:2px solid #e0e4f0; border-radius:10px; line-height:1.8; color:#333; font-size:1em; }
+.luecken-item.correct { background:#e8f5e8; border-color:#4caf50; }
+.luecken-item.wrong { background:#ffebee; border-color:#e74c3c; }
+.luecken-item input { padding:4px 8px; border:none; border-bottom:2px solid #667eea; background:transparent; font-size:1em; font-family:inherit; min-width:120px; outline:none; }
+.wortbank { background:#eef1fc; padding:10px 16px; border-radius:8px; font-size:.95em; color:#555; max-width:700px; margin:0 auto 18px; text-align:center; line-height:1.8; }
+.wortbank b { color:#667eea; margin:0 8px; }
+
+/* Footer */
+.footer { background:#f8f9fc; color:#999; text-align:center; padding:16px; font-size:.85em; border-top:1px solid #eee; }
+.footer a { color:#667eea; text-decoration:none; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Vom Aussterben der Zeitung</h1>
-      <p class="subtitle">B2.3 · Einheit 2 · R</p>
-      <div class="big-emoji">📚</div>
-    </div>
+<div class="container">
+<div class="header">
+  <h1>Vom Aussterben der Zeitung</h1>
+  <p>B2.3 – Lektion 3023R · Lesetext</p>
+  <div class="big-emoji">📰</div>
+</div>
+<div class="tab-nav">
+  <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">💡</span><span class="nav-label">Vorentlastung</span></div>
+  <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📖</span><span class="nav-label">Geschichte</span></div>
+  <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">❓</span><span class="nav-label">Text &amp; Fragen</span></div>
+  <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">🔤</span><span class="nav-label">Wortschatz</span></div>
+  <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+</div>
 
-    <div class="tab-nav nav">
-      <div class="nav-btn active" onclick="showSection(0)">
-        <span class="nav-emoji">🌅</span>
-        Vorentlastung
-      </div>
-      <div class="nav-btn" onclick="showSection(1)">
-        <span class="nav-emoji">📖</span>
-        Lesetext
-      </div>
-      <div class="nav-btn" onclick="showSection(2)">
-        <span class="nav-emoji">✏️</span>
-        Lückentext
-      </div>
-      <div class="nav-btn" onclick="showSection(3)">
-        <span class="nav-emoji">❓</span>
-        Multiple Choice
-      </div>
-      <div class="nav-btn" onclick="showSection(4)">
-        <span class="nav-emoji">🔀</span>
-        Satzbau
-      </div>
-    </div>
+<!-- TAB 0: VORENTLASTUNG -->
+<div class="section active">
+<img class="tab-banner" src="https://images.pexels.com/photos/4132326/pexels-photo-4132326.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Stapel alter Zeitungen">
+<div class="sec-inner">
+<h2>Vor dem Lesen</h2>
+<div class="instructions">Lesen Sie die folgenden Begriffe, bevor Sie den Text lesen. So verstehen Sie ihn leichter.</div>
+<div class="pre-grid">
+  <div class="pre-card"><h3>die Auflage</h3><p>Die Anzahl der gedruckten Exemplare einer Zeitung. Beispiel: Die Auflage der Süddeutschen Zeitung ist in zwanzig Jahren halbiert worden.</p></div>
+  <div class="pre-card"><h3>das Abonnement</h3><p>Ein Vertrag, mit dem man regelmäßig eine Zeitung oder Zeitschrift bekommt. Heute gibt es auch digitale Abonnements.</p></div>
+  <div class="pre-card"><h3>der Kiosk</h3><p>Ein kleiner Laden, in dem man Zeitungen, Zeitschriften und Süßigkeiten kauft. Viele Kioske mussten in den letzten Jahren schließen.</p></div>
+  <div class="pre-card"><h3>der Qualitätsjournalismus</h3><p>Sorgfältig recherchierte Berichte von ausgebildeten Journalisten. Das Gegenteil sind schnelle, ungeprüfte Online-Meldungen.</p></div>
+  <div class="pre-card"><h3>die Redaktion</h3><p>Die Gruppe von Journalisten, die eine Zeitung gemeinsam macht. Wenn Redaktionen kleiner werden, leidet die Qualität.</p></div>
+  <div class="pre-card"><h3>der Anzeigenmarkt</h3><p>Der Bereich, in dem Firmen Werbung in Zeitungen kaufen. Heute geht die Werbung zu Google und Facebook, nicht mehr in die Zeitung.</p></div>
+</div>
+</div>
+</div>
 
-    <div class="content-area">
-      <!-- Tab 0: Vorentlastung -->
-      <div class="tab active" id="tab0">
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Lerne die neuen Wörter, die du für den Lesetext brauchst.
-        </div>
-        <div class="vorentlastung-box">
-          <h3>Wichtige Wörter zum Thema</h3>
-          <div class="vocab-list">
-            <div class="vocab-tag">die Auflage — circulation (of a newspaper)</div>
-            <div class="vocab-tag">der Kostendruck — cost pressure</div>
-            <div class="vocab-tag">der Lokalberichterstattung — local reporting</div>
-            <div class="vocab-tag">das Abonnement — subscription</div>
-            <div class="vocab-tag">die Paywall — paywall</div>
-            <div class="vocab-tag">digital-Abo — digital subscription</div>
-            <div class="vocab-tag">der Qualitätsjournalismus — quality journalism</div>
-            <div class="vocab-tag">verlieren an Bedeutung — to lose importance</div>
-          </div>
-        </div>
-      </div>
+<!-- TAB 1: GESCHICHTE -->
+<div class="section">
+<img class="tab-banner" src="https://images.pexels.com/photos/6964107/pexels-photo-6964107.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Druckmaschine in einer Zeitung">
+<div class="sec-inner">
+<h2>Vom Aussterben der Zeitung</h2>
+<div class="control-bar">
+  <div class="btn-row"><button class="btn secondary" onclick="resetTimer(1)">Timer</button></div>
+  <div class="timer-display">⏱ <span id="timer-1">00:00</span></div>
+</div>
 
-      <!-- Tab 1: Lesetext -->
-      <div class="tab" id="tab1">
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Lese den Text aufmerksam und antworte dann auf die Fragen.
-        </div>
-        <div class="reading-text">
-          <p>
-            <span class="highlight">Die Zeitung gehört zu den ältesten Massenmedien der Welt.</span> Seit der Erfindung des Buchdrucks im 15. Jahrhundert berichteten Zeitungen über Politik, Wirtschaft und Kultur. Generationen von Lesern verbanden die morgendliche Lektüre der Zeitung mit ihrem Frühstück. Doch in den letzten zwei Jahrzehnten hat sich diese Welt radikal verändert.
-          </p>
-          <p>
-            Der Rückgang der Printmedien ist dramatisch. Die Auflagen großer deutscher Zeitungen wie der Frankfurter Allgemeinen Zeitung oder der Süddeutschen Zeitung sind um mehr als 50 Prozent gefallen. Zeitungen schließen, Redaktionen werden kleiner, Journalisten verlieren ihre Arbeitsplätze. Die Gründe liegen auf der Hand: Das Internet ermöglicht es, jederzeit und kostenlos auf Nachrichten zuzugreifen. Soziale Medien wie Twitter und TikTok verbreiten Informationen schneller als jede Zeitung. Menschen informieren sich überall — mit dem Smartphone in der U-Bahn, beim Joggen, vor dem Schlafengehen.
-          </p>
-          <p>
-            Dazu kommt ein enormer Kostendruck. <span class="highlight">Zeitungsverlage müssen ihre Produktion aufrechterhalten</span>, während gleichzeitig weniger Menschen ihre Zeitung kaufen. Werbeeinnahmen — lange Zeit die Haupteinnahmequelle — sinken kontinuierlich. Viele Unternehmen werben lieber online, wo sie ihre Zielgruppe präziser erreichen. Für die Zeitungsverlage ist dies eine existenzielle Bedrohung.
-          </p>
-          <p>
-            Was verlieren wir durch das Aussterben der Zeitung? Der <span class="highlight">Qualitätsjournalismus</span> braucht Zeit, Geld und spezialisierte Journalisten — Recherche kostet. Im Internet konkurrieren hingegen Masse mit Masse. Die Lokalberichterstattung leidet besonders darunter: Wer schickt noch Reporter in kleinere Städte und Gemeinden, wenn niemand mehr dafür bezahlt? Es ist zu befürchten, dass regionale Nachrichten völlig verschwinden.
-          </p>
-          <p>
-            Einige Zeitungen versuchen, mit digitalen Abonnements zu überleben. Sie führen Paywalls ein — die Artikel sind kostenlos, aber für Premium-Inhalte muss man zahlen. Große Publikationen wie die New York Times oder der Guardian haben damit einigen Erfolg gehabt. In Deutschland sind die meisten Zeitungen damit weniger erfolgreich. Lese-Apps wie Apple News und Google News machen es schwer, Leser zu halten: Warum für ein einzelnes Abonnement zahlen, wenn man alle Nachrichten in einer App lesen kann?
-          </p>
-          <p>
-            Die Zukunft der Zeitung ist ungewiss. Manche Experten sagen, dass die klassische Tageszeitung in zehn Jahren nicht mehr existiert. Andere glauben an ein Überleben hochqualitativer Medien mit starkem Markennamen und treuer Leserschaft. Sicher ist nur: Die Medienlandschaft wird sich weiter verändern. Ob zum Besseren oder Schlechteren — das hängt davon ab, wie sehr wir als Gesellschaft noch Wert auf fundierte, recherchierte Berichterstattung legen.
-          </p>
-        </div>
-      </div>
+<div class="story-text">
+<p>Wer morgens in einem deutschen Café sitzt, findet auf den Tischen heute selten noch eine Zeitung. Wo früher die Leser ihren Kaffee mit der <span class="vocab-hl">Morgenlektüre</span> verbanden, blicken sie jetzt auf ihr Smartphone. Die gedruckte Zeitung, jahrzehntelang das Leitmedium der deutschen Öffentlichkeit, befindet sich in einem langsamen, aber gut dokumentierten Sterben.</p>
 
-      <!-- Tab 2: Lückentext -->
-      <div class="tab" id="tab2">
-        <div class="timer-row">
-          ⏱ <span id="timer-2">0:00</span><span>🏆 <span id="best-2">--:--</span></span></span></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-show" onclick="showLueckenSolution()">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetLuecken()">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Ergänze die Lücken mit Wörtern aus dem Text.
-        </div>
-        <div id="lueckenContainer"></div>
-      </div>
+<p>Die Zahlen sind <span class="vocab-hl">eindeutig</span>: Seit der Jahrtausendwende ist die <span class="vocab-hl">Auflage</span> deutscher Tageszeitungen um mehr als die Hälfte eingebrochen. Jeden Tag werden in Deutschland rund zehn Millionen Exemplare weniger verkauft als vor fünfundzwanzig Jahren. Regionale Blätter, die oft kleine Städte und Dörfer als einzige Informationsquelle bedient haben, verschwinden ganz oder werden zu Regionalausgaben größerer Verlage zusammengelegt.</p>
 
-      <!-- Tab 3: Multiple Choice -->
-      <div class="tab" id="tab3">
-        <div class="timer-row">
-          ⏱ <span id="timer-3">0:00</span><span>🏆 <span id="best-3">--:--</span></span></span></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-reset" onclick="resetMC()">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Wähle die richtige Antwort.
-        </div>
-        <div id="mcContainer"></div>
-      </div>
+<p class="section-title">Zwei Krisen gleichzeitig</p>
 
-      <!-- Tab 4: Satzbau -->
-      <div class="tab" id="tab4">
-        <div class="timer-row">
-          ⏱ <span id="timer-4">0:00</span><span>🏆 <span id="best-4">--:--</span></span></span></span>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-reset" onclick="resetSatzbau()">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge.
-        </div>
-        <div id="satzbauContainer"></div>
-      </div>
-    </div>
+<p>Fachleute sprechen von einer <span class="vocab-hl">doppelten Krise</span>. Die erste ist die Leserkrise: Jüngere Menschen abonnieren keine Zeitungen mehr. Wer heute fünfundzwanzig Jahre alt ist, hat vielleicht noch nie regelmäßig eine gedruckte Zeitung gelesen. Information kommt aus sozialen Medien, aus <span class="vocab-hl">Newsletter-Apps</span> oder aus kurzen Videos. Die zweite ist die Werbekrise: Der <span class="vocab-hl">Anzeigenmarkt</span>, früher die wichtigste Einnahmequelle der Verlage, ist praktisch kollabiert. Lokale Firmen werben heute bei Google und Facebook, nicht mehr auf Seite 17 der Lokalzeitung.</p>
 
-    <div class="author-footer">
-      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
-    </div>
-  </div>
+<p>Beides zusammen führt zu einem Teufelskreis. Weniger Leser bedeuten weniger Einnahmen. Weniger Einnahmen bedeuten kleinere <span class="vocab-hl">Redaktionen</span>. Kleinere Redaktionen bedeuten weniger und oberflächlichere Berichte. Und weniger gute Berichte bedeuten noch weniger Leser. Einige Kritiker sprechen schon vom Ende des <span class="vocab-hl">Qualitätsjournalismus</span>, wie wir ihn kennen.</p>
 
-  <script>
-function showSection(n){
-  var tabs=document.querySelectorAll('.tab-content');
-  if(!tabs.length)tabs=document.querySelectorAll('.tab');
-  tabs.forEach(function(t,i){t.classList.toggle('active',i===n);});
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
+<p class="section-title">Was verschwindet, wenn Zeitungen sterben?</p>
+
+<p>Der Soziologe Martin Andree aus Köln warnt seit Jahren: „Wenn Zeitungen sterben, verschwindet nicht nur ein Geschäftsmodell. Es verschwindet <span class="vocab-hl">lokale Öffentlichkeit</span>.“ In vielen Gemeinden ist die Lokalzeitung die einzige Stimme, die noch über Stadträte, Schulen und Vereine berichtet. Wenn sie verschwindet, entstehen sogenannte „Nachrichtenwüsten“ — ganze Regionen ohne unabhängige journalistische Aufsicht.</p>
+
+<div class="dialog">„Wir verlieren nicht nur gedrucktes Papier“, sagt der Medienforscher Stephan Russ-Mohl. „Wir verlieren die Fähigkeit einer Gesellschaft, sich selbst zu beobachten.“</div>
+
+<p>Studien aus den USA zeigen, was passiert, wenn die Lokalzeitung verschwindet: Die <span class="vocab-hl">Wahlbeteiligung</span> sinkt, die Kommunalverschuldung steigt, und die Bevölkerung ist politisch <span class="vocab-hl">polarisierter</span>. Deutschland ist davon noch weit entfernt — aber die Entwicklung geht in dieselbe Richtung.</p>
+
+<p class="section-title">Gibt es eine Zukunft?</p>
+
+<p>Einige Verlage haben inzwischen verstanden, dass sie sich neu erfinden müssen. Die <span class="vocab-hl">Zeit</span>, die <span class="vocab-hl">FAZ</span> und die Süddeutsche Zeitung bauen ihre Digital-Abonnements aus. Jüngere Online-Projekte wie „Krautreporter“ oder „Steady“ versuchen, <span class="vocab-hl">Qualitätsjournalismus</span> direkt von den Leserinnen und Lesern finanzieren zu lassen, ohne Werbung. In Skandinavien funktioniert dieses Modell bereits erstaunlich gut: In Norwegen zahlen schon über vierzig Prozent der Haushalte für digitalen Journalismus.</p>
+
+<p>Die Zeitung stirbt also nicht unbedingt — aber sie wird eine andere. Weniger Papier, mehr App. Weniger Massenmedium, mehr <span class="vocab-hl">Nischenangebot</span>. Ob das genug ist, um die Lücke in der <span class="vocab-hl">lokalen Öffentlichkeit</span> zu schließen, wird eine der wichtigsten medienpolitischen Fragen der kommenden Jahre sein. Eines steht jedoch fest: Das morgendliche Rascheln der Zeitung im Café wird für die nächste Generation ein Museumsgeräusch sein.</p>
+</div>
+
+</div>
+</div>
+
+<!-- TAB 2: TEXT & FRAGEN -->
+<div class="section">
+<img class="tab-banner" src="https://images.pexels.com/photos/6053/man-coffee-cup-pen.jpg?auto=compress&cs=tinysrgb&w=800" alt="Mann liest Zeitung">
+<div class="sec-inner">
+<h2>Richtig oder falsch?</h2>
+<div class="instructions">Entscheiden Sie nach dem Lesen: Ist die Aussage richtig oder falsch?</div>
+<div class="control-bar">
+  <div class="btn-row"><button class="btn" onclick="rfCheck()">Prüfen</button><button class="btn secondary" onclick="rfReset()">Zurücksetzen</button></div>
+  <div class="timer-display">⏱ <span id="timer-2">00:00</span> · <span id="rf-score">0 / 0</span></div>
+</div>
+<div class="rf-list" id="rf-list"></div>
+</div>
+</div>
+
+<!-- TAB 3: WORTSCHATZ -->
+<div class="section">
+<img class="tab-banner" src="https://images.pexels.com/photos/3768114/pexels-photo-3768114.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bibliothek mit Büchern">
+<div class="sec-inner">
+<h2>Wortschatz der Medienwelt</h2>
+<div class="instructions">Ergänzen Sie das passende Wort aus dem Text. Achten Sie auf Artikel und Pluralendung.</div>
+<div class="control-bar">
+  <div class="btn-row"><button class="btn" onclick="wsCheck()">Prüfen</button><button class="btn secondary" onclick="wsSolve()">Lösung zeigen</button></div>
+  <div class="timer-display">⏱ <span id="timer-3">00:00</span> · <span id="ws-score">0 / 0</span></div>
+</div>
+<div class="ws-list" id="ws-list"></div>
+</div>
+</div>
+
+<!-- TAB 4: LÜCKENTEXT -->
+<div class="section">
+<img class="tab-banner" src="https://images.pexels.com/photos/518543/pexels-photo-518543.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Zeitungsstapel">
+<div class="sec-inner">
+<h2>Zusammenfassung ergänzen</h2>
+<div class="instructions">Ergänzen Sie die Lücken mit Wörtern aus der Wortbank. Jedes Wort nur einmal.</div>
+<div class="wortbank" id="wortbank"></div>
+<div class="control-bar">
+  <div class="btn-row"><button class="btn" onclick="lueckenCheck()">Prüfen</button><button class="btn secondary" onclick="lueckenSolve()">Lösung zeigen</button></div>
+  <div class="timer-display">⏱ <span id="timer-4">00:00</span> · <span id="luecken-score">0 / 0</span></div>
+</div>
+<div class="luecken-list" id="luecken-list"></div>
+</div>
+</div>
+
+<div class="footer">
+  fabDaF · DaF B2.3 – Lektion 3023R · <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+</div>
+
+<script>
+/* ---------- Navigation ---------- */
+function showSection(i) {
+  document.querySelectorAll('.section').forEach((s,idx)=>s.classList.toggle('active',idx===i));
+  document.querySelectorAll('.nav-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));
+  timerAutoStart(i);
 }
 
-    var TIMER_PREFIX='B2_3023R_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
+/* ---------- Timers ---------- */
+const timers = {};
+function timerAutoStart(idx) {
+  if (idx===0) return;
+  if (timers[idx] && timers[idx].running) return;
+  startTimer(idx);
+}
+function startTimer(idx) {
+  const el = document.getElementById('timer-'+idx);
+  if (!el) return;
+  if (!timers[idx]) timers[idx] = {seconds:0, running:false, interval:null};
+  if (timers[idx].running) return;
+  timers[idx].running = true;
+  timers[idx].interval = setInterval(()=>{
+    timers[idx].seconds++;
+    const m = String(Math.floor(timers[idx].seconds/60)).padStart(2,'0');
+    const s = String(timers[idx].seconds%60).padStart(2,'0');
+    el.textContent = m+':'+s;
   },1000);
 }
-function stopTimer(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
+function stopTimer(idx) {
+  if (!timers[idx]) return;
+  clearInterval(timers[idx].interval);
+  timers[idx].running = false;
 }
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
+function resetTimer(idx) {
+  stopTimer(idx);
+  if (timers[idx]) timers[idx].seconds = 0;
+  const el = document.getElementById('timer-'+idx);
+  if (el) el.textContent = '00:00';
 }
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [2,3,4].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
+
+/* ---------- Richtig/Falsch ---------- */
+const rfData = [
+  { text:"Die Auflage deutscher Tageszeitungen ist seit der Jahrtausendwende um mehr als die Hälfte gesunken.", answer:"R" },
+  { text:"In Deutschland werden heute rund zehn Millionen Exemplare mehr verkauft als vor fünfundzwanzig Jahren.", answer:"F" },
+  { text:"Fachleute sprechen von einer doppelten Krise — einer Leserkrise und einer Werbekrise.", answer:"R" },
+  { text:"Lokale Firmen werben heute vor allem im Lokalteil der Zeitung.", answer:"F" },
+  { text:"Martin Andree warnt, dass mit dem Verschwinden der Zeitungen auch die lokale Öffentlichkeit verschwindet.", answer:"R" },
+  { text:"Nach Studien aus den USA steigt die Wahlbeteiligung, wenn die Lokalzeitung verschwindet.", answer:"F" },
+  { text:"Die Zeit, die FAZ und die Süddeutsche Zeitung setzen verstärkt auf digitale Abonnements.", answer:"R" },
+  { text:"In Norwegen zahlen über vierzig Prozent der Haushalte für digitalen Journalismus.", answer:"R" },
+  { text:"Laut Text wird die Zeitung der Zukunft mehr auf Papier und weniger auf Apps setzen.", answer:"F" },
+  { text:"„Krautreporter“ ist ein Beispiel für werbefreien, leserfinanzierten Journalismus.", answer:"R" }
+];
+function initRF() {
+  const list = document.getElementById('rf-list');
+  list.innerHTML = '';
+  rfData.forEach((it,i)=>{
+    const div = document.createElement('div');
+    div.className = 'rf-item';
+    div.dataset.idx = i;
+    div.innerHTML = `<div class="rf-text">${i+1}. ${it.text}</div>
+      <div class="rf-buttons">
+        <button class="rf-btn" data-val="R" onclick="rfSelect(${i},'R')">Richtig</button>
+        <button class="rf-btn" data-val="F" onclick="rfSelect(${i},'F')">Falsch</button>
+      </div>`;
+    list.appendChild(div);
   });
-});
+}
+function rfSelect(i,val) {
+  const item = document.querySelector('.rf-item[data-idx="'+i+'"]');
+  item.dataset.selected = val;
+  item.querySelectorAll('.rf-btn').forEach(b=>b.classList.toggle('selected', b.dataset.val===val));
+  timerAutoStart(2);
+}
+function rfCheck() {
+  let correct=0, total=rfData.length;
+  rfData.forEach((it,i)=>{
+    const item = document.querySelector('.rf-item[data-idx="'+i+'"]');
+    item.classList.remove('correct','wrong');
+    if (item.dataset.selected === it.answer) { item.classList.add('correct'); correct++; }
+    else if (item.dataset.selected) { item.classList.add('wrong'); }
+  });
+  document.getElementById('rf-score').textContent = correct+' / '+total;
+  if (correct === total) stopTimer(2);
+}
+function rfReset() {
+  document.querySelectorAll('.rf-item').forEach(it=>{
+    it.classList.remove('correct','wrong');
+    delete it.dataset.selected;
+    it.querySelectorAll('.rf-btn').forEach(b=>b.classList.remove('selected'));
+  });
+  document.getElementById('rf-score').textContent = '0 / '+rfData.length;
+  resetTimer(2);
+}
 
-    // Lückentext
-    var lueckenData = [
-      { text: 'Die Auflagen deutscher Zeitungen sind um mehr als 50 <input class="blank" data-answer="Prozent" oninput="liveCheckLuecken(this)"> gefallen.', answer: 'Prozent' },
-      { text: 'Das <input class="blank" data-answer="Internet" oninput="liveCheckLuecken(this)"> ermöglicht es, jederzeit kostenlos auf Nachrichten zuzugreifen.', answer: 'Internet' },
-      { text: 'Der <input class="blank" data-answer="Qualitätsjournalismus" oninput="liveCheckLuecken(this)"> braucht Zeit, Geld und spezialisierte Journalisten.', answer: 'Qualitätsjournalismus' },
-      { text: 'Viele Zeitungen führen <input class="blank" data-answer="Paywalls" oninput="liveCheckLuecken(this)"> ein, um mit digitalen Abonnements Geld zu verdienen.', answer: 'Paywalls' },
-      { text: 'Die <input class="blank" data-answer="Lokalberichterstattung" oninput="liveCheckLuecken(this)"> leidet besonders unter dem Rückgang der Printmedien.', answer: 'Lokalberichterstattung' }
-    ];
-
-    function liveCheckLuecken(inp) {
-      var val = inp.value.trim();
-      var ans = inp.dataset.answer;
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // valid prefix
-      } else {
-        inp.classList.add('wrong');
-      }
-      timerAutoStart(2);
-      checkLueckenAll();
+/* ---------- Wortschatz ---------- */
+const wsData = [
+  { q:"Der Stapel gedruckter Zeitungsexemplare an einem Tag:", a:"die Auflage" },
+  { q:"Ein Vertrag für regelmäßigen Zeitungsbezug:", a:"das Abonnement" },
+  { q:"Gruppe von Journalisten in einer Zeitung:", a:"die Redaktion" },
+  { q:"Bereich, in dem Firmen Werbung in Zeitungen kaufen:", a:"der Anzeigenmarkt" },
+  { q:"Sorgfältig recherchierter, geprüfter Journalismus:", a:"der Qualitätsjournalismus" },
+  { q:"Regionen ohne unabhängige lokale Berichterstattung:", a:"die Nachrichtenwüsten" },
+  { q:"Situation, in der ein Problem sich selbst verschärft:", a:"der Teufelskreis" },
+  { q:"Einzigartig, nicht mehr zu bezweifeln:", a:"eindeutig" },
+  { q:"Stark in zwei feindliche Gruppen geteilt:", a:"polarisiert" },
+  { q:"Einnahmen aus Werbung in einer Zeitung:", a:"die Anzeigen" }
+];
+function initWS() {
+  const list = document.getElementById('ws-list');
+  list.innerHTML = '';
+  wsData.forEach((it,i)=>{
+    const div = document.createElement('div');
+    div.className = 'ws-item';
+    div.dataset.idx = i;
+    div.innerHTML = `<div class="ws-question">${i+1}. ${it.q}</div>
+      <input type="text" placeholder="Antwort..." oninput="timerAutoStart(3)">`;
+    list.appendChild(div);
+  });
+}
+function wsCheck() {
+  let correct=0, total=wsData.length;
+  wsData.forEach((it,i)=>{
+    const item = document.querySelector('.ws-item[data-idx="'+i+'"]');
+    const inp = item.querySelector('input');
+    item.classList.remove('correct','wrong');
+    if (inp.value.trim().toLowerCase() === it.a.toLowerCase()) {
+      item.classList.add('correct'); correct++;
+    } else if (inp.value.trim()) {
+      item.classList.add('wrong');
     }
+  });
+  document.getElementById('ws-score').textContent = correct+' / '+total;
+  if (correct === total) stopTimer(3);
+}
+function wsSolve() {
+  wsData.forEach((it,i)=>{
+    const item = document.querySelector('.ws-item[data-idx="'+i+'"]');
+    item.querySelector('input').value = it.a;
+    item.classList.remove('wrong');
+    item.classList.add('correct');
+  });
+  document.getElementById('ws-score').textContent = wsData.length+' / '+wsData.length;
+  stopTimer(3);
+}
 
-    function checkLueckenAll() {
-      var inputs = document.querySelectorAll('#tab2 input.blank');
-      if (inputs.length === 0) return;
-      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
-      if (allOk) stopTimer(2);
+/* ---------- Lückentext ---------- */
+const lueckenData = [
+  { parts:["Die ", " deutscher Tageszeitungen ist seit 2000 um mehr als die Hälfte eingebrochen."], a:"Auflage" },
+  { parts:["Viele lokale Firmen werben heute bei Google statt auf dem ", "."], a:"Anzeigenmarkt" },
+  { parts:["Wenn Zeitungen sterben, verschwindet die lokale ", "."], a:"Öffentlichkeit" },
+  { parts:["In manchen Regionen entstehen sogenannte Nachrichten", "."], a:"wüsten" },
+  { parts:["Weniger Leser → weniger Einnahmen → kleinere Redaktionen: ein ", "."], a:"Teufelskreis" },
+  { parts:["Das Kernstück einer Zeitung ist die ", ", in der die Journalisten arbeiten."], a:"Redaktion" },
+  { parts:["Viele Verlage setzen heute auf digitale ", " statt auf Papier."], a:"Abonnements" },
+  { parts:["In Norwegen zahlen über vierzig Prozent der Haushalte für digitalen ", "."], a:"Journalismus" },
+  { parts:["Studien zeigen: Ohne Lokalzeitung sinkt die ", "beteiligung."], a:"Wahl" },
+  { parts:["Das Modell „leserfinanziert“ versucht, Journalismus ohne ", " zu machen."], a:"Werbung" }
+];
+function initLuecken() {
+  const words = lueckenData.map(l=>l.a);
+  const shuffled = [...words].sort(()=>Math.random()-0.5);
+  document.getElementById('wortbank').innerHTML = shuffled.map(w=>'<b>'+w+'</b>').join('·');
+  const list = document.getElementById('luecken-list');
+  list.innerHTML = '';
+  lueckenData.forEach((it,i)=>{
+    const div = document.createElement('div');
+    div.className = 'luecken-item';
+    div.dataset.idx = i;
+    div.innerHTML = `${i+1}. ${it.parts[0]}<input type="text" data-idx="${i}" oninput="timerAutoStart(4)">${it.parts[1]}`;
+    list.appendChild(div);
+  });
+}
+function lueckenCheck() {
+  let correct=0, total=lueckenData.length;
+  lueckenData.forEach((it,i)=>{
+    const item = document.querySelector('.luecken-item[data-idx="'+i+'"]');
+    const inp = item.querySelector('input');
+    item.classList.remove('correct','wrong');
+    if (inp.value.trim().toLowerCase() === it.a.toLowerCase()) {
+      item.classList.add('correct'); correct++;
+    } else if (inp.value.trim()) {
+      item.classList.add('wrong');
     }
+  });
+  document.getElementById('luecken-score').textContent = correct+' / '+total;
+  if (correct === total) stopTimer(4);
+}
+function lueckenSolve() {
+  lueckenData.forEach((it,i)=>{
+    const item = document.querySelector('.luecken-item[data-idx="'+i+'"]');
+    item.querySelector('input').value = it.a;
+    item.classList.remove('wrong');
+    item.classList.add('correct');
+  });
+  document.getElementById('luecken-score').textContent = lueckenData.length+' / '+lueckenData.length;
+  stopTimer(4);
+}
 
-    function showLueckenSolution() {
-      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
-        inp.value = inp.dataset.answer;
-        inp.classList.add('correct');
-      });
-      checkLueckenAll();
-    }
-
-    function resetLuecken() {
-      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-      });
-      timerResetOne(2);
-    }
-
-    // MC
-    var mcData = [
-      { q: 'Warum fallen die Auflagen der Zeitungen?', opts: [
-        { text: 'Das Internet ermöglicht kostenlosen Zugang zu Nachrichten', correct: true },
-        { text: 'Zeitungen sind zu teuer', correct: false },
-        { text: 'Menschen können nicht lesen', correct: false }
-      ]},
-      { q: 'Was ist ein Problem des Qualitätsjournalismus?', opts: [
-        { text: 'Er ist zu einfach zu verstehen', correct: false },
-        { text: 'Er braucht Zeit, Geld und spezialisierte Journalisten', correct: true },
-        { text: 'Er ist nur in Deutschland möglich', correct: false }
-      ]},
-      { q: 'Welche Strategie versuchen einige Zeitungen?', opts: [
-        { text: 'Digital-Abos mit Paywalls einführen', correct: true },
-        { text: 'Sich an soziale Medien verkaufen', correct: false },
-        { text: 'Nur noch online erscheinen', correct: false }
-      ]},
-      { q: 'Was sagt der Text über die Zukunft?', opts: [
-        { text: 'Die klassische Zeitung wird sicher überleben', correct: false },
-        { text: 'Die Zukunft ist ungewiss und hängt vom Wert ab, den wir Qualitätsjournalismus geben', correct: true },
-        { text: 'Das Internet wird verschwinden', correct: false }
-      ]}
-    ];
-
-    function renderMC() {
-      var cont = document.getElementById('mcContainer');
-      cont.innerHTML = '';
-      mcData.forEach((item, qIdx) => {
-        var div = document.createElement('div');
-        div.style.marginBottom = '20px';
-
-        var q = document.createElement('div');
-        q.style.fontSize = '0.95rem';
-        q.style.fontWeight = '600';
-        q.style.color = '#667eea';
-        q.style.marginBottom = '10px';
-        q.textContent = 'F' + (qIdx + 1) + ': ' + item.q;
-        div.appendChild(q);
-
-        item.opts.forEach((opt, oIdx) => {
-          var btn = document.createElement('button');
-          btn.className = 'mc-option';
-          btn.textContent = opt.text;
-          btn.onclick = function() { checkMCOption(qIdx, oIdx, opt.correct, btn); };
-          btn.dataset.qidx = qIdx;
-          btn.dataset.oidx = oIdx;
-          div.appendChild(btn);
-        });
-
-        cont.appendChild(div);
-      });
-
-    function checkMCOption(qIdx, oIdx, correct, btn) {
-      timerAutoStart(3);
-      document.querySelectorAll('[data-qidx="' + qIdx + '"]').forEach(b => {
-        b.disabled = true;
-        b.classList.remove('correct', 'wrong');
-      });
-      if (correct) {
-        btn.classList.add('correct');
-      } else {
-        btn.classList.add('wrong');
-        setTimeout(function() {
-          document.querySelectorAll('[data-qidx="' + qIdx + '"]').forEach(b => {
-            b.disabled = false;
-            b.classList.remove('wrong');
-          });
-        }, 1500);
-      }
-      checkMCAll();
-    }
-
-    function checkMCAll() {
-      var allCorrect = mcData.length === document.querySelectorAll('#tab3 .mc-option.correct').length;
-      if (allCorrect) stopTimer(3);
-    }
-
-    function resetMC() {
-      document.querySelectorAll('#tab3 .mc-option').forEach(btn => {
-        btn.disabled = false;
-        btn.classList.remove('correct', 'wrong');
-      });
-      timerResetOne(3);
-    }
-
-    // Satzbau
-    var satzbauData = [
-      { parts: ['Das', 'Internet', 'verändert', 'die', 'Medienlandschaft', 'radikal', '.'],
-        valid: [['Das', 'Internet', 'verändert', 'die', 'Medienlandschaft', 'radikal', '.']] },
-      { parts: ['Soziale', 'Medien', 'verbreiten', 'Informationen', 'schneller', 'als', 'jede', 'Zeitung', '.'],
-        valid: [['Soziale', 'Medien', 'verbreiten', 'Informationen', 'schneller', 'als', 'jede', 'Zeitung', '.']] },
-      { parts: ['Werbeeinnahmen', 'sinken', 'kontinuierlich', ',', 'weil', 'Unternehmen', 'lieber', 'online', 'werben', '.'],
-        valid: [['Werbeeinnahmen', 'sinken', 'kontinuierlich', ',', 'weil', 'Unternehmen', 'lieber', 'online', 'werben', '.']] },
-      { parts: ['Große', 'Publikationen', 'wie', 'die', 'New', 'York', 'Times', 'haben', 'mit', 'Digital-Abos', 'Erfolg', '.'],
-        valid: [['Große', 'Publikationen', 'wie', 'die', 'New', 'York', 'Times', 'haben', 'mit', 'Digital-Abos', 'Erfolg', '.']] }
-    ];
-
-    var sbDragged = null;
-
-    function sbMakeChip(word, idx) {
-      var chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.textContent = word;
-      chip.draggable = true;
-      chip.dataset.word = word;
-      chip.addEventListener('dragstart', function(e) {
-        e.dataTransfer.setData('text/plain', '');
-        sbDragged = chip;
-      });
-      chip.addEventListener('click', function() {
-        var bank = document.getElementById('sb-bank-' + idx);
-        var row  = document.getElementById('sb-row-'  + idx);
-        if (chip.parentNode === bank) { row.appendChild(chip); }
-        else { bank.appendChild(chip); }
-        sbCheckAuto(idx);
-      });
-      return chip;
-    }
-
-    function sbColorRow(idx) {
-      var row = document.getElementById('sb-row-' + idx);
-      var fb  = document.getElementById('sb-fb-'  + idx);
-      if (!row) return false;
-      var chips = row.querySelectorAll('.chip');
-      var placed = Array.from(chips).map(function(c){ return c.textContent; });
-      var valid = satzbauData[idx].valid;
-      var ok = valid.some(function(v){
-        return v.length === placed.length && v.every(function(w,i){ return w === placed[i]; });
-      });
-      row.classList.remove('correct','incorrect');
-      chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
-      if (placed.length > 0) {
-        if (ok) {
-          row.classList.add('correct');
-          chips.forEach(function(c){ c.classList.add('correct'); });
-          fb.textContent = '✓ Richtig!'; fb.className = 'satzbau-feedback correct';
-        } else {
-          row.classList.add('incorrect');
-          chips.forEach(function(c){ c.classList.add('incorrect'); });
-          fb.textContent = '✗ Noch nicht ganz.'; fb.className = 'satzbau-feedback incorrect';
-        }
-      } else {
-        fb.textContent = ''; fb.className = 'satzbau-feedback';
-      }
-      return ok;
-    }
-
-    function sbResetOne(idx) {
-      var bank = document.getElementById('sb-bank-' + idx);
-      var row  = document.getElementById('sb-row-'  + idx);
-      var fb   = document.getElementById('sb-fb-'   + idx);
-      while (bank.firstChild) bank.removeChild(bank.firstChild);
-      while (row.firstChild)  row.removeChild(row.firstChild);
-      row.classList.remove('correct', 'incorrect');
-      fb.textContent = ''; fb.className = 'satzbau-feedback';
-      var parts = satzbauData[idx].parts.slice();
-      for (var i = parts.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-      }
-      parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
-    }
-
-    function sbShowSolution(idx) {
-      var bank = document.getElementById('sb-bank-' + idx);
-      var row  = document.getElementById('sb-row-'  + idx);
-      while (bank.firstChild) bank.removeChild(bank.firstChild);
-      while (row.firstChild)  row.removeChild(row.firstChild);
-      satzbauData[idx].valid[0].forEach(function(word){ row.appendChild(sbMakeChip(word, idx)); });
-      sbColorRow(idx);
-    }
-
-    function sbCheckAuto(idx) {
-      var bank = document.getElementById('sb-bank-' + idx);
-      setTimeout(function(){
-        if (bank.querySelectorAll('.chip').length > 0) { return; }
-        timerAutoStart(4);
-        sbColorRow(idx);
-        var allOk = satzbauData.every(function(_, i){ return sbColorRow(i); });
-        if (allOk) stopTimer(4);
-      }, 500);
-    }
-
-    function initSatzbau() {
-      var cont = document.getElementById('satzbauContainer');
-      cont.innerHTML = '';
-      satzbauData.forEach(function(data, idx) {
-        var item = document.createElement('div');
-        item.style.marginBottom = '24px';
-
-        var bank = document.createElement('div');
-        bank.id = 'sb-bank-' + idx;
-        bank.className = 'chip-bank';
-
-        var row = document.createElement('div');
-        row.id = 'sb-row-' + idx;
-        row.className = 'drop-zone';
-        row.addEventListener('dragover', function(e){ e.preventDefault(); row.classList.add('dragover'); });
-        row.addEventListener('dragleave', function(){ row.classList.remove('dragover'); });
-        row.addEventListener('drop', function(e){
-          e.preventDefault(); row.classList.remove('dragover');
-          if (sbDragged) { row.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
-        });
-        bank.addEventListener('dragover', function(e){ e.preventDefault(); });
-        bank.addEventListener('drop', function(e){
-          e.preventDefault();
-          if (sbDragged) { bank.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
-        });
-
-        var fb = document.createElement('div');
-        fb.id = 'sb-fb-' + idx;
-        fb.className = 'satzbau-feedback';
-
-        var btnRow = document.createElement('div');
-        btnRow.className = 'sb-btn-row'
-        var btnS = document.createElement('button');
-        btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
-        btnS.addEventListener('click', function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
-        var btnR = document.createElement('button');
-        btnR.className = 'btn btn-reset'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
-        btnR.addEventListener('click', function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
-        btnRow.appendChild(btnS); btnRow.appendChild(btnR);
-
-        item.appendChild(bank);
-        item.appendChild(row);
-        item.appendChild(fb);
-        item.appendChild(btnRow);
-        cont.appendChild(item);
-
-        var parts = data.parts.slice();
-        for (var i = parts.length - 1; i > 0; i--) {
-          var j = Math.floor(Math.random() * (i + 1));
-          var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-        }
-        parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
-      });
-    }
-
-    function resetSatzbau() {
-      satzbauData.forEach(function(_, idx){ sbResetOne(idx); });
-      timerResetOne(4);
-    }
-
-    // Init
-    function initPage() {
-      var lueckeCont = document.getElementById('lueckenContainer');
-      lueckeCont.innerHTML = '';
-      lueckenData.forEach(function(item){
-        var div = document.createElement('div');
-        div.className = 'sentence-block';
-        div.innerHTML = item.text;
-        lueckeCont.appendChild(div);
-      });
-      renderMC();
-      initSatzbau();
-    }
-
-    document.addEventListener('DOMContentLoaded', initPage);
-  </script>
+/* ---------- Init ---------- */
+initRF();
+initWS();
+initLuecken();
+</script>
 </body>
 </html>

@@ -1,916 +1,260 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3022G – Irreale Sätze</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-    .header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
-    .header p, .header .subtitle { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
-    .header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
-    .tab-nav {
-      display: flex;
-      border-bottom: 2px solid #eee;
-      background: #fafbfc;
-      overflow-x: auto;
-    }
-    .nav-btn{
-      flex: 1;
-      padding: 16px 12px;
-      
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: #666;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      transition: all 0.3s;
-      
-    border-bottom:1px solid #ddd;}
-    .nav-btn:hover { background: #f0f2f5; color: #333; }
-    .nav-btn.active {
-      color: #667eea;
-      border-bottom: 3px solid #667eea;
-      background: white;
-    }
-    .nav-btn .nav-emoji { font-size: 1.4rem; }
-    .content-area {
-      padding: 30px;
-      min-height: 500px;
-    }
-    .tab { display: none; }
-    .tab.active { display: block; }
-    .help-box {
-      background: #e8f4fd;
-      border-left: 4px solid #0099ff;
-      padding: 14px 16px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 0.95rem;
-      color: #003d66;
-    }
-    .entdeck-intro {
-      background: #f3e5f5;
-      border-radius: 12px;
-      padding: 18px 22px;
-      margin-bottom: 20px;
-      border-left: 5px solid #9c27b0;
-      font-size: 0.97rem;
-      line-height: 1.75;
-    }
-    .entdeck-intro h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.05rem; }
-    .hl { background: #e1bee7; border-radius: 4px; padding: 0 4px; color: #4a148c; font-weight: 700; }
-    .mc-step { display: none; background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; border: 1px solid #c5cae9; }
-    .mc-step.active { display: block; }
-    .mc-step h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; }
-    .mc-options { display: flex; flex-direction: column; gap: 8px; }
-    .mc-btn {
-      padding: 9px 16px;
-      border: 2px solid #c5cae9;
-      border-radius: 8px;
-      background: white;
-      cursor: pointer;
-      text-align: left;
-      font-size: 0.92rem;
-      transition: all 0.2s;
-    }
-    .mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
-    .mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
-    .mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
-    .mc-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 1.3em; }
-    .mc-feedback.ok { color: #2e7d32; font-weight: 700; }
-    .mc-feedback.err { color: #c62828; }
-    .progress-dots { display: flex; gap: 8px; margin-bottom: 20px; }
-    .pdot { width: 14px; height: 14px; border-radius: 50%; background: #c5cae9; transition: background 0.3s; }
-    .pdot.done { background: #667eea; }
-    .regel-karte { display: none; background: linear-gradient(135deg, #e8eaf6, #ede7f6); border-radius: 14px; padding: 22px 26px; border-left: 5px solid #3949ab; margin-top: 10px; }
-    .regel-karte h3 { color: #1a237e; margin-bottom: 12px; font-size: 1.05rem; }
-    .regel-karte ul { margin-left: 18px; }
-    .regel-karte li { color: #333; line-height: 1.8; font-size: 0.95rem; }
-    .regel-karte .rk-example { background: white; border-radius: 8px; padding: 10px 14px; margin-top: 12px; border-left: 3px solid #7c4dff; font-size: 0.9rem; color: #333; }
-    .regel-karte .rk-example b { color: #3949ab; }
-    .sentence-block {
-      background: #fafbff;
-      border-left: 4px solid #667eea;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-      line-height: 1.8;
-      font-size: 0.95rem;
-    }
-    .chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      cursor: grab;
-      font-size: 0.85rem;
-      font-weight: 600;
-      user-select: none;
-      transition: transform 0.15s, opacity 0.15s;
-      white-space: nowrap;
-      display: inline-block;
-      margin: 4px;
-    }
-    .chip:active { cursor: grabbing; transform: scale(1.04); }
-    .chip.correct { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
-    .chip.wrong { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-    .chip.incorrect { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; }
-    .satzbau-feedback { font-size: 0.88rem; font-weight: 600; margin-top: 4px; min-height: 1.2em; }
-    .satzbau-feedback.correct { color: #27ae60; }
-    .satzbau-feedback.incorrect { color: #e74c3c; }
-    .chip-bank {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 12px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      min-height: 50px;
-    }
-    .drop-zone {
-      min-height: 80px;
-      border: 2px dashed #c5cae9;
-      border-radius: 10px;
-      padding: 12px;
-      background: #fafbff;
-      margin-bottom: 16px;
-      transition: background 0.2s;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: flex-start;
-      align-content: flex-start;
-    }
-    .drop-zone.dragover { background: #e8eaff; border-color: #667eea; }
-    input.blank {
-      border: 2px solid #c5cae9;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-      background: white;
-      margin: 0 2px;
-    }
-    input.blank:focus { border-color: #667eea; }
-    input.blank.correct { border-color: #27ae60; background: #e8f5e9; }
-    input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
-    .timer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: white;
-      border-radius: 10px;
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-      color: #666;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-    }
-    .timer-display { font-weight: 700; color: #667eea; font-size: 1rem; }
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: background 0.3s;
-    }
-    .btn:hover { background: #764ba2; }
-    .btn-reset { background: #f39c12; }
-    .btn-reset:hover { background: #d68910; }
-    .luecken-item {
-      background: #f8f9ff;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border-left: 4px solid #667eea;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .vocab-en { font-weight: 600; color: #764ba2; min-width: 140px; font-size: 0.95em; }
-    .vocab-arrow { color: #ccc; font-size: 1.2em; }
-    .vocab-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .vocab-inputs input {
-      border: none;
-      border-bottom: 2px solid #667eea;
-      background: white;
-      padding: 4px 8px;
-      font-family: inherit;
-      font-size: 0.95em;
-      outline: none;
-      transition: all 0.2s;
-    }
-    .vocab-inputs input:focus { border-bottom-color: #764ba2; background: #f0f7ff; }
-    .vocab-inputs input.correct { border-bottom-color: #27ae60; background: #e8f8f0; }
-    .vocab-inputs input.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
-    .vocab-inputs input.art { width: 70px; }
-    .vocab-inputs input.wort { width: 130px; }
-    .vocab-inputs input.plural { width: 140px; }
-    .author-footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 16px;
-      font-size: 0.8rem;
-      color: #aaa;
-    }
-    .author-footer a { color: #aaa; }
-    .author-name { font-weight: 700; }
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .header h1 { font-size: 1.3rem; }
-      .content-area { padding: 16px; }
-      .nav-btn{ font-size: 0.75rem; padding: 12px 8px; border-bottom:1px solid #ddd;flex:1;}
-      .nav-btn .nav-emoji { font-size: 1.1rem; }
-    }
-  
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Irreale Sätze — B2.3 Lektion 3022G</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
-
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
-@media (max-width: 600px) {
-    body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-    .tab-banner { max-height: 120px; }
-}
-/* ──────────────────────────────────────────────────────────── */
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 25px 30px; }
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 0; margin-bottom: 0; }
+h2 { color: #667eea; font-size: 1.4em; margin-bottom: 14px; }
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+.regel-box { background: #fffbe6; border-left: 4px solid #f1c40f; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 18px 0; line-height: 1.7; }
+.regel-box h3 { color: #b7950b; margin-bottom: 8px; font-size: 1.05em; }
+.beispiel-tabelle { width: 100%; border-collapse: collapse; margin: 12px 0 18px; font-size: 0.92em; }
+.beispiel-tabelle th { background: #f0f4ff; color: #667eea; padding: 8px 12px; text-align: left; border-bottom: 2px solid #c5cff5; }
+.beispiel-tabelle td { padding: 8px 12px; border-bottom: 1px solid #e0e7ff; }
+.beispiel-tabelle .markiert { color: #c0392b; font-weight: 700; }
+.luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 12px; line-height: 1.8; }
+.luecken-inp { border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-family: inherit; font-size: 0.95em; padding: 3px 6px; transition: border-color 0.2s; }
+.luecken-inp:focus { border-bottom-color: #667eea; }
+.luecken-inp.ok { border-bottom-color: #27ae60; color: #27ae60; font-weight: 700; }
+.luecken-inp.no { border-bottom-color: #e74c3c; color: #e74c3c; }
+.word-bank { display: flex; flex-wrap: wrap; gap: 8px; background: #f5f0ff; border: 1px dashed #c5cae9; border-radius: 10px; padding: 14px; margin-bottom: 20px; min-height: 44px; }
+.word-bank .wb-chip { background: white; border: 1.5px solid #667eea; border-radius: 16px; padding: 5px 12px; font-size: 0.88em; color: #667eea; font-weight: 500; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.wrong, .chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.satzbau-item { background: #fafbff; border: 1px solid #e0e7ff; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip.punct-chip { background: #f8f8f8; border: 2px solid #667eea; padding: 8px 16px; color: #333; font-weight: 700; font-size: 1.3em; min-width: 18px; text-align: center; cursor: move; }
+.chip.punct-chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.punct-chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
 .sb-btn-row { display:flex; gap:8px; margin-top:10px; }
-    .sb-btn-row .btn { padding:6px 16px; font-size:0.85em; color:#667eea; border-color:#c5cff5; border-radius:8px; background:#f5f7ff; }
-    .sb-btn-row .btn:hover { background:#667eea; color:white; border-color:#667eea; }
-    </style>
+.mc-item { background: #f8f9ff; border: 1px solid #e0e7ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 14px; }
+.mc-frage { font-weight: 600; color: #444; margin-bottom: 10px; }
+.mc-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.mc-btn { background: white; border: 1.5px solid #c5cff5; border-radius: 18px; padding: 6px 14px; font-size: 0.92em; color: #444; cursor: pointer; transition: all 0.2s; }
+.mc-btn:hover { background: #f0f4ff; }
+.mc-btn.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.mc-btn.wrong { background: #e74c3c; border-color: #e74c3c; color: white; }
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+}
+</style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <div class="header">
-      <h1>Irreale Sätze</h1>
-      <p class="subtitle">B2.3 · Einheit 2 · G</p>
-      <div class="big-emoji">📚</div>
+        <h1>Irreale Sätze</h1>
+        <p>B2.3 – Lektion 3022G · Grammatik</p>
+        <div class="big-emoji">🌀</div>
     </div>
 
-    <div class="tab-nav nav">
-      <div class="nav-btn active" onclick="showSection(0)">
-        <span class="nav-emoji">🔍</span>
-        Entdecken
-      </div>
-      <div class="nav-btn" onclick="showSection(1)">
-        <span class="nav-emoji">📖</span>
-        Regel
-      </div>
-      <div class="nav-btn" onclick="showSection(2)">
-        <span class="nav-emoji">✏️</span>
-        Lückentext
-      </div>
-      <div class="nav-btn" onclick="showSection(3)">
-        <span class="nav-emoji">🔀</span>
-        Satzbau
-      </div>
-      <div class="nav-btn" onclick="showSection(4)">
-        <span class="nav-emoji">📚</span>
-        Wortschatz
-      </div>
+    <div class="nav">
+        <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Regel</span></div>
+        <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">🎯</span><span class="nav-label">Multiple Choice</span></div>
+        <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+        <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
     </div>
 
-    <div class="content-area">
-      <!-- Tab 0: Entdecken -->
-      <div class="tab active" id="tab0">
-        <div class="entdeck-intro">
-          <h3>Was ist ein irrealer Satz?</h3>
-          <p>Beobachte die Sätze — einige beschreiben Wirklichkeit, andere beschreiben etwas, das nicht wirklich ist. Was ist der Unterschied?</p>
+    <div class="section active" id="sec-0">
+        <img class="tab-banner" src="https://images.pexels.com/photos/3401403/pexels-photo-3401403.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Tagträume und Wünsche">
+        <div class="sec-inner">
+            <h2>📖 Wenn alles anders wäre &#8230;</h2>
+            <div class="hilfe-box">
+                Mit irrealen Sätzen drücken Sie aus, dass etwas <b>nicht der Realität entspricht</b> — also Wünsche, Bedingungen, höfliche Bitten oder Beinahe-Erfahrungen. Dafür brauchen Sie den <b>Konjunktiv II</b>.
+            </div>
+            <div class="regel-box">
+                <h3>1. Bildung des Konjunktivs II</h3>
+                <p>Bei den meisten Verben verwenden Sie <b>würde + Infinitiv</b>:<br><i>Ich würde gern nach Italien fahren.</i></p>
+                <p style="margin-top:10px;">Bei <b>haben, sein, Modalverben</b> und einigen häufigen Verben nutzen Sie die <b>einfache Form</b>:</p>
+                <table class="beispiel-tabelle">
+                    <tr><th>Infinitiv</th><th>Präteritum</th><th>Konjunktiv II</th></tr>
+                    <tr><td>haben</td><td>hatte</td><td><span class="markiert">hätte</span></td></tr>
+                    <tr><td>sein</td><td>war</td><td><span class="markiert">wäre</span></td></tr>
+                    <tr><td>werden</td><td>wurde</td><td><span class="markiert">würde</span></td></tr>
+                    <tr><td>können</td><td>konnte</td><td><span class="markiert">könnte</span></td></tr>
+                    <tr><td>sollen</td><td>sollte</td><td><span class="markiert">sollte</span></td></tr>
+                    <tr><td>müssen</td><td>musste</td><td><span class="markiert">müsste</span></td></tr>
+                    <tr><td>dürfen</td><td>durfte</td><td><span class="markiert">dürfte</span></td></tr>
+                    <tr><td>wissen</td><td>wusste</td><td><span class="markiert">wüsste</span></td></tr>
+                </table>
+            </div>
+            <div class="regel-box">
+                <h3>2. Verwendung</h3>
+                <p><b>Wunsch:</b> <i>Wenn ich nur mehr Zeit hätte!</i></p>
+                <p><b>Irreale Bedingung (Gegenwart):</b> <i>Wenn ich Geld hätte, würde ich verreisen.</i></p>
+                <p><b>Irreale Bedingung (Vergangenheit):</b> <i>Wenn ich das gewusst hätte, wäre ich gekommen.</i></p>
+                <p><b>Höfliche Bitte:</b> <i>Könnten Sie mir kurz helfen?</i></p>
+                <p><b>Beinahe-Erfahrung:</b> <i>Ich wäre fast hingefallen.</i></p>
+            </div>
+            <div class="regel-box">
+                <h3>3. Vergangenheit</h3>
+                <p>Für irreale Sätze in der Vergangenheit nutzen Sie <b>hätte / wäre + Partizip II</b>:<br>
+                <i>Wenn ich rechtzeitig <span class="markiert">aufgestanden wäre</span>, hätte ich den Zug nicht verpasst.</i><br>
+                <i>Sie hätte den Job bekommen, wenn sie sich beworben <span class="markiert">hätte</span>.</i></p>
+            </div>
         </div>
+    </div>
 
-        <div class="progress-dots">
-          <div class="pdot" id="pdot0"></div>
-          <div class="pdot" id="pdot1"></div>
-          <div class="pdot" id="pdot2"></div>
-          <div class="pdot" id="pdot3"></div>
+    <div class="section" id="sec-1">
+        <img class="tab-banner" src="https://images.pexels.com/photos/4348404/pexels-photo-4348404.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Entscheidungen treffen">
+        <div class="sec-inner">
+            <h2>🎯 Welche Form passt?</h2>
+            <div class="control-bar">
+                <div class="btn-row"><button class="btn" onclick="resetMC(); resetTimer(1);">Neu starten</button></div>
+                <div class="timer-display"><span>⏱ <span id="timer-1">00:00</span></span><span>🏆 <span id="best-1">--:--</span></span></div>
+            </div>
+            <div class="hilfe-box"><strong>Aufgabe:</strong> Wählen Sie die korrekte Form des Konjunktivs II.</div>
+            <div id="mcContainer"></div>
         </div>
+    </div>
 
-        <div class="mc-step active" id="mc-step0">
-          <h4>Schritt 1: Echte vs. Irreale Bedingung</h4>
-          <p style="margin-bottom: 10px; color: #555;">Lese die zwei Sätze:</p>
-          <p style="margin-bottom: 8px; color: #333;"><strong>A:</strong> Wenn ich Zeit habe, gehe ich ins Kino. (Das passiert wirklich.)</p>
-          <p style="margin-bottom: 12px; color: #333;"><strong>B:</strong> Wenn ich Zeit hätte, würde ich ins Kino gehen. (Das passiert nicht wirklich.)</p>
-          <p style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">Welcher Satz drückt etwas aus, das nicht der Realität entspricht?</p>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcCheck(0, this, false)">Satz A — die echte Bedingung</button>
-            <button class="mc-btn" onclick="mcCheck(0, this, true)">Satz B — die irreale Bedingung</button>
-          </div>
-          <div class="mc-feedback" id="mcfb0"></div>
+    <div class="section" id="sec-2">
+        <img class="tab-banner" src="https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Üben">
+        <div class="sec-inner">
+            <h2>✏️ Lückentext</h2>
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn" onclick="lueckenSolve()">Lösungen</button>
+                    <button class="btn" onclick="resetLuecken(); resetTimer(2);">Neu starten</button>
+                </div>
+                <div class="timer-display"><span>⏱ <span id="timer-2">00:00</span></span><span>🏆 <span id="best-2">--:--</span></span></div>
+            </div>
+            <div class="hilfe-box"><strong>Aufgabe:</strong> Setzen Sie das Verb in Klammern in den Konjunktiv II.</div>
+            <div class="word-bank" id="wbank"></div>
+            <div id="luecken-area"></div>
         </div>
+    </div>
 
-        <div class="mc-step" id="mc-step1">
-          <h4>Schritt 2: Konjunktiv II erkennen</h4>
-          <p style="margin-bottom: 10px; color: #555;">Welche Verben sind im Konjunktiv II?</p>
-          <p style="margin-bottom: 12px; color: #333;"><strong>„Wenn ich mehr Geld <span class=“hl">hätte</span>, <span class="hl">würde</span> ich eine Reise machen."</strong></p>
-          <p style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">Der Konjunktiv II zeigt, dass etwas nicht wirklich ist — nur ein Traum oder eine Vorstellung.</p>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcCheck(1, this, true)">Konjunktiv II = „nicht real, nur vorgestellt“</button>
-            <button class="mc-btn" onclick="mcCheck(1, this, false)">Konjunktiv II = „das passiert morgen“</button>
-          </div>
-          <div class="mc-feedback" id="mcfb1"></div>
+    <div class="section" id="sec-3">
+        <img class="tab-banner" src="https://images.pexels.com/photos/1148998/pexels-photo-1148998.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bausteine sortieren">
+        <div class="sec-inner">
+            <h2>🧩 Satzbau</h2>
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn" onclick="satzbauSolveAll()">Lösungen</button>
+                    <button class="btn" onclick="resetSatzbau(); resetTimer(3);">Neu starten</button>
+                </div>
+                <div class="timer-display"><span>⏱ <span id="timer-3">00:00</span></span><span>🏆 <span id="best-3">--:--</span></span></div>
+            </div>
+            <div class="hilfe-box"><strong>Aufgabe:</strong> Bringen Sie die Wörter so in Reihenfolge, dass ein irrealer Satz entsteht.</div>
+            <div id="satzbauContainer"></div>
         </div>
-
-        <div class="mc-step" id="mc-step2">
-          <h4>Schritt 3: Struktur irrealer Sätze</h4>
-          <p style="margin-bottom: 10px; color: #555;">Vergleiche die Strukturen:</p>
-          <p style="margin-bottom: 8px; color: #333;"><strong>Echte Bedingung:</strong> Wenn + Präsens, dann Präsens</p>
-          <p style="margin-bottom: 12px; color: #333;"><strong>Irreale Bedingung:</strong> Wenn + Konjunktiv II, dann würde + Infinitiv</p>
-          <p style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">Es gibt auch: „Hätte ich gewusst...“ (ohne wenn)</p>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcCheck(2, this, true)">Das ist die richtige Struktur</button>
-            <button class="mc-btn" onclick="mcCheck(2, this, false)">Das unterscheidet sich beim Englischen</button>
-          </div>
-          <div class="mc-feedback" id="mcfb2"></div>
-        </div>
-
-        <div class="mc-step" id="mc-step3">
-          <h4>Schritt 4: Anwendungsfall</h4>
-          <p style="margin-bottom: 10px; color: #555;">Welcher Satz ist ein irrealer Satz?</p>
-          <div class="mc-options">
-            <button class="mc-btn" onclick="mcCheck(3, this, false)">Wenn es schneit, fahren wir Ski.</button>
-            <button class="mc-btn" onclick="mcCheck(3, this, true)">Wenn es schneit, würden wir Ski fahren.</button>
-            <button class="mc-btn" onclick="mcCheck(3, this, false)">Wenn es schneite, würden wir fahren.</button>
-          </div>
-          <div class="mc-feedback" id="mcfb3"></div>
-        </div>
-
-        <div class="regel-karte" id="regelkarte">
-          <h3>Regel: Irreale Konditionalsätze</h3>
-          <ul>
-            <li><strong>Struktur:</strong> Wenn + Konjunktiv II, dann würde + Infinitiv oder Konjunktiv II</li>
-            <li><strong>Bedeutung:</strong> Die Bedingung ist nicht real — nur vorgestellt oder unmöglich</li>
-            <li><strong>Beispiele:</strong> Wenn ich reich wäre, würde ich reisen. Hätte ich Zeit, käme ich mit.</li>
-            <li><strong>Bildung:</strong> Konjunktiv II = würde + Infinitiv oder Stammformen (siehe Tabelle unten)</li>
-          </ul>
-          <div class="rk-example">
-            <b>Stammformen im Konjunktiv II:</b><br>
-            haben → hätte, sein → wäre, können → könnte, müssen → müsste, dürfen → dürfte, sollen → sollte
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 1: Regel -->
-      <div class="tab" id="tab1">
-        <div class="help-box">
-          <strong>Regel:</strong> Irreale Konditionalsätze drücken aus, dass eine Bedingung nicht real ist — nur eine Vorstellung, ein Wunsch oder eine unmögliche Situation.
-        </div>
-        <div style="background: #f3e5f5; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px; line-height: 1.8;">
-          <h3 style="color: #6a1b9a; margin-bottom: 12px;">Konjunktiv II — Bildung</h3>
-          <p style="margin-bottom: 10px;"><strong>Schwache Verben:</strong> Präteritumstamm + -e- + Endung: ich spielte → ich spielte (irrelevant, da Umschreibung üblich)</p>
-          <p style="margin-bottom: 10px;"><strong>Starke Verben & Modalverben:</strong> Präteritumstamm + Umlaut + -e- + Endung</p>
-          <p style="margin-bottom: 10px;"><strong>Häufige Stammformen:</strong></p>
-          <ul style="margin-left: 20px; margin-bottom: 12px; line-height: 1.8;">
-            <li>haben → hätte | sein → wäre</li>
-            <li>geben → gäbe | nehmen → näme | sprechen → spräche</li>
-            <li>können → könnte | müssen → müsste | dürfen → dürfte</li>
-            <li>wollen → wollte | sollen → sollte</li>
-          </ul>
-          <p style="margin-bottom: 10px;"><strong>Umschreibung mit würde:</strong> Besonders bei schwachen Verben üblich:</p>
-          <p style="color: #555;">„Wenn ich Zeit hätte, würde ich schlafen.“ (statt „schliefe“)</p>
-        </div>
-        <div style="background: #fafbff; border-radius: 8px; padding: 16px 18px; border-left: 4px solid #667eea;">
-          <h3 style="color: #667eea; margin-bottom: 12px;">Beispiele</h3>
-          <p style="margin-bottom: 8px; color: #333;"><strong>Einfache Bedingung:</strong> Wenn ich dich träfe, würde ich dir alles erzählen.</p>
-          <p style="margin-bottom: 8px; color: #333;"><strong>Elliptisch (ohne wenn):</strong> Hätte ich das früher gewusst, wäre ich nicht hergekommen.</p>
-          <p style="margin-bottom: 8px; color: #333;"><strong>Mit würde-Form:</strong> Wenn die Zeitung billiger wäre, würde ich sie abonnieren.</p>
-          <p style="color: #333;"><strong>Doppelter Konjunktiv II:</strong> Wenn ich Zeit hätte, käme ich mit dir.</p>
-        </div>
-      </div>
-
-      <!-- Tab 2: Lückentext -->
-      <div class="tab" id="tab2">
-        
-<div class="btn-row">
-          <button class="btn btn-show" onclick="showLueckenSolution()">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetLuecken()">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Ergänze die Lücken mit der richtigen Konjunktiv-II-Form.
-        </div>
-        <div id="lueckenContainer"></div>
-      </div>
-
-      <!-- Tab 3: Satzbau -->
-      <div class="tab" id="tab3">
-        
-<div class="btn-row">
-          <button class="btn btn-reset" onclick="resetSatzbau()">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Bringe die Wörter in die richtige Reihenfolge.
-        </div>
-        <div id="satzbauContainer"></div>
-      </div>
-
-      <!-- Tab 4: Wortschatz -->
-      <div class="tab" id="tab4">
-        
-<div class="btn-row">
-          <button class="btn btn-show" onclick="showVocabSolution()">Lösungen</button>
-          <button class="btn btn-reset" onclick="resetVocab()">Neu starten</button>
-        </div>
-        <div class="help-box">
-          <strong>Aufgabe:</strong> Übersetze die Wörter ins Deutsche. Bei Nomen: Artikel + Wort + Plural!
-        </div>
-        <div id="vocabContainer"></div>
-      </div>
     </div>
 
     <div class="author-footer">
-      <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
-      <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+        <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+        <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
     </div>
-  </div>
+</div>
 
-  <script>
-function showSection(n){
-  var tabs=document.querySelectorAll('.tab-content');
-  if(!tabs.length)tabs=document.querySelectorAll('.tab');
-  tabs.forEach(function(t,i){t.classList.toggle('active',i===n);});
-  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===n);});
-}
+<script>
+'use strict';
+function showSection(idx){document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===idx);});document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===idx);});}
+var timerIntervals=[null,null,null,null],timerSeconds=[0,0,0,0],timerRunning=[false,false,false,false],bestSeconds=[Infinity,Infinity,Infinity,Infinity];
+function timerAutoStart(idx){if(timerRunning[idx])return;timerRunning[idx]=true;timerIntervals[idx]=setInterval(function(){timerSeconds[idx]++;var m=Math.floor(timerSeconds[idx]/60),s=timerSeconds[idx]%60;var el=document.getElementById('timer-'+idx);if(el)el.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;},1000);}
+function timerStop(idx){if(!timerRunning[idx])return;clearInterval(timerIntervals[idx]);timerRunning[idx]=false;if(timerSeconds[idx]<bestSeconds[idx]&&timerSeconds[idx]>0){bestSeconds[idx]=timerSeconds[idx];var m=Math.floor(bestSeconds[idx]/60),s=bestSeconds[idx]%60;var el=document.getElementById('best-'+idx);if(el)el.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;}}
+function resetTimer(idx){clearInterval(timerIntervals[idx]);timerRunning[idx]=false;timerSeconds[idx]=0;var el=document.getElementById('timer-'+idx);if(el)el.textContent='00:00';}
+function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 
-    var TIMER_PREFIX='B2_3022G_';
-var timerStarted=[false,false,false,false,false,false,false];
-var timerRunning=[false,false,false,false,false,false,false];
-var timerSeconds=[0,0,0,0,0,0,0];
-var timerIntervals=[null,null,null,null,null,null,null];
-function timerAutoStart(n){
-  if(timerStarted[n]) return;
-  timerStarted[n]=true; timerRunning[n]=true;
-  timerIntervals[n]=setInterval(function(){
-    timerSeconds[n]++;
-    var el=document.getElementById('timer-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  },1000);
-}
-function stopTimer(n){
-  if(!timerRunning[n]) return;
-  clearInterval(timerIntervals[n]); timerRunning[n]=false;
-  var best=parseInt(localStorage.getItem(TIMER_PREFIX+n)||'999999');
-  if(timerSeconds[n]>0&&timerSeconds[n]<best){
-    localStorage.setItem(TIMER_PREFIX+n,timerSeconds[n]);
-    var el=document.getElementById('best-'+n);
-    if(el) el.textContent=fmtTime(timerSeconds[n]);
-  }
-  timerSeconds[n]=0; timerStarted[n]=false;
-  var td=document.getElementById('timer-'+n);
-  if(td) td.textContent='0:00';
-}
-function timerResetOne(n){
-  clearInterval(timerIntervals[n]); timerRunning[n]=false; timerStarted[n]=false; timerSeconds[n]=0;
-  var el=document.getElementById('timer-'+n);
-  if(el) el.textContent='0:00';
-}
-function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
-document.addEventListener('DOMContentLoaded',function(){
-  [2,3,4].forEach(function(n){
-    var b=localStorage.getItem(TIMER_PREFIX+n);
-    if(b){ var el=document.getElementById('best-'+n); if(el) el.textContent=fmtTime(parseInt(b)); }
-  });
-});
+var MC_DATA=[
+    {frage:'Wenn ich Zeit ___, würde ich öfter ins Theater gehen.',options:['hatte','hätte','habe','hätten'],answer:'hätte'},
+    {frage:'Ich ___ gern wissen, ob morgen die Sitzung stattfindet.',options:['würde','hätte','wäre','werde'],answer:'würde'},
+    {frage:'___ Sie mir bitte die Tür aufhalten?',options:['Können','Konnten','Könnten','Kannst'],answer:'Könnten'},
+    {frage:'Wenn er pünktlich gekommen ___, hätten wir den Zug erreicht.',options:['wäre','hätte','würde','sei'],answer:'wäre'},
+    {frage:'Ich ___ fast die Verabredung vergessen!',options:['hätte','wäre','würde','könnte'],answer:'hätte'},
+    {frage:'Wenn wir mehr geübt ___, könnten wir die Prüfung bestehen.',options:['hätten','wären','würden','sollten'],answer:'hätten'},
+    {frage:'An deiner Stelle ___ ich mich sofort melden.',options:['würde','hätte','wäre','werde'],answer:'würde'},
+    {frage:'Sie ___ glücklich, wenn die Reise klappen würde.',options:['wäre','hätte','würde','sollte'],answer:'wäre'},
+    {frage:'Wir ___ uns über eine Antwort sehr freuen.',options:['würden','hätten','wären','könnten'],answer:'würden'},
+    {frage:'Hätte ich nur besser aufgepasst, dann ___ das nicht passiert.',options:['wäre','hätte','würde','sollte'],answer:'wäre'},
+];
+function initMC(){var con=document.getElementById('mcContainer');con.innerHTML='';MC_DATA.forEach(function(ex,i){var item=document.createElement('div');item.className='mc-item';var f=document.createElement('div');f.className='mc-frage';f.textContent=(i+1)+'. '+ex.frage;item.appendChild(f);var opts=document.createElement('div');opts.className='mc-options';shuffle(ex.options).forEach(function(opt){var b=document.createElement('button');b.className='mc-btn';b.textContent=opt;b.addEventListener('click',function(){timerAutoStart(1);if(b.classList.contains('correct')||b.classList.contains('wrong'))return;if(opt===ex.answer){b.classList.add('correct');Array.from(opts.querySelectorAll('.mc-btn')).forEach(function(x){x.disabled=true;});checkMCAllDone();}else{b.classList.add('wrong');}});opts.appendChild(b);});item.appendChild(opts);con.appendChild(item);});}
+function checkMCAllDone(){var allOk=MC_DATA.every(function(_,i){var item=document.querySelectorAll('#mcContainer .mc-item')[i];return item.querySelector('.mc-btn.correct');});if(allOk)timerStop(1);}
+function resetMC(){initMC();}
 
-    // Lückentext Daten
-    var lueckenData = [
-      { text: 'Wenn ich ein Auto <input class="blank" data-answer="hätte" oninput="liveCheckLuecken(this)"> , würde ich zur Arbeit fahren.', answer: 'hätte' },
-      { text: 'Hätte ich mehr Zeit, <input class="blank" data-answer="käme" oninput="liveCheckLuecken(this)"> ich mit dir ins Kino.', answer: 'käme' },
-      { text: 'Wenn die Nachrichten interessanter <input class="blank" data-answer="wären" oninput="liveCheckLuecken(this)"> , würde ich mehr Zeitung lesen.', answer: 'wären' },
-      { text: 'Wenn ich dich <input class="blank" data-answer="träfe" oninput="liveCheckLuecken(this)"> , würde ich dir alles erzählen.', answer: 'träfe' },
-      { text: 'Es <input class="blank" data-answer="wäre" oninput="liveCheckLuecken(this)"> schön, wenn du hier <input class="blank" data-answer="wärst" oninput="liveCheckLuecken(this)"> .', answer: 'wäre' }
-    ];
+var LUECKEN=[
+    {segs:[{t:'Wenn ich heute frei '},{b:'hätte'},{t:', würde ich endlich den Garten umgraben. (haben)'}],hint:'haben — Konj. II'},
+    {segs:[{t:'Es '},{b:'wäre'},{t:' wundervoll, wenn das Wetter morgen besser wird. (sein)'}],hint:'sein — Konj. II'},
+    {segs:[{t:'Wenn ich Französisch sprechen '},{b:'könnte'},{t:', würde ich nach Lyon ziehen. (können)'}],hint:'können — Konj. II'},
+    {segs:[{t:'An deiner Stelle '},{b:'würde'},{t:' ich mich bei der Firma direkt bewerben. (werden + ich)'}],hint:'würde + Infinitiv'},
+    {segs:[{t:'Wenn er besser zugehört '},{b:'hätte'},{t:', wäre die Diskussion anders verlaufen. (haben — Vergangenheit)'}],hint:'hätte + Partizip'},
+    {segs:[{t:'Sie '},{b:'wäre'},{t:' beinahe zu spät gekommen, weil der Bus nicht kam. (sein — Vergangenheit)'}],hint:'wäre + Partizip'},
+    {segs:[{t:'Wenn wir das früher '},{b:'gewusst'},{t:' hätten, hätten wir anders entschieden. (wissen — Partizip)'}],hint:'Partizip von wissen'},
+    {segs:[{t:'Ich '},{b:'müsste'},{t:' jetzt eigentlich anfangen, sonst werde ich nicht fertig. (müssen)'}],hint:'müssen — Konj. II'},
+    {segs:[{t:'Wenn ich du '},{b:'wäre'},{t:', würde ich noch einmal nachfragen. (sein)'}],hint:'sein — Konj. II'},
+    {segs:[{t:'Es '},{b:'sollte'},{t:' eigentlich klar sein, dass diese Lösung nicht funktioniert. (sollen)'}],hint:'sollen — Konj. II'},
+];
+function buildLuecken(){var area=document.getElementById('luecken-area');var wbank=document.getElementById('wbank');area.innerHTML='';wbank.innerHTML='';var words=[];LUECKEN.forEach(function(ex){ex.segs.forEach(function(s){if(s.b)words.push(s.b);});});var unique=[];words.forEach(function(w){if(unique.indexOf(w)===-1)unique.push(w);});shuffle(unique).forEach(function(w){var sp=document.createElement('span');sp.className='wb-chip';sp.textContent=w;wbank.appendChild(sp);});LUECKEN.forEach(function(ex){var item=document.createElement('div');item.className='luecken-item';ex.segs.forEach(function(s){if(s.t)item.appendChild(document.createTextNode(s.t));else{var inp=document.createElement('input');inp.className='luecken-inp';inp.dataset.answer=s.b;inp.setAttribute('autocomplete','off');inp.style.width=(Math.max(s.b.length,(ex.hint||'').length)+4)+'ch';inp.placeholder=ex.hint||'';inp.addEventListener('input',function(){lueckenCheck(this);});item.appendChild(inp);}});area.appendChild(item);});}
+function lueckenCheck(inp){timerAutoStart(2);var val=inp.value.trim(),ans=inp.dataset.answer;inp.classList.remove('ok','no');if(!val)return;if(val===ans){inp.classList.add('ok');var allOk=Array.from(document.querySelectorAll('#luecken-area .luecken-inp')).every(function(i){return i.classList.contains('ok');});if(allOk)timerStop(2);}else if(ans.toLowerCase().indexOf(val.toLowerCase())===0){}else{inp.classList.add('no');}}
+function lueckenSolve(){document.querySelectorAll('#luecken-area .luecken-inp').forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.remove('no');inp.classList.add('ok');});}
+function resetLuecken(){resetTimer(2);buildLuecken();}
 
-    function liveCheckLuecken(inp) {
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // valid prefix
-      } else {
-        inp.classList.add('wrong');
-      }
-      timerAutoStart(2);
-      checkLueckenAll();
-    }
+var satzbauData=[
+    {parts:['wenn','ich','mehr','Geld','hätte',',','würde','ich','ein','Haus','kaufen'],valid:[['wenn','ich','mehr','Geld','hätte',',','würde','ich','ein','Haus','kaufen']],punct:'.'},
+    {parts:['könnten','Sie','mir','bitte','kurz','helfen'],valid:[['könnten','Sie','mir','bitte','kurz','helfen']],punct:'?'},
+    {parts:['ich','wäre','beinahe','aus','dem','Bus','gefallen'],valid:[['ich','wäre','beinahe','aus','dem','Bus','gefallen']],punct:'.'},
+    {parts:['wenn','wir','früher','aufgestanden','wären',',','hätten','wir','den','Zug','erreicht'],valid:[['wenn','wir','früher','aufgestanden','wären',',','hätten','wir','den','Zug','erreicht']],punct:'.'},
+    {parts:['ich','wüsste','gern',',','wann','der','nächste','Termin','ist'],valid:[['ich','wüsste','gern',',','wann','der','nächste','Termin','ist']],punct:'.'},
+    {parts:['an','deiner','Stelle','würde','ich','mich','noch','einmal','melden'],valid:[['an','deiner','Stelle','würde','ich','mich','noch','einmal','melden']],punct:'.'},
+    {parts:['hätte','sie','besser','aufgepasst',',','wäre','das','nicht','passiert'],valid:[['hätte','sie','besser','aufgepasst',',','wäre','das','nicht','passiert']],punct:'.'},
+];
+var sbDragged=null;
+function getSbCursor(){var c=document.getElementById('sb-insert-cursor');if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}return c;}
+function getSbInsertPos(zone,clientX){var chips=Array.from(zone.querySelectorAll('.chip'));for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(clientX<r.left+r.width/2)return chips[i];}return null;}
+function sbCapitalize(str){return str.charAt(0).toUpperCase()+str.slice(1);}
+function sbUpdateCapitalization(row){Array.from(row.querySelectorAll('.chip')).forEach(function(c,i){var orig=c.dataset.orig;if(orig===','||orig===';')return;var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);});}
+function sbMakeChip(word,idx){var chip=document.createElement('div');chip.className='chip';if(word===','||word===';')chip.classList.add('punct-chip');chip.textContent=word;chip.dataset.orig=word;chip.dataset.sbIdx=String(idx);chip.draggable=true;chip.addEventListener('dragstart',function(e){sbDragged=chip;timerAutoStart(3);e.dataTransfer.setData('text/plain','');setTimeout(function(){chip.style.opacity='0.4';},0);});chip.addEventListener('dragend',function(){chip.style.opacity='';sbDragged=null;var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);});return chip;}
+function sbRegisterZone(zone,idx){zone.addEventListener('dragover',function(e){e.preventDefault();if(!sbDragged||sbDragged.dataset.sbIdx!==String(idx))return;var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);});zone.addEventListener('dragleave',function(e){if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}});zone.addEventListener('drop',function(e){e.preventDefault();if(!sbDragged||sbDragged.dataset.sbIdx!==String(idx))return;var cursor=document.getElementById('sb-insert-cursor');if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else zone.appendChild(sbDragged);sbDragged=null;sbUpdateCapitalization(document.getElementById('sb-row-'+idx));sbCheckAuto(idx);});}
+function sbColorRow(idx){var row=document.getElementById('sb-row-'+idx);var chips=Array.from(row.querySelectorAll('.chip'));var order=chips.map(function(c){return c.dataset.orig;});var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});var ex=row.querySelector('.sb-punkt');if(ex)ex.parentNode.removeChild(ex);if(ok){var p=document.createElement('span');p.className='sb-punkt';p.textContent=satzbauData[idx].punct||'.';row.appendChild(p);}return ok;}
+function sbCheckAuto(idx){var bank=document.getElementById('sb-bank-'+idx),row=document.getElementById('sb-row-'+idx),fb=document.getElementById('sb-fb-'+idx);if(bank.querySelectorAll('.chip').length>0){row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});row.classList.remove('correct','incorrect');fb.textContent='';return;}setTimeout(function(){timerAutoStart(3);var ok=sbColorRow(idx);if(ok){row.classList.add('correct');row.classList.remove('incorrect');fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';sbCheckAllDone();}else{row.classList.add('incorrect');row.classList.remove('correct');fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge!';}},500);}
+function sbCheckAllDone(){var allOk=satzbauData.every(function(_,i){var r=document.getElementById('sb-row-'+i);return r&&r.classList.contains('correct');});if(allOk)timerStop(3);}
+function sbShowSolution(idx){var bank=document.getElementById('sb-bank-'+idx),row=document.getElementById('sb-row-'+idx),fb=document.getElementById('sb-fb-'+idx);var solution=satzbauData[idx].valid[0];var allChips={};Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);solution.forEach(function(word,i){var chip=allChips[word];if(chip){if(word!==','&&word!==';')chip.textContent=(i===0)?sbCapitalize(word):word;chip.classList.remove('correct','incorrect');row.appendChild(chip);}});fb.textContent='';setTimeout(function(){sbCheckAuto(idx);},100);}
+function sbResetOne(idx){var bank=document.getElementById('sb-bank-'+idx),row=document.getElementById('sb-row-'+idx),fb=document.getElementById('sb-fb-'+idx);while(bank.firstChild)bank.removeChild(bank.firstChild);while(row.firstChild)row.removeChild(row.firstChild);row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';var parts=satzbauData[idx].parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=parts[i];parts[i]=parts[j];parts[j]=t;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});}
+function satzbauSolveAll(){satzbauData.forEach(function(_,i){sbShowSolution(i);});}
+function initSatzbau(){var container=document.getElementById('satzbauContainer');container.innerHTML='';satzbauData.forEach(function(ex,idx){var item=document.createElement('div');item.className='satzbau-item';var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;var parts=ex.parts.slice();for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=parts[i];parts[i]=parts[j];parts[j]=t;}parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});sbRegisterZone(bank,idx);sbRegisterZone(row,idx);bank.addEventListener('click',function(e){var chip=e.target.closest('.chip');if(!chip)return;timerAutoStart(3);row.appendChild(chip);chip.classList.remove('correct','incorrect');sbUpdateCapitalization(row);sbCheckAuto(idx);});row.addEventListener('click',function(e){var chip=e.target.closest('.chip');if(!chip)return;bank.appendChild(chip);chip.classList.remove('correct','incorrect');chip.textContent=chip.dataset.orig;sbUpdateCapitalization(row);sbCheckAuto(idx);});var btnRow=document.createElement('div');btnRow.className='sb-btn-row';var solveBtn=document.createElement('button');solveBtn.className='btn';solveBtn.textContent='Lösen';solveBtn.setAttribute('data-idx',idx);solveBtn.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});var resetBtn=document.createElement('button');resetBtn.className='btn';resetBtn.textContent='↺ Neustart';resetBtn.setAttribute('data-idx',idx);resetBtn.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});btnRow.appendChild(solveBtn);btnRow.appendChild(resetBtn);item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);container.appendChild(item);});}
+function resetSatzbau(){resetTimer(3);initSatzbau();}
 
-    function checkLueckenAll() {
-      var inputs = document.querySelectorAll('#tab2 input.blank');
-      if (inputs.length === 0) return;
-      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
-      if (allOk) stopTimer(2);
-    }
-
-    function showLueckenSolution() {
-      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
-        inp.value = inp.dataset.answer;
-        inp.classList.add('correct');
-      });
-      checkLueckenAll();
-    }
-
-    function resetLuecken() {
-      document.querySelectorAll('#tab2 input.blank').forEach(inp => {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-      });
-      timerResetOne(2);
-    }
-
-    // Satzbau
-    var satzbauData = [
-      { parts: ['Wenn', 'ich', 'mehr', 'Zeit', 'hätte', ',', 'würde', 'ich', 'reisen', '.'],
-        valid: [['Wenn', 'ich', 'mehr', 'Zeit', 'hätte', ',', 'würde', 'ich', 'reisen', '.']] },
-      { parts: ['Hätte', 'ich', 'dich', 'gekannt', ',', 'wäre', 'alles', 'anders', '.'],
-        valid: [['Hätte', 'ich', 'dich', 'gekannt', ',', 'wäre', 'alles', 'anders', '.']] },
-      { parts: ['Wenn', 'die', 'Zeitung', 'billiger', 'wäre', ',', 'würde', 'ich', 'sie', 'abonnieren', '.'],
-        valid: [['Wenn', 'die', 'Zeitung', 'billiger', 'wäre', ',', 'würde', 'ich', 'sie', 'abonnieren', '.']] },
-      { parts: ['Ich', 'würde', 'es', 'verstehen', ',', 'wenn', 'du', 'nicht', 'kommst', '.'],
-        valid: [['Ich', 'würde', 'es', 'verstehen', ',', 'wenn', 'du', 'nicht', 'kommst', '.']] },
-      { parts: ['Du', 'könntest', 'mir', 'helfen', ',', 'wenn', 'du', 'wolltest', '.'],
-        valid: [['Du', 'könntest', 'mir', 'helfen', ',', 'wenn', 'du', 'wolltest', '.']] }
-    ];
-
-    var sbDragged = null;
-
-    function sbMakeChip(word, idx) {
-      var chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.textContent = word;
-      chip.draggable = true;
-      chip.dataset.word = word;
-      chip.addEventListener('dragstart', function(e) {
-        e.dataTransfer.setData('text/plain', '');
-        sbDragged = chip;
-      });
-      chip.addEventListener('click', function() {
-        var bank = document.getElementById('sb-bank-' + idx);
-        var row  = document.getElementById('sb-row-'  + idx);
-        if (chip.parentNode === bank) { row.appendChild(chip); }
-        else { bank.appendChild(chip); }
-        sbCheckAuto(idx);
-      });
-      return chip;
-    }
-
-    function sbColorRow(idx) {
-      var row = document.getElementById('sb-row-' + idx);
-      var fb  = document.getElementById('sb-fb-'  + idx);
-      if (!row) return false;
-      var chips = row.querySelectorAll('.chip');
-      var placed = Array.from(chips).map(function(c){ return c.textContent; });
-      var valid = satzbauData[idx].valid;
-      var ok = valid.some(function(v){
-        return v.length === placed.length && v.every(function(w,i){ return w === placed[i]; });
-      });
-      row.classList.remove('correct','incorrect');
-      chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
-      if (placed.length > 0) {
-        if (ok) {
-          row.classList.add('correct');
-          chips.forEach(function(c){ c.classList.add('correct'); });
-          fb.textContent = '✓ Richtig!'; fb.className = 'satzbau-feedback correct';
-        } else {
-          row.classList.add('incorrect');
-          chips.forEach(function(c){ c.classList.add('incorrect'); });
-          fb.textContent = '✗ Noch nicht ganz.'; fb.className = 'satzbau-feedback incorrect';
-        }
-      } else {
-        fb.textContent = ''; fb.className = 'satzbau-feedback';
-      }
-      return ok;
-    }
-
-    function sbResetOne(idx) {
-      var bank = document.getElementById('sb-bank-' + idx);
-      var row  = document.getElementById('sb-row-'  + idx);
-      var fb   = document.getElementById('sb-fb-'   + idx);
-      while (bank.firstChild) bank.removeChild(bank.firstChild);
-      while (row.firstChild)  row.removeChild(row.firstChild);
-      row.classList.remove('correct', 'incorrect');
-      fb.textContent = ''; fb.className = 'satzbau-feedback';
-      var parts = satzbauData[idx].parts.slice();
-      for (var i = parts.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-      }
-      parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
-    }
-
-    function sbShowSolution(idx) {
-      var bank = document.getElementById('sb-bank-' + idx);
-      var row  = document.getElementById('sb-row-'  + idx);
-      while (bank.firstChild) bank.removeChild(bank.firstChild);
-      while (row.firstChild)  row.removeChild(row.firstChild);
-      satzbauData[idx].valid[0].forEach(function(word){ row.appendChild(sbMakeChip(word, idx)); });
-      sbColorRow(idx);
-    }
-
-    function sbCheckAuto(idx) {
-      var bank = document.getElementById('sb-bank-' + idx);
-      setTimeout(function(){
-        if (bank.querySelectorAll('.chip').length > 0) { return; }
-        timerAutoStart(3);
-        sbColorRow(idx);
-        var allOk = satzbauData.every(function(_, i){ return sbColorRow(i); });
-        if (allOk) stopTimer(3);
-      }, 500);
-    }
-
-    function initSatzbau() {
-      var cont = document.getElementById('satzbauContainer');
-      cont.innerHTML = '';
-      satzbauData.forEach(function(data, idx) {
-        var item = document.createElement('div');
-        item.style.marginBottom = '24px';
-
-        var bank = document.createElement('div');
-        bank.id = 'sb-bank-' + idx;
-        bank.className = 'chip-bank';
-
-        var row = document.createElement('div');
-        row.id = 'sb-row-' + idx;
-        row.className = 'drop-zone';
-        row.addEventListener('dragover', function(e){ e.preventDefault(); row.classList.add('dragover'); });
-        row.addEventListener('dragleave', function(){ row.classList.remove('dragover'); });
-        row.addEventListener('drop', function(e){
-          e.preventDefault(); row.classList.remove('dragover');
-          if (sbDragged) { row.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
-        });
-        bank.addEventListener('dragover', function(e){ e.preventDefault(); });
-        bank.addEventListener('drop', function(e){
-          e.preventDefault();
-          if (sbDragged) { bank.appendChild(sbDragged); sbDragged = null; sbCheckAuto(idx); }
-        });
-
-        var fb = document.createElement('div');
-        fb.id = 'sb-fb-' + idx;
-        fb.className = 'satzbau-feedback';
-
-        var btnRow = document.createElement('div');
-        btnRow.className = 'sb-btn-row'
-        var btnS = document.createElement('button');
-        btnS.className = 'btn'; btnS.textContent = 'Lösen'; btnS.setAttribute('data-idx', idx);
-        btnS.addEventListener('click', function(){ sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
-        var btnR = document.createElement('button');
-        btnR.className = 'btn btn-reset'; btnR.textContent = '↺ Neustart'; btnR.setAttribute('data-idx', idx);
-        btnR.addEventListener('click', function(){ sbResetOne(parseInt(this.getAttribute('data-idx'))); });
-        btnRow.appendChild(btnS); btnRow.appendChild(btnR);
-
-        item.appendChild(bank);
-        item.appendChild(row);
-        item.appendChild(fb);
-        item.appendChild(btnRow);
-        cont.appendChild(item);
-
-        var parts = data.parts.slice();
-        for (var i = parts.length - 1; i > 0; i--) {
-          var j = Math.floor(Math.random() * (i + 1));
-          var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
-        }
-        parts.forEach(function(word){ bank.appendChild(sbMakeChip(word, idx)); });
-      });
-    }
-
-    function resetSatzbau() {
-      satzbauData.forEach(function(_, idx){ sbResetOne(idx); });
-      timerResetOne(3);
-    }
-
-    // Wortschatz
-    var vocabData = [
-      { en: 'to have (conditional)', art: 'hätte', word: 'hätte', plural: '(Konjunktiv II)' },
-      { en: 'to be (conditional)', art: 'wäre', word: 'wäre', plural: '(Konjunktiv II)' },
-      { en: 'to be able to', art: 'könnte', word: 'könnte', plural: '(Konjunktiv II)' },
-      { en: 'must (conditional)', art: 'müsste', word: 'müsste', plural: '(Konjunktiv II)' },
-      { en: 'should (conditional)', art: 'sollte', word: 'sollte', plural: '(Konjunktiv II)' },
-      { en: 'would do / go', art: 'würde', word: 'würde', plural: '(Umschreibung)' }
-    ];
-
-    function renderVocab() {
-      var cont = document.getElementById('vocabContainer');
-      cont.innerHTML = '';
-      vocabData.forEach((item, idx) => {
-        var div = document.createElement('div');
-        div.className = 'luecken-item';
-
-        var en = document.createElement('div');
-        en.className = 'vocab-en';
-        en.textContent = item.en;
-
-        var arrow = document.createElement('div');
-        arrow.className = 'vocab-arrow';
-        arrow.textContent = '→';
-
-        var inputs = document.createElement('div');
-        inputs.className = 'vocab-inputs';
-
-        var artInp = document.createElement('input');
-        artInp.className = 'art';
-        artInp.dataset.answer = item.art;
-        artInp.placeholder = 'Form';
-        artInp.addEventListener('input', function() { liveCheckVocab(this, idx); });
-
-        var wortInp = document.createElement('input');
-        wortInp.className = 'wort';
-        wortInp.dataset.answer = item.word;
-        wortInp.placeholder = 'Verb-Form';
-        wortInp.addEventListener('input', function() { liveCheckVocab(this, idx); });
-
-        var pluralInp = document.createElement('input');
-        pluralInp.className = 'plural';
-        pluralInp.dataset.answer = item.plural;
-        pluralInp.placeholder = 'Typ';
-        pluralInp.addEventListener('input', function() { liveCheckVocab(this, idx); });
-
-        inputs.appendChild(artInp);
-        inputs.appendChild(wortInp);
-        inputs.appendChild(pluralInp);
-
-        div.appendChild(en);
-        div.appendChild(arrow);
-        div.appendChild(inputs);
-        cont.appendChild(div);
-      });
-
-    function liveCheckVocab(inp, idx) {
-      timerAutoStart(4);
-      var val = inp.value.trim().toLowerCase();
-      var ans = (inp.dataset.answer || '').toLowerCase();
-      inp.classList.remove('correct', 'wrong');
-      if (val.length === 0) return;
-      if (val === ans) {
-        inp.classList.add('correct');
-      } else if (ans.indexOf(val) === 0) {
-        // valid prefix
-      } else {
-        inp.classList.add('wrong');
-      }
-      checkVocabAll();
-    }
-
-    function checkVocabAll() {
-      var inputs = document.querySelectorAll('#tab4 input');
-      if (inputs.length === 0) return;
-      var allOk = Array.from(inputs).every(i => i.classList.contains('correct'));
-      if (allOk) stopTimer(4);
-    }
-
-    function showVocabSolution() {
-      document.querySelectorAll('#tab4 input').forEach(inp => {
-        inp.value = inp.dataset.answer;
-        inp.classList.add('correct');
-      });
-      checkVocabAll();
-    }
-
-    function resetVocab() {
-      document.querySelectorAll('#tab4 input').forEach(inp => {
-        inp.value = '';
-        inp.classList.remove('correct', 'wrong');
-      });
-      timerResetOne(4);
-    }
-
-    // Init
-    function initPage() {
-      var lueckeCont = document.getElementById('lueckenContainer');
-      lueckeCont.innerHTML = '';
-      lueckenData.forEach(item => {
-        var div = document.createElement('div');
-        div.className = 'sentence-block';
-        div.innerHTML = item.text;
-        lueckeCont.appendChild(div);
-      });
-      initSatzbau();
-      renderVocab();
-    }
-
-    document.addEventListener('DOMContentLoaded', initPage);
-  
-}</script>
+initMC();
+buildLuecken();
+initSatzbau();
+</script>
 </body>
 </html>
