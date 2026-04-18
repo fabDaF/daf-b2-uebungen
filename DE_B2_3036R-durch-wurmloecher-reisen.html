@@ -1,570 +1,605 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2.3 · Einheit 3 · Durch Wurmlöcher reisen (R)</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            width: 100%;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        header, .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-        header h1, .header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
-        header p, .header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
-        header .big-emoji, .header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
-        .nav{
-            display: flex;
-            
-            background: #fafafa;
-            overflow-x: auto;
-        ;flex-wrap:nowrap;border-top:1px solid #ddd;border-left:1px solid #ddd;border-right:1px solid #ddd;}
-        nav button {
-            flex: 1;
-            min-width: 140px;
-            padding: 15px;
-            border: none;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
-        nav button.active {
-            background: white;
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-        }
-        nav button:hover:not(.active) {
-            background: #f5f5f5;
-        }
-        nav .emoji { font-size: 24px; }
-        .content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            max-height: calc(100vh - 400px);
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .tab-content h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 22px;
-        }
-        .vocab-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 20px 0;
-        }
-        .vocab-card {
-            padding: 12px;
-            background: #f0f0f0;
-            border-radius: 6px;
-            border-left: 3px solid #667eea;
-        }
-        .vocab-card strong {
-            color: #667eea;
-        }
-        .vocab-card .meaning {
-            color: #666;
-            font-size: 13px;
-            margin-top: 4px;
-        }
-        .reading-text {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            line-height: 1.8;
-            color: #333;
-            margin: 20px 0;
-        }
-        .reading-text p {
-            margin-bottom: 15px;
-        }
-        .exercise {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f9f9f9;
-            border-left: 4px solid #667eea;
-            border-radius: 4px;
-        }
-        .exercise label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-        .exercise input, .exercise textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        .exercise textarea { min-height: 80px; resize: vertical; }
-        .exercise input:focus, .exercise textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-        }
-        .feedback {
-            margin-top: 8px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            min-height: 20px;
-        }
-        .feedback.correct {
-            background: #d4edda;
-            color: #155724;
-        }
-        .feedback.incorrect {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .mc-option {
-            display: block;
-            padding: 12px;
-            margin: 8px 0;
-            background: #f5f5f5;
-            border: 2px solid transparent;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .mc-option:hover {
-            border-color: #667eea;
-        }
-        .mc-option.selected {
-            background: #e3f2fd;
-            border-color: #667eea;
-        }
-        .mc-option.correct {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-        .control-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 30px;
-            background: #fafafa;
-            border-top: 2px solid #f0f0f0;
-        }
-        .buttons { display: flex; gap: 10px; }
-        .buttons button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        .btn-secondary {
-            background: #e0e0e0;
-            color: #333;
-        }
-        .btn-secondary:hover {
-            background: #d0d0d0;
-        }
-        .timer {
-            font-size: 14px;
-            font-weight: 600;
-            color: #667eea;
-        }
-        footer {
-            background: #333;
-            color: #ccc;
-            text-align: center;
-            padding: 15px;
-            font-size: 12px;
-        }
-        @media (max-width: 768px) {
-            .vocab-list { grid-template-columns: 1fr; }
-            nav button { min-width: 100px; font-size: 11px; padding: 10px; }
-        }
-    
-/* ── daf-html-layout Pflicht-Fix ────────────────────────────── */
-.container { overflow: hidden; }
-.nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-.nav-btn {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 · Lektion 3036R · Durch Wurmlöcher reisen</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .nav-btn:last-child { border-right: none; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 700;
-    border-bottom: 3px solid #667eea;
-}
-.tab-banner {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    display: block;
-}
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; padding: 26px 30px 30px 30px; }
+.section.active { display: block; }
+.section-title { font-size: 1.4em; font-weight: 700; color: #667eea; margin-bottom: 10px; }
+.section-sub { color: #888; font-size: 0.92em; margin-bottom: 20px; }
+
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.92em; color: #444; line-height: 1.65; }
+
+/* Vorentlastung */
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+.vocab-card { background: #f8f9ff; border: 1px solid #dde3ff; border-radius: 10px; padding: 14px 16px; }
+.vocab-term { font-weight: 700; color: #667eea; font-size: 1.05em; margin-bottom: 2px; }
+.vocab-en { color: #999; font-size: 0.85em; margin-bottom: 5px; font-style: italic; }
+.vocab-def { color: #555; font-size: 0.92em; line-height: 1.5; }
+
+/* Lesetext */
+.story-text { max-width: 600px; margin: 0 auto; font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 1.8; color: #1a1a1a; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.story-text p { margin-bottom: 1em; text-indent: 1.4em; }
+.story-text p:first-child { text-indent: 0; }
+.story-text .dialog { font-style: normal; text-indent: 0; padding-left: 1.1em; border-left: 3px solid #667eea; color: #2a2a6e; margin-left: 0; }
+.story-source { margin-top: 24px; color: #aaa; font-size: 0.8em; text-align: right; }
+.vocab-hl { background: #ffe9a0; border-radius: 3px; padding: 1px 3px; font-weight: 600; cursor: help; }
+
+/* Richtig/Falsch */
+.rf-title { font-size: 1.0em; color: #555; margin-bottom: 12px; font-weight: 600; max-width: 650px; margin-left: auto; margin-right: auto; }
+.rf-list { display: flex; flex-direction: column; gap: 8px; max-width: 650px; margin-left: auto; margin-right: auto; }
+.rf-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #f9f9f9; border-radius: 8px; font-size: 0.95em; border: 1.5px solid #ddd; }
+.rf-text { flex: 1; }
+.rf-btns { display: flex; gap: 6px; }
+.rf-btn { padding: 4px 14px; border-radius: 14px; border: 1.5px solid #9b59b6; background: #fff; color: #6c3483; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.rf-btn:hover { background: #f3e5f5; }
+.rf-btn.sel-r { background: #27ae60; color: #fff; border-color: #27ae60; }
+.rf-btn.sel-f { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+.rf-result { font-size: 0.8rem; font-weight: 700; min-width: 24px; }
+.rf-result.ok { color: #27ae60; }
+.rf-result.err { color: #e74c3c; }
+
+/* Lückentext */
+.luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 12px; line-height: 1.8; }
+.luecken-item .satz { font-size: 1.0em; color: #333; }
+.luecken-item .hint { display: block; font-size: 0.82em; color: #888; margin-top: 6px; font-style: italic; }
+input.blank { border: none; border-bottom: 2px solid #667eea; background: transparent; padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none; transition: all 0.2s; min-width: 4ch; }
+input.blank:focus { border-bottom-color: #4a148c; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #155724; font-weight: 700; }
+input.blank.wrong   { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+
+/* Satzbau */
+.satzbau-item { background: #fafbff; border: 1px solid #e0e5ff; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; background: #f8f8f8; border-radius: 8px; margin-bottom: 8px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; background: white; border: 2px dashed #c5cae9; border-radius: 8px; align-items: center; transition: all 0.2s; }
+.sentence-builder.correct { background: #e8f8f0; border-color: #27ae60; border-style: solid; }
+.sentence-builder.incorrect { background: #fdeaea; border-color: #e74c3c; border-style: solid; }
+.chip { padding: 6px 12px; background: white; border: 1.5px solid #667eea; border-radius: 18px; cursor: move; user-select: none; font-size: 0.92em; color: #333; transition: all 0.15s; }
+.chip:hover { background: #f5f7ff; }
+.chip.correct { background: #d4edda; border-color: #27ae60; color: #155724; }
+.chip.incorrect { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+.sb-punkt { font-weight: 700; color: #27ae60; font-size: 1.1em; margin-left: 4px; }
+.satzbau-feedback { margin-top: 8px; font-size: 0.9em; color: #888; min-height: 1.2em; }
+
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
 @media (max-width: 600px) {
     body { padding: 8px; }
     .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
     .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .section { padding: 18px 16px; }
     .tab-banner { max-height: 120px; }
+    .story-text { max-width: 100%; }
 }
-/* ──────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>⏳ Durch Wurmlöcher reisen</h1>
-            <p>B2.3 · Einheit 3 · Physik und Science-Fiction</p>
-        <div class="big-emoji">📚</div>
-    </header>
+<div class="container">
 
-        <div class="nav" id="tabNav">
-            <div class="nav-btn active" data-tab="0">
-                <span class="nav-emoji">🌅</span>
-                <span>Vorentlastung</span>
-            </div>
-            <div class="nav-btn" data-tab="1">
-                <span class="nav-emoji">📖</span>
-                <span>Lesetext</span>
-            </div>
-            <div class="nav-btn" data-tab="2">
-                <span class="nav-emoji">✏️</span>
-                <span>Lückentext</span>
-            </div>
-            <div class="nav-btn" data-tab="3">
-                <span class="nav-emoji">❓</span>
-                <span>Multiple Choice</span>
-            </div>
-            <div class="nav-btn" data-tab="4">
-                <span class="nav-emoji">🔀</span>
-                <span>Satzbau</span>
-            </div>
-        </div>
+<div class="header">
+    <h1>Durch Wurmlöcher reisen</h1>
+    <p>B2 &ndash; Lektion 3036R &middot; Lesetext</p>
+    <div class="big-emoji">🕳️</div>
+</div>
 
-        <div class="content">
-            <!-- TAB 0: Vorentlastung -->
-            <div class="tab-content active">
-                <h2>🌅 Vorentlastung: Wichtige Vokabeln</h2>
-                <p style="margin-bottom: 20px; color: #666;">Lerne die Schlüsselvokabeln zum Thema "Wurmlöcher":</p>
-                <div class="vocab-list">
-                    <div class="vocab-card">
-                        <strong>das Wurmloch</strong>
-                        <div class="meaning">Theoretischer Tunnel durch die Raumzeit</div>
-                    </div>
-                    <div class="vocab-card">
-                        <strong>die Raumzeit</strong>
-                        <div class="meaning">Kombination von Raum und Zeit</div>
-                    </div>
-                    <div class="vocab-card">
-                        <strong>die Einstein-Rosen-Brücke</strong>
-                        <div class="meaning">Mathematische Lösung für Wurmlöcher</div>
-                    </div>
-                    <div class="vocab-card">
-                        <strong>die Zeitreise</strong>
-                        <div class="meaning">Reise in die Vergangenheit oder Zukunft</div>
-                    </div>
-                    <div class="vocab-card">
-                        <strong>das Schwarze Loch</strong>
-                        <div class="meaning">Region, aus der nichts entkommen kann</div>
-                    </div>
-                    <div class="vocab-card">
-                        <strong>die Stabilität</strong>
-                        <div class="meaning">Beständigkeit; Nicht-Veränderlichkeit</div>
-                    </div>
-                    <div class="vocab-card">
-                        <strong>die exotische Materie</strong>
-                        <div class="meaning">Hypothetische Materie mit Negativenergie</div>
-                    </div>
-                    <div class="vocab-card">
-                        <strong>das Kontinuum</strong>
-                        <div class="meaning">Ununterbrochene Folge oder Einheit</div>
-                    </div>
-                </div>
-            </div>
+<div class="nav">
+    <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📚</span><span class="nav-label">Vorentlastung</span></div>
+    <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📖</span><span class="nav-label">Lesetext</span></div>
+    <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">✅</span><span class="nav-label">Richtig/Falsch</span></div>
+    <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+    <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+</div>
 
-            <!-- TAB 1: Lesetext -->
-            <div class="tab-content">
-                <h2>📖 Lesetext: Wurmlöcher — Physik oder Science-Fiction?</h2>
-                <div class="reading-text">
-                    <p>Seit Jahrzenten faszinieren Wurmlöcher Wissenschaftler und Science-Fiction-Autoren gleichermaßen. Ein Wurmloch ist ein hypothetisches Phänomen der Raumzeit — ein Tunnel, der zwei entfernte Punkte im Universum verbindet. Doch was ist wirklich Realität, und was ist Fiktion?</p>
+<!-- TAB 0: Vorentlastung -->
+<div class="section active" id="sec-0">
+    <img class="tab-banner" src="https://images.pexels.com/photos/167699/pexels-photo-167699.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Raumzeit-Vorstellung">
+    <div class="section-title">📚 Vorentlastung: Schlüsselbegriffe</div>
+    <div class="section-sub">Diese Wörter erscheinen im Text. Lies sie kurz durch, bevor du weiterliest.</div>
+    <div id="vocabGrid" class="vocab-grid"></div>
+</div>
 
-                    <p>Die mathematische Grundlage für Wurmlöcher stammt von Albert Einstein und Nathan Rosen. 1935 beschrieben sie die sogenannte Einstein-Rosen-Brücke, eine theoretische Struktur, die zwei schwarze Löcher verbinden könnte. Nach dieser mathematischen Lösung der Relativitätsgleichungen wären Wurmlöcher nicht unmöglich — sie folgen den Gesetzen der Physik.</p>
+<!-- TAB 1: Lesetext -->
+<div class="section" id="sec-1">
+    <img class="tab-banner" src="https://images.pexels.com/photos/39561/solar-flare-sun-eruption-energy-39561.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Raumzeit-Krümmung">
+    <div class="section-title">📖 Durch Wurmlöcher reisen</div>
+    <div class="section-sub">Wissenschaftstext &middot; ca. 800 Wörter</div>
 
-                    <p>Theoretisch könnten Wurmlöcher als "Abkürzungen" durch die Raumzeit funktionieren. Statt Millionen von Lichtyahren zu reisen, könnte man durch ein Wurmloch eine unvorstellbar lange Distanz in Sekunden überbrücken. Noch faszinierender: Manche Lösungen der Relativitätsgleichungen deuten darauf hin, dass Zeitreisen durch Wurmlöcher möglich sein könnten.</p>
+    <div class="story-text">
+        <p>Wenn der Astrophysiker Kip Thorne im Sommer 1985 nicht einen Anruf von seinem Freund Carl Sagan bekommen hätte, wäre die Idee des <em>durchquerbaren</em> Wurmlochs vielleicht nie mathematisch ausgearbeitet worden. Sagan schrieb an seinem Roman <em>Contact</em> und brauchte eine physikalisch plausible Methode, um seine Protagonistin in Sekunden an einen 26 Lichtjahre entfernten Stern zu bringen. Thorne setzte sich mit zwei Doktoranden ins Caltech, rechnete mehrere Monate und veröffentlichte 1988 im <em>Physical Review Letters</em> einen Artikel, der die Astrophysik verändern sollte.</p>
 
-                    <p>Aber es gibt ein großes Problem — die Stabilität. Ein natürlich entstandenes Wurmloch würde sofort zusammenbrechen. Um es offen zu halten, würde man "exotische Materie" mit Negativenergie benötigen — etwas, das wir noch nie beobachtet haben und möglicherweise nicht existiert. Außerdem könnten die enormen Gezeitenkräfte in der Nähe eines Wurmlochs alles zerstören, was hindurchfährt.</p>
+        <figure style="margin:18px 0;text-align:center;">
+            <img src="https://images.pexels.com/photos/2150/sky-space-dark-galaxy.jpg?auto=compress&cs=tinysrgb&w=800" alt="Galaxie im Raum" style="width:100%;max-width:600px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+            <figcaption style="margin-top:6px;font-size:0.85em;color:#667eea;font-weight:600;">Der Raum zwischen den Galaxien &ndash; eine Abkürzung wäre verlockend.</figcaption>
+        </figure>
 
-                    <p>Deshalb bleiben Wurmlöcher für jetzt in der Realm der Science-Fiction. Dennoch bleibt die Frage offen: Sind sie unmöglich, oder sind wir nur noch nicht technologisch fortgeschritten genug, um sie zu erschaffen? Die Physik sagt: Vielleicht später.</p>
-                </div>
-            </div>
+        <p>Die mathematische Grundlage liegt weiter zurück. Albert Einstein und Nathan Rosen beschrieben 1935 eine Lösung der Feldgleichungen, bei der zwei Punkte der Raumzeit durch einen dünnen Hals miteinander verbunden sein können &ndash; die berühmte <em>Einstein-Rosen-Brücke</em>. In ihrer ursprünglichen Form war diese Brücke allerdings instabil: Sie würde kollabieren, bevor ein Lichtsignal sie durchqueren könnte. Fünfzig Jahre lang galt das Wurmloch deshalb als reine Kuriosität der Mathematik &ndash; schön auf dem Papier, unbrauchbar für jede praktische Reise.</p>
 
-            <!-- TAB 2: Lückentext -->
-            <div class="tab-content">
-                <h2>✏️ Lückentext: Verständnis überprüfen</h2>
-                <div class="exercise">
-                    <label>1. Die Einstein-Rosen-Brücke wurde _____________ und _____________ entwickelt.</label>
-                    <input type="text" class="luekentext" data-answer="einstein rosen" oninput="checkAnswer(this)">
-                    <div class="feedback"></div>
-                </div>
-                <div class="exercise">
-                    <label>2. Ein Wurmloch könnte zwei _____________ Punkte im Universum verbinden.</label>
-                    <input type="text" class="luekentext" data-answer="entfernte" oninput="checkAnswer(this)">
-                    <div class="feedback"></div>
-                </div>
-                <div class="exercise">
-                    <label>3. Ein Wurmloch könnte als _____________ durch die Raumzeit funktionieren.</label>
-                    <input type="text" class="luekentext" data-answer="abkuerzung" oninput="checkAnswer(this)">
-                    <div class="feedback"></div>
-                </div>
-                <div class="exercise">
-                    <label>4. Das Hauptproblem bei Wurmlöchern ist ihre mangelnde _____________.</label>
-                    <input type="text" class="luekentext" data-answer="stabilitaet" oninput="checkAnswer(this)">
-                    <div class="feedback"></div>
-                </div>
-                <div class="exercise">
-                    <label>5. Um ein Wurmloch offen zu halten, würde man _____________ Materie benötigen.</label>
-                    <input type="text" class="luekentext" data-answer="exotische" oninput="checkAnswer(this)">
-                    <div class="feedback"></div>
-                </div>
-            </div>
+        <p>Thorne, Morris und Yurtsever fragten sich: Was müsste geschehen, damit ein Raumschiff heil hindurchkäme? Ihre Antwort ist unbequem. Um ein Wurmloch offen zu halten, braucht man Materie mit <em>negativer Energiedichte</em> &ndash; etwas, das der intuitiven Erfahrung vollständig widerspricht. Normale Materie krümmt die Raumzeit nach innen, exotische Materie müsste sie nach außen drücken. Existiert so etwas überhaupt?</p>
 
-            <!-- TAB 3: Multiple Choice -->
-            <div class="tab-content">
-                <h2>❓ Multiple Choice: Verständnisfragen</h2>
-                <div class="exercise">
-                    <label><strong>1. Wann wurde die Einstein-Rosen-Brücke beschrieben?</strong></label>
-                    <div onclick="selectMC(this, 'a')">
-                        <label class="mc-option" data-correct="yes">
-                            <input type="radio" name="q1"> a) 1935
-                        </label>
-                    </div>
-                    <div onclick="selectMC(this, 'b')">
-                        <label class="mc-option">
-                            <input type="radio" name="q1"> b) 1905
-                        </label>
-                    </div>
-                    <div onclick="selectMC(this, 'c')">
-                        <label class="mc-option">
-                            <input type="radio" name="q1"> c) 1975
-                        </label>
-                    </div>
-                </div>
-                <div class="exercise">
-                    <label><strong>2. Was würde durch ein Wurmloch möglich sein?</strong></label>
-                    <div onclick="selectMC(this, 'a')">
-                        <label class="mc-option">
-                            <input type="radio" name="q2"> a) Schneller als Licht reisen
-                        </label>
-                    </div>
-                    <div onclick="selectMC(this, 'b')">
-                        <label class="mc-option" data-correct="yes">
-                            <input type="radio" name="q2"> b) Abkürzungen durch die Raumzeit
-                        </label>
-                    </div>
-                    <div onclick="selectMC(this, 'c')">
-                        <label class="mc-option">
-                            <input type="radio" name="q2"> c) Energie erzeugen
-                        </label>
-                    </div>
-                </div>
-                <div class="exercise">
-                    <label><strong>3. Warum sind Wurmlöcher wahrscheinlich nicht stabil?</strong></label>
-                    <div onclick="selectMC(this, 'a')">
-                        <label class="mc-option">
-                            <input type="radio" name="q3"> a) Sie sind zu groß
-                        </label>
-                    </div>
-                    <div onclick="selectMC(this, 'b')">
-                        <label class="mc-option" data-correct="yes">
-                            <input type="radio" name="q3"> b) Sie würden sofort zusammenbrechen
-                        </label>
-                    </div>
-                    <div onclick="selectMC(this, 'c')">
-                        <label class="mc-option">
-                            <input type="radio" name="q3"> c) Sie brauchen zu viel Energie
-                        </label>
-                    </div>
-                </div>
-            </div>
+        <p>Die Physik kennt tatsächlich einen Effekt, der in diese Richtung deutet: den Casimir-Effekt. Zwischen zwei extrem eng beieinander liegenden Metallplatten im Vakuum ist die Energiedichte messbar kleiner als im leeren Raum daneben &ndash; also <em>negativ</em>, relativ zum Vakuum. Experimentell wurde das 1997 von Steve Lamoreaux an der University of Washington bestätigt. Die Energien sind winzig, aber das Prinzip steht: Negative Energie ist nicht verboten, nur extrem schwer zu akkumulieren. Für ein makroskopisches Wurmloch bräuchte man etwa die Masse-Energie eines Jupiters &ndash; in negativer Form.</p>
 
-            <!-- TAB 4: Satzbau -->
-            <div class="tab-content">
-                <h2>🔀 Satzbau: Sätze ordnen</h2>
-                <p style="margin-bottom: 20px; color: #666;">Ordne die Wörter zu vollständigen Sätzen:</p>
-                <div id="sbContainer"></div>
-            </div>
-        </div>
+        <p>Zweites Problem: die Gezeitenkräfte. Ein Wurmloch mit dem Durchmesser weniger Kilometer würde einen Astronauten zerreißen, lange bevor er den Eingang erreicht &ndash; die Schwerkraftdifferenz zwischen Kopf und Füßen wäre milliardenfach zu groß. Damit ein Mensch unversehrt hindurchreisen kann, müsste der Tunnel einen Radius von mindestens einigen hundert Kilometern haben. Die exotische Materie, die ein solches Wurmloch stabilisiert, müsste entsprechend aufwendig hergestellt werden.</p>
 
-        <div class="control-bar">
-            <div class="buttons">
-                <button class="btn-secondary" onclick="resetTab()">Zurücksetzen</button>
-            </div>
-            <div class="timer" id="timer">⏱️ 0:00</div>
-        </div>
+        <p>Stephen Hawking blieb skeptisch. 1992 formulierte er seine <em>Chronology Protection Conjecture</em>: Wann immer ein Wurmloch zur Zeitmaschine werden könnte, würden Quanteneffekte es zerstören, bevor der erste Reisende einträfe. Hawkings Argument ist nicht mathematisch zwingend, aber es zeigt eine tiefe Vermutung der theoretischen Physik &ndash; die Natur schützt sich vermutlich selbst vor Paradoxien.</p>
 
-        <footer>
-            © Frank Burkert · DaF-Materialien · FrankBurkert@fabdaf.onmicrosoft.com
-        </footer>
+        <p>In den letzten Jahren hat die Wurmloch-Debatte eine überraschende Wendung genommen. 2013 formulierten Juan Maldacena und Leonard Susskind die <em>ER = EPR</em>-Hypothese: Zwei quantenmechanisch verschränkte Teilchen könnten durch ein mikroskopisches Wurmloch verbunden sein. Die Idee verknüpft zwei der großen Einstein-Papiere von 1935 &ndash; die Einstein-Rosen-Brücke und das EPR-Paradoxon. Beweisen lässt sich das noch nicht, aber wenn es stimmt, dann ist unsere Vorstellung von Raum selbst neu zu denken: Der Raum entstünde aus Verschränkung, nicht umgekehrt.</p>
+
+        <p>Für Hollywood war das alles längst Gold. Christopher Nolans Film <em>Interstellar</em> (2014) hatte Kip Thorne als wissenschaftlichen Berater &ndash; das Wurmloch in der Nähe des Saturn und das rotierende Schwarze Loch Gargantua sind nach seinen Gleichungen gerendert. Der Film war überraschend genau: Die visuelle Darstellung des Schwarzen Lochs half sogar, eine Forschungsarbeit zu veröffentlichen. Thorne sagt dazu lakonisch: „Fiktion darf alles &ndash; solange sie die Physik respektiert, solange wir sie kennen.“</p>
+
+        <p>Werden wir jemals durch ein Wurmloch reisen? Die ehrliche Antwort lautet: vermutlich nicht als Menschen aus Fleisch und Blut. Aber die Mathematik verbietet es nicht &ndash; und das ist, gemessen am Urteil der Physik, schon erstaunlich viel.</p>
     </div>
+    <div class="story-source">Quelle: B2 &ndash; Lektion 3036R &ndash; Durch Wurmlöcher reisen</div>
+</div>
 
-    <script>
-        let currentTab = 0;
-        let timerInterval;
-        let seconds = 0;
+<!-- TAB 2: Richtig/Falsch -->
+<div class="section" id="sec-2">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1169754/pexels-photo-1169754.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Sternenhimmel">
+    <div class="section-title">✅ Richtig oder Falsch?</div>
+    <div class="control-bar">
+        <div class="btn-row">
+            <button class="btn" onclick="showLoesung(2)">Lösungen</button>
+            <button class="btn" onclick="resetTab(2); resetTimer(2);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+            <span>⏱ <span id="timer-2">00:00</span></span>
+            <span>🏆 <span id="best-2">--:--</span></span>
+        </div>
+    </div>
+    <div class="rf-title">Entscheide nach dem Text, ob die Aussage richtig oder falsch ist.</div>
+    <div id="rfContainer" class="rf-list"></div>
+</div>
 
-        const tabButtons = document.querySelectorAll('.nav-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
+<!-- TAB 3: Lückentext -->
+<div class="section" id="sec-3">
+    <img class="tab-banner" src="https://images.pexels.com/photos/1089440/pexels-photo-1089440.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Spiralgalaxie">
+    <div class="section-title">✏️ Lückentext zum Text</div>
+    <div class="control-bar">
+        <div class="btn-row">
+            <button class="btn" onclick="showLoesung(3)">Lösungen</button>
+            <button class="btn" onclick="resetTab(3); resetTimer(3);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+            <span>⏱ <span id="timer-3">00:00</span></span>
+            <span>🏆 <span id="best-3">--:--</span></span>
+        </div>
+    </div>
+    <div class="hilfe-box">Setze das fehlende Wort ein. Live-Feedback bei jedem Tastendruck.</div>
+    <div id="lueckenContainer"></div>
+</div>
 
-        tabButtons.forEach((btn, idx) => {
-            btn.addEventListener('click', () => showSection(idx));
-        });
+<!-- TAB 4: Satzbau -->
+<div class="section" id="sec-4">
+    <img class="tab-banner" src="https://images.pexels.com/photos/998641/pexels-photo-998641.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Galaxie-Blick">
+    <div class="section-title">🧩 Satzbau</div>
+    <div class="control-bar">
+        <div class="btn-row">
+            <button class="btn" onclick="resetTab(4); resetTimer(4);">Neu starten</button>
+        </div>
+        <div class="timer-display">
+            <span>⏱ <span id="timer-4">00:00</span></span>
+            <span>🏆 <span id="best-4">--:--</span></span>
+        </div>
+    </div>
+    <div class="hilfe-box">Ziehe die Chips in die richtige Reihenfolge &ndash; oder klicke sie nacheinander an.</div>
+    <div id="sbContainer"></div>
+</div>
 
-        function showSection(idx) {
-            tabButtons.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            tabButtons[idx].classList.add('active');
-            tabContents[idx].classList.add('active');
-            currentTab = idx;
+<div class="author-footer">
+    <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+</div><!-- /container -->
 
-            if (idx === 4) initSatzbau();
-        }
-
-        function checkAnswer(inp) {
-  var val = inp.value.trim().toLowerCase();
-  var ans = (inp.dataset.answer || '').toLowerCase();
-  inp.classList.remove('correct', 'wrong');
-  if (!val) return;
-  if (val === ans) { inp.classList.add('correct'); }
-  else if (ans.startsWith(val)) { /* valid prefix */ }
-  else { inp.classList.add('wrong'); }
+<script>
+/* =============== Navigation =============== */
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
 }
-        function selectMC(el, answer) {
-            const parent = el.parentElement;
-            parent.querySelectorAll('.mc-option').forEach(opt => {
-                opt.classList.remove('selected', 'correct', 'incorrect');
+
+/* =============== Timer =============== */
+var timers = [null,null,null,null,null];
+var timerSecs = [0,0,0,0,0];
+var bestTimes = [null,null,null,null,null];
+function fmtTime(s){ var m=Math.floor(s/60), sec=s%60; return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec; }
+function timerAutoStart(i){
+    if (timers[i]) return;
+    timers[i] = setInterval(function(){
+        timerSecs[i]++;
+        var el = document.getElementById('timer-'+i);
+        if (el) el.textContent = fmtTime(timerSecs[i]);
+    }, 1000);
+}
+function stopTimer(i){
+    if (!timers[i]) return;
+    clearInterval(timers[i]); timers[i]=null;
+    if (bestTimes[i]===null || timerSecs[i]<bestTimes[i]) {
+        bestTimes[i] = timerSecs[i];
+        var b = document.getElementById('best-'+i);
+        if (b) b.textContent = fmtTime(bestTimes[i]);
+    }
+}
+function resetTimer(i){
+    if (timers[i]) { clearInterval(timers[i]); timers[i]=null; }
+    timerSecs[i]=0;
+    var el = document.getElementById('timer-'+i);
+    if (el) el.textContent = '00:00';
+}
+
+/* =============== Vorentlastung =============== */
+var VORENTLASTUNG = [
+    { term: 'das Wurmloch, -̈er',          en: 'the wormhole',       def: 'Ein hypothetischer Tunnel in der Raumzeit, der zwei entfernte Punkte verbindet.' },
+    { term: 'die Raumzeit',                en: 'spacetime',          def: 'Die vierdimensionale Struktur aus Raum und Zeit, wie sie Einstein beschrieben hat.' },
+    { term: 'die Einstein-Rosen-Brücke',   en: 'Einstein-Rosen bridge', def: 'Die mathematische Lösung von 1935, die die Basis aller Wurmloch-Theorien bildet.' },
+    { term: 'durchquerbar',                en: 'traversable',        def: 'So, dass man es durchqueren kann &ndash; ein Wurmloch ist nur nutzbar, wenn es offen bleibt.' },
+    { term: 'die exotische Materie',       en: 'exotic matter',      def: 'Hypothetische Materie mit negativer Energiedichte, nötig zur Stabilisierung eines Wurmlochs.' },
+    { term: 'die Energiedichte',           en: 'energy density',     def: 'Wie viel Energie in einem bestimmten Raumvolumen vorhanden ist.' },
+    { term: 'der Casimir-Effekt',          en: 'Casimir effect',     def: 'Ein gemessener Quanteneffekt, der zeigt, dass negative Energiedichten real existieren können.' },
+    { term: 'die Gezeitenkraft, -̈e',       en: 'tidal force',        def: 'Die Differenz der Gravitation zwischen zwei Punkten eines Körpers &ndash; nahe Wurmlöchern extrem stark.' },
+    { term: 'die Verschränkung',           en: 'entanglement',       def: 'Ein quantenmechanisches Phänomen, bei dem zwei Teilchen korreliert bleiben, egal wie weit sie auseinander sind.' },
+    { term: 'die Chronologie',             en: 'chronology',         def: 'Die Reihenfolge der Zeit &ndash; Hawking vermutete, dass die Natur sie vor Paradoxien schützt.' }
+];
+function initVorentlastung(){
+    var g = document.getElementById('vocabGrid');
+    g.innerHTML = '';
+    VORENTLASTUNG.forEach(function(v){
+        var card = document.createElement('div');
+        card.className = 'vocab-card';
+        card.innerHTML =
+            '<div class="vocab-term">'+v.term+'</div>' +
+            '<div class="vocab-en">'+v.en+'</div>' +
+            '<div class="vocab-def">'+v.def+'</div>';
+        g.appendChild(card);
+    });
+}
+
+/* =============== Vokabel-Hervorhebung =============== */
+function highlightVocabInText(){
+    var storyText = document.querySelector('.story-text');
+    if (!storyText) return;
+    var words = VORENTLASTUNG.map(function(item){
+        var term = item.term.replace(/^(der|die|das)\s+/i, '');
+        return term.split(',')[0].trim();
+    }).filter(function(w){ return w && w.length > 3; });
+    if (words.length === 0) return;
+    function walk(node){
+        if (node.nodeType === 3) {
+            var text = node.nodeValue;
+            var replaced = text;
+            words.forEach(function(word){
+                var escaped = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                var regex = new RegExp('(?<![a-zA-ZäöüÄÖÜß])('+escaped+')(?![a-zA-ZäöüÄÖÜß])', 'g');
+                replaced = replaced.replace(regex, '\x01\x02');
             });
-            el.classList.add('selected');
-
-            if (el.dataset.correct === 'yes') {
-                el.classList.add('correct');
-                el.style.borderColor = '#28a745';
-            }
-        }
-
-        function initSatzbau() {
-            const container = document.getElementById('sbContainer');
-            if (container.innerHTML) return;
-
-            const sentences = [
-                { words: ['Ein', 'Wurmloch', 'könnte', 'zwei', 'entfernte', 'Punkte', 'verbinden.'], correct: [0,1,2,3,4,5,6] },
-                { words: ['Einstein', 'und', 'Rosen', 'beschrieben', 'die', 'mathematische', 'Lösung.'], correct: [0,1,2,3,4,5,6] },
-                { words: ['Zeitreisen', 'könnten', 'theoretisch', 'durch', 'Wurmlöcher', 'möglich', 'sein.'], correct: [0,1,2,3,4,5,6] },
-                { words: ['Exotische', 'Materie', 'könnte', 'das', 'Wurmloch', 'stabil', 'halten.'], correct: [0,1,2,3,4,5,6] },
-                { words: ['Für', 'jetzt', 'bleiben', 'Wurmlöcher', 'science-fiction.'], correct: [0,1,2,3,4] }
-            ];
-
-            sentences.forEach((sent, idx) => {
-                const div = document.createElement('div');
-                div.style.marginBottom = '20px';
-
-                const label = document.createElement('p');
-                label.textContent = `Aufgabe ${idx + 1}:`;
-                label.style.fontWeight = '600';
-                label.style.marginBottom = '10px';
-                div.appendChild(label);
-
-                const chips = document.createElement('div');
-                chips.style.display = 'flex';
-                chips.style.flexWrap = 'wrap';
-                chips.style.gap = '8px';
-                chips.style.minHeight = '50px';
-                chips.style.padding = '10px';
-                chips.style.background = '#f9f9f9';
-                chips.style.borderRadius = '6px';
-
-                sent.words.forEach((word) => {
-                    const chip = document.createElement('span');
-                    chip.className = 'punct-chip';
-                    chip.textContent = word;
-                    chip.style.padding = '8px 12px';
-                    chip.style.background = '#667eea';
-                    chip.style.color = 'white';
-                    chip.style.borderRadius = '4px';
-                    chip.style.cursor = 'pointer';
-                    chip.style.userSelect = 'none';
-                    chip.addEventListener('click', () => toggleWord(chip));
-                    chips.appendChild(chip);
+            if (replaced !== text) {
+                var span = document.createElement('span');
+                var parts = replaced.split(/\x01|\x02/);
+                var isHl = false;
+                parts.forEach(function(part){
+                    if (!part) { isHl = !isHl; return; }
+                    if (isHl) {
+                        var hl = document.createElement('span');
+                        hl.className = 'vocab-hl';
+                        hl.title = '📖 Vokabel aus der Vorentlastung';
+                        hl.textContent = part;
+                        span.appendChild(hl);
+                    } else {
+                        span.appendChild(document.createTextNode(part));
+                    }
+                    isHl = !isHl;
                 });
+                node.parentNode.replaceChild(span, node);
+            }
+        } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT') {
+            Array.from(node.childNodes).forEach(walk);
+        }
+    }
+    walk(storyText);
+}
 
-                div.appendChild(chips);
-                container.appendChild(div);
+/* =============== Richtig/Falsch =============== */
+var RF = [
+    { text: 'Carl Sagan bat Kip Thorne um eine physikalisch plausible Methode für seinen Roman.', answer: true },
+    { text: 'Die Einstein-Rosen-Brücke wurde 1988 von Kip Thorne erstmals beschrieben.', answer: false },
+    { text: 'Ein natürliches Wurmloch würde sofort zusammenbrechen und wäre nicht durchquerbar.', answer: true },
+    { text: 'Zur Stabilisierung eines Wurmlochs bräuchte man Materie mit negativer Energiedichte.', answer: true },
+    { text: 'Der Casimir-Effekt wurde experimentell bisher nicht bestätigt.', answer: false },
+    { text: 'Stephen Hawking vermutete, dass die Natur Zeitparadoxien verhindert.', answer: true },
+    { text: 'Christopher Nolans Film Interstellar hatte Kip Thorne als wissenschaftlichen Berater.', answer: true },
+    { text: 'Die ER = EPR-Hypothese behauptet, dass verschränkte Teilchen durch ein Wurmloch verbunden sind.', answer: true }
+];
+var rfDone = [];
+function initRF(){
+    var c = document.getElementById('rfContainer');
+    c.innerHTML = '';
+    RF.forEach(function(item, idx){
+        var div = document.createElement('div');
+        div.className = 'rf-item';
+        div.innerHTML =
+            '<div class="rf-text">'+item.text+'</div>' +
+            '<div class="rf-btns">' +
+                '<button class="rf-btn" data-v="r" onclick="rfAns('+idx+',true,this)">Richtig</button>' +
+                '<button class="rf-btn" data-v="f" onclick="rfAns('+idx+',false,this)">Falsch</button>' +
+            '</div>' +
+            '<div class="rf-result" id="rf-res-'+idx+'"></div>';
+        c.appendChild(div);
+    });
+    rfDone = [];
+}
+function rfAns(idx, val, el){
+    if (rfDone[idx]) return;
+    timerAutoStart(2);
+    var correct = (RF[idx].answer === val);
+    var resEl = document.getElementById('rf-res-'+idx);
+    if (correct) {
+        rfDone[idx] = true;
+        el.classList.add(val ? 'sel-r' : 'sel-f');
+        var btns = el.parentNode.querySelectorAll('.rf-btn');
+        btns.forEach(function(b){ b.style.pointerEvents = 'none'; });
+        if (resEl) { resEl.textContent = '✓'; resEl.classList.add('ok'); }
+        checkRfAllOk();
+    } else {
+        el.style.pointerEvents = 'none';
+        el.style.opacity = '0.4';
+        if (resEl) { resEl.textContent = '✗'; resEl.classList.add('err'); setTimeout(function(){ resEl.textContent = ''; resEl.classList.remove('err'); }, 1200); }
+    }
+}
+function checkRfAllOk(){
+    if (rfDone.filter(function(x){return x;}).length === RF.length) stopTimer(2);
+}
+
+/* =============== Lückentext =============== */
+var LUECKEN = [
+    { s:'Carl Sagan brauchte für seinen Roman Contact eine physikalisch plausible {1}, um seine Protagonistin schnell zu einem fernen Stern zu bringen.', ans:['Methode'], hint:'=Verfahren' },
+    { s:'Die Einstein-Rosen-Brücke wurde im Jahr {1} beschrieben.', ans:['1935'], hint:'Jahreszahl' },
+    { s:'Ein natürliches Wurmloch würde sofort {1}, bevor ein Lichtsignal es durchqueren könnte.', ans:['kollabieren','zusammenbrechen'], hint:'Verb' },
+    { s:'Zur Stabilisierung braucht man Materie mit negativer {1}.', ans:['Energiedichte'], hint:'Nomen' },
+    { s:'Der {1}-Effekt wurde 1997 experimentell bestätigt.', ans:['Casimir'], hint:'Eigenname' },
+    { s:'Stephen Hawking formulierte 1992 seine Chronology Protection {1}.', ans:['Conjecture','Vermutung'], hint:'Englisches Nomen (oder deutsche Übersetzung)' },
+    { s:'Juan Maldacena und Leonard Susskind verknüpften 2013 zwei Ideen Einsteins aus dem Jahr {1}.', ans:['1935'], hint:'Jahreszahl' },
+    { s:'Christopher Nolans Film Interstellar erschien {1}.', ans:['2014'], hint:'Jahreszahl' }
+];
+function initLuecken(){
+    var c = document.getElementById('lueckenContainer');
+    c.innerHTML = '';
+    LUECKEN.forEach(function(ex, idx){
+        var div = document.createElement('div');
+        div.className = 'luecken-item';
+        var satzHtml = ex.s;
+        var widthCh = Math.max(ex.ans[0].length, (ex.hint||'').length) + 4;
+        satzHtml = satzHtml.replace('{1}',
+            '<input type="text" class="blank" data-idx="'+idx+'" data-ans="'+ex.ans.join('|')+'" style="width:'+widthCh+'ch;" placeholder="">');
+        div.innerHTML = '<div class="satz">'+satzHtml+'</div>'+
+            (ex.hint ? '<span class="hint">Hinweis: '+ex.hint+'</span>' : '');
+        c.appendChild(div);
+    });
+    document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+        inp.addEventListener('input', function(){ lueckenLiveCheck(inp); });
+    });
+}
+function lueckenLiveCheck(inp){
+    var val = inp.value.trim().toLowerCase();
+    var ans = (inp.dataset.ans || '').toLowerCase().split('|');
+    inp.classList.remove('correct','wrong');
+    if (!val) return;
+    if (ans.indexOf(val) >= 0) {
+        inp.classList.add('correct');
+        timerAutoStart(3);
+        checkLueckenAllOk();
+        return;
+    }
+    var isPrefix = ans.some(function(a){ return a.startsWith(val); });
+    if (isPrefix) { timerAutoStart(3); return; }
+    inp.classList.add('wrong');
+}
+function checkLueckenAllOk(){
+    var all = document.querySelectorAll('#lueckenContainer input.blank');
+    if (all.length === 0) return;
+    var ok = Array.from(all).every(function(i){ return i.classList.contains('correct'); });
+    if (ok) stopTimer(3);
+}
+
+/* =============== Satzbau =============== */
+var satzbauData = [
+    {
+        parts: ['Einstein','und','Rosen','beschrieben','1935','eine','Brücke','zwischen','zwei','Punkten','der','Raumzeit'],
+        valid: [['Einstein','und','Rosen','beschrieben','1935','eine','Brücke','zwischen','zwei','Punkten','der','Raumzeit']],
+        punct: '.'
+    },
+    {
+        parts: ['ein','natürliches','Wurmloch','würde','sofort','kollabieren'],
+        valid: [['ein','natürliches','Wurmloch','würde','sofort','kollabieren']],
+        punct: '.'
+    },
+    {
+        parts: ['exotische','Materie','könnte','das','Wurmloch','offen','halten'],
+        valid: [['exotische','Materie','könnte','das','Wurmloch','offen','halten']],
+        punct: '.'
+    },
+    {
+        parts: ['der','Casimir-Effekt','zeigt','dass','negative','Energiedichten','existieren','können'],
+        valid: [['der','Casimir-Effekt','zeigt','dass','negative','Energiedichten','existieren','können']],
+        punct: '.'
+    },
+    {
+        parts: ['Kip','Thorne','war','der','wissenschaftliche','Berater','von','Christopher','Nolan'],
+        valid: [['Kip','Thorne','war','der','wissenschaftliche','Berater','von','Christopher','Nolan']],
+        punct: '.'
+    }
+];
+
+var sbDragged = null;
+function sbCapitalize(w){ return w ? w.charAt(0).toUpperCase()+w.slice(1) : w; }
+function sbUpdateCapitalization(idx){
+    var row = document.getElementById('sb-row-'+idx);
+    if (!row) return;
+    var chips = row.querySelectorAll('.chip');
+    chips.forEach(function(chip, i){
+        var orig = chip.dataset.orig;
+        if (i === 0) chip.textContent = sbCapitalize(orig);
+        else chip.textContent = orig;
+    });
+}
+function sbMakeChip(word, idx){
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.draggable = true;
+    chip.dataset.orig = word;
+    chip.dataset.sbIdx = String(idx);
+    chip.textContent = word;
+    chip.addEventListener('dragstart', function(e){ sbDragged = chip; e.dataTransfer.effectAllowed='move'; });
+    chip.addEventListener('dragend', function(){ sbDragged = null; });
+    chip.addEventListener('click', function(){
+        var row = document.getElementById('sb-row-'+idx);
+        var bank = document.getElementById('sb-bank-'+idx);
+        if (!row || !bank) return;
+        if (chip.parentNode === bank) row.appendChild(chip);
+        else bank.appendChild(chip);
+        sbUpdateCapitalization(idx);
+        timerAutoStart(4);
+        setTimeout(function(){ sbColorRow(idx); }, 500);
+    });
+    return chip;
+}
+function sbRegisterZone(zone, idx){
+    zone.addEventListener('dragover', function(e){ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+    zone.addEventListener('drop', function(e){
+        e.preventDefault();
+        if (!sbDragged) return;
+        if (sbDragged.dataset.sbIdx !== String(idx)) return;
+        zone.appendChild(sbDragged);
+        sbUpdateCapitalization(idx);
+        timerAutoStart(4);
+        setTimeout(function(){ sbColorRow(idx); }, 500);
+    });
+}
+function sbColorRow(idx){
+    var row = document.getElementById('sb-row-'+idx);
+    var bank = document.getElementById('sb-bank-'+idx);
+    var fb = document.getElementById('sb-fb-'+idx);
+    if (!row) return;
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c){ c.classList.remove('correct','incorrect'); });
+    row.classList.remove('correct','incorrect');
+    var oldPunct = row.querySelector('.sb-punkt');
+    if (oldPunct) oldPunct.remove();
+    if (bank && bank.children.length > 0) { if (fb) fb.textContent=''; return; }
+    var arr = chips.map(function(c){ return (c.dataset.orig||'').toLowerCase(); });
+    var data = satzbauData[idx];
+    var ok = data.valid.some(function(v){
+        return JSON.stringify(v.map(function(x){return x.toLowerCase();})) === JSON.stringify(arr);
+    });
+    if (ok) {
+        row.classList.add('correct');
+        chips.forEach(function(c){ c.classList.add('correct'); });
+        var p = document.createElement('span'); p.className='sb-punkt'; p.textContent = data.punct||'.';
+        row.appendChild(p);
+        if (fb) fb.textContent = '✓ Richtig!';
+        sbCheckAllDone();
+    } else {
+        row.classList.add('incorrect');
+        chips.forEach(function(c){ c.classList.add('incorrect'); });
+        if (fb) fb.textContent = '✗ Noch nicht richtig.';
+    }
+}
+function sbCheckAllDone(){
+    var allOk = satzbauData.every(function(_, i){
+        var row = document.getElementById('sb-row-'+i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk) stopTimer(4);
+}
+function initSatzbau(){
+    var c = document.getElementById('sbContainer');
+    c.innerHTML = '';
+    satzbauData.forEach(function(data, idx){
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+        item.innerHTML =
+            '<div class="chips-container" id="sb-bank-'+idx+'"></div>' +
+            '<div class="sentence-builder" id="sb-row-'+idx+'"></div>' +
+            '<div class="satzbau-feedback" id="sb-fb-'+idx+'"></div>';
+        c.appendChild(item);
+        var bank = document.getElementById('sb-bank-'+idx);
+        var row = document.getElementById('sb-row-'+idx);
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        var parts = data.parts.slice();
+        for (var i=parts.length-1; i>0; i--) { var j=Math.floor(Math.random()*(i+1)); var t=parts[i]; parts[i]=parts[j]; parts[j]=t; }
+        parts.forEach(function(w){ bank.appendChild(sbMakeChip(w, idx)); });
+    });
+}
+
+/* =============== Resets / Lösungen =============== */
+function resetTab(i){
+    if (i === 2) { initRF(); }
+    else if (i === 3) {
+        document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+            inp.value = ''; inp.classList.remove('correct','wrong');
+        });
+    } else if (i === 4) { initSatzbau(); }
+}
+function showLoesung(i){
+    if (i === 2) {
+        RF.forEach(function(item, idx){
+            var btns = document.querySelectorAll('#rfContainer .rf-item')[idx];
+            if (!btns) return;
+            var all = btns.querySelectorAll('.rf-btn');
+            all.forEach(function(b){
+                b.style.pointerEvents = 'none';
+                if ((b.dataset.v === 'r' && item.answer) || (b.dataset.v === 'f' && !item.answer)) {
+                    b.classList.add(item.answer ? 'sel-r' : 'sel-f');
+                }
             });
-        }
+            var resEl = document.getElementById('rf-res-'+idx);
+            if (resEl) { resEl.textContent = '✓'; resEl.classList.add('ok'); }
+            rfDone[idx] = true;
+        });
+    } else if (i === 3) {
+        document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+            var ans = (inp.dataset.ans || '').split('|')[0];
+            inp.value = ans;
+            inp.classList.remove('wrong');
+            inp.classList.add('correct');
+        });
+    }
+}
 
-        function toggleWord(el) {
-            el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
-        }
-
-        function resetTab() {
-            location.reload();
-        }
-    
-
+/* =============== Init =============== */
+document.addEventListener('DOMContentLoaded', function(){
+    initVorentlastung();
+    initRF();
+    initLuecken();
+    initSatzbau();
+    highlightVocabInText();
+});
 </script>
 </body>
 </html>
