@@ -159,7 +159,7 @@ body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:
 <h2>Richtig oder falsch?</h2>
 <div class="instructions">Entscheiden Sie nach dem Lesen: Ist die Aussage richtig oder falsch?</div>
 <div class="control-bar">
-  <div class="btn-row"><button class="btn" onclick="rfCheck()">Prüfen</button><button class="btn secondary" onclick="rfReset()">Zurücksetzen</button></div>
+  <div class="btn-row"><button class="btn" onclick="rfSolve()">Lösungen</button><button class="btn secondary" onclick="rfReset(); resetTimer(2);">Neu starten</button></div>
   <div class="timer-display">⏱ <span id="timer-2">00:00</span> · <span id="rf-score">0 / 0</span></div>
 </div>
 <div class="rf-list" id="rf-list"></div>
@@ -173,7 +173,7 @@ body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:
 <h2>Wortschatz der Medienwelt</h2>
 <div class="instructions">Ergänzen Sie das passende Wort aus dem Text. Achten Sie auf Artikel und Pluralendung.</div>
 <div class="control-bar">
-  <div class="btn-row"><button class="btn" onclick="wsCheck()">Prüfen</button><button class="btn secondary" onclick="wsSolve()">Lösung zeigen</button></div>
+  <div class="btn-row"><button class="btn" onclick="wsSolve()">Lösungen</button><button class="btn secondary" onclick="wsReset(); resetTimer(3);">Neu starten</button></div>
   <div class="timer-display">⏱ <span id="timer-3">00:00</span> · <span id="ws-score">0 / 0</span></div>
 </div>
 <div class="ws-list" id="ws-list"></div>
@@ -188,7 +188,7 @@ body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:
 <div class="instructions">Ergänzen Sie die Lücken mit Wörtern aus der Wortbank. Jedes Wort nur einmal.</div>
 <div class="wortbank" id="wortbank"></div>
 <div class="control-bar">
-  <div class="btn-row"><button class="btn" onclick="lueckenCheck()">Prüfen</button><button class="btn secondary" onclick="lueckenSolve()">Lösung zeigen</button></div>
+  <div class="btn-row"><button class="btn" onclick="lueckenSolve()">Lösungen</button><button class="btn secondary" onclick="lueckenReset(); resetTimer(4);">Neu starten</button></div>
   <div class="timer-display">⏱ <span id="timer-4">00:00</span> · <span id="luecken-score">0 / 0</span></div>
 </div>
 <div class="luecken-list" id="luecken-list"></div>
@@ -272,18 +272,22 @@ function rfSelect(i,val) {
   const item = document.querySelector('.rf-item[data-idx="'+i+'"]');
   item.dataset.selected = val;
   item.querySelectorAll('.rf-btn').forEach(b=>b.classList.toggle('selected', b.dataset.val===val));
+  item.classList.remove('correct','wrong');
+  if (val === rfData[i].answer) item.classList.add('correct');
+  else item.classList.add('wrong');
   timerAutoStart(2);
+  updateRfScore();
+  if (allRfOk()) stopTimer(2);
 }
-function rfCheck() {
-  let correct=0, total=rfData.length;
-  rfData.forEach((it,i)=>{
-    const item = document.querySelector('.rf-item[data-idx="'+i+'"]');
-    item.classList.remove('correct','wrong');
-    if (item.dataset.selected === it.answer) { item.classList.add('correct'); correct++; }
-    else if (item.dataset.selected) { item.classList.add('wrong'); }
-  });
-  document.getElementById('rf-score').textContent = correct+' / '+total;
-  if (correct === total) stopTimer(2);
+function updateRfScore() {
+  let c = document.querySelectorAll('.rf-item.correct').length;
+  document.getElementById('rf-score').textContent = c+' / '+rfData.length;
+}
+function allRfOk() {
+  return document.querySelectorAll('.rf-item.correct').length === rfData.length;
+}
+function rfSolve() {
+  rfData.forEach((it,i)=>rfSelect(i, it.answer));
 }
 function rfReset() {
   document.querySelectorAll('.rf-item').forEach(it=>{
@@ -292,7 +296,6 @@ function rfReset() {
     it.querySelectorAll('.rf-btn').forEach(b=>b.classList.remove('selected'));
   });
   document.getElementById('rf-score').textContent = '0 / '+rfData.length;
-  resetTimer(2);
 }
 
 /* ---------- Wortschatz ---------- */
@@ -316,24 +319,35 @@ function initWS() {
     div.className = 'ws-item';
     div.dataset.idx = i;
     div.innerHTML = `<div class="ws-question">${i+1}. ${it.q}</div>
-      <input type="text" placeholder="Antwort..." oninput="timerAutoStart(3)">`;
+      <input type="text" placeholder="">`;
+    const inp = div.querySelector('input');
+    inp.addEventListener('input', ()=>wsLiveCheck(i, inp));
     list.appendChild(div);
   });
 }
-function wsCheck() {
-  let correct=0, total=wsData.length;
-  wsData.forEach((it,i)=>{
-    const item = document.querySelector('.ws-item[data-idx="'+i+'"]');
-    const inp = item.querySelector('input');
-    item.classList.remove('correct','wrong');
-    if (inp.value.trim().toLowerCase() === it.a.toLowerCase()) {
-      item.classList.add('correct'); correct++;
-    } else if (inp.value.trim()) {
-      item.classList.add('wrong');
-    }
-  });
-  document.getElementById('ws-score').textContent = correct+' / '+total;
-  if (correct === total) stopTimer(3);
+function wsLiveCheck(i, inp) {
+  const item = document.querySelector('.ws-item[data-idx="'+i+'"]');
+  const val = inp.value.trim().toLowerCase();
+  const ans = wsData[i].a.toLowerCase();
+  item.classList.remove('correct','wrong');
+  if (!val) { updateWsScore(); return; }
+  timerAutoStart(3);
+  if (val === ans) {
+    item.classList.add('correct');
+    updateWsScore();
+    if (allWsOk()) stopTimer(3);
+    return;
+  }
+  if (ans.startsWith(val)) { updateWsScore(); return; }
+  item.classList.add('wrong');
+  updateWsScore();
+}
+function updateWsScore() {
+  let c = document.querySelectorAll('.ws-item.correct').length;
+  document.getElementById('ws-score').textContent = c+' / '+wsData.length;
+}
+function allWsOk() {
+  return document.querySelectorAll('.ws-item.correct').length === wsData.length;
 }
 function wsSolve() {
   wsData.forEach((it,i)=>{
@@ -342,8 +356,15 @@ function wsSolve() {
     item.classList.remove('wrong');
     item.classList.add('correct');
   });
-  document.getElementById('ws-score').textContent = wsData.length+' / '+wsData.length;
+  updateWsScore();
   stopTimer(3);
+}
+function wsReset() {
+  document.querySelectorAll('.ws-item').forEach(item=>{
+    item.classList.remove('correct','wrong');
+    item.querySelector('input').value = '';
+  });
+  document.getElementById('ws-score').textContent = '0 / '+wsData.length;
 }
 
 /* ---------- Lückentext ---------- */
@@ -369,24 +390,35 @@ function initLuecken() {
     const div = document.createElement('div');
     div.className = 'luecken-item';
     div.dataset.idx = i;
-    div.innerHTML = `${i+1}. ${it.parts[0]}<input type="text" data-idx="${i}" oninput="timerAutoStart(4)">${it.parts[1]}`;
+    div.innerHTML = `${i+1}. ${it.parts[0]}<input type="text" data-idx="${i}" placeholder="">${it.parts[1]}`;
+    const inp = div.querySelector('input');
+    inp.addEventListener('input', ()=>lueckenLiveCheck(i, inp));
     list.appendChild(div);
   });
 }
-function lueckenCheck() {
-  let correct=0, total=lueckenData.length;
-  lueckenData.forEach((it,i)=>{
-    const item = document.querySelector('.luecken-item[data-idx="'+i+'"]');
-    const inp = item.querySelector('input');
-    item.classList.remove('correct','wrong');
-    if (inp.value.trim().toLowerCase() === it.a.toLowerCase()) {
-      item.classList.add('correct'); correct++;
-    } else if (inp.value.trim()) {
-      item.classList.add('wrong');
-    }
-  });
-  document.getElementById('luecken-score').textContent = correct+' / '+total;
-  if (correct === total) stopTimer(4);
+function lueckenLiveCheck(i, inp) {
+  const item = document.querySelector('.luecken-item[data-idx="'+i+'"]');
+  const val = inp.value.trim().toLowerCase();
+  const ans = lueckenData[i].a.toLowerCase();
+  item.classList.remove('correct','wrong');
+  if (!val) { updateLueckenScore(); return; }
+  timerAutoStart(4);
+  if (val === ans) {
+    item.classList.add('correct');
+    updateLueckenScore();
+    if (allLueckenOk()) stopTimer(4);
+    return;
+  }
+  if (ans.startsWith(val)) { updateLueckenScore(); return; }
+  item.classList.add('wrong');
+  updateLueckenScore();
+}
+function updateLueckenScore() {
+  let c = document.querySelectorAll('.luecken-item.correct').length;
+  document.getElementById('luecken-score').textContent = c+' / '+lueckenData.length;
+}
+function allLueckenOk() {
+  return document.querySelectorAll('.luecken-item.correct').length === lueckenData.length;
 }
 function lueckenSolve() {
   lueckenData.forEach((it,i)=>{
@@ -395,8 +427,15 @@ function lueckenSolve() {
     item.classList.remove('wrong');
     item.classList.add('correct');
   });
-  document.getElementById('luecken-score').textContent = lueckenData.length+' / '+lueckenData.length;
+  updateLueckenScore();
   stopTimer(4);
+}
+function lueckenReset() {
+  document.querySelectorAll('.luecken-item').forEach(item=>{
+    item.classList.remove('correct','wrong');
+    item.querySelector('input').value = '';
+  });
+  document.getElementById('luecken-score').textContent = '0 / '+lueckenData.length;
 }
 
 /* ---------- Init ---------- */

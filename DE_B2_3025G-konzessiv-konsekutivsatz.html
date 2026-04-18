@@ -141,7 +141,7 @@ table.bildung td b { color:#c0392b; }
 <h2>Konzessiv oder konsekutiv?</h2>
 <div class="instructions">Wählen Sie die passende Konjunktion.</div>
 <div class="control-bar">
-<div class="btn-row"><button class="btn" onclick="mcCheck()">Prüfen</button><button class="btn secondary" onclick="mcReset()">Zurücksetzen</button></div>
+<div class="btn-row"><button class="btn" onclick="mcSolve()">Lösungen</button><button class="btn secondary" onclick="mcReset(); resetTimer(1);">Neu starten</button></div>
 <div class="timer-display">⏱ <span id="timer-1">00:00</span> · <span id="mc-score">0 / 0</span></div>
 </div>
 <div class="mc-list" id="mc-list"></div>
@@ -156,7 +156,7 @@ table.bildung td b { color:#c0392b; }
 <div class="instructions">Ergänzen Sie die passende Konjunktion. Achten Sie auf die Wortstellung im Satz.</div>
 <div class="wortbank" id="wortbank"></div>
 <div class="control-bar">
-<div class="btn-row"><button class="btn" onclick="lueckenCheck()">Prüfen</button><button class="btn secondary" onclick="lueckenSolve()">Lösung zeigen</button></div>
+<div class="btn-row"><button class="btn" onclick="lueckenSolve()">Lösungen</button><button class="btn secondary" onclick="lueckenReset(); resetTimer(2);">Neu starten</button></div>
 <div class="timer-display">⏱ <span id="timer-2">00:00</span> · <span id="luecken-score">0 / 0</span></div>
 </div>
 <div class="luecken-list" id="luecken-list"></div>
@@ -170,7 +170,7 @@ table.bildung td b { color:#c0392b; }
 <h2>Sätze zusammensetzen</h2>
 <div class="instructions">Ziehen Sie die Chips in die richtige Reihenfolge. Achten Sie auf die Verbposition nach der Konjunktion.</div>
 <div class="control-bar">
-<div class="btn-row"><button class="btn" onclick="sbCheck()">Prüfen</button><button class="btn secondary" onclick="sbReset()">Zurücksetzen</button></div>
+<div class="btn-row"><button class="btn" onclick="sbSolve()">Lösungen</button><button class="btn secondary" onclick="sbReset(); resetTimer(3);">Neu starten</button></div>
 <div class="timer-display">⏱ <span id="timer-3">00:00</span> · <span id="sb-score">0 / 0</span></div>
 </div>
 <div class="sb-list" id="sb-list"></div>
@@ -215,24 +215,20 @@ function mcSelect(i,j){
   timerAutoStart(1);
   const item=document.querySelector('.mc-item[data-idx="'+i+'"]');
   item.dataset.selected=j;
-  item.querySelectorAll('.mc-option').forEach(o=>o.classList.toggle('selected',+o.dataset.j===j));
-}
-function mcCheck(){
-  let c=0,t=mcData.length;
-  mcData.forEach((it,i)=>{
-    const item=document.querySelector('.mc-item[data-idx="'+i+'"]');
-    item.classList.remove('correct','wrong');
-    item.querySelectorAll('.mc-option').forEach(o=>o.classList.remove('correct-ans'));
-    const s=item.dataset.selected;
-    if(s!==undefined){
-      if(+s===it.answer){item.classList.add('correct');c++;}
-      else{item.classList.add('wrong');item.querySelectorAll('.mc-option')[it.answer].classList.add('correct-ans');}
-    }
+  item.querySelectorAll('.mc-option').forEach(o=>{
+    o.classList.remove('selected','correct-ans');
+    if(+o.dataset.j===j)o.classList.add('selected');
   });
-  document.getElementById('mc-score').textContent=c+' / '+t;
-  if(c===t)stopTimer(1);
+  item.classList.remove('correct','wrong');
+  if(j===mcData[i].answer){item.classList.add('correct');}
+  else{item.classList.add('wrong');item.querySelectorAll('.mc-option')[mcData[i].answer].classList.add('correct-ans');}
+  updateMcScore();
+  if(allMcOk())stopTimer(1);
 }
-function mcReset(){initMC();resetTimer(1);document.getElementById('mc-score').textContent='0 / '+mcData.length;}
+function updateMcScore(){let c=document.querySelectorAll('.mc-item.correct').length;document.getElementById('mc-score').textContent=c+' / '+mcData.length;}
+function allMcOk(){return document.querySelectorAll('.mc-item.correct').length===mcData.length;}
+function mcSolve(){mcData.forEach((it,i)=>mcSelect(i,it.answer));}
+function mcReset(){initMC();document.getElementById('mc-score').textContent='0 / '+mcData.length;}
 
 const lueckenData=[
 {parts:["Er ist ins Büro gekommen, "," er sehr krank war."],a:"obwohl"},
@@ -253,30 +249,40 @@ function initLuecken(){
   lueckenData.forEach((it,i)=>{
     const div=document.createElement('div');
     div.className='luecken-item';div.dataset.idx=i;
-    div.innerHTML=`${i+1}. ${it.parts[0]}<input type="text" data-idx="${i}" oninput="timerAutoStart(2)">${it.parts[1]}`;
+    div.innerHTML=`${i+1}. ${it.parts[0]}<input type="text" data-idx="${i}" placeholder="">${it.parts[1]}`;
+    const inp=div.querySelector('input');
+    inp.addEventListener('input',()=>lueckenLiveCheck(i,inp));
     list.appendChild(div);
   });
 }
-function lueckenCheck(){
-  let c=0,t=lueckenData.length;
-  lueckenData.forEach((it,i)=>{
-    const item=document.querySelector('.luecken-item[data-idx="'+i+'"]');
-    const inp=item.querySelector('input');
-    item.classList.remove('correct','wrong');
-    if(inp.value.trim().toLowerCase()===it.a.toLowerCase()){item.classList.add('correct');c++;}
-    else if(inp.value.trim()){item.classList.add('wrong');}
-  });
-  document.getElementById('luecken-score').textContent=c+' / '+t;
-  if(c===t)stopTimer(2);
+function lueckenLiveCheck(i,inp){
+  const item=document.querySelector('.luecken-item[data-idx="'+i+'"]');
+  const val=inp.value.trim().toLowerCase();
+  const ans=lueckenData[i].a.toLowerCase();
+  item.classList.remove('correct','wrong');
+  if(!val){updateLueckenScore();return;}
+  timerAutoStart(2);
+  if(val===ans){item.classList.add('correct');updateLueckenScore();if(allLueckenOk())stopTimer(2);return;}
+  if(ans.startsWith(val)){updateLueckenScore();return;}
+  item.classList.add('wrong');updateLueckenScore();
 }
+function updateLueckenScore(){let c=document.querySelectorAll('.luecken-item.correct').length;document.getElementById('luecken-score').textContent=c+' / '+lueckenData.length;}
+function allLueckenOk(){return document.querySelectorAll('.luecken-item.correct').length===lueckenData.length;}
 function lueckenSolve(){
   lueckenData.forEach((it,i)=>{
     const item=document.querySelector('.luecken-item[data-idx="'+i+'"]');
     item.querySelector('input').value=it.a;
     item.classList.remove('wrong');item.classList.add('correct');
   });
-  document.getElementById('luecken-score').textContent=lueckenData.length+' / '+lueckenData.length;
+  updateLueckenScore();
   stopTimer(2);
+}
+function lueckenReset(){
+  document.querySelectorAll('.luecken-item').forEach(item=>{
+    item.classList.remove('correct','wrong');
+    item.querySelector('input').value='';
+  });
+  document.getElementById('luecken-score').textContent='0 / '+lueckenData.length;
 }
 
 /* Satzbau */
@@ -319,26 +325,33 @@ function sbCheckAuto(idx){
   const item=document.querySelector('.sb-item[data-idx="'+idx+'"]');
   const pool=document.querySelector('.sb-pool[data-idx="'+idx+'"]');
   const target=sbData[idx].answer;
-  if(pool.children.length>0){item.classList.remove('correct','wrong');return;}
+  if(pool.children.length>0){item.classList.remove('correct','wrong');updateSbScore();return;}
   const cur=[...drop.children].map(c=>c.dataset.w);
   item.classList.remove('correct','wrong');
   if(cur.length===target.length && cur.every((w,i)=>w===target[i])){item.classList.add('correct');}
   else{item.classList.add('wrong');}
+  updateSbScore();
+  if(allSbOk())stopTimer(3);
 }
-function sbCheck(){
-  let c=0,t=sbData.length;
+function updateSbScore(){let c=document.querySelectorAll('.sb-item.correct').length;document.getElementById('sb-score').textContent=c+' / '+sbData.length;}
+function allSbOk(){return document.querySelectorAll('.sb-item.correct').length===sbData.length;}
+function sbSolve(){
   sbData.forEach((it,i)=>{
     const drop=document.querySelector('.sb-drop[data-idx="'+i+'"]');
+    const pool=document.querySelector('.sb-pool[data-idx="'+i+'"]');
     const item=document.querySelector('.sb-item[data-idx="'+i+'"]');
-    const cur=[...drop.children].map(x=>x.dataset.w);
-    item.classList.remove('correct','wrong');
-    if(cur.length===it.answer.length && cur.every((w,j)=>w===it.answer[j])){item.classList.add('correct');c++;}
-    else{item.classList.add('wrong');}
+    drop.innerHTML='';pool.innerHTML='';
+    it.answer.forEach(w=>{
+      const span=document.createElement('span');
+      span.className='sb-chip';span.draggable=true;span.dataset.w=w;span.textContent=w;
+      drop.appendChild(span);
+    });
+    item.classList.remove('wrong');item.classList.add('correct');
   });
-  document.getElementById('sb-score').textContent=c+' / '+t;
-  if(c===t)stopTimer(3);
+  updateSbScore();
+  stopTimer(3);
 }
-function sbReset(){initSB();resetTimer(3);document.getElementById('sb-score').textContent='0 / '+sbData.length;}
+function sbReset(){initSB();document.getElementById('sb-score').textContent='0 / '+sbData.length;}
 
 initMC();initLuecken();initSB();
 </script>

@@ -173,7 +173,7 @@ body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:
 <h2>Unklar → Klar</h2>
 <div class="instructions">Ziehen Sie jede klare Formulierung auf die passende unklare Formulierung.</div>
 <div class="control-bar">
-<div class="btn-row"><button class="btn" onclick="zuoCheck()">Prüfen</button><button class="btn secondary" onclick="zuoReset()">Zurücksetzen</button></div>
+<div class="btn-row"><button class="btn" onclick="zuoSolve()">Lösungen</button><button class="btn secondary" onclick="zuoReset(); resetTimer(2);">Neu starten</button></div>
 <div class="timer-display">⏱ <span id="timer-2">00:00</span> · <span id="zuo-score">0 / 0</span></div>
 </div>
 <div class="zuo-grid">
@@ -190,7 +190,7 @@ body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:
 <h2>Die bessere Formulierung wählen</h2>
 <div class="instructions">Welche Variante ist klarer und verständlicher?</div>
 <div class="control-bar">
-<div class="btn-row"><button class="btn" onclick="mcCheck()">Prüfen</button><button class="btn secondary" onclick="mcReset()">Zurücksetzen</button></div>
+<div class="btn-row"><button class="btn" onclick="mcSolve()">Lösungen</button><button class="btn secondary" onclick="mcReset(); resetTimer(3);">Neu starten</button></div>
 <div class="timer-display">⏱ <span id="timer-3">00:00</span> · <span id="mc-score">0 / 0</span></div>
 </div>
 <div class="mc-list" id="mc-list"></div>
@@ -205,7 +205,7 @@ body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:
 <div class="instructions">Ergänzen Sie die Lücken mit Wörtern aus der Wortbank.</div>
 <div class="wortbank" id="wortbank"></div>
 <div class="control-bar">
-<div class="btn-row"><button class="btn" onclick="lueckenCheck()">Prüfen</button><button class="btn secondary" onclick="lueckenSolve()">Lösung zeigen</button></div>
+<div class="btn-row"><button class="btn" onclick="lueckenSolve()">Lösungen</button><button class="btn secondary" onclick="lueckenReset(); resetTimer(4);">Neu starten</button></div>
 <div class="timer-display">⏱ <span id="timer-4">00:00</span> · <span id="luecken-score">0 / 0</span></div>
 </div>
 <div class="luecken-list" id="luecken-list"></div>
@@ -262,10 +262,11 @@ function dropZuo(e,zone){
   const chip=document.querySelector('.zuo-chip[data-idx="'+ci+'"]');
   if(!chip)return;
   const ex=zone.querySelector('.zuo-chip');
-  if(ex)document.getElementById('zuo-pool').appendChild(ex);
+  if(ex){document.getElementById('zuo-pool').appendChild(ex);}
   zone.appendChild(chip);
+  zuoLiveCheck();
 }
-function zuoCheck(){
+function zuoLiveCheck(){
   let c=0,t=zuoData.length;
   document.querySelectorAll('.zuo-zone').forEach(z=>{
     z.classList.remove('correct','wrong');
@@ -275,7 +276,19 @@ function zuoCheck(){
   document.getElementById('zuo-score').textContent=c+' / '+t;
   if(c===t)stopTimer(2);
 }
-function zuoReset(){initZuo();resetTimer(2);document.getElementById('zuo-score').textContent='0 / '+zuoData.length;}
+function zuoSolve(){
+  const pool=document.getElementById('zuo-pool');
+  document.querySelectorAll('.zuo-zone').forEach(z=>{
+    const idx=z.dataset.idx;
+    const correctChip=document.querySelector('.zuo-chip[data-idx="'+idx+'"]');
+    if(!correctChip)return;
+    const ex=z.querySelector('.zuo-chip');
+    if(ex&&ex!==correctChip)pool.appendChild(ex);
+    z.appendChild(correctChip);
+  });
+  zuoLiveCheck();
+}
+function zuoReset(){initZuo();document.getElementById('zuo-score').textContent='0 / '+zuoData.length;}
 
 const mcData=[
 {q:"Welche Formulierung ist klarer?",options:["Die Durchführung der Untersuchung wird von Dr. Meier vorgenommen.","Dr. Meier führt die Untersuchung durch."],answer:1},
@@ -302,24 +315,23 @@ function mcSelect(i,j){
   timerAutoStart(3);
   const item=document.querySelector('.mc-item[data-idx="'+i+'"]');
   item.dataset.selected=j;
-  item.querySelectorAll('.mc-option').forEach(o=>o.classList.toggle('selected',+o.dataset.j===j));
-}
-function mcCheck(){
-  let c=0,t=mcData.length;
-  mcData.forEach((it,i)=>{
-    const item=document.querySelector('.mc-item[data-idx="'+i+'"]');
-    item.classList.remove('correct','wrong');
-    item.querySelectorAll('.mc-option').forEach(o=>o.classList.remove('correct-ans'));
-    const s=item.dataset.selected;
-    if(s!==undefined){
-      if(+s===it.answer){item.classList.add('correct');c++;}
-      else{item.classList.add('wrong');item.querySelectorAll('.mc-option')[it.answer].classList.add('correct-ans');}
-    }
+  item.querySelectorAll('.mc-option').forEach(o=>{
+    o.classList.remove('selected','correct-ans');
+    if(+o.dataset.j===j)o.classList.add('selected');
   });
-  document.getElementById('mc-score').textContent=c+' / '+t;
-  if(c===t)stopTimer(3);
+  item.classList.remove('correct','wrong');
+  if(j===mcData[i].answer){item.classList.add('correct');}
+  else{item.classList.add('wrong');item.querySelectorAll('.mc-option')[mcData[i].answer].classList.add('correct-ans');}
+  updateMcScore();
+  if(allMcOk())stopTimer(3);
 }
-function mcReset(){initMC();resetTimer(3);document.getElementById('mc-score').textContent='0 / '+mcData.length;}
+function updateMcScore(){
+  let c=document.querySelectorAll('.mc-item.correct').length;
+  document.getElementById('mc-score').textContent=c+' / '+mcData.length;
+}
+function allMcOk(){return document.querySelectorAll('.mc-item.correct').length===mcData.length;}
+function mcSolve(){mcData.forEach((it,i)=>mcSelect(i,it.answer));}
+function mcReset(){initMC();document.getElementById('mc-score').textContent='0 / '+mcData.length;}
 
 const lueckenData=[
 {parts:["Der "," macht einen Text lebendiger, weil er Verben statt Substantive nutzt."],a:"Verbalstil"},
@@ -339,30 +351,44 @@ function initLuecken(){
   lueckenData.forEach((it,i)=>{
     const div=document.createElement('div');
     div.className='luecken-item';div.dataset.idx=i;
-    div.innerHTML=`${i+1}. ${it.parts[0]}<input type="text" data-idx="${i}" oninput="timerAutoStart(4)">${it.parts[1]}`;
+    div.innerHTML=`${i+1}. ${it.parts[0]}<input type="text" data-idx="${i}" placeholder="">${it.parts[1]}`;
+    const inp=div.querySelector('input');
+    inp.addEventListener('input',()=>lueckenLiveCheck(i,inp));
     list.appendChild(div);
   });
 }
-function lueckenCheck(){
-  let c=0,t=lueckenData.length;
-  lueckenData.forEach((it,i)=>{
-    const item=document.querySelector('.luecken-item[data-idx="'+i+'"]');
-    const inp=item.querySelector('input');
-    item.classList.remove('correct','wrong');
-    if(inp.value.trim().toLowerCase()===it.a.toLowerCase()){item.classList.add('correct');c++;}
-    else if(inp.value.trim()){item.classList.add('wrong');}
-  });
-  document.getElementById('luecken-score').textContent=c+' / '+t;
-  if(c===t)stopTimer(4);
+function lueckenLiveCheck(i,inp){
+  const item=document.querySelector('.luecken-item[data-idx="'+i+'"]');
+  const val=inp.value.trim().toLowerCase();
+  const ans=lueckenData[i].a.toLowerCase();
+  item.classList.remove('correct','wrong');
+  if(!val){updateLueckenScore();return;}
+  timerAutoStart(4);
+  if(val===ans){item.classList.add('correct');updateLueckenScore();if(allLueckenOk())stopTimer(4);return;}
+  if(ans.startsWith(val)){updateLueckenScore();return;}
+  item.classList.add('wrong');
+  updateLueckenScore();
 }
+function updateLueckenScore(){
+  let c=document.querySelectorAll('.luecken-item.correct').length;
+  document.getElementById('luecken-score').textContent=c+' / '+lueckenData.length;
+}
+function allLueckenOk(){return document.querySelectorAll('.luecken-item.correct').length===lueckenData.length;}
 function lueckenSolve(){
   lueckenData.forEach((it,i)=>{
     const item=document.querySelector('.luecken-item[data-idx="'+i+'"]');
     item.querySelector('input').value=it.a;
     item.classList.remove('wrong');item.classList.add('correct');
   });
-  document.getElementById('luecken-score').textContent=lueckenData.length+' / '+lueckenData.length;
+  updateLueckenScore();
   stopTimer(4);
+}
+function lueckenReset(){
+  document.querySelectorAll('.luecken-item').forEach(item=>{
+    item.classList.remove('correct','wrong');
+    item.querySelector('input').value='';
+  });
+  document.getElementById('luecken-score').textContent='0 / '+lueckenData.length;
 }
 
 initZuo();initMC();initLuecken();
