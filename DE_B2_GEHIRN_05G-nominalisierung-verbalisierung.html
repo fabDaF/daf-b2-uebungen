@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nominalisierung und Verbalisierung – B2 · GEHIRN 05</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 28px 30px; }
+
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); display: block; }
+
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 6px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+.section-title { font-size: 1.4em; font-weight: 700; color: #667eea; margin-bottom: 8px; }
+.section-sub { color: #888; font-size: 0.92em; margin-bottom: 20px; }
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+/* Entdecken */
+.entdeck-intro { background: #f3e5f5; border-radius: 12px; padding: 18px 22px; margin-bottom: 20px; border-left: 5px solid #9c27b0; font-size: 0.97rem; line-height: 1.75; }
+.entdeck-intro h3 { color: #6a1b9a; margin-bottom: 10px; font-size: 1.05rem; }
+.entdeck-intro p { color: #333; }
+.nom-hl { background: #fef08a; border-radius: 3px; padding: 1px 3px; font-weight: 700; color: #8b6900; }
+.verb-hl { background: #c8e6c9; border-radius: 3px; padding: 1px 3px; font-weight: 700; color: #1b5e20; }
+.progress-dots { display: flex; gap: 8px; margin-bottom: 20px; }
+.pdot { width: 14px; height: 14px; border-radius: 50%; background: #c5cae9; transition: background .3s; }
+.pdot.done { background: #667eea; }
+.mc-step { display: none; background: #fafbff; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; border: 1px solid #c5cae9; }
+.mc-step.active { display: block; }
+.mc-step h4 { color: #3949ab; margin-bottom: 12px; font-size: 0.97rem; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-btn { padding: 9px 16px; border: 2px solid #c5cae9; border-radius: 8px; background: white; cursor: pointer; text-align: left; font-size: 0.92rem; font-family: inherit; transition: all 0.2s; }
+.mc-btn:hover { border-color: #667eea; background: #f3f4ff; }
+.mc-btn.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+.mc-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+.mc-feedback { margin-top: 10px; font-size: 0.88rem; min-height: 1.3em; }
+.mc-feedback.ok { color: #2e7d32; font-weight: 700; }
+.mc-feedback.err { color: #c62828; }
+.regel-karte { display: none; background: linear-gradient(135deg, #e8eaf6, #ede7f6); border-radius: 14px; padding: 22px 26px; border-left: 5px solid #3949ab; margin-top: 10px; }
+.regel-karte h3 { color: #1a237e; margin-bottom: 12px; font-size: 1.05rem; }
+.regel-karte ul { margin-left: 18px; }
+.regel-karte li { color: #333; line-height: 1.8; font-size: 0.95rem; }
+.regel-karte .rk-example { background: white; border-radius: 8px; padding: 10px 14px; margin-top: 12px; border-left: 3px solid #7c4dff; font-size: 0.9rem; color: #333; }
+.regel-karte .rk-example b { color: #3949ab; }
+
+/* Regel */
+.regel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media (max-width: 700px) { .regel-grid { grid-template-columns: 1fr; } }
+.regel-box { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px 16px; }
+.regel-box h3 { font-size: 0.88rem; color: #764ba2; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.conj-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 16px; }
+.conj-table th { background: #667eea; color: white; padding: 7px 10px; text-align: left; font-weight: 600; }
+.conj-table td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; }
+.conj-table tr:nth-child(even) td { background: #f8f9ff; }
+.alert-box { background: #fff8e1; border-left: 4px solid #f9a825; border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: 0.88rem; margin-bottom: 16px; line-height: 1.6; }
+.alert-box strong { color: #f57c00; }
+.example-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 16px; }
+.example-table th { background: #e8f4f8; color: #0077aa; padding: 7px 10px; text-align: left; }
+.example-table td { padding: 7px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+.example-table td em { color: #888; font-style: italic; }
+.arrow-cell { color: #667eea; font-weight: 700; text-align: center; padding: 0 8px; }
+
+/* Lückentext */
+.luecken-item { margin-bottom: 14px; font-size: 0.97rem; line-height: 2; color: #333; }
+input.blank, .luecken-inp { border: none; border-bottom: 2px solid #c5cae9; background: transparent; padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none; transition: all .2s; min-width: 4ch; }
+input.blank:focus, .luecken-inp:focus { border-bottom-color: #667eea; }
+input.blank.ok, .luecken-inp.ok { border-bottom-color: #27ae60; background: #e8f8f0; color: #1b5e20; font-weight: 700; }
+input.blank.no, .luecken-inp.no { border-bottom-color: #e74c3c; background: #fdeaea; color: #b71c1c; }
+.hint { font-size: 0.78rem; color: #999; font-style: italic; margin-left: 4px; }
+
+/* Satzbau */
+.satzbau-item { margin-bottom: 24px; background: #fafbff; border-radius: 12px; padding: 14px 16px; border: 1px solid #e3e5f0; }
+.sb-intro { font-size: 0.88em; color: #666; margin-bottom: 8px; font-style: italic; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f8f8; border-radius: 10px; min-height: 48px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 48px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 7px 13px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.85em; font-weight: 600; margin-top: 6px; min-height: 1.1em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.sb-btn-row { display: flex; gap: 8px; margin-top: 10px; }
+
+/* Wortschatz */
+#wortschatzContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#wortschatzContainer .luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 12px 16px; margin-bottom: 0; }
+.ws-prompt { font-weight: 600; color: #4a148c; font-size: 1.0em; margin-bottom: 8px; }
+.ws-inputs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* Footer */
+.author-footer { text-align: center; margin-top: 20px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+    .sec-inner { padding: 18px 16px; }
+    #wortschatzContainer { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>Nominalisierung und Verbalisierung</h1>
+  <p>B2 – Lektion GEHIRN 05 · Grammatik</p>
+  <span class="big-emoji">🔄</span>
+</div>
+
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">🔍</span><span class="nav-label">Entdecken</span></div>
+  <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📖</span><span class="nav-label">Regel</span></div>
+  <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+  <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+  <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+</div>
+
+<!-- TAB 0: ENTDECKEN -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/4021779/pexels-photo-4021779.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fachtext und Wissenschaft">
+  <div class="sec-inner">
+    <div class="section-title">🔍 Entdecken</div>
+    <div class="section-sub">Wissenschaftliche Texte arbeiten mit vielen Nomen — Alltagssprache mit vielen Verben.</div>
+
+    <div class="entdeck-intro">
+      <h3>🔍 Vergleiche diese beiden Fassungen desselben Inhalts:</h3>
+      <p><b>Nominal (Fachtext):</b> Bei <span class="nom-hl">der Erhöhung des Blutzuckers</span> kommt es zu einer <span class="nom-hl">Ausschüttung</span> von Insulin. Nach <span class="nom-hl">dem Verzicht auf Zucker</span> stabilisiert sich der Stoffwechsel innerhalb weniger Wochen.</p>
+      <p style="margin-top:10px"><b>Verbal (Alltagssprache):</b> <span class="verb-hl">Wenn der Blutzucker steigt</span>, <span class="verb-hl">schüttet</span> die Bauchspeicheldrüse Insulin aus. <span class="verb-hl">Nachdem man auf Zucker verzichtet hat</span>, stabilisiert sich der Stoffwechsel innerhalb weniger Wochen.</p>
+    </div>
+
+    <div class="progress-dots">
+      <div class="pdot" id="pdot0"></div>
+      <div class="pdot" id="pdot1"></div>
+      <div class="pdot" id="pdot2"></div>
+      <div class="pdot" id="pdot3"></div>
+    </div>
+
+    <div class="mc-step active" id="mc-step0">
+      <h4>❓ Der nominale Stil wirkt sachlich und verdichtet. Welches Merkmal ist typisch für ihn?</h4>
+      <div class="mc-options">
+        <button class="mc-btn" onclick="mcCheck(0, this, false)">A) Viele Modalverben und Imperative</button>
+        <button class="mc-btn" onclick="mcCheck(0, this, true)">B) Viele Nomen, oft mit Genitiv- oder Präpositionalergänzung</button>
+        <button class="mc-btn" onclick="mcCheck(0, this, false)">C) Viele Konjunktiv-II-Formen</button>
+        <button class="mc-btn" onclick="mcCheck(0, this, false)">D) Viele kurze Hauptsätze ohne Verbindungen</button>
+      </div>
+      <div class="mc-feedback" id="mcfb0"></div>
+    </div>
+
+    <div class="mc-step" id="mc-step1">
+      <h4>❓ Welche Verbalform entspricht dem Nomen „die Erhöhung des Blutzuckers“?</h4>
+      <div class="mc-options">
+        <button class="mc-btn" onclick="mcCheck(1, this, false)">A) dass der Blutzucker erhöht wurde</button>
+        <button class="mc-btn" onclick="mcCheck(1, this, true)">B) wenn der Blutzucker steigt / sich erhöht</button>
+        <button class="mc-btn" onclick="mcCheck(1, this, false)">C) obwohl der Blutzucker hoch ist</button>
+        <button class="mc-btn" onclick="mcCheck(1, this, false)">D) damit der Blutzucker erhöht wird</button>
+      </div>
+      <div class="mc-feedback" id="mcfb1"></div>
+    </div>
+
+    <div class="mc-step" id="mc-step2">
+      <h4>❓ Welcher Nebensatz passt zu „wegen des zunehmenden Zuckerkonsums“?</h4>
+      <div class="mc-options">
+        <button class="mc-btn" onclick="mcCheck(2, this, false)">A) obwohl der Zuckerkonsum zunimmt</button>
+        <button class="mc-btn" onclick="mcCheck(2, this, false)">B) wenn der Zuckerkonsum zunimmt</button>
+        <button class="mc-btn" onclick="mcCheck(2, this, true)">C) weil der Zuckerkonsum zunimmt</button>
+        <button class="mc-btn" onclick="mcCheck(2, this, false)">D) damit der Zuckerkonsum zunimmt</button>
+      </div>
+      <div class="mc-feedback" id="mcfb2"></div>
+    </div>
+
+    <div class="mc-step" id="mc-step3">
+      <h4>❓ Welche Nominalform passt zu „um die Konzentration zu verbessern“?</h4>
+      <div class="mc-options">
+        <button class="mc-btn" onclick="mcCheck(3, this, true)">A) zur Verbesserung der Konzentration</button>
+        <button class="mc-btn" onclick="mcCheck(3, this, false)">B) trotz der Verbesserung der Konzentration</button>
+        <button class="mc-btn" onclick="mcCheck(3, this, false)">C) bei der Verbesserung der Konzentration</button>
+        <button class="mc-btn" onclick="mcCheck(3, this, false)">D) wegen der Verbesserung der Konzentration</button>
+      </div>
+      <div class="mc-feedback" id="mcfb3"></div>
+    </div>
+
+    <div class="regel-karte" id="regelKarte">
+      <h3>💡 Die Regel — Nominal- und Verbalstil</h3>
+      <ul>
+        <li>Der <b>Nominalstil</b> ist typisch für Wissenschaft, Medizin und Behördentexte. Er verdichtet Inhalte in Nomen.</li>
+        <li>Der <b>Verbalstil</b> ist anschaulicher und alltagsnäher — mit Nebensätzen und konjugierten Verben.</li>
+        <li>Präposition → Konjunktion: <b>bei</b> → wenn, <b>nach</b> → nachdem, <b>vor</b> → bevor, <b>wegen</b> → weil, <b>trotz</b> → obwohl, <b>durch</b> → indem, <b>zu/für</b> → um…zu / damit.</li>
+      </ul>
+      <div class="rk-example">
+        <b>Nominal:</b> Nach der Umstellung der Ernährung verbessert sich das Gedächtnis.<br>
+        <b>Verbal:</b> Nachdem man die Ernährung umgestellt hat, <b>verbessert</b> sich das Gedächtnis.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 1: REGEL -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Grammatikregel">
+  <div class="sec-inner">
+    <div class="section-title">📖 Die Regel im Überblick</div>
+    <div class="section-sub">Präpositionen im Nominalstil ↔ Konjunktionen im Verbalstil.</div>
+
+    <div class="hilfe-box">
+      <strong>Kurzfassung:</strong> Nominalisierungen komprimieren einen ganzen Nebensatz in eine Präpositionalphrase. Bei der Verbalisierung wird aus der Präposition eine Konjunktion — und das versteckte Verb wird wieder sichtbar.
+    </div>
+
+    <div class="regel-grid">
+      <div class="regel-box">
+        <h3>Präposition → Konjunktion</h3>
+        <table class="conj-table">
+          <tr><th>Nominal</th><th>Verbal</th></tr>
+          <tr><td>bei + D.</td><td>wenn / als</td></tr>
+          <tr><td>nach + D.</td><td>nachdem</td></tr>
+          <tr><td>vor + D.</td><td>bevor</td></tr>
+          <tr><td>während + G.</td><td>während</td></tr>
+          <tr><td>wegen + G.</td><td>weil / da</td></tr>
+          <tr><td>trotz + G.</td><td>obwohl</td></tr>
+          <tr><td>durch + A.</td><td>indem / dadurch dass</td></tr>
+          <tr><td>zu / für</td><td>um … zu / damit</td></tr>
+        </table>
+      </div>
+      <div class="regel-box">
+        <h3>Verb → Nomen: häufige Endungen</h3>
+        <table class="conj-table">
+          <tr><th>Verb</th><th>Nomen</th></tr>
+          <tr><td>erhöhen</td><td>die Erhöhung</td></tr>
+          <tr><td>umstellen</td><td>die Umstellung</td></tr>
+          <tr><td>ansteigen</td><td>der Anstieg</td></tr>
+          <tr><td>verzichten</td><td>der Verzicht</td></tr>
+          <tr><td>essen</td><td>das Essen</td></tr>
+          <tr><td>leben</td><td>das Leben</td></tr>
+          <tr><td>gesund → </td><td>die Gesundheit</td></tr>
+          <tr><td>möglich → </td><td>die Möglichkeit</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <strong>⚠️ Achtung — Subjekt sichtbar machen:</strong> Im Nominalstil bleibt oft unklar, wer handelt. Beim Verbalisieren muss ein Subjekt eingeführt werden — häufig <em>man</em> oder ein konkreter Akteur.
+      <br>Beispiel: „nach der Umstellung der Ernährung“ → „nachdem <b>man</b> die Ernährung umgestellt hat“.
+    </div>
+
+    <h3 style="color:#667eea; margin-bottom:10px; font-size:1rem;">Typische Umformungen im medizinischen Kontext</h3>
+    <table class="example-table">
+      <tr><th>Nominal</th><th></th><th>Verbal</th></tr>
+      <tr>
+        <td><em>Bei</em> einer chronischen Insulinresistenz</td>
+        <td class="arrow-cell">↔</td>
+        <td><em>Wenn</em> eine Insulinresistenz chronisch ist</td>
+      </tr>
+      <tr>
+        <td><em>Nach</em> der Umstellung der Ernährung</td>
+        <td class="arrow-cell">↔</td>
+        <td><em>Nachdem</em> man die Ernährung umgestellt hat</td>
+      </tr>
+      <tr>
+        <td><em>Wegen</em> der ständigen Heißhungerattacken</td>
+        <td class="arrow-cell">↔</td>
+        <td><em>Weil</em> er ständig Heißhungerattacken hat</td>
+      </tr>
+      <tr>
+        <td><em>Trotz</em> der zunehmenden Forschungslage</td>
+        <td class="arrow-cell">↔</td>
+        <td><em>Obwohl</em> die Forschungslage zunimmt</td>
+      </tr>
+      <tr>
+        <td><em>Durch</em> die Reduktion von Kohlenhydraten</td>
+        <td class="arrow-cell">↔</td>
+        <td><em>Indem</em> man Kohlenhydrate reduziert</td>
+      </tr>
+      <tr>
+        <td><em>Zur</em> Verbesserung der Konzentration</td>
+        <td class="arrow-cell">↔</td>
+        <td><em>Um</em> die Konzentration zu verbessern</td>
+      </tr>
+    </table>
+
+    <div class="hilfe-box">
+      <strong>💡 Stilistischer Hinweis:</strong> Der Nominalstil wirkt kompakt, aber manchmal bürokratisch. In mündlichen Erklärungen, Dialogen und Alltagstexten ist der Verbalstil deutlich verständlicher. Ein guter Autor wechselt bewusst zwischen beiden Stilen.
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: LÜCKENTEXT -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/4021807/pexels-photo-4021807.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fachtext und Medizin">
+  <div class="sec-inner">
+    <div class="section-title">✏️ Lückentext</div>
+    <div class="section-sub">Verbalisiere — ergänze die passende Konjunktion oder Verbform.</div>
+
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showLoesung(2)">Lösungen</button>
+        <button class="btn" onclick="resetTab(2); resetTimer(2);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">00:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+
+    <div id="luecken-container"></div>
+  </div>
+</div>
+
+<!-- TAB 3: SATZBAU -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/256318/pexels-photo-256318.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Struktur und Ordnung">
+  <div class="sec-inner">
+    <div class="section-title">🧩 Satzbau</div>
+    <div class="section-sub">Bilde die verbalisierten Sätze. Bring die Wörter in die richtige Reihenfolge.</div>
+
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="sbShowAll()">Lösungen</button>
+        <button class="btn" onclick="sbResetAll(); resetTimer(3);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">00:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
+
+<!-- TAB 4: WORTSCHATZ -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/159581/dictionary-reference-book-learning-meaning-159581.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wortschatz">
+  <div class="sec-inner">
+    <div class="section-title">📚 Wortschatz</div>
+    <div class="section-sub">Verben und ihre Nominalisierungen aus dem Themenfeld Ernährung und Gehirn.</div>
+
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showLoesung(4)">Lösungen</button>
+        <button class="btn" onclick="resetTab(4); resetTimer(4);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">00:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+
+    <div id="wortschatzContainer"></div>
+  </div>
+</div>
+
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* NAVIGATION */
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+}
+
+/* TIMER */
+var timerStart = [0,0,0,0,0];
+var timerInt = [null,null,null,null,null];
+var bestTime = [null,null,null,null,null];
+
+function loadBest() {
+  for (var i=2; i<=4; i++) {
+    var b = localStorage.getItem('gehirn05-best-' + i);
+    if (b) { bestTime[i] = parseInt(b); var el = document.getElementById('best-'+i); if (el) el.textContent = fmtTime(bestTime[i]); }
+  }
+}
+function fmtTime(ms) { var s = Math.floor(ms/1000); return ('0'+Math.floor(s/60)).slice(-2)+':'+('0'+(s%60)).slice(-2); }
+function timerAutoStart(idx) {
+  if (timerInt[idx]) return;
+  timerStart[idx] = Date.now();
+  timerInt[idx] = setInterval(function() {
+    var el = document.getElementById('timer-'+idx); if (el) el.textContent = fmtTime(Date.now() - timerStart[idx]);
+  }, 1000);
+}
+function stopTimer(idx) {
+  if (!timerInt[idx]) return;
+  clearInterval(timerInt[idx]); timerInt[idx] = null;
+  var elapsed = Date.now() - timerStart[idx];
+  if (bestTime[idx] === null || elapsed < bestTime[idx]) {
+    bestTime[idx] = elapsed;
+    localStorage.setItem('gehirn05-best-'+idx, elapsed);
+    var el = document.getElementById('best-'+idx); if (el) el.textContent = fmtTime(elapsed);
+  }
+}
+function resetTimer(idx) {
+  if (timerInt[idx]) { clearInterval(timerInt[idx]); timerInt[idx] = null; }
+  var el = document.getElementById('timer-'+idx); if (el) el.textContent = '00:00';
+}
+
+/* ENTDECKEN — MC */
+var mcDone = [false,false,false,false];
+function mcCheck(step, btn, correct) {
+  if (mcDone[step]) return;
+  var fb = document.getElementById('mcfb'+step);
+  if (correct) {
+    btn.classList.add('correct'); fb.textContent = '✓ Genau richtig!'; fb.className = 'mc-feedback ok';
+    mcDone[step] = true; document.getElementById('pdot'+step).classList.add('done');
+    setTimeout(function() {
+      document.getElementById('mc-step'+step).classList.remove('active');
+      if (step < 3) { document.getElementById('mc-step'+(step+1)).classList.add('active'); }
+      else { document.getElementById('regelKarte').style.display = 'block'; }
+    }, 900);
+  } else {
+    btn.classList.add('wrong'); fb.textContent = '✗ Noch einmal überlegen.'; fb.className = 'mc-feedback err';
+  }
+}
+
+/* LIVE-CHECK */
+function liveCheck(inp, onStart, allSel, onAllOk) {
+  var val = inp.value.trim().toLowerCase();
+  var ans = (inp.dataset.ans || '').toLowerCase();
+  inp.classList.remove('ok','no');
+  if (!val) return;
+  if (val === ans) {
+    inp.classList.add('ok');
+    if (onStart) onStart();
+    if (onAllOk && allSel) {
+      var alle = Array.from(document.querySelectorAll(allSel));
+      if (alle.every(function(i){ return i.classList.contains('ok'); })) onAllOk();
+    }
+    return;
+  }
+  if (ans.startsWith(val)) { if (onStart) onStart(); return; }
+  inp.classList.add('no');
+}
+
+/* LÜCKENTEXT */
+var LUECKEN = [
+  { intro: "Nominal: „Bei einem Anstieg des Blutzuckers …“ → Verbal: „___ der Blutzucker ansteigt, …“", ans: "Wenn", hint: "Konjunktion" },
+  { intro: "Nominal: „Nach der Umstellung der Ernährung …“ → Verbal: „___ man die Ernährung umgestellt hat, …“", ans: "Nachdem", hint: "Konjunktion" },
+  { intro: "Nominal: „Wegen der chronischen Entzündung …“ → Verbal: „___ die Entzündung chronisch ist, …“", ans: "Weil", hint: "Konjunktion" },
+  { intro: "Nominal: „Trotz der klaren Datenlage …“ → Verbal: „___ die Datenlage klar ist, …“", ans: "Obwohl", hint: "Konjunktion" },
+  { intro: "Nominal: „Zur Verbesserung der Konzentration …“ → Verbal: „… ___ die Konzentration zu verbessern.“", ans: "um", hint: "Infinitivkonjunktion" },
+  { intro: "Nominal: „Durch die Reduktion von Zucker …“ → Verbal: „___ man Zucker reduziert, …“", ans: "Indem", hint: "Konjunktion" },
+  { intro: "Verbal: „Nachdem der Patient umgestellt hat, …“ → Nominal: „Nach der ___ des Patienten, …“", ans: "Umstellung", hint: "Nomen zu „umstellen“" },
+  { intro: "Verbal: „Weil der Blutzucker ansteigt, …“ → Nominal: „Wegen des ___ des Blutzuckers, …“", ans: "Anstiegs", hint: "Genitiv von „Anstieg“" },
+  { intro: "Verbal: „Wenn man Kohlenhydrate reduziert, …“ → Nominal: „Bei der ___ von Kohlenhydraten, …“", ans: "Reduktion", hint: "Nomen zu „reduzieren“" },
+  { intro: "Verbal: „Damit man das Gehirn entlastet, …“ → Nominal: „Zur ___ des Gehirns, …“", ans: "Entlastung", hint: "Nomen zu „entlasten“" },
+  { intro: "Verbal: „Bevor man die Mahlzeit einnimmt, …“ → Nominal: „Vor der ___ der Mahlzeit, …“", ans: "Einnahme", hint: "Nomen zu „einnehmen“" },
+  { intro: "Verbal: „Obwohl die Beraterin warnt, …“ → Nominal: „Trotz der ___ der Beraterin, …“", ans: "Warnung", hint: "Nomen zu „warnen“" }
+];
+
+function initLuecken() {
+  var cont = document.getElementById('luecken-container');
+  cont.innerHTML = '';
+  LUECKEN.forEach(function(ex, i) {
+    var item = document.createElement('div'); item.className = 'luecken-item';
+    var parts = ex.intro.split('___');
+    var inp = document.createElement('input');
+    inp.className = 'luecken-inp'; inp.type = 'text'; inp.placeholder = '';
+    inp.dataset.ans = ex.ans;
+    var hintLen = (ex.hint || '').length;
+    inp.style.width = Math.max(ex.ans.length, hintLen) + 4 + 'ch';
+    inp.addEventListener('input', function() {
+      liveCheck(inp, function(){ timerAutoStart(2); }, '#sec-2 .luecken-inp', function(){ stopTimer(2); });
+    });
+    item.appendChild(document.createTextNode((i+1) + '. ' + parts[0]));
+    item.appendChild(inp);
+    if (ex.hint) {
+      var h = document.createElement('span'); h.className = 'hint'; h.textContent = ' (' + ex.hint + ')'; item.appendChild(h);
+    }
+    if (parts[1]) item.appendChild(document.createTextNode(parts[1]));
+    cont.appendChild(item);
+  });
+}
+
+/* SATZBAU — verbalisierte Sätze */
+var SATZBAU = [
+  {
+    direkt: "Nominal: Bei einem Anstieg des Blutzuckers schüttet der Körper Insulin aus.",
+    parts: ["wenn","der","Blutzucker","ansteigt","schüttet","der","Körper","Insulin","aus"],
+    valid: [["wenn","der","Blutzucker","ansteigt","schüttet","der","Körper","Insulin","aus"]],
+    punct: "."
+  },
+  {
+    direkt: "Nominal: Nach der Umstellung der Ernährung verbessert sich die Konzentration.",
+    parts: ["nachdem","man","die","Ernährung","umgestellt","hat","verbessert","sich","die","Konzentration"],
+    valid: [["nachdem","man","die","Ernährung","umgestellt","hat","verbessert","sich","die","Konzentration"]],
+    punct: "."
+  },
+  {
+    direkt: "Nominal: Wegen des hohen Zuckerkonsums steigt das Diabetesrisiko deutlich.",
+    parts: ["weil","der","Zuckerkonsum","hoch","ist","steigt","das","Diabetesrisiko","deutlich"],
+    valid: [["weil","der","Zuckerkonsum","hoch","ist","steigt","das","Diabetesrisiko","deutlich"]],
+    punct: "."
+  },
+  {
+    direkt: "Nominal: Durch die Reduktion der Kohlenhydrate stabilisiert sich der Stoffwechsel.",
+    parts: ["indem","man","die","Kohlenhydrate","reduziert","stabilisiert","sich","der","Stoffwechsel"],
+    valid: [["indem","man","die","Kohlenhydrate","reduziert","stabilisiert","sich","der","Stoffwechsel"]],
+    punct: "."
+  },
+  {
+    direkt: "Nominal: Zur Senkung des Blutzuckers empfiehlt Dr. Ede eine Umstellung.",
+    parts: ["um","den","Blutzucker","zu","senken","empfiehlt","Dr.","Ede","eine","Umstellung"],
+    valid: [["um","den","Blutzucker","zu","senken","empfiehlt","Dr.","Ede","eine","Umstellung"]],
+    punct: "."
+  },
+  {
+    direkt: "Nominal: Trotz der klaren Warnungen ignorieren viele Menschen ihren Zuckerkonsum.",
+    parts: ["obwohl","die","Warnungen","klar","sind","ignorieren","viele","Menschen","ihren","Zuckerkonsum"],
+    valid: [["obwohl","die","Warnungen","klar","sind","ignorieren","viele","Menschen","ihren","Zuckerkonsum"]],
+    punct: "."
+  },
+  {
+    direkt: "Nominal: Vor der Einführung neuer Gewohnheiten braucht der Körper etwas Zeit.",
+    parts: ["bevor","man","neue","Gewohnheiten","einführt","braucht","der","Körper","etwas","Zeit"],
+    valid: [["bevor","man","neue","Gewohnheiten","einführt","braucht","der","Körper","etwas","Zeit"]],
+    punct: "."
+  },
+  {
+    direkt: "Nominal: Bei chronischer Insulinresistenz verliert das Gehirn an Leistungsfähigkeit.",
+    parts: ["wenn","eine","Insulinresistenz","chronisch","ist","verliert","das","Gehirn","an","Leistungsfähigkeit"],
+    valid: [["wenn","eine","Insulinresistenz","chronisch","ist","verliert","das","Gehirn","an","Leistungsfähigkeit"]],
+    punct: "."
+  }
+];
+var sbDragged = null;
+function sbCapitalize(w) { return w.charAt(0).toUpperCase() + w.slice(1); }
+function sbMakeChip(word, idx) {
+  var chip = document.createElement('div'); chip.className = 'chip';
+  chip.dataset.orig = word; chip.dataset.sbIdx = String(idx); chip.textContent = word; chip.draggable = true;
+  chip.addEventListener('dragstart', function(){ sbDragged = chip; });
+  chip.addEventListener('click', function(){
+    var bank = document.getElementById('sb-bank-'+idx);
+    var row = document.getElementById('sb-row-'+idx);
+    if (chip.parentNode === bank) { row.appendChild(chip); }
+    else if (chip.parentNode === row) { bank.appendChild(chip); }
+    sbUpdateCapitalization(idx);
+    setTimeout(function(){ sbCheckAuto(idx); }, 500);
+    timerAutoStart(3);
+  });
+  return chip;
+}
+function sbUpdateCapitalization(idx) {
+  var row = document.getElementById('sb-row-'+idx);
+  Array.from(row.children).forEach(function(c, i) {
+    if (c.classList && c.classList.contains('chip')) {
+      c.textContent = (i === 0) ? sbCapitalize(c.dataset.orig) : c.dataset.orig;
+    }
+  });
+}
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault();
+    if (sbDragged && sbDragged.dataset.sbIdx === String(idx)) {
+      zone.appendChild(sbDragged);
+      sbUpdateCapitalization(idx);
+      setTimeout(function(){ sbCheckAuto(idx); }, 500);
+      timerAutoStart(3);
+    }
+    sbDragged = null;
+  });
+}
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-'+idx);
+  var row = document.getElementById('sb-row-'+idx);
+  var fb = document.getElementById('sb-fb-'+idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.classList.remove('correct','incorrect'); fb.textContent = ''; fb.className = 'satzbau-feedback';
+    Array.from(row.children).forEach(function(c){ if (c.classList && c.classList.contains('chip')) c.classList.remove('correct','incorrect'); });
+    var oldPunkt = row.querySelector('.sb-punkt'); if (oldPunkt) oldPunkt.remove();
+    return;
+  }
+  var arr = Array.from(row.querySelectorAll('.chip')).map(function(c){ return c.dataset.orig; });
+  var ok = SATZBAU[idx].valid.some(function(v){ return JSON.stringify(v) === JSON.stringify(arr); });
+  row.classList.remove('correct','incorrect');
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){ c.classList.remove('correct','incorrect'); });
+  var oldPunkt = row.querySelector('.sb-punkt'); if (oldPunkt) oldPunkt.remove();
+  if (ok) {
+    row.classList.add('correct');
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c){ c.classList.add('correct'); });
+    var punkt = document.createElement('span'); punkt.className = 'sb-punkt'; punkt.textContent = SATZBAU[idx].punct || '.';
+    row.appendChild(punkt);
+    fb.textContent = '✓ Richtig!'; fb.className = 'satzbau-feedback correct';
+    sbCheckAllDone();
+  } else {
+    row.classList.add('incorrect');
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c){ c.classList.add('incorrect'); });
+    fb.textContent = '✗ Reihenfolge noch nicht richtig.'; fb.className = 'satzbau-feedback incorrect';
+  }
+}
+function sbCheckAllDone() {
+  var allOk = true;
+  for (var i=0; i<SATZBAU.length; i++) {
+    var row = document.getElementById('sb-row-'+i);
+    if (!row || !row.classList.contains('correct')) { allOk = false; break; }
+  }
+  if (allOk) stopTimer(3);
+}
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-'+idx);
+  var row = document.getElementById('sb-row-'+idx);
+  var fb = document.getElementById('sb-fb-'+idx);
+  row.innerHTML = ''; bank.innerHTML = '';
+  SATZBAU[idx].valid[0].forEach(function(w, i) {
+    var chip = document.createElement('div'); chip.className = 'chip correct';
+    chip.dataset.orig = w; chip.dataset.sbIdx = String(idx);
+    chip.textContent = (i === 0) ? sbCapitalize(w) : w;
+    row.appendChild(chip);
+  });
+  row.classList.add('correct');
+  var punkt = document.createElement('span'); punkt.className = 'sb-punkt'; punkt.textContent = SATZBAU[idx].punct || '.';
+  row.appendChild(punkt);
+  fb.textContent = '✓ Lösung'; fb.className = 'satzbau-feedback correct';
+}
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-'+idx);
+  var row = document.getElementById('sb-row-'+idx);
+  var fb = document.getElementById('sb-fb-'+idx);
+  row.innerHTML = ''; bank.innerHTML = ''; fb.textContent = ''; fb.className = 'satzbau-feedback';
+  row.classList.remove('correct','incorrect');
+  var parts = SATZBAU[idx].parts.slice();
+  for (var i=parts.length-1; i>0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = parts[i]; parts[i] = parts[j]; parts[j] = t; }
+  parts.forEach(function(w) { bank.appendChild(sbMakeChip(w, idx)); });
+}
+function sbShowAll() { for (var i=0; i<SATZBAU.length; i++) sbShowSolution(i); stopTimer(3); }
+function sbResetAll() { for (var i=0; i<SATZBAU.length; i++) sbResetOne(i); }
+
+function initSatzbau() {
+  var cont = document.getElementById('satzbauContainer');
+  cont.innerHTML = '';
+  SATZBAU.forEach(function(ex, idx) {
+    var item = document.createElement('div'); item.className = 'satzbau-item';
+    var intro = document.createElement('div'); intro.className = 'sb-intro'; intro.textContent = '→ ' + ex.direkt;
+    var bank = document.createElement('div'); bank.className = 'chips-container'; bank.id = 'sb-bank-'+idx;
+    var row = document.createElement('div'); row.className = 'sentence-builder'; row.id = 'sb-row-'+idx;
+    var fb = document.createElement('div'); fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-'+idx;
+    sbRegisterZone(row, idx); sbRegisterZone(bank, idx);
+    var parts = ex.parts.slice();
+    for (var i=parts.length-1; i>0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = parts[i]; parts[i] = parts[j]; parts[j] = t; }
+    parts.forEach(function(w) { bank.appendChild(sbMakeChip(w, idx)); });
+    var btnRow = document.createElement('div'); btnRow.className = 'sb-btn-row';
+    var solve = document.createElement('button'); solve.className = 'btn'; solve.textContent = 'Lösen';
+    solve.addEventListener('click', function(){ sbShowSolution(idx); });
+    var reset = document.createElement('button'); reset.className = 'btn'; reset.textContent = '↺ Neustart';
+    reset.addEventListener('click', function(){ sbResetOne(idx); });
+    btnRow.appendChild(solve); btnRow.appendChild(reset);
+    item.appendChild(intro); item.appendChild(bank); item.appendChild(row); item.appendChild(fb); item.appendChild(btnRow);
+    cont.appendChild(item);
+  });
+}
+
+/* WORTSCHATZ — Verb/Nomen-Paare und Themenwörter */
+var WORTSCHATZ = [
+  { id:1,  type:"n", en:"📈 the increase, rise",       artikel:"der", de:"Anstieg",      plural:"Anstiege" },
+  { id:2,  type:"n", en:"⬆️ the raising, elevation",    artikel:"die", de:"Erhöhung",     plural:"Erhöhungen" },
+  { id:3,  type:"n", en:"🔄 the changeover",            artikel:"die", de:"Umstellung",   plural:"Umstellungen" },
+  { id:4,  type:"n", en:"🔻 the reduction",             artikel:"die", de:"Reduktion",    plural:"Reduktionen" },
+  { id:5,  type:"n", en:"📤 the release, discharge",    artikel:"die", de:"Ausschüttung", plural:"Ausschüttungen" },
+  { id:6,  type:"n", en:"⚖️ the stabilization",         artikel:"die", de:"Stabilisierung", plural:"Stabilisierungen" },
+  { id:7,  type:"n", en:"🏃 the improvement",           artikel:"die", de:"Verbesserung", plural:"Verbesserungen" },
+  { id:8,  type:"n", en:"💊 the intake",                artikel:"die", de:"Einnahme",     plural:"Einnahmen" },
+  { id:9,  type:"n", en:"📢 the warning",               artikel:"die", de:"Warnung",      plural:"Warnungen" },
+  { id:10, type:"n", en:"🎯 the introduction",          artikel:"die", de:"Einführung",   plural:"Einführungen" },
+  { id:11, type:"p", en:"📈 to rise, to increase",      de:"ansteigen" },
+  { id:12, type:"p", en:"🔄 to change over, to convert", de:"umstellen" },
+  { id:13, type:"p", en:"🔻 to reduce",                 de:"reduzieren" },
+  { id:14, type:"p", en:"⚖️ to stabilize",              de:"stabilisieren" },
+  { id:15, type:"p", en:"🏃 to improve",                de:"verbessern" }
+];
+
+function initWortschatz() {
+  var cont = document.getElementById('wortschatzContainer');
+  cont.innerHTML = '';
+  WORTSCHATZ.forEach(function(w) {
+    var item = document.createElement('div'); item.className = 'luecken-item';
+    var prompt = document.createElement('div'); prompt.className = 'ws-prompt'; prompt.textContent = w.en;
+    var row = document.createElement('div'); row.className = 'ws-inputs';
+    if (w.type === 'n') {
+      var artInp = document.createElement('input');
+      artInp.className = 'luecken-inp'; artInp.placeholder = 'Artikel'; artInp.style.width = '9ch';
+      artInp.dataset.ans = w.artikel;
+      artInp.addEventListener('input', function(){ wsCheck(artInp, 'a'); });
+      row.appendChild(artInp);
+      var wInp = document.createElement('input');
+      wInp.className = 'luecken-inp'; wInp.placeholder = 'Wort'; wInp.style.width = Math.max(w.de.length, 4) + 4 + 'ch';
+      wInp.dataset.ans = w.de;
+      wInp.addEventListener('input', function(){ wsCheck(wInp, 'w'); });
+      row.appendChild(wInp);
+      var plInp = document.createElement('input');
+      plInp.className = 'luecken-inp'; plInp.placeholder = 'Plural'; plInp.style.width = Math.max((w.plural||'').length, 6) + 4 + 'ch';
+      if (w.plural === '–') { plInp.value = '–'; plInp.disabled = true; plInp.style.opacity = 0.6; plInp.classList.add('ok'); }
+      else { plInp.dataset.ans = w.plural;
+        plInp.addEventListener('input', function(){ wsCheck(plInp, 'p'); });
+      }
+      row.appendChild(plInp);
+    } else {
+      var dInp = document.createElement('input');
+      dInp.className = 'luecken-inp'; dInp.placeholder = 'Deutsch'; dInp.style.width = Math.max(w.de.length, 8) + 4 + 'ch';
+      dInp.dataset.ans = w.de;
+      dInp.addEventListener('input', function(){ wsCheck(dInp, 'd'); });
+      row.appendChild(dInp);
+    }
+    item.appendChild(prompt); item.appendChild(row);
+    cont.appendChild(item);
+  });
+}
+
+function wsCheck(inp, mode) {
+  var val = inp.value.trim();
+  var ans = inp.dataset.ans || '';
+  inp.classList.remove('ok','no');
+  if (!val) return;
+  var cmp = (mode === 'a') ? (val.toLowerCase() === ans.toLowerCase()) : (val === ans);
+  if (cmp) {
+    inp.classList.add('ok'); timerAutoStart(4); checkWsAllOk();
+    return;
+  }
+  var prefixOk = (mode === 'a')
+    ? ans.toLowerCase().startsWith(val.toLowerCase())
+    : ans.startsWith(val);
+  if (prefixOk) { timerAutoStart(4); return; }
+  inp.classList.add('no');
+}
+function checkWsAllOk() {
+  var inps = Array.from(document.querySelectorAll('#wortschatzContainer .luecken-inp'));
+  if (inps.length === 0) return;
+  if (inps.every(function(i){ return i.classList.contains('ok'); })) stopTimer(4);
+}
+
+/* LÖSUNGEN / RESET */
+function showLoesung(idx) {
+  if (idx === 2) {
+    document.querySelectorAll('#sec-2 .luecken-inp').forEach(function(inp) {
+      inp.value = inp.dataset.ans || ''; inp.classList.remove('no'); inp.classList.add('ok');
+    });
+    stopTimer(2);
+  } else if (idx === 4) {
+    document.querySelectorAll('#sec-4 .luecken-inp').forEach(function(inp) {
+      if (!inp.disabled) { inp.value = inp.dataset.ans || ''; inp.classList.remove('no'); inp.classList.add('ok'); }
+    });
+    stopTimer(4);
+  }
+}
+function resetTab(idx) {
+  if (idx === 2) {
+    document.querySelectorAll('#sec-2 .luecken-inp').forEach(function(inp) { inp.value = ''; inp.classList.remove('ok','no'); });
+  } else if (idx === 4) {
+    document.querySelectorAll('#sec-4 .luecken-inp').forEach(function(inp) {
+      if (!inp.disabled) { inp.value = ''; inp.classList.remove('ok','no'); }
+    });
+  }
+}
+
+/* INIT */
+document.addEventListener('DOMContentLoaded', function() {
+  initLuecken();
+  initSatzbau();
+  initWortschatz();
+  loadBest();
+});
+</script>
+</body>
+</html>
