@@ -159,9 +159,12 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
 .sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
 
 /* Schreibwerkstatt — fünf Mikroaufgaben statt einer großen */
-.schreib-aufgabe-karte { background: #f8f9ff; padding: 16px 18px; margin-bottom: 16px; border-radius: 10px; border-left: 4px solid #667eea; }
+.schreib-aufgabe-karte { background: #f8f9ff; padding: 16px 18px; margin-bottom: 16px; border-radius: 10px; border-left: 4px solid #667eea; transition: all 0.25s; }
+.schreib-aufgabe-karte.gesendet { background: #f1f8e9; border-left-color: #689f38; }
 .schreib-aufgabe-nr { display: inline-block; background: #667eea; color: white; font-weight: 700; font-size: 0.85em; padding: 2px 10px; border-radius: 12px; margin-right: 8px; vertical-align: middle; }
+.schreib-aufgabe-karte.gesendet .schreib-aufgabe-nr { background: #689f38; }
 .schreib-aufgabe-titel { font-weight: 700; color: #4a148c; font-size: 1.0em; vertical-align: middle; }
+.schreib-aufgabe-karte.gesendet .schreib-aufgabe-titel { color: #33691e; }
 .schreib-aufgabe-frage { color: #555; font-size: 0.92em; line-height: 1.5; margin: 8px 0 10px 0; }
 .schreib-mini-textarea {
     width: 100%;
@@ -179,8 +182,28 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
     background: #fefefe;
 }
 .schreib-mini-textarea:focus { border-color: #667eea; box-shadow: 0 0 0 2px rgba(102,126,234,0.15); }
-.schreib-mini-meta { display: flex; justify-content: flex-end; font-size: 0.82em; color: #888; margin-top: 6px; }
+.schreib-mini-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; flex-wrap: wrap; gap: 10px; }
+.schreib-mini-meta { font-size: 0.82em; color: #888; }
 .schreib-mini-meta strong { color: #667eea; font-weight: 700; }
+.schreib-mini-status { font-size: 0.82em; color: #689f38; font-weight: 600; }
+.schreib-mini-status.error { color: #c62828; }
+.schreib-mini-btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1.5px solid #667eea;
+    background: white;
+    color: #667eea;
+    font-size: 0.83em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+}
+.schreib-mini-btn:hover:not(:disabled) { background: #667eea; color: white; box-shadow: 0 2px 6px rgba(102,126,234,0.3); }
+.schreib-mini-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.schreib-mini-btn.gesendet { border-color: #689f38; color: #689f38; background: #f1f8e9; }
+.schreib-mini-btn.gesendet:hover:not(:disabled) { background: #689f38; color: white; }
 .schreib-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding-top: 18px; border-top: 1px solid #e0e4ff; }
 .schreib-btn {
     padding: 10px 20px;
@@ -446,7 +469,7 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
     <div class="sec-inner">
       <h2>📨 Schreibwerkstatt</h2>
       <div class="hilfe-box">
-        Fünf kurze Schreibaufgaben zum Essay. Jede ist in zwei bis drei Minuten zu schaffen — schreib spontan, du musst nicht alle bearbeiten. Am Ende kannst du alles auf einmal an Frank schicken.
+        Fünf kurze Schreibaufgaben zum Essay. Jede ist in zwei bis drei Minuten zu schaffen — schreib spontan, du musst nicht alle bearbeiten. <strong>Jede einzelne Antwort kannst du direkt mit ihrem eigenen Senden-Button an Frank schicken</strong>; der Sammelbutton am Ende ist nur für den Fall, dass du mehrere auf einmal abgeben willst.
       </div>
 
       <div class="schreib-aufgabe-karte">
@@ -455,7 +478,10 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
           Nenne drei jugendsprachliche Ausdrücke aus deiner Erstsprache (oder einer Sprache, die du gut kennst). Übersetze sie kurz und nenne den Kontext, in dem sie verwendet werden.
         </div>
         <textarea class="schreib-mini-textarea" data-aufgabe="1" data-titel="Drei Ausdrücke aus deiner Sprache"></textarea>
-        <div class="schreib-mini-meta">Wörter: <strong class="wc-1">0</strong></div>
+        <div class="schreib-mini-footer">
+          <span class="schreib-mini-meta">Wörter: <strong class="wc-1">0</strong> <span class="schreib-mini-status" id="status-1"></span></span>
+          <button class="schreib-mini-btn" id="send-1" onclick="schreibSendenEinzeln(1)">📨 Diese Antwort senden</button>
+        </div>
       </div>
 
       <div class="schreib-aufgabe-karte">
@@ -464,7 +490,10 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
           Wie reagieren ältere Generationen in deinem Umfeld, wenn sie Jugendsprache hören? Schreib in vier bis sechs Sätzen eine prägnante Beobachtung — gerne mit einer kleinen Szene, die du selbst erlebt hast.
         </div>
         <textarea class="schreib-mini-textarea" data-aufgabe="2" data-titel="Reaktion der älteren Generation"></textarea>
-        <div class="schreib-mini-meta">Wörter: <strong class="wc-2">0</strong></div>
+        <div class="schreib-mini-footer">
+          <span class="schreib-mini-meta">Wörter: <strong class="wc-2">0</strong> <span class="schreib-mini-status" id="status-2"></span></span>
+          <button class="schreib-mini-btn" id="send-2" onclick="schreibSendenEinzeln(2)">📨 Diese Antwort senden</button>
+        </div>
       </div>
 
       <div class="schreib-aufgabe-karte">
@@ -473,7 +502,10 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
           Welche englischen Wörter haben sich in deiner Sprache so etabliert, dass sie nicht mehr als „englisch“ empfunden werden? Nenne drei Beispiele und schätze, in welchem Jahrzehnt sie übernommen wurden.
         </div>
         <textarea class="schreib-mini-textarea" data-aufgabe="3" data-titel="Anglizismen in deiner Sprache"></textarea>
-        <div class="schreib-mini-meta">Wörter: <strong class="wc-3">0</strong></div>
+        <div class="schreib-mini-footer">
+          <span class="schreib-mini-meta">Wörter: <strong class="wc-3">0</strong> <span class="schreib-mini-status" id="status-3"></span></span>
+          <button class="schreib-mini-btn" id="send-3" onclick="schreibSendenEinzeln(3)">📨 Diese Antwort senden</button>
+        </div>
       </div>
 
       <div class="schreib-aufgabe-karte">
@@ -482,7 +514,10 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
           „Jugendsprache verarmt die Sprache.“ — Stimm dieser These in drei bis vier Sätzen entweder zu oder widersprich ihr. Beruf dich dabei auf eine konkrete Beobachtung aus dem Essay oder aus deinem Alltag.
         </div>
         <textarea class="schreib-mini-textarea" data-aufgabe="4" data-titel="Mini-Stellungnahme zu Sprachverfall"></textarea>
-        <div class="schreib-mini-meta">Wörter: <strong class="wc-4">0</strong></div>
+        <div class="schreib-mini-footer">
+          <span class="schreib-mini-meta">Wörter: <strong class="wc-4">0</strong> <span class="schreib-mini-status" id="status-4"></span></span>
+          <button class="schreib-mini-btn" id="send-4" onclick="schreibSendenEinzeln(4)">📨 Diese Antwort senden</button>
+        </div>
       </div>
 
       <div class="schreib-aufgabe-karte">
@@ -491,16 +526,19 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
           Wo hast du in der letzten Woche Jugendsprache gehört oder selbst verwendet? Beschreib die Situation in zwei bis drei Sätzen so präzise, dass eine Leserin sie sich vorstellen kann.
         </div>
         <textarea class="schreib-mini-textarea" data-aufgabe="5" data-titel="Eine eigene Pointe"></textarea>
-        <div class="schreib-mini-meta">Wörter: <strong class="wc-5">0</strong></div>
+        <div class="schreib-mini-footer">
+          <span class="schreib-mini-meta">Wörter: <strong class="wc-5">0</strong> <span class="schreib-mini-status" id="status-5"></span></span>
+          <button class="schreib-mini-btn" id="send-5" onclick="schreibSendenEinzeln(5)">📨 Diese Antwort senden</button>
+        </div>
       </div>
 
       <label class="schreib-label" for="schreib-name">Dein Name (optional, für die Rückmeldung):</label>
       <input type="text" id="schreib-name" class="schreib-name" placeholder="z. B. Hiroshi Tanaka">
 
       <div class="schreib-actions">
-        <button class="schreib-btn schreib-btn-primary" id="btn-schreib-senden" onclick="schreibSendenAlle()">📨 Alle Antworten an Frank senden</button>
+        <button class="schreib-btn schreib-btn-primary" id="btn-schreib-senden" onclick="schreibSendenAlleNochOffenen()">📨 Alle noch nicht gesendeten Antworten schicken</button>
         <button class="schreib-btn schreib-btn-ghost" onclick="schreibKopieren()">📋 In Zwischenablage</button>
-        <button class="schreib-btn schreib-btn-ghost" onclick="schreibLeeren()">🗑️ Alles löschen</button>
+        <button class="schreib-btn schreib-btn-ghost" onclick="schreibLeeren()">🗑️ Alles zurücksetzen</button>
       </div>
 
       <div class="schreib-status" id="schreib-status"></div>
@@ -1131,9 +1169,10 @@ function sbReset() {
 // SCHREIBWERKSTATT — Eigener Essay + Mailversand
 // ═══════════════════════════════════════════════════════
 var SCHREIB_NAME_KEY = 'schreibwerkstatt_C2_0708R_name';
-var FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/frankburkert@gmx.net';
-
 var SCHREIB_KEY_PREFIX = 'schreibwerkstatt_C2_0708R_';
+var SCHREIB_SENT_PREFIX = 'schreibwerkstatt_C2_0708R_sent_';
+var FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/frankburkert@gmx.net';
+var SCHREIB_LEKTION = 'C2 – 0708R · Die Sprache der Anderen — Jugendsprache';
 
 function initSchreibwerkstatt() {
   var nameInp = document.getElementById('schreib-name');
@@ -1150,9 +1189,20 @@ function initSchreibwerkstatt() {
     var saved = localStorage.getItem(key);
     if (saved) ta.value = saved;
     schreibUpdateCount(ta);
+
+    // Wenn diese Karte schon gesendet wurde, Status setzen
+    var sentInfo = localStorage.getItem(SCHREIB_SENT_PREFIX + nr);
+    if (sentInfo) schreibKarteAlsGesendetMarkieren(nr, sentInfo, true);
+
     ta.addEventListener('input', function(){
       schreibUpdateCount(ta);
       localStorage.setItem(key, ta.value);
+      // Bei neuer Bearbeitung: Status zurücksetzen (ohne den Sent-Marker zu löschen — der bleibt für die Lerner-Info)
+      var btn = document.getElementById('send-' + nr);
+      if (btn && btn.classList.contains('gesendet')) {
+        btn.classList.remove('gesendet');
+        btn.innerHTML = '📨 Erneut senden';
+      }
     });
   });
 }
@@ -1165,16 +1215,27 @@ function schreibUpdateCount(ta) {
   if (wc) wc.textContent = words;
 }
 
-function schreibSammelinhalt() {
-  var teile = [];
-  document.querySelectorAll('.schreib-mini-textarea').forEach(function(ta) {
-    var titel = ta.dataset.titel || ('Aufgabe ' + ta.dataset.aufgabe);
-    var text = ta.value.trim();
-    if (text) {
-      teile.push('=== Aufgabe ' + ta.dataset.aufgabe + ': ' + titel + ' ===\n\n' + text);
-    }
-  });
-  return teile.join('\n\n');
+function schreibKarteAlsGesendetMarkieren(nr, info, beimLaden) {
+  var karte = document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  if (karte) karte = karte.closest('.schreib-aufgabe-karte');
+  if (karte) karte.classList.add('gesendet');
+  var btn = document.getElementById('send-' + nr);
+  if (btn) {
+    btn.classList.add('gesendet');
+    btn.innerHTML = beimLaden ? '✓ schon gesendet · erneut senden' : '✓ gesendet · erneut senden';
+  }
+  var status = document.getElementById('status-' + nr);
+  if (status) {
+    status.classList.remove('error');
+    status.textContent = '✓ ' + info;
+  }
+}
+
+function schreibStatusKarte(nr, typ, text) {
+  var status = document.getElementById('status-' + nr);
+  if (!status) return;
+  status.classList.toggle('error', typ === 'error');
+  status.textContent = text;
 }
 
 function schreibStatusZeigen(typ, text) {
@@ -1184,60 +1245,133 @@ function schreibStatusZeigen(typ, text) {
   box.innerHTML = text;
 }
 
-function schreibSendenAlle() {
+function schreibAktuellerName() {
   var nameInp = document.getElementById('schreib-name');
-  var btn = document.getElementById('btn-schreib-senden');
-  var inhalt = schreibSammelinhalt();
-  if (inhalt.length < 30) {
-    schreibStatusZeigen('error', '✗ Da ist noch kaum etwas geschrieben. Bearbeite mindestens eine Aufgabe, bevor du sendest.');
-    return;
-  }
-  var name = (nameInp && nameInp.value || '').trim() || 'Anonyme Einsenderin / anonymer Einsender';
-  var subject = 'C2-Schreibwerkstatt · 0708R Jugendsprache · ' + name;
-  btn.disabled = true;
-  btn.innerHTML = '⏳ Wird gesendet …';
-  schreibStatusZeigen('info', '⏳ Deine Antworten werden übermittelt …');
-  fetch(FORMSUBMIT_ENDPOINT, {
+  return (nameInp && nameInp.value || '').trim() || 'Anonyme Einsenderin / anonymer Einsender';
+}
+
+function schreibPostFormsubmit(subject, message, onOk, onErr) {
+  return fetch(FORMSUBMIT_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
-      name: name,
+      name: schreibAktuellerName(),
       _subject: subject,
       _template: 'box',
       _captcha: 'false',
-      lektion: 'C2 – 0708R · Die Sprache der Anderen — Jugendsprache',
-      message: inhalt
+      lektion: SCHREIB_LEKTION,
+      message: message
     })
   })
   .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then(function(data){
-    btn.disabled = false;
-    btn.innerHTML = '📨 Alle Antworten an Frank senden';
-    if (data && (data.success === 'true' || data.success === true)) {
+  .then(onOk)
+  .catch(onErr);
+}
+
+function schreibSendenEinzeln(nr) {
+  var ta = document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  var btn = document.getElementById('send-' + nr);
+  if (!ta || !btn) return;
+  var text = ta.value.trim();
+  if (text.length < 15) {
+    schreibStatusKarte(nr, 'error', 'noch zu kurz — schreib bitte etwas mehr');
+    return;
+  }
+  var titel = ta.dataset.titel || ('Aufgabe ' + nr);
+  var name = schreibAktuellerName();
+  var subject = 'C2 0708R · Aufgabe ' + nr + ' · ' + titel + ' · ' + name;
+  var message = '=== Aufgabe ' + nr + ': ' + titel + ' ===\n\n' + text;
+
+  btn.disabled = true;
+  var origLabel = btn.innerHTML;
+  btn.innerHTML = '⏳ Wird gesendet …';
+  schreibStatusKarte(nr, 'info', 'wird gesendet …');
+
+  schreibPostFormsubmit(subject, message,
+    function(data) {
+      btn.disabled = false;
+      var jetzt = new Date();
+      var zeit = String(jetzt.getHours()).padStart(2,'0') + ':' + String(jetzt.getMinutes()).padStart(2,'0');
+      var info = 'gesendet um ' + zeit;
+      localStorage.setItem(SCHREIB_SENT_PREFIX + nr, info);
+      schreibKarteAlsGesendetMarkieren(nr, info, false);
+    },
+    function() {
+      btn.disabled = false;
+      btn.innerHTML = origLabel;
+      var subjectEnc = encodeURIComponent(subject);
+      var bodyEnc = encodeURIComponent('Name: ' + name + '\n\n' + message);
+      var status = document.getElementById('status-' + nr);
+      if (status) {
+        status.classList.add('error');
+        status.innerHTML = '✗ Versand fehlgeschlagen — <a href="mailto:frankburkert@gmx.net?subject=' + subjectEnc + '&body=' + bodyEnc + '" style="color:#c62828;font-weight:700;">stattdessen per Mail-Programm</a>';
+      }
+    }
+  );
+}
+
+function schreibSendenAlleNochOffenen() {
+  var btn = document.getElementById('btn-schreib-senden');
+  var offene = [];
+  document.querySelectorAll('.schreib-mini-textarea').forEach(function(ta) {
+    var nr = ta.dataset.aufgabe;
+    var text = ta.value.trim();
+    var sent = localStorage.getItem(SCHREIB_SENT_PREFIX + nr);
+    if (text.length >= 15 && !sent) offene.push({ nr: nr, ta: ta, text: text });
+  });
+  if (offene.length === 0) {
+    schreibStatusZeigen('info', 'ℹ Es gibt nichts Neues zu senden — alle Antworten sind entweder leer/sehr kurz oder bereits gesendet.');
+    return;
+  }
+  var teile = offene.map(function(o) {
+    var titel = o.ta.dataset.titel || ('Aufgabe ' + o.nr);
+    return '=== Aufgabe ' + o.nr + ': ' + titel + ' ===\n\n' + o.text;
+  });
+  var name = schreibAktuellerName();
+  var subject = 'C2 0708R · ' + offene.length + ' Antworten · ' + name;
+  var message = teile.join('\n\n');
+
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Wird gesendet …';
+  schreibStatusZeigen('info', '⏳ ' + offene.length + ' Antworten werden übermittelt …');
+
+  schreibPostFormsubmit(subject, message,
+    function(data) {
+      btn.disabled = false;
+      btn.innerHTML = '📨 Alle noch nicht gesendeten Antworten schicken';
+      var jetzt = new Date();
+      var zeit = String(jetzt.getHours()).padStart(2,'0') + ':' + String(jetzt.getMinutes()).padStart(2,'0');
+      var info = 'gesendet um ' + zeit;
+      offene.forEach(function(o) {
+        localStorage.setItem(SCHREIB_SENT_PREFIX + o.nr, info);
+        schreibKarteAlsGesendetMarkieren(o.nr, info, false);
+      });
       schreibStatusZeigen('success',
-        '✓ <strong>Deine Antworten sind übermittelt.</strong> Frank wird sich bei dir melden, sobald er sie gelesen hat.<br>' +
-        '<small style="opacity:0.8;">Hinweis: Beim allerersten Versand muss Frank einmalig eine Bestätigungsmail freigeben. Danach kommen alle weiteren Einsendungen direkt in seinem Posteingang an.</small>'
+        '✓ <strong>' + offene.length + ' Antworten übermittelt.</strong> Frank wird sich bei dir melden, sobald er sie gelesen hat.<br>' +
+        '<small style="opacity:0.8;">Beim allerersten Versand muss Frank einmalig eine Bestätigungsmail freigeben.</small>'
       );
-    } else {
-      schreibStatusZeigen('info',
-        '📩 <strong>Deine Einsendung wurde übergeben.</strong> Falls Frank zum ersten Mal Post über diesen Kanal bekommt, muss er die Verbindung einmal per Klick freischalten.'
+    },
+    function() {
+      btn.disabled = false;
+      btn.innerHTML = '📨 Alle noch nicht gesendeten Antworten schicken';
+      var subjectEnc = encodeURIComponent(subject);
+      var bodyEnc = encodeURIComponent('Name: ' + name + '\n\n' + message);
+      schreibStatusZeigen('error',
+        '✗ <strong>Direkter Versand nicht möglich.</strong> ' +
+        'Du kannst die Antworten <a href="mailto:frankburkert@gmx.net?subject=' + subjectEnc + '&body=' + bodyEnc + '" style="color:#b71c1c;font-weight:600;">per Mail-Programm senden</a> oder mit <em>In Zwischenablage</em> übernehmen.'
       );
     }
-  })
-  .catch(function(){
-    btn.disabled = false;
-    btn.innerHTML = '📨 Alle Antworten an Frank senden';
-    var subjectEnc = encodeURIComponent(subject);
-    var bodyEnc = encodeURIComponent('Name: ' + name + '\n\n' + inhalt);
-    schreibStatusZeigen('error',
-      '✗ <strong>Direkter Versand nicht möglich.</strong> Möglicherweise bist du gerade offline.<br>' +
-      'Du kannst deine Antworten stattdessen <a href="mailto:frankburkert@gmx.net?subject=' + subjectEnc + '&body=' + bodyEnc + '" style="color:#b71c1c;font-weight:600;">per Mail-Programm senden</a> oder mit <em>In Zwischenablage</em> übernehmen.'
-    );
-  });
+  );
 }
 
 function schreibKopieren() {
-  var inhalt = schreibSammelinhalt();
+  var teile = [];
+  document.querySelectorAll('.schreib-mini-textarea').forEach(function(ta) {
+    var titel = ta.dataset.titel || ('Aufgabe ' + ta.dataset.aufgabe);
+    var text = ta.value.trim();
+    if (text) teile.push('=== Aufgabe ' + ta.dataset.aufgabe + ': ' + titel + ' ===\n\n' + text);
+  });
+  var inhalt = teile.join('\n\n');
   if (!inhalt) {
     schreibStatusZeigen('error', '✗ Da ist noch nichts zum Kopieren.');
     return;
@@ -1254,14 +1388,21 @@ function schreibKopieren() {
 }
 
 function schreibLeeren() {
-  if (!confirm('Wirklich alle fünf Aufgabenfelder leeren? Der bisherige Text geht dabei verloren.')) return;
+  if (!confirm('Wirklich alle fünf Aufgabenfelder leeren und die Sende-Markierungen zurücksetzen?')) return;
   document.querySelectorAll('.schreib-mini-textarea').forEach(function(ta) {
+    var nr = ta.dataset.aufgabe;
     ta.value = '';
-    var key = SCHREIB_KEY_PREFIX + ta.dataset.aufgabe;
-    localStorage.removeItem(key);
+    localStorage.removeItem(SCHREIB_KEY_PREFIX + nr);
+    localStorage.removeItem(SCHREIB_SENT_PREFIX + nr);
     schreibUpdateCount(ta);
+    var karte = ta.closest('.schreib-aufgabe-karte');
+    if (karte) karte.classList.remove('gesendet');
+    var btn = document.getElementById('send-' + nr);
+    if (btn) { btn.classList.remove('gesendet'); btn.innerHTML = '📨 Diese Antwort senden'; btn.disabled = false; }
+    var status = document.getElementById('status-' + nr);
+    if (status) { status.textContent = ''; status.classList.remove('error'); }
   });
-  schreibStatusZeigen('info', 'ℹ Alle Aufgabenfelder wurden geleert.');
+  schreibStatusZeigen('info', 'ℹ Alles zurückgesetzt — du kannst neu beginnen.');
 }
 
 // ═══════════════════════════════════════════════════════
