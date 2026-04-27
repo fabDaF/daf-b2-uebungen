@@ -50,8 +50,11 @@ einem `dashboard.html` muss auf ein Repo zeigen, das im Manifest
 gelistet ist. Tote Links sind Fehler, keine Platzhalter.
 
 **Keine Secrets in committeten Dateien.** Remote-URLs im Manifest und
-in Dokumentation enthalten nie PATs. Die echten URLs in `.git/config`
-können Tokens enthalten — die gehören da hin und sonst nirgends.
+in Dokumentation enthalten nie PATs. Seit 2026-04-27 sind auch die
+`.git/config`-URLs der zehn Repos tokenfrei (`https://github.com/fabDaF/<repo>.git`).
+Der Token lebt nur noch an zwei Orten: macOS-Keychain für den Mac-Workflow,
+und `.git-credentials-fabdaf` (chmod 600, in `.gitignore`) für die
+Cowork-Sandbox. Details siehe Memory-Eintrag `reference_token-haltung.md`.
 
 ## Die neun Repos in Kurzform
 
@@ -83,6 +86,21 @@ gut.
 anzulegen geht nicht über `gh` oder `curl`. Workaround: Chrome MCP auf
 github.com/new navigieren. Dokumentiert im Konsolidierungs-Bericht
 `backup/KONSOLIDIERUNG_20260410.md`.
+
+**Cowork-Sandbox: einmaliger Auth-Setup pro Session.**
+
+Beim ersten Push aus einer frischen Cowork-Session ist die Sandbox-Home
+leer und enthält keine Git-Credentials. Auth-Failure ist die Folge.
+Reaktivierung in einem Befehl aus dem Repo-Root:
+
+```bash
+bash scripts/setup-sandbox-credentials.sh
+```
+
+Das Skript kopiert den Token aus der persistenten Datei
+`.git-credentials-fabdaf` in die Sandbox-Home und konfiguriert den
+globalen `credential.helper`. Ende: ein echter `push --dry-run`-Test
+bestätigt, dass die Auth wirklich funktioniert.
 
 **Stale git locks — der Cowork-Commit-Workflow (2026-04-17).**
 

@@ -24,6 +24,11 @@ chmod 600 "$DST"
 git config --global credential.helper "store --file=$DST"
 
 echo "✓ Sandbox-Credentials reaktiviert (Helper: store --file=$DST)"
-git -C "$REPO_ROOT" ls-remote origin HEAD >/dev/null 2>&1 \
-  && echo "✓ Auth-Test gegen origin erfolgreich" \
-  || { echo "FEHLER: Auth-Test fehlgeschlagen"; exit 2; }
+
+# Echter Push-Auth-Test via push --dry-run.
+# `ls-remote` ist KEIN Auth-Test bei public Repos — die antworten ohne Token.
+# `push --dry-run` zwingt git zur Credential-Lookup, schlägt sauber fehl, wenn
+# die Auth nicht funktioniert (auch bei public Repos).
+GIT_TERMINAL_PROMPT=0 git -C "$REPO_ROOT" push --dry-run origin HEAD >/dev/null 2>&1 \
+  && echo "✓ Push-Auth gegen origin erfolgreich" \
+  || { echo "FEHLER: Push-Auth fehlgeschlagen — Token ungültig oder ohne Schreibrechte?"; exit 2; }
