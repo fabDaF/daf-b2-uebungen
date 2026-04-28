@@ -812,6 +812,260 @@ CONFIGS = {
             {'titel': 'Mini-Dialog: Im Restaurant', 'frage': 'Du bestellst beim Kellner. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Was möchten Sie trinken? — Ein Wasser, bitte. — Und zum Essen? — Die Lasagne, bitte.'},
         ]
     },
+    # ===== C-Dateien (Lerncheck / Ich kann …) =====
+    '1014C': {
+        'lesson_code': '1014C',
+        'lesson_title': 'Ich kann im Deutschunterricht klarkommen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um den Deutschunterricht und das Lernen.',
+        'tasks': [
+            {'titel': 'Warum lernst du Deutsch?', 'frage': 'Warum lernst du Deutsch? Schreib zwei Sätze.', 'beispiel': 'Ich lerne Deutsch für meine Arbeit. Ich möchte in Deutschland arbeiten.'},
+            {'titel': 'Was ist schwer an Deutsch?', 'frage': 'Was findest du schwer in Deutsch? Schreib zwei Sätze.', 'beispiel': 'Die Artikel sind schwer für mich. Auch die Aussprache von „ch" ist schwierig.'},
+            {'titel': 'Was machst du gern im Unterricht?', 'frage': 'Was machst du gern in der Deutschstunde? Schreib zwei Sätze.', 'beispiel': 'Ich spreche gern mit anderen. Lesen mag ich auch.'},
+            {'titel': 'Eine Frage an deine Lehrerin', 'frage': 'Was möchtest du deine Lehrerin oder deinen Lehrer fragen?', 'beispiel': 'Frau Schmidt, wann sind die Hausaufgaben fertig?'},
+            {'titel': 'Mini-Dialog: Im Deutschkurs', 'frage': 'Schreib einen Mini-Dialog mit einem Klassenkameraden — zwei Fragen, zwei Antworten.', 'beispiel': '— Hallo! Wie lange lernst du schon Deutsch? — Drei Monate. Und du? — Ein Jahr. — Das ist schon gut!'},
+        ]
+    },
+    '1024C': {
+        'lesson_code': '1024C',
+        'lesson_title': 'Ich kann mich vorstellen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um das Vorstellen.',
+        'tasks': [
+            {'titel': 'Stell dich kurz vor', 'frage': 'Schreib drei Sätze über dich: Name, Herkunft, Beruf.', 'beispiel': 'Ich heiße Anna. Ich komme aus Polen. Ich bin Pflegerin.'},
+            {'titel': 'Wie geht es dir?', 'frage': 'Wie geht es dir heute? Warum? Schreib zwei Sätze.', 'beispiel': 'Heute geht es mir gut. Ich habe heute frei.'},
+            {'titel': 'Stell jemanden anderen vor', 'frage': 'Beschreib eine Person aus deiner Familie oder von der Arbeit. Zwei Sätze.', 'beispiel': 'Das ist mein Bruder. Er heißt Pablo und ist 30 Jahre alt.'},
+            {'titel': 'Eine erste Frage', 'frage': 'Du triffst jemanden zum ersten Mal. Was fragst du?', 'beispiel': 'Hallo, wie heißt du? Woher kommst du?'},
+            {'titel': 'Mini-Dialog: Erstes Treffen', 'frage': 'Du lernst jemanden kennen. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Hi, ich bin Carlos. — Hallo, ich bin Maria. — Woher kommst du? — Aus Brasilien.'},
+        ]
+    },
+    '1034C': {
+        'lesson_code': '1034C',
+        'lesson_title': 'Ich kann persönliche Daten angeben',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um persönliche Daten.',
+        'tasks': [
+            {'titel': 'Dein Name und Alter', 'frage': 'Schreib deinen vollen Namen und dein Alter. Zwei Sätze.', 'beispiel': 'Mein Name ist Maria Lopez. Ich bin 28 Jahre alt.'},
+            {'titel': 'Deine Adresse', 'frage': 'Schreib deine Adresse: Straße, Stadt, Land.', 'beispiel': 'Ich wohne in der Bahnhofstraße 5 in Hamburg, Deutschland.'},
+            {'titel': 'Deine Telefonnummer', 'frage': 'Schreib deine Telefonnummer und deine E-Mail-Adresse.', 'beispiel': 'Tel: 0151 234 5678. E-Mail: maria.lopez@beispiel.de.'},
+            {'titel': 'Eine Frage am Empfang', 'frage': 'Du bist am Empfang und musst Daten angeben. Schreib eine Frage an die Sekretärin.', 'beispiel': 'Entschuldigung, brauchen Sie auch meinen Pass?'},
+            {'titel': 'Mini-Dialog: Beim Anmelden', 'frage': 'Du meldest dich irgendwo an. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Wie ist Ihr Name? — Maria Lopez. — Wann sind Sie geboren? — Am 15. Mai 1998.'},
+        ]
+    },
+    '1044C': {
+        'lesson_code': '1044C',
+        'lesson_title': 'Ich kann einen Kaffee bestellen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Café und Bestellung.',
+        'tasks': [
+            {'titel': 'Was bestellst du gern im Café?', 'frage': 'Was trinkst und isst du gern im Café? Schreib zwei Sätze.', 'beispiel': 'Ich trinke gern Cappuccino. Manchmal nehme ich auch ein Stück Kuchen.'},
+            {'titel': 'Dein Lieblings-Café', 'frage': 'Welches Café magst du? Warum? Schreib zwei Sätze.', 'beispiel': 'Ich mag das „Café Lara". Es ist klein und sehr gemütlich.'},
+            {'titel': 'Bestellst du lieber allein oder mit Freunden?', 'frage': 'Schreib zwei Sätze: gehst du allein ins Café oder mit Freunden?', 'beispiel': 'Ich gehe oft allein, mit einem Buch. Manchmal treffe ich Freunde.'},
+            {'titel': 'Eine Frage an die Kellnerin', 'frage': 'Du bist im Café. Schreib eine Frage an die Kellnerin.', 'beispiel': 'Entschuldigung, haben Sie auch Tee?'},
+            {'titel': 'Mini-Dialog: Im Café', 'frage': 'Du bestellst etwas. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Was möchten Sie? — Einen Kaffee, bitte. — Mit Milch und Zucker? — Nur mit Milch, danke.'},
+        ]
+    },
+    '1054C': {
+        'lesson_code': '1054C',
+        'lesson_title': 'Ich kann über meine Arbeit sprechen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um deinen Beruf.',
+        'tasks': [
+            {'titel': 'Dein Beruf', 'frage': 'Was bist du von Beruf? Schreib zwei Sätze.', 'beispiel': 'Ich bin Buchhalter. Ich arbeite in einer kleinen Firma.'},
+            {'titel': 'Deine Arbeitszeiten', 'frage': 'Wann arbeitest du? Schreib zwei Sätze.', 'beispiel': 'Ich arbeite von Montag bis Freitag, von 9 bis 17 Uhr.'},
+            {'titel': 'Was magst du an deiner Arbeit?', 'frage': 'Was gefällt dir? Was nicht? Schreib einen Satz.', 'beispiel': 'Ich mag meine Kollegen. Aber die Stunden sind manchmal lang.'},
+            {'titel': 'Eine Frage an einen Kollegen', 'frage': 'Schreib eine Frage an einen Kollegen oder eine Kollegin.', 'beispiel': 'Wie lange bist du schon hier in der Firma?'},
+            {'titel': 'Mini-Dialog: Über Arbeit reden', 'frage': 'Jemand fragt nach deiner Arbeit. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Was machen Sie beruflich? — Ich bin Lehrerin. — Wo unterrichten Sie? — In einer Grundschule.'},
+        ]
+    },
+    '1064C': {
+        'lesson_code': '1064C',
+        'lesson_title': 'Ich kann über die Zeit sprechen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Uhrzeit und Datum.',
+        'tasks': [
+            {'titel': 'Wie spät ist es jetzt?', 'frage': 'Schreib die genaue Uhrzeit jetzt — in Ziffern und in Worten.', 'beispiel': 'Es ist 16:45 — Viertel vor fünf.'},
+            {'titel': 'Wann hast du Geburtstag?', 'frage': 'Wann hast du Geburtstag? Schreib einen Satz mit Datum.', 'beispiel': 'Ich habe am 22. März Geburtstag.'},
+            {'titel': 'Dein Tag — Uhrzeiten', 'frage': 'Schreib drei Uhrzeiten aus deinem Tag: Aufstehen, Mittagessen, Schlafen.', 'beispiel': 'Ich stehe um 7 Uhr auf. Ich esse um 13 Uhr. Ich schlafe um 23 Uhr.'},
+            {'titel': 'Eine Frage zur Uhrzeit', 'frage': 'Du brauchst eine Information zu Öffnungszeiten. Schreib eine Frage.', 'beispiel': 'Entschuldigung, wann öffnet die Bibliothek heute?'},
+            {'titel': 'Mini-Dialog: Termin', 'frage': 'Du machst einen Termin aus. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Wann passt es? — Am Montag um 14 Uhr. — Geht es auch um 16 Uhr? — Ja, kein Problem.'},
+        ]
+    },
+    '1074C': {
+        'lesson_code': '1074C',
+        'lesson_title': 'Ich kann ein Treffen vereinbaren',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Verabredungen.',
+        'tasks': [
+            {'titel': 'Eine Verabredung vorschlagen', 'frage': 'Schreib einer Freundin oder einem Freund einen Vorschlag — Was? Wann?', 'beispiel': 'Hast du Lust ins Kino zu gehen? Vielleicht am Samstag?'},
+            {'titel': 'Was machst du gern mit Freunden?', 'frage': 'Schreib zwei Aktivitäten, die du gern mit Freunden machst.', 'beispiel': 'Ich gehe gern essen oder ins Kino. Ein Kaffee am Nachmittag ist auch schön.'},
+            {'titel': 'Du musst absagen', 'frage': 'Du kannst nicht kommen. Schreib eine kurze Absage.', 'beispiel': 'Tut mir leid, ich kann nicht kommen. Ich bin krank.'},
+            {'titel': 'Eine Frage zum Treffpunkt', 'frage': 'Du fragst, wo du dich treffen sollt. Schreib eine Frage.', 'beispiel': 'Wo treffen wir uns am besten? Vor dem Café oder vor dem Kino?'},
+            {'titel': 'Mini-Dialog: Verabredung', 'frage': 'Du machst ein Treffen aus. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Wann hast du Zeit? — Am Donnerstag. — Um wie viel Uhr? — Sagen wir 19 Uhr.'},
+        ]
+    },
+    '1084C': {
+        'lesson_code': '1084C',
+        'lesson_title': 'Ich kann über meinen Zeitplan sprechen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um deinen Wochenplan.',
+        'tasks': [
+            {'titel': 'Dein Wochenplan', 'frage': 'Was machst du normalerweise unter der Woche? Schreib zwei Sätze.', 'beispiel': 'Von Montag bis Freitag arbeite ich. Am Wochenende treffe ich Freunde.'},
+            {'titel': 'Dein Lieblingstag', 'frage': 'Welcher Tag ist dein Lieblingstag? Warum? Schreib zwei Sätze.', 'beispiel': 'Mein Lieblingstag ist Samstag. Ich kann lange schlafen.'},
+            {'titel': 'Was hast du diese Woche vor?', 'frage': 'Was hast du diese Woche geplant? Schreib zwei oder drei Aktivitäten.', 'beispiel': 'Am Mittwoch gehe ich ins Fitnessstudio. Am Freitag treffe ich Anna.'},
+            {'titel': 'Eine Frage zum Plan', 'frage': 'Du fragst einen Freund nach seinen Plänen. Schreib eine Frage.', 'beispiel': 'Hast du am Wochenende schon etwas vor?'},
+            {'titel': 'Mini-Dialog: Pläne machen', 'frage': 'Du sprichst mit einem Freund über die Woche. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Was machst du heute Abend? — Ich gehe ins Theater. — Und morgen? — Morgen arbeite ich.'},
+        ]
+    },
+    '1094C': {
+        'lesson_code': '1094C',
+        'lesson_title': 'Ich kann sagen, was ich mag',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Vorlieben und Geschmack.',
+        'tasks': [
+            {'titel': 'Drei Sachen, die du liebst', 'frage': 'Schreib drei Sachen, die du sehr gern magst.', 'beispiel': 'Ich liebe Schokolade, Musik und das Meer.'},
+            {'titel': 'Dein Lieblingshobby', 'frage': 'Was ist dein Lieblingshobby? Schreib zwei Sätze.', 'beispiel': 'Mein Lieblingshobby ist Fotografieren. Ich mache jedes Wochenende Fotos.'},
+            {'titel': 'Was magst du nicht?', 'frage': 'Was magst du nicht? Schreib zwei Sätze.', 'beispiel': 'Ich mag keine Spinnen. Auch laute Musik mag ich nicht.'},
+            {'titel': 'Eine Frage über Vorlieben', 'frage': 'Du fragst eine Freundin nach ihren Vorlieben. Schreib eine Frage.', 'beispiel': 'Was magst du lieber, Sommer oder Winter?'},
+            {'titel': 'Mini-Dialog: Vorlieben', 'frage': 'Du sprichst mit einem Freund über Geschmäcker. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Magst du Pizza? — Ja, sehr! — Und Sushi? — Nein, ich mag keinen Fisch.'},
+        ]
+    },
+    '1104C': {
+        'lesson_code': '1104C',
+        'lesson_title': 'Ich kann Lebensmittel einkaufen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um den Lebensmitteleinkauf.',
+        'tasks': [
+            {'titel': 'Dein typischer Einkauf', 'frage': 'Was kaufst du normalerweise im Supermarkt? Schreib vier oder fünf Sachen.', 'beispiel': 'Ich kaufe Brot, Milch, Käse, Tomaten und Apfelsaft.'},
+            {'titel': 'Wie oft kaufst du ein?', 'frage': 'Wie oft gehst du einkaufen? Schreib einen Satz.', 'beispiel': 'Ich gehe zweimal pro Woche einkaufen, meistens samstags.'},
+            {'titel': 'Magst du Bio-Produkte?', 'frage': 'Kaufst du Bio-Lebensmittel? Schreib einen Satz.', 'beispiel': 'Ich kaufe oft Bio-Eier und Bio-Gemüse. Es ist gesünder.'},
+            {'titel': 'Eine Frage im Supermarkt', 'frage': 'Du suchst etwas und findest es nicht. Schreib eine Frage.', 'beispiel': 'Entschuldigung, wo finde ich den Naturjoghurt?'},
+            {'titel': 'Mini-Dialog: An der Käsetheke', 'frage': 'Du kaufst Käse. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Was darf es sein? — 200 Gramm Gouda, bitte. — Stück oder Scheiben? — In Scheiben, bitte.'},
+        ]
+    },
+    '1114C': {
+        'lesson_code': '1114C',
+        'lesson_title': 'Ich kann Verkehrsmittel nutzen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Verkehrsmittel.',
+        'tasks': [
+            {'titel': 'Wie kommst du in die Stadt?', 'frage': 'Mit welchem Verkehrsmittel fährst du? Schreib zwei Sätze.', 'beispiel': 'Ich fahre mit dem Fahrrad in die Stadt. Manchmal nehme ich auch den Bus.'},
+            {'titel': 'Hast du ein Auto?', 'frage': 'Hast du ein Auto oder benutzt du den Bus? Schreib einen Satz.', 'beispiel': 'Ich habe kein Auto. Ich fahre immer mit der U-Bahn.'},
+            {'titel': 'Eine Reise mit dem Zug', 'frage': 'Stell dir vor, du machst eine Zugreise. Wohin? Schreib zwei Sätze.', 'beispiel': 'Ich möchte mit dem Zug nach Berlin fahren. Es dauert vier Stunden.'},
+            {'titel': 'Eine Frage am Bahnhof', 'frage': 'Du brauchst eine Information am Bahnhof. Schreib eine Frage.', 'beispiel': 'Entschuldigung, wann fährt der nächste Zug nach Köln?'},
+            {'titel': 'Mini-Dialog: Im Bus', 'frage': 'Du fragst nach einer Haltestelle. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Hält dieser Bus am Hauptbahnhof? — Ja, in vier Stationen. — Danke! — Bitte sehr!'},
+        ]
+    },
+    '1124C': {
+        'lesson_code': '1124C',
+        'lesson_title': 'Ich kann eine To-Do-Liste schreiben',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um To-Do-Listen.',
+        'tasks': [
+            {'titel': 'Deine To-Do-Liste für morgen', 'frage': 'Was musst du morgen tun? Schreib drei oder vier Aufgaben.', 'beispiel': 'Morgen: einkaufen, Wäsche waschen, Mama anrufen, ein Buch lesen.'},
+            {'titel': 'Deine wichtigste Aufgabe', 'frage': 'Was ist heute oder morgen besonders wichtig? Schreib einen Satz.', 'beispiel': 'Heute muss ich unbedingt zur Bank gehen.'},
+            {'titel': 'Was schiebst du oft auf?', 'frage': 'Was machst du oft später? Schreib einen Satz.', 'beispiel': 'Ich schiebe das Putzen oft auf. Ich mag es nicht.'},
+            {'titel': 'Eine Erinnerung an einen Freund', 'frage': 'Du erinnerst einen Freund an etwas Wichtiges. Schreib eine kurze Nachricht.', 'beispiel': 'Hallo Tim! Vergiss nicht, Mias Geschenk zu kaufen!'},
+            {'titel': 'Mini-Dialog: Aufgaben verteilen', 'frage': 'Ihr verteilt Aufgaben. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Kannst du heute kochen? — Ja, klar. Was möchtest du essen? — Etwas Einfaches. — Pasta?'},
+        ]
+    },
+    '1131C': {
+        'lesson_code': '1131C',
+        'lesson_title': 'Lernziele A1.1 erreicht',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben — eine Bilanz von A1.1.',
+        'tasks': [
+            {'titel': 'Was kannst du jetzt auf Deutsch?', 'frage': 'Schreib drei Sachen, die du jetzt auf Deutsch kannst.', 'beispiel': 'Ich kann mich vorstellen. Ich kann Zahlen sagen. Ich kann Kaffee bestellen.'},
+            {'titel': 'Was war am schwersten?', 'frage': 'Was war für dich am schwersten in A1.1? Schreib zwei Sätze.', 'beispiel': 'Die Artikel waren am schwersten. Ich verwechsle oft „der" und „die".'},
+            {'titel': 'Was möchtest du noch lernen?', 'frage': 'Was möchtest du als Nächstes lernen? Schreib zwei Sätze.', 'beispiel': 'Ich möchte Vergangenheit lernen. Und mehr Wörter über das Wohnen.'},
+            {'titel': 'Eine Frage an deine Lehrerin', 'frage': 'Was möchtest du deine Lehrerin fragen? Schreib eine Frage.', 'beispiel': 'Frau Müller, wann beginnt der A1.2-Kurs?'},
+            {'titel': 'Mini-Dialog: Kursende', 'frage': 'Du sprichst mit einem Klassenkameraden über den Kurs. Schreib einen Mini-Dialog.', 'beispiel': '— Das war schwer, oder? — Ja, aber ich habe viel gelernt. — Machst du A1.2? — Klar, ab nächsten Monat!'},
+        ]
+    },
+    '2014C': {
+        'lesson_code': '2014C',
+        'lesson_title': 'Lerncheck Wohnung und Möbel',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Wohnung und Möbel.',
+        'tasks': [
+            {'titel': 'Beschreib deine Wohnung', 'frage': 'Wie groß ist deine Wohnung? Wie viele Zimmer? Schreib zwei Sätze.', 'beispiel': 'Meine Wohnung ist 60 Quadratmeter groß. Sie hat zwei Zimmer und eine Küche.'},
+            {'titel': 'Möbel in deinem Zimmer', 'frage': 'Welche Möbel hast du in deinem Lieblingszimmer? Schreib drei oder vier Möbel.', 'beispiel': 'In meinem Wohnzimmer habe ich ein Sofa, einen Tisch, Stühle und einen Fernseher.'},
+            {'titel': 'Was möchtest du ändern?', 'frage': 'Was möchtest du an deiner Wohnung ändern? Schreib zwei Sätze.', 'beispiel': 'Ich möchte eine neue Küche. Die alte ist zu klein.'},
+            {'titel': 'Eine Frage an einen Vermieter', 'frage': 'Du suchst eine Wohnung. Schreib eine Frage an den Vermieter.', 'beispiel': 'Guten Tag, ist die Wohnung noch frei? Wie hoch ist die Miete?'},
+            {'titel': 'Mini-Dialog: Wohnungsbesichtigung', 'frage': 'Du besichtigst eine Wohnung. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Wie groß ist die Küche? — 12 Quadratmeter. — Gibt es einen Balkon? — Ja, einen kleinen.'},
+        ]
+    },
+    '2024C': {
+        'lesson_code': '2024C',
+        'lesson_title': 'Lerncheck Stadt und Wegbeschreibung',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Stadt und Wege.',
+        'tasks': [
+            {'titel': 'Deine Stadt', 'frage': 'Wo wohnst du? Wie ist es dort? Schreib zwei Sätze.', 'beispiel': 'Ich wohne in Hamburg. Es ist eine große, schöne Stadt am Wasser.'},
+            {'titel': 'Was gibt es in deiner Nähe?', 'frage': 'Was gibt es in der Nähe deiner Wohnung? Schreib zwei Sätze.', 'beispiel': 'Bei mir gibt es einen Supermarkt und eine Bäckerei. Ein Park ist auch in der Nähe.'},
+            {'titel': 'Wie kommst du zur Arbeit?', 'frage': 'Beschreib in zwei Sätzen, wie du zur Arbeit oder Schule kommst.', 'beispiel': 'Ich gehe drei Minuten zu Fuß zum Bahnhof. Dann fahre ich 20 Minuten mit dem Zug.'},
+            {'titel': 'Nach dem Weg fragen', 'frage': 'Du suchst eine Apotheke. Schreib eine Frage an einen Passanten.', 'beispiel': 'Entschuldigung, wo ist die nächste Apotheke?'},
+            {'titel': 'Mini-Dialog: Wegbeschreibung', 'frage': 'Du gibst eine Wegbeschreibung. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Wo ist die Post? — Gehen Sie geradeaus, dann links. — Ist es weit? — Nein, fünf Minuten zu Fuß.'},
+        ]
+    },
+    '2034C': {
+        'lesson_code': '2034C',
+        'lesson_title': 'Lerncheck — in der Stadt erledigen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Erledigungen in der Stadt.',
+        'tasks': [
+            {'titel': 'Was musst du heute erledigen?', 'frage': 'Was hast du heute oder morgen in der Stadt zu tun? Schreib drei Sätze.', 'beispiel': 'Ich muss zur Post gehen. Dann zur Bank. Und am Ende einkaufen.'},
+            {'titel': 'Bei der Bank', 'frage': 'Was machst du oft bei der Bank? Schreib einen Satz.', 'beispiel': 'Ich hole oft Bargeld. Manchmal überweise ich Geld.'},
+            {'titel': 'Bei der Post', 'frage': 'Was schickst du gern? Schreib zwei Sätze.', 'beispiel': 'Ich schicke manchmal Postkarten an meine Familie. Pakete schicke ich selten.'},
+            {'titel': 'Eine Frage am Schalter', 'frage': 'Du bist am Schalter und brauchst Hilfe. Schreib eine Frage.', 'beispiel': 'Entschuldigung, wie viel kostet ein Brief nach Italien?'},
+            {'titel': 'Mini-Dialog: Erledigungen', 'frage': 'Du erledigst etwas. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Kann ich Ihnen helfen? — Ja, ich möchte Geld abheben. — Wie viel? — 200 Euro, bitte.'},
+        ]
+    },
+    '2044C': {
+        'lesson_code': '2044C',
+        'lesson_title': 'Lerncheck Kleidung kaufen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Kleidung und Mode.',
+        'tasks': [
+            {'titel': 'Deine Lieblingsfarbe', 'frage': 'Welche Farbe trägst du am liebsten? Schreib einen Satz.', 'beispiel': 'Ich trage am liebsten Blau. Es passt zu allem.'},
+            {'titel': 'Was trägst du heute?', 'frage': 'Beschreib deine Kleidung heute in zwei Sätzen.', 'beispiel': 'Heute trage ich eine schwarze Hose und einen weißen Pullover.'},
+            {'titel': 'Was möchtest du kaufen?', 'frage': 'Was brauchst du gerade? Schreib zwei Sätze.', 'beispiel': 'Ich brauche neue Schuhe. Meine alten sind kaputt.'},
+            {'titel': 'Eine Frage im Geschäft', 'frage': 'Du probierst etwas an. Schreib eine Frage an die Verkäuferin.', 'beispiel': 'Haben Sie diese Hose auch in Größe 38?'},
+            {'titel': 'Mini-Dialog: Im Bekleidungsgeschäft', 'frage': 'Du kaufst Kleidung. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Suchen Sie etwas Bestimmtes? — Ja, eine Jacke. — Welche Größe? — Mittel, bitte.'},
+        ]
+    },
+    '2054C': {
+        'lesson_code': '2054C',
+        'lesson_title': 'Lerncheck im Restaurant',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um das Restaurant.',
+        'tasks': [
+            {'titel': 'Dein Lieblings-Restaurant', 'frage': 'Welches Restaurant magst du? Was isst du dort? Schreib zwei Sätze.', 'beispiel': 'Ich mag „La Trattoria". Dort esse ich oft Pizza und Tiramisu.'},
+            {'titel': 'Was bestellst du gern?', 'frage': 'Was bestellst du im Restaurant? Schreib zwei Sätze.', 'beispiel': 'Als Vorspeise nehme ich Salat. Dann Pasta oder Fisch.'},
+            {'titel': 'Trinken im Restaurant', 'frage': 'Was trinkst du gern zum Essen? Schreib einen Satz.', 'beispiel': 'Ich trinke gern ein Glas Wein zum Essen.'},
+            {'titel': 'Eine Frage an den Kellner', 'frage': 'Du bist im Restaurant. Schreib eine Frage an den Kellner.', 'beispiel': 'Können Sie mir die Speisekarte bringen, bitte?'},
+            {'titel': 'Mini-Dialog: Bestellen', 'frage': 'Du bestellst beim Kellner. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Was wünschen Sie? — Eine Pizza Margherita, bitte. — Möchten Sie etwas trinken? — Ein Wasser, bitte.'},
+        ]
+    },
+    # ===== X-Dateien (Textarbeit) =====
     '1012X': {
         'lesson_code': '1012X',
         'lesson_title': 'Wie schreibt man das?',
