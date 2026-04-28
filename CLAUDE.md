@@ -181,6 +181,53 @@ Wichtig: NIEMALS Franks Primäradresse `FrankBurkert@…` in Lektionen
 hardcoden. Die Primärin ist seine Login-Identität und kann nicht
 rotiert werden. Sie soll nicht öffentlich exponiert sein.
 
+## Recovery: wenn GitHub stirbt
+
+Seit dem 2026-04-28-Rollout existiert für jeden der zehn Manifest-Repos
+ein Codeberg-Mirror unter `codeberg.org/fabbuLos/<repo>`, automatisch
+synchronisiert via GitHub Action. Codeberg Pages serviert dieselben
+Inhalte unter `fabbulos.codeberg.page/<repo>/`. Die Mirror-Action wird
+allerdings AUF GITHUB ausgeführt — fällt GitHub aus, läuft kein Sync
+mehr.
+
+Wenn GitHub jemals nicht mehr erreichbar ist (Account-Sperre, längerer
+Pages-Ausfall etc.), ist das vorbereitete Vorgehen:
+
+1. **Dashboard-URLs umschalten:**
+   ```bash
+   bash scripts/switch-dashboard-to-codeberg.sh
+   ```
+   Ersetzt alle `fabdaf.github.io/`-Vorkommen durch
+   `fabbulos.codeberg.page/`. Backup wird angelegt. Bisher 21 URLs in
+   `htmlS/dashboard.html`.
+
+2. **Direkt zu Codeberg pushen** (regulärer Push hängt, weil github tot):
+   ```bash
+   git add htmlS/dashboard.html
+   git commit -m "switch: Dashboard auf Codeberg"
+   git push https://fabbuLos:<TOKEN>@codeberg.org/fabbuLos/daf-b2-uebungen.git main
+   git push https://fabbuLos:<TOKEN>@codeberg.org/fabbuLos/daf-b2-uebungen.git main:pages
+   ```
+
+3. **Schüler:innen die neue Dashboard-URL nennen:**
+   `https://fabbulos.codeberg.page/daf-b2-uebungen/htmlS/dashboard.html`
+
+4. **Bei GitHub-Wiederkehr Switchback:**
+   ```bash
+   bash scripts/switch-dashboard-to-github.sh
+   ```
+   Ersetzt zurück, normales Commit + Push.
+
+Voraussetzung für Schritt 2 ist, dass der Codeberg-Token in der
+Sandbox-Credentials-Datei vorhanden ist (siehe Cowork-Sandbox-Setup
+oben). Auf dem Mac mit Keychain ist das ohnehin gegeben.
+
+Langfristig saubere Alternative (nicht eingerichtet, nur dokumentiert):
+eine eigene Domain wie `daf.frankburkert.de` mit DNS-Eintrag auf
+`fabdaf.github.io`. Im Ernstfall DNS-Update auf `fabbulos.codeberg.page`,
+keine Dashboard-Edits, keine Schüler-Kommunikation nötig. Ca. 10 EUR
+Domain pro Jahr, einmalig 30 Min Setup.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
