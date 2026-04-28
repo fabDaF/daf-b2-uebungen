@@ -14,7 +14,7 @@ erwartet, dass du autonom durchziehst und mehrere Lektionen pro Turn lieferst, n
 
 ## Aktueller Stand: 58 von 72 fertig (statt 75 — siehe Erratum)
 
-Erratum aus den Vorgänger-Übergaben: Das Lingoda-Korpus enthält für Kapitel 3 nur **5**
+Erratum aus den Vorgänger-Übergaben: Das Themen-Korpus enthält für Kapitel 3 nur **5**
 PDFs (statt 7), und Kapitel 10 hat nur **6** Lektionen (1001S–1004S, 1006S, 1007S — kein
 1005). Echte Gesamtzahl: **72**. Tatsächlichen Stand prüfen mit:
 
@@ -40,7 +40,7 @@ In meinem Turn produziert (12 Lektionen): 0703S, 0704S, 0705S, 0706S, 0707R, 080
 
 **Verbleibend: 14 Lektionen.** Die nächste fällige ist 0901S Town-or-country.
 
-## Die noch offenen 14 Lektionen mit Lingoda-Themen
+## Die noch offenen 14 Lektionen mit Themen-Anker
 
 Wichtig: Die R/S-Endungen aus älteren Übergaben sind teils falsch — orientiere dich an
 den echten PDF-Dateinamen, nicht an Memory-Skizzen. Hier die echten Endungen aus
@@ -48,7 +48,7 @@ den echten PDF-Dateinamen, nicht an Memory-Skizzen. Hier die echten Endungen aus
 
 **Kapitel 9 — Stadt & Wohnen**
 
-| Code   | Lingoda-Thema                          |
+| Code   | Themenliste                          |
 |--------|----------------------------------------|
 | 0901S  | Town or country                        |
 | 0902S  | What makes a city livable              |
@@ -61,7 +61,7 @@ den echten PDF-Dateinamen, nicht an Memory-Skizzen. Hier die echten Endungen aus
 
 **Kapitel 10 — Sozial- & Gesundheitsdebatten** (alle S, kein 1005)
 
-| Code   | Lingoda-Thema                          |
+| Code   | Themenliste                          |
 |--------|----------------------------------------|
 | 1001S  | Minimum wage                           |
 | 1002S  | Debate — Child-care subsidy            |
@@ -374,7 +374,7 @@ Schreibwerkstatt-Pattern (5 Mikroaufgaben + Per-Card-Send).
 - Keine Subagenten / Task-Tool für DaF-Dateien
 - Keine parallelen Arbeitskopien (kein „0901S_v2", kein „Entwurf")
 - Keine grosse Schreibaufgabe „schreib einen Aufsatz von 300 Wörtern" — nur Mikroaufgaben
-- Keine veralteten Kulturreferenzen (Lingoda-Texte sind 2014–2017)
+- Keine veralteten Kulturreferenzen (Vorlagentexte sind 2014–2017)
 - Keine ASCII-Anführungszeichen `"` in deutschen Texten
 - Kein Write-Tool auf `.git/*`
 - Keine Bullet-Listen in deinen Chat-Antworten an Frank

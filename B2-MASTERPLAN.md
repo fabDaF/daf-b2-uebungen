@@ -6,13 +6,13 @@ Es wird **vor jeder Arbeit** an einer B2-HTML-Datei gelesen — ohne Ausnahme.
 
 ---
 
-## ⚠️ PFLICHT: Lingoda-Texte IMMER überarbeiten
+## ⚠️ PFLICHT: Vorlagentexte IMMER überarbeiten
 
-> **Die Lingoda-PDFs sind Ausgangsmaterial — kein fertiger Inhalt.**
-> Lingoda-Texte sind für den Einsatz in den HTML-Übungen **nicht geeignet** und müssen
+> **Die Quelltext-PDFs sind Ausgangsmaterial — kein fertiger Inhalt.**
+> Vorlagentexte sind für den Einsatz in den HTML-Übungen **nicht geeignet** und müssen
 > **immer überarbeitet** werden, bevor sie in eine HTML-Datei einfließen.
 
-### Warum Lingoda-Texte nicht verwendet werden dürfen wie sie sind
+### Warum Vorlagentexte nicht verwendet werden dürfen wie sie sind
 
 - **Zu kurz:** Lesetexte sind oft nur 3–5 Absätze — für B2 nicht angemessen
 - **Abgehackter Stil:** Sätze sind für eine Schulbuch-PDF optimiert, nicht für flüssiges Lesen
@@ -23,28 +23,28 @@ Es wird **vor jeder Arbeit** an einer B2-HTML-Datei gelesen — ohne Ausnahme.
 ### Was stattdessen zu tun ist
 
 #### Für R-Dateien (Lesetexte)
-1. Lingoda-PDF als **thematischen Ausgangspunkt** verwenden (Thema, Vokabular, Kernaussagen)
+1. Quelltext-PDFs als **thematischen Ausgangspunkt** verwenden (Thema, Vokabular, Kernaussagen)
 2. Einen **eigenen, hochwertigen Lesetext** schreiben:
    - Mindestens 350–500 Wörter (B2-Niveau)
    - Klarer Aufbau: Einleitung → Hauptteil (2–3 Abschnitte) → Schluss
    - Natürliche, lebendige Sprache mit Kollokationen und Idiomen
    - Interessanter Einstieg (Anekdote, Zitat, überraschende Aussage)
-   - Fachvokabular aus dem Lingoda-PDF einbauen, aber flüssig integriert
+   - Fachvokabular aus dem Quelltext-PDFs einbauen, aber flüssig integriert
 3. Skill `skill-anspruchsvolle-texte` verwenden
 
 #### Für G-Dateien (Grammatik)
-1. Grammatik-Erklärungen aus Lingoda-PDF übernehmen und **vereinfachen/verbessern**
-2. Eigene Beispielsätze schreiben — **nicht** die Lingoda-Beispiele kopieren
+1. Grammatik-Erklärungen aus Quelltext-PDFs übernehmen und **vereinfachen/verbessern**
+2. Eigene Beispielsätze schreiben — **nicht** die -Beispiele kopieren
 3. Beispielsätze sollen: authentisch klingen, das Grammatikthema deutlich zeigen, B2-Wortschatz enthalten
 4. Lückentext-Sätze: **aus dem eigenen Lesetext** der Einheit ableiten (Kontext!)
 
 #### Für X-Dateien (Extra-Übungen / Kommunikation)
-1. Kommunikationsanlässe aus Lingoda-PDF als **Idee** nutzen
+1. Kommunikationsanlässe aus Quelltext-PDFs als **Idee** nutzen
 2. Dialoge und Situationen **neu formulieren** — lebendiger, realistischer
 3. Sprachliche Vielfalt: Umgangssprache, Redewendungen, natürliche Einwürfe
 
 #### Für S-Dateien (Speaking)
-1. Redemittel aus Lingoda-PDF prüfen — oft unvollständig oder veraltet
+1. Redemittel aus Quelltext-PDFs prüfen — oft unvollständig oder veraltet
 2. Redemittel **ergänzen und modernisieren**
 3. Sprechanlässe **realitätsnah und motivierend** gestalten
 
@@ -210,13 +210,13 @@ Beispiel: `DE_B2_1012G-passiv.html`
 | S | Speaking | Sprechanlässe + Redemittel + Übungen |
 | W | Schreiben (Wiederholung) | Anleitung + Modelltext + Aufgabe |
 
-### Quellmaterial (Lingoda-PDFs)
+### Quellmaterial (Quelltext-PDFs)
 
 | Sub-Level | Pfad |
 |-----------|------|
-| B2.1 | `Cowork/lingoda/B 2.1/` |
-| B2.2 | `Cowork/lingoda/B 2.2/` |
-| B2.3 | `Cowork/lingoda/B 2.3/` |
+| B2.1 | `Cowork/quelltexte/B 2.1/` |
+| B2.2 | `Cowork/quelltexte/B 2.2/` |
+| B2.3 | `Cowork/quelltexte/B 2.3/` |
 
 ### HTML-Zielordner
 

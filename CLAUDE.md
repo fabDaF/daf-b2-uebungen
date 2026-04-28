@@ -66,7 +66,7 @@ Cowork-Sandbox. Details siehe Memory-Eintrag `reference_token-haltung.md`.
 | `daf-b2-uebungen` | `.` (Root) | B2 aktiv — trägt dieses CLAUDE.md und das Manifest |
 | `daf-c1-uebungen` | `htmlS/C1` | C1 aktiv |
 | `daf-materialien` | `daf-materialien` | Niveau-übergreifendes Material |
-| `daf-architektur` | `htmlS/Architektur` | Architektur-Kurs (Caroline Deters) |
+| `daf-architektur` | `htmlS/Architektur` | Architektur-Kurs für Privatschüler:innen |
 | `daf-lueckentexte` | `htmlS/Lückentexte Mattmüller` | Lückentexte nach Mattmüller |
 | `daf-archiv` | `daf-archiv` | Historische Kopien, FROZEN |
 

@@ -1,7 +1,7 @@
 # C2-Projekt — Übergabe an die nächste Session
 *Stand: 2026-04-26 · Verfasst von Claude für Claude (nächster Chat) · Fortschreibung der ersten Übergabe*
 
-Du übernimmst ein laufendes Projekt: **75 C2-Lektionen** für Frank, basierend auf Lingoda-PDFs in `htmlS/C2/`. **46 von 75 sind fertig.** Du machst nahtlos weiter bei **0703S**, ohne Frank zu fragen, was zu tun ist — er hat alles delegiert und erwartet, dass du autonom durchziehst und mehrere Lektionen pro Turn lieferst, nicht eine.
+Du übernimmst ein laufendes Projekt: **75 C2-Lektionen** für Frank, basierend auf Quelltext-PDFs in `htmlS/C2/`. **46 von 75 sind fertig.** Du machst nahtlos weiter bei **0703S**, ohne Frank zu fragen, was zu tun ist — er hat alles delegiert und erwartet, dass du autonom durchziehst und mehrere Lektionen pro Turn lieferst, nicht eine.
 
 > **Frank, 2026-04-26:** „Aber ich dachte nicht, dass du jetzt eine Lektion machst und dann direkt wieder aufhörst. Es geht darum, dass wir in großen Abschnitten arbeiten, um so schnell wie möglich alles fertig zu kriegen."
 
@@ -11,7 +11,7 @@ Lies diese Datei vollständig, bevor du irgendetwas tust. Dann lies zur Sicherhe
 
 ## Was Frank will (Kern in einem Satz)
 
-Hochwertige, interaktive HTML-Lektionen auf C2-Niveau mit voll umfänglichem essayistischem Schreibstil (Hypotaxen, Nominalstil, Fachvokabular), inhaltlich auf Stand 2025/26 aktualisiert, weil die Lingoda-Vorlagen teils 10 Jahre alt sind. Pro Lektion 8 Tabs nach festem Schema, Schreibwerkstatt mit 5 Mikroaufgaben + Per-Card-Send-Buttons an `frankburkert@gmx.net`.
+Hochwertige, interaktive HTML-Lektionen auf C2-Niveau mit voll umfänglichem essayistischem Schreibstil (Hypotaxen, Nominalstil, Fachvokabular), inhaltlich auf Stand 2025/26 aktualisiert, weil die Vorlagen teils 10 Jahre alt sind. Pro Lektion 8 Tabs nach festem Schema, Schreibwerkstatt mit 5 Mikroaufgaben + Per-Card-Send-Buttons an `frankburkert@gmx.net`.
 
 ---
 
@@ -21,7 +21,7 @@ Hochwertige, interaktive HTML-Lektionen auf C2-Niveau mit voll umfänglichem ess
 |---|---|---|
 | 1 — Kunst & Kultur | 0101S–0107R | komplett (7) |
 | 2 — Reisen & Orte | 0201S–0208R | komplett (8) |
-| 3 — Persönlichkeiten | 0301R–0305S | 5 von 5 (Lingoda hat hier nur 5 PDFs) |
+| 3 — Persönlichkeiten | 0301R–0305S | 5 von 5 (Die Vorlagen haben hier nur 5 PDFs) |
 | 4 — Medien & Internet | 0401S–0408S | komplett (8) |
 | 5 — Gesellschaftsdebatten | 0501R–0508S | komplett (8) |
 | 6 — Erziehung & Familie | 0601S–0607S | komplett (7) |
@@ -33,9 +33,9 @@ Hochwertige, interaktive HTML-Lektionen auf C2-Niveau mit voll umfänglichem ess
 
 ## Was noch zu tun ist (29 Lektionen)
 
-Reihenfolge: **erst Kapitel 7 fertig**, dann 8, 9, 10. Themen aus den PDFs in `htmlS/C2/` ablesen — die Datei heißt `GER_C2.KKLLT-thema.pdf`. Lingoda ist **nur Themenanker**, nicht Stilvorgabe.
+Reihenfolge: **erst Kapitel 7 fertig**, dann 8, 9, 10. Themen aus den PDFs in `htmlS/C2/` ablesen — die Datei heißt `GER_C2.KKLLT-thema.pdf`.  ist **nur Themenanker**, nicht Stilvorgabe.
 
-| Kap. | Lektionen | Lingoda-Themen |
+| Kap. | Lektionen | Themen-Anker |
 |---|---|---|
 | **7 Rest** | 0703S, 0704S, 0705S, 0706S, 0707R | Poetry Slams, Kunst-Epochen, Lieblingskünstler, Museumsbesuch, Street Art |
 | **8** | 0801S, 0802R, 0803S, 0804R, 0805S, 0806R, 0807R | Wirtschaft & Arbeit, Bürokratie, Sozialversicherung, Umschulung, … |
@@ -324,7 +324,7 @@ Mit dem cp+Python-Workflow brauchst du die Skills weniger zur Code-Generierung (
 * Keine Subagenten / Task-Tool für DaF-Dateien — Memory: `feedback_keine-subagenten.md`
 * Keine parallelen Arbeitskopien (kein „0703S_v2", kein „Entwurf")
 * Keine Schreibaufgabe „schreibe einen Aufsatz von 300 Wörtern" — nur Mikroaufgaben
-* Keine veralteten Kulturreferenzen (Lingoda-Texte oft 2014–2017)
+* Keine veralteten Kulturreferenzen (Vorlagentexte oft 2014–2017)
 * Keine ASCII-Anführungszeichen `"` in deutschen Texten (Auto-Fix-Regex erledigt das, aber sei wachsam)
 * Kein Write-Tool auf `.git/*`
 * Keine Bullet-Listen in deinen Chat-Antworten an Frank

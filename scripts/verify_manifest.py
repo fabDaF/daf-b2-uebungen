@@ -159,11 +159,9 @@ def check_dashboards(manifest: dict, root: Path) -> list[Finding]:
         if spec.get("dashboard_basis"):
             expected_urls.add(spec["dashboard_basis"].rstrip("/"))
 
-    # known_issues: orphan wkv darf im dashboard stehen, solange als known_issue dokumentiert
-    known_orphans = set()
-    for issue in manifest.get("known_issues", []):
-        if "daf-wkv" in issue.get("description", "").lower():
-            known_orphans.add("https://fabdaf.github.io/daf-wkv-uebungen")
+    # known_issues: erlaubt Sonderfaelle, in denen ein Dashboard-Eintrag bewusst nicht im Manifest steht.
+    # Aktuell keine.
+    known_orphans: set[str] = set()
 
     dashboards = list(root.glob("**/dashboard.html"))
     pattern = re.compile(r"basis:\s*'([^']+)'")

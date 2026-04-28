@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-28 11:56. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-28 12:33. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)
 
@@ -32,7 +32,7 @@ Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Ni
 | `daf-architektur` | Architektur | — | `htmlS/Architektur` | [fabdaf.github.io/daf-architektur](https://fabdaf.github.io/daf-architektur/) | ✓ |
 | `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [fabdaf.github.io/daf-lueckentexte](https://fabdaf.github.io/daf-lueckentexte/) | ✓ |
 | `daf-archiv` | Archiv | — | `daf-archiv` | — | ✓ |
-| `daf-wkv-uebungen` | Privatschüler | — | `schueler/WKV` | [fabdaf.github.io/daf-wkv-uebungen](https://fabdaf.github.io/daf-wkv-uebungen/) | ✓ |
+| `daf-privat-1-uebungen` | Privatschüler | — | `schueler/privat-1` | — | ✗ (offen) |
 
 ## Details pro Repo
 
@@ -98,7 +98,7 @@ _Niveau-übergreifende Materialien: Grundlagen, Texte, Treffen, Warum wir krank 
 
 ### `daf-architektur`
 
-_Architektur-Material für Caroline Deters (Kap13-Entwurfsplanung etc.)_
+_Architektur-Material fuer Privatschueler:innen (Kap13-Entwurfsplanung etc.)_
 
 - **Lokal:** `htmlS/Architektur`
 - **Remote:** https://github.com/fabDaF/daf-architektur.git
@@ -125,14 +125,13 @@ _Historische Kopien und verworfene Versionen (B1/B2 Grammatik-Kopien, Löschbar-
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-archiv/
 - **Erwartung:** ≥30 tracked files, ≥30 HTML
 
-### `daf-wkv-uebungen`
+### `daf-privat-1-uebungen`
 
-_Privatschüler-Material Caroline Deters (WKV = Württembergische Versicherung): interaktive DaF-Übungen zu AVB Zurich WKV Zmart Vertragssprache. Erstes Repo eines neuen Schemas 'ein Repo pro Schüler', wobei der Repo-Name den Arbeitskontext benennt (WKV), nicht die Person (DSGVO-freundlich)._
+_Privatschüler-Material (Vertragssprache, Geschäftskommunikation, Komposita/FVG auf B2/C1). Inhalte und Identifikatoren bewusst aus dem öffentlichen Manifest entfernt; greifbar nur über das private Repo._
 
-- **Lokal:** `schueler/WKV`
+- **Lokal:** `schueler/privat-1`
 - **Remote:** https://github.com/fabDaF/daf-wkv-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-wkv-uebungen/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-wkv-uebungen/`
+- **GitHub Pages:** ⚠ noch nicht aktiv
 - **Erwartung:** ≥4 tracked files, ≥3 HTML
 
 ## Verworfene Repos
