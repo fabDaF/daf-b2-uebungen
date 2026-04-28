@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-28 12:33. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-28 12:47. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)
 
@@ -32,7 +32,7 @@ Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Ni
 | `daf-architektur` | Architektur | — | `htmlS/Architektur` | [fabdaf.github.io/daf-architektur](https://fabdaf.github.io/daf-architektur/) | ✓ |
 | `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [fabdaf.github.io/daf-lueckentexte](https://fabdaf.github.io/daf-lueckentexte/) | ✓ |
 | `daf-archiv` | Archiv | — | `daf-archiv` | — | ✓ |
-| `daf-privat-1-uebungen` | Privatschüler | — | `schueler/privat-1` | — | ✗ (offen) |
+| `daf-vertragssprache-uebungen` | Privatschüler | — | `schueler/privat-1` | — | ✗ (offen) |
 
 ## Details pro Repo
 
@@ -98,7 +98,7 @@ _Niveau-übergreifende Materialien: Grundlagen, Texte, Treffen, Warum wir krank 
 
 ### `daf-architektur`
 
-_Architektur-Material fuer Privatschueler:innen (Kap13-Entwurfsplanung etc.)_
+_Architektur-Material für Caroline Deters (Kap13-Entwurfsplanung etc.)_
 
 - **Lokal:** `htmlS/Architektur`
 - **Remote:** https://github.com/fabDaF/daf-architektur.git
@@ -125,12 +125,12 @@ _Historische Kopien und verworfene Versionen (B1/B2 Grammatik-Kopien, Löschbar-
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-archiv/
 - **Erwartung:** ≥30 tracked files, ≥30 HTML
 
-### `daf-privat-1-uebungen`
+### `daf-vertragssprache-uebungen`
 
-_Privatschüler-Material (Vertragssprache, Geschäftskommunikation, Komposita/FVG auf B2/C1). Inhalte und Identifikatoren bewusst aus dem öffentlichen Manifest entfernt; greifbar nur über das private Repo._
+_Privatschüler-Material zu Vertragssprache, Komposita/FVG und Geschäftskommunikation auf B2/C1-Niveau (Anwendungsbereich Warenkreditversicherung). Am 2026-04-28 als Nachfolger des alten daf-wkv-uebungen-Repos angelegt — frische Git-History ohne Firmenidentifikatoren oder Schülernamen._
 
 - **Lokal:** `schueler/privat-1`
-- **Remote:** https://github.com/fabDaF/daf-wkv-uebungen.git
+- **Remote:** https://github.com/fabDaF/daf-vertragssprache-uebungen.git
 - **GitHub Pages:** ⚠ noch nicht aktiv
 - **Erwartung:** ≥4 tracked files, ≥3 HTML
 
