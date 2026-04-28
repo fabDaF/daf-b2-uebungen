@@ -371,11 +371,14 @@ def section_html(cfg: dict, wrap_tag: str) -> str:
 
 def nav_button_html(tag: str, idx: int, handler: str | None) -> str:
     """Build the Schreiben nav-button matching the file's existing style."""
-    if handler is None:
-        # data-section style (button only)
-        return (f'<button class="nav-btn" data-section="{idx}">'
+    if handler is None or handler == 'data-section':
+        return (f'<{tag} class="nav-btn" data-section="{idx}">'
                 f'<span class="nav-emoji">📨</span>'
-                f'<span class="nav-label">Schreiben</span></button>')
+                f'<span class="nav-label">Schreiben</span></{tag}>')
+    if handler == 'data-tab':
+        return (f'<{tag} class="nav-btn" data-tab="{idx}">'
+                f'<span class="nav-emoji">📨</span>'
+                f'<span class="nav-label">Schreiben</span></{tag}>')
     if handler == 'showTabThis':
         return (f'<{tag} class="nav-btn" onclick="showTab({idx},this)">'
                 f'<span class="nav-emoji">📨</span>'
@@ -393,11 +396,12 @@ def nav_button_html(tag: str, idx: int, handler: str | None) -> str:
 # --- Pattern detection -------------------------------------------------------
 
 NAV_BTN_RE = re.compile(
-    # Captures: tag, handler-name (or empty), index (from onclick or data-section),
+    # Captures: tag, handler-name (or empty), index (from onclick / data-section / data-tab).
     # has-this-arg flag is detected later.
     r'<(?P<tag>div|button)\s+class="nav-btn[^"]*"\s+'
     r'(?:onclick="(?P<fn>showSection|showTab|switchTab|zeigeSec)\((?P<oidx>\d+)(?P<extra>(?:\s*,\s*this)?)\)(?:\s*;\s*[a-zA-Z_$][\w$]*\([^)]*\))*"'
-    r'|data-section="(?P<didx>\d+)")[^>]*>'
+    r'|data-section="(?P<didx>\d+)"'
+    r'|data-tab="(?P<tidx>\d+)")[^>]*>'
     r'(?P<inner>(?:[^<]|<(?!/(?P=tag)>)[^>]*>)*)'
     r'</(?P=tag)>',
     re.DOTALL,
@@ -415,8 +419,12 @@ def parse_nav_buttons(html: str) -> list[dict]:
         label_m = re.search(r'<span class="nav-label">([^<]*)</span>', m.group('inner'))
         label = (label_m.group(1) if label_m else '').strip()
         if m.group('didx') is not None:
-            handler = None
+            handler = 'data-section'  # marker (None was ambiguous)
             idx = int(m.group('didx'))
+            has_this = False
+        elif m.group('tidx') is not None:
+            handler = 'data-tab'
+            idx = int(m.group('tidx'))
             has_this = False
         else:
             handler = m.group('fn')
@@ -440,10 +448,12 @@ def detect_nav_pattern(html: str) -> dict | None:
         return None
 
     last = nav_btns[-1]
+    max_idx = max(b['idx'] for b in nav_btns)
     wortschatz_btns = [b for b in nav_btns if b['label'].lower() == 'wortschatz']
 
-    if wortschatz_btns and wortschatz_btns[-1] is last:
-        # Wortschatz is the last nav-btn → Schreiben goes before it
+    if wortschatz_btns and wortschatz_btns[-1] is last and last['idx'] == max_idx:
+        # Wortschatz is the last nav-btn AND has the highest idx →
+        # Schreiben goes before it, takes its idx, Wortschatz is bumped.
         target = wortschatz_btns[-1]
         sec_prefix, sec_wrap_tag = detect_section_style(html, target['idx'])
         return dict(
@@ -452,10 +462,14 @@ def detect_nav_pattern(html: str) -> dict | None:
             sec_wrap_tag=sec_wrap_tag, no_wortschatz=False, append=False,
         )
 
-    # Wortschatz is missing OR not last → append Schreiben after the last nav-btn
-    sec_prefix, sec_wrap_tag = detect_section_style(html, last['idx'])
+    # Wortschatz missing, OR not last, OR last-but-with-anomalous-idx →
+    # append Schreiben as a new tab with idx = max_idx+1 after last nav-btn.
+    # The Schreiben SECTION is also appended at the END of all sections.
+    sec_prefix, sec_wrap_tag = detect_section_style(html, max_idx)
+    # Use the LAST nav-btn for the full_match (so we know where to insert HTML),
+    # but synthesize the index from max_idx so we don't collide.
     return dict(
-        tag=last['tag'], handler=last['handler'], idx=last['idx'],
+        tag=last['tag'], handler=last['handler'], idx=max_idx,
         full_match=last['full'], sec_id_prefix=sec_prefix,
         sec_wrap_tag=sec_wrap_tag, no_wortschatz=True, append=True,
     )
@@ -463,21 +477,32 @@ def detect_nav_pattern(html: str) -> dict | None:
 
 def detect_section_style(html: str, idx: int) -> tuple[str, str]:
     """Return (id_prefix, wrap_tag) for the section with the given index.
-       Tries: id="sec-N" / id="secN" / id="tab-N"."""
-    for prefix in ['sec-', 'sec', 'tab-', 'tab']:
+       Tries multiple prefixes; returns special prefix '@positional' if no ID
+       matches but plain `<div class="section...">` elements are present
+       (in document order)."""
+    for prefix in ['sec-', 'sec', 'tab-', 'tab', 'section', 's']:
         for tag in ['div', 'section']:
             pat = rf'<{tag}[^>]*\bid="{re.escape(prefix)}{idx}"[^>]*>'
             if re.search(pat, html):
                 return prefix, tag
-    # Fallback
+    # Fallback: positional. Check that we DO have section elements at all.
+    for tag in ['div', 'section']:
+        if re.search(rf'<{tag}[^>]*class="[^"]*\bsection\b[^"]*"', html):
+            return '@positional', tag
     return 'sec-', 'div'
 
 
 # --- Patcher -----------------------------------------------------------------
 
 def find_wortschatz_section(html: str, idx: int, prefix: str, tag: str) -> tuple[int, int] | None:
-    """Return (start, end) char range of the Wortschatz <section>/<div> opening tag
-       (the full element opening, not just its position)."""
+    """Return (start, end) char range of the Wortschatz <section>/<div> opening tag.
+       For prefix '@positional' uses the idx-th section in document order."""
+    if prefix == '@positional':
+        sections = list(re.finditer(rf'<{tag}[^>]*class="[^"]*\bsection\b[^"]*"[^>]*>', html))
+        if 0 <= idx < len(sections):
+            m = sections[idx]
+            return (m.start(), m.end())
+        return None
     pat = rf'<{tag}[^>]*\bid="{re.escape(prefix)}{idx}"[^>]*>'
     m = re.search(pat, html)
     return (m.start(), m.end()) if m else None
@@ -575,8 +600,10 @@ def patch_file(path: pathlib.Path, cfg: dict, niveau: str, niveau_cfg: dict) -> 
 
 def bump_index_in_match(full: str, pat: dict, new_idx: int) -> str:
     """Replace the Wortschatz nav button's index with new_idx."""
-    if pat['handler'] is None:
+    if pat['handler'] is None or pat['handler'] == 'data-section':
         return re.sub(r'data-section="\d+"', f'data-section="{new_idx}"', full, count=1)
+    if pat['handler'] == 'data-tab':
+        return re.sub(r'data-tab="\d+"', f'data-tab="{new_idx}"', full, count=1)
     if pat['handler'] == 'showTabThis':
         return re.sub(r'showTab\(\d+\s*,\s*this\)', f'showTab({new_idx},this)', full, count=1)
     if pat['handler'] == 'zeigeSec':
@@ -615,8 +642,10 @@ def find_last_section_close(html: str, wrap_tag: str, id_prefix: str) -> int | N
     """Find the position right BEFORE the closing tag of the LAST section
        in the document (i.e., where to insert a new section to make it the
        new last)."""
-    # Match all sections with id="<prefix>N"
-    pat = re.compile(rf'<{wrap_tag}[^>]*\bid="{re.escape(id_prefix)}\d+"[^>]*>', re.DOTALL)
+    if id_prefix == '@positional':
+        pat = re.compile(rf'<{wrap_tag}[^>]*class="[^"]*\bsection\b[^"]*"[^>]*>', re.DOTALL)
+    else:
+        pat = re.compile(rf'<{wrap_tag}[^>]*\bid="{re.escape(id_prefix)}\d+"[^>]*>', re.DOTALL)
     matches = list(pat.finditer(html))
     if not matches:
         return None
