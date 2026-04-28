@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-28 12:54. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-28 15:22. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)
 
@@ -98,7 +98,7 @@ _Niveau-übergreifende Materialien: Grundlagen, Texte, Treffen, Warum wir krank 
 
 ### `daf-architektur`
 
-_Architektur-Material für Caroline Deters (Kap13-Entwurfsplanung etc.)_
+_Architektur-Material für Privatschüler:innen (Kap13-Entwurfsplanung etc.)_
 
 - **Lokal:** `htmlS/Architektur`
 - **Remote:** https://github.com/fabDaF/daf-architektur.git
