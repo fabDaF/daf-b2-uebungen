@@ -159,6 +159,28 @@ schlägt Alarm.
 In `MANIFEST.yaml` unter `known_issues:` den Eintrag löschen, dann
 `render_manifest.py` laufen lassen, dann committen. Nicht umgekehrt.
 
+## E-Mail-Adresse in Lektionen — Alias-Rotation
+
+Die formsubmit-Endpunkte und mailto-Footer in den Lektions-HTMLs
+verwenden absichtlich NICHT Franks Microsoft-Primäradresse, sondern
+einen rotierbaren Alias auf derselben Domain
+(`fabdaf.onmicrosoft.com`). Aktueller Alias: **`unterricht@fabdaf.onmicrosoft.com`**.
+
+Wenn der aktive Alias zu sehr verspammt ist (Trigger: Frank merkt es),
+ist der Rotations-Workflow:
+
+1. Frank legt im Microsoft 365 Admin Center einen neuen Alias an
+   (z.B. `unterricht-2027@fabdaf.onmicrosoft.com` oder kryptisch).
+2. Claude tauscht in einem `sed`-Lauf alle Vorkommen von altem
+   Alias gegen neuen Alias (typischerweise 250+ Dateien — formsubmit-
+   Variablen UND mailto-Footer).
+3. Frank deaktiviert den alten Alias in Microsoft 365 — die Spam-Quote
+   im Postfach geht damit sofort zurück.
+
+Wichtig: NIEMALS Franks Primäradresse `FrankBurkert@…` in Lektionen
+hardcoden. Die Primärin ist seine Login-Identität und kann nicht
+rotiert werden. Sie soll nicht öffentlich exponiert sein.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar

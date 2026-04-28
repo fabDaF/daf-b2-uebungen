@@ -11,7 +11,7 @@ Lies diese Datei vollständig, bevor du irgendetwas tust. Dann lies zur Sicherhe
 
 ## Was Frank will (Kern in einem Satz)
 
-Hochwertige, interaktive HTML-Lektionen auf C2-Niveau mit voll umfänglichem essayistischem Schreibstil (Hypotaxen, Nominalstil, Fachvokabular), inhaltlich auf Stand 2025/26 aktualisiert, weil die Vorlagen teils 10 Jahre alt sind. Pro Lektion 8 Tabs nach festem Schema, Schreibwerkstatt mit 5 Mikroaufgaben + Per-Card-Send-Buttons an `FrankBurkert@fabdaf.onmicrosoft.com`.
+Hochwertige, interaktive HTML-Lektionen auf C2-Niveau mit voll umfänglichem essayistischem Schreibstil (Hypotaxen, Nominalstil, Fachvokabular), inhaltlich auf Stand 2025/26 aktualisiert, weil die Vorlagen teils 10 Jahre alt sind. Pro Lektion 8 Tabs nach festem Schema, Schreibwerkstatt mit 5 Mikroaufgaben + Per-Card-Send-Buttons an `unterricht@fabdaf.onmicrosoft.com`.
 
 ---
 
