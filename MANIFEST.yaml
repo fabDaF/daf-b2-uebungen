@@ -9,8 +9,9 @@
 # Prüfung: ./scripts/verify_manifest.sh
 # Dokumentation: MANIFEST.md (generiert)
 #
-# Letzte manuelle Aktualisierung: 2026-04-10
+# Letzte manuelle Aktualisierung: 2026-04-28
 # Konsolidierung abgeschlossen: 2026-04-10 (siehe backup/KONSOLIDIERUNG_20260410.md)
+# Codeberg-Mirror-Pilot: 2026-04-28 (daf-b2-uebungen, danach Rollout)
 
 manifest_version: 1
 project: fabDaF
@@ -32,7 +33,22 @@ rules:
   - id: no_secrets_in_remote_urls
     description: "Remote-URLs im Manifest enthalten NIE PATs oder Tokens. Die echten URLs in .git/config können PATs enthalten, aber das Manifest bleibt sauber."
 
-# Die neun aktiven Repos.
+# Mirror-Strategie für die Datensicherheit.
+# Codeberg ist ein gemeinnütziger, EU-gehosteter, DSGVO-konformer Forgejo-Anbieter
+# in Berlin. Pull-Mirror ist serverseitig deaktiviert; Sync läuft über GitHub Actions.
+mirror_policy:
+  primary_host: github
+  mirror_host: codeberg
+  mirror_owner: fabbuLos
+  sync_mechanism: github_action
+  workflow_file: ".github/workflows/codeberg-mirror.yml"
+  trigger: "jeder Push (Branches+Tags), delete-Events, manueller Dispatch"
+  command: "git push --mirror codeberg"
+  rationale: "Lebensversicherung gegen einseitige GitHub-Account-Sperre; politisch motivierte Plattform-Diversifizierung."
+  pilot_repo: daf-b2-uebungen
+  pilot_started: 2026-04-28
+
+# Die zehn aktiven Repos.
 # Jedes Repo hat: eindeutigen Schlüssel, lokalen Pfad (relativ zu root_path_absolute),
 # öffentliche Remote-URL (ohne PAT), erwartete Rolle, Pages-Status, Dashboard-Basis-URL (falls verlinkt),
 # Erwartungen für die Verifikation.
@@ -88,6 +104,11 @@ repos:
     github_pages:
       enabled: true
       url: "https://fabdaf.github.io/daf-b2-uebungen/"
+    codeberg_mirror:
+      enabled: true
+      url: "https://codeberg.org/fabbuLos/daf-b2-uebungen"
+      since: 2026-04-28
+      role: "Pilot des Mirror-Programms"
     dashboard_basis: "https://fabdaf.github.io/daf-b2-uebungen/"
     purpose: "Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml)"
     is_root: true
