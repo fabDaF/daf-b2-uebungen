@@ -1,5 +1,52 @@
 name: Mirror to Codeberg
 
+# Spiegelt jeden Push automatisch nach
+# codeberg.org/fabbuLos/daf-b2-uebungen — Lebensversicherung gegen
+# einseitige GitHub-Account-Sperre. Codeberg ist gemeinnuetzig,
+# EU-gehostet, DSGVO-konform.
+#
+# Voraussetzungen (einmalig in Repo-Settings -> Secrets):
+#   CODEBERG_USERNAME  -> fabbuLos
+#   CODEBERG_TOKEN     -> PAT mit write:repository-Scope
+#
+# Mechanik:
+# 1. Bare-Mirror-Clone von GitHub (greift ALLE Refs ab — auch
+#    rescue-Branches, die actions/checkout normalerweise weglaesst).
+# 2. git push --mirror auf Codeberg: 1:1-Spiegelung, kein Drift.
+# 3. main wird zusaetzlich als 'pages' gepusht, damit Codeberg Pages
+#    auto-serviert: https://fabbulos.codeberg.page/daf-b2-uebungen/
+
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  delete:
+  workflow_dispatch:
+
+concurrency:
+  group: codeberg-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror to Codeberg
+        env:
+          CB_USER: ${{ secrets.CODEBERG_USERNAME }}
+          CB_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+        run: |
+          if [ -z "$CB_USER" ] || [ -z "$CB_TOKEN" ]; then
+            echo "::error::Secrets CODEBERG_USERNAME und CODEBERG_TOKEN fehlen"
+            exit 1
+          fi
+          git clone --mirror "https://github.com/${{ github.repository }}.git" work
+          cd work
+          CB_URL="https://${CB_USER}:${CB_TOKEN}@codeberg.org/fabbuLos/daf-b2-uebungen.git"
+          git push --mirror "$CB_URL"
+          git push --force "$CB_URL" main:pages
+name: Mirror to Codeberg
+
 # Spiegelt jeden Push (Branches + Tags) automatisch nach
 # codeberg.org/fabbuLos/daf-b2-uebungen — als Lebensversicherung
 # fuer den Fall, dass GitHub den Account jemals sperrt oder seine
