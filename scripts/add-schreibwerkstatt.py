@@ -361,50 +361,104 @@ def section_block(cfg):
 
 
 def patch_file(path: pathlib.Path, cfg: dict):
+    """Generischer Patcher — funktioniert für R-, X- und C-Dateien.
+    Findet die Wortschatz-Position dynamisch via Regex."""
     html = path.read_text(encoding='utf-8')
 
     # Idempotency check
     if 'schreibwerkstatt_A1_' in html or 'id="sec-schreib"' in html:
         return f"SKIP {path.name} — bereits gepatcht"
 
-    # 1. Nav-Buttons
-    nav_old = ('<div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>\n'
-               '        <div class="nav-btn" onclick="showSection(6)"><span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span></div>')
-    nav_new = ('<div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>\n'
-               '        <div class="nav-btn" onclick="showSection(6)"><span class="nav-emoji">📨</span><span class="nav-label">Schreiben</span></div>\n'
-               '        <div class="nav-btn" onclick="showSection(7)"><span class="nav-emoji">🔠</span><span class="nav-label">Wortschatz</span></div>')
-    if nav_old not in html:
-        return f"FAIL {path.name} — Nav-Pattern nicht gefunden"
-    html = html.replace(nav_old, nav_new, 1)
+    # 1. Nav-Button für Wortschatz finden (egal welcher Index)
+    #    Erlaubt verschiedene Emoji-Varianten (z.B. 🔠 oder &#128260;)
+    nav_re = re.compile(
+        r'(<div class="nav-btn" onclick="showSection\((\d+)\)">'
+        r'<span class="nav-emoji">[^<]+</span>'
+        r'<span class="nav-label">Wortschatz</span></div>)'
+    )
+    m = nav_re.search(html)
+    if not m:
+        return f"FAIL {path.name} — Nav-Button für Wortschatz nicht gefunden"
+    ws_idx = int(m.group(2))
+    schreib_idx = ws_idx          # Schreiben übernimmt den alten Wortschatz-Index
+    new_ws_idx = ws_idx + 1       # Wortschatz rückt um eins
+    schreib_btn = (f'<div class="nav-btn" onclick="showSection({schreib_idx})">'
+                   f'<span class="nav-emoji">📨</span>'
+                   f'<span class="nav-label">Schreiben</span></div>')
+    new_ws_btn = m.group(1).replace(f'showSection({ws_idx})', f'showSection({new_ws_idx})')
+    html = html.replace(m.group(1), schreib_btn + '\n        ' + new_ws_btn, 1)
 
-    # 2. CSS-Block
-    css_marker = '@media (max-width: 600px) { .tab-banner { max-height: 120px; } }\n</style>'
-    if css_marker not in html:
+    # 2. CSS-Block — Marker etwas robuster machen
+    css_re = re.compile(r'(@media \(max-width: 600px\) \{ \.tab-banner \{ max-height: 120px; \} \}\s*)\n</style>')
+    css_match = css_re.search(html)
+    if not css_match:
         return f"FAIL {path.name} — CSS-Marker nicht gefunden"
-    html = html.replace(css_marker, '@media (max-width: 600px) { .tab-banner { max-height: 120px; } }\n' + CSS_BLOCK + '\n</style>', 1)
+    html = html.replace(css_match.group(0), css_match.group(1) + '\n' + CSS_BLOCK + '\n</style>', 1)
 
-    # 3. Section-Block
-    section_marker = '<!-- ===== TAB 6: WORTSCHATZ-TRAINING ===== -->'
-    if section_marker not in html:
+    # 3. Section-Block — vor dem Wortschatz-Section-Kommentar einsetzen
+    sec_re = re.compile(r'<!-- ===== TAB \d+: WORTSCHATZ[^>]*===== -->')
+    sec_match = sec_re.search(html)
+    if not sec_match:
         return f"FAIL {path.name} — Section-Marker nicht gefunden"
-    html = html.replace(section_marker, section_block(cfg), 1)
+    # Die TAB-Nummer im Kommentar updaten
+    new_ws_comment = f'<!-- ===== TAB {new_ws_idx}: WORTSCHATZ-TRAINING ===== -->'
+    html = html.replace(sec_match.group(0), section_block_for(cfg, schreib_idx, new_ws_idx) + new_ws_comment, 1)
 
-    # 4. Init-Aufruf
-    init_old = 'initSatzbau();\ninitWortschatz();\nloadBestTimes();'
-    init_new = 'initSatzbau();\ninitWortschatz();\ninitSchreibwerkstatt();\nloadBestTimes();'
-    if init_old not in html:
-        return f"FAIL {path.name} — Init-Marker nicht gefunden"
-    html = html.replace(init_old, init_new, 1)
+    # 4. Init-Aufruf — initSchreibwerkstatt() VOR loadBestTimes() ODER nach initWortschatz()/initVocab()
+    if 'initSchreibwerkstatt()' not in html:
+        if 'loadBestTimes();' in html:
+            html = html.replace('loadBestTimes();', 'initSchreibwerkstatt();\nloadBestTimes();', 1)
+        elif 'initWortschatz();' in html:
+            html = html.replace('initWortschatz();', 'initWortschatz();\ninitSchreibwerkstatt();', 1)
+        elif 'initVocab();' in html:
+            html = html.replace('initVocab();', 'initVocab();\ninitSchreibwerkstatt();', 1)
+        else:
+            return f"FAIL {path.name} — kein bekannter Init-Marker (loadBestTimes/initWortschatz/initVocab)"
 
-    # 5. JS-Block
+    # 5. JS-Block einfügen — vor </script>, ggf. nach Tap-to-Select-Marker
     js = JS_BLOCK_TEMPLATE.replace('{CODE}', cfg['lesson_code']).replace('{TITLE}', cfg['lesson_title'])
-    js_marker = '/* ── Ende Tap-to-Select ─────────────────────────────────────────────── */\n</script>'
-    if js_marker not in html:
-        return f"FAIL {path.name} — JS-End-Marker nicht gefunden"
-    html = html.replace(js_marker, '/* ── Ende Tap-to-Select ─────────────────────────────────────────────── */\n' + js + '\n</script>', 1)
+    tap_marker = '/* ── Ende Tap-to-Select ─────────────────────────────────────────────── */\n</script>'
+    if tap_marker in html:
+        html = html.replace(tap_marker, '/* ── Ende Tap-to-Select ─────────────────────────────────────────────── */\n' + js + '\n</script>', 1)
+    else:
+        # Fallback: einfach vor das letzte </script> setzen
+        idx = html.rfind('</script>')
+        if idx == -1:
+            return f"FAIL {path.name} — Kein </script> gefunden"
+        html = html[:idx] + js + '\n' + html[idx:]
 
     path.write_text(html, encoding='utf-8')
-    return f"OK   {path.name}"
+    return f"OK   {path.name} (Schreiben={schreib_idx}, Wortschatz={new_ws_idx})"
+
+
+def section_block_for(cfg, schreib_idx, ws_idx):
+    """Baut den Section-Block mit korrekten TAB-Nummern im Kommentar."""
+    cards = "".join(task_card(i + 1, t) for i, t in enumerate(cfg['tasks']))
+    return f"""    <!-- ===== TAB {schreib_idx}: SCHREIBWERKSTATT ===== -->
+    <div class="section" id="sec-schreib">
+      <img class="tab-banner" src="{cfg['banner_url']}" alt="{cfg['banner_alt']}">
+      <div class="section-title">📨 Schreibwerkstatt</div>
+      <div class="section-sub">{cfg['intro']}</div>
+
+      <div class="hilfe-box">
+        Schreiben ist das beste Training. Nimm dir Zeit für eine, zwei oder alle fünf Aufgaben. <strong>Jede Antwort kannst du einzeln an Frank schicken</strong> — du musst nicht alle bearbeiten. Wenn du den Sammelbutton am Ende benutzt, gehen alle noch nicht gesendeten Antworten in einer Mail.
+      </div>
+
+      <div class="schreib-name-box">
+        <label class="schreib-label" for="sw-name">Dein Name (Pflicht — damit Frank weiß, wer geschrieben hat):</label>
+        <input type="text" id="sw-name" class="schreib-name" placeholder="z. B. Maria Lopez" required>
+      </div>
+{cards}
+
+      <div class="schreib-actions">
+        <button class="schreib-btn schreib-btn-primary" id="sw-btn-all" onclick="schreibSendenAlleNochOffenen()">📨 Alle noch nicht gesendeten Antworten schicken</button>
+        <button class="schreib-btn schreib-btn-ghost" onclick="schreibKopieren()">📋 In Zwischenablage</button>
+        <button class="schreib-btn schreib-btn-ghost" onclick="schreibLeeren()">🗑️ Alles zurücksetzen</button>
+      </div>
+      <div class="schreib-status" id="sw-status"></div>
+    </div>
+
+    """
 
 
 CONFIGS = {
@@ -534,6 +588,244 @@ CONFIGS = {
             {'titel': 'Mini-Dialog: Am Flughafen', 'frage': 'Du bist am Flughafen. Schreib einen Mini-Dialog: zwei Fragen und zwei Antworten.', 'beispiel': '— Guten Tag, kann ich Ihren Pass sehen? — Ja, hier bitte. — Wo fliegen Sie hin? — Nach Madrid.'},
         ]
     },
+    '1022X': {
+        'lesson_code': '1022X',
+        'lesson_title': 'Woher kommst du?',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Herkunft, Länder und Sprachen.',
+        'tasks': [
+            {'titel': 'Woher kommst du?', 'frage': 'Schreib zwei Sätze über dein Herkunftsland und deine Stadt.', 'beispiel': 'Ich komme aus Mexiko. Ich wohne in Guadalajara.'},
+            {'titel': 'Welche Sprachen sprichst du?', 'frage': 'Welche Sprachen sprichst du? Schreib einen Satz mit Wörtern wie „und" oder „auch".', 'beispiel': 'Ich spreche Spanisch und Englisch. Jetzt lerne ich auch Deutsch.'},
+            {'titel': 'Drei Länder, die du kennst', 'frage': 'Nenne drei Länder, die du besucht hast oder gut kennst.', 'beispiel': 'Ich kenne Spanien, Italien und Frankreich.'},
+            {'titel': 'Eine Frage an einen neuen Freund', 'frage': 'Du triffst jemanden zum ersten Mal. Schreib eine Frage über die Herkunft.', 'beispiel': 'Hallo, woher kommst du? Sprichst du auch Englisch?'},
+            {'titel': 'Mini-Dialog: Erstes Treffen', 'frage': 'Ihr lernt euch kennen. Schreib einen Mini-Dialog: zwei Fragen und zwei Antworten.', 'beispiel': '— Hallo! Wie heißt du? — Ich bin Carlos. Und du? — Ich bin Maria. Woher kommst du? — Aus Italien.'},
+        ]
+    },
+    '1032X': {
+        'lesson_code': '1032X',
+        'lesson_title': 'Mehr über mich',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um persönliche Daten und dich selbst.',
+        'tasks': [
+            {'titel': 'Drei Sätze über dich', 'frage': 'Schreib drei Sätze über dich: Name, Beruf, Wohnort.', 'beispiel': 'Ich heiße Pablo. Ich bin Lehrer. Ich wohne in Berlin.'},
+            {'titel': 'Dein Familienstand', 'frage': 'Bist du verheiratet, ledig oder hast du eine Beziehung? Schreib einen Satz.', 'beispiel': 'Ich bin ledig und wohne allein.'},
+            {'titel': 'Ein wichtiges Datum für dich', 'frage': 'Welches Datum ist wichtig für dich (Geburtstag, Hochzeitstag …)? Schreib zwei Sätze.', 'beispiel': 'Mein Geburtstag ist am 15. Mai. Ich werde dieses Jahr 30 Jahre alt.'},
+            {'titel': 'Eine Frage an einen Klassenkameraden', 'frage': 'Stell jemandem aus deinem Kurs eine persönliche Frage.', 'beispiel': 'Wie alt bist du? Hast du Kinder?'},
+            {'titel': 'Mini-Dialog: Persönliche Daten', 'frage': 'Du füllst ein Formular aus. Schreib einen Mini-Dialog mit dem Beamten.', 'beispiel': '— Wie ist Ihr Name? — Maria Lopez. — Wo wohnen Sie? — Hauptstraße 12, München.'},
+        ]
+    },
+    '1042X': {
+        'lesson_code': '1042X',
+        'lesson_title': 'Zahlen, bitte!',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Zahlen, Preise und Bezahlen.',
+        'tasks': [
+            {'titel': 'Drei Lieblingszahlen', 'frage': 'Welche drei Zahlen sind für dich wichtig (Geburtstag, Glückszahl, Hausnummer …)? Schreib zwei Sätze.', 'beispiel': 'Meine Glückszahl ist 7. Mein Geburtstag ist am 22.'},
+            {'titel': 'Was kostet das?', 'frage': 'Schreib zwei Beispiele: Was kostet bei dir Brot? Was kostet ein Kaffee?', 'beispiel': 'Ein Brot kostet bei mir 2,50 Euro. Ein Kaffee kostet 1,80 Euro.'},
+            {'titel': 'Geld in deinem Land', 'frage': 'Welche Währung gibt es in deinem Land? Schreib einen Satz.', 'beispiel': 'In Mexiko bezahlt man mit Pesos.'},
+            {'titel': 'Eine Frage zum Preis', 'frage': 'Du bist in einem Geschäft. Schreib eine Frage zum Preis.', 'beispiel': 'Entschuldigung, was kostet diese Tasche?'},
+            {'titel': 'Mini-Dialog: An der Kasse', 'frage': 'Du bezahlst an der Kasse. Schreib einen Mini-Dialog: zwei Fragen und zwei Antworten.', 'beispiel': '— Das macht 12 Euro 50. — Hier sind 15 Euro. — Danke, hier ist Ihr Wechselgeld. — Auf Wiedersehen!'},
+        ]
+    },
+    '1052X': {
+        'lesson_code': '1052X',
+        'lesson_title': 'Über meine Arbeit sprechen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Beruf und Arbeit.',
+        'tasks': [
+            {'titel': 'Was bist du von Beruf?', 'frage': 'Schreib zwei Sätze über deine Arbeit.', 'beispiel': 'Ich bin Krankenschwester. Ich arbeite in einem Krankenhaus.'},
+            {'titel': 'Wo arbeitest du?', 'frage': 'Wo arbeitest du? In einem Büro, zu Hause, draußen? Schreib zwei Sätze.', 'beispiel': 'Ich arbeite in einer Schule. Es gibt viele Kinder dort.'},
+            {'titel': 'Was magst du an deiner Arbeit?', 'frage': 'Schreib einen Satz: Was gefällt dir gut? Was gefällt dir nicht?', 'beispiel': 'Ich mag meine Kollegen. Aber die Arbeit ist manchmal anstrengend.'},
+            {'titel': 'Eine Frage an einen Kollegen', 'frage': 'Schreib eine Frage an einen Kollegen oder eine Kollegin.', 'beispiel': 'Wie lange arbeitest du schon hier?'},
+            {'titel': 'Mini-Dialog: Über die Arbeit', 'frage': 'Jemand fragt nach deiner Arbeit. Schreib einen Mini-Dialog: zwei Fragen und zwei Antworten.', 'beispiel': '— Was sind Sie von Beruf? — Ich bin Architekt. — Und wo arbeiten Sie? — In Berlin, in einem Architekturbüro.'},
+        ]
+    },
+    '1062X': {
+        'lesson_code': '1062X',
+        'lesson_title': 'Über die Zeit sprechen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Uhrzeiten, Wochentage und Zeitangaben.',
+        'tasks': [
+            {'titel': 'Wie spät ist es jetzt?', 'frage': 'Schreib die Uhrzeit jetzt — in Ziffern und in Wörtern.', 'beispiel': 'Es ist 14:30 Uhr — halb drei am Nachmittag.'},
+            {'titel': 'Dein Lieblingstag', 'frage': 'Welcher Tag der Woche ist dein Lieblingstag? Warum? Schreib zwei Sätze.', 'beispiel': 'Mein Lieblingstag ist Samstag. Ich treffe meine Freunde.'},
+            {'titel': 'Wann stehst du auf?', 'frage': 'Wann stehst du auf? Wann gehst du ins Bett? Schreib zwei Sätze.', 'beispiel': 'Ich stehe um 7 Uhr auf. Ich gehe um 23 Uhr ins Bett.'},
+            {'titel': 'Eine Frage zur Uhrzeit', 'frage': 'Du fragst auf der Straße jemanden nach der Zeit. Schreib eine Frage.', 'beispiel': 'Entschuldigung, wie spät ist es?'},
+            {'titel': 'Mini-Dialog: Uhrzeit erfragen', 'frage': 'Du fragst nach Öffnungszeiten in einem Geschäft. Schreib einen Mini-Dialog.', 'beispiel': '— Wann öffnen Sie morgen? — Um 9 Uhr. — Und wann schließen Sie? — Um 18 Uhr.'},
+        ]
+    },
+    '1072X': {
+        'lesson_code': '1072X',
+        'lesson_title': 'Ein Treffen ausmachen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Verabredungen und Treffen.',
+        'tasks': [
+            {'titel': 'Eine Verabredung vorschlagen', 'frage': 'Schlag einer Freundin oder einem Freund ein Treffen vor — Wo? Wann?', 'beispiel': 'Hast du am Samstag Zeit? Wir können in der Stadt einen Kaffee trinken.'},
+            {'titel': 'Was machst du gern mit Freunden?', 'frage': 'Was machst du gern, wenn du Freunde triffst? Schreib zwei Sätze.', 'beispiel': 'Ich gehe gern mit Freunden ins Kino. Manchmal kochen wir zusammen.'},
+            {'titel': 'Du musst einen Termin absagen', 'frage': 'Du kannst nicht kommen. Schreib eine kurze Absage.', 'beispiel': 'Es tut mir leid, ich kann morgen nicht kommen. Ich bin krank.'},
+            {'titel': 'Eine Frage zum Treffpunkt', 'frage': 'Du möchtest jemanden treffen. Schreib eine Frage zum Treffpunkt.', 'beispiel': 'Wo treffen wir uns? Vor dem Café oder im Park?'},
+            {'titel': 'Mini-Dialog: Treffen vereinbaren', 'frage': 'Du machst ein Treffen aus. Schreib einen Mini-Dialog: zwei Fragen und zwei Antworten.', 'beispiel': '— Wann hast du Zeit? — Am Freitag um 19 Uhr. — Wo treffen wir uns? — Im Café Central.'},
+        ]
+    },
+    '1082X': {
+        'lesson_code': '1082X',
+        'lesson_title': 'Mein Arbeitstag',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um deinen Arbeitstag.',
+        'tasks': [
+            {'titel': 'Wann beginnt dein Arbeitstag?', 'frage': 'Wann fängst du mit der Arbeit an? Wann ist Feierabend? Schreib zwei Sätze.', 'beispiel': 'Ich beginne um 8 Uhr. Mein Feierabend ist um 17 Uhr.'},
+            {'titel': 'Wie kommst du zur Arbeit?', 'frage': 'Wie kommst du zur Arbeit — zu Fuß, mit dem Auto, mit dem Bus? Schreib zwei Sätze.', 'beispiel': 'Ich fahre mit dem Bus zur Arbeit. Es dauert 30 Minuten.'},
+            {'titel': 'Was machst du in der Mittagspause?', 'frage': 'Was machst du normalerweise in der Mittagspause? Schreib zwei Sätze.', 'beispiel': 'Ich esse mit Kollegen in der Kantine. Manchmal gehen wir spazieren.'},
+            {'titel': 'Eine Frage an deinen Chef', 'frage': 'Schreib eine Frage an deinen Chef oder deine Chefin.', 'beispiel': 'Frau Müller, kann ich morgen einen Tag Urlaub nehmen?'},
+            {'titel': 'Mini-Dialog: Bei der Arbeit', 'frage': 'Schreib einen Mini-Dialog mit einem Kollegen — zwei Fragen, zwei Antworten.', 'beispiel': '— Hast du heute viel zu tun? — Ja, sehr viel! — Brauchst du Hilfe? — Ja, das wäre super!'},
+        ]
+    },
+    '1092X': {
+        'lesson_code': '1092X',
+        'lesson_title': 'Das mag ich',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um deine Vorlieben.',
+        'tasks': [
+            {'titel': 'Was magst du gern?', 'frage': 'Schreib drei Sachen, die du gern magst (Essen, Hobbys, Tiere).', 'beispiel': 'Ich mag Pizza, Musik und Hunde.'},
+            {'titel': 'Was magst du nicht?', 'frage': 'Schreib zwei Sachen, die du nicht magst.', 'beispiel': 'Ich mag keinen Kaffee. Ich mag auch keinen Regen.'},
+            {'titel': 'Dein Lieblingsessen', 'frage': 'Was ist dein Lieblingsessen? Schreib zwei Sätze.', 'beispiel': 'Mein Lieblingsessen ist Pasta. Meine Mutter kocht sie sehr gut.'},
+            {'titel': 'Eine Frage über Vorlieben', 'frage': 'Du fragst eine Freundin nach ihren Vorlieben. Schreib eine Frage.', 'beispiel': 'Was magst du lieber: Tee oder Kaffee?'},
+            {'titel': 'Mini-Dialog: Über Geschmäcker', 'frage': 'Du sprichst mit einem Freund über Vorlieben. Schreib einen Mini-Dialog.', 'beispiel': '— Magst du Sushi? — Nein, ich mag keinen Fisch. — Und du, Pizza? — Pizza mag ich sehr!'},
+        ]
+    },
+    '1102X': {
+        'lesson_code': '1102X',
+        'lesson_title': 'Wichtige Ausdrücke beim Einkaufen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um das Einkaufen und Kommunikation im Geschäft.',
+        'tasks': [
+            {'titel': 'Was kaufst du oft?', 'frage': 'Was kaufst du oft im Supermarkt? Schreib drei oder vier Sachen.', 'beispiel': 'Ich kaufe oft Brot, Milch, Käse und Obst.'},
+            {'titel': 'Wo kaufst du ein?', 'frage': 'Wo kaufst du ein — Supermarkt, Markt, Bioladen? Schreib zwei Sätze.', 'beispiel': 'Ich gehe meistens in den Supermarkt. Manchmal kaufe ich auf dem Markt.'},
+            {'titel': 'Höflich um etwas bitten', 'frage': 'Du suchst Brot im Supermarkt und findest es nicht. Schreib eine höfliche Frage.', 'beispiel': 'Entschuldigung, wo finde ich das Brot, bitte?'},
+            {'titel': 'Eine Frage an die Verkäuferin', 'frage': 'Du möchtest etwas kaufen. Schreib eine Frage an die Verkäuferin.', 'beispiel': 'Haben Sie diese Hose auch in Größe 38?'},
+            {'titel': 'Mini-Dialog: Im Geschäft', 'frage': 'Du gehst einkaufen. Schreib einen Mini-Dialog mit dem Verkäufer — zwei Fragen, zwei Antworten.', 'beispiel': '— Kann ich Ihnen helfen? — Ja, ich suche eine Jacke. — Welche Farbe? — Blau, bitte.'},
+        ]
+    },
+    '1112X': {
+        'lesson_code': '1112X',
+        'lesson_title': 'Am Bahnhof',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um den Bahnhof und Reisen mit dem Zug.',
+        'tasks': [
+            {'titel': 'Eine Reise planen', 'frage': 'Wohin möchtest du fahren? Schreib zwei Sätze: Stadt? Wann?', 'beispiel': 'Ich möchte am Wochenende nach Berlin fahren. Der Zug fährt um 9 Uhr.'},
+            {'titel': 'Was nimmst du mit?', 'frage': 'Was nimmst du in den Zug mit? Schreib drei oder vier Sachen.', 'beispiel': 'Ich nehme einen Rucksack, ein Buch, Wasser und einen Apfel mit.'},
+            {'titel': 'Eine Auskunft erfragen', 'frage': 'Du brauchst eine Information am Bahnhof. Schreib eine Frage.', 'beispiel': 'Entschuldigung, von welchem Gleis fährt der Zug nach Hamburg?'},
+            {'titel': 'Eine Fahrkarte kaufen', 'frage': 'Du kaufst ein Ticket. Schreib eine Frage am Schalter.', 'beispiel': 'Eine Fahrkarte nach München, bitte. Wie viel kostet das?'},
+            {'titel': 'Mini-Dialog: Am Schalter', 'frage': 'Du kaufst ein Ticket. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Wohin möchten Sie fahren? — Nach Köln. — Einfach oder hin und zurück? — Hin und zurück, bitte.'},
+        ]
+    },
+    '1122X': {
+        'lesson_code': '1122X',
+        'lesson_title': 'Eine To-Do-Liste',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um To-Do-Listen und tägliche Aufgaben.',
+        'tasks': [
+            {'titel': 'Deine To-Do-Liste für heute', 'frage': 'Schreib eine kurze To-Do-Liste für heute mit drei oder vier Aufgaben.', 'beispiel': 'Heute: einkaufen, Wäsche waschen, Maria anrufen, Buch lesen.'},
+            {'titel': 'Was ist dringend?', 'frage': 'Was ist heute besonders wichtig? Schreib einen Satz.', 'beispiel': 'Heute muss ich unbedingt zum Arzt gehen.'},
+            {'titel': 'Was schiebst du oft auf?', 'frage': 'Was schiebst du gern auf? Schreib einen Satz.', 'beispiel': 'Ich schiebe oft das Putzen auf. Ich mag es nicht.'},
+            {'titel': 'Eine Erinnerung an einen Freund', 'frage': 'Du erinnerst einen Freund an etwas. Schreib eine kurze Nachricht.', 'beispiel': 'Hallo Tim, denk bitte an mein Buch. Ich brauche es morgen!'},
+            {'titel': 'Mini-Dialog: Aufgabe verteilen', 'frage': 'Du verteilst Aufgaben mit jemandem. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Kannst du heute einkaufen? — Klar! Was brauchen wir? — Brot, Milch und Eier. — Okay, ich gehe gleich.'},
+        ]
+    },
+    '2013X': {
+        'lesson_code': '2013X',
+        'lesson_title': 'Möbel kaufen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Möbel und Wohnen.',
+        'tasks': [
+            {'titel': 'Möbel in deinem Wohnzimmer', 'frage': 'Welche Möbel hast du im Wohnzimmer? Schreib zwei oder drei Sätze.', 'beispiel': 'Ich habe ein Sofa, einen Tisch und zwei Stühle. Es gibt auch eine Lampe.'},
+            {'titel': 'Was möchtest du noch kaufen?', 'frage': 'Welches Möbelstück möchtest du noch kaufen? Schreib zwei Sätze.', 'beispiel': 'Ich möchte ein neues Bett kaufen. Mein altes Bett ist nicht bequem.'},
+            {'titel': 'Dein Lieblingsmöbel', 'frage': 'Welches Möbelstück magst du am liebsten? Warum? Schreib zwei Sätze.', 'beispiel': 'Ich mag mein Sofa am liebsten. Es ist sehr bequem zum Lesen.'},
+            {'titel': 'Eine Frage im Möbelgeschäft', 'frage': 'Du suchst etwas im Möbelgeschäft. Schreib eine Frage.', 'beispiel': 'Entschuldigung, wo finde ich die Küchenstühle?'},
+            {'titel': 'Mini-Dialog: Möbelkauf', 'frage': 'Du kaufst Möbel. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Suchen Sie etwas Bestimmtes? — Ja, einen Tisch für die Küche. — Wie groß soll er sein? — Für vier Personen.'},
+        ]
+    },
+    '2023X': {
+        'lesson_code': '2023X',
+        'lesson_title': 'Öffentliche Verkehrsmittel',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Bus, Bahn und U-Bahn.',
+        'tasks': [
+            {'titel': 'Wie kommst du in die Stadt?', 'frage': 'Welche Verkehrsmittel benutzt du? Schreib zwei Sätze.', 'beispiel': 'Ich fahre mit der U-Bahn. Manchmal nehme ich auch den Bus.'},
+            {'titel': 'Welches Verkehrsmittel magst du am liebsten?', 'frage': 'Was magst du lieber — Bus, Bahn, Auto, Fahrrad? Warum? Schreib zwei Sätze.', 'beispiel': 'Ich mag das Fahrrad am liebsten. Es ist schnell und gesund.'},
+            {'titel': 'Eine kurze Wegbeschreibung', 'frage': 'Wie kommst du von zu Hause zur Arbeit oder zur Schule? Beschreib in zwei Sätzen.', 'beispiel': 'Ich gehe zu Fuß zum Bahnhof. Dann nehme ich den Zug nach Berlin.'},
+            {'titel': 'Eine Frage an einen Mitreisenden', 'frage': 'Du sitzt im Bus und brauchst eine Information. Schreib eine Frage.', 'beispiel': 'Entschuldigung, wo muss ich aussteigen für den Zoo?'},
+            {'titel': 'Mini-Dialog: Im Bus', 'frage': 'Du fragst nach dem Weg im Bus. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Hält dieser Bus am Hauptbahnhof? — Ja, in drei Stationen. — Danke! — Bitte schön!'},
+        ]
+    },
+    '2033X': {
+        'lesson_code': '2033X',
+        'lesson_title': 'Bei der Post',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um die Post.',
+        'tasks': [
+            {'titel': 'Hast du schon einen Brief geschickt?', 'frage': 'Wann hast du den letzten Brief geschickt? Schreib zwei Sätze.', 'beispiel': 'Ich habe letzten Monat eine Postkarte an meine Oma geschickt. Sie lebt in Italien.'},
+            {'titel': 'Was schickst du gern?', 'frage': 'Was schickst du gern in einem Brief oder Paket? Schreib einen Satz.', 'beispiel': 'Ich schicke gern Postkarten aus dem Urlaub.'},
+            {'titel': 'Ein Paket an einen Freund', 'frage': 'Du schickst ein Paket an einen Freund. Was ist drin? Schreib zwei Sätze.', 'beispiel': 'Im Paket ist ein Buch und eine Schokolade. Es ist ein Geschenk.'},
+            {'titel': 'Eine Frage am Postschalter', 'frage': 'Du bist bei der Post. Schreib eine Frage an den Beamten.', 'beispiel': 'Wie viel kostet ein Paket nach Spanien?'},
+            {'titel': 'Mini-Dialog: Bei der Post', 'frage': 'Du schickst etwas. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Ich möchte dieses Paket schicken. — Wohin? — Nach Madrid. — Das macht 12 Euro.'},
+        ]
+    },
+    '2043X': {
+        'lesson_code': '2043X',
+        'lesson_title': 'Shoppen und Bezahlen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Einkaufen und Bezahlen.',
+        'tasks': [
+            {'titel': 'Was kaufst du gern ein?', 'frage': 'Was kaufst du am liebsten? Schreib zwei Sätze.', 'beispiel': 'Ich kaufe gern Bücher. Manchmal kaufe ich auch neue Schuhe.'},
+            {'titel': 'Bezahlst du mit Karte oder bar?', 'frage': 'Wie bezahlst du am liebsten — bar oder mit Karte? Schreib zwei Sätze.', 'beispiel': 'Ich bezahle meistens mit Karte. Bar nehme ich nur kleine Summen.'},
+            {'titel': 'Ein gutes Schnäppchen', 'frage': 'Hast du etwas Gutes günstig gekauft? Schreib zwei Sätze.', 'beispiel': 'Letzte Woche habe ich eine Jacke für 30 Euro gekauft. Normal kostet sie 80 Euro!'},
+            {'titel': 'Eine Frage zur Bezahlung', 'frage': 'Du möchtest mit Karte bezahlen. Schreib eine Frage.', 'beispiel': 'Kann ich mit Kreditkarte bezahlen?'},
+            {'titel': 'Mini-Dialog: An der Kasse', 'frage': 'Du bezahlst an der Kasse. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Das macht 24 Euro 50. — Kann ich mit Karte bezahlen? — Ja, gerne. — Hier bitte. — Vielen Dank!'},
+        ]
+    },
+    '2053X': {
+        'lesson_code': '2053X',
+        'lesson_title': 'Im Restaurant bestellen',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um das Restaurant.',
+        'tasks': [
+            {'titel': 'Was isst du gern im Restaurant?', 'frage': 'Was bestellst du gern? Schreib zwei Sätze.', 'beispiel': 'Ich bestelle gern Pasta oder Pizza. Als Vorspeise nehme ich Salat.'},
+            {'titel': 'Trinkst du Wein oder Bier?', 'frage': 'Was trinkst du im Restaurant? Schreib einen Satz.', 'beispiel': 'Ich trinke gern ein Glas Rotwein zum Essen.'},
+            {'titel': 'Dein Lieblings-Restaurant', 'frage': 'Welches Restaurant magst du? Was ist gut dort? Schreib zwei Sätze.', 'beispiel': 'Ich mag „Trattoria Bella". Die Pizza ist super und das Tiramisu auch.'},
+            {'titel': 'Eine Frage an den Kellner', 'frage': 'Du bist im Restaurant. Schreib eine Frage an den Kellner.', 'beispiel': 'Entschuldigung, was empfehlen Sie heute?'},
+            {'titel': 'Mini-Dialog: Im Restaurant', 'frage': 'Du bestellst beim Kellner. Schreib einen Mini-Dialog: zwei Fragen, zwei Antworten.', 'beispiel': '— Was möchten Sie trinken? — Ein Wasser, bitte. — Und zum Essen? — Die Lasagne, bitte.'},
+        ]
+    },
+    '1012X': {
+        'lesson_code': '1012X',
+        'lesson_title': 'Wie schreibt man das?',
+        'banner_url': 'https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben rund um Buchstaben, Zahlen und persönliche Daten.',
+        'tasks': [
+            {'titel': 'Buchstabiere deinen Namen', 'frage': 'Schreib deinen Vornamen und Nachnamen, jeden Buchstaben einzeln, getrennt durch Bindestriche.', 'beispiel': 'M-A-R-I-A   L-O-P-E-Z'},
+            {'titel': 'Deine Telefonnummer in Worten', 'frage': 'Schreib deine Telefonnummer in Ziffern UND in Wörtern (mindestens 5 Ziffern).', 'beispiel': 'Meine Nummer: 040-12345 — null vier null eins zwei drei vier fünf.'},
+            {'titel': 'Deine Adresse', 'frage': 'Schreib deine Adresse: Straße, Hausnummer, Stadt, Land. Zwei oder drei Sätze.', 'beispiel': 'Ich wohne in der Hauptstraße 17 in München. Das ist in Deutschland.'},
+            {'titel': 'Wie alt sind sie?', 'frage': 'Schreib dein Alter und das Alter von zwei Personen aus deiner Familie.', 'beispiel': 'Ich bin 28 Jahre alt. Mein Bruder ist 32 und meine Mutter ist 60.'},
+            {'titel': 'Mini-Dialog: Am Telefon buchstabieren', 'frage': 'Du buchstabierst deinen Namen am Telefon. Schreib einen Mini-Dialog: zwei Fragen und zwei Antworten.', 'beispiel': '— Wie heißen Sie? — Mein Name ist Lopez. — Können Sie das buchstabieren? — L-O-P-E-Z.'},
+        ]
+    },
     '2064R': {
         'lesson_code': '2064R',
         'lesson_title': 'Feste',
@@ -566,7 +858,7 @@ if __name__ == '__main__':
             continue
         # Find file in base directory matching code
         candidates = list(base.glob(f"DE_A1_{code}-*.html"))
-        candidates = [c for c in candidates if not c.name.endswith('.bak')]
+        candidates = [c for c in candidates if not c.name.endswith('.bak') and '-uebungen.html' not in c.name]
         if not candidates:
             print(f"FAIL — Datei DE_A1_{code}-*.html nicht gefunden")
             continue
