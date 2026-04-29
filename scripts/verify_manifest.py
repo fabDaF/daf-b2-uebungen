@@ -83,6 +83,13 @@ class Finding:
 def check_repo(key: str, spec: dict, root: Path) -> list[Finding]:
     """Prüft ein einzelnes Repo aus dem Manifest gegen die Realität."""
     findings: list[Finding] = []
+
+    # External repos (nicht lokal als Sub-Repo eingebunden, z.B. A1-vokabeltrainer auf Netlify)
+    # werden nur informativ gemeldet, nicht geprüft.
+    if spec.get("is_external") or spec.get("local_path") is None:
+        findings.append(Finding(key, "info", f"external — nicht lokal eingebunden ({spec.get('purpose', '')[:60]})"))
+        return findings
+
     local_path = root / spec["local_path"]
 
     # 1. Existiert der Pfad?

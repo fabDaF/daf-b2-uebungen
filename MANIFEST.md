@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 07:39. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 09:08. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)
 
@@ -32,7 +32,7 @@ Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Ni
 | `daf-architektur` | Architektur | — | `htmlS/Architektur` | [fabdaf.github.io/daf-architektur](https://fabdaf.github.io/daf-architektur/) | ✓ |
 | `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [fabdaf.github.io/daf-lueckentexte](https://fabdaf.github.io/daf-lueckentexte/) | ✓ |
 | `daf-archiv` | Archiv | — | `daf-archiv` | — | ✓ |
-| `daf-vertragssprache-uebungen` | Privatschüler | — | `schueler/privat-1` | [fabdaf.github.io/daf-vertragssprache-uebungen](https://fabdaf.github.io/daf-vertragssprache-uebungen/) | ✓ |
+| `A1-vokabeltrainer` | Spezial | A1 | `None` | [fabdaf.github.io/daf-vertragssprache-uebungen](https://fabdaf.github.io/daf-vertragssprache-uebungen/) | ✓ |
 
 ## Details pro Repo
 
@@ -125,12 +125,12 @@ _Historische Kopien und verworfene Versionen (B1/B2 Grammatik-Kopien, Löschbar-
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-archiv/
 - **Erwartung:** ≥30 tracked files, ≥30 HTML
 
-### `daf-vertragssprache-uebungen`
+### `A1-vokabeltrainer`
 
 _Privatschüler-Material zu Vertragssprache, Komposita/FVG und Geschäftskommunikation auf B2/C1-Niveau (Anwendungsbereich Warenkreditversicherung). Am 2026-04-28 als Nachfolger des alten daf-wkv-uebungen-Repos angelegt — frische Git-History ohne Firmenidentifikatoren oder Schülernamen. Dashboard-Eintrag neutral, ohne Personen- oder Firmenbezug._
 
-- **Lokal:** `schueler/privat-1`
-- **Remote:** https://github.com/fabDaF/daf-vertragssprache-uebungen.git
+- **Lokal:** `None`
+- **Remote:** https://github.com/fabDaF/A1-vokabeltrainer.git
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-vertragssprache-uebungen/
 - **Dashboard basis:** `https://fabdaf.github.io/daf-vertragssprache-uebungen/`
 - **Erwartung:** ≥3 tracked files, ≥3 HTML
