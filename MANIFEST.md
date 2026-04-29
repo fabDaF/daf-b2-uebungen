@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 09:09. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 12:00. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)
 
@@ -49,13 +49,13 @@ _Aktive A1-Lektionen (ehem. A1-Einstieg + A1 + A1.2 NEW konsolidiert am 2026-04-
 
 ### `daf-a2-uebungen`
 
-_Aktive A2-Lektionen (A2.1 + A2.2 konsolidiert am 2026-04-10)_
+_Aktive A2-Lektionen (A2.1 + A2.2 konsolidiert am 2026-04-10; 2026-04-29 Backup-Cleanup: 26 .backup.html + 2 alte Dashboards entfernt)_
 
 - **Lokal:** `htmlS/A2.1`
 - **Remote:** https://github.com/fabDaF/daf-a2-uebungen.git
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-a2-uebungen/
 - **Dashboard basis:** `https://fabdaf.github.io/daf-a2-uebungen/`
-- **Erwartung:** ≥180 tracked files, ≥140 HTML
+- **Erwartung:** ≥150 tracked files, ≥100 HTML
 
 ### `daf-b1-uebungen`
 
