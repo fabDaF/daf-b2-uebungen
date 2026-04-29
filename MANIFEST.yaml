@@ -15,7 +15,7 @@
 
 manifest_version: 1
 project: fabDaF
-description: "Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C1)"
+description: "Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)"
 root_path_absolute: "~/Cowork/Projekte/fabDaF"
 root_path_session: "/sessions/festive-serene-dirac/mnt/fabDaF"
 
@@ -48,7 +48,7 @@ mirror_policy:
   pilot_repo: daf-b2-uebungen
   pilot_started: 2026-04-28
   full_rollout_completed: 2026-04-28
-  rollout_scope: "Alle 10 Repos im Manifest haben einen aktiven Codeberg-Mirror."
+  rollout_scope: "Alle 9 Niveau- und Spezial-Repos im Manifest haben einen aktiven Codeberg-Mirror. Der C2-Sub-Bereich (htmlS/C2/) wird über den daf-b2-uebungen-Mirror mitgespiegelt."
 
 # Die zehn aktiven Repos.
 # Jedes Repo hat: eindeutigen Schlüssel, lokalen Pfad (relativ zu root_path_absolute),
@@ -124,11 +124,14 @@ repos:
       since: 2026-04-28
       role: "Pilot des Mirror-Programms (am 2026-04-28 auf alle 10 Repos ausgerollt)"
     dashboard_basis: "https://fabdaf.github.io/daf-b2-uebungen/"
-    purpose: "Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml)"
+    purpose: "Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusätzlich beherbergt dieses Repo unter htmlS/C2/ den C2-Lektionsbereich (siehe c2-bereich-Eintrag); historisch gewachsen, kein eigenes Repo geplant."
     is_root: true
     expected:
-      tracked_files_min: 160
-      html_files_min: 150
+      tracked_files_min: 230
+      html_files_min: 220
+    sub_areas:
+      - path: "htmlS/C2"
+        purpose: "C2-Lektionsbereich (siehe c2-bereich)"
 
   daf-c1-uebungen:
     role: niveau_active
@@ -143,10 +146,32 @@ repos:
       url: "https://codeberg.org/fabbuLos/daf-c1-uebungen"
       since: 2026-04-28
     dashboard_basis: "https://fabdaf.github.io/daf-c1-uebungen/"
-    purpose: "C1-Lektionen: 7 Grammatik-Einheiten (Nominalstil, Modalverben, Sonderstellung, Verbpräfixe, Genitiv, Modalpartikeln, Kommasetzung) + Masterplan"
+    purpose: "C1-Lektionen: drei Sub-Kurse (C1.1, C1.2, C1.3) mit insgesamt 23 Einheiten und 161 Lektionen. C1.1 = Redewiedergabe/Konjunktiv/Nominalstil, C1.2 = Konnektoren/Modalverben/Partizipialkonstruktionen/raffinierterer Ausdruck, C1.3 = Genitiv/Nominalisierung/Stilistik/Geistesgeschichte/Prüfungsvorbereitung."
     expected:
-      tracked_files_min: 8
-      html_files_min: 7
+      tracked_files_min: 150
+      html_files_min: 150
+
+  # KEIN eigenes Repo — virtueller Eintrag für die 73 C2-Lektionen,
+  # die unter htmlS/C2/ als Sub-Bereich von daf-b2-uebungen leben.
+  # Historisch gewachsen; bewusst kein eigenes Repo, weil C2 nicht weiter wächst.
+  c2-bereich:
+    role: niveau_active_subordinate
+    level: C2
+    local_path: "htmlS/C2"
+    parent_repo: daf-b2-uebungen
+    remote_url: "https://github.com/fabDaF/daf-b2-uebungen.git"
+    github_pages:
+      enabled: true
+      url: "https://fabdaf.github.io/daf-b2-uebungen/htmlS/C2/"
+    codeberg_mirror:
+      enabled: true
+      url: "https://codeberg.org/fabbuLos/daf-b2-uebungen"
+      via: "Wird automatisch über den daf-b2-uebungen-Mirror mitgespiegelt."
+      since: 2026-04-28
+    dashboard_basis: "https://fabdaf.github.io/daf-b2-uebungen/"
+    purpose: "C2-Lektionen (Lingoda-Adaption): 10 Einheiten, 72 Lektionen — Sport/Freizeit, Deutschland/Orte, Geschichte, Politik, Geist/Wissenschaft, Welt, Kultur, Beruf, Leben, Bildung."
+    expected:
+      lessons_min: 72
 
   daf-materialien:
     role: materialien
@@ -236,7 +261,10 @@ repos:
 # Bekannte, noch nicht behobene Zustände.
 # Jeder Eintrag hier ist ein OFFENER PUNKT, den das verify-Skript NICHT als Fehler werten soll,
 # solange er hier steht. Wenn er behoben ist, muss er aus dieser Liste entfernt werden.
-known_issues: []
+known_issues:
+  - id: a1_vokabeltrainer_unklassifiziert
+    description: "Auf GitHub existiert ein Repo fabDaF/A1-vokabeltrainer, das nicht im Manifest gelistet ist. Status unklar — entweder als active aufnehmen oder zu deprecated_repos verschieben."
+    seen_at: 2026-04-29
 
 # Repos, die historisch existiert haben, aber NICHT mehr Teil des Manifests sind.
 # Wird vom verify-Skript als Warnung verwendet: Wenn eines dieser Repos lokal oder remote noch Aktivität zeigt,
