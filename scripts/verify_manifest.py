@@ -280,7 +280,8 @@ def main() -> int:
         if issues:
             print(f"\n{len(issues)} dokumentierte known_issues (werden nicht als Fehler gewertet):")
             for issue in issues:
-                print(f"  • [{issue['severity']:6s}] {issue['id']}")
+                sev = issue.get("severity", "—")
+                print(f"  • [{sev:6s}] {issue.get('id', '?')}")
 
         print()
 

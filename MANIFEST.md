@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 07:37. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 07:39. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)
 
@@ -28,7 +28,6 @@ Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Ni
 | `daf-b1-uebungen` | Aktives Niveau | B1 | `htmlS/B1.1` | [fabdaf.github.io/daf-b1-uebungen](https://fabdaf.github.io/daf-b1-uebungen/) | ✓ |
 | `daf-b2-uebungen` | Aktives Niveau | B2 | `.` | [fabdaf.github.io/daf-b2-uebungen](https://fabdaf.github.io/daf-b2-uebungen/) | ✓ |
 | `daf-c1-uebungen` | Aktives Niveau | C1 | `htmlS/C1` | [fabdaf.github.io/daf-c1-uebungen](https://fabdaf.github.io/daf-c1-uebungen/) | ✓ |
-| `c2-bereich` | niveau_active_subordinate | C2 | `htmlS/C2` | [fabdaf.github.io/daf-b2-uebungen](https://fabdaf.github.io/daf-b2-uebungen/) | ✓ |
 | `daf-materialien` | Materialien | — | `daf-materialien` | [fabdaf.github.io/daf-materialien](https://fabdaf.github.io/daf-materialien/) | ✓ |
 | `daf-architektur` | Architektur | — | `htmlS/Architektur` | [fabdaf.github.io/daf-architektur](https://fabdaf.github.io/daf-architektur/) | ✓ |
 | `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [fabdaf.github.io/daf-lueckentexte](https://fabdaf.github.io/daf-lueckentexte/) | ✓ |
@@ -69,7 +68,7 @@ _Aktive B1-Lektionen (B1.1 als Master; B1.2/B1.3 am 2026-04-10 verworfen, nur Gr
 
 ### `daf-b2-uebungen`
 
-_Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusätzlich beherbergt dieses Repo unter htmlS/C2/ den C2-Lektionsbereich (siehe c2-bereich-Eintrag); historisch gewachsen, kein eigenes Repo geplant._
+_Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusätzlich beherbergt dieses Repo unter htmlS/C2/ den C2-Lektionsbereich (siehe sub_areas + Sektion virtual_areas)._
 
 - **Lokal:** `.`
 - **Remote:** https://github.com/fabDaF/daf-b2-uebungen.git
@@ -79,23 +78,13 @@ _Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusät
 
 ### `daf-c1-uebungen`
 
-_C1-Lektionen: drei Sub-Kurse (C1.1, C1.2, C1.3) mit insgesamt 23 Einheiten und 161 Lektionen. C1.1 = Redewiedergabe/Konjunktiv/Nominalstil, C1.2 = Konnektoren/Modalverben/Partizipialkonstruktionen/raffinierterer Ausdruck, C1.3 = Genitiv/Nominalisierung/Stilistik/Geistesgeschichte/Prüfungsvorbereitung._
+_C1-Lektionen-Repo. Im Dashboard als drei Sub-Kurse (C1.1, C1.2, C1.3) mit 23 Einheiten und 161 Lektionen verlinkt. Lokales Sub-Repo enthält aktuell nur 8 HTMLs — die übrigen Lektionen werden direkt auf GitHub Pages gehostet (siehe known_issue c1_local_subrepo_drift)._
 
 - **Lokal:** `htmlS/C1`
 - **Remote:** https://github.com/fabDaF/daf-c1-uebungen.git
 - **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-c1-uebungen/
 - **Dashboard basis:** `https://fabdaf.github.io/daf-c1-uebungen/`
-- **Erwartung:** ≥150 tracked files, ≥150 HTML
-
-### `c2-bereich`
-
-_C2-Lektionen (Lingoda-Adaption): 10 Einheiten, 72 Lektionen — Sport/Freizeit, Deutschland/Orte, Geschichte, Politik, Geist/Wissenschaft, Welt, Kultur, Beruf, Leben, Bildung._
-
-- **Lokal:** `htmlS/C2`
-- **Remote:** https://github.com/fabDaF/daf-b2-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-b2-uebungen/htmlS/C2/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-b2-uebungen/`
-- **Erwartung:** 
+- **Erwartung:** ≥8 tracked files, ≥7 HTML
 
 ### `daf-materialien`
 
@@ -149,11 +138,6 @@ _Privatschüler-Material zu Vertragssprache, Komposita/FVG und Geschäftskommuni
 ## Bekannte offene Punkte
 
 Jeder Eintrag hier ist ein dokumentierter, aber noch nicht behobener Zustand. `verify_manifest.py` wertet sie nicht als Fehler, solange sie hier stehen. Sobald behoben → aus `MANIFEST.yaml` entfernen und neu rendern.
-
-### ⚪ Niedrig
-
-**a1_vokabeltrainer_unklassifiziert** (seit ?, Owner: ?)  
-Auf GitHub existiert ein Repo fabDaF/A1-vokabeltrainer, das nicht im Manifest gelistet ist. Status unklar — entweder als active aufnehmen oder zu deprecated_repos verschieben.
 
 ## Verworfene Repos
 

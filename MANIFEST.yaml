@@ -124,14 +124,11 @@ repos:
       since: 2026-04-28
       role: "Pilot des Mirror-Programms (am 2026-04-28 auf alle 10 Repos ausgerollt)"
     dashboard_basis: "https://fabdaf.github.io/daf-b2-uebungen/"
-    purpose: "Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusätzlich beherbergt dieses Repo unter htmlS/C2/ den C2-Lektionsbereich (siehe c2-bereich-Eintrag); historisch gewachsen, kein eigenes Repo geplant."
+    purpose: "Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusätzlich beherbergt dieses Repo unter htmlS/C2/ den C2-Lektionsbereich (siehe sub_areas + Sektion virtual_areas)."
     is_root: true
     expected:
       tracked_files_min: 230
       html_files_min: 220
-    sub_areas:
-      - path: "htmlS/C2"
-        purpose: "C2-Lektionsbereich (siehe c2-bereich)"
 
   daf-c1-uebungen:
     role: niveau_active
@@ -146,32 +143,10 @@ repos:
       url: "https://codeberg.org/fabbuLos/daf-c1-uebungen"
       since: 2026-04-28
     dashboard_basis: "https://fabdaf.github.io/daf-c1-uebungen/"
-    purpose: "C1-Lektionen: drei Sub-Kurse (C1.1, C1.2, C1.3) mit insgesamt 23 Einheiten und 161 Lektionen. C1.1 = Redewiedergabe/Konjunktiv/Nominalstil, C1.2 = Konnektoren/Modalverben/Partizipialkonstruktionen/raffinierterer Ausdruck, C1.3 = Genitiv/Nominalisierung/Stilistik/Geistesgeschichte/Prüfungsvorbereitung."
+    purpose: "C1-Lektionen-Repo. Im Dashboard als drei Sub-Kurse (C1.1, C1.2, C1.3) mit 23 Einheiten und 161 Lektionen verlinkt. Lokales Sub-Repo enthält aktuell nur 8 HTMLs — die übrigen Lektionen werden direkt auf GitHub Pages gehostet (siehe known_issue c1_local_subrepo_drift)."
     expected:
-      tracked_files_min: 150
-      html_files_min: 150
-
-  # KEIN eigenes Repo — virtueller Eintrag für die 73 C2-Lektionen,
-  # die unter htmlS/C2/ als Sub-Bereich von daf-b2-uebungen leben.
-  # Historisch gewachsen; bewusst kein eigenes Repo, weil C2 nicht weiter wächst.
-  c2-bereich:
-    role: niveau_active_subordinate
-    level: C2
-    local_path: "htmlS/C2"
-    parent_repo: daf-b2-uebungen
-    remote_url: "https://github.com/fabDaF/daf-b2-uebungen.git"
-    github_pages:
-      enabled: true
-      url: "https://fabdaf.github.io/daf-b2-uebungen/htmlS/C2/"
-    codeberg_mirror:
-      enabled: true
-      url: "https://codeberg.org/fabbuLos/daf-b2-uebungen"
-      via: "Wird automatisch über den daf-b2-uebungen-Mirror mitgespiegelt."
-      since: 2026-04-28
-    dashboard_basis: "https://fabdaf.github.io/daf-b2-uebungen/"
-    purpose: "C2-Lektionen (Lingoda-Adaption): 10 Einheiten, 72 Lektionen — Sport/Freizeit, Deutschland/Orte, Geschichte, Politik, Geist/Wissenschaft, Welt, Kultur, Beruf, Leben, Bildung."
-    expected:
-      lessons_min: 72
+      tracked_files_min: 8
+      html_files_min: 7
 
   daf-materialien:
     role: materialien
@@ -261,9 +236,28 @@ repos:
 # Bekannte, noch nicht behobene Zustände.
 # Jeder Eintrag hier ist ein OFFENER PUNKT, den das verify-Skript NICHT als Fehler werten soll,
 # solange er hier steht. Wenn er behoben ist, muss er aus dieser Liste entfernt werden.
+# Virtuelle Sub-Bereiche, die KEIN eigenes Git-Repo haben, aber als logische Einheit
+# im Dashboard und Workflow geführt werden. Werden vom verify-Skript NICHT als Repos geprüft.
+virtual_areas:
+  c2-bereich:
+    level: C2
+    parent_repo: daf-b2-uebungen
+    local_path: "htmlS/C2"
+    remote_url: "https://github.com/fabDaF/daf-b2-uebungen.git"
+    pages_url: "https://fabdaf.github.io/daf-b2-uebungen/htmlS/C2/"
+    codeberg_via: "Wird automatisch über den daf-b2-uebungen-Mirror mitgespiegelt."
+    dashboard_basis: "https://fabdaf.github.io/daf-b2-uebungen/"
+    purpose: "C2-Lektionen (Lingoda-Adaption): 10 Einheiten, 72 Lektionen — Sport/Freizeit, Deutschland/Orte, Geschichte, Politik, Geist/Wissenschaft, Welt, Kultur, Beruf, Leben, Bildung."
+    rationale: "Historisch gewachsen; bewusst kein eigenes Repo, weil C2 nicht weiter wächst."
+
 known_issues:
   - id: a1_vokabeltrainer_unklassifiziert
+    severity: warn
     description: "Auf GitHub existiert ein Repo fabDaF/A1-vokabeltrainer, das nicht im Manifest gelistet ist. Status unklar — entweder als active aufnehmen oder zu deprecated_repos verschieben."
+    seen_at: 2026-04-29
+  - id: c1_local_subrepo_drift
+    severity: warn
+    description: "Lokales htmlS/C1/-Sub-Repo hat nur 8 HTML-Dateien, aber das Dashboard verlinkt 161 C1-Lektionen unter https://fabdaf.github.io/daf-c1-uebungen/. Die echte Datenmenge liegt vermutlich nur auf GitHub (Pages serviert sie), nicht lokal. Klären: ist das gewollt (mobiler Hauptarbeitsplatz?) oder fehlt ein Pull?"
     seen_at: 2026-04-29
 
 # Repos, die historisch existiert haben, aber NICHT mehr Teil des Manifests sind.
