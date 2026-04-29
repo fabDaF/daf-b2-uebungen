@@ -859,7 +859,9 @@ initSchreibwerkstatt();
 var SCHREIB_NAME_KEY      = 'schreibwerkstatt_B2_GEHIRN_03R_name';
 var SCHREIB_KEY_PREFIX    = 'schreibwerkstatt_B2_GEHIRN_03R_';
 var SCHREIB_SENT_PREFIX   = 'schreibwerkstatt_B2_GEHIRN_03R_sent_';
-var FORMSUBMIT_ENDPOINT   = 'https://formsubmit.co/ajax/unterricht@fabdaf.onmicrosoft.com';
+var FORMSUBMIT_ENDPOINT  = 'https://api.web3forms.com/submit';
+var FORMSUBMIT_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var FORMSUBMIT_MAILTO    = 'unterricht@fabdaf.onmicrosoft.com';
 var SCHREIB_LEKTION       = 'B2 – Lektion GEHIRN_03R · Die Hirnärztin';
 var SCHREIB_MIN_CHARS     = 14;
 
@@ -948,10 +950,10 @@ function schreibPostFormsubmit(subject, message, onOk, onErr) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
+      access_key: FORMSUBMIT_ACCESS_KEY,
       name: schreibAktuellerName(),
-      _subject: subject,
-      _template: 'box',
-      _captcha: 'false',
+      subject: subject,
+      from_name: 'fabDaF Schreibwerkstatt',
       lektion: SCHREIB_LEKTION,
       message: message
     })
@@ -962,7 +964,7 @@ function schreibPostFormsubmit(subject, message, onOk, onErr) {
       if (!ok) {
         var code = 'API_ERROR';
         var apiMsg = (data && data.message) || '';
-        if (/[Aa]ctivation|activate/.test(apiMsg)) code = 'NOT_ACTIVATED';
+        if (/[Aa]ctivat|domain|access[\s_-]?key/.test(apiMsg)) code = 'NOT_ACTIVATED';
         var err = new Error(code);
         err.apiMessage = apiMsg;
         throw err;
@@ -972,30 +974,27 @@ function schreibPostFormsubmit(subject, message, onOk, onErr) {
     .catch(onErr);
 }
 
-// Liefert eine menschenlesbare Erklärung zum Fehlerzustand.
 function schreibFehlerErklaerung(err) {
   var code = (err && err.message) || '';
   if (code === 'NOT_ACTIVATED') {
-    return 'Der Versand-Endpunkt ist gerade noch nicht freigeschaltet (das passiert manchmal bei Adress-Wechsel auf Franks Seite).';
+    return 'Der Versand-Endpunkt ist gerade nicht freigeschaltet (das passiert manchmal bei Adress-Wechsel auf Franks Seite).';
   }
   if (code.indexOf('HTTP_') === 0) {
     return 'Der Server hat eine technische Antwort gegeben (' + code.replace('HTTP_', 'HTTP ') + '), die nicht „erfolgreich" bedeutet.';
   }
   if (code === 'API_ERROR') {
-    return 'Der Versand-Dienst hat „nicht erfolgreich" zurückgemeldet' + (err.apiMessage ? ' („' + err.apiMessage + '")' : '') + '.';
+    return 'Der Versand-Dienst hat „nicht erfolgreich" zurückgemeldet' + (err && err.apiMessage ? ' („' + err.apiMessage + '")' : '') + '.';
   }
-  // Netzwerk-/Browser-Fehler ohne klare Kategorie
   return 'Es gab ein Netz- oder Browser-Problem beim Senden — keine Server-Antwort.';
 }
 
-// Per-Karte: Text + Kontext in die Zwischenablage.
 function schreibKopierenEinzeln(nr) {
   var ta = document.querySelector('.schreib-mini-textarea[data-aufgabe="' + nr + '"]');
   if (!ta) return;
   var titel = ta.dataset.titel || ('Aufgabe ' + nr);
-  var name = schreibAktuellerName() || '(kein Name eingetragen)';
+  var name = (typeof schreibAktuellerName === 'function' && schreibAktuellerName()) || '(kein Name eingetragen)';
   var text = 'Lektion: ' + SCHREIB_LEKTION + '\nName: ' + name + '\n\n=== Aufgabe ' + nr + ': ' + titel + ' ===\n\n' + ta.value.trim();
-  var st = document.getElementById('sw-status-' + nr);
+  var st = document.getElementById('sw-status-' + nr) || document.getElementById('status-' + nr);
   function fertig(ok) {
     if (!st) return;
     if (ok) { st.classList.remove('error'); st.classList.add('success'); st.innerHTML = '✓ In die Zwischenablage kopiert. Jetzt in deine Mail oder deinen Chat einfügen und an Frank schicken.'; }
@@ -1011,6 +1010,48 @@ function schreibKopierenEinzeln(nr) {
   }
 }
 
+function schreibZeigeFehler(nr, err, subject, message) {
+  var st = document.getElementById('sw-status-' + nr) || document.getElementById('status-' + nr);
+  if (!st) return;
+  var subjectEnc = encodeURIComponent(subject);
+  var bodyEnc = encodeURIComponent('Name: ' + schreibAktuellerName() + '\n\n' + message);
+  var mailto = 'mailto:' + FORMSUBMIT_MAILTO + '?subject=' + subjectEnc + '&body=' + bodyEnc;
+  var erklaerung = schreibFehlerErklaerung(err);
+  st.classList.remove('success'); st.classList.add('error');
+  st.innerHTML =
+    '<div class="schreib-fb">' +
+      '<div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — dein Text ist sicher im Browser gespeichert.</div>' +
+      '<div class="schreib-fb-text"><strong>Was passiert ist:</strong> ' + erklaerung + ' Du verlierst nichts — wähle einen der drei Wege, damit Frank deine Antwort trotzdem bekommt:</div>' +
+      '<div class="schreib-fb-actions">' +
+        '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 In Mail-Programm öffnen</a>' +
+        '<button type="button" class="schreib-fb-btn" onclick="schreibKopierenEinzeln(\'' + nr + '\')">📋 In Zwischenablage</button>' +
+        '<button type="button" class="schreib-fb-btn" onclick="schreibSendenEinzeln(\'' + nr + '\')">🔄 Nochmal versuchen</button>' +
+      '</div>' +
+      '<div class="schreib-fb-hilfe">Wenn nichts klappt: sag Frank im Unterricht Bescheid — er muss den Versand auf seiner Seite einmal aktivieren.</div>' +
+    '</div>';
+}
+
+function schreibZeigeFehlerSammel(err, subject, message) {
+  var subjectEnc = encodeURIComponent(subject);
+  var bodyEnc = encodeURIComponent('Name: ' + schreibAktuellerName() + '\n\n' + message);
+  var mailto = 'mailto:' + FORMSUBMIT_MAILTO + '?subject=' + subjectEnc + '&body=' + bodyEnc;
+  var erklaerung = schreibFehlerErklaerung(err);
+  var fnKopieren = (typeof schreibKopieren === 'function') ? 'schreibKopieren()' : 'schreibKopierenEinzeln(1)';
+  schreibStatusZeigen('error',
+    '<div class="schreib-fb">' +
+      '<div class="schreib-fb-titel">⚠ Sammel-Versand hat nicht geklappt — alle Antworten sind sicher im Browser gespeichert.</div>' +
+      '<div class="schreib-fb-text"><strong>Was passiert ist:</strong> ' + erklaerung + ' Wähle einen Weg:</div>' +
+      '<div class="schreib-fb-actions">' +
+        '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 Alle als eine Mail öffnen</a>' +
+        '<button type="button" class="schreib-fb-btn" onclick="' + fnKopieren + '">📋 Alles in Zwischenablage</button>' +
+        '<button type="button" class="schreib-fb-btn" onclick="schreibSendenAlleNochOffenen()">🔄 Nochmal versuchen</button>' +
+      '</div>' +
+      '<div class="schreib-fb-hilfe">Tipp: einzelne Karten kannst du auch separat senden — jede hat eigene Buttons.</div>' +
+    '</div>');
+}
+
+// Liefert eine menschenlesbare Erklärung zum Fehlerzustand.
+// Per-Karte: Text + Kontext in die Zwischenablage.
 function schreibSendenEinzeln(nr) {
   var ta = document.querySelector('.schreib-mini-textarea[data-aufgabe="' + nr + '"]');
   var btn = document.getElementById('sw-send-' + nr);
@@ -1041,30 +1082,7 @@ function schreibSendenEinzeln(nr) {
       localStorage.setItem(SCHREIB_SENT_PREFIX + nr, info);
       schreibKarteAlsGesendetMarkieren(nr, info, false);
     },
-    function (err) {
-      btn.disabled = false; btn.innerHTML = origLabel;
-      var st = document.getElementById('sw-status-' + nr);
-      if (!st) return;
-      // Mailto mit allem Notwendigen vorbereiten
-      var mailEmpfaenger = (FORMSUBMIT_ENDPOINT.split('/').pop()) || 'unterricht@fabdaf.onmicrosoft.com';
-      var subjectEnc = encodeURIComponent(subject);
-      var bodyEnc = encodeURIComponent('Name: ' + schreibAktuellerName() + '\n\n' + message);
-      var mailto = 'mailto:' + mailEmpfaenger + '?subject=' + subjectEnc + '&body=' + bodyEnc;
-      var erklaerung = schreibFehlerErklaerung(err);
-      st.classList.remove('success'); st.classList.add('error');
-      st.innerHTML =
-        '<div class="schreib-fb">' +
-          '<div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — dein Text ist sicher im Browser gespeichert.</div>' +
-          '<div class="schreib-fb-text"><strong>Was passiert ist:</strong> ' + erklaerung + ' Du verlierst nichts — wähle einen der drei Wege, damit Frank deine Antwort trotzdem bekommt:</div>' +
-          '<div class="schreib-fb-actions">' +
-            '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 In Mail-Programm öffnen</a>' +
-            '<button type="button" class="schreib-fb-btn" onclick="schreibKopierenEinzeln(\'' + nr + '\')">📋 In Zwischenablage</button>' +
-            '<button type="button" class="schreib-fb-btn" onclick="schreibSendenEinzeln(\'' + nr + '\')">🔄 Nochmal versuchen</button>' +
-          '</div>' +
-          '<div class="schreib-fb-hilfe">Wenn nichts klappt: sag Frank im Unterricht Bescheid — er muss den Versand auf seiner Seite einmal aktivieren.</div>' +
-        '</div>';
-    }
-  );
+    function (err) { btn.disabled = false; btn.innerHTML = origLabel; schreibZeigeFehler(nr, err, subject, message); });
 }
 
 function schreibSendenAlleNochOffenen() {
@@ -1105,27 +1123,7 @@ function schreibSendenAlleNochOffenen() {
       });
       schreibStatusZeigen('success', '✓ <strong>' + offene.length + ' Antworten übermittelt.</strong> Frank meldet sich.');
     },
-    function (err) {
-      btn.disabled = false;
-      btn.innerHTML = '📨 Alle noch nicht gesendeten Antworten schicken';
-      var mailEmpfaenger = (FORMSUBMIT_ENDPOINT.split('/').pop()) || 'unterricht@fabdaf.onmicrosoft.com';
-      var subjectEnc = encodeURIComponent(subject);
-      var bodyEnc = encodeURIComponent('Name: ' + schreibAktuellerName() + '\n\n' + message);
-      var mailto = 'mailto:' + mailEmpfaenger + '?subject=' + subjectEnc + '&body=' + bodyEnc;
-      var erklaerung = schreibFehlerErklaerung(err);
-      schreibStatusZeigen('error',
-        '<div class="schreib-fb">' +
-          '<div class="schreib-fb-titel">⚠ Sammel-Versand hat nicht geklappt — alle Antworten sind sicher im Browser gespeichert.</div>' +
-          '<div class="schreib-fb-text"><strong>Was passiert ist:</strong> ' + erklaerung + ' Wähle einen Weg:</div>' +
-          '<div class="schreib-fb-actions">' +
-            '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 Alle als eine Mail öffnen</a>' +
-            '<button type="button" class="schreib-fb-btn" onclick="schreibKopieren()">📋 Alles in Zwischenablage</button>' +
-            '<button type="button" class="schreib-fb-btn" onclick="schreibSendenAlleNochOffenen()">🔄 Nochmal versuchen</button>' +
-          '</div>' +
-          '<div class="schreib-fb-hilfe">Tipp: einzelne Karten kannst du auch separat senden — jede hat eigene Buttons.</div>' +
-        '</div>');
-    }
-  );
+    function (err) { btn.disabled = false; btn.innerHTML = '📨 Alle noch nicht gesendeten Antworten schicken'; schreibZeigeFehlerSammel(err, subject, message); });
 }
 
 function schreibKopieren() {
