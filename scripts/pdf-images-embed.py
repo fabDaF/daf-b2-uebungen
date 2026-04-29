@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Lingoda-Embed-Pipeline (2026-04-29):
+PDF-Bilder-Embed-Pipeline (2026-04-29):
 
 Pro DaF-HTML-Lektion:
-1. Lingoda-PDF zur Lektion finden (basierend auf Lektionscode wie 0102R)
+1. Quell-PDF zur Lektion finden (basierend auf Lektionscode wie 0102R)
 2. Themenspezifische Bilder aus dem PDF extrahieren (Standardbilder rausgefiltert per Hash)
 3. Auf 800×300-Banner zuschneiden (JPEG @ 85, gravity=center)
-4. Tab-Banner in HTML 1:1 ersetzen (Lingoda-Bild i → Tab i)
-5. Falls Lingoda nicht ausreicht → bestehende Pexels-URL als Base64 einbetten (Fallback)
+4. Tab-Banner in HTML 1:1 ersetzen (Quell-Bild i → Tab i)
+5. Falls Quelle nicht ausreicht → bestehende Pexels-URL als Base64 einbetten (Fallback)
 
-Reihenfolge der Lingoda-Bilder folgt der PDF-Reihenfolge (Lingoda-Layout: erstes Bild = Hero).
+Reihenfolge der Quell-Bilder folgt der PDF-Reihenfolge (Quell-Layout: erstes Bild = Hero).
 
 Aufruf:
-    python3 scripts/lingoda-embed.py --niveau C2 --code 0102R [--dry-run]
+    python3 scripts/pdf-images-embed.py --niveau C2 --code 0102R [--dry-run]
 """
 import argparse
 import base64
@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LINGODA_BILDER = ROOT / ".lingoda-bilder"
+BILDER_CACHE = ROOT / ".bilder-cache"
 
 # Niveau → (HTML-Pfad, PDF-Verzeichnisse[Liste], Datei-Präfix)
 NIVEAU_CONFIG = {
@@ -33,7 +33,7 @@ NIVEAU_CONFIG = {
         "pdf_dirs": [ROOT / "C 2"],
         "html_prefix": "DE_C2_",
         "pdf_prefix": "GER_C2.",
-        "pool_json": LINGODA_BILDER / "c2_pool.json",
+        "pool_json": BILDER_CACHE / "c2_pool.json",
     },
     "B1": {
         "html_dir": ROOT / "htmlS" / "B1.1",
@@ -44,7 +44,7 @@ NIVEAU_CONFIG = {
         ],
         "html_prefix": "DE_B1_",
         "pdf_prefix": "B1_",
-        "pool_json": LINGODA_BILDER / "b1_pool.json",
+        "pool_json": BILDER_CACHE / "b1_pool.json",
     },
     "B2": {
         "html_dir": ROOT,  # B2-Files liegen am Repo-Root
@@ -55,20 +55,20 @@ NIVEAU_CONFIG = {
         ],
         "html_prefix": "DE_B2_",
         "pdf_prefix": "B2_",
-        "pool_json": LINGODA_BILDER / "b2_pool.json",
+        "pool_json": BILDER_CACHE / "b2_pool.json",
     },
     "C1": {
         "html_dir": ROOT / "htmlS" / "C1",
         "pdf_dirs": [
-            ROOT / "lingoda c1" / "C 1",
-            ROOT / "lingoda c1" / "C 1.1",
-            ROOT / "lingoda c1" / "C 1.2",
-            ROOT / "lingoda c1" / "C 1.3",
-            ROOT / "lingoda c1" / "C 1.4",
+            ROOT / "quelltexte-c1" / "C 1",
+            ROOT / "quelltexte-c1" / "C 1.1",
+            ROOT / "quelltexte-c1" / "C 1.2",
+            ROOT / "quelltexte-c1" / "C 1.3",
+            ROOT / "quelltexte-c1" / "C 1.4",
         ],
         "html_prefix": "DE_C1_",
         "pdf_prefix": "C1_",
-        "pool_json": LINGODA_BILDER / "c1_pool.json",
+        "pool_json": BILDER_CACHE / "c1_pool.json",
     },
 }
 
@@ -94,7 +94,7 @@ def build_pool(niveau: str) -> dict:
             return json.load(f)
 
     pdf_dirs = config["pdf_dirs"]
-    base_dir = LINGODA_BILDER / f"{niveau.lower()}_all"
+    base_dir = BILDER_CACHE / f"{niveau.lower()}_all"
     base_dir.mkdir(parents=True, exist_ok=True)
 
     # Alle Bilder pro PDF extrahieren (alle Quellverzeichnisse)
@@ -177,7 +177,7 @@ def find_html_file(niveau: str, code: str) -> Path:
 def find_pdf_dir_for_code(niveau: str, code: str, pool: dict) -> str | None:
     """Mappt Code wie '0102R' auf einen PDF-Stem im Pool.
     Erst exakter Match (0102R → GER_C2.0102R-...). Falls nicht: nur Ziffern matchen,
-    weil Frank R/S manchmal anders klassifiziert als Lingoda (z.B. 0503R-jagd ↔ 0503S-Hunting)."""
+    weil Frank R/S manchmal anders klassifiziert als das Quellmaterial (z.B. 0503R-jagd ↔ 0503S-Hunting)."""
     config = NIVEAU_CONFIG[niveau]
     prefix_exact = config["pdf_prefix"] + code
     # 1. Versuch: exakter Match
@@ -196,11 +196,11 @@ def find_pdf_dir_for_code(niveau: str, code: str, pool: dict) -> str | None:
 
 def patch_html(
     html_path: Path,
-    lingoda_images: list[dict],
+    quell_images: list[dict],
     work_dir: Path,
     dry_run: bool,
 ) -> tuple[int, int]:
-    """Tab-Banner in HTML ersetzen. Returns (lingoda_count, pexels_kept_count)."""
+    """Tab-Banner in HTML ersetzen. Returns (quell_count, pexels_kept_count)."""
     text = html_path.read_text(encoding="utf-8")
     # Pattern: <img class="tab-banner" src="..." alt="...">
     banner_re = re.compile(
@@ -213,18 +213,18 @@ def patch_html(
 
     work_dir.mkdir(parents=True, exist_ok=True)
     new_srcs = []
-    lingoda_used = 0
+    quell_used = 0
     pexels_kept = 0
 
     for i, (src, alt) in enumerate(banners):
-        if i < len(lingoda_images):
-            # Lingoda-Bild verwenden
-            src_jpg = lingoda_images[i]["file"]
+        if i < len(quell_images):
+            # Quell-Bild verwenden
+            src_jpg = quell_images[i]["file"]
             cropped = work_dir / f"banner_{i:02d}.jpg"
             crop_to_banner(src_jpg, cropped)
             data_url = jpeg_to_data_url(cropped)
             new_srcs.append(data_url)
-            lingoda_used += 1
+            quell_used += 1
         else:
             # Pexels-URL bleibt (kein Embedding hier — separater Schritt)
             new_srcs.append(src)
@@ -247,21 +247,21 @@ def patch_html(
     if not dry_run:
         html_path.write_text(new_text, encoding="utf-8")
 
-    return lingoda_used, pexels_kept
+    return quell_used, pexels_kept
 
 
 def process_lesson(niveau: str, code: str, dry_run: bool = False) -> None:
     pool = build_pool(niveau)
     pdf_stem = find_pdf_dir_for_code(niveau, code, pool)
     if not pdf_stem:
-        print(f"  ✗ {code}: kein Lingoda-PDF gefunden — übersprungen")
+        print(f"  ✗ {code}: kein Quell-PDF gefunden — übersprungen")
         return
-    lingoda_images = pool[pdf_stem]
+    quell_images = pool[pdf_stem]
     html_path = find_html_file(niveau, code)
-    work_dir = LINGODA_BILDER / f"work_{niveau.lower()}_{code}"
-    used, kept = patch_html(html_path, lingoda_images, work_dir, dry_run)
+    work_dir = BILDER_CACHE / f"work_{niveau.lower()}_{code}"
+    used, kept = patch_html(html_path, quell_images, work_dir, dry_run)
     suffix = " (dry-run)" if dry_run else ""
-    print(f"  ✓ {code:6s}  {html_path.name}  →  Lingoda={used}  Pexels-bleibt={kept}{suffix}")
+    print(f"  ✓ {code:6s}  {html_path.name}  →  Quelle={used}  Pexels-bleibt={kept}{suffix}")
 
 
 def main() -> int:

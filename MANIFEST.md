@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 12:00. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 18:23. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)
 

@@ -2,13 +2,13 @@
 
 Stand: 2026-04-26 · Verfasst von Claude für Claude (nächster Chat)
 
-Du übernimmst ein laufendes Projekt: 75 C2-Lektionen für Frank, basierend auf Lingoda-PDFs in `htmlS/C2/`. **27 von 75** sind fertig. Du machst nahtlos weiter bei **0407S**, ohne Frank zu fragen, was zu tun ist — er hat alles delegiert und erwartet, dass du autonom durchziehst.
+Du übernimmst ein laufendes Projekt: 75 C2-Lektionen für Frank, basierend auf Quell-PDFs in `htmlS/C2/`. **27 von 75** sind fertig. Du machst nahtlos weiter bei **0407S**, ohne Frank zu fragen, was zu tun ist — er hat alles delegiert und erwartet, dass du autonom durchziehst.
 
 Lies diese Datei vollständig, bevor du irgendetwas tust. Sie ist dein einziger Kontext.
 
 ## Was Frank will (Kern in einem Satz)
 
-Hochwertige, **interaktive HTML-Lektionen auf C2-Niveau** mit voll umfänglichem essayistischem Schreibstil (Hypotaxen, Nominalstil, Fachvokabular), inhaltlich **auf Stand 2025/26 aktualisiert**, weil die Lingoda-Vorlagen teils 10 Jahre alt sind. Pro Lektion 8 Tabs nach festem Schema, Schreibwerkstatt mit 5 Mikroaufgaben + Per-Card-Send-Buttons an `frankburkert@gmx.net`.
+Hochwertige, **interaktive HTML-Lektionen auf C2-Niveau** mit voll umfänglichem essayistischem Schreibstil (Hypotaxen, Nominalstil, Fachvokabular), inhaltlich **auf Stand 2025/26 aktualisiert**, weil die Quell-Vorlagen teils 10 Jahre alt sind. Pro Lektion 8 Tabs nach festem Schema, Schreibwerkstatt mit 5 Mikroaufgaben + Per-Card-Send-Buttons an `frankburkert@gmx.net`.
 
 ## Wo du dich befindest
 
@@ -45,7 +45,7 @@ Reihenfolge: erst Kapitel 4 fertig, dann 5, 6, 7 (ohne 0708R), 8, 9, 10.
 | 9 | 0901S, 0902R, 0903S, 0904R, 0905S, 0906R, 0907S, 0908R | Wissenschaft / Forschung |
 | 10 | 1001S, 1002R, 1003S, 1004R, 1005S, 1006R, 1007S | Abschluss |
 
-Themen pro Lektion stehen im jeweiligen Lingoda-PDF unter `htmlS/C2/`. R = Lesen, S = Sprechen — beide werden hier zu Lese-Lektionen mit allen 8 Tabs umgewandelt. Die Lingoda-Themen sind nur Inspirationsrahmen; aktualisiere Inhalte auf 2025/26.
+Themen pro Lektion stehen im jeweiligen Quell-PDF unter `htmlS/C2/`. R = Lesen, S = Sprechen — beide werden hier zu Lese-Lektionen mit allen 8 Tabs umgewandelt. Die Quell-Themen sind nur Inspirationsrahmen; aktualisiere Inhalte auf 2025/26.
 
 ## Pipeline-Architektur
 
@@ -112,7 +112,7 @@ Verwende ausschließlich **bereits in C1/C2-Lektionen verifizierte IDs** aus dem
 
 ## Inhaltliche Aktualisierung (2025/26)
 
-Lingoda-Vorlagen sind teils veraltet. Aktualisiere mit Stand 2025/26. Bereits in fertigen Lektionen verwendete und damit konsistent zu haltende Fakten:
+Quell-Vorlagen sind teils veraltet. Aktualisiere mit Stand 2025/26. Bereits in fertigen Lektionen verwendete und damit konsistent zu haltende Fakten:
 
 - ChatGPT-Effekt seit Ende 2022
 - Cambridge Analytica 2018 als Referenz für Datenmissbrauch
@@ -180,7 +180,7 @@ Header zentrieren (text-align:center im `.header`) — häufigster Audit-Fehler.
 - Keine Subagenten / Task-Tool für DaF-Dateien — alles selbst, Qualität vor Geschwindigkeit. Memory: `feedback_keine-subagenten.md`
 - Keine parallelen Arbeitskopien (kein "0407S_v2", kein "Entwurf")
 - Keine Schreibaufgabe "schreibe einen Aufsatz von 300 Wörtern" — nur Mikroaufgaben
-- Keine veralteten Kulturreferenzen (Lingoda-Texte oft 2014–2017)
+- Keine veralteten Kulturreferenzen (Quell-Texte oft 2014–2017)
 - Keine ASCII-Anführungszeichen `"` in deutschen Texten
 - Kein Write-Tool auf `.git/*`
 - Keine Bullet-Listen in deinen Chat-Antworten an Frank
@@ -190,7 +190,7 @@ Header zentrieren (text-align:center im `.header`) — häufigster Audit-Fehler.
 1. `ls /sessions/.../mnt/fabDaF/htmlS/C2/DE_C2_*.html` — bestätige den IST-Stand
 2. `cat /sessions/.../mnt/outputs/c2_gen.py` — vergewissere dich, dass die Pipeline noch läuft
 3. `cat /sessions/.../mnt/outputs/spec_0406R.py` — Vorlage für die Spec-Struktur
-4. PDF zur nächsten Lektion in `htmlS/C2/` finden (Lingoda-Datei zu 0407S)
+4. PDF zur nächsten Lektion in `htmlS/C2/` finden (Quell-Datei zu 0407S)
 5. Spec schreiben, generieren, committen — wie oben beschrieben
 6. Weitermachen, ohne zu fragen
 
