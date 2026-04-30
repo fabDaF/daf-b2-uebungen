@@ -587,7 +587,7 @@
     <div class="modal-optionen">
       <button class="btn-send-option" id="btnMail" onclick="sendeMail()">
         <span class="ico">✉️</span>
-        <span class="lbl">Per E-Mail senden<br><span class="sub">Öffnet Outlook Web — Empfänger aus Adressbuch wählen</span></span>
+        <span class="lbl">Per E-Mail senden<br><span class="sub">Öffnet deinen Standard-Mail-Client mit Betreff und Body vorausgefüllt</span></span>
       </button>
       <a class="btn-send-option" id="btnWA" href="#" target="_blank" rel="noopener">
         <span class="ico">💬</span>
@@ -2049,7 +2049,16 @@ function aktualisiereWAEinheit() {
   document.getElementById('btnWA').href = 'https://wa.me/?text=' + encodeURIComponent(text);
 }
 
-// E-Mail via Outlook Web Compose-Link — richtiges Konto, Adressbuch verfügbar
+// E-Mail via mailto: — öffnet den OS-Default-Mail-Client.
+// Microsoft hat alle Outlook-Web-Compose-URL-Parameter deaktiviert
+// (sowohl /mail/deeplink/compose?subject=... als auch
+// /?path=/mail/action/compose öffnen nur noch eine leere Inbox),
+// daher ist mailto: der einzige zuverlässige Weg.
+//
+// Frank kann den Default-Handler frei wählen:
+//   • macOS Mail → Einstellungen → Allgemein → Standard-E-Mail-Programm
+//   • Edge/Chrome als Outlook-Web-Handler registrieren (Adressleiste,
+//     Schloss-Symbol → Site Settings → mailto erlauben)
 function sendeMail() {
   const betreff = 'fabDaF – ' + _titel;
 
@@ -2061,22 +2070,11 @@ function sendeMail() {
     'Viel Erfolg!\n\n' +
     '— Frank Burkert · fabDaF';
 
-  // Microsoft hat /mail/deeplink/compose seit ~2024 deprecated und
-  // den ?from=-Parameter entfernt. Aktueller, dokumentierter Endpoint:
-  //   /?path=/mail/action/compose
-  // Outlook Web nimmt automatisch das aktive Konto im Browser-Tab.
-  const params = 'path=' + encodeURIComponent('/mail/action/compose') +
-    '&subject=' + encodeURIComponent(betreff) +
+  const mailtoUrl = 'mailto:?subject=' +
+    encodeURIComponent(betreff) +
     '&body=' + encodeURIComponent(body);
-  const outlookUrl = 'https://outlook.office.com/?' + params;
 
-  const win = window.open(outlookUrl, '_blank');
-  // Fallback: wenn der Popup-Blocker zuschlägt oder Outlook nicht
-  // erreichbar ist, fängt mailto: den Versand mit dem Default-Mail-Client.
-  if (!win) {
-    window.location.href = 'mailto:?subject=' +
-      encodeURIComponent(betreff) + '&body=' + encodeURIComponent(body);
-  }
+  window.location.href = mailtoUrl;
   schliesseModal();
 }
 
