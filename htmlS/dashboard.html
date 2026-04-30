@@ -2061,14 +2061,22 @@ function sendeMail() {
     'Viel Erfolg!\n\n' +
     '— Frank Burkert · fabDaF';
 
-  // Microsoft hat den ?from=-Parameter aus dem Compose-Deeplink entfernt;
-  // wenn er gesetzt ist, öffnet Outlook ein leeres Compose-Fenster.
-  // Daher nur subject+body übergeben — Outlook nimmt das aktive Konto.
-  const outlookUrl = 'https://outlook.office.com/mail/deeplink/compose' +
-    '?subject=' + encodeURIComponent(betreff) +
+  // Microsoft hat /mail/deeplink/compose seit ~2024 deprecated und
+  // den ?from=-Parameter entfernt. Aktueller, dokumentierter Endpoint:
+  //   /?path=/mail/action/compose
+  // Outlook Web nimmt automatisch das aktive Konto im Browser-Tab.
+  const params = 'path=' + encodeURIComponent('/mail/action/compose') +
+    '&subject=' + encodeURIComponent(betreff) +
     '&body=' + encodeURIComponent(body);
+  const outlookUrl = 'https://outlook.office.com/?' + params;
 
-  window.open(outlookUrl, '_blank');
+  const win = window.open(outlookUrl, '_blank');
+  // Fallback: wenn der Popup-Blocker zuschlägt oder Outlook nicht
+  // erreichbar ist, fängt mailto: den Versand mit dem Default-Mail-Client.
+  if (!win) {
+    window.location.href = 'mailto:?subject=' +
+      encodeURIComponent(betreff) + '&body=' + encodeURIComponent(body);
+  }
   schliesseModal();
 }
 
