@@ -184,6 +184,13 @@ input.blank.no, .luecken-inp.no { border-bottom-color: #e74c3c; background: #fde
   .schreib-name-box { padding: 12px 14px; }
 }
 /* /Schreibwerkstatt-Innenraum-Fix */
+
+/* Wortkasten */
+.wort-bank { display:flex; flex-wrap:wrap; gap:8px; background:#f0f2ff; border:1px solid #c5cae9; border-radius:10px; padding:12px 14px; margin-bottom:18px; }
+.wort-bank-label { width:100%; font-size:0.78em; font-weight:700; color:#667eea; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; }
+.wort-chip { padding:5px 14px; border-radius:20px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; font-size:0.87em; font-weight:600; cursor:pointer; border:none; transition:opacity 0.2s,transform 0.12s; user-select:none; }
+.wort-chip:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 10px rgba(102,126,234,0.35); }
+.wort-chip.used { opacity:0.22; cursor:default; pointer-events:none; }
 </style>
 </head>
 <body>
@@ -325,9 +332,6 @@ input.blank.no, .luecken-inp.no { border-bottom-color: #e74c3c; background: #fde
       </div>
     </div>
 
-    <div class="wordbox">
-      <strong>Wortkasten:</strong> Psychiaterin · Gehirn · Glukose · Insulinresistenz · Vollkorn · Fachwelt · Cholesterin · Blutzucker · Schlaf · Energieverbraucher · ketogene · Nervenzellen
-    </div>
 
     <div id="luecken-container"></div>
   </div>
@@ -1187,6 +1191,71 @@ function schreibLeeren() {
 }
 /* ===== Ende Schreibwerkstatt =================================== */
 
+
+
+// ── WORTKASTEN ──────────────────────────────────────────────────────────────
+var lkContainer = null, lkActiveInput = null;
+function buildWordBank(containerEl) {
+    if (!containerEl) return;
+    lkContainer = containerEl;
+    var inputs = Array.from(containerEl.querySelectorAll(
+        'input[data-answer], input[data-ans], input.blank, input.l-inp, input.luecken-inp'));
+    var seen = {}, words = [];
+    inputs.forEach(function(inp) {
+        var w = inp.dataset.answer || inp.dataset.ans || inp.dataset.sol || '';
+        if (w && !seen[w.toLowerCase()]) { seen[w.toLowerCase()] = true; words.push(w); }
+    });
+    if (!words.length) return;
+    for (var i = words.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = words[i]; words[i] = words[j]; words[j] = t;
+    }
+    var bank = document.createElement('div');
+    bank.className = 'wort-bank';
+    var lbl = document.createElement('div');
+    lbl.className = 'wort-bank-label';
+    lbl.textContent = '📦 Wortkasten – klicke ein Wort, dann das Feld';
+    bank.appendChild(lbl);
+    words.forEach(function(w) {
+        var btn = document.createElement('button');
+        btn.className = 'wort-chip'; btn.textContent = w; btn.dataset.word = w;
+        btn.addEventListener('click', function(){ insertWordFromBank(w); });
+        bank.appendChild(btn);
+    });
+    containerEl.insertBefore(bank, containerEl.firstChild);
+    containerEl.addEventListener('focusin', function(e) {
+        if (e.target.matches('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer]'))
+            lkActiveInput = e.target;
+    });
+    containerEl.addEventListener('input', function(e) {
+        if (e.target.matches('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer]'))
+            syncWordBankChips();
+    });
+}
+function syncWordBankChips() {
+    if (!lkContainer) return;
+    var bank = lkContainer.querySelector('.wort-bank');
+    if (!bank) return;
+    bank.querySelectorAll('.wort-chip').forEach(function(c){ c.classList.remove('used'); });
+    lkContainer.querySelectorAll('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer]').forEach(function(inp) {
+        var w = inp.value.trim();
+        if (w) { var c = bank.querySelector('.wort-chip[data-word="'+w+'"]'); if(c) c.classList.add('used'); }
+    });
+}
+function insertWordFromBank(w) {
+    if (!lkContainer) return;
+    var all = Array.from(lkContainer.querySelectorAll('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer]'));
+    var ok = function(i){ return !i.classList.contains('correct')&&!i.classList.contains('ok'); };
+    var t = (lkActiveInput && lkContainer.contains(lkActiveInput) && ok(lkActiveInput)) ? lkActiveInput
+          : (all.find(function(i){ return !i.value && ok(i); }) || all.find(ok));
+    if (!t) return;
+    t.value = w;
+    t.dispatchEvent(new Event('input',{bubbles:true}));
+    t.focus(); lkActiveInput = t;
+}
+// ────────────────────────────────────────────────────────────────────────────
+
+buildWordBank(document.getElementById('luecken-container'));
 </script>
 </body>
 </html>
