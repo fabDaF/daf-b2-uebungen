@@ -333,6 +333,7 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; }
       </div>
     </div>
     <div class="hilfe-box">Ergänze die Lücken mit passenden Begriffen aus dem Text. Feedback erscheint sofort.</div>
+    <div id="lt-wortkasten"></div>
     <div id="lueckenContainer"></div>
   </div>
 </div>
@@ -515,6 +516,12 @@ function showSection(n){
   [2,3,4,5].forEach(function(i){ stopTimer(i); });
 }
 
+
+/* ── WORTKASTEN ──────────────────────────────────────────── */
+.lt-wortkasten-box { background:#f0f4ff; border:1px solid #c5cff5; border-radius:10px; padding:12px 16px; margin-bottom:18px; }
+.lt-wortkasten-label { font-size:.82rem; color:#555; font-weight:600; margin-bottom:8px; }
+.lt-wort-chip { display:inline-block; background:#fff; border:1.5px solid #667eea; border-radius:20px; padding:4px 14px; margin:4px 5px 4px 0; font-size:.9rem; cursor:default; transition:opacity .3s, text-decoration .3s; }
+.lt-wort-chip.used { opacity:.35; text-decoration:line-through; }
 /* ── LÜCKENTEXT ──────────────────────────────────────────── */
 var lueckenData = [
   { pre: 'Mythen waren über Jahrtausende hinweg das wichtigste ',    ans: 'Werkzeug',     post: ', mit dem sich der Mensch die Welt erklärte.' },
@@ -531,7 +538,12 @@ function liveCheck(inp){
   var ans = inp.dataset.answer;
   var v = inp.value.trim();
   if(!v){ inp.classList.remove('ok','no'); return; }
-  if(v.toLowerCase() === ans.toLowerCase()){ inp.classList.remove('no'); inp.classList.add('ok'); return; }
+  if(v.toLowerCase() === ans.toLowerCase()){ inp.classList.remove('no'); inp.classList.add('ok');
+    // Chip in Wortbank als "used" markieren
+    document.querySelectorAll('#lt-wortkasten .lt-wort-chip').forEach(function(chip){
+      if (chip.dataset.phrase === ans.toLowerCase()) chip.classList.add('used');
+    });
+    return; }
   if(ans.toLowerCase().indexOf(v.toLowerCase()) === 0){ inp.classList.remove('ok','no'); return; }
   inp.classList.remove('ok'); inp.classList.add('no');
 }
@@ -539,6 +551,19 @@ function liveCheck(inp){
 function buildLuecken(){
   var c = document.getElementById('lueckenContainer');
   c.innerHTML = '';
+  // Wortkasten befüllen
+  var wk = document.getElementById('lt-wortkasten');
+  if (wk) {
+    var antworten = lueckenData.map(function(d){ return d.ans; });
+    for (var i = antworten.length-1; i>0; i--) {
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp = antworten[i]; antworten[i] = antworten[j]; antworten[j] = tmp;
+    }
+    wk.innerHTML = '<div class="lt-wortkasten-box"><div class="lt-wortkasten-label">📦 Wortbank — alle Antworten:</div>' +
+      antworten.map(function(a){ return '<span class="lt-wort-chip" data-phrase="'+a.toLowerCase()+'">'+a+'</span>'; }).join('') +
+      '</div>';
+  }
+
   lueckenData.forEach(function(d){
     var div = document.createElement('div');
     div.className = 'luecken-item';
@@ -568,6 +593,7 @@ function resetLuecke(){
   document.querySelectorAll('#lueckenContainer .luecken-inp').forEach(function(inp){
     inp.value = ''; inp.classList.remove('ok','no');
   });
+  document.querySelectorAll('#lt-wortkasten .lt-wort-chip').forEach(function(c){ c.classList.remove('used'); });
 }
 
 /* ── MULTIPLE CHOICE ─────────────────────────────────────── */
