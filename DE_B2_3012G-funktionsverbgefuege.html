@@ -66,6 +66,11 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .chip.incorrect { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; border-color: #e74c3c; }
 
 /* Lückentext */
+/* Wortkasten */
+.lt-wortkasten-box { background: #f0f4ff; border: 1.5px dashed #667eea; border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; }
+.lt-wortkasten-label { font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.07em; color: #667eea; font-weight: 700; margin-bottom: 10px; }
+.lt-wort-chip { display: inline-block; background: white; border: 1.5px solid #667eea; border-radius: 6px; padding: 4px 12px; margin: 3px 4px; font-size: 0.88em; color: #333; cursor: default; }
+.lt-wort-chip.used { opacity: 0.35; text-decoration: line-through; }
 .luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 12px; font-size: 0.97em; line-height: 1.9; }
 input.blank { border: none; border-bottom: 2px solid #667eea; background: transparent; padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none; transition: all 0.2s; min-width: 4ch; }
 input.blank:focus { border-bottom-color: #764ba2; }
@@ -209,6 +214,7 @@ input.blank.no { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c
     </div>
   </div>
   <div class="hilfe-box">Tippe das vollständige Funktionsverbgefüge inklusive Objekt und Zeitangabe. Beispiel: <i>„kommt nur sie in Frage“</i>.</div>
+  <div id="lt-wortkasten"></div>
   <div id="lt-body"></div>
 </div>
 
@@ -425,6 +431,20 @@ function zuoShow() {
 /* ============ Lückentext ============ */
 var LUECKE = [{"pre": "Für diesen Posten ", "ans": "kommt nur sie in Frage", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Die Hochschule ", "ans": "stellt den Studierenden Lernmaterial zur Verfügung", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Die Rede des Präsidenten ", "ans": "bringt die Sorgen des Landes zum Ausdruck", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Das neue Datenschutzgesetz ", "ans": "tritt im Juni in Kraft", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Der Antrag ", "ans": "kam heute nicht zur Entscheidung", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Auch ein Kompromiss ", "ans": "kommt in Betracht", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Beim Aufräumen ", "ans": "kamen alte Briefe zum Vorschein", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Am Bahnhof ", "ans": "nahmen sie Abschied", "hint": "Verb+Nomen", "post": "."}, {"pre": "Nach langen Gesprächen ", "ans": "fanden wir eine Lösung", "hint": "Verb+Nomen", "post": "."}, {"pre": "Der Vorschlag ", "ans": "stieß auf Ablehnung", "hint": "Verb+Präp+Nomen", "post": "."}];
 function ltBuild() {
+  // Wortkasten: Antworten gemischt anzeigen
+  var wk = document.getElementById('lt-wortkasten');
+  if (wk) {
+    var antworten = LUECKE.map(function(s) { return s.ans; });
+    // Fisher-Yates Shuffle
+    for (var i = antworten.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = antworten[i]; antworten[i] = antworten[j]; antworten[j] = tmp;
+    }
+    wk.innerHTML = '<div class="lt-wortkasten-box"><div class="lt-wortkasten-label">📦 Wortkasten — alle Phrasen:</div>' +
+      antworten.map(function(a) {
+        return '<span class="lt-wort-chip" data-phrase="'+a.replace(/"/g,'&quot;')+'">'+a+'</span>';
+      }).join('') + '</div>';
+  }
   var body = document.getElementById('lt-body');
   body.innerHTML = LUECKE.map(function(s, i) {
     var maxLen = Math.max(s.ans.length, (s.hint||'').length);
@@ -451,7 +471,11 @@ function ltCheck(i) {
   if (ans.startsWith(v)) { timerAutoStart(3); return; }
   inp.classList.add('no');
 }
-function ltReset() { LUECKE.forEach(function(_, i) { var inp = document.getElementById('lt'+i); inp.value=''; inp.classList.remove('ok','no'); }); }
+function ltReset() { LUECKE.forEach(function(_, i) { var inp = document.getElementById('lt'+i); inp.value=''; inp.classList.remove('ok','no'); }); ltBuildWortkasten(); }
+function ltBuildWortkasten() {
+  // Wortkasten-Chips wieder aktivieren
+  document.querySelectorAll('.lt-wort-chip').forEach(function(c) { c.classList.remove('used'); });
+}
 function ltShow() { LUECKE.forEach(function(s, i) { var inp = document.getElementById('lt'+i); inp.value = s.ans; inp.classList.remove('no'); inp.classList.add('ok'); }); }
 
 /* ============ Satzbau ============ */
