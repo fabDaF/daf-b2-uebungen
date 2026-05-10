@@ -668,4 +668,31 @@ CONFIGS = {
              'beispiel': '— Wie komme ich zum Bahnhof? — Geh durch die Fußgängerzone bis zur Kirche. — Und dann? — Dann links entlang der Straße. Nach 200 Metern bist du da.'},
         ]
     },
+
+    # =====================================================================
+    # G-Dateien (Grammatiklektionen) — Aufgaben erzwingen die gelernte Struktur
+    # =====================================================================
+    '1063G': {
+        'lesson_code': '1063G',
+        'lesson_title': 'Futur I mit werden',
+        'banner_url': BANNER[0], 'banner_alt': BANNER[1],
+        'intro': 'Fünf kurze Schreibaufgaben — alle im Futur I. Nutze <em>werden</em> + Infinitiv in jedem Satz.',
+        'tasks': [
+            {'titel': 'Meine Pläne für nächste Woche',
+             'frage': 'Schreib zwei Sätze über deine Pläne für nächste Woche im Futur I. Nutze „werde / wirst / wird …".',
+             'beispiel': '„Nächste Woche werde ich viel Deutsch lernen. Ich werde auch früh aufstehen."'},
+            {'titel': 'Ein Versprechen an dich selbst',
+             'frage': 'Mach dir selbst ein Versprechen im Futur I. Schreib 1–2 Sätze.',
+             'beispiel': '„Ich werde jeden Tag 20 Minuten Deutsch üben. Ich werde das Handy beim Lernen weglegen."'},
+            {'titel': 'Eine Prognose',
+             'frage': 'Was wird heute oder morgen passieren? Schreib zwei Sätze im Futur I — z.B. über das Wetter, dein Abendprogramm oder die Arbeit.',
+             'beispiel': '„Heute Abend wird es regnen. Ich werde deshalb zu Hause bleiben und kochen."'},
+            {'titel': 'Zwei Fragen im Futur I',
+             'frage': 'Schreib zwei Fragen im Futur I an eine Person deiner Wahl — z.B. an eine Freundin, einen Kollegen oder eine Figur aus der Lektion.',
+             'beispiel': '„Was wirst du nach dem Unterricht machen? Wirst du morgen früh aufstehen?"'},
+            {'titel': 'Mini-Dialog: Zukunftspläne',
+             'frage': 'Schreib einen kurzen Dialog mit 2 Fragen und 2 Antworten über Pläne. Nutze das Futur I.',
+             'beispiel': '„— Was wirst du am Wochenende machen? — Ich werde meine Familie besuchen. — Wirst du mit dem Zug fahren? — Nein, ich werde fliegen."'},
+        ]
+    },
 }
