@@ -405,6 +405,20 @@
     .search-highlight {
       background: #fff176; border-radius: 3px; padding: 0 1px;
     }
+    .karte-snippet {
+      display: none;
+      font-size: 0.76em;
+      color: #555;
+      line-height: 1.55;
+      margin-top: 6px;
+      padding: 5px 9px;
+      background: #fffde7;
+      border-left: 3px solid #ffd54f;
+      border-radius: 0 4px 4px 0;
+      font-style: italic;
+      word-break: break-word;
+    }
+    .karte-snippet mark { background: #fff176; padding: 0 2px; border-radius: 2px; font-style: normal; font-weight: 600; }
 
     /* ── AUSWAHL-MODUS ── */
     .karte-cb {
@@ -1920,6 +1934,18 @@ const KURSE = [
 
 const TYP_CSS = { V:'tv', G:'tg', X:'tx', C:'tc', R:'tr', W:'tw', S:'ts', D:'td', P:'tp' };
 
+// ── VOLLTEXT-INDEX ──────────────────────────────────────────
+// Wird asynchron aus search-index.json geladen.
+// Schlüssel = Dateiname (Basename), Wert = extrahierter Text.
+let VOLLTEXT = {};
+(function () {
+  const base = window.location.href.replace(/\/[^/]*$/, '/');
+  fetch(base + 'search-index.json')
+    .then(function (r) { return r.ok ? r.json() : {}; })
+    .then(function (d) { VOLLTEXT = d; })
+    .catch(function () { /* offline – Volltextsuche deaktiviert */ });
+})();
+
 // Basis-URL für Kurse ohne eigene Hosting-URL: aktuelle Seite als Basis nehmen
 const LOCAL_BASE = window.location.href.replace(/\/[^/]*$/, '/');
 
@@ -2022,6 +2048,7 @@ function render() {
             <span class="karte-typ ${TYP_CSS[k.typ]||'tv'}">${k.label}</span>
             <span class="karte-titel">${k.titel}</span>
             ${k.badge ? `<div class="test-badge ${k.badge==='bestanden'?'bestanden':'fehler'}">${k.badge==='bestanden'?'✅ Geprüft':'❌ Fehler'} <span class="badge-detail">· ${k.badgeInfo||''}</span></div>` : ''}
+            <div class="karte-snippet"></div>
             <div class="karte-aktionen">
               <a class="btn-oeffnen" href="${url}" target="_blank">Öffnen</a>
               <button class="btn-mail" onclick="oeffneModal('${tEsc}','${uEsc}')">✉</button>
@@ -2193,6 +2220,19 @@ function hl(text, q) {
   return text.replace(re, '<mark class="search-highlight">$1</mark>');
 }
 
+function getSnippet(text, q) {
+  if (!text || !q) return '';
+  const lower = text.toLowerCase();
+  const pos   = lower.indexOf(q.toLowerCase());
+  if (pos === -1) return '';
+  const start   = Math.max(0, pos - 55);
+  const end     = Math.min(text.length, pos + q.length + 90);
+  let snippet   = text.slice(start, end).replace(/\s+/g, ' ').trim();
+  if (start > 0)          snippet = '…' + snippet;
+  if (end < text.length)  snippet = snippet + '…';
+  return snippet;
+}
+
 document.getElementById('searchInput').addEventListener('input', function () {
   const q = this.value.trim().toLowerCase();
   let anyVisible = false;
@@ -2204,26 +2244,51 @@ document.getElementById('searchInput').addEventListener('input', function () {
       let einHit = false;
 
       ein.querySelectorAll('.karte').forEach(function (karte) {
-        const titelEl = karte.querySelector('.karte-titel');
-        const typEl   = karte.querySelector('.karte-typ');
+        const titelEl   = karte.querySelector('.karte-titel');
+        const typEl     = karte.querySelector('.karte-typ');
+        const snippetEl = karte.querySelector('.karte-snippet');
         if (!titelEl) return;
 
         const rawTitel = titelEl.getAttribute('data-raw') || titelEl.textContent;
         const rawTyp   = typEl ? (typEl.getAttribute('data-raw') || typEl.textContent) : '';
-        // data-raw sichern (einmalig)
         if (!titelEl.getAttribute('data-raw')) titelEl.setAttribute('data-raw', rawTitel);
         if (typEl && !typEl.getAttribute('data-raw')) typEl.setAttribute('data-raw', rawTyp);
 
-        const rawFile = karte.getAttribute('data-file') || '';
-        const rawTags = karte.getAttribute('data-tags') || '';
-        const haystack = [rawTitel, rawTyp, rawFile, rawTags].join(' ').toLowerCase();
-        const match = !q || haystack.includes(q);
+        const rawFile   = karte.getAttribute('data-file') || '';
+        const rawTags   = karte.getAttribute('data-tags') || '';
+        const haystack  = [rawTitel, rawTyp, rawFile, rawTags].join(' ').toLowerCase();
+
+        // Volltext-Lookup: Basename des Dateipfads als Schlüssel
+        const basename  = rawFile.split('/').pop();
+        const idxText   = VOLLTEXT[basename] || '';
+        const inIdx     = q ? idxText.toLowerCase().includes(q) : false;
+        const inMeta    = q ? haystack.includes(q) : false;
+        const match     = !q || inMeta || inIdx;
+
         karte.style.display = match ? '' : 'none';
+
         if (match) {
           einHit = true;
           titelEl.innerHTML = hl(rawTitel, q);
+          // Snippet nur zeigen wenn Treffer im Volltext, aber nicht schon im Titel/Tags
+          if (snippetEl) {
+            if (q && inIdx && !inMeta) {
+              const snip = getSnippet(idxText, q);
+              snippetEl.innerHTML = '🔍 ' + hl(snip, q);
+              snippetEl.style.display = '';
+            } else if (q && inIdx && inMeta) {
+              // Treffer in beiden — Snippet trotzdem zeigen, aber dezenter
+              const snip = getSnippet(idxText, q);
+              snippetEl.innerHTML = hl(snip, q);
+              snippetEl.style.display = '';
+            } else {
+              snippetEl.innerHTML = '';
+              snippetEl.style.display = 'none';
+            }
+          }
         } else {
           titelEl.innerHTML = rawTitel;
+          if (snippetEl) { snippetEl.innerHTML = ''; snippetEl.style.display = 'none'; }
         }
       });
 
