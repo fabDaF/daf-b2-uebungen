@@ -374,23 +374,23 @@ def nav_button_html(tag: str, idx: int, handler: str | None) -> str:
     if handler is None or handler == 'data-section':
         return (f'<{tag} class="nav-btn" data-section="{idx}">'
                 f'<span class="nav-emoji">📨</span>'
-                f'<span class="nav-label">Schreiben</span></{tag}>')
+                f'<span class="nav-label">Schreibwerkstatt</span></{tag}>')
     if handler == 'data-tab':
         return (f'<{tag} class="nav-btn" data-tab="{idx}">'
                 f'<span class="nav-emoji">📨</span>'
-                f'<span class="nav-label">Schreiben</span></{tag}>')
+                f'<span class="nav-label">Schreibwerkstatt</span></{tag}>')
     if handler == 'showTabThis':
         return (f'<{tag} class="nav-btn" onclick="showTab({idx},this)">'
                 f'<span class="nav-emoji">📨</span>'
-                f'<span class="nav-label">Schreiben</span></{tag}>')
+                f'<span class="nav-label">Schreibwerkstatt</span></{tag}>')
     if handler == 'zeigeSec':
         return (f'<{tag} class="nav-btn" onclick="zeigeSec({idx},this)">'
                 f'<span class="nav-emoji">📨</span>'
-                f'<span class="nav-label">Schreiben</span></{tag}>')
+                f'<span class="nav-label">Schreibwerkstatt</span></{tag}>')
     # plain showSection / showTab / switchTab
     return (f'<{tag} class="nav-btn" onclick="{handler}({idx})">'
             f'<span class="nav-emoji">📨</span>'
-            f'<span class="nav-label">Schreiben</span></{tag}>')
+            f'<span class="nav-label">Schreibwerkstatt</span></{tag}>')
 
 
 # --- Pattern detection -------------------------------------------------------
