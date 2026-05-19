@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 WCO01X – Mehraufwände melden und abrechnen</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height:100vh; padding:20px;
+}
+.container {
+  max-width:1000px; margin:0 auto; background:white;
+  border-radius:12px; overflow:hidden;
+  box-shadow:0 10px 40px rgba(0,0,0,0.2);
+}
+.header {
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:white; padding:30px; text-align:center;
+}
+.header h1 {
+  font-size:2.2em; font-family:Georgia,'Times New Roman',serif;
+  color:white; margin-bottom:8px; border:none; padding:0;
+}
+.header p {
+  font-size:1.1em; font-family:Georgia,'Times New Roman',serif;
+  opacity:0.95; color:rgba(255,255,255,0.9); margin:0;
+}
+.header .big-emoji { font-size:2.6em; display:block; margin-top:8px; }
+.nav {
+  display:flex; flex-wrap:nowrap; background:#f8f9fa;
+  border-top:1px solid #ddd; border-left:1px solid #ddd; border-right:1px solid #ddd;
+}
+.nav-btn {
+  flex:1; padding:14px 10px; text-align:center; cursor:pointer;
+  border-right:1px solid #ddd; border-bottom:1px solid #ddd;
+  transition:all 0.3s; font-size:0.92em; font-weight:500; color:#666;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.nav-btn:last-child { border-right:none; }
+.nav-btn:hover { background:#e9ecef; color:#495057; }
+.nav-btn.active { background:white; color:#667eea; font-weight:600; border-bottom:3px solid #667eea; }
+.nav-emoji { font-size:1.3em; line-height:1.2; }
+.nav-label { font-size:0.78em; margin-top:2px; line-height:1.2; }
+.section { display:none; }
+.section.active { display:block; }
+.sec-inner { padding:24px; }
+.tab-banner {
+  width:100%; max-height:180px; object-fit:cover;
+  border-radius:10px; margin-bottom:18px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+@media (max-width:600px) {
+  .tab-banner { max-height:120px; }
+  .nav { flex-wrap:wrap; }
+  .nav-btn { flex:1 1 25%; min-width:0; font-size:0.75em; padding:10px 4px; border-right:1px solid #ddd; }
+  .nav-btn:last-child { border-right:1px solid #ddd; }
+  body { padding:8px; }
+}
+.section-title { font-size:1.4em; font-weight:700; color:#667eea; margin-bottom:20px; }
+.section-sub { color:#888; font-size:0.92em; margin-bottom:20px; }
+.control-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:18px; padding:6px 12px; background:#f8f9fa; border-radius:8px;
+}
+.btn-row { display:flex; gap:6px; }
+.btn {
+  background:#f5f7ff; border:1px solid #c5cff5; border-radius:8px;
+  padding:6px 16px; font-size:0.85em; color:#667eea; cursor:pointer;
+  transition:all 0.15s; font-weight:500;
+}
+.btn:hover { background:#667eea; color:white; border-color:#667eea; }
+.timer-display { display:flex; gap:14px; font-size:0.82em; color:#bbb; font-variant-numeric:tabular-nums; }
+.hilfe-box {
+  background:#f0f4ff; border-left:4px solid #667eea;
+  border-radius:0 8px 8px 0; padding:14px 18px; margin-bottom:22px;
+  font-size:0.9em; color:#444; line-height:1.6;
+}
+
+/* ── VORENTLASTUNG ── */
+.vocab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-top:16px; }
+.vocab-card { background:#f8f9ff; border:1px solid #dde3ff; border-radius:10px; padding:14px 16px; }
+.vocab-term { font-weight:700; color:#667eea; font-size:1.05em; margin-bottom:2px; }
+.vocab-pos { color:#aaa; font-size:0.78em; margin-bottom:3px; font-style:italic; }
+.vocab-def { color:#555; font-size:0.92em; line-height:1.5; }
+
+/* ── LESETEXT ── */
+.lese-text {
+  font-family:Georgia,'Times New Roman',serif;
+  background:#f8f9fa; border-radius:10px; padding:22px 26px;
+  font-size:1.0em; line-height:1.9; color:#333; margin-bottom:18px;
+  max-width:700px; margin-left:auto; margin-right:auto;
+  text-align:justify; hyphens:auto; -webkit-hyphens:auto;
+}
+.lese-text p { margin-bottom:1em; }
+.lese-text p:last-child { margin-bottom:0; }
+.lese-text h3 { font-family:Georgia,serif; color:#667eea; font-size:1.0em; margin:18px 0 8px; }
+.vocab-hl { background:#ffe9a0; border-radius:3px; padding:1px 3px; font-weight:600; cursor:help; }
+.story-source { margin-top:14px; color:#aaa; font-size:0.8em; text-align:right; max-width:700px; margin-left:auto; margin-right:auto; }
+
+/* ── GENUS ── */
+.genus-bank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:56px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.genus-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; }
+@media (max-width:600px) { .genus-grid { grid-template-columns:1fr 1fr; } }
+.genus-col { background:#fafbff; border:1px solid #e0e7ff; border-radius:10px; padding:10px; }
+.genus-col-title {
+  text-align:center; font-weight:700; font-size:1.1em; margin-bottom:8px; padding-bottom:6px;
+  border-bottom:2px solid #667eea; color:#667eea;
+}
+.drop-zone {
+  min-height:60px; border-radius:8px; border:2px dashed #c5cae9;
+  padding:6px; background:#fafbff; transition:background .2s;
+  display:flex; flex-direction:column; gap:5px;
+}
+.drop-zone.dragover { background:#e8eaff; border-color:#667eea; }
+.genus-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:6px 12px; border-radius:16px; cursor:move;
+  font-weight:500; font-size:0.9em; user-select:none;
+  transition:all 0.2s; white-space:nowrap; text-align:center;
+}
+.genus-chip.correct { background:#27ae60; border-color:#27ae60; color:white; }
+.genus-chip.wrong   { background:#e74c3c; border-color:#e74c3c; color:white; }
+.genus-chip.dragging { opacity:0.4; }
+
+/* ── LÜCKENTEXT ── */
+.luecken-list { list-style:none; }
+.luecken-item {
+  background:#f8f9ff; border:1px solid #e0e7ff;
+  border-left:4px solid #667eea; border-radius:8px;
+  padding:14px 16px; margin-bottom:10px;
+  font-size:0.95em; line-height:1.8;
+}
+input.blank {
+  border:none; border-bottom:2px solid #667eea;
+  background:transparent; padding:3px 6px;
+  font-family:inherit; font-size:0.95em; outline:none;
+  transition:all 0.2s; min-width:4ch;
+}
+input.blank:focus { border-bottom-color:#667eea; }
+input.blank.ok, input.blank.correct { border-bottom-color:#27ae60; color:#27ae60; font-weight:700; }
+input.blank.no, input.blank.wrong   { border-bottom-color:#e74c3c; color:#e74c3c; }
+
+/* ── MULTIPLE-CHOICE ── */
+.mc-item { background:#f8f9ff; border:1px solid #e0e7ff; border-left:4px solid #667eea; border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+.mc-question { font-size:1.05em; color:#333; margin-bottom:10px; font-weight:500; line-height:1.5; }
+.mc-opts { display:flex; flex-wrap:wrap; gap:6px; }
+.mc-opt {
+  padding:5px 14px; border-radius:20px; border:1.5px solid #c5cae9;
+  background:#fff; color:#555; font-size:11px; font-weight:600; cursor:pointer;
+  transition:all 0.15s;
+}
+.mc-opt:hover { border-color:#667eea; color:#667eea; }
+.mc-opt.correct { background:#27ae60; border-color:#27ae60; color:white; }
+.mc-opt.wrong   { background:#e74c3c; border-color:#e74c3c; color:white; }
+.mc-opt:disabled, .mc-opt[disabled] { cursor:default; opacity:0.6; }
+
+/* ── SATZBAU ── */
+.satzbau-item { background:#fafbff; border:1px solid #e0e7ff; border-radius:12px; padding:16px; margin-bottom:16px; }
+.chips-container { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f8f8f8; border-radius:10px; min-height:56px; margin-bottom:10px; }
+.sentence-builder { display:flex; flex-wrap:wrap; gap:6px; padding:14px; background:white; border:2px dashed #ccc; border-radius:10px; min-height:56px; align-items:center; margin-bottom:6px; }
+.sentence-builder.correct   { border-color:#27ae60; background:#f0fff4; }
+.sentence-builder.incorrect { border-color:#e74c3c; background:#fff5f5; }
+.chip { background:white; border:2px solid #667eea; color:#667eea; padding:8px 14px; border-radius:20px; cursor:move; font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none; white-space:nowrap; }
+.chip.correct   { background:#27ae60; border-color:#27ae60; color:white; }
+.chip.incorrect { background:#e74c3c; border-color:#e74c3c; color:white; }
+.chip.punct-chip { background:#f8f8f8; border:2px solid #667eea; padding:8px 16px; color:#333; font-weight:700; font-size:1.3em; min-width:18px; text-align:center; cursor:move; }
+.chip.punct-chip.correct   { background:#27ae60; border-color:#27ae60; color:white; }
+.chip.punct-chip.incorrect { background:#e74c3c; border-color:#e74c3c; color:white; }
+.sentence-builder .chip.punct-chip { margin-left:-6px; border-left:none; border-radius:0 20px 20px 0; padding-left:4px; padding-right:12px; }
+.sentence-builder .chip.punct-chip.correct   { border-left:none; }
+.sentence-builder .chip.punct-chip.incorrect { border-left:none; }
+.sb-punkt { font-size:1.1em; font-weight:700; color:#27ae60; margin-left:2px; align-self:center; user-select:none; }
+.satzbau-feedback { font-size:0.9em; font-weight:600; margin-top:6px; min-height:1.2em; }
+.satzbau-feedback.correct   { color:#27ae60; }
+.satzbau-feedback.incorrect { color:#e74c3c; }
+
+/* ── SCHREIBWERKSTATT ── */
+.schreib-name-box { background:#fffde7; border:2px solid #f9a825; border-radius:10px; padding:14px 18px; margin-bottom:22px; }
+.schreib-name-box label { font-weight:700; color:#e65100; display:block; margin-bottom:6px; }
+.schreib-name-box input { border:none; border-bottom:2px solid #f9a825; background:transparent; font-size:1em; font-family:inherit; outline:none; padding:3px 6px; width:260px; }
+.schreib-aufgabe { background:#f8f9ff; border:1px solid #e0e7ff; border-left:4px solid #667eea; border-radius:10px; padding:18px 20px; margin-bottom:18px; }
+.schreib-aufgabe-nr { font-size:0.78em; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.schreib-aufgabe-titel { font-size:1.05em; font-weight:700; color:#4a148c; margin-bottom:6px; }
+.schreib-aufgabe-frage { font-size:0.95em; color:#444; line-height:1.6; margin-bottom:6px; }
+.schreib-beispiel { font-size:0.88em; color:#888; font-style:italic; margin-bottom:10px; }
+.schreib-mini-textarea { width:100%; min-height:80px; border:1.5px solid #c5cae9; border-radius:8px; padding:10px; font-family:inherit; font-size:0.93em; outline:none; resize:vertical; transition:border-color 0.2s; }
+.schreib-mini-textarea:focus { border-color:#667eea; }
+.schreib-send-row { display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap; }
+.schreib-send-btn { background:#667eea; color:white; border:none; border-radius:8px; padding:7px 18px; font-size:0.88em; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.schreib-send-btn:hover { background:#5568d4; }
+.schreib-send-btn:disabled { opacity:0.5; cursor:default; }
+.schreib-status { font-size:0.82em; color:#888; }
+.schreib-status.sent { color:#27ae60; font-weight:700; }
+.schreib-sammel-row { margin-top:22px; text-align:center; }
+.schreib-sammel-btn { background:#764ba2; color:white; border:none; border-radius:8px; padding:10px 24px; font-size:0.93em; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.schreib-sammel-btn:hover { background:#5e3a82; }
+/* Customer-Error-UI */
+.schreib-fb { background:#fff8e1; border:1px solid #ffe082; border-radius:10px; padding:14px 16px; margin-top:10px; font-size:0.88em; }
+.schreib-fb-titel { font-weight:700; color:#e65100; margin-bottom:6px; }
+.schreib-fb-text { color:#555; margin-bottom:8px; line-height:1.5; }
+.schreib-fb-actions { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.schreib-fb-btn { background:#f5f7ff; border:1px solid #c5cff5; border-radius:8px; padding:5px 14px; font-size:0.82em; color:#667eea; cursor:pointer; font-weight:600; }
+.schreib-fb-btn:hover { background:#667eea; color:white; }
+.schreib-fb-btn-prim { background:#667eea; color:white; border:1px solid #667eea; border-radius:8px; padding:5px 14px; font-size:0.82em; font-weight:600; cursor:pointer; }
+.schreib-fb-hilfe { font-size:0.82em; color:#aaa; font-style:italic; }
+
+/* ── WORTSCHATZ ── */
+#wortschatzContainer { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:600px) { #wortschatzContainer { grid-template-columns:1fr; } }
+
+/* ── FOOTER ── */
+.author-footer { text-align:center; margin-top:40px; max-width:1000px; margin-left:auto; margin-right:auto; padding:16px; font-size:0.8rem; color:#aaa; }
+.author-footer a { color:#aaa; }
+.author-name { font-weight:700; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Mehraufwände melden und abrechnen</h1>
+  <p>B2 – Lektion WCO01X · Sachtext</p>
+  <div class="big-emoji">🏗️</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+  <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📄</span><span class="nav-label">Lesetext</span></div>
+  <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔤</span><span class="nav-label">Genus</span></div>
+  <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+  <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">☑️</span><span class="nav-label">Verständnis</span></div>
+  <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+  <div class="nav-btn" onclick="showSection(6)"><span class="nav-emoji">📨</span><span class="nav-label">Schreibwerkstatt</span></div>
+  <div class="nav-btn" onclick="showSection(7)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 0: VORENTLASTUNG -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Baustelle">
+  <div class="sec-inner">
+    <div class="section-title">📖 Vorbereitung: Wichtige Begriffe</div>
+    <div class="section-sub">Lies die Begriffe und ihre Erklärungen, bevor du den Text liest.</div>
+    <div class="vocab-grid" id="vorentlastungGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 1: LESETEXT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Büro-Meeting">
+  <div class="sec-inner">
+    <div class="section-title">📄 Mehraufwände melden und abrechnen</div>
+    <div class="section-sub">Ein internes Schulungsschreiben bei Westconnect GmbH.</div>
+    <div class="lese-text" id="lesetext">
+      <p>Wenn wir während der Bauarbeiten einen <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Mehraufwand</span> feststellen, muss in der gleichen Stunde eine E-Mail von unserem Projekt- oder Bauleiter an den Rolloutmanager (ROM), den Bauleiter sowie den Key Account der WCO versendet werden. Die E-Mail enthält folgende Pflichtangaben: welcher <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Mehraufwand</span> festgestellt wurde; auf welche Position des <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Leistungsverzeichnisses</span> (LV) er sich bezieht; wo er festgestellt wurde – mindestens Straße und ungefähre Hausnummer; und wie viel <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Mehraufwand</span> festgestellt wurde (eine grobe Angabe reicht).</p>
+      <h3>Dokumentation bis Ende der Woche</h3>
+      <p>Bis Ende der Woche legen wir die vollständige <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Dokumentation</span> sowie eine Excel-Tabelle im SharePoint ab. Anschließend informieren wir alle Beteiligten per E-Mail. In dieser Nachricht muss entweder ein direkter Link zum SharePoint-Ordner oder mindestens der genaue <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Ablageort</span> enthalten sein.</p>
+      <h3>Bestandteile der Dokumentation</h3>
+      <p>Die <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Dokumentation</span> umfasst folgende Bestandteile: eine Videosequenz, in der die Länge des betroffenen Abschnitts sichtbar wird – zum Beispiel durch ein Längenmessrad, wenn möglich <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">georeferenziert</span>; falls vorhanden, eine weitere Videosequenz zur Dicke des Materials (z. B. bei Beton unter Asphalt); eine <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Fotodokumentation</span> mit Zollstock an mehreren Stellen, damit die Dicke des Betons erkennbar ist; bei NVT-Setzung eine Wasserwaage auf dem NVT mit entsprechenden Fotos; und schließlich eine Excel-<span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Kalkulation</span> mit der angedachten Abrechnung.</p>
+      <h3>Freigabe und Abrechnung</h3>
+      <p>Die WCO prüft die Meldung der Mehraufwände binnen einer Woche und gibt sie per E-Mail frei. Erst nach dieser <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Freigabe</span> kann die <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Abrechnung</span> angestoßen werden. Das Ziel: alle zwei Wochen abrechnen, anstatt alles zu sammeln und nach zwei Monaten eine hohe Rechnung vorzulegen.</p>
+      <h3>Wichtige Regeln</h3>
+      <p>Gemeldet und in Rechnung gestellt werden dürfen ausschließlich Mehraufwände, die auch im <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Leistungsverzeichnis</span> stehen. Ab dem 15. November dürfen keine Rechnungen mehr gestellt werden – die Meldung und Überprüfung können jedoch weiterhin erfolgen; nach <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Freigabe</span> können die Leistungen Anfang des nächsten Jahres in Rechnung gestellt werden. Außerdem bitte ich darum, den Prozess intern an die Rechnungsabteilung zu kommunizieren.</p>
+      <p>Die oben beschriebenen Dokumentationsanforderungen stellen derzeit ein <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Provisorium</span> dar. Sobald detailliertere Anforderungen von der WCO vorliegen, werden wir diese an euch kommunizieren.</p>
+    </div>
+    <div class="story-source">Quelle: B2 – Lektion WCO01X · Schulungsmail Westconnect GmbH (adaptiert)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 2: GENUS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/590016/pexels-photo-590016.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Dokumente und Ordner">
+  <div class="sec-inner">
+    <h2>🔤 Genus-Training</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showGenusLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetGenus(); resetTimer(2);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">00:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ziehe die Wörter in die richtige Spalte: <strong>der / die / das / Plural</strong>. Das Feedback erscheint sofort.</div>
+    <div class="genus-bank" id="genusBank"></div>
+    <div class="genus-grid">
+      <div class="genus-col">
+        <div class="genus-col-title">der</div>
+        <div class="drop-zone" id="dz-der" data-cat="der"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">die</div>
+        <div class="drop-zone" id="dz-die" data-cat="die"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">das</div>
+        <div class="drop-zone" id="dz-das" data-cat="das"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">Plural</div>
+        <div class="drop-zone" id="dz-pl" data-cat="pl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 3: LÜCKENTEXT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/4792731/pexels-photo-4792731.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Formulare">
+  <div class="sec-inner">
+    <h2>✏️ Lückentext</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetLuecken(); resetTimer(3);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">00:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ergänze die fehlenden Wörter. Das Feedback erscheint beim Tippen — grün = richtig, rot = falsch.</div>
+    <ul class="luecken-list" id="lueckenContainer"></ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 4: MULTIPLE-CHOICE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/6289069/pexels-photo-6289069.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Checkliste">
+  <div class="sec-inner">
+    <h2>☑️ Textverständnis</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showMcLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetMc(); resetTimer(4);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">00:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Klicke auf die richtige Antwort. Das Feedback erscheint sofort.</div>
+    <div id="mcContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 5: SATZBAU -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-5">
+  <img class="tab-banner" src="https://images.pexels.com/photos/2219654/pexels-photo-2219654.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Konstruktion Baustelle">
+  <div class="sec-inner">
+    <h2>🧩 Satzbau</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="sbShowAllSolutions()">Alle lösen</button>
+        <button class="btn" onclick="sbResetAll(); resetTimer(5);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-5">00:00</span></span>
+        <span>🏆 <span id="best-5">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ziehe die Wörter in die richtige Reihenfolge. Das Feedback erscheint, wenn alle Chips platziert sind.</div>
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 6: SCHREIBWERKSTATT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-6">
+  <img class="tab-banner" src="https://images.pexels.com/photos/5706715/pexels-photo-5706715.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben am Laptop">
+  <div class="sec-inner">
+    <div class="section-title">📨 Schreibwerkstatt</div>
+    <div class="section-sub">Fünf kurze Schreibaufgaben – je 50 bis 70 Wörter. Deine Texte werden direkt an Frank gesendet.</div>
+    <div class="schreib-name-box">
+      <label for="sw-name">👤 Dein Name (Pflicht)</label>
+      <input type="text" id="sw-name" placeholder="Vor- und Nachname" oninput="schreibNameSpeichern()">
+    </div>
+    <div id="schreibAufgabenContainer"></div>
+    <div class="schreib-sammel-row">
+      <button class="schreib-sammel-btn" onclick="schreibSendenAlle()">📨 Alle noch nicht gesendeten Antworten schicken</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 7: WORTSCHATZ -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-7">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Team beim Lernen">
+  <div class="sec-inner">
+    <h2>📚 Wortschatz</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetWortschatz(); resetTimer(7);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-7">00:00</span></span>
+        <span>🏆 <span id="best-7">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Tippe Artikel, Wort und Plural. Nomen werden großgeschrieben.</div>
+    <div id="wortschatzContainer"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATEN
+═══════════════════════════════════════════════════════ */
+
+var VORENTLASTUNG = [
+  { term:"der Mehraufwand, -e",              def:"zusätzliche Kosten oder Arbeit, die über die ursprünglich vereinbarte Leistung hinausgehen" },
+  { term:"die Abrechnung, -en",              def:"schriftliche Zusammenfassung von Leistungen und den dazugehörigen Kosten, die in Rechnung gestellt werden" },
+  { term:"das Leistungsverzeichnis, -se",    def:"ein Dokument in Bauprojekten, das alle zu erbringenden Leistungen und die vereinbarten Preise auflistet" },
+  { term:"die Freigabe, -n",                 def:"die offizielle Genehmigung oder Zustimmung, eine Maßnahme durchzuführen oder eine Rechnung zu bezahlen" },
+  { term:"die Fotodokumentation (Sg.)",      def:"eine strukturierte Sammlung von Fotos als offizieller Beweis für einen Sachverhalt" },
+  { term:"georeferenziert (Adj.)",           def:"mit GPS-Koordinaten versehen, sodass der genaue geografische Ort einer Aufnahme erkennbar ist" },
+  { term:"das Provisorium, Provisorien",     def:"eine vorläufige, temporäre Regelung oder Lösung, die später durch eine endgültige ersetzt wird" },
+  { term:"der Nachweis, -e",                 def:"ein Dokument oder Beleg, der einen Sachverhalt beweist oder belegt" },
+  { term:"der Ablageort, -e",                def:"der Ort, an dem Dokumente oder Dateien abgespeichert oder abgelegt werden" },
+  { term:"die Kalkulation, -en",             def:"eine rechnerische Ermittlung von Kosten, Preisen oder Aufwänden, oft in Form einer Tabelle" }
+];
+
+var GENUS_DATA = [
+  { word:"⚙️ Mehraufwand",          cat:"der" },
+  { word:"💰 Abrechnung",           cat:"die" },
+  { word:"📋 Leistungsverzeichnis", cat:"das" },
+  { word:"✅ Freigabe",             cat:"die" },
+  { word:"📸 Fotodokumentation",    cat:"die" },
+  { word:"📄 Nachweis",             cat:"der" },
+  { word:"💬 Rückmeldung",          cat:"die" },
+  { word:"📂 Ablageort",            cat:"der" },
+  { word:"🧮 Kalkulation",          cat:"die" },
+  { word:"📑 Provisorium",          cat:"das" },
+  { word:"🏗️ Bauleiter",            cat:"der" },
+  { word:"📅 Frist",                cat:"die" },
+  { word:"🔗 SharePoint",           cat:"der" },
+  { word:"📋 Meldung",              cat:"die" },
+  { word:"📊 Mehraufwände",         cat:"pl"  }
+];
+
+var LUECKEN_DATA = [
+  { before:"Wenn wir einen Mehraufwand feststellen, muss in der gleichen Stunde eine E-Mail an alle Beteiligten ", answer:"gesendet", after:" werden." },
+  { before:"Die E-Mail muss angeben, auf welche Position des ", answer:"Leistungsverzeichnisses", after:" sich der Mehraufwand bezieht." },
+  { before:"Die vollständige Dokumentation wird bis Ende der Woche im SharePoint ", answer:"abgelegt", after:"." },
+  { before:"In der Informations-E-Mail muss der genaue ", answer:"Ablageort", after:" der Nachweise im SharePoint angegeben werden." },
+  { before:"Erst nach der ", answer:"Freigabe", after:" durch die WCO kann die Abrechnung angestoßen werden." },
+  { before:"Die WCO prüft die Meldung ", answer:"binnen", after:" einer Woche und gibt sie per E-Mail frei." },
+  { before:"Auf den Fotos sollte an mehreren Stellen ein ", answer:"Zollstock", after:" verwendet werden, um die Dicke des Betons zu zeigen." },
+  { before:"Die Videosequenz sollte, wenn möglich, ", answer:"georeferenziert", after:" sein, damit der genaue Ort erkennbar ist." },
+  { before:"Gemeldet werden dürfen ausschließlich Mehraufwände, die auch im ", answer:"Leistungsverzeichnis", after:" stehen." },
+  { before:"Die aktuellen Dokumentationsanforderungen stellen ein ", answer:"Provisorium", after:" dar und werden später präzisiert." }
+];
+
+var MC_DATA = [
+  {
+    frage:"Wann muss die erste E-Mail über einen festgestellten Mehraufwand versendet werden?",
+    opts:["Am Ende der Arbeitswoche","In der gleichen Stunde, in der der Mehraufwand festgestellt wird","Innerhalb von drei Werktagen","Spätestens beim nächsten Projektmeeting"],
+    correct:1
+  },
+  {
+    frage:"Welche Information muss die erste E-Mail über den Mehraufwand NICHT enthalten?",
+    opts:["Welcher Mehraufwand festgestellt wurde","Den vollständigen Namen des verantwortlichen Mitarbeiters","Auf welche Position des LV sich der Mehraufwand bezieht","Den ungefähren Ort (Straße und Hausnummer)"],
+    correct:1
+  },
+  {
+    frage:"Bis wann muss die Dokumentation im SharePoint abgelegt sein?",
+    opts:["Am gleichen Tag der Meldung","Innerhalb von drei Werktagen","Bis Ende der Woche","Innerhalb eines Monats"],
+    correct:2
+  },
+  {
+    frage:"Wie lange hat die WCO Zeit, die gemeldeten Mehraufwände zu prüfen?",
+    opts:["Drei Arbeitstage","Eine Woche","Zwei Wochen","Einen Monat"],
+    correct:1
+  },
+  {
+    frage:"Was ist das erklärte Ziel des Abrechnungsrhythmus in diesem Prozess?",
+    opts:["Monatliche Sammelabrechnung aller Aufwände","Einmalige Abrechnung am Jahresende","Alle zwei Wochen abrechnen, statt eine hohe Sammelrechnung zu produzieren","Tägliche Einzelabrechnung jedes Aufwands"],
+    correct:2
+  },
+  {
+    frage:"Welche Mehraufwände dürfen gemeldet und in Rechnung gestellt werden?",
+    opts:["Alle Mehraufwände, die auf der Baustelle festgestellt werden","Ausschließlich Mehraufwände, die auch im Leistungsverzeichnis stehen","Nur Mehraufwände über 500 Euro","Alle Mehraufwände, für die Fotos vorliegen"],
+    correct:1
+  },
+  {
+    frage:"Was bedeutet „georeferenziert“ in diesem Kontext?",
+    opts:["Die Fotos wurden nachträglich digital bearbeitet","Die Aufnahmen sind mit GPS-Koordinaten versehen, die den genauen Ort zeigen","Die Videos sind in besonders hoher Auflösung aufgenommen","Die Dokumentation wurde von einem unabhängigen Gutachter geprüft"],
+    correct:1
+  },
+  {
+    frage:"Was ist ein „Provisorium“ im beruflichen Kontext?",
+    opts:["Eine endgültige und verbindliche Regelung","Ein offizielles Rechtsdokument","Eine vorläufige Regelung, die später durch eine endgültige ersetzt wird","Ein Fehler in einem Vertrag"],
+    correct:2
+  },
+  {
+    frage:"Ab wann dürfen laut interner Regelung keine Rechnungen mehr gestellt werden?",
+    opts:["Ab dem 1. Oktober","Ab dem 15. November","Ab dem 31. Dezember","Ab dem 1. Januar des Folgejahres"],
+    correct:1
+  },
+  {
+    frage:"An wen soll der Abrechnungsprozess intern kommuniziert werden?",
+    opts:["An alle Mitarbeiter des gesamten Unternehmens","An den Geschäftsführer persönlich","An die Rechnungsabteilung","An den Betriebsrat"],
+    correct:2
+  }
+];
+
+var satzbauData = [
+  {
+    parts:['die','Dokumentation','muss','bis','Ende','der','Woche','im','SharePoint','abgelegt','werden'],
+    valid:[['die','Dokumentation','muss','bis','Ende','der','Woche','im','SharePoint','abgelegt','werden']],
+    punct:'.'
+  },
+  {
+    parts:['erst','nach','der','Freigabe','kann','die','Abrechnung','angestoßen','werden'],
+    valid:[['erst','nach','der','Freigabe','kann','die','Abrechnung','angestoßen','werden']],
+    punct:'.'
+  },
+  {
+    parts:['nach','Eingang','der','Meldung','hat','die','WCO','eine','Woche','Zeit','zur','Überprüfung'],
+    valid:[['nach','Eingang','der','Meldung','hat','die','WCO','eine','Woche','Zeit','zur','Überprüfung']],
+    punct:'.'
+  },
+  {
+    parts:['die','E-Mail','muss','den','Ablageort','der','Nachweise','im','SharePoint','enthalten'],
+    valid:[['die','E-Mail','muss','den','Ablageort','der','Nachweise','im','SharePoint','enthalten']],
+    punct:'.'
+  },
+  {
+    parts:['Mehraufwände','dürfen','nur','gemeldet','werden',',','wenn','sie','im','Leistungsverzeichnis','stehen'],
+    valid:[['Mehraufwände','dürfen','nur','gemeldet','werden',',','wenn','sie','im','Leistungsverzeichnis','stehen']],
+    punct:'.'
+  },
+  {
+    parts:['auf','den','Fotos','sollte','ein','Zollstock','verwendet','werden',',','um','die','Dicke','zu','messen'],
+    valid:[['auf','den','Fotos','sollte','ein','Zollstock','verwendet','werden',',','um','die','Dicke','zu','messen']],
+    punct:'.'
+  },
+  {
+    parts:['das','aktuelle','Verfahren','stellt','ein','Provisorium','dar','und','wird','später','präzisiert'],
+    valid:[['das','aktuelle','Verfahren','stellt','ein','Provisorium','dar','und','wird','später','präzisiert']],
+    punct:'.'
+  },
+  {
+    parts:['der','Bauleiter','meldet','den','Mehraufwand','noch','in','der','gleichen','Stunde'],
+    valid:[['der','Bauleiter','meldet','den','Mehraufwand','noch','in','der','gleichen','Stunde']],
+    punct:'.'
+  },
+  {
+    parts:['die','Videosequenz','soll','wenn','möglich','georeferenziert','sein'],
+    valid:[['die','Videosequenz','soll','wenn','möglich','georeferenziert','sein']],
+    punct:'.'
+  },
+  {
+    parts:['ohne','schriftliche','Freigabe','darf','keine','Rechnung','gestellt','werden'],
+    valid:[['ohne','schriftliche','Freigabe','darf','keine','Rechnung','gestellt','werden']],
+    punct:'.'
+  }
+];
+
+var WORTSCHATZ = [
+  { id:1,  type:"n", en:"⚙️ additional work / extra costs",      artikel:"der", de:"Mehraufwand",         plural:"Mehraufwände" },
+  { id:2,  type:"n", en:"💰 billing / invoicing",                artikel:"die", de:"Abrechnung",           plural:"Abrechnungen" },
+  { id:3,  type:"n", en:"📋 service specification (document)",   artikel:"das", de:"Leistungsverzeichnis", plural:"Leistungsverzeichnisse" },
+  { id:4,  type:"n", en:"✅ approval / release",                 artikel:"die", de:"Freigabe",             plural:"Freigaben" },
+  { id:5,  type:"n", en:"📄 proof / evidence document",         artikel:"der", de:"Nachweis",             plural:"Nachweise" },
+  { id:6,  type:"n", en:"💬 feedback / response",               artikel:"die", de:"Rückmeldung",          plural:"Rückmeldungen" },
+  { id:7,  type:"n", en:"📂 storage location (files)",          artikel:"der", de:"Ablageort",            plural:"Ablageorte" },
+  { id:8,  type:"n", en:"📸 photo documentation",               artikel:"die", de:"Fotodokumentation",    plural:"–" },
+  { id:9,  type:"n", en:"🔢 calculation / cost estimate",       artikel:"die", de:"Kalkulation",          plural:"Kalkulationen" },
+  { id:10, type:"n", en:"📑 provisional solution",              artikel:"das", de:"Provisorium",          plural:"Provisorien" },
+  { id:11, type:"n", en:"🏗️ site manager / construction manager",artikel:"der", de:"Bauleiter",            plural:"Bauleiter" },
+  { id:12, type:"n", en:"📋 report / notification",             artikel:"die", de:"Meldung",              plural:"Meldungen" },
+  { id:13, type:"n", en:"🔍 examination / review",              artikel:"die", de:"Überprüfung",          plural:"Überprüfungen" },
+  { id:14, type:"p", en:"📐 georeferenced (adj.)",              de:"georeferenziert" },
+  { id:15, type:"p", en:"📎 to file / to store (documents)",    de:"ablegen" }
+];
+
+var AUFGABEN = [
+  {
+    nr:1,
+    titel:"Erster Eindruck",
+    frage:"Lies den Prozess für die Mehraufwandsabrechnung. Welcher Schritt erscheint dir am wichtigsten, und warum? Erkläre deinen Standpunkt in 50–70 Wörtern.",
+    beispiel:"Beispiel: „Ich halte die sofortige E-Mail-Meldung für entscheidend, weil dadurch alle Beteiligten sofort informiert sind. Ohne schnelle Kommunikation können Missverständnisse entstehen …“"
+  },
+  {
+    nr:2,
+    titel:"Dokumentationspflicht erklären",
+    frage:"Erkläre in eigenen Worten, warum eine genaue Fotodokumentation bei Bauprojekten wichtig ist. Was kann passieren, wenn die Dokumentation fehlt oder unvollständig ist? (50–70 Wörter)",
+    beispiel:"Beispiel: „Ohne vollständige Dokumentation ist es im Streitfall schwer, einen Mehraufwand nachzuweisen. Fotos mit Zollstock belegen die genaue Situation zum Zeitpunkt der Feststellung …“"
+  },
+  {
+    nr:3,
+    titel:"Nachfrage formulieren",
+    frage:"Stell dir vor, du arbeitest auf der Baustelle und hast Fragen zum neuen Prozess. Formuliere zwei konkrete Fragen, die du an den Rolloutmanager stellen würdest. Erkläre kurz, warum diese Fragen für dich wichtig sind. (50–70 Wörter)",
+    beispiel:"Beispiel: „Was passiert, wenn die WCO nicht innerhalb einer Woche antwortet – können wir trotzdem abrechnen? Diese Frage ist für mich wichtig, weil …“"
+  },
+  {
+    nr:4,
+    titel:"Pro und Contra",
+    frage:"Das Ziel ist, alle zwei Wochen abzurechnen statt alles zu sammeln. Nenne zwei Vorteile und einen möglichen Nachteil dieses Rhythmus. Schreibe in ganzen Sätzen. (50–70 Wörter)",
+    beispiel:"Beispiel: „Ein Vorteil ist, dass man immer einen aktuellen Überblick über die Kosten hat. Ein weiterer Vorteil ist, dass der Liquiditätsdruck geringer ist. Ein Nachteil könnte sein …“"
+  },
+  {
+    nr:5,
+    titel:"Mini-Dialog: Meldung auf der Baustelle",
+    frage:"Schreibe einen kurzen Dialog (6 Sätze: 3 pro Person) zwischen einem Bauleiter und einem Rolloutmanager. Der Bauleiter meldet einen konkreten Mehraufwand. Verwende mindestens drei Fachbegriffe aus dem Lesetext.",
+    beispiel:"Beispiel – Bauleiter: „Ich melde einen Mehraufwand in der Hauptstraße 12. Der Beton unter dem Asphalt ist deutlich dicker als im Leistungsverzeichnis angegeben.“ – Rolloutmanager: „Danke. Bitte schicken Sie mir noch heute die Fotodokumentation mit Zollstock …“"
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   SCHREIBWERKSTATT KONSTANTEN
+═══════════════════════════════════════════════════════ */
+var SCHREIB_NIVEAU = 'B2';
+var SCHREIB_CODE   = 'WCO01X';
+var SCHREIB_MIN_CHARS = 14;
+var FORMSUBMIT_ENDPOINT   = 'https://api.web3forms.com/submit';
+var FORMSUBMIT_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var FORMSUBMIT_MAILTO     = 'unterricht@fabdaf.onmicrosoft.com';
+
+/* ═══════════════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════════════ */
+var timers = {};
+function timerAutoStart(idx) {
+  if (!timers[idx]) timers[idx] = {elapsed:0,best:null,interval:null,started:false};
+  var t = timers[idx];
+  if (t.started) return;
+  t.started = true; t.elapsed = 0;
+  t.interval = setInterval(function(){
+    t.elapsed++;
+    var m = Math.floor(t.elapsed/60), s = t.elapsed%60;
+    var el = document.getElementById('timer-'+idx);
+    if (el) el.textContent = (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+  },1000);
+}
+function stopTimer(idx) {
+  if (!timers[idx]) return;
+  var t = timers[idx];
+  if (t.interval){clearInterval(t.interval);t.interval=null;}
+  if (t.best===null||t.elapsed<t.best){
+    t.best=t.elapsed;
+    var m=Math.floor(t.best/60),s=t.best%60;
+    var el=document.getElementById('best-'+idx);
+    if(el) el.textContent=(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+  }
+  t.started=false;
+}
+function resetTimer(idx) {
+  if (!timers[idx]) return;
+  var t = timers[idx];
+  if (t.interval){clearInterval(t.interval);t.interval=null;}
+  t.elapsed=0; t.started=false;
+  var el=document.getElementById('timer-'+idx);
+  if(el) el.textContent='00:00';
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===idx);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===idx);});
+}
+
+/* ═══════════════════════════════════════════════════════
+   VORENTLASTUNG
+═══════════════════════════════════════════════════════ */
+function initVorentlastung() {
+  var g = document.getElementById('vorentlastungGrid');
+  VORENTLASTUNG.forEach(function(v){
+    var c = document.createElement('div'); c.className = 'vocab-card';
+    var t = document.createElement('div'); t.className = 'vocab-term'; t.textContent = v.term;
+    var d = document.createElement('div'); d.className = 'vocab-def';  d.textContent = v.def;
+    c.appendChild(t); c.appendChild(d); g.appendChild(c);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   GENUS — DRAG & DROP (neue Architektur)
+═══════════════════════════════════════════════════════ */
+var draggedChip = null;
+function initGenus() {
+  var bank = document.getElementById('genusBank');
+  bank.innerHTML = '';
+  // Shuffle
+  var data = GENUS_DATA.slice();
+  for(var i=data.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=data[i];data[i]=data[j];data[j]=tmp;}
+  data.forEach(function(item){
+    var chip = document.createElement('div');
+    chip.className = 'genus-chip';
+    chip.textContent = item.word;
+    chip.dataset.cat = item.cat;
+    chip.draggable = true;
+    chip.addEventListener('dragstart',function(e){
+      e.dataTransfer.setData('text/plain','');
+      draggedChip = chip;
+      timerAutoStart(2);
+      setTimeout(function(){chip.classList.add('dragging');},0);
+    });
+    chip.addEventListener('dragend',function(){
+      chip.classList.remove('dragging');
+      colorAllGenusChips();
+    });
+    chip.addEventListener('click',function(){
+      if(draggedChip && draggedChip!==chip){
+        bank.appendChild(draggedChip); draggedChip=null; colorAllGenusChips();
+      } else if(!draggedChip){
+        draggedChip=chip;
+      } else {
+        draggedChip=null;
+      }
+    });
+    bank.appendChild(chip);
+  });
+  // Drop zones
+  document.querySelectorAll('.drop-zone').forEach(function(zone){
+    zone.innerHTML='';
+    zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('dragover');});
+    zone.addEventListener('dragleave',function(){zone.classList.remove('dragover');});
+    zone.addEventListener('drop',function(e){
+      e.preventDefault();zone.classList.remove('dragover');
+      if(draggedChip){zone.appendChild(draggedChip);draggedChip=null;}
+      colorAllGenusChips();
+    });
+    zone.addEventListener('click',function(){
+      if(draggedChip){zone.appendChild(draggedChip);draggedChip=null;colorAllGenusChips();}
+    });
+  });
+  bank.addEventListener('dragover',function(e){e.preventDefault();});
+  bank.addEventListener('drop',function(e){
+    e.preventDefault();
+    if(draggedChip){bank.appendChild(draggedChip);draggedChip=null;}
+    colorAllGenusChips();
+  });
+  bank.addEventListener('click',function(){
+    if(draggedChip){bank.appendChild(draggedChip);draggedChip=null;colorAllGenusChips();}
+  });
+}
+function colorGenusChip(chip){
+  var zone=chip.closest('.drop-zone');
+  chip.classList.remove('correct','wrong');
+  if(zone&&zone.dataset.cat){ chip.classList.add(chip.dataset.cat===zone.dataset.cat?'correct':'wrong'); }
+}
+function colorAllGenusChips(){
+  document.querySelectorAll('#sec-2 .genus-chip').forEach(colorGenusChip);
+  checkGenusAllOk();
+}
+function checkGenusAllOk(){
+  var chips=document.querySelectorAll('#sec-2 .genus-chip');
+  var inBank=document.querySelectorAll('#genusBank .genus-chip').length;
+  if(inBank>0) return;
+  var allOk=Array.from(chips).every(function(c){return c.classList.contains('correct');});
+  if(allOk) stopTimer(2);
+}
+function showGenusLoesung(){
+  stopTimer(2);
+  document.querySelectorAll('.drop-zone').forEach(function(z){z.innerHTML='';});
+  GENUS_DATA.forEach(function(item){
+    var zone=document.getElementById('dz-'+item.cat);
+    var chip=Array.from(document.querySelectorAll('#sec-2 .genus-chip')).find(function(c){return c.textContent===item.word;})||createGenusChip(item);
+    if(zone) zone.appendChild(chip);
+  });
+  colorAllGenusChips();
+}
+function createGenusChip(item){
+  var chip=document.createElement('div');chip.className='genus-chip';
+  chip.textContent=item.word;chip.dataset.cat=item.cat;chip.draggable=true;
+  return chip;
+}
+function resetGenus(){ initGenus(); }
+
+/* ═══════════════════════════════════════════════════════
+   LÜCKENTEXT
+═══════════════════════════════════════════════════════ */
+function initLuecken() {
+  var ul = document.getElementById('lueckenContainer');
+  ul.innerHTML = '';
+  LUECKEN_DATA.forEach(function(item, idx) {
+    var li = document.createElement('li'); li.className = 'luecken-item';
+    var span1 = document.createElement('span'); span1.textContent = item.before;
+    var inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'blank'; inp.placeholder = '';
+    inp.dataset.ans = item.answer.toLowerCase();
+    var ansLen = Math.max(item.answer.length, 4);
+    inp.style.width = (ansLen + 4) + 'ch';
+    inp.setAttribute('data-idx', idx);
+    inp.addEventListener('input', function(){
+      lueckenLiveCheck(inp);
+      timerAutoStart(3);
+      checkLueckenAllOk();
+    });
+    var span2 = document.createElement('span'); span2.textContent = item.after;
+    li.appendChild(span1); li.appendChild(inp); li.appendChild(span2);
+    ul.appendChild(li);
+  });
+}
+function lueckenLiveCheck(inp){
+  var val = inp.value.trim().toLowerCase();
+  var ans = inp.dataset.ans;
+  inp.classList.remove('ok','no');
+  if(!val) return;
+  if(val===ans){ inp.classList.add('ok'); return; }
+  if(ans.indexOf(val)===0) return;
+  inp.classList.add('no');
+}
+function checkLueckenAllOk(){
+  var all=document.querySelectorAll('#lueckenContainer input.blank');
+  if(Array.from(all).every(function(i){return i.classList.contains('ok');})) stopTimer(3);
+}
+function showLueckenLoesung(){
+  stopTimer(3);
+  document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+    inp.value=LUECKEN_DATA[inp.getAttribute('data-idx')].answer;
+    inp.classList.add('ok'); inp.classList.remove('no');
+  });
+}
+function resetLuecken(){
+  document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+    inp.value=''; inp.classList.remove('ok','no');
+  });
+  resetTimer(3);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MULTIPLE-CHOICE
+═══════════════════════════════════════════════════════ */
+function initMc() {
+  var cont = document.getElementById('mcContainer');
+  cont.innerHTML = '';
+  MC_DATA.forEach(function(item, qi) {
+    var div = document.createElement('div'); div.className = 'mc-item';
+    var q = document.createElement('div'); q.className = 'mc-question';
+    q.textContent = (qi+1) + '. ' + item.frage;
+    var opts = document.createElement('div'); opts.className = 'mc-opts';
+    item.opts.forEach(function(o, oi) {
+      var btn = document.createElement('button'); btn.className = 'mc-opt';
+      btn.textContent = o;
+      btn.addEventListener('click', function(){
+        if(btn.disabled) return;
+        timerAutoStart(4);
+        var btns = opts.querySelectorAll('.mc-opt');
+        btns.forEach(function(b){ b.disabled=true; });
+        if(oi===item.correct){ btn.classList.add('correct'); }
+        else { btn.classList.add('wrong'); btns[item.correct].classList.add('correct'); }
+        checkMcAllOk();
+      });
+      opts.appendChild(btn);
+    });
+    div.appendChild(q); div.appendChild(opts); cont.appendChild(div);
+  });
+}
+function checkMcAllOk(){
+  var allDisabled=Array.from(document.querySelectorAll('#mcContainer .mc-opt')).filter(function(b){return !b.disabled;}).length===0;
+  if(allDisabled) stopTimer(4);
+}
+function showMcLoesung(){
+  stopTimer(4);
+  document.querySelectorAll('#mcContainer .mc-item').forEach(function(item, qi){
+    var btns = item.querySelectorAll('.mc-opt');
+    btns.forEach(function(b){b.disabled=true;});
+    btns[MC_DATA[qi].correct].classList.add('correct');
+  });
+}
+function resetMc(){
+  document.querySelectorAll('#mcContainer .mc-opt').forEach(function(b){
+    b.disabled=false; b.classList.remove('correct','wrong');
+  });
+  resetTimer(4);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SATZBAU
+═══════════════════════════════════════════════════════ */
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(clientX<r.left+r.width/2)return chips[i];}
+  return null;
+}
+function sbCapitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function sbUpdateCapitalization(row){
+  var chips=Array.from(row.querySelectorAll('.chip:not(.punct-chip)'));
+  chips.forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word,idx){
+  var chip=document.createElement('div'); chip.className='chip';
+  chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.dataset.sbIdx=String(idx);
+  if(word===','||word===';') chip.classList.add('punct-chip');
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(5);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){chip.style.opacity='0.4';},0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity='';sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault();if(!sbDragged)return;
+    if(sbDragged.dataset.sbIdx!==String(idx))return;
+    var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);
+    if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault();if(!sbDragged)return;
+    if(sbDragged.dataset.sbIdx!==String(idx))return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){return c.dataset.orig;});
+  var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});
+  chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});
+  var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+  if(ok){var p=document.createElement('span');p.className='sb-punkt';p.textContent=satzbauData[idx].punct||'.';row.appendChild(p);}
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});
+    row.classList.remove('correct','incorrect');fb.textContent='';return;
+  }
+  setTimeout(function(){
+    timerAutoStart(5);
+    var ok=sbColorRow(idx);
+    if(ok){
+      row.classList.add('correct');row.classList.remove('incorrect');
+      fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect');row.classList.remove('correct');
+      fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});
+  if(allOk) stopTimer(5);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+  while(bank.firstChild)bank.removeChild(bank.firstChild);
+  while(row.firstChild)row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){
+    var chip=allChips[word];
+    if(!chip){chip=sbMakeChip(word,idx);}
+    if(word!==','&&word!==';') chip.textContent=(i===0)?sbCapitalize(word):word;
+    chip.classList.remove('correct','incorrect'); row.appendChild(chip);
+  });
+  fb.textContent=''; setTimeout(function(){sbCheckAuto(idx);},100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild)bank.removeChild(bank.firstChild);
+  while(row.firstChild)row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+  parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div');item.className='satzbau-item';
+    var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;
+    var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;
+    var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+    parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});
+    sbRegisterZone(bank,idx);sbRegisterZone(row,idx);
+    var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var s=document.createElement('button');s.className='btn';s.textContent='Lösen';s.setAttribute('data-idx',idx);
+    s.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});
+    var r=document.createElement('button');r.className='btn';r.textContent='↺ Neustart';r.setAttribute('data-idx',idx);
+    r.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});
+    btnRow.appendChild(s);btnRow.appendChild(r);
+    item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+function sbShowAllSolutions(){ satzbauData.forEach(function(_,i){sbShowSolution(i);}); }
+function sbResetAll(){ satzbauData.forEach(function(_,i){sbResetOne(i);}); resetTimer(5); }
+
+/* ═══════════════════════════════════════════════════════
+   SCHREIBWERKSTATT
+═══════════════════════════════════════════════════════ */
+var LS_PREFIX = 'schreibwerkstatt_' + SCHREIB_NIVEAU + '_' + SCHREIB_CODE + '_';
+
+function schreibNameSpeichern(){
+  var n=document.getElementById('sw-name').value;
+  localStorage.setItem(LS_PREFIX+'name', n);
+}
+
+function schreibFehlerErklaerung(err){
+  var code=(err&&err.message)||'';
+  if(code==='NOT_ACTIVATED') return 'Der Versand-Dienst muss einmalig von Frank aktiviert werden. Dein Text ist gespeichert.';
+  if(code.indexOf('HTTP_')===0) return 'Server-Fehler (' + code + '). Bitte versuche es später nochmal.';
+  if(code==='API_ERROR') return 'Der Server hat den Versand abgelehnt. Dein Text ist im Browser gespeichert.';
+  return 'Kein Internetzugang oder Verbindungsproblem. Dein Text ist gespeichert.';
+}
+
+function schreibKopierenEinzeln(nr){
+  var name=document.getElementById('sw-name').value||'–';
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  var text=ta?ta.value:'';
+  var txt=SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+name+'\n\n'+text;
+  if(navigator.clipboard){navigator.clipboard.writeText(txt);}else{var el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);}
+}
+
+function schreibZeigeFehler(nr, err){
+  var st=document.getElementById('sw-status-'+nr); if(!st) return;
+  var name=document.getElementById('sw-name').value||'–';
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  var text=ta?ta.value:'';
+  var subject=encodeURIComponent(SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+name);
+  var body=encodeURIComponent(text);
+  var mailto='mailto:'+FORMSUBMIT_MAILTO+'?subject='+subject+'&body='+body;
+  st.innerHTML='<div class="schreib-fb"><div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — dein Text ist sicher im Browser gespeichert.</div><div class="schreib-fb-text">'+schreibFehlerErklaerung(err)+'</div><div class="schreib-fb-actions"><a href="'+mailto+'" class="schreib-fb-btn">📧 In Mail-Programm öffnen</a><button class="schreib-fb-btn" onclick="schreibKopierenEinzeln('+nr+')">📋 In Zwischenablage</button><button class="schreib-fb-btn-prim" onclick="schreibSendenEinzeln('+nr+')">🔄 Nochmal versuchen</button></div><div class="schreib-fb-hilfe">Wenn nichts klappt: sag Frank im Unterricht Bescheid – er muss den Versand einmalig aktivieren.</div></div>';
+}
+
+function schreibSendenEinzeln(nr){
+  var name=document.getElementById('sw-name').value.trim();
+  if(!name){
+    var nameInp=document.getElementById('sw-name');
+    nameInp.style.animation='shake 0.3s';
+    setTimeout(function(){nameInp.style.animation='';},300);
+    nameInp.focus();
+    var st=document.getElementById('sw-status-'+nr);
+    if(st) st.textContent='⚠ Bitte zuerst deinen Namen eingeben.';
+    return;
+  }
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  if(!ta||ta.value.trim().length<SCHREIB_MIN_CHARS){
+    var st2=document.getElementById('sw-status-'+nr);
+    if(st2) st2.textContent='Bitte schreibe etwas mehr.';
+    return;
+  }
+  var st3=document.getElementById('sw-status-'+nr);
+  if(st3) st3.textContent='⏳ Sende …';
+  var btn=document.querySelector('.schreib-send-btn[data-nr="'+nr+'"]');
+  if(btn) btn.disabled=true;
+  var aufgabe=AUFGABEN[nr-1];
+  var subject=SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+(aufgabe?aufgabe.titel:'')+' · '+name;
+  var body={'access_key':FORMSUBMIT_ACCESS_KEY,'name':name,'subject':subject,'from_name':'fabDaF Schreibwerkstatt','lektion':SCHREIB_NIVEAU+' '+SCHREIB_CODE,'message':ta.value.trim()};
+  fetch(FORMSUBMIT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){if(!r.ok)throw new Error('HTTP_'+r.status);return r.json();})
+    .then(function(data){
+      var ok=data&&(data.success===true||data.success==='true');
+      if(!ok){
+        var code='API_ERROR';var apiMsg=(data&&data.message)||'';
+        if(/[Aa]ctivat|domain|access[\s_-]?key/.test(apiMsg))code='NOT_ACTIVATED';
+        var e=new Error(code);e.apiMessage=apiMsg;throw e;
+      }
+      localStorage.setItem(LS_PREFIX+'sent_'+nr,'1');
+      var st4=document.getElementById('sw-status-'+nr);
+      if(st4){st4.className='schreib-status sent';st4.textContent='✓ Gesendet!';}
+      if(btn) btn.disabled=false;
+    })
+    .catch(function(err){
+      if(btn) btn.disabled=false;
+      schreibZeigeFehler(nr,err);
+    });
+}
+
+function schreibSendenAlle(){
+  var name=document.getElementById('sw-name').value.trim();
+  if(!name){document.getElementById('sw-name').focus();return;}
+  AUFGABEN.forEach(function(a){
+    var sent=localStorage.getItem(LS_PREFIX+'sent_'+a.nr);
+    if(!sent) schreibSendenEinzeln(a.nr);
+  });
+}
+
+function initSchreibwerkstatt(){
+  var cont=document.getElementById('schreibAufgabenContainer');cont.innerHTML='';
+  var savedName=localStorage.getItem(LS_PREFIX+'name')||'';
+  document.getElementById('sw-name').value=savedName;
+  AUFGABEN.forEach(function(a){
+    var div=document.createElement('div');div.className='schreib-aufgabe';
+    var nr=document.createElement('div');nr.className='schreib-aufgabe-nr';nr.textContent='Aufgabe '+a.nr+' von '+AUFGABEN.length;
+    var titel=document.createElement('div');titel.className='schreib-aufgabe-titel';titel.textContent=a.titel;
+    var frage=document.createElement('div');frage.className='schreib-aufgabe-frage';frage.textContent=a.frage;
+    var bsp=document.createElement('div');bsp.className='schreib-beispiel';bsp.textContent=a.beispiel;
+    var ta=document.createElement('textarea');ta.className='schreib-mini-textarea';ta.setAttribute('data-aufgabe',a.nr);
+    ta.placeholder='Deine Antwort …';
+    var savedText=localStorage.getItem(LS_PREFIX+a.nr)||'';
+    ta.value=savedText;
+    ta.addEventListener('input',function(){localStorage.setItem(LS_PREFIX+a.nr,ta.value);});
+    var row=document.createElement('div');row.className='schreib-send-row';
+    var btn=document.createElement('button');btn.className='schreib-send-btn';
+    btn.setAttribute('data-nr',a.nr);btn.textContent='📨 An Frank senden';
+    var alreadySent=localStorage.getItem(LS_PREFIX+'sent_'+a.nr);
+    btn.addEventListener('click',function(){schreibSendenEinzeln(a.nr);});
+    var st=document.createElement('span');st.className='schreib-status';st.id='sw-status-'+a.nr;
+    if(alreadySent){st.className='schreib-status sent';st.textContent='✓ Bereits gesendet';}
+    row.appendChild(btn);row.appendChild(st);
+    div.appendChild(nr);div.appendChild(titel);div.appendChild(frage);div.appendChild(bsp);div.appendChild(ta);div.appendChild(row);
+    cont.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   WORTSCHATZ
+═══════════════════════════════════════════════════════ */
+function initWortschatz(){
+  var container=document.getElementById('wortschatzContainer');container.innerHTML='';
+  WORTSCHATZ.forEach(function(item){
+    var row=document.createElement('div');row.className='luecken-item';row.style.marginBottom='0';
+    var prompt=document.createElement('div');prompt.style.cssText='font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;';
+    prompt.textContent=item.en;row.appendChild(prompt);
+    var fields=document.createElement('div');fields.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+    if(item.type==='n'){
+      var artInp=document.createElement('input');artInp.className='blank';artInp.type='text';
+      artInp.placeholder='Artikel';artInp.style.width='70px';
+      artInp.dataset.answer=item.artikel;artInp.dataset.field='art';
+      artInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(artInp);
+      var wordInp=document.createElement('input');wordInp.className='blank';wordInp.type='text';
+      wordInp.placeholder='Wort';wordInp.style.width='160px';
+      wordInp.dataset.answer=item.de;wordInp.dataset.field='word';
+      wordInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(wordInp);
+      var plInp=document.createElement('input');plInp.className='blank';plInp.type='text';
+      plInp.placeholder='Plural';plInp.style.width='140px';
+      plInp.dataset.answer=item.plural;plInp.dataset.field='plural';
+      if(item.plural==='–'){
+        plInp.value='–';plInp.disabled=true;plInp.classList.add('correct');
+        plInp.style.opacity='0.6';plInp.title='Kein Plural';
+      } else {
+        plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      }
+      fields.appendChild(plInp);
+    } else {
+      var inp=document.createElement('input');inp.className='blank';inp.type='text';
+      inp.placeholder='Deutsch';inp.style.width='220px';
+      inp.dataset.answer=item.de;inp.dataset.field='word';
+      inp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(inp);
+    }
+    row.appendChild(fields);container.appendChild(row);
+  });
+}
+
+function wortschatzCheck(inp){
+  var user=inp.value;var answer=inp.dataset.answer;var field=inp.dataset.field;
+  inp.classList.remove('correct','wrong');
+  if(!user) return;
+  var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
+  var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
+  if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+  else if(cmpAnswer.indexOf(cmpUser)===0){/* Präfix – neutral */}
+  else{inp.classList.add('wrong');}
+}
+
+function checkWortschatzAllOk(){
+  var inputs=document.querySelectorAll('#sec-7 input.blank');
+  var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.disabled||i.classList.contains('correct');});
+  if(allOk) stopTimer(7);
+}
+
+function showWortschatzLoesung(){
+  stopTimer(7);
+  document.querySelectorAll('#sec-7 input.blank').forEach(function(inp){
+    inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');
+  });
+}
+
+function resetWortschatz(){
+  document.querySelectorAll('#sec-7 input.blank').forEach(function(inp){
+    if(!inp.disabled){inp.value='';inp.classList.remove('correct','wrong');}
+  });
+  resetTimer(7);
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  initVorentlastung();
+  initGenus();
+  initLuecken();
+  initMc();
+  initSatzbau();
+  initSchreibwerkstatt();
+  initWortschatz();
+});
+
+/* shake-animation für Name-Feld */
+var styleEl=document.createElement('style');
+styleEl.textContent='@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}';
+document.head.appendChild(styleEl);
+</script>
+</body>
+</html>
