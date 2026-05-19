@@ -147,6 +147,21 @@ input.blank:focus { border-bottom-color:#667eea; }
 input.blank.ok, input.blank.correct { border-bottom-color:#27ae60; color:#27ae60; font-weight:700; }
 input.blank.no, input.blank.wrong   { border-bottom-color:#e74c3c; color:#e74c3c; }
 
+/* ── WORTBANK ── */
+.wortbank-label { font-weight:700; color:#667eea; font-size:0.85em; margin-bottom:8px; }
+.wortbank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:48px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.wortbank-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:5px 12px; border-radius:14px; cursor:pointer;
+  font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none;
+}
+.wortbank-chip:hover { background:#667eea; color:white; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; cursor:default; pointer-events:none; }
+
 /* ── MULTIPLE-CHOICE ── */
 .mc-item { background:#f8f9ff; border:1px solid #e0e7ff; border-left:4px solid #667eea; border-radius:8px; padding:14px 16px; margin-bottom:10px; }
 .mc-question { font-size:1.05em; color:#333; margin-bottom:10px; font-weight:500; line-height:1.5; }
@@ -336,6 +351,8 @@ input.blank.no, input.blank.wrong   { border-bottom-color:#e74c3c; color:#e74c3c
       </div>
     </div>
     <div class="hilfe-box">Ergänze die fehlenden Wörter. Das Feedback erscheint beim Tippen — grün = richtig, rot = falsch.</div>
+    <div class="wortbank-label">📋 Wortbank – klicke auf ein Wort, um es einzusetzen:</div>
+    <div class="wortbank" id="wortbank-luecken"></div>
     <ul class="luecken-list" id="lueckenContainer"></ul>
   </div>
 </div>
@@ -789,6 +806,45 @@ function resetGenus(){ initGenus(); }
 /* ═══════════════════════════════════════════════════════
    LÜCKENTEXT
 ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   WORTBANK
+═══════════════════════════════════════════════════════ */
+function initWortbank() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  bank.innerHTML = '';
+  var words = LUECKEN_DATA.map(function(d){ return d.answer; });
+  for(var i=words.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=words[i];words[i]=words[j];words[j]=t;}
+  words.forEach(function(w){
+    var chip = document.createElement('span');
+    chip.className = 'wortbank-chip';
+    chip.textContent = w;
+    chip.addEventListener('click', function(){
+      if(chip.classList.contains('used')) return;
+      var focused = document.querySelector('#lueckenContainer input.blank:focus');
+      if(!focused) {
+        var empties = Array.from(document.querySelectorAll('#lueckenContainer input.blank')).filter(function(i){return !i.value;});
+        if(empties.length) focused = empties[0];
+      }
+      if(focused) {
+        focused.value = w;
+        focused.dispatchEvent(new Event('input'));
+        focused.focus();
+      }
+    });
+    bank.appendChild(chip);
+  });
+}
+function updateWortbankChips() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  var inputs = Array.from(document.querySelectorAll('#lueckenContainer input.blank'));
+  var usedWords = inputs.filter(function(i){return i.classList.contains('ok');}).map(function(i){return i.dataset.ans;});
+  Array.from(bank.querySelectorAll('.wortbank-chip')).forEach(function(chip){
+    chip.classList.toggle('used', usedWords.indexOf(chip.textContent.toLowerCase()) !== -1);
+  });
+}
+
 function initLuecken() {
   var ul = document.getElementById('lueckenContainer');
   ul.innerHTML = '';
@@ -810,6 +866,7 @@ function initLuecken() {
     li.appendChild(span1); li.appendChild(inp); li.appendChild(span2);
     ul.appendChild(li);
   });
+  initWortbank();
 }
 function lueckenLiveCheck(inp){
   var val = inp.value.trim().toLowerCase();
@@ -830,12 +887,14 @@ function showLueckenLoesung(){
     inp.value=LUECKEN_DATA[inp.getAttribute('data-idx')].answer;
     inp.classList.add('ok'); inp.classList.remove('no');
   });
+  updateWortbankChips();
 }
 function resetLuecken(){
   document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
     inp.value=''; inp.classList.remove('ok','no');
   });
   resetTimer(3);
+  initWortbank();
 }
 
 /* ═══════════════════════════════════════════════════════
