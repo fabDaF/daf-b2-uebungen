@@ -325,6 +325,21 @@ input.blank.wrong   { border-color: #e74c3c; background: #ffebee; }
   .schreib-name-box { padding: 12px 14px; }
 }
 /* /Schreibwerkstatt-Innenraum-Fix */
+/* ── WORTBANK ── */
+.wortbank-label { font-weight:700; color:#667eea; font-size:0.85em; margin-bottom:8px; }
+.wortbank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:48px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.wortbank-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:5px 12px; border-radius:14px; cursor:pointer;
+  font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none;
+}
+.wortbank-chip:hover { background:#667eea; color:white; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; cursor:default; pointer-events:none; }
+
 </style>
 </head>
 <body>
@@ -827,6 +842,45 @@ var LUECKEN_DATA = [
 
 var sizeMap = { s: '50px', m: '90px', l: '150px', xl: '200px' };
 
+/* ═══════════════════════════════════════════════════════
+   WORTBANK
+═══════════════════════════════════════════════════════ */
+function initWortbank() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  bank.innerHTML = '';
+  var words = LUECKEN_DATA.map(function(d){ return d.answer; });
+  for(var i=words.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=words[i];words[i]=words[j];words[j]=t;}
+  words.forEach(function(w){
+    var chip = document.createElement('span');
+    chip.className = 'wortbank-chip';
+    chip.textContent = w;
+    chip.addEventListener('click', function(){
+      if(chip.classList.contains('used')) return;
+      var focused = document.querySelector('#lueckenContainer input.blank:focus');
+      if(!focused) {
+        var empties = Array.from(document.querySelectorAll('#lueckenContainer input.blank')).filter(function(i){return !i.value;});
+        if(empties.length) focused = empties[0];
+      }
+      if(focused) {
+        focused.value = w;
+        focused.dispatchEvent(new Event('input'));
+        focused.focus();
+      }
+    });
+    bank.appendChild(chip);
+  });
+}
+function updateWortbankChips() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  var inputs = Array.from(document.querySelectorAll('#lueckenContainer input.blank'));
+  var usedWords = inputs.filter(function(i){return i.classList.contains('ok');}).map(function(i){return i.dataset.ans;});
+  Array.from(bank.querySelectorAll('.wortbank-chip')).forEach(function(chip){
+    chip.classList.toggle('used', usedWords.indexOf(chip.textContent.toLowerCase()) !== -1);
+  });
+}
+
 function initLuecken() {
     var container = document.getElementById('lueckenContainer');
     container.innerHTML = '';
@@ -866,6 +920,7 @@ function showLueckenLoesung() {
         showHint(inp);
     });
     timerStop(1);
+  updateWortbankChips();
 }
 
 function resetLuecken() {
