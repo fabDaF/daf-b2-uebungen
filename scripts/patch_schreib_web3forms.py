@@ -4,7 +4,7 @@ Patcher: stellt alle Schreibwerkstatt-Dateien um auf
 - Web3Forms statt formsubmit.co (kein Sponsor-Footer)
 - body.success-Check (verhindert stille Fehler)
 - Customer-Success-Error-UX (Erklärung + Mailto + Zwischenablage + Retry)
-- Konsistenten Mailto-Fallback an unterricht@fabdaf.onmicrosoft.com (auch für die 44 C1-Dateien mit Alias-Drift)
+- Konsistenten Mailto-Fallback an unterricht@frankburkert-daf.de (auch für die 44 C1-Dateien mit Alias-Drift)
 
 Erkennt sowohl multi-line (B2 GEHIRN_03R-Stil) als auch one-liner (C1 3013R-Stil) Varianten.
 
@@ -17,7 +17,7 @@ from pathlib import Path
 
 ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff'
 API_ENDPOINT = 'https://api.web3forms.com/submit'
-MAILTO_FALLBACK = 'unterricht@fabdaf.onmicrosoft.com'
+MAILTO_FALLBACK = 'unterricht@frankburkert-daf.de'
 
 # ---------- Brace-Matching ----------
 
@@ -328,12 +328,12 @@ def insert_helpers(text):
 
 
 def normalize_footer_email(text):
-    """Falls die Datei noch 'FrankBurkert@fabdaf.onmicrosoft.com' im Footer / als
+    """Falls die Datei noch 'unterricht@frankburkert-daf.de' im Footer / als
     statischen Mailto-Link enthält, durch den aktuellen Alias ersetzen.
     (Code-Konstanten werden bereits durch patch_constants gehändelt; das hier ist für
     sichtbares HTML-Markup.)"""
-    if 'FrankBurkert@fabdaf.onmicrosoft.com' in text:
-        new = text.replace('FrankBurkert@fabdaf.onmicrosoft.com', 'unterricht@fabdaf.onmicrosoft.com')
+    if 'unterricht@frankburkert-daf.de' in text:
+        new = text.replace('unterricht@frankburkert-daf.de', 'unterricht@frankburkert-daf.de')
         return new, True
     return text, False
 

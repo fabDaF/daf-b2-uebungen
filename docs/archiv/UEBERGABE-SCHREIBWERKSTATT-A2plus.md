@@ -293,7 +293,7 @@ bash scripts/setup-sandbox-credentials.sh
 4. **5 Mikroaufgaben.** Nicht 4, nicht 6. Genau 5.
 5. **Jede Aufgabe hat ein Beispiel** (Format: `Beispiel: „..."`).
 6. **Aufgaben sind lektionsspezifisch.** Generische Aufgaben sind verboten — wenn du dasselbe Aufgabenset für mehrere Lektionen verwenden würdest, hast du die Aufgaben falsch designt.
-7. **Endpoint:** `https://formsubmit.co/ajax/unterricht@fabdaf.onmicrosoft.com` (NICHT die Primäradresse, niemals `frankburkert@gmx.net` o.ä. — siehe CLAUDE.md zur E-Mail-Alias-Rotation).
+7. **Endpoint:** `https://formsubmit.co/ajax/unterricht@frankburkert-daf.de` (NICHT die Primäradresse, niemals `frankburkert@gmx.net` o.ä. — siehe CLAUDE.md zur E-Mail-Alias-Rotation).
 8. **Pflicht-LocalStorage-Keys:** `schreibwerkstatt_<NIVEAU>_<CODE>_…` — Niveau-Prefix wichtig wegen Cross-Lesson-Isolation.
 9. **Anführungszeichen:** öffnend `„` (U+201E), schließend `"` (U+201C). Niemals ASCII `"`.
 10. **Vor jedem Commit JSDOM-Test.** Ohne Test kein Commit.

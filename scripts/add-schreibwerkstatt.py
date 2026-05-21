@@ -73,7 +73,7 @@ JS_BLOCK_TEMPLATE = """
 var SCHREIB_NAME_KEY      = 'schreibwerkstatt_A1_{CODE}_name';
 var SCHREIB_KEY_PREFIX    = 'schreibwerkstatt_A1_{CODE}_';
 var SCHREIB_SENT_PREFIX   = 'schreibwerkstatt_A1_{CODE}_sent_';
-var FORMSUBMIT_ENDPOINT   = 'https://formsubmit.co/ajax/unterricht@fabdaf.onmicrosoft.com';
+var FORMSUBMIT_ENDPOINT   = 'https://formsubmit.co/ajax/unterricht@frankburkert-daf.de';
 var SCHREIB_LEKTION       = 'A1 – Lektion {CODE} · {TITLE}';
 var SCHREIB_MIN_CHARS     = 5;
 
@@ -212,7 +212,7 @@ function schreibSendenEinzeln(nr) {
         var subjectEnc = encodeURIComponent(subject);
         var bodyEnc = encodeURIComponent('Name: ' + schreibAktuellerName() + '\\n\\n' + message);
         st.classList.add('error');
-        st.innerHTML = '✗ Versand fehlgeschlagen — <a href="mailto:unterricht@fabdaf.onmicrosoft.com?subject=' + subjectEnc + '&body=' + bodyEnc + '" style="color:#c62828;font-weight:700;">stattdessen per Mail-Programm</a>';
+        st.innerHTML = '✗ Versand fehlgeschlagen — <a href="mailto:unterricht@frankburkert-daf.de?subject=' + subjectEnc + '&body=' + bodyEnc + '" style="color:#c62828;font-weight:700;">stattdessen per Mail-Programm</a>';
       }
     }
   );

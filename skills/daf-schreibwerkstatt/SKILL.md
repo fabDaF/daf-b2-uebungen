@@ -86,7 +86,7 @@ Die Skalierung wird im Skript automatisch über `--niveau` gesetzt.
 ```js
 var FORMSUBMIT_ENDPOINT  = 'https://api.web3forms.com/submit';
 var FORMSUBMIT_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
-var FORMSUBMIT_MAILTO    = 'unterricht@fabdaf.onmicrosoft.com';
+var FORMSUBMIT_MAILTO    = 'unterricht@frankburkert-daf.de';
 ```
 
 Body: `{ access_key, name, subject, from_name: 'fabDaF Schreibwerkstatt', lektion, message }`. **KEINE** formsubmit-Felder mehr (`_subject`, `_template`, `_captcha` sind weg).
@@ -139,11 +139,11 @@ Vollständiger Reference-Code: `outputs/patch_schreib_web3forms.py` (Konstanten 
 
 ### Mailto-Fallback NIE auf Primäradresse
 
-`FORMSUBMIT_MAILTO` ist immer der Alias `unterricht@fabdaf.onmicrosoft.com`. Niemals `FrankBurkert@…` hardcoden — selbst nicht, wenn Quellcode aus älteren C1-Dateien das suggeriert. Memory `feedback_schreibwerkstatt-mail-aus-footer.md` und `reference_schreibwerkstatt-web3forms.md` erzwingen das. Bei Alias-Rotation: im Patcher `MAILTO_FALLBACK` ändern und idempotent re-laufen lassen.
+`FORMSUBMIT_MAILTO` ist immer der Alias `unterricht@frankburkert-daf.de`. Niemals `FrankBurkert@…` hardcoden — selbst nicht, wenn Quellcode aus älteren C1-Dateien das suggeriert. Memory `feedback_schreibwerkstatt-mail-aus-footer.md` und `reference_schreibwerkstatt-web3forms.md` erzwingen das. Bei Alias-Rotation: im Patcher `MAILTO_FALLBACK` ändern und idempotent re-laufen lassen.
 
 ### Access-Key-Rotation
 
-Bei Bedarf neuen Key auf web3forms.com generieren (an `unterricht@fabdaf.onmicrosoft.com` binden), in `outputs/patch_schreib_web3forms.py` Konstante `ACCESS_KEY` aktualisieren, Patcher idempotent über alle 477 Dateien laufen lassen — pro-Datei-Diff ist eine Zeile.
+Bei Bedarf neuen Key auf web3forms.com generieren (an `unterricht@frankburkert-daf.de` binden), in `outputs/patch_schreib_web3forms.py` Konstante `ACCESS_KEY` aktualisieren, Patcher idempotent über alle 477 Dateien laufen lassen — pro-Datei-Diff ist eine Zeile.
 
 ---
 
