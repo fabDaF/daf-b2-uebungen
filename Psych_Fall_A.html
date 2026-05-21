@@ -124,7 +124,7 @@ input.blank.no { border-bottom-color:#e74c3c; color:#e74c3c; }
 .schreib-card .sc-titel { font-weight:700; color:#667eea; font-size:1em; margin-bottom:6px; }
 .schreib-card .sc-frage { color:#444; font-size:.93em; line-height:1.6; margin-bottom:8px; }
 .schreib-card .sc-beispiel { font-size:.88em; color:#888; font-style:italic; margin-bottom:10px; }
-.schreib-mini-textarea { width:100%; min-height:100px; border:1.5px solid #c5cae9; border-radius:8px; padding:10px 12px; font-family:inherit; font-size:.93em; line-height:1.55; resize:vertical; outline:none; transition:border-color .2s; }
+.schreib-mini-textarea { width:100%; min-height: 350px; border:1.5px solid #c5cae9; border-radius:8px; padding:10px 12px; font-family:inherit; font-size:.93em; line-height:1.55; resize:vertical; outline:none; transition:border-color .2s; }
 .schreib-mini-textarea:focus { border-color:#667eea; }
 .sw-senden-btn { margin-top:10px; padding:8px 20px; background:#667eea; color:white; border:none; border-radius:8px; font-size:.88em; font-weight:600; cursor:pointer; transition:opacity .2s; }
 .sw-senden-btn:hover { opacity:.85; }
@@ -156,6 +156,19 @@ input.blank.no { border-bottom-color:#e74c3c; color:#e74c3c; }
     .amdp-term { min-width:unset; }
     .genus-zones { grid-template-columns:1fr 1fr 1fr; }
 }
+/* ── WORTBANK ── */
+.wortbank-label { font-weight:700; color:#667eea; font-size:0.85em; margin-bottom:8px; }
+.wortbank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:48px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.wortbank-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:5px 12px; border-radius:14px; cursor:default;
+  font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none;
+}
+
 </style>
 </head>
 <body>
@@ -442,7 +455,7 @@ input.blank.no { border-bottom-color:#e74c3c; color:#e74c3c; }
 
 <div class="author-footer">
     <span class="author-name">&copy; Frank Burkert</span> &middot; Psychiatrische Fallvignetten &middot;
-    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a><br>📅 Termin vereinbaren &middot; <a href="https://termin.frankburkert-daf.de">https://termin.frankburkert-daf.de</a>
 </div>
 </div><!-- /container -->
 
@@ -570,9 +583,7 @@ function initGenus() {
         chip.dataset.art = item.artikel;
         chip.draggable = true;
         chip.id = 'gc-'+item.wort;
-        chip.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text', chip.id); timerAutoStart(4); });
-        chip.addEventListener('click', function(){ timerAutoStart(4); moveToNext(chip); });
-        bank.appendChild(chip);
+        chip.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text', chip.id); timerAutoStart(4); });        bank.appendChild(chip);
     });
 }
 function allowDrop(e){ e.preventDefault(); }
@@ -627,6 +638,23 @@ function resetGenus() {
 /* ════════════════════════════════════════
    LÜCKENTEXT
 ════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   WORTBANK
+═══════════════════════════════════════════════════════ */
+function initWortbank() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  bank.innerHTML = '';
+  var words = LUECKEN_DATA.map(function(d){ return d.answer; });
+  for(var i=words.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=words[i];words[i]=words[j];words[j]=t;}
+  words.forEach(function(w){
+    var chip = document.createElement('span');
+    chip.className = 'wortbank-chip';
+    chip.textContent = w;
+    bank.appendChild(chip);
+  });
+}
+
 function initLuecken() {
     var c = document.getElementById('lueckenContainer');
     c.innerHTML = '';
@@ -641,7 +669,7 @@ function initLuecken() {
 }
 function lueckenCheck(inp) {
     timerAutoStart(5);
-    var val = inp.value.trim().toLowerCase();
+    var val = inp.value.trim();
     var ans = inp.dataset.ans;
     inp.classList.remove('ok','no');
     if (!val) return;
@@ -658,8 +686,7 @@ function showLueckenLoesung() {
     document.querySelectorAll('#sec-5 input.blank').forEach(function(inp){
         inp.value = LUECKEN_DATA[+inp.dataset.idx].ans;
         inp.classList.add('ok'); inp.classList.remove('no');
-    });
-}
+    });}
 function resetLuecken() {
     document.querySelectorAll('#sec-5 input.blank').forEach(function(inp){ inp.value=''; inp.classList.remove('ok','no'); });
 }
