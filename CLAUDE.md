@@ -164,7 +164,7 @@ In `MANIFEST.yaml` unter `known_issues:` den Eintrag löschen, dann
 Die formsubmit-Endpunkte und mailto-Footer in den Lektions-HTMLs
 verwenden absichtlich NICHT Franks Microsoft-Primäradresse, sondern
 einen rotierbaren Alias auf derselben Domain
-(`fabdaf.onmicrosoft.com`). Aktueller Alias: **`unterricht@fabdaf.onmicrosoft.com`**.
+(`fabdaf.onmicrosoft.com`). Aktueller Alias: **`unterricht@frankburkert-daf.de`**.
 
 Wenn der aktive Alias zu sehr verspammt ist (Trigger: Frank merkt es),
 ist der Rotations-Workflow:
