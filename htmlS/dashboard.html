@@ -2166,22 +2166,17 @@ function aktualisiereWAEinheit() {
   document.getElementById('btnWA').href = 'https://wa.me/?text=' + encodeURIComponent(text);
 }
 
-// E-Mail-Versand direkt über den OWA-Compose-Endpoint.
+// E-Mail-Versand über mailto: — triggert den macOS-Default-Mail-Handler.
 //
-// Frühere Implementierung benutzte mailto:, das den OS-Default-Mail-Handler
-// triggert. Bei Frank ist das die Outlook-PWA — mailto: löst dort eine sehr
-// lange Kette aus (PWA-Cold-Start → Chrome-Renderer → OWA-Session-Auth →
-// mailto-Parsing → Compose-Modal). Mit dem neuen Konto-Alias
-// (unterricht@frankburkert-daf.de) wurde das spürbar zäh.
+// Seit 2026-05-22 ist das wieder Apple Mail (vorher Outlook PWA). Apple Mail
+// ist mit Franks Exchange-Account verbunden und sendet automatisch über den
+// Alias unterricht@frankburkert-daf.de — siehe Mail → Einstellungen →
+// Verfassen → "Neue E-Mails senden von".
 //
-// Direkter Compose-Link umgeht die ganze Kette: öffnet einen neuen Tab im
-// schon-offenen Browser, OWA-Session ist dort aktiv, Compose-Fenster kommt
-// in 1-2 Sekunden statt nach 10-20.
-//
-// Verifiziert am 2026-05-22: outlook.office.com/mail/0/deeplink/compose
-// öffnet das Compose-Fenster direkt mit vorausgefülltem Betreff und Body.
-// (Microsoft hatte diese Parameter zwischenzeitlich deaktiviert — sind
-// inzwischen wieder aktiv.)
+// Zwischenzeitlich (gleicher Tag) war hier ein outlook.office.com/deeplink-
+// Compose-Link, um die Outlook-PWA-Cold-Start-Latenz zu umgehen. Da der
+// Default-Handler jetzt aber Apple Mail ist, geht mailto: direkt und ohne
+// Browser-Tab-Umweg.
 function sendeMail() {
   const betreff = 'fabDaF – ' + _titel;
 
@@ -2196,16 +2191,14 @@ function sendeMail() {
   // Modal ZUERST schließen — visuelles Feedback ohne Verzögerung.
   schliesseModal();
 
-  const owaUrl = 'https://outlook.office.com/mail/0/deeplink/compose'
+  const url = 'mailto:'
     + '?subject=' + encodeURIComponent(betreff)
     + '&body=' + encodeURIComponent(body);
 
-  // Anchor-Klick mit target=_blank — funktioniert zuverlässig in allen
-  // Browsern, Popup-Blocker greift bei direkter User-Geste nicht.
+  // Anchor-Klick statt window.location.href — vermeidet, dass der Browser
+  // die Dashboard-Seite "verlässt", falls der mailto-Handler hängt.
   const a = document.createElement('a');
-  a.href = owaUrl;
-  a.target = '_blank';
-  a.rel = 'noopener';
+  a.href = url;
   a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
