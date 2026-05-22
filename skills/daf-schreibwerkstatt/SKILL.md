@@ -2,7 +2,8 @@
 name: daf-schreibwerkstatt
 description: >
   Verbindliches Pattern für den Schreibwerkstatt-Tab in DaF-HTML-Lektionen
-  (R, X, C — nicht V, G, FDxx). Definiert: 5 Mikroaufgaben statt einer
+  (R, X, V, G, W, C — in jeder Lektion außer S und FDxx, seit 22.05.2026).
+  Definiert: 5 Mikroaufgaben statt einer
   großen Schreibaufgabe, Name als Pflichtfeld oben, Button „📨 An Frank
   senden", Web3Forms-Mailversand mit body.success-Check, Customer-Success-
   Error-UX (📧/📋/🔄), LocalStorage-Persistenz, Niveau-Skalierung A1–C2.
@@ -27,7 +28,9 @@ description: >
 
 Frank stellte fest: produktives Schreiben ist die größte Schwachstelle im Online-Unterricht. Lerner überspringen große Schreibaufgaben — die psychologische Hürde ist zu hoch. Der C2-Pilot 0708R hat das Pattern etabliert, das funktioniert: **fünf Mikroaufgaben statt einer großen**, jede mit eigenem Sendebutton an Frank, **Web3Forms** als Endpoint (seit 2026-04-29; vorher formsubmit.co), LocalStorage zur Persistenz, Customer-Success-Error-UX im Fehlerfall.
 
-**Reichweite:** R-, X-, C-Dateien aller Niveaus von A1 bis C2. Nicht in V (Vokabular), G (Grammatik) oder FDxx (Drills) einbauen.
+**Reichweite (Stand 22. Mai 2026):** R-, X-, V-, G-, W-, C-Dateien aller Niveaus von A1 bis C2. **Nur** S-Dateien (Aussprache) und FDxx-Drills bleiben ausgenommen. Frank am 22. Mai 2026: „Seit ich weiß, dass wir die Schreibwerkstatt gut integrieren können, möchte ich sie eigentlich in jeder Lektion sehen, weil Schüler müssen schreiben und hier können sie es endlich." In V- und G-Dateien werden die 5 Mikroaufgaben so weit wie möglich an die Vokabel- bzw. Grammatikreihe der Lektion gebunden (1023G Plusquamperfekt → alle fünf Aufgaben im Plusquamperfekt; 1011V „Meine Freunde" → Aufgaben über deine Freunde). Memory-Eintrag: `feedback_schreibwerkstatt-alle-dateitypen.md`.
+
+**Vorher (bis Mai 2026):** Reichweite war R-, X-, C-Dateien. V- und G-Dateien waren explizit ausgeschlossen. Diese Regel ist überholt.
 
 ---
 
