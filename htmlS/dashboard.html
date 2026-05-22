@@ -2166,16 +2166,22 @@ function aktualisiereWAEinheit() {
   document.getElementById('btnWA').href = 'https://wa.me/?text=' + encodeURIComponent(text);
 }
 
-// E-Mail via mailto: — öffnet den OS-Default-Mail-Client.
-// Microsoft hat alle Outlook-Web-Compose-URL-Parameter deaktiviert
-// (sowohl /mail/deeplink/compose?subject=... als auch
-// /?path=/mail/action/compose öffnen nur noch eine leere Inbox),
-// daher ist mailto: der einzige zuverlässige Weg.
+// E-Mail-Versand direkt über den OWA-Compose-Endpoint.
 //
-// Frank kann den Default-Handler frei wählen:
-//   • macOS Mail → Einstellungen → Allgemein → Standard-E-Mail-Programm
-//   • Edge/Chrome als Outlook-Web-Handler registrieren (Adressleiste,
-//     Schloss-Symbol → Site Settings → mailto erlauben)
+// Frühere Implementierung benutzte mailto:, das den OS-Default-Mail-Handler
+// triggert. Bei Frank ist das die Outlook-PWA — mailto: löst dort eine sehr
+// lange Kette aus (PWA-Cold-Start → Chrome-Renderer → OWA-Session-Auth →
+// mailto-Parsing → Compose-Modal). Mit dem neuen Konto-Alias
+// (unterricht@frankburkert-daf.de) wurde das spürbar zäh.
+//
+// Direkter Compose-Link umgeht die ganze Kette: öffnet einen neuen Tab im
+// schon-offenen Browser, OWA-Session ist dort aktiv, Compose-Fenster kommt
+// in 1-2 Sekunden statt nach 10-20.
+//
+// Verifiziert am 2026-05-22: outlook.office.com/mail/0/deeplink/compose
+// öffnet das Compose-Fenster direkt mit vorausgefülltem Betreff und Body.
+// (Microsoft hatte diese Parameter zwischenzeitlich deaktiviert — sind
+// inzwischen wieder aktiv.)
 function sendeMail() {
   const betreff = 'fabDaF – ' + _titel;
 
@@ -2187,12 +2193,23 @@ function sendeMail() {
     'Viel Erfolg!\n\n' +
     '— Frank Burkert · fabDaF';
 
-  const mailtoUrl = 'mailto:?subject=' +
-    encodeURIComponent(betreff) +
-    '&body=' + encodeURIComponent(body);
-
-  window.location.href = mailtoUrl;
+  // Modal ZUERST schließen — visuelles Feedback ohne Verzögerung.
   schliesseModal();
+
+  const owaUrl = 'https://outlook.office.com/mail/0/deeplink/compose'
+    + '?subject=' + encodeURIComponent(betreff)
+    + '&body=' + encodeURIComponent(body);
+
+  // Anchor-Klick mit target=_blank — funktioniert zuverlässig in allen
+  // Browsern, Popup-Blocker greift bei direkter User-Geste nicht.
+  const a = document.createElement('a');
+  a.href = owaUrl;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function schliesseModal() {
