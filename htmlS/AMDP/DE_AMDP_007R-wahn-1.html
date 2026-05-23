@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMDP – Modul 7 · Wahn (Teil 1)</title>
+<style>
+/* === KERN (daf-kern) === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 600; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+.sec-inner { padding: 24px; }
+.tab-banner { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* === LESETEXT (daf-lesetext) === */
+.section-title { font-size: 1.4em; font-weight: 700; color: #667eea; margin-bottom: 20px; }
+.section-sub { color: #888; font-size: 0.92em; margin-bottom: 20px; }
+.story-text { max-width: 600px; margin: 0 auto; font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 1.8; color: #1a1a1a; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.story-text p { margin-bottom: 1em; text-indent: 1.4em; }
+.story-text p:first-child { text-indent: 0; }
+.story-text h3 { font-size: 1.05em; color: #667eea; margin-top: 1.4em; margin-bottom: 0.4em; text-indent: 0; font-style: italic; }
+.story-source { margin-top: 24px; color: #aaa; font-size: 0.8em; text-align: right; max-width: 600px; margin-left: auto; margin-right: auto; }
+.vocab-hl { background: #ffe9a0; border-radius: 3px; padding: 1px 3px; font-weight: 600; cursor: help; }
+
+/* === VORENTLASTUNG === */
+.foto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.foto-item img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.foto-caption { text-align: center; font-size: 0.85em; color: #667eea; font-weight: 600; margin-top: 6px; }
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+.vocab-card { background: #f8f9ff; border: 1px solid #dde3ff; border-radius: 10px; padding: 14px 16px; }
+.vocab-term { font-weight: 700; color: #667eea; font-size: 1.05em; margin-bottom: 2px; }
+.vocab-en { color: #999; font-size: 0.85em; margin-bottom: 5px; font-style: italic; }
+.vocab-def { color: #555; font-size: 0.92em; line-height: 1.5; }
+
+/* === LÜCKENTEXT === */
+.luecke-list { display: flex; flex-direction: column; gap: 18px; }
+.luecke-satz { font-size: 1em; line-height: 1.9; color: #333; background: #f8f9ff; border-left: 3px solid #667eea; border-radius: 0 8px 8px 0; padding: 12px 16px; }
+.luecke-satz .nr { color: #888; font-weight: 700; margin-right: 6px; }
+.blank { border: none; border-bottom: 2px solid #aaa; outline: none; font-family: inherit; font-size: 1em; background: transparent; color: #333; padding: 0 4px; transition: border-color 0.2s; min-width: 4ch; }
+.blank:focus { border-bottom-color: #667eea; }
+.blank.correct { border-bottom-color: #27ae60; color: #27ae60; font-weight: 700; }
+.blank.wrong { border-bottom-color: #e74c3c; color: #e74c3c; }
+
+/* === WORTBANK (visuell, nicht klickbar) === */
+.wortbank-label { font-weight:700; color:#667eea; font-size:0.85em; margin-bottom:8px; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+
+/* === MUSTERBEFUND === */
+.befund-box { background: #f0f4ff; border: 1px solid #c5cff5; border-radius: 10px; padding: 20px 24px; margin-bottom: 24px; font-family: Georgia, 'Times New Roman', serif; font-size: 1.0em; line-height: 1.9; color: #1a1a1a; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.befund-label { font-size: 0.78em; color: #667eea; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+.amdp-domain-box { background: #f9f9f9; border-radius: 8px; padding: 14px 18px; margin-top: 24px; font-size: 0.92em; color: #555; line-height: 1.6; }
+.amdp-domain-box strong { color: #667eea; }
+
+/* === RICHTIG/FALSCH === */
+.rf-title { font-size: 1.0em; color: #555; margin-bottom: 12px; font-weight: 600; max-width: 650px; margin-left: auto; margin-right: auto; }
+.rf-list { display: flex; flex-direction: column; gap: 8px; max-width: 650px; margin-left: auto; margin-right: auto; }
+.rf-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #f9f9f9; border-radius: 8px; font-size: 0.95em; border: 1.5px solid #ddd; }
+.rf-text { flex: 1; }
+.rf-btns { display: flex; gap: 6px; }
+.rf-btn { padding: 4px 14px; border-radius: 14px; border: 1.5px solid #9b59b6; background: #fff; color: #6c3483; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.rf-btn:hover { background: #f3e5f5; }
+.rf-btn.sel-r { background: #27ae60; color: #fff; border-color: #27ae60; }
+.rf-btn.sel-f { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+.rf-result { font-size: 0.8rem; font-weight: 700; min-width: 24px; }
+.rf-result.ok { color: #27ae60; }
+.rf-result.err { color: #e74c3c; }
+
+/* === SCHREIBWERKSTATT === */
+.schreib-name-box { background: #fff8e1; border: 1px solid #ffd54f; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+.schreib-name-box label { font-weight: 700; color: #f57f17; display: block; margin-bottom: 8px; }
+#sw-name { width: 300px; max-width: 100%; padding: 8px 12px; border: 1.5px solid #ffd54f; border-radius: 6px; font-size: 1em; font-family: inherit; outline: none; }
+#sw-name:focus { border-color: #f57f17; }
+.schreib-karte { background: #f8f9ff; border: 1px solid #dde3ff; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+.schreib-karte-nr { font-size: 0.75em; color: #999; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.schreib-karte-frage { font-weight: 700; color: #333; margin-bottom: 8px; line-height: 1.5; }
+.schreib-karte-beispiel { font-size: 0.88em; color: #777; font-style: italic; margin-bottom: 12px; line-height: 1.6; }
+.schreib-mini-textarea { width: 100%; min-height: 350px; padding: 10px 12px; border: 1.5px solid #c5cff5; border-radius: 8px; font-family: inherit; font-size: 0.95em; resize: vertical; outline: none; }
+.schreib-mini-textarea:focus { border-color: #667eea; }
+.schreib-send-btn { background: #667eea; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 0.88em; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+.schreib-send-btn:hover { background: #5569e0; }
+.schreib-send-btn.sent { background: #27ae60; cursor: default; }
+.schreib-status { font-size: 0.82em; margin-top: 6px; min-height: 20px; color: #555; }
+.schreib-sammel-btn { display: block; margin: 20px auto; background: #764ba2; color: white; border: none; border-radius: 10px; padding: 12px 28px; font-size: 1em; cursor: pointer; transition: background 0.2s; }
+.schreib-sammel-btn:hover { background: #5e3882; }
+.schreib-sammel-status { text-align: center; font-size: 0.88em; color: #555; margin-top: 8px; min-height: 24px; }
+
+/* === WORTSCHATZ === */
+/* === WORTSCHATZ (kanonisches Pattern: .luecken-item + input.blank) === */
+.luecken-item { background:#f8f9ff; border-left:4px solid #667eea; border-radius:8px; padding:12px 14px; }
+input.blank.correct { border-bottom-color:#27ae60; background:#e8f8f0; color:#27ae60; font-weight:700; }
+input.blank.wrong   { border-bottom-color:#e74c3c; background:#fdeaea; color:#e74c3c; }
+
+@media (max-width: 600px) {
+  .sec-inner { padding: 14px; }
+  .foto-grid { grid-template-columns: 1fr; }
+  .vocab-grid { grid-template-columns: 1fr; }
+  .nav-label { display: none; }
+  .nav-btn { padding: 10px 4px; }
+}
+
+/* === AMDP-MARGINALIE (Begriff-Verweis am rechten Rand) === */
+.amdp-absatz { position: relative; margin-bottom: 1em; }
+.amdp-absatz > p { margin-bottom: 0; }
+.amdp-absatz > h3 { margin-top: 1.4em; margin-bottom: 0.4em; }
+.amdp-margin {
+  display: block;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.78em;
+  line-height: 1.4;
+  background: #fafbff;
+  border-left: 3px solid #888;
+  border-radius: 0 6px 6px 0;
+  padding: 7px 11px 8px 11px;
+  color: #555;
+  text-indent: 0;
+}
+.amdp-margin .am-nr { display: block; font-weight: 700; font-size: 0.88em; letter-spacing: 0.04em; color: #888; margin-bottom: 1px; text-transform: uppercase; }
+.amdp-margin .am-name { display: block; font-weight: 700; color: #2a2a2a; font-size: 1.05em; line-height: 1.3; margin-bottom: 3px; }
+.amdp-margin .am-meta { display: block; font-size: 0.88em; color: #888; }
+.amdp-margin .am-link { display: block; margin-top: 5px; font-size: 0.82em; color: #667eea; text-decoration: none; font-weight: 600; }
+.amdp-margin .am-link:hover { text-decoration: underline; }
+.am-dom-I    { border-left-color: #3498db; } .am-dom-I .am-nr    { color: #3498db; }
+.am-dom-II   { border-left-color: #16a085; } .am-dom-II .am-nr   { color: #16a085; }
+.am-dom-III  { border-left-color: #27ae60; } .am-dom-III .am-nr  { color: #27ae60; }
+.am-dom-IV   { border-left-color: #8e44ad; } .am-dom-IV .am-nr   { color: #8e44ad; }
+.am-dom-V    { border-left-color: #e67e22; } .am-dom-V .am-nr    { color: #e67e22; }
+.am-dom-VI   { border-left-color: #e74c3c; } .am-dom-VI .am-nr   { color: #e74c3c; }
+.am-dom-VII  { border-left-color: #c0392b; } .am-dom-VII .am-nr  { color: #c0392b; }
+.am-dom-VIII { border-left-color: #6c3483; } .am-dom-VIII .am-nr { color: #6c3483; }
+.am-dom-IX   { border-left-color: #f39c12; } .am-dom-IX .am-nr   { color: #f39c12; }
+.am-dom-X    { border-left-color: #1e8449; } .am-dom-X .am-nr    { color: #1e8449; }
+.am-dom-XI   { border-left-color: #7f8c8d; } .am-dom-XI .am-nr   { color: #7f8c8d; }
+.am-dom-XII  { border-left-color: #34495e; } .am-dom-XII .am-nr  { color: #34495e; }
+@media (min-width: 980px) {
+  .amdp-margin { position: absolute; top: 0; right: -174px; width: 152px; margin-bottom: 0; }
+}
+@media (max-width: 979px) {
+  .amdp-margin { margin-bottom: 10px; margin-top: 2px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Wahn — Teil 1</h1>
+    <p>B2 – AMDP · Modul 7 · Wahnstimmung, Wahnwahrnehmung, Wahneinfall, Wahngedanken, Systematisierter Wahn, Wahndynamik, Beziehungswahn</p>
+    <span class="big-emoji">🔮</span>
+  </div>
+
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab(0)">
+      <span class="nav-emoji">🔓</span>
+      <span class="nav-label">Vorent&shy;lastung</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(1)">
+      <span class="nav-emoji">📖</span>
+      <span class="nav-label">Lese&shy;text</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(2)">
+      <span class="nav-emoji">✏️</span>
+      <span class="nav-label">Lücken&shy;text</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(3)">
+      <span class="nav-emoji">📋</span>
+      <span class="nav-label">Muster&shy;befund</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(4)">
+      <span class="nav-emoji">✍️</span>
+      <span class="nav-label">Schreib&shy;werkstatt</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(5)">
+      <span class="nav-emoji">📚</span>
+      <span class="nav-label">Wort&shy;schatz</span>
+    </div>
+  </div>
+
+  <!-- ===== TAB 0: VORENTLASTUNG ===== -->
+  <div class="section active" id="sec-0">
+    <div class="sec-inner">
+      <img class="tab-banner" src="https://images.pexels.com/photos/8430305/pexels-photo-8430305.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Psychiatrische Untersuchung">
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showTab(1)">Weiter zum Lesetext →</button>
+        </div>
+        <div class="timer-display">
+          <span id="t0-el">⏱ –</span>
+        </div>
+      </div>
+      <div class="hilfe-box">
+        In diesem Modul lernen Sie die vier Formen der <strong>Bewusstseinsstörung</strong> und die vier Dimensionen der <strong>Orientierung</strong> kennen. Diese Bereiche bilden in jedem psychiatrischen Befund den Anfang. Lesen Sie die Begriffe durch — sie werden Ihnen im Lesetext begegnen.
+      </div>
+
+      <div class="section-title">Schlüsselbegriffe</div>
+      <div class="foto-grid">
+        <div class="foto-item">
+          <img src="https://images.pexels.com/photos/7089392/pexels-photo-7089392.jpeg?auto=compress&cs=tinysrgb&w=500&h=220&fit=crop" alt="Befunderhebung">
+          <div class="foto-caption">Die vier Bewusstseinsstörungen im Überblick</div>
+        </div>
+        <div class="foto-item">
+          <img src="https://images.pexels.com/photos/5699456/pexels-photo-5699456.jpeg?auto=compress&cs=tinysrgb&w=500&h=220&fit=crop" alt="Orientierungsprüfung">
+          <div class="foto-caption">Orientierungsprüfung — vier Dimensionen</div>
+        </div>
+        <div class="foto-item">
+          <img src="https://images.pexels.com/photos/6129043/pexels-photo-6129043.jpeg?auto=compress&cs=tinysrgb&w=500&h=220&fit=crop" alt="Dokumentation">
+          <div class="foto-caption">AMDP-Beurteilung: F (Fremd), S (Selbst), SF (beides)</div>
+        </div>
+        <div class="foto-item">
+          <img src="https://images.pexels.com/photos/4226219/pexels-photo-4226219.jpeg?auto=compress&cs=tinysrgb&w=500&h=220&fit=crop" alt="Befunddokumentation">
+          <div class="foto-caption">Befunddokumentation in der Psychiatrie</div>
+        </div>
+      </div>
+
+      <div class="vocab-grid" id="vorentl-grid"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 1: LESETEXT ===== -->
+  <div class="section" id="sec-1">
+    <div class="sec-inner">
+      <img class="tab-banner" src="https://images.pexels.com/photos/8413183/pexels-photo-8413183.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Psychiatrisches Gespräch">
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showTab(0)">← Vorentlastung</button>
+          <button class="btn" onclick="showTab(2)">Zum Lückentext →</button>
+        </div>
+        <div class="timer-display">
+          <span id="t1-el">⏱ –</span>
+        </div>
+      </div>
+
+      <div class="section-title">Frau Trentkamp und die Botschaften der Welt</div>
+      <div class="section-sub">Eine Fallvignette zur Entwicklung eines paranoiden Wahnsystems · B2-Lesetext</div>
+
+      <div class="hilfe-box" style="max-width:600px;margin-left:auto;margin-right:auto;">
+        📖 <strong>Lese-Hinweis:</strong> Am rechten Rand des Lesetexts werden die sieben AMDP-Begriffe der Wahn-Domäne (Teil 1) markiert — mit ihrer offiziellen Nummer (#33 bis #39 von 100), ihrer Domäne und ihrer S/F/SF-Einstufung. Eine Übersicht aller 100 Merkmale findest du im <a href="DE_AMDP_INDEX.html" style="color:#667eea;font-weight:600;">AMDP-Begriffsregister</a>.
+      </div>
+
+      <div class="story-text" id="story-container">
+
+        <p>Frau Sabine Trentkamp, 47 Jahre alt, Gymnasiallehrerin für Deutsch und Geschichte, kam in Begleitung ihres Mannes zur stationären Aufnahme. Seit etwa drei Monaten — so der Ehemann — habe sie sich verändert: erst leise Unruhe, dann ein zunehmend rätselhaftes System von Befürchtungen und Überzeugungen, das in den letzten zwei Wochen ihren Alltag dominiere. Sie habe sich vor einer Woche vom Schuldienst krankgemeldet. Dr. Sarah Müller bat sie ins Gespräch — der Ehemann blieb auf eigenen Wunsch im Wartezimmer. Frau Trentkamp setzte sich aufrecht hin, gefasst, fast feierlich.</p>
+
+        <h3>Es liegt etwas in der Luft</h3>
+
+        <div class="amdp-absatz">
+          <aside class="amdp-margin am-dom-VI">
+            <span class="am-nr">AMDP · #33</span>
+            <span class="am-name">Wahnstimmung</span>
+            <span class="am-meta">VI · Wahn · S</span>
+          </aside>
+          <p>Auf die offene Frage, was sie hierhergeführt habe, atmete Frau Trentkamp lange aus. »Es ist schwer zu beschreiben. Es begann im August — vielleicht Anfang September. Auf einmal lag etwas in der Luft. Alles war wie vorher und doch nicht. Die Welt war wie verschoben, anders zusammengesetzt. Ich kann es Ihnen nicht erklären — ich wusste nur: Etwas ist los, aber ich wusste nicht, was.« Das ist <span class="vocab-hl">Wahnstimmung</span> (#33) — die diffuse, ahnungsvolle emotionale Gespanntheit im Vorfeld eines ausgebildeten Wahns, vergleichbar einer Aura. Im Manual ausdrücklich genannt: »Es liegt etwas in der Luft, alles um mich herum ist merkwürdig verändert.« Reines S-Merkmal. Der Wahninhalt ist hier noch nicht definiert — die Patientin kann keine Gründe für ihr Erleben angeben. Wichtig zur Abgrenzung: Die Wahnstimmung ist nicht mit der Derealisation (#53) zu verwechseln — bei der Derealisation erlebt sich der Patient als Beobachter einer veränderten Welt, ohne wahnhafte Bedeutungs­zuschreibung.</p>
+        </div>
+
+        <h3>Der Hund auf der Brücke</h3>
+
+        <div class="amdp-absatz">
+          <aside class="amdp-margin am-dom-VI">
+            <span class="am-nr">AMDP · #34</span>
+            <span class="am-name">Wahnwahrnehmung</span>
+            <span class="am-meta">VI · Wahn · S</span>
+          </aside>
+          <p>»Es war an einem Donnerstag im September. Ich ging über die Lombardsbrücke. Ein Mann mit Hund kam mir entgegen. Der Hund blieb stehen, hob die Vorderpfote und sah mich an. Genau in diesem Moment wusste ich es. Dieses Tier wurde geschickt, um mir das Zeichen zu geben. Ich hatte es gespürt seit Wochen — und jetzt war es endlich da.« Das ist eine <span class="vocab-hl">Wahnwahrnehmung</span> (#34): eine reale Sinneswahrnehmung — der Hund, der die Pfote hebt — erhält eine abnorme Bedeutung im Sinne der Eigenbeziehung, ohne dass dafür ein rational verständlicher Anlass besteht. Reines S-Merkmal. Charakteristisch ist die Verbindung aus realer Wahrnehmung plus wahnhafter Fehlinterpretation. Abzugrenzen von Wahneinfall (#35, dem keine Wahrnehmung vorausgeht), von Illusionen (#47, wo die Wahrnehmung selbst verzerrt ist) und von Personenverkennungen ohne Wahncharakter.</p>
+        </div>
+
+        <h3>Die Erkenntnis am Schreibtisch</h3>
+
+        <div class="amdp-absatz">
+          <aside class="amdp-margin am-dom-VI">
+            <span class="am-nr">AMDP · #35</span>
+            <span class="am-name">Wahneinfall</span>
+            <span class="am-meta">VI · Wahn · S</span>
+          </aside>
+          <p>»Letzte Woche saß ich am Schreibtisch und korrigierte Hausaufgaben. Plötzlich war es da — ohne Vorlauf, ohne dass etwas Bestimmtes passiert war. Mir ist sonnenklar geworden, dass die Bundesregierung über mich ein Dossier führt, und dass dieses Dossier der Grund für die Aufmerksamkeit ist, die ich seit dem Sommer erfahre. Das war kein Gedanke wie andere — das war eine Erkenntnis.« Das ist ein <span class="vocab-hl">Wahneinfall</span> (#35): eine rein gedankliche, neu aufgetretene wahnhafte Vorstellung — im Gegensatz zur Wahnwahrnehmung geht ihm keine spezielle Sinneswahrnehmung voraus. Reines S-Merkmal. Klassische Manual-Beispiele: »Gestern ist mir aufgegangen, dass ich den Friedensnobelpreis erhalte«, »Heute Morgen ist mir sonnenklar geworden, dass mein Sohn nicht von mir stammt«. Charakteristisch: der subjektiv erlebte Evidenz-Charakter — keine Vermutung, sondern Gewissheit.</p>
+        </div>
+
+        <h3>Das schon vor Jahren begründete Wissen</h3>
+
+        <div class="amdp-absatz">
+          <aside class="amdp-margin am-dom-VI">
+            <span class="am-nr">AMDP · #36</span>
+            <span class="am-name">Wahngedanken</span>
+            <span class="am-meta">VI · Wahn · S</span>
+          </aside>
+          <p>Im weiteren Gespräch stellte sich heraus, dass Frau Trentkamp seit etwa drei Jahren eine überdauernde Überzeugung trug, die sie bisher niemandem mitgeteilt hatte: »Schon damals, als ich in Berlin war, ist mir klar geworden, dass ich beobachtet werde. Es waren gelbe Autos in der Stadt — auffällig viele, ausländische Kennzeichen. Seitdem weiß ich, dass sie mich im Visier haben.« Das sind <span class="vocab-hl">Wahngedanken</span> (#36): überdauernde wahnhafte Überzeugungen, die meist aus früheren Wahneinfällen oder Wahnwahrnehmungen hervorgegangen sind und im Beurteilungszeitraum festgehalten werden. Reines S-Merkmal. Der zeitliche Unterschied zum Wahneinfall (#35) ist entscheidend: Wahneinfälle entstehen im Beurteilungszeitraum neu, Wahngedanken bestehen schon vorher. Was vor drei Jahren ein Wahneinfall war, ist heute ein Wahngedanke.</p>
+        </div>
+
+        <h3>Alle Fäden laufen zusammen</h3>
+
+        <div class="amdp-absatz">
+          <aside class="amdp-margin am-dom-VI">
+            <span class="am-nr">AMDP · #37</span>
+            <span class="am-name">Systematisierter Wahn</span>
+            <span class="am-meta">VI · Wahn · S</span>
+          </aside>
+          <p>Im Gesprächsverlauf entfaltete Frau Trentkamp ein zusammenhängendes Erklärungssystem: die gelben Autos seien Teil eines Beobachtungsnetzwerks; der Hund mit der Pfote habe ihr das Signal gegeben; das Dossier der Bundesregierung sei nun aktiviert; und ihre Krankmeldung sei wahrscheinlich abgefangen worden. Jedes neue Element fügte sie nahtlos in das bestehende System ein. Auf Dr. Müllers behutsame Frage, ob es nicht auch andere Erklärungen geben könne, antwortete sie mit ruhiger Überzeugung: »Frau Doktor, ich verstehe, dass das schwer zu glauben ist. Aber wenn Sie die Hinweise alle sehen würden, die ich gesehen habe …« Das ist <span class="vocab-hl">systematisierter Wahn</span> (#37): der Grad der Verknüpfung einzelner Wahnsymptome zu einem kohärenten Erklärungssystem. Reines S-Merkmal. Charakteristisch: Skeptischen Entgegenhaltungen wird mit »Überzeugungsarbeit« begegnet. Wichtig zur Kodierung: Wenn der Wahn systematisiert ist, müssen die verknüpften Elemente — hier Wahnwahrnehmung (#34) und Wahngedanken (#36) — <em>zusätzlich</em> markiert werden.</p>
+        </div>
+
+        <h3>Die ruhige Gewissheit</h3>
+
+        <div class="amdp-absatz">
+          <aside class="amdp-margin am-dom-VI">
+            <span class="am-nr">AMDP · #38</span>
+            <span class="am-name">Wahndynamik</span>
+            <span class="am-meta">VI · Wahn · SF</span>
+          </aside>
+          <p>Dr. Müller beobachtete während der Schilderung auch die affektive Seite. Frau Trentkamp berichtete ihre Überzeugungen mit ruhiger, fast feierlicher Gewissheit — keine ängstliche Erregung, kein verzweifeltes Weinen, sondern eine durchaus geordnete Haltung. Gleichzeitig spürte die Untersucherin eine deutliche emotionale Beteiligung — bei der Erinnerung an den Hund auf der Brücke sprach Frau Trentkamp leiser und langsamer, mit feuchten Augen. Das ist <span class="vocab-hl">Wahndynamik</span> (#38): das Ausmaß der Affekte, die im Zusammenhang mit dem Wahn auftreten. SF-Merkmal — denn die affektive Beteiligung ergibt sich sowohl aus dem Selbstbericht als auch aus dem beobachtbaren Verhalten (Mimik, Gestik, Tonfall). Wichtig: Geringe Wahndynamik (das »eingeschliffene Herunterleiern« bei chronischen Schizophrenien) ist klinisch ebenso bedeutsam wie hohe (verzweifeltes Klagen). Sie sagt nichts über den Inhalt aus — nur über die emotionale Brisanz.</p>
+        </div>
+
+        <h3>Die Zeitungsmeldung als Botschaft</h3>
+
+        <div class="amdp-absatz">
+          <aside class="amdp-margin am-dom-VI">
+            <span class="am-nr">AMDP · #39</span>
+            <span class="am-name">Beziehungswahn</span>
+            <span class="am-meta">VI · Wahn · S</span>
+          </aside>
+          <p>»Auch jetzt — vor zwei Tagen, im Hamburger Abendblatt: ein Artikel über eine Lehrerin, die ihren Beruf aufgegeben hat. Sie verstehen? Genau in der Woche, in der ich mich krankgemeldet habe. Auch der Radiomoderator gestern Morgen — als er sagte ‚jetzt wird es ernst', schaute er mich gewissermaßen direkt an. Das war kein Zufall.« Das ist <span class="vocab-hl">Beziehungswahn</span> (#39): wahnhaftes Beziehen von Ereignissen auf die eigene Person. Charakteristisch: aus völlig unbedeutenden Ereignissen werden mit unerschütterlicher Gewissheit Signale entnommen, die die Patientin „in ganz besonderer Weise angehen“. Reines S-Merkmal. Wichtige Kodierungsregel: Wenn der Beziehungswahn isoliert auftritt, wird er hier kodiert. Wenn er aber Element eines anderen Wahns (z. B. eines Verfolgungswahns) ist, soll <em>nur dieser</em> kodiert werden. Bei Frau Trentkamp ist der Beziehungswahn Teil eines beginnenden Verfolgungswahns (#40, kommt in Modul 8) — strikt nach Manual wäre also der Verfolgungswahn das Hauptmerkmal.</p>
+        </div>
+
+        <h3>Befund und klinische Einordnung</h3>
+
+        <p>Dr. Müller fasste den Befund zusammen: Eine über drei Monate sich entfaltende Wahnentwicklung mit der präpsychotischen Phase einer Wahnstimmung (S), gefolgt von Wahnwahrnehmungen (S) und einem aktuellen Wahneinfall (S). Auf einer früheren Schicht bereits Wahngedanken (S) mit Beobachtungsthemen seit drei Jahren. Das aktuelle System ist deutlich systematisiert (S) mit nahtloser Integration neuer Elemente. Die Wahndynamik (SF) ist mittelgradig ausgeprägt — keine akute Erregung, aber spürbare emotionale Beteiligung. Beziehungswahn (S) als zentrales klinisches Merkmal mit Bezug auf Medien, Personen und Alltagsereignisse. Klinische Einordnung: Das Bild entspricht einer paranoiden Schizophrenie (ICD-10 F20.0) mit subakutem Verlauf. Differenzialdiagnostisch zu erwägen: eine wahnhafte Störung (F22.0) — die Verlaufsstabilität und die mangelnde formal-formale Denkstörung sprechen dafür, aber die akute Wahnverdichtung der letzten Wochen passt besser zu F20.</p>
+
+      </div>
+
+      <div class="story-source">Fiktive Fallvignette · Didaktisch bearbeitet für den AMDP-Kurs · fabDaF</div>
+
+      <div style="margin-top:28px;">
+        <div class="rf-title">Richtig oder Falsch? Prüfen Sie Ihr Textverständnis.</div>
+        <div class="rf-list" id="rf-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: LÜCKENTEXT ===== -->
+  <div class="section" id="sec-2">
+    <div class="sec-inner">
+      <img class="tab-banner" src="https://images.pexels.com/photos/6097766/pexels-photo-6097766.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Übung">
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetLuecken()">Neu starten</button>
+        </div>
+        <div class="timer-display">
+          <span id="t2-el">⏱ –</span>
+        </div>
+      </div>
+      <div class="hilfe-box">
+        Ergänzen Sie die fehlenden Fachbegriffe. Live-Feedback: Grün = korrekt, rot = falsch. Achten Sie auf Groß- und Kleinschreibung.
+      </div>
+      <div class="wortbank-label">🔤 Wortbank – die richtigen Wörter, in zufälliger Reihenfolge.<br>Tipp sie selbst in die Lücken — achte auf Groß- und Kleinschreibung.</div>
+      <div class="wortbank" id="wortbank-luecken"></div>
+      <div class="luecke-list" id="luecke-container"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 3: MUSTERBEFUND ===== -->
+  <div class="section" id="sec-3">
+    <div class="sec-inner">
+      <img class="tab-banner" src="https://images.pexels.com/photos/7176033/pexels-photo-7176033.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Befunddokumentation">
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showTab(2)">← Lückentext</button>
+          <button class="btn" onclick="showTab(4)">Zur Schreibwerkstatt →</button>
+        </div>
+        <div class="timer-display">
+          <span id="t3-el">⏱ –</span>
+        </div>
+      </div>
+
+      <div class="section-title">Musterbefund</div>
+      <p class="section-sub">Ein vollständig formulierter AMDP-Befund zu Bewusstsein und Orientierung — als Vorlage für Ihre eigene Dokumentation.</p>
+
+      <div class="befund-label">Psychopathologischer Befund (Auszug) · AMDP-Bereich I und II</div>
+      <div class="befund-box">
+        Wahn (Bereich VI): Wahnstimmung (S) seit etwa drei Monaten — diffuse Atmosphäre des Verändertseins, vom Patientin selbst noch nicht inhaltlich gefasst.
+        <br><br>
+        Wahnwahrnehmung (S) im September am Beispiel des Hundes auf der Lombardsbrücke (Pfote heben → wahnhaft als Signal interpretiert).
+        <br><br>
+        Aktueller Wahneinfall (S) in der vergangenen Woche („Bundesregierung führt ein Dossier“), ohne vorausgehende Sinneswahrnehmung.
+        <br><br>
+        Bereits seit ca. drei Jahren bestehende Wahngedanken (S) zum Beobachtetwerden (gelbe Autos in Berlin), nun als überdauernde Überzeugung in das aktuelle System integriert.
+        <br><br>
+        Systematisierter Wahn (S) mit kohärenter Verknüpfung der Einzelelemente. Skeptische Entgegenhaltungen werden mit „Überzeugungsarbeit“ beantwortet. Verknüpfte Elemente (Wahnwahrnehmung #34, Wahngedanken #36) sind zusätzlich kodiert.
+        <br><br>
+        Mittelgradige Wahndynamik (SF) — keine akute Erregung, aber spürbare emotionale Beteiligung in Mimik, Tonfall und Pausenverhalten.
+        <br><br>
+        Ausgeprägter Beziehungswahn (S) auf Medien, Passanten und Alltagsereignisse — strenggenommen aufgrund der Verflechtung mit einem beginnenden Verfolgungswahn nicht isoliert zu kodieren (siehe Modul 8 / #40).
+        <br><br>
+        Klinische Einordnung: Das Bild entspricht einer paranoiden Schizophrenie (ICD-10 F20.0) mit subakutem Verlauf. Differenzialdiagnostisch zu erwägen: anhaltende wahnhafte Störung (F22.0) — die akute Wahnverdichtung der letzten Wochen spricht jedoch eher für F20.0.
+      </div>
+
+      <div class="amdp-domain-box">
+        <strong>AMDP-Systematik:</strong> Bereich VI (Wahn, Teil 1: Merkmale 33–39)
+        &nbsp;·&nbsp; Beurteilungsform: F = Fremdbeurteilung, S = Selbstbeurteilung, SF = beides
+        <br><br>
+        <strong>Wahnstimmung (S):</strong> leicht = wenige Bereiche des Erlebens betroffen &nbsp;·&nbsp; schwer = Erleben überwiegend geprägt, vertraute Bedeutung der Umwelt verloren<br>
+        <strong>Wahnwahrnehmung (S):</strong> leicht = einzelne Themen (1 Wahnwahrnehmung im Beurteilungszeitraum) &nbsp;·&nbsp; schwer = Erleben dominiert (>3 unterschiedliche)<br>
+        <strong>Wahneinfall (S):</strong> leicht = 1–2 im Beurteilungszeitraum &nbsp;·&nbsp; schwer = >3 unterschiedliche<br>
+        <strong>Wahngedanken (S):</strong> leicht = 1–2 überdauernde Wahngedanken &nbsp;·&nbsp; schwer = Erleben durch Wahngedanken geprägt<br>
+        <strong>Systematisierter Wahn (S):</strong> leicht = einzelne kausale Verknüpfungen vermutet &nbsp;·&nbsp; schwer = ausgereiftes System, kaum offene Fragen<br>
+        <strong>Wahndynamik (SF):</strong> leicht = geringe affektive Beteiligung in Mimik/Gestik &nbsp;·&nbsp; schwer = beherrscht den Patienten, deutlich in Worten und Bewegungen<br>
+        <strong>Beziehungswahn (S):</strong> leicht = einzelne Lebensbereiche &nbsp;·&nbsp; schwer = umfassende Eigenbeziehung mit Lebensführung-Anpassung<br><br>
+        ⚠ Wahneinfall (#35) vs. Wahnwahrnehmung (#34): dem Wahneinfall geht KEINE spezifische Wahrnehmung voraus<br>
+        ⚠ Wahneinfall (#35) vs. Wahngedanken (#36): zeitlich — Wahneinfall im Beurteilungszeitraum neu entstanden, Wahngedanken vorher bestehend<br>
+        ⚠ Systematisierung: verknüpfte Elemente (Wahngedanken, Wahnwahrnehmungen) müssen ZUSÄTZLICH markiert werden<br>
+        ⚠ Beziehungswahn (#39): Wenn Element eines anderen Wahns (z.B. Verfolgungswahn #40), wird NUR dieser kodiert<br>
+        ⚠ Wahndynamik (#38) ist das EINZIGE SF-Merkmal der Wahn-Domäne — alle anderen sind reine S-Merkmale
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 4: SCHREIBWERKSTATT ===== -->
+  <div class="section" id="sec-4">
+    <div class="sec-inner">
+      <img class="tab-banner" src="https://images.pexels.com/photos/6806704/pexels-photo-6806704.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Schreiben">
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showTab(3)">← Musterbefund</button>
+          <button class="btn" onclick="showTab(5)">Zum Wortschatz →</button>
+        </div>
+        <div class="timer-display">
+          <span id="t4-el">⏱ –</span>
+        </div>
+      </div>
+
+      <div class="section-title">Schreibwerkstatt</div>
+      <p class="section-sub">Fünf Mikroaufgaben — je 40–70 Wörter. Schicken Sie Ihre Antworten direkt an Frank.</p>
+
+      <div class="schreib-name-box">
+        <label for="sw-name">Ihr Name (Pflichtfeld für den Versand)</label>
+        <input type="text" id="sw-name" placeholder="Bitte Ihren Namen eingeben" autocomplete="name">
+      </div>
+
+      <div id="schreib-aufgaben-container"></div>
+
+      <button class="schreib-sammel-btn" onclick="schreibSammelversand()">📨 Alle Antworten an Frank senden</button>
+      <div class="schreib-sammel-status" id="sammel-status"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 5: WORTSCHATZ ===== -->
+  <div class="section" id="sec-5">
+    <div class="sec-inner">
+      <img class="tab-banner" src="https://images.pexels.com/photos/7054519/pexels-photo-7054519.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Wortschatz">
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showTab(4)">← Schreibwerkstatt</button>
+        </div>
+        <div class="timer-display">
+          <span id="t5-el">⏱ –</span>
+        </div>
+      </div>
+      <div class="section-title">Wortschatz</div>
+      <div class="section-sub">Tippen Sie zu jedem englischen Begriff den deutschen Fachausdruck. Bei Nomen: Artikel, Substantiv und Plural — alles in voller Form.</div>
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+          <button class="btn" onclick="resetWortschatz()">Neu starten</button>
+        </div>
+      </div>
+      <div id="wortschatzContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+    </div>
+  </div>
+
+</div><!-- /.container -->
+
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot; AMDP-Kurs &middot;
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a>
+</div>
+
+<script>
+/* ============================================================
+   DATEN
+   ============================================================ */
+
+var FORMSUBMIT_ENDPOINT  = 'https://api.web3forms.com/submit';
+var FORMSUBMIT_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var FORMSUBMIT_MAILTO    = 'unterricht@frankburkert-daf.de';
+var SCHREIB_NIVEAU = 'B2';
+var SCHREIB_CODE   = 'AMDP-007';
+
+var VORENTLASTUNG = [
+  {
+    term: 'die Wahnstimmung, -en',
+    en:   'delusional mood / atmosphere',
+    def:  'Diffuse, ahnungsvolle emotionale Gespanntheit im Vorfeld des Wahns — eine Atmosphäre des Betroffenseins in einer „verändert erlebten Welt“. Wahninhalt noch nicht definiert. Reine Selbstbeurteilung (S).'
+  },
+  {
+    term: 'die Wahnwahrnehmung, -en',
+    en:   'delusional perception',
+    def:  'Reale Sinneswahrnehmung erhält eine abnorme, meist auf die eigene Person bezogene Bedeutung — ohne nachvollziehbaren Anlass. Klassisches Beispiel: Ein Hund hebt die Pfote → wahnhaft als „göttliche Offenbarung“ gedeutet. Reine Selbstbeurteilung (S).'
+  },
+  {
+    term: 'der Wahneinfall, -fälle',
+    en:   'delusional idea',
+    def:  'Rein gedankliche, neu aufgetretene wahnhafte Vorstellung — ohne vorausgehende Wahrnehmung. Klassisches Beispiel: „Heute Morgen ist mir sonnenklar geworden, dass mein Sohn nicht von mir stammt.“ Reine Selbstbeurteilung (S).'
+  },
+  {
+    term: 'der Wahngedanke, -n',
+    en:   'delusional thought (sustained)',
+    def:  'Überdauernde wahnhafte Überzeugung, die aus früheren Wahnwahrnehmungen oder Wahneinfällen hervorgeht. Vor dem Beobachtungszeitraum entstanden, bis jetzt festgehalten. Reine Selbstbeurteilung (S).'
+  },
+  {
+    term: 'der systematisierte Wahn (kein Plural)',
+    en:   'systematized delusion',
+    def:  'Grad der Verknüpfung einzelner Wahnsymptome miteinander zu einem kohärenten System. Skeptischen Entgegenhaltungen wird mit „Überzeugungsarbeit“ begegnet. Reine Selbstbeurteilung (S).'
+  },
+  {
+    term: 'die Wahndynamik (kein Plural)',
+    en:   'delusional dynamics / affect',
+    def:  'Ausmaß der Affekte, die mit dem Wahn auftreten. Von leichter (eingeschliffenes „Herunterleiern“) bis schwerer (verzweifeltes Weinen, händeringende Klage) Ausprägung. SF-Merkmal — beobachtbar UND vom Patienten erfasst.'
+  },
+  {
+    term: 'der Beziehungswahn (kein Plural)',
+    en:   'delusion of reference',
+    def:  'Wahnhaftes Beziehen unbedeutender Ereignisse auf die eigene Person. Patient fühlt sich im Mittelpunkt gezielter Aufmerksamkeit. Reine Selbstbeurteilung (S). Wenn Element eines anderen Wahns (z. B. Verfolgungswahn), wird nur dieser kodiert.'
+  },
+  {
+    term: 'die wahnhafte Eigenbeziehung (kein Plural)',
+    en:   'delusional self-reference',
+    def:  'Kernmerkmal des Beziehungswahns: jedes Ereignis im Außen wird auf das eigene Ich bezogen — auch zufällige Blicke, Zeitungsmeldungen, Radiodurchsagen werden zu „Botschaften“ oder „Beweisen“.'
+  }
+];
+
+var LUECKEN = [
+  {
+    pre:  'Die diffuse, ahnungsvolle emotionale Gespanntheit im Vorfeld eines Wahns — vergleichbar einer Aura — nennt das AMDP ',
+    post: ' (#33).',
+    ans:  'Wahnstimmung'
+  },
+  {
+    pre:  'Wenn eine real wahrgenommene Pfote eines Hundes plötzlich als „göttliche Offenbarung“ gedeutet wird, liegt eine ',
+    post: ' vor.',
+    ans:  'Wahnwahrnehmung'
+  },
+  {
+    pre:  'Eine rein gedankliche, neu aufgetretene wahnhafte Vorstellung — ohne vorausgehende Wahrnehmung — heißt im AMDP ',
+    post: '.',
+    ans:  'Wahneinfall'
+  },
+  {
+    pre:  'Überdauernde wahnhafte Überzeugungen, die aus früheren Wahneinfällen oder Wahnwahrnehmungen hervorgehen, werden als ',
+    post: ' kodiert.',
+    ans:  'Wahngedanken'
+  },
+  {
+    pre:  'Der Grad der Verknüpfung einzelner Wahnsymptome zu einem kohärenten Erklärungssystem heißt ',
+    post: ' Wahn.',
+    ans:  'systematisierter'
+  },
+  {
+    pre:  'Das Ausmaß der affektiven Beteiligung am Wahn — von leichtem „Herunterleiern“ bis zu verzweifeltem Weinen — fasst das AMDP unter dem Begriff ',
+    post: ' zusammen.',
+    ans:  'Wahndynamik'
+  },
+  {
+    pre:  'Wenn der Patient unbedeutende Ereignisse als gezielte Hinweise auf sich selbst interpretiert (zufällige Blicke, Zeitungsmeldungen, Radiodurchsagen), liegt ein ',
+    post: ' vor.',
+    ans:  'Beziehungswahn'
+  },
+  {
+    pre:  'Die Wahndynamik ist im AMDP das einzige SF-Merkmal dieser Domäne — alle anderen sieben Wahnmerkmale (#33–#37, #39) sind reine ',
+    post: '-Merkmale.',
+    ans:  'S'
+  },
+  {
+    pre:  'Wenn der Beziehungswahn Element eines anderen Wahns ist (z. B. Verfolgungswahn), wird nur der ',
+    post: ' kodiert, NICHT der Beziehungswahn isoliert.',
+    ans:  'Verfolgungswahn'
+  },
+  {
+    pre:  'Bei der Systematisierung müssen die verknüpften Elemente — Wahngedanken oder Wahnwahrnehmungen — ',
+    post: ' markiert werden.',
+    ans:  'zusätzlich'
+  },
+  {
+    pre:  'Wenn ein Patient erst eine Wahnwahrnehmung erlebt und diese später zu einem überdauernden System verarbeitet, sprechen wir vom Übergang einer Wahnwahrnehmung in einen ',
+    post: '.',
+    ans:  'Wahngedanken'
+  },
+  {
+    pre:  'Eine spezielle isolierte Form des Beziehungswahns ist der ',
+    post: ' — die unkorrigierbare Überzeugung, von einer bestimmten Person geliebt zu werden.',
+    ans:  'Liebeswahn'
+  }
+];
+
+var RF_ITEMS = [
+  { text: 'Frau Trentkamp berichtete vor Beginn der eigentlichen Wahnsymptomatik von einer „Atmosphäre des Verändertseins“ — das entspricht dem Merkmal Wahnstimmung (#33).', ans: true },
+  { text: 'Eine Wahnwahrnehmung (#34) ist eine Halluzination — also eine Sinneswahrnehmung ohne realen Reiz.', ans: false },
+  { text: 'Der Wahneinfall (#35) unterscheidet sich von der Wahnwahrnehmung (#34) dadurch, dass ihm keine Sinneswahrnehmung vorausgeht.', ans: true },
+  { text: 'Wahngedanken (#36) sind überdauernde Überzeugungen, die meist aus Wahneinfällen oder Wahnwahrnehmungen hervorgehen.', ans: true },
+  { text: 'Die Wahndynamik (#38) ist das einzige SF-Merkmal in der Wahn-Domäne — alle anderen sind reine S-Merkmale.', ans: true },
+  { text: 'Wenn ein Patient unbedeutende Ereignisse durchgängig auf sich bezieht, liegt ein Beziehungswahn (#39) vor — auch dann, wenn dies Element eines Verfolgungswahns ist.', ans: false }
+];
+
+var SCHREIB_AUFGABEN = [
+  {
+    nr:      'Aufgabe 1',
+    frage:   'Was unterscheidet Wahnstimmung (#33), Wahnwahrnehmung (#34) und Wahneinfall (#35)? Skizzieren Sie die Sequenz und das jeweilige Auslösemoment. (50–70 Wörter)',
+    beispiel: 'Beispiel: »Die Wahnstimmung ist ein diffuses Vorgefühl — der Wahninhalt ist noch nicht definiert. Die Wahnwahrnehmung knüpft an eine reale Sinneswahrnehmung an, die wahnhaft umgedeutet wird (Hund hebt Pfote → göttliche Offenbarung). Der Wahneinfall ist rein gedanklich entstanden, ohne vorausgehende Wahrnehmung. Alle drei sind reine S-Merkmale.«'
+  },
+  {
+    nr:      'Aufgabe 2',
+    frage:   'Worin liegt der Unterschied zwischen einem Wahneinfall (#35) und einem Wahngedanken (#36)? Achten Sie auf den zeitlichen Aspekt. (40–60 Wörter)',
+    beispiel: 'Beispiel: »Ein Wahneinfall ist eine neu, im Beurteilungszeitraum aufgetretene wahnhafte Vorstellung. Ein Wahngedanke ist eine überdauernde Überzeugung, die meist aus früheren — also vor dem Beurteilungszeitraum entstandenen — Wahneinfällen oder Wahnwahrnehmungen hervorgegangen ist. Beide sind reine S-Merkmale.«'
+  },
+  {
+    nr:      'Aufgabe 3',
+    frage:   'Was bedeutet ein „systematisierter Wahn“ (#37) klinisch? Welche Auswirkungen hat die Systematisierung auf das Gespräch mit dem Patienten? (50–70 Wörter)',
+    beispiel: 'Beispiel: »Beim systematisierten Wahn sind einzelne Wahnsymptome zu einem kohärenten Erklärungssystem verknüpft, das vom Patienten als kausal und schlüssig erlebt wird. Skeptischen Entgegenhaltungen begegnet er mit „Überzeugungsarbeit“. Im Gespräch zeigt sich ein „ausgebautes“ System ohne offene Fragen — die Korrigierbarkeit ist daher gering, was die therapeutische Arbeit erschwert.«'
+  },
+  {
+    nr:      'Aufgabe 4',
+    frage:   'Was unterscheidet die Wahndynamik (#38) von der Wahnstimmung (#33)? Warum ist nur die Wahndynamik ein SF-Merkmal? (40–60 Wörter)',
+    beispiel: 'Beispiel: »Die Wahnstimmung ist das diffuse Vorgefühl vor der Wahnentwicklung (reines S). Die Wahndynamik beschreibt die affektive Beteiligung beim bereits ausgebildeten Wahn — vom verzweifelten Weinen bis zum „Herunterleiern“ — und ist deshalb auch von außen beobachtbar (SF). Sie sagt etwas über die emotionale Brisanz, nicht über den Inhalt aus.«'
+  },
+  {
+    nr:      'Aufgabe 5',
+    frage:   'Schreiben Sie einen kurzen Befundsatz zur Domäne VI Teil 1 für eine Patientin mit beginnender schizophrener Wahnentwicklung. (50–70 Wörter)',
+    beispiel: 'Beispiel: »Wahn (Bereich VI): präpsychotische Wahnstimmung (S) seit drei Monaten mit Atmosphäre des Bedrohlich-Verändertseins. Multiple Wahnwahrnehmungen (S) — Blicke und Gesten von Kollegen werden auf die eigene Person bezogen. Ausgebauter Beziehungswahn (S) mit Bezug auf Zeitungsmeldungen und Radiodurchsagen. Systematisierung (S) mit kausaler Verknüpfung der Einzelelemente. Ausgeprägte Wahndynamik (SF) mit deutlich affektiver Beteiligung.«'
+  }
+];
+
+var WORTSCHATZ = [
+  { type:'n', en:'delusion (general)',                   artikel:'der', de:'Wahn',                 plural:'–' },
+  { type:'n', en:'delusional mood / atmosphere',         artikel:'die', de:'Wahnstimmung',         plural:'Wahnstimmungen' },
+  { type:'n', en:'delusional perception',                artikel:'die', de:'Wahnwahrnehmung',      plural:'Wahnwahrnehmungen' },
+  { type:'n', en:'delusional idea (new)',                artikel:'der', de:'Wahneinfall',          plural:'Wahneinfälle' },
+  { type:'n', en:'sustained delusional thought',         artikel:'der', de:'Wahngedanke',          plural:'Wahngedanken' },
+  { type:'n', en:'systematized delusion',                artikel:'die', de:'Systematisierung',     plural:'Systematisierungen' },
+  { type:'n', en:'delusional dynamics / affect',         artikel:'die', de:'Wahndynamik',          plural:'–' },
+  { type:'n', en:'delusion of reference',                artikel:'der', de:'Beziehungswahn',       plural:'–' },
+  { type:'n', en:'persecution delusion',                 artikel:'der', de:'Verfolgungswahn',      plural:'–' },
+  { type:'n', en:'love delusion (erotomania)',           artikel:'der', de:'Liebeswahn',           plural:'–' },
+  { type:'n', en:'a priori certainty',                   artikel:'die', de:'Gewissheit',           plural:'Gewissheiten' },
+  { type:'n', en:'self-reference',                       artikel:'die', de:'Eigenbeziehung',       plural:'Eigenbeziehungen' },
+  { type:'n', en:'misinterpretation',                    artikel:'die', de:'Fehlinterpretation',   plural:'Fehlinterpretationen' },
+  { type:'n', en:'aura (premonition)',                   artikel:'die', de:'Aura',                 plural:'Auren' },
+  { type:'n', en:'sense (of meaning)',                   artikel:'die', de:'Bedeutung',            plural:'Bedeutungen' },
+  { type:'n', en:'message, signal',                      artikel:'die', de:'Botschaft',            plural:'Botschaften' },
+  { type:'p', en:'to relate (to oneself)',                                                         de:'beziehen auf' },
+  { type:'p', en:'to be unshakably convinced of',                                                  de:'unerschütterlich überzeugt sein von' }
+];
+
+/* ============================================================
+   VOCAB HIGHLIGHT IN LESETEXT
+   ============================================================ */
+var HIGHLIGHT_TERMS = [
+  'Wahn', 'wahnhaft',
+  'Wahnstimmung', 'Wahnwahrnehmung', 'Wahnwahrnehmungen',
+  'Wahneinfall', 'Wahneinfälle', 'Wahngedanke', 'Wahngedanken',
+  'systematisierter Wahn', 'systematisierten Wahn', 'Systematisierung',
+  'Wahndynamik',
+  'Beziehungswahn', 'Verfolgungswahn', 'Liebeswahn', 'Eigenbeziehung',
+  'Gewissheit', 'apriorisch',
+  'Fehlinterpretation', 'Bedeutungszumessen', 'Inbeziehungsetzen',
+  'Aura', 'Botschaft',
+  'Befund', 'Realität', 'Erleben'
+];
+
+function highlightVocabInText() {
+  var container = document.getElementById('story-container');
+  if (!container) return;
+  var nodes = [];
+  var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+  var n;
+  while ((n = walker.nextNode())) nodes.push(n);
+  for (var ni = 0; ni < nodes.length; ni++) {
+    var node = nodes[ni];
+    if (node.parentNode && node.parentNode.classList && node.parentNode.classList.contains('vocab-hl')) continue;
+    var txt = node.nodeValue;
+    var replaced = txt;
+    for (var i = 0; i < HIGHLIGHT_TERMS.length; i++) {
+      var term = HIGHLIGHT_TERMS[i];
+      var regex = new RegExp(term, 'g');
+      replaced = replaced.replace(regex, function(match) { return '\x01' + match + '\x02'; });
+    }
+    if (replaced !== txt) {
+      var span = document.createElement('span');
+      var parts = replaced.split(/[\x01\x02]/);
+      var isHL = false;
+      for (var pi = 0; pi < parts.length; pi++) {
+        if (isHL) {
+          var hl = document.createElement('span');
+          hl.className = 'vocab-hl';
+          hl.title = 'Fachbegriff';
+          hl.textContent = parts[pi];
+          span.appendChild(hl);
+        } else {
+          span.appendChild(document.createTextNode(parts[pi]));
+        }
+        isHL = !isHL;
+      }
+      node.parentNode.replaceChild(span, node);
+    }
+  }
+}
+
+/* ============================================================
+   TAB-STEUERUNG + TIMER
+   ============================================================ */
+var timers = [null, null, null, null, null, null];
+var seconds = [0, 0, 0, 0, 0, 0];
+var timerEls = ['t0-el', 't1-el', 't2-el', 't3-el', 't4-el', 't5-el'];
+var currentTab = 0;
+
+function showTab(idx) {
+  var secs = document.querySelectorAll('.section');
+  var btns = document.querySelectorAll('.nav-btn');
+  secs.forEach(function(s) { s.classList.remove('active'); });
+  btns.forEach(function(b) { b.classList.remove('active'); });
+  secs[idx].classList.add('active');
+  btns[idx].classList.add('active');
+  stopTimer(currentTab);
+  currentTab = idx;
+  startTimer(idx);
+  if (idx === 1) highlightVocabInText();
+}
+
+function startTimer(idx) {
+  timers[idx] = setInterval(function() {
+    seconds[idx]++;
+    var el = document.getElementById(timerEls[idx]);
+    if (el) el.textContent = '⏱ ' + formatTime(seconds[idx]);
+  }, 1000);
+}
+function stopTimer(idx) {
+  if (timers[idx]) { clearInterval(timers[idx]); timers[idx] = null; }
+}
+function formatTime(s) {
+  var m = Math.floor(s / 60), r = s % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+}
+
+/* ============================================================
+   VORENTLASTUNG
+   ============================================================ */
+(function buildVorentlastung() {
+  var grid = document.getElementById('vorentl-grid');
+  VORENTLASTUNG.forEach(function(v) {
+    var card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.innerHTML = '<div class="vocab-term">' + v.term + '</div>' +
+      '<div class="vocab-en">' + v.en + '</div>' +
+      '<div class="vocab-def">' + v.def + '</div>';
+    grid.appendChild(card);
+  });
+})();
+
+/* ============================================================
+   RICHTIG / FALSCH
+   ============================================================ */
+(function buildRF() {
+  var container = document.getElementById('rf-container');
+  RF_ITEMS.forEach(function(item, idx) {
+    var div = document.createElement('div');
+    div.className = 'rf-item';
+    div.innerHTML = '<div class="rf-text">' + item.text + '</div>' +
+      '<div class="rf-btns">' +
+      '<button class="rf-btn" id="rf-r-' + idx + '" onclick="rfClick(' + idx + ',true)">R</button>' +
+      '<button class="rf-btn" id="rf-f-' + idx + '" onclick="rfClick(' + idx + ',false)">F</button>' +
+      '</div>' +
+      '<div class="rf-result" id="rf-res-' + idx + '"></div>';
+    container.appendChild(div);
+  });
+})();
+
+function rfClick(idx, isTrue) {
+  var rBtn = document.getElementById('rf-r-' + idx);
+  var fBtn = document.getElementById('rf-f-' + idx);
+  var res  = document.getElementById('rf-res-' + idx);
+  rBtn.classList.remove('sel-r', 'sel-f');
+  fBtn.classList.remove('sel-r', 'sel-f');
+  if (isTrue) rBtn.classList.add('sel-r'); else fBtn.classList.add('sel-f');
+  var correct = (isTrue === RF_ITEMS[idx].ans);
+  res.textContent = correct ? '✓' : '✗';
+  res.className = 'rf-result ' + (correct ? 'ok' : 'err');
+}
+
+/* ============================================================
+   LÜCKENTEXT
+   ============================================================ */
+var LUECKEN_TAB_IDX = 2;
+
+function buildLuecken() {
+  var container = document.getElementById('luecke-container');
+  container.innerHTML = '';
+  LUECKEN.forEach(function(item, idx) {
+    var div = document.createElement('div');
+    div.className = 'luecke-satz';
+    var inp = document.createElement('input');
+    inp.className = 'blank'; inp.type = 'text';
+    inp.id = 'bl-' + idx; inp.placeholder = '';
+    inp.dataset.answer = item.ans;
+    var width = (item.ans.length + 4) + 'ch';
+    inp.style.width = width;
+    inp.oninput = function() { lueckeCheck(this); };
+    div.innerHTML = item.pre;
+    div.appendChild(inp);
+    var post = document.createElement('span');
+    post.innerHTML = item.post;
+    div.appendChild(post);
+    container.appendChild(div);
+  });
+}
+
+function lueckeCheck(inp) {
+  timerAutoStart(LUECKEN_TAB_IDX);
+  var val = inp.value;
+  var ans = inp.dataset.answer;
+  inp.classList.remove('correct', 'wrong');
+  if (!val) return;
+  if (val === ans) {
+    inp.classList.add('correct');
+    updateWortbankChips();
+    checkLueckenDone();
+  } else if (ans.indexOf(val) !== 0) {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkLueckenDone() {
+  var all = document.querySelectorAll('#luecke-container input.blank');
+  var allOk = all.length > 0 && Array.from(all).every(function(i) {
+    return i.classList.contains('correct');
+  });
+  if (allOk) stopTimer(LUECKEN_TAB_IDX);
+}
+
+function showLueckenLoesung() {
+  stopTimer(LUECKEN_TAB_IDX);
+  document.querySelectorAll('#luecke-container input.blank').forEach(function(inp) {
+    inp.value = inp.dataset.answer;
+    inp.classList.add('correct'); inp.classList.remove('wrong');
+  });
+  updateWortbankChips();
+}
+
+function resetLuecken() {
+  document.querySelectorAll('#luecke-container input.blank').forEach(function(inp) {
+    inp.value = ''; inp.classList.remove('correct', 'wrong');
+  });
+  resetTimer(LUECKEN_TAB_IDX);
+  initWortbank();
+}
+
+function initWortbank() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  bank.innerHTML = '';
+  var words = LUECKEN.map(function(d){ return d.ans; });
+  for (var i = words.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = words[i]; words[i] = words[j]; words[j] = t;
+  }
+  words.forEach(function(w) {
+    var chip = document.createElement('span');
+    chip.className = 'wortbank-chip';
+    chip.textContent = w;
+    bank.appendChild(chip);
+  });
+}
+
+function updateWortbankChips() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  var solved = new Set(
+    Array.from(document.querySelectorAll('#luecke-container input.blank.correct'))
+      .map(function(i) { return i.value; })
+  );
+  Array.from(bank.querySelectorAll('.wortbank-chip')).forEach(function(chip) {
+    chip.classList.toggle('used', solved.has(chip.textContent));
+  });
+}
+
+buildLuecken();
+initWortbank();
+
+/* ============================================================
+   SCHREIBWERKSTATT
+   ============================================================ */
+(function buildSchreibwerkstatt() {
+  var container = document.getElementById('schreib-aufgaben-container');
+  SCHREIB_AUFGABEN.forEach(function(aufg, idx) {
+    var div = document.createElement('div');
+    div.className = 'schreib-karte';
+    div.innerHTML =
+      '<div class="schreib-karte-nr">' + aufg.nr + '</div>' +
+      '<div class="schreib-karte-frage">' + aufg.frage + '</div>' +
+      '<div class="schreib-karte-beispiel">' + aufg.beispiel + '</div>' +
+      '<textarea class="schreib-mini-textarea" id="sw-ta-' + idx + '" placeholder="Ihre Antwort hier …"></textarea>' +
+      '<br><button class="schreib-send-btn" id="sw-btn-' + idx + '" onclick="schreibSend(' + idx + ')">📨 An Frank senden</button>' +
+      '<div class="schreib-status" id="sw-status-' + idx + '"></div>';
+    container.appendChild(div);
+  });
+})();
+
+function schreibGetName() {
+  return (document.getElementById('sw-name') || {value: ''}).value.trim();
+}
+
+function schreibZeigeFehler(idx, msg) {
+  var st = document.getElementById('sw-status-' + idx);
+  if (st) st.innerHTML = '<span style="color:#e74c3c">' + msg + '</span>';
+}
+
+function schreibSend(idx) {
+  var name = schreibGetName();
+  if (!name) { schreibZeigeFehler(idx, '⚠ Bitte zuerst Ihren Namen eingeben.'); return; }
+  var ta = document.getElementById('sw-ta-' + idx);
+  var text = ta ? ta.value.trim() : '';
+  if (!text) { schreibZeigeFehler(idx, '⚠ Bitte zuerst etwas schreiben.'); return; }
+  var btn = document.getElementById('sw-btn-' + idx);
+  var st  = document.getElementById('sw-status-' + idx);
+  btn.disabled = true;
+  st.textContent = 'Wird gesendet …';
+  var payload = {
+    access_key: FORMSUBMIT_ACCESS_KEY,
+    subject: '[' + SCHREIB_CODE + '] ' + SCHREIB_AUFGABEN[idx].nr + ' — ' + name,
+    from_name: name + ' (DaF ' + SCHREIB_NIVEAU + ')',
+    message:
+      'Datei: ' + SCHREIB_CODE + '\n' +
+      'Aufgabe: ' + SCHREIB_AUFGABEN[idx].nr + '\n' +
+      'Name: ' + name + '\n' +
+      'Niveau: ' + SCHREIB_NIVEAU + '\n\n' +
+      SCHREIB_AUFGABEN[idx].frage + '\n\n' + text,
+    email: FORMSUBMIT_MAILTO,
+    replyto: FORMSUBMIT_MAILTO
+  };
+  fetch(FORMSUBMIT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data && data.success) {
+      btn.textContent = '✅ Gesendet';
+      btn.classList.add('sent');
+      st.innerHTML = '<span style="color:#27ae60">Vielen Dank! Frank hat Ihre Antwort erhalten.</span>';
+    } else {
+      btn.disabled = false;
+      var mailto = 'mailto:' + FORMSUBMIT_MAILTO +
+        '?subject=' + encodeURIComponent('[' + SCHREIB_CODE + '] ' + SCHREIB_AUFGABEN[idx].nr + ' — ' + name) +
+        '&body=' + encodeURIComponent(text);
+      st.innerHTML = '<span style="color:#e74c3c">📧 Versand fehlgeschlagen. <a href="' + mailto + '">Per E-Mail senden</a></span>';
+    }
+  })
+  .catch(function() {
+    btn.disabled = false;
+    var mailto = 'mailto:' + FORMSUBMIT_MAILTO +
+      '?subject=' + encodeURIComponent('[' + SCHREIB_CODE + '] ' + SCHREIB_AUFGABEN[idx].nr + ' — ' + name) +
+      '&body=' + encodeURIComponent(text);
+    st.innerHTML = '<span style="color:#e74c3c">📧 Kein Netzwerk. <a href="' + mailto + '">Per E-Mail senden</a></span>';
+  });
+}
+
+function schreibSammelversand() {
+  var name = schreibGetName();
+  var sammelSt = document.getElementById('sammel-status');
+  if (!name) {
+    sammelSt.innerHTML = '<span style="color:#e74c3c">⚠ Bitte zuerst Ihren Namen eingeben.</span>';
+    return;
+  }
+  var allText = '';
+  SCHREIB_AUFGABEN.forEach(function(aufg, idx) {
+    var ta = document.getElementById('sw-ta-' + idx);
+    var text = ta ? ta.value.trim() : '(keine Antwort)';
+    allText += aufg.nr + ':\n' + aufg.frage + '\n\n' + text + '\n\n---\n\n';
+  });
+  sammelSt.textContent = 'Wird gesendet …';
+  var payload = {
+    access_key: FORMSUBMIT_ACCESS_KEY,
+    subject: '[' + SCHREIB_CODE + '] Sammelversand — ' + name,
+    from_name: name + ' (DaF ' + SCHREIB_NIVEAU + ')',
+    message: 'Datei: ' + SCHREIB_CODE + '\nName: ' + name + '\nNiveau: ' + SCHREIB_NIVEAU + '\n\n' + allText,
+    email: FORMSUBMIT_MAILTO,
+    replyto: FORMSUBMIT_MAILTO
+  };
+  fetch(FORMSUBMIT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data && data.success) {
+      sammelSt.innerHTML = '<span style="color:#27ae60">✅ Alle Antworten erfolgreich gesendet. Vielen Dank!</span>';
+    } else {
+      var mailto = 'mailto:' + FORMSUBMIT_MAILTO +
+        '?subject=' + encodeURIComponent('[' + SCHREIB_CODE + '] Sammelversand — ' + name) +
+        '&body=' + encodeURIComponent(allText);
+      sammelSt.innerHTML = '<span style="color:#e74c3c">📧 Versand fehlgeschlagen. <a href="' + mailto + '">Per E-Mail senden</a> &nbsp;|&nbsp; 📋 <a href="#" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById(\'sw-ta-0\')?(document.querySelectorAll(\'.schreib-mini-textarea\').length+\' Antworten\'):\'Fehler\')">Kopieren</a></span>';
+    }
+  })
+  .catch(function() {
+    var mailto = 'mailto:' + FORMSUBMIT_MAILTO +
+      '?subject=' + encodeURIComponent('[' + SCHREIB_CODE + '] Sammelversand — ' + name) +
+      '&body=' + encodeURIComponent(allText);
+    sammelSt.innerHTML = '<span style="color:#e74c3c">📧 Kein Netzwerk. <a href="' + mailto + '">Per E-Mail senden</a></span>';
+  });
+}
+
+/* ============================================================
+   WORTSCHATZ — kanonisches Pattern (daf-uebungsformen)
+   ============================================================ */
+var WORTSCHATZ_TAB_IDX = 5;
+
+function timerAutoStart(idx) { if (!timers[idx]) startTimer(idx); }
+function resetTimer(idx) {
+  stopTimer(idx);
+  seconds[idx] = 0;
+  var el = document.getElementById(timerEls[idx]);
+  if (el) el.textContent = '⏱ 00:00';
+}
+
+function initWortschatz() {
+  var container = document.getElementById('wortschatzContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  WORTSCHATZ.forEach(function(item) {
+    var row = document.createElement('div');
+    row.className = 'luecken-item';
+    row.style.marginBottom = '0';
+    var prompt = document.createElement('div');
+    prompt.style.cssText = 'font-weight:600; color:#667eea; margin-bottom:6px; font-size:1.05em;';
+    prompt.textContent = item.en;
+    row.appendChild(prompt);
+    var fields = document.createElement('div');
+    fields.style.cssText = 'display:flex; gap:8px; flex-wrap:wrap; align-items:center;';
+    if (item.type === 'n') {
+      var artInp = document.createElement('input');
+      artInp.className = 'blank'; artInp.type = 'text';
+      artInp.placeholder = 'Artikel'; artInp.style.width = '70px';
+      artInp.dataset.answer = item.artikel; artInp.dataset.field = 'art';
+      artInp.oninput = function() { wortschatzCheck(this); timerAutoStart(WORTSCHATZ_TAB_IDX); checkWortschatzAllOk(); };
+      fields.appendChild(artInp);
+      var wordInp = document.createElement('input');
+      wordInp.className = 'blank'; wordInp.type = 'text';
+      wordInp.placeholder = 'Wort'; wordInp.style.width = '200px';
+      wordInp.dataset.answer = item.de; wordInp.dataset.field = 'word';
+      wordInp.oninput = function() { wortschatzCheck(this); timerAutoStart(WORTSCHATZ_TAB_IDX); checkWortschatzAllOk(); };
+      fields.appendChild(wordInp);
+      var plInp = document.createElement('input');
+      plInp.className = 'blank'; plInp.type = 'text';
+      plInp.placeholder = 'Plural'; plInp.style.width = '200px';
+      plInp.dataset.answer = item.plural; plInp.dataset.field = 'plural';
+      if (item.plural === '–') {
+        plInp.value = '–';
+        plInp.disabled = true;
+        plInp.classList.add('correct');
+        plInp.style.opacity = '0.6';
+        plInp.title = 'Dieses Wort hat keinen Plural';
+      } else {
+        plInp.oninput = function() { wortschatzCheck(this); timerAutoStart(WORTSCHATZ_TAB_IDX); checkWortschatzAllOk(); };
+      }
+      fields.appendChild(plInp);
+    } else {
+      var inp = document.createElement('input');
+      inp.className = 'blank'; inp.type = 'text';
+      inp.placeholder = 'Deutsch'; inp.style.width = '280px';
+      inp.dataset.answer = item.de; inp.dataset.field = 'word';
+      inp.oninput = function() { wortschatzCheck(this); timerAutoStart(WORTSCHATZ_TAB_IDX); checkWortschatzAllOk(); };
+      fields.appendChild(inp);
+    }
+    row.appendChild(fields);
+    container.appendChild(row);
+  });
+}
+
+function wortschatzCheck(inp) {
+  var user = inp.value;
+  var answer = inp.dataset.answer;
+  var field = inp.dataset.field;
+  inp.classList.remove('correct', 'wrong');
+  if (!user) return;
+  var cmpUser   = (field === 'art') ? user.toLowerCase().trim() : user.trim();
+  var cmpAnswer = (field === 'art') ? answer.toLowerCase() : answer;
+  if (cmpUser === cmpAnswer) {
+    inp.classList.add('correct');
+  } else if (cmpAnswer.indexOf(cmpUser) === 0) {
+    /* Präfix — neutral */
+  } else {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkWortschatzAllOk() {
+  var inputs = document.querySelectorAll('#sec-5 input.blank');
+  var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) {
+    return i.disabled || i.classList.contains('correct');
+  });
+  if (allOk) stopTimer(WORTSCHATZ_TAB_IDX);
+}
+
+function showWortschatzLoesung() {
+  stopTimer(WORTSCHATZ_TAB_IDX);
+  document.querySelectorAll('#sec-5 input.blank').forEach(function(inp) {
+    inp.value = inp.dataset.answer;
+    inp.classList.add('correct'); inp.classList.remove('wrong');
+  });
+}
+
+function resetWortschatz() {
+  document.querySelectorAll('#sec-5 input.blank').forEach(function(inp) {
+    if (!inp.disabled) {
+      inp.value = ''; inp.classList.remove('correct', 'wrong');
+    }
+  });
+  resetTimer(WORTSCHATZ_TAB_IDX);
+}
+
+initWortschatz();
+
+/* ============================================================
+   INIT
+   ============================================================ */
+startTimer(0);
+</script>
+</body>
+</html>
