@@ -18,8 +18,11 @@ Das System ist der deutsche Standard zur psychopathologischen Befunddokumentatio
 | Datei | Inhalt | Status |
 |---|---|---|
 | `DE_AMDP_000-sprachhinweis.html` | Sprachhinweis für Mert (Gendering-Ablehnung, Warum-Erklärung) | ✅ fertig + gepusht |
-| `DE_AMDP_001R-einfuehrung.html` | AMDP-Überblick, 12 Domänen, Entscheidungsbaum, Beurteilungszeitraum | ✅ fertig + gepusht |
-| `DE_AMDP_002R-bewusstsein.html` | Domäne I (Bewusstsein, 4 Merkmale) + Domäne II (Orientierung, 4 Merkmale) | ✅ fertig + gepusht |
+| `DE_AMDP_001R-einfuehrung.html` | AMDP-Überblick, 12 Domänen, Entscheidungsbaum, Beurteilungszeitraum | ✅ fertig + gepusht + Register-Verweis |
+| `DE_AMDP_002R-bewusstsein.html` | Domäne I (Bewusstsein, 4 Merkmale) + Domäne II (Orientierung, 4 Merkmale) | ✅ fertig + 8 Marginalien #1–#8 |
+| `Psych_Fall_A.html` | Fallvignette Delir (Herr A., 82) — Rollenspiel + AMDP-Befund + Diagnose + Therapie | ✅ fertig + 12 Nummer-Badges |
+| `DE_AMDP_INDEX.html` | **Schüler-Register**: alle 100 Merkmale, 12 Domänen, Status-Symbole (✅/🎭/⬜), Klicktiefe zur Lektion | ✅ live im Dashboard |
+| `AMDP_100_KANON.md` | **Single Source of Truth**: Manual-konforme Liste mit Domänen, S/F/SF-Typen | ✅ Referenz für künftige Lektionen |
 
 ---
 
@@ -60,54 +63,67 @@ Dialoge und Fallbeispiele in den Lektionen werden deshalb selbst geschrieben.
 
 ## Die 100 Merkmale im Überblick (S/F/SF-Typ)
 
-**I. Bewusstsein (1–4):** Bewusstseinsverminderung(F), Bewusstseinstrübung(F),
+> ⚠️ **Verbindliche Quelle ist `AMDP_100_KANON.md` (Single Source of Truth).**
+> Die folgende Kurzfassung ist nur Schnellüberblick. Wenn ein Merkmal in einer
+> Marginalie oder einem Index-Badge benutzt wird, immer gegen den Kanon abgleichen.
+> Die Schüler-sichtbare Übersicht liegt unter `DE_AMDP_INDEX.html`.
+
+**I. Bewusstseinsstörungen (1–4):** Bewusstseinsverminderung(F), Bewusstseinstrübung(F),
 Bewusstseinseinengung(SF), Bewusstseinsverschiebung(S)
 
-**II. Orientierung (5–8):** Zeitlich(S), Örtlich(S), Situativ(S), Zur Person(S)
+**II. Orientierungsstörungen (5–8):** Zeitlich(S), Örtlich(S), Situativ(S),
+Über die eigene Person(S)
 
-**III. Gedächtnis (9–14):** Auffassungsstörungen(SF), Konzentrationsstörungen(SF),
-Merkfähigkeitsstörungen(SF), Gedächtnisstörungen(SF), Konfabulationen(F), Paramnesien(S)
+**III. Aufmerksamkeits- und Gedächtnisstörungen (9–14):** Auffassungsstörungen(SF),
+Konzentrationsstörungen(SF), Merkfähigkeitsstörungen(SF), Gedächtnisstörungen(SF),
+Konfabulationen(F), Paramnesien(S)
 
-**IV. Formales Denken (15–26):** Gehemmt(S), Verlangsamt(F), Umständlich(F),
+**IV. Formale Denkstörungen (15–26):** Gehemmt(S), Verlangsamt(F), Umständlich(F),
 Eingeengt(F), Perseverierend(F), Grübeln(S), Gedankendrängen(S), Ideenflüchtig(F),
 Vorbeireden(F), Gesperrt/Gedankenabreißen(SF), Inkohärent/zerfahren(F), Neologismen(F)
 
-**V. Befürchtungen & Zwänge (27–32):** Misstrauen(SF), Hypochondrie(S), Phobien(S),
-Zwangsdenken(S), Zwangsimpulse(S), Zwangshandlungen(SF)
+**V. Befürchtungen und Zwänge (27–32):** Misstrauen(SF), Hypochondrie(S), Phobien(S),
+Zwangsdenken(S), Zwangsimpulse(S), Zwangshandlungen(S)
 
-**VI. Wahn (33–46):** Wahnstimmung, Wahnwahrnehmung, Wahneinfall, Wahngedanken,
-Systematisierter Wahn, Wahndynamik, Beziehungswahn, Beeinträchtigungs-/Verfolgungswahn,
-Eifersuchtswahn, Religiöser Wahn, Verarmungswahn, Hypochondrischer Wahn,
-Größenwahn, Andere Wahninhalte (alle SF)
+**VI. Wahn (33–46):** Wahnstimmung(S), Wahnwahrnehmung(S), Wahneinfall(S),
+Wahngedanken(S), Systematisierter Wahn(S), Wahndynamik(SF), Beziehungswahn(S),
+Beeinträchtigungs- und Verfolgungswahn(S), Eifersuchtswahn(S), **Schuldwahn(S)**,
+Verarmungswahn(S), Hypochondrischer Wahn(S), Größenwahn(S), Andere Wahninhalte(S)
 
 **VII. Sinnestäuschungen (47–52):** Illusionen(S), Stimmenhören(S),
-Andere akust. Halluzinationen(S), Optische Halluzinationen(S),
-Körperhalluzinationen(S), Geruchs-/Geschmackshalluzinationen(S)
+Andere akustische Halluzinationen(S), Optische Halluzinationen(S),
+Körperhalluzinationen(S), Geruchs- und Geschmackshalluzinationen(S)
 
 **VIII. Ich-Störungen (53–58):** Derealisation(S), Depersonalisation(S),
 Gedankenausbreitung(S), Gedankenentzug(S), Gedankeneingebung(S),
 Andere Fremdbeeinflussungserlebnisse(S)
 
-**IX. Affektivität (59–79):** Ratlos(F), Affektarm(F), Störung der Vitalgefühle(S),
-Deprimiert(SF), Hoffnungslos(S), Ängstlich(SF), Euphorisch(SF), Dysphorisch(SF),
-Gereizt(SF), Innerlich unruhig(S), Klagsam/jammerig(F), Insuffizienzgefühle(S),
-Gesteigertes Selbstwertgefühl(S), Schuldgefühle(S), Verarmungsgefühle(S),
-Ambivalent(S), Parathymie(F), Affektlabil(SF), Affektinkontinent(SF),
-Affektstarr(F), Nicht schwingungsfähig(F)
+**IX. Störungen der Affektivität (59–79):** Ratlos(F), **Gefühl der Gefühllosigkeit(S)**,
+Affektarm(F), Störung der Vitalgefühle(S), Deprimiert(SF), Hoffnungslos(S),
+Ängstlich(SF), Euphorisch(SF), Dysphorisch(SF), Gereizt(SF), Innerlich unruhig(S),
+Klagsam/jammrig(F), Insuffizienzgefühle(S), Gesteigertes Selbstwertgefühl(S),
+Schuldgefühle(S), Verarmungsgefühle(S), Ambivalent(S), Parathymie(F),
+Affektlabil(SF), Affektinkontinent(SF), Affektstarr(F)
 
-**X. Antrieb & Psychomotorik (80–87):** Antriebsgehemmt(S), Antriebsgesteigert(SF),
-Motorisch unruhig(SF), Parakinesen(F), Manieriert/bizarr(F), Theatralisch(F),
-Mutistisch(F), Logorrhoisch(F)
+**X. Antriebs- und psychomotorische Störungen (80–88):** **Antriebsarm(SF)**,
+Antriebsgehemmt(S), Antriebsgesteigert(SF), Motorisch unruhig(SF), Parakinesen(F),
+Manieriert/bizarr(F), Theatralisch(F), Mutistisch(F), Logorrhoisch(F)
 
-**XI. Circadiane Besonderheiten (88–90):** Morgens schlechter(SF),
+**XI. Circadiane Besonderheiten (89–91):** Morgens schlechter(SF),
 Abends schlechter(SF), Abends besser(SF)
 
-**XII. Andere Störungen (91–99):** Sozialer Rückzug(SF), Soziale Umtriebigkeit(SF),
+**XII. Andere Störungen (92–100):** Sozialer Rückzug(SF), Soziale Umtriebigkeit(SF),
 Aggressivität(SF), Suizidalität(SF), Selbstbeschädigung(SF),
 Mangel an Krankheitsgefühl(S), Mangel an Krankheitseinsicht(S),
 Ablehnung der Behandlung(SF), Pflegebedürftigkeit(SF)
 
 **Typ-Legende:** S = Selbstbeurteilung möglich · F = Fremdbeurteilung nötig · SF = beide
+
+> **Korrektur-Hinweise (2026-05-23):** In früheren Versionen dieser Datei standen
+> drei nicht-kanonische Begriffe: #42 als „Religiöser Wahn" (korrekt: Schuldwahn),
+> #60 fehlte ganz (korrekt: Gefühl der Gefühllosigkeit), #80 als „Nicht
+> schwingungsfähig" (korrekt: Antriebsarm). Außerdem war die Domänen-Grenze
+> XI/XII verschoben. Alles aus dem Hogrefe-Manual (10. Aufl. 2018) korrigiert.
 
 ---
 
