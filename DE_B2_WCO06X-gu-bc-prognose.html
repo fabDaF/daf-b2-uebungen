@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 WCO06X – GU-Prognose und Koop-Management</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height:100vh; padding:20px;
+}
+.container {
+  max-width:1000px; margin:0 auto; background:white;
+  border-radius:12px; overflow:hidden;
+  box-shadow:0 10px 40px rgba(0,0,0,0.2);
+}
+.header {
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:white; padding:30px; text-align:center;
+}
+.header h1 {
+  font-size:2.2em; font-family:Georgia,'Times New Roman',serif;
+  color:white; margin-bottom:8px; border:none; padding:0;
+}
+.header p {
+  font-size:1.1em; font-family:Georgia,'Times New Roman',serif;
+  opacity:0.95; color:rgba(255,255,255,0.9); margin:0;
+}
+.header .big-emoji { font-size:2.6em; display:block; margin-top:8px; }
+.nav {
+  display:flex; flex-wrap:nowrap; background:#f8f9fa;
+  border-top:1px solid #ddd; border-left:1px solid #ddd; border-right:1px solid #ddd;
+}
+.nav-btn {
+  flex:1; padding:14px 10px; text-align:center; cursor:pointer;
+  border-right:1px solid #ddd; border-bottom:1px solid #ddd;
+  transition:all 0.3s; font-size:0.92em; font-weight:500; color:#666;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.nav-btn:last-child { border-right:none; }
+.nav-btn:hover { background:#e9ecef; color:#495057; }
+.nav-btn.active { background:white; color:#667eea; font-weight:600; border-bottom:3px solid #667eea; }
+.nav-emoji { font-size:1.3em; line-height:1.2; }
+.nav-label { font-size:0.78em; margin-top:2px; line-height:1.2; }
+.section { display:none; }
+.section.active { display:block; }
+.sec-inner { padding:24px; }
+.tab-banner {
+  width:100%; max-height:180px; object-fit:cover;
+  border-radius:10px; margin-bottom:18px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+@media (max-width:600px) {
+  .tab-banner { max-height:120px; }
+  .nav { flex-wrap:wrap; }
+  .nav-btn { flex:1 1 25%; min-width:0; font-size:0.75em; padding:10px 4px; border-right:1px solid #ddd; }
+  .nav-btn:last-child { border-right:1px solid #ddd; }
+  body { padding:8px; }
+}
+.section-title { font-size:1.4em; font-weight:700; color:#667eea; margin-bottom:20px; }
+.section-sub { color:#888; font-size:0.92em; margin-bottom:20px; }
+.control-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:18px; padding:6px 12px; background:#f8f9fa; border-radius:8px;
+}
+.btn-row { display:flex; gap:6px; }
+.btn {
+  background:#f5f7ff; border:1px solid #c5cff5; border-radius:8px;
+  padding:6px 16px; font-size:0.85em; color:#667eea; cursor:pointer;
+  transition:all 0.15s; font-weight:500;
+}
+.btn:hover { background:#667eea; color:white; border-color:#667eea; }
+.timer-display { display:flex; gap:14px; font-size:0.82em; color:#bbb; font-variant-numeric:tabular-nums; }
+.hilfe-box {
+  background:#f0f4ff; border-left:4px solid #667eea;
+  border-radius:0 8px 8px 0; padding:14px 18px; margin-bottom:22px;
+  font-size:0.9em; color:#444; line-height:1.6;
+}
+
+/* ── VORENTLASTUNG ── */
+.vocab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-top:16px; }
+.vocab-card { background:#f8f9ff; border:1px solid #dde3ff; border-radius:10px; padding:14px 16px; }
+.vocab-term { font-weight:700; color:#667eea; font-size:1.05em; margin-bottom:2px; }
+.vocab-pos { color:#aaa; font-size:0.78em; margin-bottom:3px; font-style:italic; }
+.vocab-def { color:#555; font-size:0.92em; line-height:1.5; }
+
+/* ── LESETEXT ── */
+.lese-text {
+  font-family:Georgia,'Times New Roman',serif;
+  background:#f8f9fa; border-radius:10px; padding:22px 26px;
+  font-size:1.0em; line-height:1.9; color:#333; margin-bottom:18px;
+  max-width:700px; margin-left:auto; margin-right:auto;
+  text-align:justify; hyphens:auto; -webkit-hyphens:auto;
+}
+.lese-text p { margin-bottom:1em; }
+.lese-text p:last-child { margin-bottom:0; }
+.lese-text h3 { font-family:Georgia,serif; color:#667eea; font-size:1.0em; margin:18px 0 8px; }
+.vocab-hl { background:#ffe9a0; border-radius:3px; padding:1px 3px; font-weight:600; cursor:help; }
+.story-source { margin-top:14px; color:#aaa; font-size:0.8em; text-align:right; max-width:700px; margin-left:auto; margin-right:auto; }
+
+/* ── GENUS ── */
+.genus-bank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:56px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.genus-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; }
+@media (max-width:600px) { .genus-grid { grid-template-columns:1fr 1fr; } }
+.genus-col { background:#fafbff; border:1px solid #e0e7ff; border-radius:10px; padding:10px; }
+.genus-col-title {
+  text-align:center; font-weight:700; font-size:1.1em; margin-bottom:8px; padding-bottom:6px;
+  border-bottom:2px solid #667eea; color:#667eea;
+}
+.drop-zone {
+  min-height:60px; border-radius:8px; border:2px dashed #c5cae9;
+  padding:6px; background:#fafbff; transition:background .2s;
+  display:flex; flex-direction:column; gap:5px;
+}
+.drop-zone.dragover { background:#e8eaff; border-color:#667eea; }
+.genus-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:6px 12px; border-radius:16px; cursor:move;
+  font-weight:500; font-size:0.9em; user-select:none;
+  transition:all 0.2s; white-space:nowrap; text-align:center;
+}
+.genus-chip.correct { background:#27ae60; border-color:#27ae60; color:white; }
+.genus-chip.wrong   { background:#e74c3c; border-color:#e74c3c; color:white; }
+.genus-chip.dragging { opacity:0.4; }
+
+/* ── LÜCKENTEXT ── */
+.luecken-list { list-style:none; }
+.luecken-item {
+  background:#f8f9ff; border:1px solid #e0e7ff;
+  border-left:4px solid #667eea; border-radius:8px;
+  padding:14px 16px; margin-bottom:10px;
+  font-size:0.95em; line-height:1.8;
+}
+input.blank {
+  border:none; border-bottom:2px solid #667eea;
+  background:transparent; padding:3px 6px;
+  font-family:inherit; font-size:0.95em; outline:none;
+  transition:all 0.2s; min-width:4ch;
+}
+input.blank:focus { border-bottom-color:#667eea; }
+input.blank.ok, input.blank.correct { border-bottom-color:#27ae60; color:#27ae60; font-weight:700; }
+input.blank.no, input.blank.wrong   { border-bottom-color:#e74c3c; color:#e74c3c; }
+
+/* ── WORTBANK ── */
+.wortbank-label { font-weight:700; color:#667eea; font-size:0.85em; margin-bottom:8px; }
+.wortbank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:48px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.wortbank-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:5px 12px; border-radius:14px; cursor:default;
+  font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none;
+}
+
+/* ── MULTIPLE-CHOICE ── */
+.mc-item { background:#f8f9ff; border:1px solid #e0e7ff; border-left:4px solid #667eea; border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+.mc-question { font-size:1.05em; color:#333; margin-bottom:10px; font-weight:500; line-height:1.5; }
+.mc-opts { display:flex; flex-wrap:wrap; gap:6px; }
+.mc-opt {
+  padding:5px 14px; border-radius:20px; border:1.5px solid #c5cae9;
+  background:#fff; color:#555; font-size:11px; font-weight:600; cursor:pointer;
+  transition:all 0.15s;
+}
+.mc-opt:hover { border-color:#667eea; color:#667eea; }
+.mc-opt.correct { background:#27ae60; border-color:#27ae60; color:white; }
+.mc-opt.wrong   { background:#e74c3c; border-color:#e74c3c; color:white; }
+.mc-opt:disabled, .mc-opt[disabled] { cursor:default; opacity:0.6; }
+
+/* ── SATZBAU ── */
+.satzbau-item { background:#fafbff; border:1px solid #e0e7ff; border-radius:12px; padding:16px; margin-bottom:16px; }
+.chips-container { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f8f8f8; border-radius:10px; min-height:56px; margin-bottom:10px; }
+.sentence-builder { display:flex; flex-wrap:wrap; gap:6px; padding:14px; background:white; border:2px dashed #ccc; border-radius:10px; min-height:56px; align-items:center; margin-bottom:6px; }
+.sentence-builder.correct   { border-color:#27ae60; background:#f0fff4; }
+.sentence-builder.incorrect { border-color:#e74c3c; background:#fff5f5; }
+.chip { background:white; border:2px solid #667eea; color:#667eea; padding:8px 14px; border-radius:20px; cursor:move; font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none; white-space:nowrap; }
+.chip.correct   { background:#27ae60; border-color:#27ae60; color:white; }
+.chip.incorrect { background:#e74c3c; border-color:#e74c3c; color:white; }
+.chip.punct-chip { background:#f8f8f8; border:2px solid #667eea; padding:8px 16px; color:#333; font-weight:700; font-size:1.3em; min-width:18px; text-align:center; cursor:move; }
+.chip.punct-chip.correct   { background:#27ae60; border-color:#27ae60; color:white; }
+.chip.punct-chip.incorrect { background:#e74c3c; border-color:#e74c3c; color:white; }
+.sentence-builder .chip.punct-chip { margin-left:-6px; border-left:none; border-radius:0 20px 20px 0; padding-left:4px; padding-right:12px; }
+.sentence-builder .chip.punct-chip.correct   { border-left:none; }
+.sentence-builder .chip.punct-chip.incorrect { border-left:none; }
+.sb-punkt { font-size:1.1em; font-weight:700; color:#27ae60; margin-left:2px; align-self:center; user-select:none; }
+.satzbau-feedback { font-size:0.9em; font-weight:600; margin-top:6px; min-height:1.2em; }
+.satzbau-feedback.correct   { color:#27ae60; }
+.satzbau-feedback.incorrect { color:#e74c3c; }
+
+/* ── SCHREIBWERKSTATT ── */
+.schreib-name-box { background:#fffde7; border:2px solid #f9a825; border-radius:10px; padding:14px 18px; margin-bottom:22px; }
+.schreib-name-box label { font-weight:700; color:#e65100; display:block; margin-bottom:6px; }
+.schreib-name-box input { border:none; border-bottom:2px solid #f9a825; background:transparent; font-size:1em; font-family:inherit; outline:none; padding:3px 6px; width:260px; }
+.schreib-aufgabe { background:#f8f9ff; border:1px solid #e0e7ff; border-left:4px solid #667eea; border-radius:10px; padding:18px 20px; margin-bottom:18px; }
+.schreib-aufgabe-nr { font-size:0.78em; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.schreib-aufgabe-titel { font-size:1.05em; font-weight:700; color:#4a148c; margin-bottom:6px; }
+.schreib-aufgabe-frage { font-size:0.95em; color:#444; line-height:1.6; margin-bottom:6px; }
+.schreib-beispiel { font-size:0.88em; color:#888; font-style:italic; margin-bottom:10px; }
+.schreib-mini-textarea { width:100%; min-height:350px; border:1.5px solid #c5cae9; border-radius:8px; padding:10px; font-family:inherit; font-size:0.93em; outline:none; resize:vertical; transition:border-color 0.2s; }
+.schreib-mini-textarea:focus { border-color:#667eea; }
+.schreib-send-row { display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap; }
+.schreib-send-btn { background:#667eea; color:white; border:none; border-radius:8px; padding:7px 18px; font-size:0.88em; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.schreib-send-btn:hover { background:#5568d4; }
+.schreib-send-btn:disabled { opacity:0.5; cursor:default; }
+.schreib-status { font-size:0.82em; color:#888; }
+.schreib-status.sent { color:#27ae60; font-weight:700; }
+.schreib-sammel-row { margin-top:22px; text-align:center; }
+.schreib-sammel-btn { background:#764ba2; color:white; border:none; border-radius:8px; padding:10px 24px; font-size:0.93em; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.schreib-sammel-btn:hover { background:#5e3a82; }
+/* Customer-Error-UI */
+.schreib-fb { background:#fff8e1; border:1px solid #ffe082; border-radius:10px; padding:14px 16px; margin-top:10px; font-size:0.88em; }
+.schreib-fb-titel { font-weight:700; color:#e65100; margin-bottom:6px; }
+.schreib-fb-text { color:#555; margin-bottom:8px; line-height:1.5; }
+.schreib-fb-actions { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.schreib-fb-btn { background:#f5f7ff; border:1px solid #c5cff5; border-radius:8px; padding:5px 14px; font-size:0.82em; color:#667eea; cursor:pointer; font-weight:600; }
+.schreib-fb-btn:hover { background:#667eea; color:white; }
+.schreib-fb-btn-prim { background:#667eea; color:white; border:1px solid #667eea; border-radius:8px; padding:5px 14px; font-size:0.82em; font-weight:600; cursor:pointer; }
+.schreib-fb-hilfe { font-size:0.82em; color:#aaa; font-style:italic; }
+
+/* ── WORTSCHATZ ── */
+#wortschatzContainer { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:600px) { #wortschatzContainer { grid-template-columns:1fr; } }
+
+/* ── FOOTER ── */
+.author-footer { text-align:center; margin-top:40px; max-width:1000px; margin-left:auto; margin-right:auto; padding:16px; font-size:0.8rem; color:#aaa; }
+.author-footer a { color:#aaa; }
+.author-name { font-weight:700; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>GU-Prognose und Koop-Management</h1>
+  <p>B2 – Lektion WCO06X · Sachtext</p>
+  <div class="big-emoji">📊</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+  <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📄</span><span class="nav-label">Lesetext</span></div>
+  <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔤</span><span class="nav-label">Genus</span></div>
+  <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+  <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">☑️</span><span class="nav-label">Verständnis</span></div>
+  <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+  <div class="nav-btn" onclick="showSection(6)"><span class="nav-emoji">📨</span><span class="nav-label">Schreibwerkstatt</span></div>
+  <div class="nav-btn" onclick="showSection(7)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 0: VORENTLASTUNG -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/8961260/pexels-photo-8961260.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Baustelle">
+  <div class="sec-inner">
+    <div class="section-title">📖 Vorbereitung: Wichtige Begriffe</div>
+    <div class="section-sub">Lies die Begriffe und ihre Erklärungen, bevor du den Text liest.</div>
+    <div class="vocab-grid" id="vorentlastungGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 1: LESETEXT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Büro-Meeting">
+  <div class="sec-inner">
+    <div class="section-title">📄 Wie wir die GU-Prognose prüfen und kommentieren</div>
+    <div class="section-sub">Ein internes Schreiben aus dem Koop-Management bei Westconnect GmbH.</div>
+    <div class="lese-text" id="lesetext">
+      <p>Das <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Koop-Management</span> bei Westconnect bekommt regelmäßig <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Prognosen</span> von unseren <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Generalunternehmern</span> — kurz GU. Das sind die Firmen, die für uns die Bauanschlüsse herstellen, zum Beispiel Geoduct und DeinBau. Diese Zahlen vergleichen wir mit unseren eigenen Werten und kommentieren sie dann.</p>
+      <h3>Was ist eine Prognose?</h3>
+      <p>Eine Prognose ist eine geschätzte Zahl für die Zukunft. In unserem Fall: wie viele <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Bauanschlüsse</span> (BC) wird ein GU im laufenden und im nächsten Jahr fertigstellen? Diese Schätzung ist wichtig für unsere Planung. Sie zeigt uns, ob wir auf Kurs sind oder ob wir <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">gegensteuern</span> müssen.</p>
+      <h3>Wir kommentieren in der Liste</h3>
+      <p>In der Excel-Liste stehen die GU-Zahlen in den Spalten AF und AG (für 2025 und 2026). Daneben — in den Spalten AK und AL — schreiben wir unsere Kommentare und unsere <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">To-do-Vorschläge</span>. So sieht jeder Empfänger schnell, was zu tun ist.</p>
+      <h3>Drei Arten von To-dos</h3>
+      <p>Erstens für das <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Regiomanagement</span> (mit „RM" markiert): Bitte die eigene Prognose anhand des Kommentars kritisch reviewen und in der Liste <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">anpassen</span>. Manchmal ist eure Prognose zu <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">konservativ</span>, manchmal zu <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">optimistisch</span>. Zweitens für Natascha: Bitte schau dir 2–3 auffällige Summenzahlen genau an, sie verfälschen das Gesamtbild. Drittens für das Koop-Management selbst: Die GU-Zahlen sind zu niedrig — wir <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">challengen</span> sie im Gespräch mit dem GU.</p>
+      <h3>Worum geht es konkret?</h3>
+      <p>Insgesamt schätzen wir den <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Mismatch</span> so: Geoduct meldet ungefähr 5.000 Bauanschlüsse zu wenig, DeinBau knapp 2.000. Unser Ziel ist ein höheres <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Commitment</span> der GU für das nächste Jahr — und wir wollen die GU danach <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">tracken</span>, damit dieses Commitment auch eingehalten wird.</p>
+      <h3>Bitte um Rückmeldung</h3>
+      <p>Wir wollen wissen, was mit diesem Feedback passiert. Sobald ihr mit der Bearbeitung soweit seid, gebt uns bitte ein kurzes <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Signal</span>. So bleibt die Liste aktuell, und niemand arbeitet unnötig parallel an den gleichen Zeilen.</p>
+    </div>
+    <div class="story-source">Quelle: B2 – Lektion WCO06X · Schulungsmail Westconnect GmbH (adaptiert)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 2: GENUS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/590016/pexels-photo-590016.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Dokumente und Ordner">
+  <div class="sec-inner">
+    <h2>🔤 Genus-Training</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showGenusLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetGenus(); resetTimer(2);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">00:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ziehe die Wörter in die richtige Spalte: <strong>der / die / das / Plural</strong>. Das Feedback erscheint sofort.</div>
+    <div class="genus-bank" id="genusBank"></div>
+    <div class="genus-grid">
+      <div class="genus-col">
+        <div class="genus-col-title">der</div>
+        <div class="drop-zone" id="dz-der" data-cat="der"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">die</div>
+        <div class="drop-zone" id="dz-die" data-cat="die"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">das</div>
+        <div class="drop-zone" id="dz-das" data-cat="das"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">Plural</div>
+        <div class="drop-zone" id="dz-pl" data-cat="pl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 3: LÜCKENTEXT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/4792731/pexels-photo-4792731.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Formulare">
+  <div class="sec-inner">
+    <h2>✏️ Lückentext</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetLuecken(); resetTimer(3);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">00:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ergänze die fehlenden Wörter. Das Feedback erscheint beim Tippen — grün = richtig, rot = falsch.</div>
+    <div class="wortbank-label">📋 Wortbank – schreibe die Wörter selbst ein:</div>
+    <div class="wortbank" id="wortbank-luecken"></div>
+    <ul class="luecken-list" id="lueckenContainer"></ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 4: MULTIPLE-CHOICE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/6169648/pexels-photo-6169648.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Checkliste">
+  <div class="sec-inner">
+    <h2>☑️ Textverständnis</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showMcLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetMc(); resetTimer(4);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">00:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Klicke auf die richtige Antwort. Das Feedback erscheint sofort.</div>
+    <div id="mcContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 5: SATZBAU -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-5">
+  <img class="tab-banner" src="https://images.pexels.com/photos/4458205/pexels-photo-4458205.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Konstruktion Baustelle">
+  <div class="sec-inner">
+    <h2>🧩 Satzbau</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="sbShowAllSolutions()">Alle lösen</button>
+        <button class="btn" onclick="sbResetAll(); resetTimer(5);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-5">00:00</span></span>
+        <span>🏆 <span id="best-5">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ziehe die Wörter in die richtige Reihenfolge. Das Feedback erscheint, wenn alle Chips platziert sind.</div>
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 6: SCHREIBWERKSTATT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-6">
+  <img class="tab-banner" src="https://images.pexels.com/photos/5196810/pexels-photo-5196810.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben am Laptop">
+  <div class="sec-inner">
+    <div class="section-title">📨 Schreibwerkstatt</div>
+    <div class="section-sub">Fünf kurze Schreibaufgaben – je 50 bis 70 Wörter. Deine Texte werden direkt an Frank gesendet.</div>
+    <div class="schreib-name-box">
+      <label for="sw-name">👤 Dein Name (Pflicht)</label>
+      <input type="text" id="sw-name" placeholder="Vor- und Nachname" oninput="schreibNameSpeichern()">
+    </div>
+    <div id="schreibAufgabenContainer"></div>
+    <div class="schreib-sammel-row">
+      <button class="schreib-sammel-btn" onclick="schreibSendenAlle()">📨 Alle noch nicht gesendeten Antworten schicken</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 7: WORTSCHATZ -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-7">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Team beim Lernen">
+  <div class="sec-inner">
+    <h2>📚 Wortschatz</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetWortschatz(); resetTimer(7);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-7">00:00</span></span>
+        <span>🏆 <span id="best-7">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Tippe Artikel, Wort und Plural. Nomen werden großgeschrieben.</div>
+    <div id="wortschatzContainer"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a><br>📅 Termin vereinbaren &middot; <a href="https://termin.frankburkert-daf.de">https://termin.frankburkert-daf.de</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATEN
+═══════════════════════════════════════════════════════ */
+
+var VORENTLASTUNG = [
+  { term:"die Prognose, -n",                def:"eine geschätzte Zahl oder Aussage über die Zukunft, basierend auf vorhandenen Daten" },
+  { term:"der Generalunternehmer, - (GU)",  def:"die Firma, die ein Bauprojekt komplett übernimmt und meist mit Subunternehmen arbeitet" },
+  { term:"der Bauanschluss, -anschlüsse",   def:"die abgeschlossene Anbindung eines Hauses an die Versorgungsleitung (Abkürzung BC)" },
+  { term:"das Koop-Management (Sg.)",       def:"die Abteilung bei Westconnect, die die Zusammenarbeit mit den GU steuert" },
+  { term:"das Regiomanagement (Sg.)",       def:"die regionale Steuerung bei Westconnect — die Verantwortlichen vor Ort" },
+  { term:"die Spalte, -n",                  def:"eine senkrechte Anordnung von Werten in einer Tabelle, hier in Excel" },
+  { term:"die Abweichung, -en",             def:"der Unterschied zwischen einem Soll- und einem Ist-Wert" },
+  { term:"der Mismatch (Sg.)",              def:"eine erhebliche Abweichung zwischen zwei Zahlen, die eigentlich übereinstimmen sollten" },
+  { term:"challengen (Verb)",               def:"eine Aussage oder Zahl kritisch hinterfragen und dem Gegenüber Gegenargumente liefern" },
+  { term:"tracken (Verb)",                  def:"einen Vorgang oder eine Zahl regelmäßig verfolgen und kontrollieren" },
+  { term:"das Commitment (Sg.)",            def:"eine verbindliche Zusage, dass eine Zahl oder ein Ziel erreicht wird" },
+  { term:"der Forecast, -s",                def:"die englische Bezeichnung für eine Prognose oder Vorhersage" },
+  { term:"anpassen (Verb)",                 def:"eine Zahl oder einen Wert ändern, damit er besser zur Realität passt" },
+  { term:"konservativ (Adjektiv)",          def:"vorsichtig geschätzt — eher zu niedrig, um nicht zu optimistisch zu sein" },
+  { term:"optimistisch (Adjektiv)",         def:"hoffnungsvoll geschätzt — eher zu hoch, weil man auf gutes Ergebnis hofft" },
+  { term:"die Rückmeldung, -en",            def:"die Antwort oder Reaktion auf eine Anfrage oder Aufforderung" },
+  { term:"das Signal, -e",                  def:"ein kurzes Zeichen oder eine kurze Mitteilung, dass etwas erledigt ist" },
+  { term:"der To-do-Vorschlag, -vorschläge",def:"ein konkreter Vorschlag, was als Nächstes erledigt werden soll" }
+];
+
+var GENUS_DATA = [
+  { word:"📊 Prognose",               cat:"die" },
+  { word:"👷 Generalunternehmer",     cat:"der" },
+  { word:"🏠 Bauanschluss",           cat:"der" },
+  { word:"🤝 Koop-Management",        cat:"das" },
+  { word:"🗺️ Regiomanagement",         cat:"das" },
+  { word:"📋 Spalte",                 cat:"die" },
+  { word:"⚖️ Abweichung",              cat:"die" },
+  { word:"❗ Mismatch",                cat:"der" },
+  { word:"✍️ Kommentar",               cat:"der" },
+  { word:"🎯 Commitment",             cat:"das" },
+  { word:"🔮 Forecast",               cat:"der" },
+  { word:"💬 Rückmeldung",            cat:"die" },
+  { word:"📡 Signal",                 cat:"das" },
+  { word:"📝 Liste",                  cat:"die" },
+  { word:"📈 Zahl",                   cat:"die" },
+  { word:"🧮 Summe",                  cat:"die" },
+  { word:"📅 Jahr",                   cat:"das" },
+  { word:"🏢 Firma",                  cat:"die" },
+  { word:"📊 Excel",                  cat:"das" },
+  { word:"🎯 Ziel",                   cat:"das" },
+  { word:"📞 Gespräch",               cat:"das" },
+  { word:"🔍 Vergleich",              cat:"der" },
+  { word:"🏗️ Bauprojekt",              cat:"das" },
+  { word:"📊 Zahlen",                 cat:"pl"  },
+  { word:"💼 Generalunternehmer",     cat:"pl"  }
+];
+
+var LUECKEN_DATA = [
+  { before:"Das Koop-Management bekommt regelmäßig Prognosen von unseren ", answer:"Generalunternehmern", after:"." },
+  { before:"Die GU sind die Firmen, die für uns Bauanschlüsse ", answer:"herstellen", after:"." },
+  { before:"Wir vergleichen die GU-Zahlen mit unseren eigenen ", answer:"Werten", after:"." },
+  { before:"Eine Prognose ist eine geschätzte Zahl für die ", answer:"Zukunft", after:"." },
+  { before:"BC ist die Abkürzung für ", answer:"Bauanschluss", after:"." },
+  { before:"In der Excel-Liste stehen die GU-Zahlen in zwei ", answer:"Spalten", after:" für 2025 und 2026." },
+  { before:"Daneben schreiben wir unsere Kommentare und unsere ", answer:"To-do-Vorschläge", after:"." },
+  { before:"Mit „RM“ markieren wir die Aufgaben für das ", answer:"Regiomanagement", after:"." },
+  { before:"Manchmal ist eure Prognose zu ", answer:"konservativ", after:", manchmal zu optimistisch." },
+  { before:"Natascha prüft auffällige ", answer:"Summenzahlen", after:"." },
+  { before:"Die GU-Zahlen sind zu niedrig — wir ", answer:"challengen", after:" sie im Gespräch." },
+  { before:"Geoduct meldet ungefähr 5.000 Bauanschlüsse zu ", answer:"wenig", after:"." },
+  { before:"DeinBau meldet knapp 2.000 ", answer:"BC", after:" zu wenig." },
+  { before:"Unser Ziel ist ein höheres ", answer:"Commitment", after:" der GU für das nächste Jahr." },
+  { before:"Wir wollen die GU danach ", answer:"tracken", after:", damit das Commitment eingehalten wird." },
+  { before:"Wenn ihr mit der Bearbeitung soweit seid, gebt uns ein kurzes ", answer:"Signal", after:"." },
+  { before:"So bleibt die Liste ", answer:"aktuell", after:"." },
+  { before:"Niemand arbeitet dann unnötig parallel an den gleichen ", answer:"Zeilen", after:"." },
+  { before:"Den Mismatch sehen wir, wenn wir die Zahlen genau ", answer:"vergleichen", after:"." },
+  { before:"Unsere Kommentare stehen in den Spalten AK und ", answer:"AL", after:"." }
+];
+
+var MC_DATA = [
+  {
+    frage:"Was bedeutet die Abkürzung GU im Bau-Kontext?",
+    opts:["Geo-Unternehmen","Generalunternehmer","Großunternehmer","Gas-Unternehmer"],
+    correct:1
+  },
+  {
+    frage:"Welche Abteilung bei Westconnect betreut die Zusammenarbeit mit den GU?",
+    opts:["Das HSE-Team","Das Koop-Management","Die Bauleitung","Die Personalabteilung"],
+    correct:1
+  },
+  {
+    frage:"Was ist ein Bauanschluss (BC)?",
+    opts:["Ein einzelnes Werkzeug","Die abgeschlossene Anbindung eines Hauses an die Leitung","Ein Vertragsabschnitt","Eine Schulung"],
+    correct:1
+  },
+  {
+    frage:"Wozu dient eine Prognose?",
+    opts:["Zur Bestrafung von Verspätungen","Als geschätzte Zahl für die Zukunft, an der wir uns orientieren","Als rechtliches Dokument","Als Bauanleitung"],
+    correct:1
+  },
+  {
+    frage:"In welchen Spalten der Excel-Liste stehen die GU-Zahlen?",
+    opts:["A und B","AF und AG","AK und AL","Z und AA"],
+    correct:1
+  },
+  {
+    frage:"Wo stehen unsere Kommentare und To-do-Vorschläge?",
+    opts:["In den Spalten AF und AG","In den Spalten AK und AL","Auf einem separaten Blatt","In einer Mail an alle"],
+    correct:1
+  },
+  {
+    frage:"Welche drei Arten von To-dos gibt es?",
+    opts:["RM, Bauleitung, Versicherung","Regiomanagement, Natascha, Koop-Management","Geoduct, DeinBau, Westconnect","Vertrag, Termin, Strafe"],
+    correct:1
+  },
+  {
+    frage:"Was bedeutet die Markierung „RM“ in der Liste?",
+    opts:["Reklamation","Regiomanagement","Rückmeldung","Risikomanagement"],
+    correct:1
+  },
+  {
+    frage:"Wann ist eine Prognose „konservativ“?",
+    opts:["Wenn sie zu hoch ist","Wenn sie zu niedrig ist (vorsichtig geschätzt)","Wenn sie genau stimmt","Wenn sie politisch motiviert ist"],
+    correct:1
+  },
+  {
+    frage:"Wann ist eine Prognose „optimistisch“?",
+    opts:["Wenn sie zu niedrig ist","Wenn sie zu hoch ist (hoffnungsvoll geschätzt)","Wenn sie genau stimmt","Wenn sie spät kommt"],
+    correct:1
+  },
+  {
+    frage:"Wie viele Bauanschlüsse meldet Geoduct zu wenig?",
+    opts:["ca. 500","ca. 2.000","ca. 5.000","ca. 10.000"],
+    correct:2
+  },
+  {
+    frage:"Wie viele Bauanschlüsse meldet DeinBau zu wenig?",
+    opts:["ca. 500","knapp 2.000","ca. 5.000","ca. 8.000"],
+    correct:1
+  },
+  {
+    frage:"Was ist das Hauptziel des Koop-Managements für das nächste Jahr?",
+    opts:["Mehr Schulungen anbieten","Ein höheres Commitment der GU erreichen","Die Verträge auflösen","Die Preise erhöhen"],
+    correct:1
+  },
+  {
+    frage:"Was bedeutet „challengen“ im Geschäftskontext?",
+    opts:["Ignorieren","Einen Vorschlag kritisch hinterfragen und dagegen argumentieren","Sofort akzeptieren","Anwaltliche Schritte einleiten"],
+    correct:1
+  },
+  {
+    frage:"Was sollen die Empfänger der Liste tun, wenn sie mit der Bearbeitung fertig sind?",
+    opts:["Eine Pressemitteilung schreiben","Ein kurzes Signal zurückgeben","Eine Schulung organisieren","Die Liste löschen"],
+    correct:1
+  }
+];
+
+var satzbauData = [
+  { parts:['das','Koop-Management','bekommt','Prognosen','von','den','GU'],
+    valid:[['das','Koop-Management','bekommt','Prognosen','von','den','GU']], punct:'.' },
+  { parts:['eine','Prognose','ist','eine','geschätzte','Zahl','für','die','Zukunft'],
+    valid:[['eine','Prognose','ist','eine','geschätzte','Zahl','für','die','Zukunft']], punct:'.' },
+  { parts:['wir','vergleichen','die','GU-Zahlen','mit','unseren','eigenen','Werten'],
+    valid:[['wir','vergleichen','die','GU-Zahlen','mit','unseren','eigenen','Werten']], punct:'.' },
+  { parts:['in','den','Spalten','AF','und','AG','stehen','die','GU-Zahlen'],
+    valid:[['in','den','Spalten','AF','und','AG','stehen','die','GU-Zahlen']], punct:'.' },
+  { parts:['unsere','Kommentare','stehen','in','den','Spalten','AK','und','AL'],
+    valid:[['unsere','Kommentare','stehen','in','den','Spalten','AK','und','AL']], punct:'.' },
+  { parts:['das','Regiomanagement','soll','seine','Prognose','kritisch','reviewen'],
+    valid:[['das','Regiomanagement','soll','seine','Prognose','kritisch','reviewen']], punct:'.' },
+  { parts:['eure','Prognose','ist','manchmal','zu','konservativ'],
+    valid:[['eure','Prognose','ist','manchmal','zu','konservativ']], punct:'.' },
+  { parts:['Natascha','prüft','auffällige','Summenzahlen','in','der','Liste'],
+    valid:[['Natascha','prüft','auffällige','Summenzahlen','in','der','Liste']], punct:'.' },
+  { parts:['die','GU-Zahlen','sind','zu','niedrig','und','werden','gechallengt'],
+    valid:[['die','GU-Zahlen','sind','zu','niedrig','und','werden','gechallengt']], punct:'.' },
+  { parts:['Geoduct','meldet','etwa','5000','Bauanschlüsse','zu','wenig'],
+    valid:[['Geoduct','meldet','etwa','5000','Bauanschlüsse','zu','wenig']], punct:'.' },
+  { parts:['DeinBau','meldet','knapp','2000','BC','zu','wenig'],
+    valid:[['DeinBau','meldet','knapp','2000','BC','zu','wenig']], punct:'.' },
+  { parts:['unser','Ziel','ist','ein','höheres','Commitment','der','GU'],
+    valid:[['unser','Ziel','ist','ein','höheres','Commitment','der','GU']], punct:'.' },
+  { parts:['wir','tracken','die','GU','danach','jedes','Quartal'],
+    valid:[['wir','tracken','die','GU','danach','jedes','Quartal']], punct:'.' },
+  { parts:['gebt','uns','bitte','ein','kurzes','Signal','nach','der','Bearbeitung'],
+    valid:[['gebt','uns','bitte','ein','kurzes','Signal','nach','der','Bearbeitung']], punct:'.' },
+  { parts:['so','bleibt','die','Liste','immer','aktuell'],
+    valid:[['so','bleibt','die','Liste','immer','aktuell']], punct:'.' }
+];
+
+var WORTSCHATZ = [
+  { id:1,  type:"n", en:"📊 forecast / prediction",                artikel:"die", de:"Prognose",            plural:"Prognosen" },
+  { id:2,  type:"n", en:"👷 general contractor (GU)",              artikel:"der", de:"Generalunternehmer",  plural:"Generalunternehmer" },
+  { id:3,  type:"n", en:"🏠 building connection (BC)",             artikel:"der", de:"Bauanschluss",        plural:"Bauanschlüsse" },
+  { id:4,  type:"n", en:"🤝 cooperation management",               artikel:"das", de:"Koop-Management",     plural:"–" },
+  { id:5,  type:"n", en:"🗺️ regional management",                   artikel:"das", de:"Regiomanagement",     plural:"–" },
+  { id:6,  type:"n", en:"📋 column (in a spreadsheet)",            artikel:"die", de:"Spalte",              plural:"Spalten" },
+  { id:7,  type:"n", en:"⚖️ deviation / discrepancy",               artikel:"die", de:"Abweichung",          plural:"Abweichungen" },
+  { id:8,  type:"n", en:"❗ mismatch (between two figures)",        artikel:"der", de:"Mismatch",            plural:"Mismatches" },
+  { id:9,  type:"n", en:"🎯 commitment (binding promise)",         artikel:"das", de:"Commitment",          plural:"Commitments" },
+  { id:10, type:"n", en:"🔮 forecast (English term)",              artikel:"der", de:"Forecast",            plural:"Forecasts" },
+  { id:11, type:"n", en:"💬 feedback / reply",                     artikel:"die", de:"Rückmeldung",         plural:"Rückmeldungen" },
+  { id:12, type:"n", en:"📡 signal / short notification",          artikel:"das", de:"Signal",              plural:"Signale" },
+  { id:13, type:"n", en:"📋 to-do suggestion",                     artikel:"der", de:"To-do-Vorschlag",     plural:"To-do-Vorschläge" },
+  { id:14, type:"n", en:"✍️ comment / written remark",              artikel:"der", de:"Kommentar",           plural:"Kommentare" },
+  { id:15, type:"n", en:"📝 list",                                 artikel:"die", de:"Liste",               plural:"Listen" },
+  { id:16, type:"n", en:"📈 number / figure",                      artikel:"die", de:"Zahl",                plural:"Zahlen" },
+  { id:17, type:"n", en:"🧮 sum / total figure",                   artikel:"die", de:"Summe",               plural:"Summen" },
+  { id:18, type:"n", en:"📊 spreadsheet (Excel)",                  artikel:"das", de:"Excel",               plural:"–" },
+  { id:19, type:"n", en:"🎯 goal / target",                        artikel:"das", de:"Ziel",                plural:"Ziele" },
+  { id:20, type:"n", en:"🔍 comparison",                           artikel:"der", de:"Vergleich",           plural:"Vergleiche" },
+  { id:21, type:"p", en:"📝 to comment (a number, a remark)",      de:"kommentieren" },
+  { id:22, type:"p", en:"🔄 to adjust / adapt (a forecast)",       de:"anpassen" },
+  { id:23, type:"p", en:"🥊 to challenge / push back",             de:"challengen" },
+  { id:24, type:"p", en:"📡 to track / monitor regularly",         de:"tracken" },
+  { id:25, type:"p", en:"⚖️ to compare",                            de:"vergleichen" },
+  { id:26, type:"p", en:"📋 to review (in business sense)",        de:"reviewen" },
+  { id:27, type:"a", en:"📉 conservative (cautious estimate)",     de:"konservativ" },
+  { id:28, type:"a", en:"📈 optimistic (hopeful estimate)",        de:"optimistisch" },
+  { id:29, type:"a", en:"🔄 up-to-date",                           de:"aktuell" }
+];
+
+var AUFGABEN = [
+  {
+    nr:1,
+    titel:"Was ist eine Prognose?",
+    frage:"Erkläre in eigenen Worten, was eine Prognose ist und warum das Koop-Management Prognosen von den GU einholt. Schreibe drei Sätze. (50–70 Wörter)",
+    beispiel:"Beispiel: „Eine Prognose ist eine geschätzte Zahl für die Zukunft. Sie zeigt, wie viele Bauanschlüsse ein GU im nächsten Jahr fertigstellen wird. Wir brauchen die Prognose, weil wir unsere eigene Planung darauf abstimmen …“"
+  },
+  {
+    nr:2,
+    titel:"Die drei To-do-Typen erklären",
+    frage:"Nenne die drei Arten von To-dos in der Liste — für wen ist welche Aufgabe und was ist ihr Inhalt? Schreibe pro Typ einen Satz. (50–70 Wörter)",
+    beispiel:"Beispiel: „RM-To-dos gehen an das Regiomanagement: Sie sollen die eigene Prognose kritisch reviewen und anpassen. Natascha bekommt Aufgaben zu auffälligen Summenzahlen. Das Koop-Management challengt die GU-Zahlen direkt …“"
+  },
+  {
+    nr:3,
+    titel:"Konservativ oder optimistisch?",
+    frage:"Erkläre den Unterschied zwischen einer konservativen und einer optimistischen Prognose. Warum ist beides ein Problem? (50–70 Wörter)",
+    beispiel:"Beispiel: „Eine konservative Prognose ist vorsichtig geschätzt — also eher zu niedrig. Eine optimistische Prognose ist hoffnungsvoll — also eher zu hoch. Beides ist problematisch, weil wir unsere Planung auf die richtige Zahl ausrichten müssen …“"
+  },
+  {
+    nr:4,
+    titel:"Wie viel fehlt?",
+    frage:"Schreibe zwei Sätze, in denen du angibst, wie viele Bauanschlüsse Geoduct und DeinBau jeweils zu wenig melden. Erkläre kurz, warum das wichtig ist. (50–70 Wörter)",
+    beispiel:"Beispiel: „Geoduct meldet ungefähr 5.000 Bauanschlüsse zu wenig, DeinBau knapp 2.000. Das ist wichtig, weil wir auf Basis dieser Zahlen unsere Ressourcen planen — und ein höheres Commitment der GU brauchen …“"
+  },
+  {
+    nr:5,
+    titel:"Kurze Rückmeldung",
+    frage:"Schreibe eine kurze E-Mail (4–6 Sätze) an Natascha, in der du ihr signalisierst, dass du mit der Bearbeitung der Liste fertig bist. Nenne, was du angepasst hast und wo Fragen offen sind. (50–70 Wörter)",
+    beispiel:"Beispiel: „Hallo Natascha, ich habe die Liste bearbeitet. Die Prognose für Cluster 3 habe ich nach oben angepasst. Drei Summenzahlen in Spalte AL sind mir noch unklar …“"
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   SCHREIBWERKSTATT KONSTANTEN
+═══════════════════════════════════════════════════════ */
+var SCHREIB_NIVEAU = 'B2';
+var SCHREIB_CODE   = 'WCO06X';
+var SCHREIB_MIN_CHARS = 14;
+var FORMSUBMIT_ENDPOINT   = 'https://api.web3forms.com/submit';
+var FORMSUBMIT_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var FORMSUBMIT_MAILTO     = 'unterricht@frankburkert-daf.de';
+
+/* ═══════════════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════════════ */
+var timers = {};
+function timerAutoStart(idx) {
+  if (!timers[idx]) timers[idx] = {elapsed:0,best:null,interval:null,started:false};
+  var t = timers[idx];
+  if (t.started) return;
+  t.started = true; t.elapsed = 0;
+  t.interval = setInterval(function(){
+    t.elapsed++;
+    var m = Math.floor(t.elapsed/60), s = t.elapsed%60;
+    var el = document.getElementById('timer-'+idx);
+    if (el) el.textContent = (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+  },1000);
+}
+function stopTimer(idx) {
+  if (!timers[idx]) return;
+  var t = timers[idx];
+  if (t.interval){clearInterval(t.interval);t.interval=null;}
+  if (t.best===null||t.elapsed<t.best){
+    t.best=t.elapsed;
+    var m=Math.floor(t.best/60),s=t.best%60;
+    var el=document.getElementById('best-'+idx);
+    if(el) el.textContent=(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+  }
+  t.started=false;
+}
+function resetTimer(idx) {
+  if (!timers[idx]) return;
+  var t = timers[idx];
+  if (t.interval){clearInterval(t.interval);t.interval=null;}
+  t.elapsed=0; t.started=false;
+  var el=document.getElementById('timer-'+idx);
+  if(el) el.textContent='00:00';
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===idx);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===idx);});
+}
+
+/* ═══════════════════════════════════════════════════════
+   VORENTLASTUNG
+═══════════════════════════════════════════════════════ */
+function initVorentlastung() {
+  var g = document.getElementById('vorentlastungGrid');
+  VORENTLASTUNG.forEach(function(v){
+    var c = document.createElement('div'); c.className = 'vocab-card';
+    var t = document.createElement('div'); t.className = 'vocab-term'; t.textContent = v.term;
+    var d = document.createElement('div'); d.className = 'vocab-def';  d.textContent = v.def;
+    c.appendChild(t); c.appendChild(d); g.appendChild(c);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   GENUS — DRAG & DROP (neue Architektur)
+═══════════════════════════════════════════════════════ */
+var draggedChip = null;
+function initGenus() {
+  var bank = document.getElementById('genusBank');
+  bank.innerHTML = '';
+  // Shuffle
+  var data = GENUS_DATA.slice();
+  for(var i=data.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=data[i];data[i]=data[j];data[j]=tmp;}
+  data.forEach(function(item){
+    var chip = document.createElement('div');
+    chip.className = 'genus-chip';
+    chip.textContent = item.word;
+    chip.dataset.cat = item.cat;
+    chip.draggable = true;
+    chip.addEventListener('dragstart',function(e){
+      e.dataTransfer.setData('text/plain','');
+      draggedChip = chip;
+      timerAutoStart(2);
+      setTimeout(function(){chip.classList.add('dragging');},0);
+    });
+    chip.addEventListener('dragend',function(){
+      chip.classList.remove('dragging');
+      colorAllGenusChips();
+    });    bank.appendChild(chip);
+  });
+  // Drop zones
+  document.querySelectorAll('.drop-zone').forEach(function(zone){
+    zone.innerHTML='';
+    zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('dragover');});
+    zone.addEventListener('dragleave',function(){zone.classList.remove('dragover');});
+    zone.addEventListener('drop',function(e){
+      e.preventDefault();zone.classList.remove('dragover');
+      if(draggedChip){zone.appendChild(draggedChip);draggedChip=null;}
+      colorAllGenusChips();
+    });
+    zone.addEventListener('click',function(){
+      if(draggedChip){zone.appendChild(draggedChip);draggedChip=null;colorAllGenusChips();}
+    });
+  });
+  bank.addEventListener('dragover',function(e){e.preventDefault();});
+  bank.addEventListener('drop',function(e){
+    e.preventDefault();
+    if(draggedChip){bank.appendChild(draggedChip);draggedChip=null;}
+    colorAllGenusChips();
+  });
+  bank.addEventListener('click',function(){
+    if(draggedChip){bank.appendChild(draggedChip);draggedChip=null;colorAllGenusChips();}
+  });
+}
+function colorGenusChip(chip){
+  var zone=chip.closest('.drop-zone');
+  chip.classList.remove('correct','wrong');
+  if(zone&&zone.dataset.cat){ chip.classList.add(chip.dataset.cat===zone.dataset.cat?'correct':'wrong'); }
+}
+function colorAllGenusChips(){
+  document.querySelectorAll('#sec-2 .genus-chip').forEach(colorGenusChip);
+  checkGenusAllOk();
+}
+function checkGenusAllOk(){
+  var chips=document.querySelectorAll('#sec-2 .genus-chip');
+  var inBank=document.querySelectorAll('#genusBank .genus-chip').length;
+  if(inBank>0) return;
+  var allOk=Array.from(chips).every(function(c){return c.classList.contains('correct');});
+  if(allOk) stopTimer(2);
+}
+function showGenusLoesung(){
+  stopTimer(2);
+  document.querySelectorAll('.drop-zone').forEach(function(z){z.innerHTML='';});
+  GENUS_DATA.forEach(function(item){
+    var zone=document.getElementById('dz-'+item.cat);
+    var chip=Array.from(document.querySelectorAll('#sec-2 .genus-chip')).find(function(c){return c.textContent===item.word;})||createGenusChip(item);
+    if(zone) zone.appendChild(chip);
+  });
+  colorAllGenusChips();
+}
+function createGenusChip(item){
+  var chip=document.createElement('div');chip.className='genus-chip';
+  chip.textContent=item.word;chip.dataset.cat=item.cat;chip.draggable=true;
+  return chip;
+}
+function resetGenus(){ initGenus(); }
+
+/* ═══════════════════════════════════════════════════════
+   LÜCKENTEXT
+═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   WORTBANK
+═══════════════════════════════════════════════════════ */
+function initWortbank() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  bank.innerHTML = '';
+  var words = LUECKEN_DATA.map(function(d){ return d.answer; });
+  for(var i=words.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=words[i];words[i]=words[j];words[j]=t;}
+  words.forEach(function(w){
+    var chip = document.createElement('span');
+    chip.className = 'wortbank-chip';
+    chip.textContent = w;
+    bank.appendChild(chip);
+  });
+}
+
+function initLuecken() {
+  var ul = document.getElementById('lueckenContainer');
+  ul.innerHTML = '';
+  LUECKEN_DATA.forEach(function(item, idx) {
+    var li = document.createElement('li'); li.className = 'luecken-item';
+    var span1 = document.createElement('span'); span1.textContent = item.before;
+    var inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'blank'; inp.placeholder = '';
+    inp.dataset.ans = item.answer;
+    var ansLen = Math.max(item.answer.length, 4);
+    inp.style.width = (ansLen + 4) + 'ch';
+    inp.setAttribute('data-idx', idx);
+    inp.addEventListener('input', function(){
+      lueckenLiveCheck(inp);
+      timerAutoStart(3);
+      checkLueckenAllOk();
+    });
+    var span2 = document.createElement('span'); span2.textContent = item.after;
+    li.appendChild(span1); li.appendChild(inp); li.appendChild(span2);
+    ul.appendChild(li);
+  });
+  initWortbank();
+}
+function lueckenLiveCheck(inp){
+  var val = inp.value.trim();
+  var ans = inp.dataset.ans;
+  inp.classList.remove('ok','no');
+  if(!val) return;
+  if(val===ans){ inp.classList.add('ok'); return; }
+  if(ans.indexOf(val)===0) return;
+  inp.classList.add('no');
+}
+function checkLueckenAllOk(){
+  var all=document.querySelectorAll('#lueckenContainer input.blank');
+  if(Array.from(all).every(function(i){return i.classList.contains('ok');})) stopTimer(3);
+}
+function showLueckenLoesung(){
+  stopTimer(3);
+  document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+    inp.value=LUECKEN_DATA[inp.getAttribute('data-idx')].answer;
+    inp.classList.add('ok'); inp.classList.remove('no');
+  });}
+function resetLuecken(){
+  document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+    inp.value=''; inp.classList.remove('ok','no');
+  });
+  resetTimer(3);
+  initWortbank();
+}
+
+/* ═══════════════════════════════════════════════════════
+   MULTIPLE-CHOICE
+═══════════════════════════════════════════════════════ */
+function initMc() {
+  var cont = document.getElementById('mcContainer');
+  cont.innerHTML = '';
+  MC_DATA.forEach(function(item, qi) {
+    var div = document.createElement('div'); div.className = 'mc-item';
+    var q = document.createElement('div'); q.className = 'mc-question';
+    q.textContent = (qi+1) + '. ' + item.frage;
+    var opts = document.createElement('div'); opts.className = 'mc-opts';
+    item.opts.forEach(function(o, oi) {
+      var btn = document.createElement('button'); btn.className = 'mc-opt';
+      btn.textContent = o;
+      btn.addEventListener('click', function(){
+        if(btn.disabled) return;
+        timerAutoStart(4);
+        var btns = opts.querySelectorAll('.mc-opt');
+        btns.forEach(function(b){ b.disabled=true; });
+        if(oi===item.correct){ btn.classList.add('correct'); }
+        else { btn.classList.add('wrong'); btns[item.correct].classList.add('correct'); }
+        checkMcAllOk();
+      });
+      opts.appendChild(btn);
+    });
+    div.appendChild(q); div.appendChild(opts); cont.appendChild(div);
+  });
+}
+function checkMcAllOk(){
+  var allDisabled=Array.from(document.querySelectorAll('#mcContainer .mc-opt')).filter(function(b){return !b.disabled;}).length===0;
+  if(allDisabled) stopTimer(4);
+}
+function showMcLoesung(){
+  stopTimer(4);
+  document.querySelectorAll('#mcContainer .mc-item').forEach(function(item, qi){
+    var btns = item.querySelectorAll('.mc-opt');
+    btns.forEach(function(b){b.disabled=true;});
+    btns[MC_DATA[qi].correct].classList.add('correct');
+  });
+}
+function resetMc(){
+  document.querySelectorAll('#mcContainer .mc-opt').forEach(function(b){
+    b.disabled=false; b.classList.remove('correct','wrong');
+  });
+  resetTimer(4);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SATZBAU
+═══════════════════════════════════════════════════════ */
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(clientX<r.left+r.width/2)return chips[i];}
+  return null;
+}
+function sbCapitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function sbUpdateCapitalization(row){
+  var chips=Array.from(row.querySelectorAll('.chip:not(.punct-chip)'));
+  chips.forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word,idx){
+  var chip=document.createElement('div'); chip.className='chip';
+  chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.dataset.sbIdx=String(idx);
+  if(word===','||word===';') chip.classList.add('punct-chip');
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(5);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){chip.style.opacity='0.4';},0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity='';sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault();if(!sbDragged)return;
+    if(sbDragged.dataset.sbIdx!==String(idx))return;
+    var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);
+    if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault();if(!sbDragged)return;
+    if(sbDragged.dataset.sbIdx!==String(idx))return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){return c.dataset.orig;});
+  var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});
+  chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});
+  var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+  if(ok){var p=document.createElement('span');p.className='sb-punkt';p.textContent=satzbauData[idx].punct||'.';row.appendChild(p);}
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});
+    row.classList.remove('correct','incorrect');fb.textContent='';return;
+  }
+  setTimeout(function(){
+    timerAutoStart(5);
+    var ok=sbColorRow(idx);
+    if(ok){
+      row.classList.add('correct');row.classList.remove('incorrect');
+      fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect');row.classList.remove('correct');
+      fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});
+  if(allOk) stopTimer(5);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+  while(bank.firstChild)bank.removeChild(bank.firstChild);
+  while(row.firstChild)row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){
+    var chip=allChips[word];
+    if(!chip){chip=sbMakeChip(word,idx);}
+    if(word!==','&&word!==';') chip.textContent=(i===0)?sbCapitalize(word):word;
+    chip.classList.remove('correct','incorrect'); row.appendChild(chip);
+  });
+  fb.textContent=''; setTimeout(function(){sbCheckAuto(idx);},100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild)bank.removeChild(bank.firstChild);
+  while(row.firstChild)row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+  parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div');item.className='satzbau-item';
+    var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;
+    var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;
+    var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+    parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});
+    sbRegisterZone(bank,idx);sbRegisterZone(row,idx);
+    var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var s=document.createElement('button');s.className='btn';s.textContent='Lösen';s.setAttribute('data-idx',idx);
+    s.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});
+    var r=document.createElement('button');r.className='btn';r.textContent='↺ Neustart';r.setAttribute('data-idx',idx);
+    r.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});
+    btnRow.appendChild(s);btnRow.appendChild(r);
+    item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+function sbShowAllSolutions(){ satzbauData.forEach(function(_,i){sbShowSolution(i);}); }
+function sbResetAll(){ satzbauData.forEach(function(_,i){sbResetOne(i);}); resetTimer(5); }
+
+/* ═══════════════════════════════════════════════════════
+   SCHREIBWERKSTATT
+═══════════════════════════════════════════════════════ */
+var LS_PREFIX = 'schreibwerkstatt_' + SCHREIB_NIVEAU + '_' + SCHREIB_CODE + '_';
+
+function schreibNameSpeichern(){
+  var n=document.getElementById('sw-name').value;
+  localStorage.setItem(LS_PREFIX+'name', n);
+}
+
+function schreibFehlerErklaerung(err){
+  var code=(err&&err.message)||'';
+  if(code==='NOT_ACTIVATED') return 'Der Versand-Dienst muss einmalig von Frank aktiviert werden. Dein Text ist gespeichert.';
+  if(code.indexOf('HTTP_')===0) return 'Server-Fehler (' + code + '). Bitte versuche es später nochmal.';
+  if(code==='API_ERROR') return 'Der Server hat den Versand abgelehnt. Dein Text ist im Browser gespeichert.';
+  return 'Kein Internetzugang oder Verbindungsproblem. Dein Text ist gespeichert.';
+}
+
+function schreibKopierenEinzeln(nr){
+  var name=document.getElementById('sw-name').value||'–';
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  var text=ta?ta.value:'';
+  var txt=SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+name+'\n\n'+text;
+  if(navigator.clipboard){navigator.clipboard.writeText(txt);}else{var el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);}
+}
+
+function schreibZeigeFehler(nr, err){
+  var st=document.getElementById('sw-status-'+nr); if(!st) return;
+  var name=document.getElementById('sw-name').value||'–';
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  var text=ta?ta.value:'';
+  var subject=encodeURIComponent(SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+name);
+  var body=encodeURIComponent(text);
+  var mailto='mailto:'+FORMSUBMIT_MAILTO+'?subject='+subject+'&body='+body;
+  st.innerHTML='<div class="schreib-fb"><div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — dein Text ist sicher im Browser gespeichert.</div><div class="schreib-fb-text">'+schreibFehlerErklaerung(err)+'</div><div class="schreib-fb-actions"><a href="'+mailto+'" class="schreib-fb-btn">📧 In Mail-Programm öffnen</a><button class="schreib-fb-btn" onclick="schreibKopierenEinzeln('+nr+')">📋 In Zwischenablage</button><button class="schreib-fb-btn-prim" onclick="schreibSendenEinzeln('+nr+')">🔄 Nochmal versuchen</button></div><div class="schreib-fb-hilfe">Wenn nichts klappt: sag Frank im Unterricht Bescheid – er muss den Versand einmalig aktivieren.</div></div>';
+}
+
+function schreibSendenEinzeln(nr){
+  var name=document.getElementById('sw-name').value.trim();
+  if(!name){
+    var nameInp=document.getElementById('sw-name');
+    nameInp.style.animation='shake 0.3s';
+    setTimeout(function(){nameInp.style.animation='';},300);
+    nameInp.focus();
+    var st=document.getElementById('sw-status-'+nr);
+    if(st) st.textContent='⚠ Bitte zuerst deinen Namen eingeben.';
+    return;
+  }
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  if(!ta||ta.value.trim().length<SCHREIB_MIN_CHARS){
+    var st2=document.getElementById('sw-status-'+nr);
+    if(st2) st2.textContent='Bitte schreibe etwas mehr.';
+    return;
+  }
+  var st3=document.getElementById('sw-status-'+nr);
+  if(st3) st3.textContent='⏳ Sende …';
+  var btn=document.querySelector('.schreib-send-btn[data-nr="'+nr+'"]');
+  if(btn) btn.disabled=true;
+  var aufgabe=AUFGABEN[nr-1];
+  var subject=SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+(aufgabe?aufgabe.titel:'')+' · '+name;
+  var body={'access_key':FORMSUBMIT_ACCESS_KEY,'name':name,'subject':subject,'from_name':'fabDaF Schreibwerkstatt','lektion':SCHREIB_NIVEAU+' '+SCHREIB_CODE,'message':ta.value.trim()};
+  fetch(FORMSUBMIT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){if(!r.ok)throw new Error('HTTP_'+r.status);return r.json();})
+    .then(function(data){
+      var ok=data&&(data.success===true||data.success==='true');
+      if(!ok){
+        var code='API_ERROR';var apiMsg=(data&&data.message)||'';
+        if(/[Aa]ctivat|domain|access[\s_-]?key/.test(apiMsg))code='NOT_ACTIVATED';
+        var e=new Error(code);e.apiMessage=apiMsg;throw e;
+      }
+      localStorage.setItem(LS_PREFIX+'sent_'+nr,'1');
+      var st4=document.getElementById('sw-status-'+nr);
+      if(st4){st4.className='schreib-status sent';st4.textContent='✓ Gesendet!';}
+      if(btn) btn.disabled=false;
+    })
+    .catch(function(err){
+      if(btn) btn.disabled=false;
+      schreibZeigeFehler(nr,err);
+    });
+}
+
+function schreibSendenAlle(){
+  var name=document.getElementById('sw-name').value.trim();
+  if(!name){document.getElementById('sw-name').focus();return;}
+  AUFGABEN.forEach(function(a){
+    var sent=localStorage.getItem(LS_PREFIX+'sent_'+a.nr);
+    if(!sent) schreibSendenEinzeln(a.nr);
+  });
+}
+
+function initSchreibwerkstatt(){
+  var cont=document.getElementById('schreibAufgabenContainer');cont.innerHTML='';
+  var savedName=localStorage.getItem(LS_PREFIX+'name')||'';
+  document.getElementById('sw-name').value=savedName;
+  AUFGABEN.forEach(function(a){
+    var div=document.createElement('div');div.className='schreib-aufgabe';
+    var nr=document.createElement('div');nr.className='schreib-aufgabe-nr';nr.textContent='Aufgabe '+a.nr+' von '+AUFGABEN.length;
+    var titel=document.createElement('div');titel.className='schreib-aufgabe-titel';titel.textContent=a.titel;
+    var frage=document.createElement('div');frage.className='schreib-aufgabe-frage';frage.textContent=a.frage;
+    var bsp=document.createElement('div');bsp.className='schreib-beispiel';bsp.textContent=a.beispiel;
+    var ta=document.createElement('textarea');ta.className='schreib-mini-textarea';ta.setAttribute('data-aufgabe',a.nr);
+    ta.placeholder='Deine Antwort …';
+    var savedText=localStorage.getItem(LS_PREFIX+a.nr)||'';
+    ta.value=savedText;
+    ta.addEventListener('input',function(){localStorage.setItem(LS_PREFIX+a.nr,ta.value);});
+    var row=document.createElement('div');row.className='schreib-send-row';
+    var btn=document.createElement('button');btn.className='schreib-send-btn';
+    btn.setAttribute('data-nr',a.nr);btn.textContent='📨 An Frank senden';
+    var alreadySent=localStorage.getItem(LS_PREFIX+'sent_'+a.nr);
+    btn.addEventListener('click',function(){schreibSendenEinzeln(a.nr);});
+    var st=document.createElement('span');st.className='schreib-status';st.id='sw-status-'+a.nr;
+    if(alreadySent){st.className='schreib-status sent';st.textContent='✓ Bereits gesendet';}
+    row.appendChild(btn);row.appendChild(st);
+    div.appendChild(nr);div.appendChild(titel);div.appendChild(frage);div.appendChild(bsp);div.appendChild(ta);div.appendChild(row);
+    cont.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   WORTSCHATZ
+═══════════════════════════════════════════════════════ */
+function initWortschatz(){
+  var container=document.getElementById('wortschatzContainer');container.innerHTML='';
+  WORTSCHATZ.forEach(function(item){
+    var row=document.createElement('div');row.className='luecken-item';row.style.marginBottom='0';
+    var prompt=document.createElement('div');prompt.style.cssText='font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;';
+    prompt.textContent=item.en;row.appendChild(prompt);
+    var fields=document.createElement('div');fields.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+    if(item.type==='n'){
+      var artInp=document.createElement('input');artInp.className='blank';artInp.type='text';
+      artInp.placeholder='Artikel';artInp.style.width='70px';
+      artInp.dataset.answer=item.artikel;artInp.dataset.field='art';
+      artInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(artInp);
+      var wordInp=document.createElement('input');wordInp.className='blank';wordInp.type='text';
+      wordInp.placeholder='Wort';wordInp.style.width='160px';
+      wordInp.dataset.answer=item.de;wordInp.dataset.field='word';
+      wordInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(wordInp);
+      var plInp=document.createElement('input');plInp.className='blank';plInp.type='text';
+      plInp.placeholder='Plural';plInp.style.width='140px';
+      plInp.dataset.answer=item.plural;plInp.dataset.field='plural';
+      if(item.plural==='–'){
+        plInp.value='–';plInp.disabled=true;plInp.classList.add('correct');
+        plInp.style.opacity='0.6';plInp.title='Kein Plural';
+      } else {
+        plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      }
+      fields.appendChild(plInp);
+    } else {
+      var inp=document.createElement('input');inp.className='blank';inp.type='text';
+      inp.placeholder='Deutsch';inp.style.width='220px';
+      inp.dataset.answer=item.de;inp.dataset.field='word';
+      inp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(inp);
+    }
+    row.appendChild(fields);container.appendChild(row);
+  });
+}
+
+function wortschatzCheck(inp){
+  var user=inp.value;var answer=inp.dataset.answer;var field=inp.dataset.field;
+  inp.classList.remove('correct','wrong');
+  if(!user) return;
+  var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
+  var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
+  if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+  else if(cmpAnswer.indexOf(cmpUser)===0){/* Präfix – neutral */}
+  else{inp.classList.add('wrong');}
+}
+
+function checkWortschatzAllOk(){
+  var inputs=document.querySelectorAll('#sec-7 input.blank');
+  var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.disabled||i.classList.contains('correct');});
+  if(allOk) stopTimer(7);
+}
+
+function showWortschatzLoesung(){
+  stopTimer(7);
+  document.querySelectorAll('#sec-7 input.blank').forEach(function(inp){
+    inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');
+  });
+}
+
+function resetWortschatz(){
+  document.querySelectorAll('#sec-7 input.blank').forEach(function(inp){
+    if(!inp.disabled){inp.value='';inp.classList.remove('correct','wrong');}
+  });
+  resetTimer(7);
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  initVorentlastung();
+  initGenus();
+  initLuecken();
+  initMc();
+  initSatzbau();
+  initSchreibwerkstatt();
+  initWortschatz();
+});
+
+/* shake-animation für Name-Feld */
+var styleEl=document.createElement('style');
+styleEl.textContent='@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}';
+document.head.appendChild(styleEl);
+</script>
+</body>
+</html>
