@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 WCO05X – Abnahmebegehren und wesentliche Mängel</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height:100vh; padding:20px;
+}
+.container {
+  max-width:1000px; margin:0 auto; background:white;
+  border-radius:12px; overflow:hidden;
+  box-shadow:0 10px 40px rgba(0,0,0,0.2);
+}
+.header {
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:white; padding:30px; text-align:center;
+}
+.header h1 {
+  font-size:2.2em; font-family:Georgia,'Times New Roman',serif;
+  color:white; margin-bottom:8px; border:none; padding:0;
+}
+.header p {
+  font-size:1.1em; font-family:Georgia,'Times New Roman',serif;
+  opacity:0.95; color:rgba(255,255,255,0.9); margin:0;
+}
+.header .big-emoji { font-size:2.6em; display:block; margin-top:8px; }
+.nav {
+  display:flex; flex-wrap:nowrap; background:#f8f9fa;
+  border-top:1px solid #ddd; border-left:1px solid #ddd; border-right:1px solid #ddd;
+}
+.nav-btn {
+  flex:1; padding:14px 10px; text-align:center; cursor:pointer;
+  border-right:1px solid #ddd; border-bottom:1px solid #ddd;
+  transition:all 0.3s; font-size:0.92em; font-weight:500; color:#666;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.nav-btn:last-child { border-right:none; }
+.nav-btn:hover { background:#e9ecef; color:#495057; }
+.nav-btn.active { background:white; color:#667eea; font-weight:600; border-bottom:3px solid #667eea; }
+.nav-emoji { font-size:1.3em; line-height:1.2; }
+.nav-label { font-size:0.78em; margin-top:2px; line-height:1.2; }
+.section { display:none; }
+.section.active { display:block; }
+.sec-inner { padding:24px; }
+.tab-banner {
+  width:100%; max-height:180px; object-fit:cover;
+  border-radius:10px; margin-bottom:18px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+@media (max-width:600px) {
+  .tab-banner { max-height:120px; }
+  .nav { flex-wrap:wrap; }
+  .nav-btn { flex:1 1 25%; min-width:0; font-size:0.75em; padding:10px 4px; border-right:1px solid #ddd; }
+  .nav-btn:last-child { border-right:1px solid #ddd; }
+  body { padding:8px; }
+}
+.section-title { font-size:1.4em; font-weight:700; color:#667eea; margin-bottom:20px; }
+.section-sub { color:#888; font-size:0.92em; margin-bottom:20px; }
+.control-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:18px; padding:6px 12px; background:#f8f9fa; border-radius:8px;
+}
+.btn-row { display:flex; gap:6px; }
+.btn {
+  background:#f5f7ff; border:1px solid #c5cff5; border-radius:8px;
+  padding:6px 16px; font-size:0.85em; color:#667eea; cursor:pointer;
+  transition:all 0.15s; font-weight:500;
+}
+.btn:hover { background:#667eea; color:white; border-color:#667eea; }
+.timer-display { display:flex; gap:14px; font-size:0.82em; color:#bbb; font-variant-numeric:tabular-nums; }
+.hilfe-box {
+  background:#f0f4ff; border-left:4px solid #667eea;
+  border-radius:0 8px 8px 0; padding:14px 18px; margin-bottom:22px;
+  font-size:0.9em; color:#444; line-height:1.6;
+}
+
+/* ── VORENTLASTUNG ── */
+.vocab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-top:16px; }
+.vocab-card { background:#f8f9ff; border:1px solid #dde3ff; border-radius:10px; padding:14px 16px; }
+.vocab-term { font-weight:700; color:#667eea; font-size:1.05em; margin-bottom:2px; }
+.vocab-pos { color:#aaa; font-size:0.78em; margin-bottom:3px; font-style:italic; }
+.vocab-def { color:#555; font-size:0.92em; line-height:1.5; }
+
+/* ── LESETEXT ── */
+.lese-text {
+  font-family:Georgia,'Times New Roman',serif;
+  background:#f8f9fa; border-radius:10px; padding:22px 26px;
+  font-size:1.0em; line-height:1.9; color:#333; margin-bottom:18px;
+  max-width:700px; margin-left:auto; margin-right:auto;
+  text-align:justify; hyphens:auto; -webkit-hyphens:auto;
+}
+.lese-text p { margin-bottom:1em; }
+.lese-text p:last-child { margin-bottom:0; }
+.lese-text h3 { font-family:Georgia,serif; color:#667eea; font-size:1.0em; margin:18px 0 8px; }
+.vocab-hl { background:#ffe9a0; border-radius:3px; padding:1px 3px; font-weight:600; cursor:help; }
+.story-source { margin-top:14px; color:#aaa; font-size:0.8em; text-align:right; max-width:700px; margin-left:auto; margin-right:auto; }
+
+/* ── GENUS ── */
+.genus-bank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:56px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.genus-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; }
+@media (max-width:600px) { .genus-grid { grid-template-columns:1fr 1fr; } }
+.genus-col { background:#fafbff; border:1px solid #e0e7ff; border-radius:10px; padding:10px; }
+.genus-col-title {
+  text-align:center; font-weight:700; font-size:1.1em; margin-bottom:8px; padding-bottom:6px;
+  border-bottom:2px solid #667eea; color:#667eea;
+}
+.drop-zone {
+  min-height:60px; border-radius:8px; border:2px dashed #c5cae9;
+  padding:6px; background:#fafbff; transition:background .2s;
+  display:flex; flex-direction:column; gap:5px;
+}
+.drop-zone.dragover { background:#e8eaff; border-color:#667eea; }
+.genus-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:6px 12px; border-radius:16px; cursor:move;
+  font-weight:500; font-size:0.9em; user-select:none;
+  transition:all 0.2s; white-space:nowrap; text-align:center;
+}
+.genus-chip.correct { background:#27ae60; border-color:#27ae60; color:white; }
+.genus-chip.wrong   { background:#e74c3c; border-color:#e74c3c; color:white; }
+.genus-chip.dragging { opacity:0.4; }
+
+/* ── LÜCKENTEXT ── */
+.luecken-list { list-style:none; }
+.luecken-item {
+  background:#f8f9ff; border:1px solid #e0e7ff;
+  border-left:4px solid #667eea; border-radius:8px;
+  padding:14px 16px; margin-bottom:10px;
+  font-size:0.95em; line-height:1.8;
+}
+input.blank {
+  border:none; border-bottom:2px solid #667eea;
+  background:transparent; padding:3px 6px;
+  font-family:inherit; font-size:0.95em; outline:none;
+  transition:all 0.2s; min-width:4ch;
+}
+input.blank:focus { border-bottom-color:#667eea; }
+input.blank.ok, input.blank.correct { border-bottom-color:#27ae60; color:#27ae60; font-weight:700; }
+input.blank.no, input.blank.wrong   { border-bottom-color:#e74c3c; color:#e74c3c; }
+
+/* ── WORTBANK ── */
+.wortbank-label { font-weight:700; color:#667eea; font-size:0.85em; margin-bottom:8px; }
+.wortbank {
+  display:flex; flex-wrap:wrap; gap:8px; padding:14px;
+  background:#f0f0f8; border-radius:10px; min-height:48px;
+  margin-bottom:18px; border:1px dashed #bbb;
+}
+.wortbank-chip {
+  background:white; border:2px solid #667eea; color:#667eea;
+  padding:5px 12px; border-radius:14px; cursor:default;
+  font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none;
+}
+
+/* ── MULTIPLE-CHOICE ── */
+.mc-item { background:#f8f9ff; border:1px solid #e0e7ff; border-left:4px solid #667eea; border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+.mc-question { font-size:1.05em; color:#333; margin-bottom:10px; font-weight:500; line-height:1.5; }
+.mc-opts { display:flex; flex-wrap:wrap; gap:6px; }
+.mc-opt {
+  padding:5px 14px; border-radius:20px; border:1.5px solid #c5cae9;
+  background:#fff; color:#555; font-size:11px; font-weight:600; cursor:pointer;
+  transition:all 0.15s;
+}
+.mc-opt:hover { border-color:#667eea; color:#667eea; }
+.mc-opt.correct { background:#27ae60; border-color:#27ae60; color:white; }
+.mc-opt.wrong   { background:#e74c3c; border-color:#e74c3c; color:white; }
+.mc-opt:disabled, .mc-opt[disabled] { cursor:default; opacity:0.6; }
+
+/* ── SATZBAU ── */
+.satzbau-item { background:#fafbff; border:1px solid #e0e7ff; border-radius:12px; padding:16px; margin-bottom:16px; }
+.chips-container { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f8f8f8; border-radius:10px; min-height:56px; margin-bottom:10px; }
+.sentence-builder { display:flex; flex-wrap:wrap; gap:6px; padding:14px; background:white; border:2px dashed #ccc; border-radius:10px; min-height:56px; align-items:center; margin-bottom:6px; }
+.sentence-builder.correct   { border-color:#27ae60; background:#f0fff4; }
+.sentence-builder.incorrect { border-color:#e74c3c; background:#fff5f5; }
+.chip { background:white; border:2px solid #667eea; color:#667eea; padding:8px 14px; border-radius:20px; cursor:move; font-weight:500; font-size:0.9em; transition:all 0.2s; user-select:none; white-space:nowrap; }
+.chip.correct   { background:#27ae60; border-color:#27ae60; color:white; }
+.chip.incorrect { background:#e74c3c; border-color:#e74c3c; color:white; }
+.chip.punct-chip { background:#f8f8f8; border:2px solid #667eea; padding:8px 16px; color:#333; font-weight:700; font-size:1.3em; min-width:18px; text-align:center; cursor:move; }
+.chip.punct-chip.correct   { background:#27ae60; border-color:#27ae60; color:white; }
+.chip.punct-chip.incorrect { background:#e74c3c; border-color:#e74c3c; color:white; }
+.sentence-builder .chip.punct-chip { margin-left:-6px; border-left:none; border-radius:0 20px 20px 0; padding-left:4px; padding-right:12px; }
+.sentence-builder .chip.punct-chip.correct   { border-left:none; }
+.sentence-builder .chip.punct-chip.incorrect { border-left:none; }
+.sb-punkt { font-size:1.1em; font-weight:700; color:#27ae60; margin-left:2px; align-self:center; user-select:none; }
+.satzbau-feedback { font-size:0.9em; font-weight:600; margin-top:6px; min-height:1.2em; }
+.satzbau-feedback.correct   { color:#27ae60; }
+.satzbau-feedback.incorrect { color:#e74c3c; }
+
+/* ── SCHREIBWERKSTATT ── */
+.schreib-name-box { background:#fffde7; border:2px solid #f9a825; border-radius:10px; padding:14px 18px; margin-bottom:22px; }
+.schreib-name-box label { font-weight:700; color:#e65100; display:block; margin-bottom:6px; }
+.schreib-name-box input { border:none; border-bottom:2px solid #f9a825; background:transparent; font-size:1em; font-family:inherit; outline:none; padding:3px 6px; width:260px; }
+.schreib-aufgabe { background:#f8f9ff; border:1px solid #e0e7ff; border-left:4px solid #667eea; border-radius:10px; padding:18px 20px; margin-bottom:18px; }
+.schreib-aufgabe-nr { font-size:0.78em; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.schreib-aufgabe-titel { font-size:1.05em; font-weight:700; color:#4a148c; margin-bottom:6px; }
+.schreib-aufgabe-frage { font-size:0.95em; color:#444; line-height:1.6; margin-bottom:6px; }
+.schreib-beispiel { font-size:0.88em; color:#888; font-style:italic; margin-bottom:10px; }
+.schreib-mini-textarea { width:100%; min-height:350px; border:1.5px solid #c5cae9; border-radius:8px; padding:10px; font-family:inherit; font-size:0.93em; outline:none; resize:vertical; transition:border-color 0.2s; }
+.schreib-mini-textarea:focus { border-color:#667eea; }
+.schreib-send-row { display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap; }
+.schreib-send-btn { background:#667eea; color:white; border:none; border-radius:8px; padding:7px 18px; font-size:0.88em; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.schreib-send-btn:hover { background:#5568d4; }
+.schreib-send-btn:disabled { opacity:0.5; cursor:default; }
+.schreib-status { font-size:0.82em; color:#888; }
+.schreib-status.sent { color:#27ae60; font-weight:700; }
+.schreib-sammel-row { margin-top:22px; text-align:center; }
+.schreib-sammel-btn { background:#764ba2; color:white; border:none; border-radius:8px; padding:10px 24px; font-size:0.93em; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.schreib-sammel-btn:hover { background:#5e3a82; }
+/* Customer-Error-UI */
+.schreib-fb { background:#fff8e1; border:1px solid #ffe082; border-radius:10px; padding:14px 16px; margin-top:10px; font-size:0.88em; }
+.schreib-fb-titel { font-weight:700; color:#e65100; margin-bottom:6px; }
+.schreib-fb-text { color:#555; margin-bottom:8px; line-height:1.5; }
+.schreib-fb-actions { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.schreib-fb-btn { background:#f5f7ff; border:1px solid #c5cff5; border-radius:8px; padding:5px 14px; font-size:0.82em; color:#667eea; cursor:pointer; font-weight:600; }
+.schreib-fb-btn:hover { background:#667eea; color:white; }
+.schreib-fb-btn-prim { background:#667eea; color:white; border:1px solid #667eea; border-radius:8px; padding:5px 14px; font-size:0.82em; font-weight:600; cursor:pointer; }
+.schreib-fb-hilfe { font-size:0.82em; color:#aaa; font-style:italic; }
+
+/* ── WORTSCHATZ ── */
+#wortschatzContainer { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:600px) { #wortschatzContainer { grid-template-columns:1fr; } }
+
+/* ── FOOTER ── */
+.author-footer { text-align:center; margin-top:40px; max-width:1000px; margin-left:auto; margin-right:auto; padding:16px; font-size:0.8rem; color:#aaa; }
+.author-footer a { color:#aaa; }
+.author-name { font-weight:700; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Abnahmebegehren und wesentliche Mängel</h1>
+  <p>B2 – Lektion WCO05X · Sachtext</p>
+  <div class="big-emoji">🏁</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+  <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📄</span><span class="nav-label">Lesetext</span></div>
+  <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔤</span><span class="nav-label">Genus</span></div>
+  <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+  <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">☑️</span><span class="nav-label">Verständnis</span></div>
+  <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+  <div class="nav-btn" onclick="showSection(6)"><span class="nav-emoji">📨</span><span class="nav-label">Schreibwerkstatt</span></div>
+  <div class="nav-btn" onclick="showSection(7)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 0: VORENTLASTUNG -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section active" id="sec-0">
+  <img class="tab-banner" src="https://images.pexels.com/photos/8961260/pexels-photo-8961260.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Baustelle">
+  <div class="sec-inner">
+    <div class="section-title">📖 Vorbereitung: Wichtige Begriffe</div>
+    <div class="section-sub">Lies die Begriffe und ihre Erklärungen, bevor du den Text liest.</div>
+    <div class="vocab-grid" id="vorentlastungGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 1: LESETEXT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-1">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Büro-Meeting">
+  <div class="sec-inner">
+    <div class="section-title">📄 Wann wir eine Abnahme verweigern oder verzögern</div>
+    <div class="section-sub">Ein internes Schreiben bei Westconnect GmbH — offene Fragen aus der Schulung.</div>
+    <div class="lese-text" id="lesetext">
+      <p>Die <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Abnahme</span> ist ein wichtiger Schritt am Ende einer Baumaßnahme. Mit der Abnahme erkennen wir die Arbeit formal als fertig an. Sie löst zwei Dinge aus: die Bezahlung der Leistung und den Beginn der <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Gewährleistungsfrist</span>. Beides ist für die Vertragslage entscheidend.</p>
+      <h3>Das Abnahmebegehren</h3>
+      <p>Wenn GeoDuct uns ein <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Abnahmecluster</span> vorlegt, prüfen wir jede einzelne Straße im Cluster. Dabei machen wir eine wichtige Unterscheidung. Manche Straßen sind <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">mängelfrei</span> — sie sind sauber fertiggestellt. Andere sind <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">mängelbehaftet</span> — hier finden wir Probleme, die wir <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">aufführen</span> müssen. Für die zwei Gruppen gelten unterschiedliche Regeln.</p>
+      <h3>Verweigerung bei wesentlichen Mängeln</h3>
+      <p>Werden in einer Straße <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">wesentliche</span> Mängel festgestellt, haben wir das Recht, die <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">Abnahme zu verweigern</span>. Diese Straße bleibt offen — also rechtlich unfertig — bis GeoDuct die Mängel behebt. Erst danach kann eine erneute Prüfung stattfinden. Diese Regel ist klar.</p>
+      <h3>Die offene Frage: die mängelfreien Straßen</h3>
+      <p>Wie verhält es sich bei den Straßen im selben Cluster, die mängelfrei sind? Haben wir das Recht, ihre Abnahme zu <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">verzögern</span>, weil andere Straßen Mängel haben? Oder müssen wir die mängelfreien Straßen sofort abnehmen? Diese Frage ist im Detail noch nicht <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">geklärt</span>. Wir besprechen sie im nächsten Termin.</p>
+      <h3>Warum die Frage so wichtig ist: die Gewährleistung</h3>
+      <p>Die Gewährleistungsfrist beträgt fünf Jahre. Sie beginnt mit der Abnahme. Das ist der entscheidende Punkt. Wenn wir die mängelfreien Straßen sofort abnehmen, beginnt die Frist <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">früher</span>. Verzögern wir die Abnahme dieser Straßen, beginnt die Frist erst <span class="vocab-hl" title="📖 Vokabel aus der Vorentlastung">später</span>. Für uns ist die spätere Variante vorteilhafter, denn so haben wir länger Zeit, mögliche Mängel zu reklamieren.</p>
+      <h3>Wie wir damit umgehen</h3>
+      <p>Bis die Frage geklärt ist, gehen wir vorsichtig vor. Mängel werden sauber dokumentiert, Mängelfreiheit ebenfalls. Für jedes Cluster halten wir fest, welche Straße in welche Gruppe gehört. So sind wir vorbereitet, sobald die Entscheidung steht. Wer Unsicherheit hat, fragt vor der Abnahme nach.</p>
+    </div>
+    <div class="story-source">Quelle: B2 – Lektion WCO05X · Schulungsmail Westconnect GmbH (adaptiert)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 2: GENUS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-2">
+  <img class="tab-banner" src="https://images.pexels.com/photos/590016/pexels-photo-590016.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Dokumente und Ordner">
+  <div class="sec-inner">
+    <h2>🔤 Genus-Training</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showGenusLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetGenus(); resetTimer(2);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-2">00:00</span></span>
+        <span>🏆 <span id="best-2">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ziehe die Wörter in die richtige Spalte: <strong>der / die / das / Plural</strong>. Das Feedback erscheint sofort.</div>
+    <div class="genus-bank" id="genusBank"></div>
+    <div class="genus-grid">
+      <div class="genus-col">
+        <div class="genus-col-title">der</div>
+        <div class="drop-zone" id="dz-der" data-cat="der"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">die</div>
+        <div class="drop-zone" id="dz-die" data-cat="die"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">das</div>
+        <div class="drop-zone" id="dz-das" data-cat="das"></div>
+      </div>
+      <div class="genus-col">
+        <div class="genus-col-title">Plural</div>
+        <div class="drop-zone" id="dz-pl" data-cat="pl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 3: LÜCKENTEXT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-3">
+  <img class="tab-banner" src="https://images.pexels.com/photos/4792731/pexels-photo-4792731.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben und Formulare">
+  <div class="sec-inner">
+    <h2>✏️ Lückentext</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showLueckenLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetLuecken(); resetTimer(3);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-3">00:00</span></span>
+        <span>🏆 <span id="best-3">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ergänze die fehlenden Wörter. Das Feedback erscheint beim Tippen — grün = richtig, rot = falsch.</div>
+    <div class="wortbank-label">📋 Wortbank – schreibe die Wörter selbst ein:</div>
+    <div class="wortbank" id="wortbank-luecken"></div>
+    <ul class="luecken-list" id="lueckenContainer"></ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 4: MULTIPLE-CHOICE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-4">
+  <img class="tab-banner" src="https://images.pexels.com/photos/6169648/pexels-photo-6169648.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Checkliste">
+  <div class="sec-inner">
+    <h2>☑️ Textverständnis</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showMcLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetMc(); resetTimer(4);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-4">00:00</span></span>
+        <span>🏆 <span id="best-4">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Klicke auf die richtige Antwort. Das Feedback erscheint sofort.</div>
+    <div id="mcContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 5: SATZBAU -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-5">
+  <img class="tab-banner" src="https://images.pexels.com/photos/4458205/pexels-photo-4458205.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Konstruktion Baustelle">
+  <div class="sec-inner">
+    <h2>🧩 Satzbau</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="sbShowAllSolutions()">Alle lösen</button>
+        <button class="btn" onclick="sbResetAll(); resetTimer(5);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-5">00:00</span></span>
+        <span>🏆 <span id="best-5">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Ziehe die Wörter in die richtige Reihenfolge. Das Feedback erscheint, wenn alle Chips platziert sind.</div>
+    <div id="satzbauContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 6: SCHREIBWERKSTATT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-6">
+  <img class="tab-banner" src="https://images.pexels.com/photos/5196810/pexels-photo-5196810.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Schreiben am Laptop">
+  <div class="sec-inner">
+    <div class="section-title">📨 Schreibwerkstatt</div>
+    <div class="section-sub">Fünf kurze Schreibaufgaben – je 50 bis 70 Wörter. Deine Texte werden direkt an Frank gesendet.</div>
+    <div class="schreib-name-box">
+      <label for="sw-name">👤 Dein Name (Pflicht)</label>
+      <input type="text" id="sw-name" placeholder="Vor- und Nachname" oninput="schreibNameSpeichern()">
+    </div>
+    <div id="schreibAufgabenContainer"></div>
+    <div class="schreib-sammel-row">
+      <button class="schreib-sammel-btn" onclick="schreibSendenAlle()">📨 Alle noch nicht gesendeten Antworten schicken</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEC 7: WORTSCHATZ -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-7">
+  <img class="tab-banner" src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Team beim Lernen">
+  <div class="sec-inner">
+    <h2>📚 Wortschatz</h2>
+    <div class="control-bar">
+      <div class="btn-row">
+        <button class="btn" onclick="showWortschatzLoesung()">Lösungen</button>
+        <button class="btn" onclick="resetWortschatz(); resetTimer(7);">Neu starten</button>
+      </div>
+      <div class="timer-display">
+        <span>⏱ <span id="timer-7">00:00</span></span>
+        <span>🏆 <span id="best-7">--:--</span></span>
+      </div>
+    </div>
+    <div class="hilfe-box">Tippe Artikel, Wort und Plural. Nomen werden großgeschrieben.</div>
+    <div id="wortschatzContainer"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="author-footer">
+  <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a><br>📅 Termin vereinbaren &middot; <a href="https://termin.frankburkert-daf.de">https://termin.frankburkert-daf.de</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATEN
+═══════════════════════════════════════════════════════ */
+
+var VORENTLASTUNG = [
+  { term:"die Abnahme, -n",                def:"der formale Schritt, mit dem ein Auftraggeber die Arbeit als fertig anerkennt" },
+  { term:"das Abnahmebegehren, -",         def:"der Antrag des Auftragnehmers, die Arbeit jetzt offiziell abnehmen zu lassen" },
+  { term:"das Abnahmecluster, -",          def:"eine Gruppe von Straßen oder Abschnitten, die zusammen abgenommen werden" },
+  { term:"wesentlich (Adjektiv)",          def:"so groß oder wichtig, dass es für die Bewertung entscheidend ist" },
+  { term:"der Mangel, Mängel",             def:"ein Fehler oder eine Abweichung von der vereinbarten Beschaffenheit" },
+  { term:"mängelfrei (Adjektiv)",          def:"ohne Mängel, also sauber und vertragsgemäß fertiggestellt" },
+  { term:"mängelbehaftet (Adjektiv)",      def:"mit Mängeln versehen, also nicht in vollem Umfang vertragsgemäß" },
+  { term:"aufführen (Verb)",               def:"Einzelheiten oder Punkte einer Liste nennen und schriftlich festhalten" },
+  { term:"verweigern (Verb)",              def:"eine Forderung oder Handlung ablehnen und nicht durchführen" },
+  { term:"verzögern (Verb)",               def:"einen Vorgang absichtlich oder unbeabsichtigt nach hinten verschieben" },
+  { term:"beheben (Verb)",                 def:"einen Fehler oder Mangel beseitigen und in Ordnung bringen" },
+  { term:"die Gewährleistung (Sg.)",       def:"die rechtliche Verpflichtung, für die mängelfreie Leistung einzustehen" },
+  { term:"die Gewährleistungsfrist, -en",  def:"der Zeitraum, in dem der Auftragnehmer für Mängel haftet (hier: 5 Jahre)" },
+  { term:"klären (Verb)",                  def:"eine offene Frage durch Diskussion oder Recherche endgültig beantworten" },
+  { term:"früher (Adverb)",                def:"zu einem Zeitpunkt, der vor dem aktuellen oder genannten Termin liegt" },
+  { term:"später (Adverb)",                def:"zu einem Zeitpunkt, der nach dem aktuellen oder genannten Termin liegt" },
+  { term:"vorteilhaft (Adjektiv)",         def:"mit Vorteilen verbunden, also nützlich oder günstig für eine Seite" },
+  { term:"die Reklamation, -en",           def:"die Beanstandung eines Mangels gegenüber dem Auftragnehmer" }
+];
+
+var GENUS_DATA = [
+  { word:"🏁 Abnahme",                cat:"die" },
+  { word:"📦 Abnahmecluster",         cat:"das" },
+  { word:"📋 Abnahmebegehren",        cat:"das" },
+  { word:"⚠️ Mangel",                  cat:"der" },
+  { word:"🛡️ Gewährleistung",          cat:"die" },
+  { word:"⏰ Gewährleistungsfrist",   cat:"die" },
+  { word:"🏘️ Straße",                  cat:"die" },
+  { word:"⚖️ Recht",                   cat:"das" },
+  { word:"💬 Reklamation",            cat:"die" },
+  { word:"👷 Auftragnehmer",          cat:"der" },
+  { word:"📑 Vertrag",                cat:"der" },
+  { word:"📍 Cluster",                cat:"das" },
+  { word:"📅 Termin",                 cat:"der" },
+  { word:"📄 Dokumentation",          cat:"die" },
+  { word:"🔍 Prüfung",                cat:"die" },
+  { word:"🛠️ Behebung",                cat:"die" },
+  { word:"⛏️ Tiefbau",                 cat:"der" },
+  { word:"🏗️ Baumaßnahme",             cat:"die" },
+  { word:"📝 Vertragslage",           cat:"die" },
+  { word:"💰 Bezahlung",              cat:"die" },
+  { word:"⚙️ Vorgang",                 cat:"der" },
+  { word:"🏢 Projekt",                cat:"das" },
+  { word:"💸 Strafe",                 cat:"die" },
+  { word:"⚠️ Mängel",                  cat:"pl"  },
+  { word:"🏘️ Straßen",                 cat:"pl"  }
+];
+
+var LUECKEN_DATA = [
+  { before:"Mit der Abnahme erkennen wir die Arbeit formal als ", answer:"fertig", after:" an." },
+  { before:"Die Abnahme löst zwei Dinge aus: die Bezahlung und den Beginn der ", answer:"Gewährleistungsfrist", after:"." },
+  { before:"GeoDuct legt uns ein ", answer:"Abnahmecluster", after:" vor, das aus mehreren Straßen besteht." },
+  { before:"Wir prüfen jede einzelne ", answer:"Straße", after:" im Cluster genau." },
+  { before:"Manche Straßen sind ", answer:"mängelfrei", after:" und sauber fertiggestellt." },
+  { before:"Andere Straßen sind ", answer:"mängelbehaftet", after:" und haben Probleme." },
+  { before:"Werden wesentliche Mängel festgestellt, haben wir das Recht, die Abnahme zu ", answer:"verweigern", after:"." },
+  { before:"Die Straße bleibt rechtlich offen, bis GeoDuct die Mängel ", answer:"behebt", after:"." },
+  { before:"Erst nach der Behebung kann eine erneute ", answer:"Prüfung", after:" stattfinden." },
+  { before:"Bei den mängelfreien Straßen ist die Frage: dürfen wir die Abnahme auch hier ", answer:"verzögern", after:"?" },
+  { before:"Diese Frage ist im Detail noch nicht ", answer:"geklärt", after:"." },
+  { before:"Wir besprechen die offene Frage im nächsten ", answer:"Termin", after:"." },
+  { before:"Die Gewährleistungsfrist beträgt fünf ", answer:"Jahre", after:"." },
+  { before:"Die Frist beginnt mit der ", answer:"Abnahme", after:"." },
+  { before:"Wenn wir die mängelfreien Straßen sofort abnehmen, beginnt die Frist ", answer:"früher", after:"." },
+  { before:"Verzögern wir die Abnahme, beginnt die Frist erst ", answer:"später", after:"." },
+  { before:"Für uns ist die spätere Variante ", answer:"vorteilhafter", after:"." },
+  { before:"Mängel und Mängelfreiheit werden sauber ", answer:"dokumentiert", after:"." },
+  { before:"Für jedes Cluster halten wir fest, welche Straße zu welcher ", answer:"Gruppe", after:" gehört." },
+  { before:"Wer Unsicherheit hat, fragt vor der Abnahme ", answer:"nach", after:"." }
+];
+
+var MC_DATA = [
+  {
+    frage:"Was bedeutet „Abnahme“ im Bau-Kontext?",
+    opts:["Eine Mängelliste","Der formale Schritt, mit dem die Arbeit als fertig anerkannt wird","Eine Geldzahlung an den Auftragnehmer","Eine Verlängerung der Bauzeit"],
+    correct:1
+  },
+  {
+    frage:"Welche zwei Dinge löst die Abnahme aus?",
+    opts:["Die Bezahlung und den Beginn der Gewährleistungsfrist","Die Pause der Bauarbeiten und eine Schulung","Die Kündigung des Vertrags und eine Strafe","Die Versicherung und die Vermessung"],
+    correct:0
+  },
+  {
+    frage:"Was ist ein Abnahmecluster?",
+    opts:["Ein einzelnes Haus","Eine Gruppe von Straßen, die zusammen abgenommen werden","Ein Werkzeug zur Bauprüfung","Ein digitales Tool"],
+    correct:1
+  },
+  {
+    frage:"Wer legt das Abnahmebegehren vor?",
+    opts:["Die Westconnect","GeoDuct","Der Hauseigentümer","Die Stadtwerke"],
+    correct:1
+  },
+  {
+    frage:"Welche zwei Gruppen unterscheidet die WCO bei den Straßen?",
+    opts:["Kurz und lang","Mängelfrei und mängelbehaftet","Neu und alt","Asphaltiert und unbefestigt"],
+    correct:1
+  },
+  {
+    frage:"Wann darf die WCO die Abnahme verweigern?",
+    opts:["Wenn das Wetter schlecht ist","Wenn in einer Straße wesentliche Mängel festgestellt werden","Wenn das Projekt teuer ist","Wenn der ROM nicht erreichbar ist"],
+    correct:1
+  },
+  {
+    frage:"Was passiert mit einer Straße, deren Abnahme verweigert wird?",
+    opts:["Sie wird abgerissen","Sie bleibt rechtlich offen, bis GeoDuct die Mängel behebt","Sie wird an einen anderen Auftragnehmer vergeben","Sie wird sofort bezahlt"],
+    correct:1
+  },
+  {
+    frage:"Welche Frage ist im Detail noch nicht geklärt?",
+    opts:["Ob die WCO eine Schulung anbietet","Ob mängelfreie Straßen im selben Cluster ebenfalls verzögert werden dürfen","Wann der nächste Termin stattfindet","Wer den ROM vertritt"],
+    correct:1
+  },
+  {
+    frage:"Wie lange beträgt die Gewährleistungsfrist?",
+    opts:["Drei Jahre","Vier Jahre","Fünf Jahre","Sieben Jahre"],
+    correct:2
+  },
+  {
+    frage:"Mit welchem Ereignis beginnt die Gewährleistungsfrist?",
+    opts:["Mit dem Baustart","Mit der Rechnungsstellung","Mit der Abnahme","Mit dem Vertragsabschluss"],
+    correct:2
+  },
+  {
+    frage:"Welche Variante ist für die WCO vorteilhafter?",
+    opts:["Die Frist beginnt möglichst früh","Die Frist beginnt möglichst spät","Die Frist wird komplett gestrichen","Die Frist wird verkürzt"],
+    correct:1
+  },
+  {
+    frage:"Warum ist eine spätere Frist für die WCO besser?",
+    opts:["Weil die Bezahlung später erfolgt","Weil die WCO länger Zeit hat, mögliche Mängel zu reklamieren","Weil das Wetter dann besser ist","Weil die Schulung dann beendet ist"],
+    correct:1
+  },
+  {
+    frage:"Wie geht die WCO mit der ungeklärten Frage praktisch um?",
+    opts:["Sie ignoriert sie","Sie dokumentiert Mängel und Mängelfreiheit sauber und wartet auf die Klärung","Sie nimmt alle Straßen sofort ab","Sie verweigert alle Cluster"],
+    correct:1
+  },
+  {
+    frage:"Was empfiehlt die WCO bei Unsicherheit vor einer Abnahme?",
+    opts:["Einfach abnehmen","Vor der Abnahme nachfragen","Eine Pause einlegen","Eine externe Beratung holen"],
+    correct:1
+  },
+  {
+    frage:"Was bedeutet „aufführen“ im Kontext des Schreibens?",
+    opts:["Einzelheiten oder Mängel namentlich nennen und schriftlich festhalten","Eine Theateraufführung organisieren","Eine Liste an die Wand hängen","Eine Tabelle löschen"],
+    correct:0
+  }
+];
+
+var satzbauData = [
+  {
+    parts:['die','Abnahme','ist','ein','wichtiger','Schritt','am','Ende','einer','Baumaßnahme'],
+    valid:[['die','Abnahme','ist','ein','wichtiger','Schritt','am','Ende','einer','Baumaßnahme']],
+    punct:'.'
+  },
+  {
+    parts:['mit','der','Abnahme','beginnt','die','Gewährleistungsfrist'],
+    valid:[['mit','der','Abnahme','beginnt','die','Gewährleistungsfrist']],
+    punct:'.'
+  },
+  {
+    parts:['GeoDuct','legt','uns','ein','Abnahmecluster','vor'],
+    valid:[['GeoDuct','legt','uns','ein','Abnahmecluster','vor']],
+    punct:'.'
+  },
+  {
+    parts:['wir','prüfen','jede','einzelne','Straße','im','Cluster','genau'],
+    valid:[['wir','prüfen','jede','einzelne','Straße','im','Cluster','genau']],
+    punct:'.'
+  },
+  {
+    parts:['manche','Straßen','sind','mängelfrei',',','andere','sind','mängelbehaftet'],
+    valid:[['manche','Straßen','sind','mängelfrei',',','andere','sind','mängelbehaftet']],
+    punct:'.'
+  },
+  {
+    parts:['bei','wesentlichen','Mängeln','dürfen','wir','die','Abnahme','verweigern'],
+    valid:[['bei','wesentlichen','Mängeln','dürfen','wir','die','Abnahme','verweigern']],
+    punct:'.'
+  },
+  {
+    parts:['die','Straße','bleibt','offen',',','bis','die','Mängel','behoben','sind'],
+    valid:[['die','Straße','bleibt','offen',',','bis','die','Mängel','behoben','sind']],
+    punct:'.'
+  },
+  {
+    parts:['nach','der','Behebung','findet','eine','erneute','Prüfung','statt'],
+    valid:[['nach','der','Behebung','findet','eine','erneute','Prüfung','statt']],
+    punct:'.'
+  },
+  {
+    parts:['die','offene','Frage','betrifft','die','mängelfreien','Straßen'],
+    valid:[['die','offene','Frage','betrifft','die','mängelfreien','Straßen']],
+    punct:'.'
+  },
+  {
+    parts:['dürfen','wir','ihre','Abnahme','ebenfalls','verzögern'],
+    valid:[['dürfen','wir','ihre','Abnahme','ebenfalls','verzögern']],
+    punct:'?'
+  },
+  {
+    parts:['die','Gewährleistungsfrist','beträgt','fünf','Jahre'],
+    valid:[['die','Gewährleistungsfrist','beträgt','fünf','Jahre']],
+    punct:'.'
+  },
+  {
+    parts:['die','Frist','beginnt','mit','der','Abnahme'],
+    valid:[['die','Frist','beginnt','mit','der','Abnahme']],
+    punct:'.'
+  },
+  {
+    parts:['eine','spätere','Frist','ist','für','uns','vorteilhafter'],
+    valid:[['eine','spätere','Frist','ist','für','uns','vorteilhafter']],
+    punct:'.'
+  },
+  {
+    parts:['Mängel','und','Mängelfreiheit','werden','sauber','dokumentiert'],
+    valid:[['Mängel','und','Mängelfreiheit','werden','sauber','dokumentiert']],
+    punct:'.'
+  },
+  {
+    parts:['bei','Unsicherheit','fragt','man','vor','der','Abnahme','nach'],
+    valid:[['bei','Unsicherheit','fragt','man','vor','der','Abnahme','nach']],
+    punct:'.'
+  }
+];
+
+var WORTSCHATZ = [
+  { id:1,  type:"n", en:"🏁 acceptance / formal sign-off",         artikel:"die", de:"Abnahme",               plural:"Abnahmen" },
+  { id:2,  type:"n", en:"📋 acceptance request",                   artikel:"das", de:"Abnahmebegehren",       plural:"Abnahmebegehren" },
+  { id:3,  type:"n", en:"📦 acceptance cluster (group of streets)",artikel:"das", de:"Abnahmecluster",        plural:"Abnahmecluster" },
+  { id:4,  type:"n", en:"⚠️ defect / fault",                        artikel:"der", de:"Mangel",                plural:"Mängel" },
+  { id:5,  type:"n", en:"🛡️ warranty / liability for defects",      artikel:"die", de:"Gewährleistung",        plural:"–" },
+  { id:6,  type:"n", en:"⏰ warranty period",                      artikel:"die", de:"Gewährleistungsfrist",  plural:"Gewährleistungsfristen" },
+  { id:7,  type:"n", en:"🏘️ street",                                artikel:"die", de:"Straße",                plural:"Straßen" },
+  { id:8,  type:"n", en:"⚖️ right / legal claim",                   artikel:"das", de:"Recht",                 plural:"Rechte" },
+  { id:9,  type:"n", en:"💬 complaint about a defect",             artikel:"die", de:"Reklamation",           plural:"Reklamationen" },
+  { id:10, type:"n", en:"👷 contractor",                           artikel:"der", de:"Auftragnehmer",         plural:"Auftragnehmer" },
+  { id:11, type:"n", en:"📑 contract",                             artikel:"der", de:"Vertrag",               plural:"Verträge" },
+  { id:12, type:"n", en:"📅 appointment / date",                   artikel:"der", de:"Termin",                plural:"Termine" },
+  { id:13, type:"n", en:"📄 documentation",                        artikel:"die", de:"Dokumentation",         plural:"Dokumentationen" },
+  { id:14, type:"n", en:"🔍 examination / inspection",             artikel:"die", de:"Prüfung",               plural:"Prüfungen" },
+  { id:15, type:"n", en:"🛠️ remedying of defects",                  artikel:"die", de:"Behebung",              plural:"Behebungen" },
+  { id:16, type:"n", en:"🏗️ construction measure",                  artikel:"die", de:"Baumaßnahme",           plural:"Baumaßnahmen" },
+  { id:17, type:"n", en:"⚙️ procedure / case",                      artikel:"der", de:"Vorgang",               plural:"Vorgänge" },
+  { id:18, type:"n", en:"📝 contractual situation",                artikel:"die", de:"Vertragslage",          plural:"–" },
+  { id:19, type:"n", en:"💰 payment",                              artikel:"die", de:"Bezahlung",             plural:"Bezahlungen" },
+  { id:20, type:"n", en:"🎯 beginning / start",                    artikel:"der", de:"Beginn",                plural:"–" },
+  { id:21, type:"p", en:"📤 to refuse (an acceptance)",            de:"verweigern" },
+  { id:22, type:"p", en:"⏳ to delay / postpone",                  de:"verzögern" },
+  { id:23, type:"p", en:"🛠️ to remedy (a defect)",                 de:"beheben" },
+  { id:24, type:"p", en:"📋 to list / enumerate",                  de:"aufführen" },
+  { id:25, type:"p", en:"💡 to clarify / settle (a question)",     de:"klären" },
+  { id:26, type:"a", en:"✅ defect-free",                          de:"mängelfrei" },
+  { id:27, type:"a", en:"⚠️ affected by defects",                   de:"mängelbehaftet" },
+  { id:28, type:"a", en:"❗ substantial / essential",               de:"wesentlich" },
+  { id:29, type:"a", en:"🌟 advantageous",                         de:"vorteilhaft" }
+];
+
+var AUFGABEN = [
+  {
+    nr:1,
+    titel:"Was passiert bei einer Abnahme?",
+    frage:"Erkläre in eigenen Worten, was eine Abnahme im Bau-Kontext bedeutet und welche zwei Folgen sie hat. Schreibe drei Sätze. (50–70 Wörter)",
+    beispiel:"Beispiel: „Mit der Abnahme erkennen wir die Arbeit formal als fertig an. Sie löst die Bezahlung der Leistung aus. Außerdem beginnt mit der Abnahme die Gewährleistungsfrist …“"
+  },
+  {
+    nr:2,
+    titel:"Mängelfrei oder mängelbehaftet?",
+    frage:"Erkläre den Unterschied zwischen einer mängelfreien und einer mängelbehafteten Straße. Was passiert in jedem der beiden Fälle? (50–70 Wörter)",
+    beispiel:"Beispiel: „Eine mängelfreie Straße ist sauber fertiggestellt und kann grundsätzlich abgenommen werden. Eine mängelbehaftete Straße hat Probleme, die wir aufführen. Bei wesentlichen Mängeln können wir die Abnahme verweigern …“"
+  },
+  {
+    nr:3,
+    titel:"Die offene Frage formulieren",
+    frage:"Stell dir vor, du erklärst einem Kollegen die noch nicht geklärte Frage rund um die mängelfreien Straßen. Schreibe drei Sätze, die die Frage und ihre Bedeutung klar machen. (50–70 Wörter)",
+    beispiel:"Beispiel: „Wenn in einem Cluster manche Straßen Mängel haben und andere nicht — dürfen wir die mängelfreien ebenfalls verzögern? Die Antwort ist wichtig, weil die Gewährleistungsfrist mit der Abnahme beginnt …“"
+  },
+  {
+    nr:4,
+    titel:"Warum eine späte Frist gut ist",
+    frage:"Erkläre in eigenen Worten, warum eine spätere Gewährleistungsfrist für die WCO vorteilhafter ist. Nenne mindestens zwei Gründe. (50–70 Wörter)",
+    beispiel:"Beispiel: „Wenn die Frist später beginnt, läuft sie auch später aus. Wir haben dann länger Zeit, mögliche Mängel an GeoDuct zu reklamieren. So sind wir besser geschützt …“"
+  },
+  {
+    nr:5,
+    titel:"Mini-Dialog: Frage an den ROM",
+    frage:"Schreibe einen kurzen Dialog (6 Sätze: 3 pro Person) zwischen einem Bauleiter und dem Rolloutmanager. Der Bauleiter fragt, was er mit einem Cluster mit gemischten Straßen tun soll. Verwende mindestens drei Fachbegriffe aus dem Lesetext.",
+    beispiel:"Beispiel – Bauleiter: „In Cluster 3 sind vier Straßen mängelfrei, zwei haben wesentliche Mängel. Darf ich die mängelfreien jetzt abnehmen?“ – Rolloutmanager: „Die Frage ist noch nicht geklärt …“"
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   SCHREIBWERKSTATT KONSTANTEN
+═══════════════════════════════════════════════════════ */
+var SCHREIB_NIVEAU = 'B2';
+var SCHREIB_CODE   = 'WCO05X';
+var SCHREIB_MIN_CHARS = 14;
+var FORMSUBMIT_ENDPOINT   = 'https://api.web3forms.com/submit';
+var FORMSUBMIT_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var FORMSUBMIT_MAILTO     = 'unterricht@frankburkert-daf.de';
+
+/* ═══════════════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════════════ */
+var timers = {};
+function timerAutoStart(idx) {
+  if (!timers[idx]) timers[idx] = {elapsed:0,best:null,interval:null,started:false};
+  var t = timers[idx];
+  if (t.started) return;
+  t.started = true; t.elapsed = 0;
+  t.interval = setInterval(function(){
+    t.elapsed++;
+    var m = Math.floor(t.elapsed/60), s = t.elapsed%60;
+    var el = document.getElementById('timer-'+idx);
+    if (el) el.textContent = (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+  },1000);
+}
+function stopTimer(idx) {
+  if (!timers[idx]) return;
+  var t = timers[idx];
+  if (t.interval){clearInterval(t.interval);t.interval=null;}
+  if (t.best===null||t.elapsed<t.best){
+    t.best=t.elapsed;
+    var m=Math.floor(t.best/60),s=t.best%60;
+    var el=document.getElementById('best-'+idx);
+    if(el) el.textContent=(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+  }
+  t.started=false;
+}
+function resetTimer(idx) {
+  if (!timers[idx]) return;
+  var t = timers[idx];
+  if (t.interval){clearInterval(t.interval);t.interval=null;}
+  t.elapsed=0; t.started=false;
+  var el=document.getElementById('timer-'+idx);
+  if(el) el.textContent='00:00';
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach(function(s,i){s.classList.toggle('active',i===idx);});
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===idx);});
+}
+
+/* ═══════════════════════════════════════════════════════
+   VORENTLASTUNG
+═══════════════════════════════════════════════════════ */
+function initVorentlastung() {
+  var g = document.getElementById('vorentlastungGrid');
+  VORENTLASTUNG.forEach(function(v){
+    var c = document.createElement('div'); c.className = 'vocab-card';
+    var t = document.createElement('div'); t.className = 'vocab-term'; t.textContent = v.term;
+    var d = document.createElement('div'); d.className = 'vocab-def';  d.textContent = v.def;
+    c.appendChild(t); c.appendChild(d); g.appendChild(c);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   GENUS — DRAG & DROP (neue Architektur)
+═══════════════════════════════════════════════════════ */
+var draggedChip = null;
+function initGenus() {
+  var bank = document.getElementById('genusBank');
+  bank.innerHTML = '';
+  // Shuffle
+  var data = GENUS_DATA.slice();
+  for(var i=data.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=data[i];data[i]=data[j];data[j]=tmp;}
+  data.forEach(function(item){
+    var chip = document.createElement('div');
+    chip.className = 'genus-chip';
+    chip.textContent = item.word;
+    chip.dataset.cat = item.cat;
+    chip.draggable = true;
+    chip.addEventListener('dragstart',function(e){
+      e.dataTransfer.setData('text/plain','');
+      draggedChip = chip;
+      timerAutoStart(2);
+      setTimeout(function(){chip.classList.add('dragging');},0);
+    });
+    chip.addEventListener('dragend',function(){
+      chip.classList.remove('dragging');
+      colorAllGenusChips();
+    });    bank.appendChild(chip);
+  });
+  // Drop zones
+  document.querySelectorAll('.drop-zone').forEach(function(zone){
+    zone.innerHTML='';
+    zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('dragover');});
+    zone.addEventListener('dragleave',function(){zone.classList.remove('dragover');});
+    zone.addEventListener('drop',function(e){
+      e.preventDefault();zone.classList.remove('dragover');
+      if(draggedChip){zone.appendChild(draggedChip);draggedChip=null;}
+      colorAllGenusChips();
+    });
+    zone.addEventListener('click',function(){
+      if(draggedChip){zone.appendChild(draggedChip);draggedChip=null;colorAllGenusChips();}
+    });
+  });
+  bank.addEventListener('dragover',function(e){e.preventDefault();});
+  bank.addEventListener('drop',function(e){
+    e.preventDefault();
+    if(draggedChip){bank.appendChild(draggedChip);draggedChip=null;}
+    colorAllGenusChips();
+  });
+  bank.addEventListener('click',function(){
+    if(draggedChip){bank.appendChild(draggedChip);draggedChip=null;colorAllGenusChips();}
+  });
+}
+function colorGenusChip(chip){
+  var zone=chip.closest('.drop-zone');
+  chip.classList.remove('correct','wrong');
+  if(zone&&zone.dataset.cat){ chip.classList.add(chip.dataset.cat===zone.dataset.cat?'correct':'wrong'); }
+}
+function colorAllGenusChips(){
+  document.querySelectorAll('#sec-2 .genus-chip').forEach(colorGenusChip);
+  checkGenusAllOk();
+}
+function checkGenusAllOk(){
+  var chips=document.querySelectorAll('#sec-2 .genus-chip');
+  var inBank=document.querySelectorAll('#genusBank .genus-chip').length;
+  if(inBank>0) return;
+  var allOk=Array.from(chips).every(function(c){return c.classList.contains('correct');});
+  if(allOk) stopTimer(2);
+}
+function showGenusLoesung(){
+  stopTimer(2);
+  document.querySelectorAll('.drop-zone').forEach(function(z){z.innerHTML='';});
+  GENUS_DATA.forEach(function(item){
+    var zone=document.getElementById('dz-'+item.cat);
+    var chip=Array.from(document.querySelectorAll('#sec-2 .genus-chip')).find(function(c){return c.textContent===item.word;})||createGenusChip(item);
+    if(zone) zone.appendChild(chip);
+  });
+  colorAllGenusChips();
+}
+function createGenusChip(item){
+  var chip=document.createElement('div');chip.className='genus-chip';
+  chip.textContent=item.word;chip.dataset.cat=item.cat;chip.draggable=true;
+  return chip;
+}
+function resetGenus(){ initGenus(); }
+
+/* ═══════════════════════════════════════════════════════
+   LÜCKENTEXT
+═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   WORTBANK
+═══════════════════════════════════════════════════════ */
+function initWortbank() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  bank.innerHTML = '';
+  var words = LUECKEN_DATA.map(function(d){ return d.answer; });
+  for(var i=words.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=words[i];words[i]=words[j];words[j]=t;}
+  words.forEach(function(w){
+    var chip = document.createElement('span');
+    chip.className = 'wortbank-chip';
+    chip.textContent = w;
+    bank.appendChild(chip);
+  });
+}
+
+function initLuecken() {
+  var ul = document.getElementById('lueckenContainer');
+  ul.innerHTML = '';
+  LUECKEN_DATA.forEach(function(item, idx) {
+    var li = document.createElement('li'); li.className = 'luecken-item';
+    var span1 = document.createElement('span'); span1.textContent = item.before;
+    var inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'blank'; inp.placeholder = '';
+    inp.dataset.ans = item.answer;
+    var ansLen = Math.max(item.answer.length, 4);
+    inp.style.width = (ansLen + 4) + 'ch';
+    inp.setAttribute('data-idx', idx);
+    inp.addEventListener('input', function(){
+      lueckenLiveCheck(inp);
+      timerAutoStart(3);
+      checkLueckenAllOk();
+    });
+    var span2 = document.createElement('span'); span2.textContent = item.after;
+    li.appendChild(span1); li.appendChild(inp); li.appendChild(span2);
+    ul.appendChild(li);
+  });
+  initWortbank();
+}
+function lueckenLiveCheck(inp){
+  var val = inp.value.trim();
+  var ans = inp.dataset.ans;
+  inp.classList.remove('ok','no');
+  if(!val) return;
+  if(val===ans){ inp.classList.add('ok'); return; }
+  if(ans.indexOf(val)===0) return;
+  inp.classList.add('no');
+}
+function checkLueckenAllOk(){
+  var all=document.querySelectorAll('#lueckenContainer input.blank');
+  if(Array.from(all).every(function(i){return i.classList.contains('ok');})) stopTimer(3);
+}
+function showLueckenLoesung(){
+  stopTimer(3);
+  document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+    inp.value=LUECKEN_DATA[inp.getAttribute('data-idx')].answer;
+    inp.classList.add('ok'); inp.classList.remove('no');
+  });}
+function resetLuecken(){
+  document.querySelectorAll('#lueckenContainer input.blank').forEach(function(inp){
+    inp.value=''; inp.classList.remove('ok','no');
+  });
+  resetTimer(3);
+  initWortbank();
+}
+
+/* ═══════════════════════════════════════════════════════
+   MULTIPLE-CHOICE
+═══════════════════════════════════════════════════════ */
+function initMc() {
+  var cont = document.getElementById('mcContainer');
+  cont.innerHTML = '';
+  MC_DATA.forEach(function(item, qi) {
+    var div = document.createElement('div'); div.className = 'mc-item';
+    var q = document.createElement('div'); q.className = 'mc-question';
+    q.textContent = (qi+1) + '. ' + item.frage;
+    var opts = document.createElement('div'); opts.className = 'mc-opts';
+    item.opts.forEach(function(o, oi) {
+      var btn = document.createElement('button'); btn.className = 'mc-opt';
+      btn.textContent = o;
+      btn.addEventListener('click', function(){
+        if(btn.disabled) return;
+        timerAutoStart(4);
+        var btns = opts.querySelectorAll('.mc-opt');
+        btns.forEach(function(b){ b.disabled=true; });
+        if(oi===item.correct){ btn.classList.add('correct'); }
+        else { btn.classList.add('wrong'); btns[item.correct].classList.add('correct'); }
+        checkMcAllOk();
+      });
+      opts.appendChild(btn);
+    });
+    div.appendChild(q); div.appendChild(opts); cont.appendChild(div);
+  });
+}
+function checkMcAllOk(){
+  var allDisabled=Array.from(document.querySelectorAll('#mcContainer .mc-opt')).filter(function(b){return !b.disabled;}).length===0;
+  if(allDisabled) stopTimer(4);
+}
+function showMcLoesung(){
+  stopTimer(4);
+  document.querySelectorAll('#mcContainer .mc-item').forEach(function(item, qi){
+    var btns = item.querySelectorAll('.mc-opt');
+    btns.forEach(function(b){b.disabled=true;});
+    btns[MC_DATA[qi].correct].classList.add('correct');
+  });
+}
+function resetMc(){
+  document.querySelectorAll('#mcContainer .mc-opt').forEach(function(b){
+    b.disabled=false; b.classList.remove('correct','wrong');
+  });
+  resetTimer(4);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SATZBAU
+═══════════════════════════════════════════════════════ */
+var sbDragged = null;
+function getSbCursor(){
+  var c=document.getElementById('sb-insert-cursor');
+  if(!c){c=document.createElement('div');c.id='sb-insert-cursor';c.style.cssText='width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';}
+  return c;
+}
+function getSbInsertPos(zone,clientX){
+  var chips=Array.from(zone.querySelectorAll('.chip'));
+  for(var i=0;i<chips.length;i++){var r=chips[i].getBoundingClientRect();if(clientX<r.left+r.width/2)return chips[i];}
+  return null;
+}
+function sbCapitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function sbUpdateCapitalization(row){
+  var chips=Array.from(row.querySelectorAll('.chip:not(.punct-chip)'));
+  chips.forEach(function(c,i){
+    var orig=c.dataset.orig;
+    var isProper=orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase();
+    c.textContent=isProper?orig:(i===0?sbCapitalize(orig):orig);
+  });
+}
+function sbMakeChip(word,idx){
+  var chip=document.createElement('div'); chip.className='chip';
+  chip.textContent=word; chip.dataset.orig=word; chip.draggable=true;
+  chip.dataset.sbIdx=String(idx);
+  if(word===','||word===';') chip.classList.add('punct-chip');
+  chip.addEventListener('dragstart',function(e){
+    sbDragged=chip; timerAutoStart(5);
+    e.dataTransfer.setData('text/plain','');
+    setTimeout(function(){chip.style.opacity='0.4';},0);
+  });
+  chip.addEventListener('dragend',function(){
+    chip.style.opacity='';sbDragged=null;
+    var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode)c.parentNode.removeChild(c);
+  });
+  return chip;
+}
+function sbRegisterZone(zone,idx){
+  zone.addEventListener('dragover',function(e){
+    e.preventDefault();if(!sbDragged)return;
+    if(sbDragged.dataset.sbIdx!==String(idx))return;
+    var cursor=getSbCursor();var before=getSbInsertPos(zone,e.clientX);
+    if(before)zone.insertBefore(cursor,before);else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave',function(e){
+    if(!zone.contains(e.relatedTarget)){var c=document.getElementById('sb-insert-cursor');if(c&&c.parentNode===zone)zone.removeChild(c);}
+  });
+  zone.addEventListener('drop',function(e){
+    e.preventDefault();if(!sbDragged)return;
+    if(sbDragged.dataset.sbIdx!==String(idx))return;
+    var cursor=document.getElementById('sb-insert-cursor');
+    if(cursor&&cursor.parentNode===zone){zone.insertBefore(sbDragged,cursor);zone.removeChild(cursor);}else{zone.appendChild(sbDragged);}
+    sbDragged=null;
+    var row=document.getElementById('sb-row-'+idx);sbUpdateCapitalization(row);sbCheckAuto(idx);
+  });
+}
+function sbColorRow(idx){
+  var row=document.getElementById('sb-row-'+idx);
+  var chips=Array.from(row.querySelectorAll('.chip'));
+  var order=chips.map(function(c){return c.dataset.orig;});
+  var ok=satzbauData[idx].valid.some(function(v){return JSON.stringify(v)===JSON.stringify(order);});
+  chips.forEach(function(c){c.classList.remove('correct','incorrect');c.classList.add(ok?'correct':'incorrect');});
+  var existing=row.querySelector('.sb-punkt');if(existing)existing.parentNode.removeChild(existing);
+  if(ok){var p=document.createElement('span');p.className='sb-punkt';p.textContent=satzbauData[idx].punct||'.';row.appendChild(p);}
+  return ok;
+}
+function sbCheckAuto(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  if(bank.querySelectorAll('.chip').length>0){
+    row.querySelectorAll('.chip').forEach(function(c){c.classList.remove('correct','incorrect');});
+    row.classList.remove('correct','incorrect');fb.textContent='';return;
+  }
+  setTimeout(function(){
+    timerAutoStart(5);
+    var ok=sbColorRow(idx);
+    if(ok){
+      row.classList.add('correct');row.classList.remove('incorrect');
+      fb.className='satzbau-feedback correct';fb.textContent='✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect');row.classList.remove('correct');
+      fb.className='satzbau-feedback incorrect';fb.textContent='✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  },500);
+}
+function sbCheckAllDone(){
+  var allOk=satzbauData.every(function(_,i){var row=document.getElementById('sb-row-'+i);return row&&row.classList.contains('correct');});
+  if(allOk) stopTimer(5);
+}
+function sbShowSolution(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  var solution=satzbauData[idx].valid[0];
+  var allChips={};
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c){allChips[c.dataset.orig]=c;});
+  while(bank.firstChild)bank.removeChild(bank.firstChild);
+  while(row.firstChild)row.removeChild(row.firstChild);
+  solution.forEach(function(word,i){
+    var chip=allChips[word];
+    if(!chip){chip=sbMakeChip(word,idx);}
+    if(word!==','&&word!==';') chip.textContent=(i===0)?sbCapitalize(word):word;
+    chip.classList.remove('correct','incorrect'); row.appendChild(chip);
+  });
+  fb.textContent=''; setTimeout(function(){sbCheckAuto(idx);},100);
+}
+function sbResetOne(idx){
+  var bank=document.getElementById('sb-bank-'+idx);
+  var row=document.getElementById('sb-row-'+idx);
+  var fb=document.getElementById('sb-fb-'+idx);
+  while(bank.firstChild)bank.removeChild(bank.firstChild);
+  while(row.firstChild)row.removeChild(row.firstChild);
+  row.classList.remove('correct','incorrect');fb.textContent='';fb.className='satzbau-feedback';
+  var parts=satzbauData[idx].parts.slice();
+  for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+  parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});
+}
+function initSatzbau(){
+  var container=document.getElementById('satzbauContainer');container.innerHTML='';
+  satzbauData.forEach(function(ex,idx){
+    var item=document.createElement('div');item.className='satzbau-item';
+    var bank=document.createElement('div');bank.className='chips-container';bank.id='sb-bank-'+idx;
+    var row=document.createElement('div');row.className='sentence-builder';row.id='sb-row-'+idx;
+    var fb=document.createElement('div');fb.className='satzbau-feedback';fb.id='sb-fb-'+idx;
+    var parts=ex.parts.slice();
+    for(var i=parts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=parts[i];parts[i]=parts[j];parts[j]=tmp;}
+    parts.forEach(function(word){bank.appendChild(sbMakeChip(word,idx));});
+    sbRegisterZone(bank,idx);sbRegisterZone(row,idx);
+    var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    var s=document.createElement('button');s.className='btn';s.textContent='Lösen';s.setAttribute('data-idx',idx);
+    s.addEventListener('click',function(){sbShowSolution(parseInt(this.getAttribute('data-idx')));});
+    var r=document.createElement('button');r.className='btn';r.textContent='↺ Neustart';r.setAttribute('data-idx',idx);
+    r.addEventListener('click',function(){sbResetOne(parseInt(this.getAttribute('data-idx')));});
+    btnRow.appendChild(s);btnRow.appendChild(r);
+    item.appendChild(bank);item.appendChild(row);item.appendChild(fb);item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+function sbShowAllSolutions(){ satzbauData.forEach(function(_,i){sbShowSolution(i);}); }
+function sbResetAll(){ satzbauData.forEach(function(_,i){sbResetOne(i);}); resetTimer(5); }
+
+/* ═══════════════════════════════════════════════════════
+   SCHREIBWERKSTATT
+═══════════════════════════════════════════════════════ */
+var LS_PREFIX = 'schreibwerkstatt_' + SCHREIB_NIVEAU + '_' + SCHREIB_CODE + '_';
+
+function schreibNameSpeichern(){
+  var n=document.getElementById('sw-name').value;
+  localStorage.setItem(LS_PREFIX+'name', n);
+}
+
+function schreibFehlerErklaerung(err){
+  var code=(err&&err.message)||'';
+  if(code==='NOT_ACTIVATED') return 'Der Versand-Dienst muss einmalig von Frank aktiviert werden. Dein Text ist gespeichert.';
+  if(code.indexOf('HTTP_')===0) return 'Server-Fehler (' + code + '). Bitte versuche es später nochmal.';
+  if(code==='API_ERROR') return 'Der Server hat den Versand abgelehnt. Dein Text ist im Browser gespeichert.';
+  return 'Kein Internetzugang oder Verbindungsproblem. Dein Text ist gespeichert.';
+}
+
+function schreibKopierenEinzeln(nr){
+  var name=document.getElementById('sw-name').value||'–';
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  var text=ta?ta.value:'';
+  var txt=SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+name+'\n\n'+text;
+  if(navigator.clipboard){navigator.clipboard.writeText(txt);}else{var el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);}
+}
+
+function schreibZeigeFehler(nr, err){
+  var st=document.getElementById('sw-status-'+nr); if(!st) return;
+  var name=document.getElementById('sw-name').value||'–';
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  var text=ta?ta.value:'';
+  var subject=encodeURIComponent(SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+name);
+  var body=encodeURIComponent(text);
+  var mailto='mailto:'+FORMSUBMIT_MAILTO+'?subject='+subject+'&body='+body;
+  st.innerHTML='<div class="schreib-fb"><div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — dein Text ist sicher im Browser gespeichert.</div><div class="schreib-fb-text">'+schreibFehlerErklaerung(err)+'</div><div class="schreib-fb-actions"><a href="'+mailto+'" class="schreib-fb-btn">📧 In Mail-Programm öffnen</a><button class="schreib-fb-btn" onclick="schreibKopierenEinzeln('+nr+')">📋 In Zwischenablage</button><button class="schreib-fb-btn-prim" onclick="schreibSendenEinzeln('+nr+')">🔄 Nochmal versuchen</button></div><div class="schreib-fb-hilfe">Wenn nichts klappt: sag Frank im Unterricht Bescheid – er muss den Versand einmalig aktivieren.</div></div>';
+}
+
+function schreibSendenEinzeln(nr){
+  var name=document.getElementById('sw-name').value.trim();
+  if(!name){
+    var nameInp=document.getElementById('sw-name');
+    nameInp.style.animation='shake 0.3s';
+    setTimeout(function(){nameInp.style.animation='';},300);
+    nameInp.focus();
+    var st=document.getElementById('sw-status-'+nr);
+    if(st) st.textContent='⚠ Bitte zuerst deinen Namen eingeben.';
+    return;
+  }
+  var ta=document.querySelector('.schreib-mini-textarea[data-aufgabe="'+nr+'"]');
+  if(!ta||ta.value.trim().length<SCHREIB_MIN_CHARS){
+    var st2=document.getElementById('sw-status-'+nr);
+    if(st2) st2.textContent='Bitte schreibe etwas mehr.';
+    return;
+  }
+  var st3=document.getElementById('sw-status-'+nr);
+  if(st3) st3.textContent='⏳ Sende …';
+  var btn=document.querySelector('.schreib-send-btn[data-nr="'+nr+'"]');
+  if(btn) btn.disabled=true;
+  var aufgabe=AUFGABEN[nr-1];
+  var subject=SCHREIB_NIVEAU+' '+SCHREIB_CODE+' · Aufgabe '+nr+' · '+(aufgabe?aufgabe.titel:'')+' · '+name;
+  var body={'access_key':FORMSUBMIT_ACCESS_KEY,'name':name,'subject':subject,'from_name':'fabDaF Schreibwerkstatt','lektion':SCHREIB_NIVEAU+' '+SCHREIB_CODE,'message':ta.value.trim()};
+  fetch(FORMSUBMIT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){if(!r.ok)throw new Error('HTTP_'+r.status);return r.json();})
+    .then(function(data){
+      var ok=data&&(data.success===true||data.success==='true');
+      if(!ok){
+        var code='API_ERROR';var apiMsg=(data&&data.message)||'';
+        if(/[Aa]ctivat|domain|access[\s_-]?key/.test(apiMsg))code='NOT_ACTIVATED';
+        var e=new Error(code);e.apiMessage=apiMsg;throw e;
+      }
+      localStorage.setItem(LS_PREFIX+'sent_'+nr,'1');
+      var st4=document.getElementById('sw-status-'+nr);
+      if(st4){st4.className='schreib-status sent';st4.textContent='✓ Gesendet!';}
+      if(btn) btn.disabled=false;
+    })
+    .catch(function(err){
+      if(btn) btn.disabled=false;
+      schreibZeigeFehler(nr,err);
+    });
+}
+
+function schreibSendenAlle(){
+  var name=document.getElementById('sw-name').value.trim();
+  if(!name){document.getElementById('sw-name').focus();return;}
+  AUFGABEN.forEach(function(a){
+    var sent=localStorage.getItem(LS_PREFIX+'sent_'+a.nr);
+    if(!sent) schreibSendenEinzeln(a.nr);
+  });
+}
+
+function initSchreibwerkstatt(){
+  var cont=document.getElementById('schreibAufgabenContainer');cont.innerHTML='';
+  var savedName=localStorage.getItem(LS_PREFIX+'name')||'';
+  document.getElementById('sw-name').value=savedName;
+  AUFGABEN.forEach(function(a){
+    var div=document.createElement('div');div.className='schreib-aufgabe';
+    var nr=document.createElement('div');nr.className='schreib-aufgabe-nr';nr.textContent='Aufgabe '+a.nr+' von '+AUFGABEN.length;
+    var titel=document.createElement('div');titel.className='schreib-aufgabe-titel';titel.textContent=a.titel;
+    var frage=document.createElement('div');frage.className='schreib-aufgabe-frage';frage.textContent=a.frage;
+    var bsp=document.createElement('div');bsp.className='schreib-beispiel';bsp.textContent=a.beispiel;
+    var ta=document.createElement('textarea');ta.className='schreib-mini-textarea';ta.setAttribute('data-aufgabe',a.nr);
+    ta.placeholder='Deine Antwort …';
+    var savedText=localStorage.getItem(LS_PREFIX+a.nr)||'';
+    ta.value=savedText;
+    ta.addEventListener('input',function(){localStorage.setItem(LS_PREFIX+a.nr,ta.value);});
+    var row=document.createElement('div');row.className='schreib-send-row';
+    var btn=document.createElement('button');btn.className='schreib-send-btn';
+    btn.setAttribute('data-nr',a.nr);btn.textContent='📨 An Frank senden';
+    var alreadySent=localStorage.getItem(LS_PREFIX+'sent_'+a.nr);
+    btn.addEventListener('click',function(){schreibSendenEinzeln(a.nr);});
+    var st=document.createElement('span');st.className='schreib-status';st.id='sw-status-'+a.nr;
+    if(alreadySent){st.className='schreib-status sent';st.textContent='✓ Bereits gesendet';}
+    row.appendChild(btn);row.appendChild(st);
+    div.appendChild(nr);div.appendChild(titel);div.appendChild(frage);div.appendChild(bsp);div.appendChild(ta);div.appendChild(row);
+    cont.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   WORTSCHATZ
+═══════════════════════════════════════════════════════ */
+function initWortschatz(){
+  var container=document.getElementById('wortschatzContainer');container.innerHTML='';
+  WORTSCHATZ.forEach(function(item){
+    var row=document.createElement('div');row.className='luecken-item';row.style.marginBottom='0';
+    var prompt=document.createElement('div');prompt.style.cssText='font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;';
+    prompt.textContent=item.en;row.appendChild(prompt);
+    var fields=document.createElement('div');fields.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+    if(item.type==='n'){
+      var artInp=document.createElement('input');artInp.className='blank';artInp.type='text';
+      artInp.placeholder='Artikel';artInp.style.width='70px';
+      artInp.dataset.answer=item.artikel;artInp.dataset.field='art';
+      artInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(artInp);
+      var wordInp=document.createElement('input');wordInp.className='blank';wordInp.type='text';
+      wordInp.placeholder='Wort';wordInp.style.width='160px';
+      wordInp.dataset.answer=item.de;wordInp.dataset.field='word';
+      wordInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(wordInp);
+      var plInp=document.createElement('input');plInp.className='blank';plInp.type='text';
+      plInp.placeholder='Plural';plInp.style.width='140px';
+      plInp.dataset.answer=item.plural;plInp.dataset.field='plural';
+      if(item.plural==='–'){
+        plInp.value='–';plInp.disabled=true;plInp.classList.add('correct');
+        plInp.style.opacity='0.6';plInp.title='Kein Plural';
+      } else {
+        plInp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      }
+      fields.appendChild(plInp);
+    } else {
+      var inp=document.createElement('input');inp.className='blank';inp.type='text';
+      inp.placeholder='Deutsch';inp.style.width='220px';
+      inp.dataset.answer=item.de;inp.dataset.field='word';
+      inp.oninput=function(){wortschatzCheck(this);timerAutoStart(7);checkWortschatzAllOk();};
+      fields.appendChild(inp);
+    }
+    row.appendChild(fields);container.appendChild(row);
+  });
+}
+
+function wortschatzCheck(inp){
+  var user=inp.value;var answer=inp.dataset.answer;var field=inp.dataset.field;
+  inp.classList.remove('correct','wrong');
+  if(!user) return;
+  var cmpUser=(field==='art')?user.toLowerCase().trim():user.trim();
+  var cmpAnswer=(field==='art')?answer.toLowerCase():answer;
+  if(cmpUser===cmpAnswer){inp.classList.add('correct');}
+  else if(cmpAnswer.indexOf(cmpUser)===0){/* Präfix – neutral */}
+  else{inp.classList.add('wrong');}
+}
+
+function checkWortschatzAllOk(){
+  var inputs=document.querySelectorAll('#sec-7 input.blank');
+  var allOk=inputs.length>0&&Array.from(inputs).every(function(i){return i.disabled||i.classList.contains('correct');});
+  if(allOk) stopTimer(7);
+}
+
+function showWortschatzLoesung(){
+  stopTimer(7);
+  document.querySelectorAll('#sec-7 input.blank').forEach(function(inp){
+    inp.value=inp.dataset.answer;inp.classList.add('correct');inp.classList.remove('wrong');
+  });
+}
+
+function resetWortschatz(){
+  document.querySelectorAll('#sec-7 input.blank').forEach(function(inp){
+    if(!inp.disabled){inp.value='';inp.classList.remove('correct','wrong');}
+  });
+  resetTimer(7);
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  initVorentlastung();
+  initGenus();
+  initLuecken();
+  initMc();
+  initSatzbau();
+  initSchreibwerkstatt();
+  initWortschatz();
+});
+
+/* shake-animation für Name-Feld */
+var styleEl=document.createElement('style');
+styleEl.textContent='@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}';
+document.head.appendChild(styleEl);
+</script>
+</body>
+</html>
