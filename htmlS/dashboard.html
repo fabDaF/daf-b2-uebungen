@@ -2458,6 +2458,46 @@ function oeffneMailVorlage(lektionen) {
     ? `fabDaF – ${lektionen[0].titel}`
     : `fabDaF – ${lektionen.length} Lektionen`;
 
+  // Standard: Direkter Versand via Mac-App-Bridge (fabdaf-mail://).
+  // Fallback "preview": die alte Vorschau-Tab-Variante.
+  // Umschalten via DevTools-Console:
+  //   localStorage.setItem('fabdafMailMode','preview')   ← zurück zur Vorschau
+  //   localStorage.setItem('fabdafMailMode','direct')    ← Ein-Klick via App
+  const mode = localStorage.getItem('fabdafMailMode') || 'direct';
+
+  if (mode === 'direct') {
+    versandViaMacBridge(html, betreff);
+  } else {
+    versandViaVorschauTab(html, betreff);
+  }
+}
+
+// ─── Ein-Klick-Workflow: HTML in Zwischenablage, dann fabdaf-mail:// aufrufen.
+//     Die installierte Mac-App öffnet Apple Mail und drückt ⌘V im Body. ───
+async function versandViaMacBridge(html, betreff) {
+  // Plain-Text-Fallback aus dem HTML extrahieren (für Mail-Clients ohne HTML)
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  const plain = div.innerText.replace(/\n{3,}/g, '\n\n').trim();
+
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html': new Blob([html], { type: 'text/html' }),
+      'text/plain': new Blob([plain], { type: 'text/plain' }),
+    })]);
+  } catch (e) {
+    alert('Zwischenablage-Zugriff blockiert (' + e.message + ').\n' +
+          'Falls Schutz-Erweiterungen aktiv sind, bitte für diese Seite erlauben.\n\n' +
+          'Vorübergehend zur Vorschau-Variante wechseln:\n' +
+          'localStorage.setItem("fabdafMailMode","preview")');
+    return;
+  }
+
+  // URL-Scheme aufrufen — Mac-App reagiert, öffnet Apple Mail, drückt ⌘V
+  window.location.href = 'fabdaf-mail://send?subject=' + encodeURIComponent(betreff);
+}
+
+function versandViaVorschauTab(html, betreff) {
   // Neuen Tab öffnen mit Vorlage + Kopier-Button + Apple-Mail-Button
   const win = window.open('', '_blank');
   if (!win) {
