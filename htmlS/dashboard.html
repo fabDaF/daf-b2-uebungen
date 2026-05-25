@@ -2147,8 +2147,21 @@ function render() {
         const url = resolveUrl(kurs.basis, k.file);
         const tEsc = k.titel.replace(/'/g, "\\'");
         const uEsc = url.replace(/'/g, "\\'");
+        // Lektionscode aus Dateiname (z.B. "1012G" aus "DE_B2_1012G-passiv.html")
+        const codeMatch = k.file.match(/_(\d+[A-Z])-/);
+        const code = codeMatch ? codeMatch[1] : '';
         return `
-          <div class="karte" data-file="${k.file}" data-tags="${(k.tags||'').toLowerCase()}" data-url="${url}" data-titel="${k.titel.replace(/"/g,'&quot;')}">
+          <div class="karte"
+               data-file="${k.file}"
+               data-tags="${(k.tags||'').toLowerCase()}"
+               data-url="${url}"
+               data-titel="${k.titel.replace(/"/g,'&quot;')}"
+               data-typ="${k.typ||''}"
+               data-niveau="${kurs.niveau||''}"
+               data-niveau-label="${(kurs.label||'').replace(/"/g,'&quot;')}"
+               data-einheit-nr="${(einheit.nr||'').replace(/"/g,'&quot;')}"
+               data-einheit-titel="${(einheit.titel||'').replace(/"/g,'&quot;')}"
+               data-code="${code}">
             <input type="checkbox" class="karte-cb" title="Auswählen" onclick="karteToggle(this)">
             <span class="karte-typ ${TYP_CSS[k.typ]||'tv'}">${k.label}</span>
             <span class="karte-titel">${k.titel}</span>
@@ -2248,30 +2261,250 @@ function aktualisiereWAEinheit() {
 // Default-Handler jetzt aber Apple Mail ist, geht mailto: direkt und ohne
 // Browser-Tab-Umweg.
 function sendeMail() {
-  const betreff = 'fabDaF – ' + _titel;
-
-  const body =
-    'Hallo,\n\n' +
-    'für die nächste Stunde habe ich dir vorbereitet:\n\n' +
-    _urls.map(u => '→  ' + u).join('\n\n') +
-    '\n\nEinfach auf den Link klicken – die Übung öffnet sich direkt im Browser.\n\n' +
-    'Viel Erfolg!\n\n';
-
-  // Modal ZUERST schließen — visuelles Feedback ohne Verzögerung.
+  // Modal schließen — visuelles Feedback ohne Verzögerung.
   schliesseModal();
 
-  const url = 'mailto:'
-    + '?subject=' + encodeURIComponent(betreff)
-    + '&body=' + encodeURIComponent(body);
+  // Karten aus dem DOM holen, die zu den Modal-URLs gehören.
+  // Reihenfolge erhalten wir, indem wir _urls iterieren.
+  const lektionen = _urls.map(u => {
+    const karte = document.querySelector(`.karte[data-url="${u.replace(/"/g,'\\"')}"]`);
+    if (!karte) return null;
+    return {
+      url: karte.getAttribute('data-url'),
+      titel: karte.getAttribute('data-titel'),
+      typ: karte.getAttribute('data-typ'),
+      niveau: karte.getAttribute('data-niveau'),
+      niveauLabel: karte.getAttribute('data-niveau-label'),
+      einheitNr: karte.getAttribute('data-einheit-nr'),
+      einheitTitel: karte.getAttribute('data-einheit-titel'),
+      code: karte.getAttribute('data-code'),
+    };
+  }).filter(Boolean);
 
-  // Anchor-Klick statt window.location.href — vermeidet, dass der Browser
-  // die Dashboard-Seite "verlässt", falls der mailto-Handler hängt.
-  const a = document.createElement('a');
-  a.href = url;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  if (lektionen.length === 0) {
+    alert('Keine Lektionen gefunden.');
+    return;
+  }
+
+  oeffneMailVorlage(lektionen);
+}
+
+// ═══════════════════════════════════════════════════════
+//  APPLE-STYLE HTML-MAIL — VORSCHAU + COPY
+// ═══════════════════════════════════════════════════════
+//
+// Generiert eine schöne HTML-Mail aus den ausgewählten Lektionen
+// und öffnet sie in einem neuen Tab. Der Tab hat einen großen
+// Copy-Button: Klick legt die Mail als Rich Text in die Zwischen-
+// ablage. Frank wechselt nach Apple Mail (öffnet sich parallel),
+// drückt ⌘V im Body, die Mail ist drin — Signatur kommt aus
+// Apple-Mail-Settings dazu, fertig.
+//
+// Drei Layout-Varianten:
+//   1) Einzellektion           → großer Hero mit Lektion-Titel
+//   2) Eine zusammenhängende Einheit → Hero mit Einheits-Titel
+//   3) Lektionen aus verschiedenen Einheiten/Niveaus → neutraler Hero
+
+function analysiereLektionen(lektionen) {
+  if (lektionen.length === 1) {
+    return { variante: 1, ...lektionen[0] };
+  }
+  const niveaus = new Set(lektionen.map(l => l.niveau).filter(Boolean));
+  const einheiten = new Set(lektionen.map(l => l.einheitNr).filter(Boolean));
+  if (niveaus.size === 1 && einheiten.size === 1) {
+    return {
+      variante: 2,
+      niveau: [...niveaus][0],
+      niveauLabel: lektionen[0].niveauLabel,
+      einheitNr: [...einheiten][0],
+      einheitTitel: lektionen[0].einheitTitel,
+      anzahl: lektionen.length,
+    };
+  }
+  return { variante: 3, anzahl: lektionen.length };
+}
+
+const TYP_FARBE = {
+  R: '#d4665b',
+  G: '#5b6cd4',
+  V: '#5bb88c',
+  X: '#b85bd4',
+  S: '#d4a85b',
+  C: '#5bb8d4',
+  W: '#86868b',
+};
+
+function lektionsKarteHTML(l, mitNiveau) {
+  const farbe = TYP_FARBE[l.typ] || '#86868b';
+  const codeZeile = mitNiveau && l.niveau
+    ? `<span style="font-weight:700;color:#5235c1;margin-right:6px;">${l.niveau}</span>${l.code} · ${l.einheitNr || ''}`
+    : `${l.code}`;
+  return `
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 10px;background:#f5f5f7;border-radius:12px;">
+      <tr>
+        <td style="padding:16px 20px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+              <td width="48" valign="middle">
+                <div style="width:32px;height:32px;background:${farbe};color:white;border-radius:8px;font:700 13px -apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;text-align:center;line-height:32px;">${l.typ}</div>
+              </td>
+              <td valign="middle" style="font:400 12px/1.3 -apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;color:#86868b;letter-spacing:0.04em;text-transform:uppercase;">
+                ${codeZeile}
+                <div style="font:500 15px/1.35 -apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;color:#1d1d1f;text-transform:none;letter-spacing:0;margin-top:2px;">${escapeHTML(l.titel)}</div>
+              </td>
+              <td align="right" valign="middle" width="120">
+                <a href="${escapeAttr(l.url)}" style="display:inline-block;padding:8px 18px;background:#ea8a1a;color:white;text-decoration:none;border-radius:999px;font:500 13px -apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;white-space:nowrap;">Öffnen →</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>`;
+}
+
+function escapeHTML(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escapeAttr(s) { return escapeHTML(s); }
+
+function baueMailHTML(lektionen) {
+  const info = analysiereLektionen(lektionen);
+  const fontStack = "-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif";
+
+  let heroHTML = '';
+  let bodyHTML = '';
+
+  if (info.variante === 1) {
+    // Einzellektion: großer Hero + großer CTA
+    const l = info;
+    const heroBg = 'linear-gradient(135deg,#6e5ad6 0%,#5235c1 100%)';
+    heroHTML = `
+      <td align="center" style="background:${heroBg};background-color:#5235c1;padding:56px 40px 48px;color:white;">
+        <div style="display:inline-block;padding:6px 16px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:999px;font:600 13px ${fontStack};letter-spacing:0.05em;margin-bottom:18px;color:white;">${escapeHTML(l.niveauLabel||l.niveau||'')}</div>
+        <h1 style="font:700 36px/1.15 ${fontStack};margin:0 0 10px;letter-spacing:-0.02em;color:white;">${escapeHTML(l.titel)}</h1>
+        <div style="font:400 15px ${fontStack};opacity:0.78;color:white;">Lektion ${escapeHTML(l.code||'')}</div>
+      </td>`;
+    bodyHTML = `
+      <td style="padding:40px;">
+        <p style="font:400 17px/1.55 ${fontStack};color:#424245;margin:0 0 32px;">Hallo,<br><br>für die nächste Stunde habe ich dir diese Übung vorbereitet. Klick einfach auf den Button – die Lektion öffnet sich direkt im Browser.</p>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+          <tr><td align="center" style="padding:0 0 28px;">
+            <a href="${escapeAttr(l.url)}" style="display:inline-block;padding:14px 38px;background:#ea8a1a;color:white;text-decoration:none;border-radius:999px;font:500 16px ${fontStack};letter-spacing:-0.01em;">Lektion öffnen →</a>
+          </td></tr>
+        </table>
+      </td>`;
+  } else if (info.variante === 2) {
+    // Einheit: Hero mit Einheits-Titel + Karten-Liste
+    const heroBg = 'linear-gradient(135deg,#6e5ad6 0%,#5235c1 100%)';
+    heroHTML = `
+      <td align="center" style="background:${heroBg};background-color:#5235c1;padding:56px 40px 48px;color:white;">
+        <div style="display:inline-block;padding:6px 16px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:999px;font:600 13px ${fontStack};letter-spacing:0.05em;margin-bottom:18px;color:white;">${escapeHTML(info.niveauLabel||info.niveau||'')}</div>
+        <h1 style="font:700 36px/1.15 ${fontStack};margin:0 0 10px;letter-spacing:-0.02em;color:white;">${escapeHTML(info.einheitTitel||'')}</h1>
+        <div style="font:400 15px ${fontStack};opacity:0.78;color:white;">${escapeHTML(info.einheitNr||'')} · ${info.anzahl} Lektionen</div>
+      </td>`;
+    const karten = lektionen.map(l => lektionsKarteHTML(l, false)).join('');
+    bodyHTML = `
+      <td style="padding:40px;">
+        <p style="font:400 17px/1.55 ${fontStack};color:#424245;margin:0 0 32px;">Hallo,<br><br>die nächste Einheit liegt für dich bereit. Du kannst die Lektionen in beliebiger Reihenfolge bearbeiten.</p>
+        ${karten}
+      </td>`;
+  } else {
+    // Gemischte Auswahl: neutraler Hero
+    const heroBg = 'linear-gradient(135deg,#2c2c2e 0%,#1d1d1f 100%)';
+    heroHTML = `
+      <td align="center" style="background:${heroBg};background-color:#1d1d1f;padding:56px 40px 48px;color:white;">
+        <div style="display:inline-block;padding:6px 16px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:999px;font:600 13px ${fontStack};letter-spacing:0.05em;margin-bottom:18px;color:white;">DEINE AUSWAHL</div>
+        <h1 style="font:700 36px/1.15 ${fontStack};margin:0 0 10px;letter-spacing:-0.02em;color:white;">Übungspaket</h1>
+        <div style="font:400 15px ${fontStack};opacity:0.78;color:white;">${info.anzahl} Lektionen</div>
+      </td>`;
+    const karten = lektionen.map(l => lektionsKarteHTML(l, true)).join('');
+    bodyHTML = `
+      <td style="padding:40px;">
+        <p style="font:400 17px/1.55 ${fontStack};color:#424245;margin:0 0 32px;">Hallo,<br><br>hier sind die Lektionen, die ich dir für die nächste Stunde zusammengestellt habe.</p>
+        ${karten}
+      </td>`;
+  }
+
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f5f5f7;font-family:${fontStack};">
+    <tr><td align="center" style="padding:40px 20px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;background:white;border-radius:18px;overflow:hidden;">
+        <tr>${heroHTML}</tr>
+        <tr>${bodyHTML}</tr>
+        <tr><td style="padding:28px 40px 36px;border-top:1px solid #d2d2d7;font:400 14px ${fontStack};color:#6e6e73;text-align:center;">
+          Viel Erfolg!<br><span style="color:#1d1d1f;font-weight:500;">— Frank</span>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>`;
+}
+
+// Sammelt aus den DOM-Karten alle Daten, die wir für die Mail brauchen
+function sammleLektionen(karten) {
+  return Array.from(karten).map(karte => ({
+    url: karte.getAttribute('data-url'),
+    titel: karte.getAttribute('data-titel'),
+    typ: karte.getAttribute('data-typ'),
+    niveau: karte.getAttribute('data-niveau'),
+    niveauLabel: karte.getAttribute('data-niveau-label'),
+    einheitNr: karte.getAttribute('data-einheit-nr'),
+    einheitTitel: karte.getAttribute('data-einheit-titel'),
+    code: karte.getAttribute('data-code'),
+  }));
+}
+
+function oeffneMailVorlage(lektionen) {
+  const html = baueMailHTML(lektionen);
+  const betreff = lektionen.length === 1
+    ? `fabDaF – ${lektionen[0].titel}`
+    : `fabDaF – ${lektionen.length} Lektionen`;
+
+  // Neuen Tab öffnen mit Vorlage + Kopier-Button + Apple-Mail-Button
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('Pop-up blockiert. Bitte erlaube Pop-ups für diese Seite.');
+    return;
+  }
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mail-Vorlage – ${escapeHTML(betreff)}</title>
+    <style>
+      body{margin:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;color:#1d1d1f;}
+      .toolbar{position:sticky;top:0;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid #d2d2d7;padding:14px 24px;display:flex;align-items:center;gap:14px;z-index:10;}
+      .toolbar h2{margin:0;font-size:15px;font-weight:600;flex:1;color:#1d1d1f;}
+      .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#1d1d1f;color:white;text-decoration:none;border:none;border-radius:999px;font:500 14px inherit;cursor:pointer;}
+      .btn-primary{background:#ea8a1a;}
+      .btn-primary.done{background:#34a853;}
+      .hint{padding:12px 24px;background:#fffbea;border-bottom:1px solid #e8d670;font-size:13px;color:#6e6e73;line-height:1.5;}
+      .mail-frame{padding:0;}
+    </style></head><body>
+    <div class="toolbar">
+      <h2>Mail-Vorlage · ${escapeHTML(betreff)}</h2>
+      <button class="btn btn-primary" id="copyBtn" onclick="kopiereMail()">📋 In Zwischenablage kopieren</button>
+      <a class="btn" href="mailto:?subject=${encodeURIComponent(betreff)}" target="_blank">✉ Apple Mail öffnen</a>
+    </div>
+    <div class="hint">
+      <strong>So geht's:</strong> 1) Auf <em>In Zwischenablage kopieren</em> klicken — 2) Auf <em>Apple Mail öffnen</em> klicken — 3) Im neuen Mail-Fenster in den Body klicken und ⌘V drücken. Deine Signatur hängt Apple Mail automatisch unten dran.
+    </div>
+    <div class="mail-frame" id="mailFrame">${html}</div>
+    <script>
+      async function kopiereMail() {
+        const frame = document.getElementById('mailFrame');
+        const html = frame.innerHTML;
+        const text = frame.innerText;
+        try {
+          await navigator.clipboard.write([new ClipboardItem({
+            'text/html': new Blob([html], {type:'text/html'}),
+            'text/plain': new Blob([text], {type:'text/plain'}),
+          })]);
+          const b = document.getElementById('copyBtn');
+          b.textContent = '✓ Kopiert!';
+          b.classList.add('done');
+          setTimeout(()=>{ b.textContent='📋 In Zwischenablage kopieren'; b.classList.remove('done'); }, 2500);
+        } catch (e) {
+          alert('Kopieren fehlgeschlagen: ' + e.message + '\\n\\nVersuche manuell ⌘A, ⌘C im Mail-Bereich unten.');
+        }
+      }
+    </` + `script>
+  </body></html>`);
+  win.document.close();
 }
 
 function schliesseModal() {
