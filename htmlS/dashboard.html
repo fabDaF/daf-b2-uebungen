@@ -2475,20 +2475,67 @@ function oeffneMailVorlage(lektionen) {
   }
 }
 
+// ─── Debug-Logging für die Mail-Bridge ───
+// Aktivieren: localStorage.setItem('fabdafMailDebug', 'on')   → Overlay rechts unten
+// Logs gehen IMMER in die DevTools-Konsole, das Overlay ist optional.
+const fabdafMailLog = [];
+function logMail(msg, data) {
+  const entry = {
+    ts: new Date().toISOString().substr(11, 12),
+    msg,
+    data: data === undefined ? null : data,
+  };
+  fabdafMailLog.push(entry);
+  console.log('[fabDaF-Mail]', entry.ts, msg, data === undefined ? '' : data);
+
+  if (localStorage.getItem('fabdafMailDebug') !== 'on') return;
+  let overlay = document.getElementById('fabdaf-mail-debug');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'fabdaf-mail-debug';
+    overlay.style.cssText = 'position:fixed;bottom:10px;right:10px;width:420px;max-height:340px;overflow-y:auto;background:#1d1d1f;color:#5af55a;font:11px/1.45 ui-monospace,monospace;padding:10px 12px;border-radius:8px;z-index:99999;box-shadow:0 4px 24px rgba(0,0,0,0.3);';
+    overlay.innerHTML = '<div style="color:#ea8a1a;font-weight:600;margin-bottom:6px;">fabDaF-Mail Debug · ' + new Date().toLocaleTimeString() + '</div>';
+    document.body.appendChild(overlay);
+  }
+  const line = document.createElement('div');
+  let textData = '';
+  if (data !== null && data !== undefined) {
+    const s = typeof data === 'string' ? data : JSON.stringify(data);
+    textData = ' ' + (s.length > 80 ? s.substr(0, 77) + '...' : s);
+  }
+  line.textContent = entry.ts + ' ' + msg + textData;
+  overlay.appendChild(line);
+  overlay.scrollTop = overlay.scrollHeight;
+}
+
 // ─── Ein-Klick-Workflow: HTML in Zwischenablage, dann fabdaf-mail:// aufrufen.
 //     Die installierte Mac-App öffnet Apple Mail und drückt ⌘V im Body. ───
 async function versandViaMacBridge(html, betreff) {
+  logMail('versandViaMacBridge gestartet', { htmlLen: html.length, betreff });
+
   // Plain-Text-Fallback aus dem HTML extrahieren (für Mail-Clients ohne HTML)
   const div = document.createElement('div');
   div.innerHTML = html;
   const plain = div.innerText.replace(/\n{3,}/g, '\n\n').trim();
+  logMail('plain-text extrahiert', { plainLen: plain.length });
+
+  // User-Aktivierung sicherheitshalber prüfen
+  if (navigator.userActivation) {
+    logMail('userActivation', {
+      isActive: navigator.userActivation.isActive,
+      hasBeenActive: navigator.userActivation.hasBeenActive,
+    });
+  }
 
   try {
+    logMail('clipboard.write START');
     await navigator.clipboard.write([new ClipboardItem({
       'text/html': new Blob([html], { type: 'text/html' }),
       'text/plain': new Blob([plain], { type: 'text/plain' }),
     })]);
+    logMail('clipboard.write OK');
   } catch (e) {
+    logMail('clipboard.write FEHLER', e.message);
     alert('Zwischenablage-Zugriff blockiert (' + e.message + ').\n' +
           'Falls Schutz-Erweiterungen aktiv sind, bitte für diese Seite erlauben.\n\n' +
           'Vorübergehend zur Vorschau-Variante wechseln:\n' +
@@ -2497,11 +2544,16 @@ async function versandViaMacBridge(html, betreff) {
   }
 
   // URL-Scheme aufrufen — Mac-App reagiert, öffnet Apple Mail, drückt ⌘V
-  window.location.href = 'fabdaf-mail://send?subject=' + encodeURIComponent(betreff);
+  const scheme = 'fabdaf-mail://send?subject=' + encodeURIComponent(betreff);
+  logMail('rufe URL-Scheme auf', scheme.substr(0, 60));
+  window.location.href = scheme;
 }
 
 function versandViaVorschauTab(html, betreff) {
-  // Neuen Tab öffnen mit Vorlage + Kopier-Button + Apple-Mail-Button
+  logMail('versandViaVorschauTab gestartet', { htmlLen: html.length, betreff });
+  // Neuen Tab öffnen mit Vorlage. Beim Laden des Tabs wird automatisch
+  // versucht, die Mail in die Zwischenablage zu kopieren — damit Frank
+  // nur noch EINEN Klick (Apple Mail öffnen) und das ⌘V im Body braucht.
   const win = window.open('', '_blank');
   if (!win) {
     alert('Pop-up blockiert. Bitte erlaube Pop-ups für diese Seite.');
@@ -2510,21 +2562,27 @@ function versandViaVorschauTab(html, betreff) {
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mail-Vorlage – ${escapeHTML(betreff)}</title>
     <style>
       body{margin:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;color:#1d1d1f;}
-      .toolbar{position:sticky;top:0;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid #d2d2d7;padding:14px 24px;display:flex;align-items:center;gap:14px;z-index:10;}
-      .toolbar h2{margin:0;font-size:15px;font-weight:600;flex:1;color:#1d1d1f;}
-      .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#1d1d1f;color:white;text-decoration:none;border:none;border-radius:999px;font:500 14px inherit;cursor:pointer;}
-      .btn-primary{background:#ea8a1a;}
-      .btn-primary.done{background:#34a853;}
-      .hint{padding:12px 24px;background:#fffbea;border-bottom:1px solid #e8d670;font-size:13px;color:#6e6e73;line-height:1.5;}
+      .toolbar{position:sticky;top:0;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid #d2d2d7;padding:14px 24px;display:flex;align-items:center;gap:14px;z-index:10;flex-wrap:wrap;}
+      .toolbar h2{margin:0;font-size:15px;font-weight:600;flex:1;color:#1d1d1f;min-width:220px;}
+      .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;background:#1d1d1f;color:white;text-decoration:none;border:none;border-radius:999px;font:500 14px inherit;cursor:pointer;transition:transform 0.15s;}
+      .btn:hover{transform:translateY(-1px);}
+      .btn-primary{background:#ea8a1a;font-weight:600;padding:12px 26px;}
+      .status{font-size:13px;color:#6e6e73;display:inline-flex;align-items:center;gap:6px;}
+      .status.ok{color:#15803d;}
+      .status.err{color:#b91c1c;}
+      .status .dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;}
+      .hint{padding:14px 24px;background:#fffbea;border-bottom:1px solid #e8d670;font-size:13px;color:#6e6e73;line-height:1.55;}
+      .hint strong{color:#1d1d1f;}
       .mail-frame{padding:0;}
     </style></head><body>
     <div class="toolbar">
       <h2>Mail-Vorlage · ${escapeHTML(betreff)}</h2>
-      <button class="btn btn-primary" id="copyBtn" onclick="kopiereMail()">📋 In Zwischenablage kopieren</button>
-      <a class="btn" href="mailto:?subject=${encodeURIComponent(betreff)}" target="_blank">✉ Apple Mail öffnen</a>
+      <span class="status" id="copyStatus"><span class="dot"></span>Kopiere…</span>
+      <a class="btn btn-primary" id="mailBtn" href="mailto:?subject=${encodeURIComponent(betreff)}" target="_blank">✉ Apple Mail öffnen</a>
+      <button class="btn" id="copyBtn" onclick="kopiereMail()" style="display:none;">📋 Erneut kopieren</button>
     </div>
     <div class="hint">
-      <strong>So geht's:</strong> 1) Auf <em>In Zwischenablage kopieren</em> klicken — 2) Auf <em>Apple Mail öffnen</em> klicken — 3) Im neuen Mail-Fenster in den Body klicken und ⌘V drücken. Deine Signatur hängt Apple Mail automatisch unten dran.
+      Die Mail liegt schon in deiner Zwischenablage. Klick auf <strong>Apple Mail öffnen</strong>, dann in den Mail-Body klicken und <strong>⌘V</strong> — fertig.
     </div>
     <div class="mail-frame" id="mailFrame">${html}</div>
     <script>
@@ -2532,22 +2590,30 @@ function versandViaVorschauTab(html, betreff) {
         const frame = document.getElementById('mailFrame');
         const html = frame.innerHTML;
         const text = frame.innerText;
+        const status = document.getElementById('copyStatus');
+        const copyBtn = document.getElementById('copyBtn');
         try {
           await navigator.clipboard.write([new ClipboardItem({
             'text/html': new Blob([html], {type:'text/html'}),
             'text/plain': new Blob([text], {type:'text/plain'}),
           })]);
-          const b = document.getElementById('copyBtn');
-          b.textContent = '✓ Kopiert!';
-          b.classList.add('done');
-          setTimeout(()=>{ b.textContent='📋 In Zwischenablage kopieren'; b.classList.remove('done'); }, 2500);
+          status.textContent = '';
+          status.innerHTML = '<span class="dot"></span>✓ In Zwischenablage';
+          status.className = 'status ok';
+          copyBtn.style.display = 'none';
         } catch (e) {
-          alert('Kopieren fehlgeschlagen: ' + e.message + '\\n\\nVersuche manuell ⌘A, ⌘C im Mail-Bereich unten.');
+          status.textContent = '';
+          status.innerHTML = '<span class="dot"></span>Kopier-Block — bitte manuell klicken';
+          status.className = 'status err';
+          copyBtn.style.display = 'inline-flex';
         }
       }
+      // Auto-Copy beim Laden — User-Activation überträgt sich vom auslösenden Click
+      window.addEventListener('load', () => { setTimeout(kopiereMail, 80); });
     </` + `script>
   </body></html>`);
   win.document.close();
+  logMail('Vorschau-Tab geöffnet');
 }
 
 function schliesseModal() {
