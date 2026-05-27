@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-05-27 08:05. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-05-27 08:22. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)
 
@@ -33,7 +33,7 @@ Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Ni
 | `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [lueckentexte.daf.frankburkert-daf.de](https://lueckentexte.daf.frankburkert-daf.de/) | ✓ |
 | `daf-archiv` | Archiv | — | `daf-archiv` | — | ✓ |
 | `A1-vokabeltrainer` | Spezial | A1 | `None` | — | ✗ (offen) |
-| `daf-vertragssprache-uebungen` | Privatschüler | — | `schueler/privat-1` | [fabdaf.github.io/daf-vertragssprache-uebungen](https://fabdaf.github.io/daf-vertragssprache-uebungen/) | ✓ |
+| `daf-vertragssprache-uebungen` | Privatschüler | — | `schueler/privat-1` | [vertrag.daf.frankburkert-daf.de](https://vertrag.daf.frankburkert-daf.de/) | ✓ |
 
 ## Details pro Repo
 
@@ -141,8 +141,8 @@ _Privatschüler-Material zu Vertragssprache, Komposita/FVG und Geschäftskommuni
 
 - **Lokal:** `schueler/privat-1`
 - **Remote:** https://github.com/fabDaF/daf-vertragssprache-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-vertragssprache-uebungen/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-vertragssprache-uebungen/`
+- **GitHub Pages:** aktiv unter https://vertrag.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://vertrag.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥3 tracked files, ≥3 HTML
 
 ## Bekannte offene Punkte
