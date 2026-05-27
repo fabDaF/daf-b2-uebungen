@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-04-29 18:23. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-05-27 08:05. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)
 
@@ -23,14 +23,14 @@ Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Ni
 
 | Schlüssel | Rolle | Niveau | Lokaler Pfad | Dashboard-URL | Pages |
 |---|---|---|---|---|---|
-| `daf-a1-uebungen` | Aktives Niveau | A1 | `htmlS/A1.1 NEW` | [fabdaf.github.io/daf-a1-uebungen](https://fabdaf.github.io/daf-a1-uebungen/) | ✓ |
-| `daf-a2-uebungen` | Aktives Niveau | A2 | `htmlS/A2.1` | [fabdaf.github.io/daf-a2-uebungen](https://fabdaf.github.io/daf-a2-uebungen/) | ✓ |
-| `daf-b1-uebungen` | Aktives Niveau | B1 | `htmlS/B1.1` | [fabdaf.github.io/daf-b1-uebungen](https://fabdaf.github.io/daf-b1-uebungen/) | ✓ |
-| `daf-b2-uebungen` | Aktives Niveau | B2 | `.` | [fabdaf.github.io/daf-b2-uebungen](https://fabdaf.github.io/daf-b2-uebungen/) | ✓ |
-| `daf-c1-uebungen` | Aktives Niveau | C1 | `htmlS/C1` | [fabdaf.github.io/daf-c1-uebungen](https://fabdaf.github.io/daf-c1-uebungen/) | ✓ |
-| `daf-materialien` | Materialien | — | `daf-materialien` | [fabdaf.github.io/daf-materialien](https://fabdaf.github.io/daf-materialien/) | ✓ |
-| `daf-architektur` | Architektur | — | `htmlS/Architektur` | [fabdaf.github.io/daf-architektur](https://fabdaf.github.io/daf-architektur/) | ✓ |
-| `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [fabdaf.github.io/daf-lueckentexte](https://fabdaf.github.io/daf-lueckentexte/) | ✓ |
+| `daf-a1-uebungen` | Aktives Niveau | A1 | `htmlS/A1.1 NEW` | [a1.daf.frankburkert-daf.de](https://a1.daf.frankburkert-daf.de/) | ✓ |
+| `daf-a2-uebungen` | Aktives Niveau | A2 | `htmlS/A2.1` | [a2.daf.frankburkert-daf.de](https://a2.daf.frankburkert-daf.de/) | ✓ |
+| `daf-b1-uebungen` | Aktives Niveau | B1 | `htmlS/B1.1` | [b1.daf.frankburkert-daf.de](https://b1.daf.frankburkert-daf.de/) | ✓ |
+| `daf-b2-uebungen` | Aktives Niveau | B2 | `.` | [daf.frankburkert-daf.de](https://daf.frankburkert-daf.de/) | ✓ |
+| `daf-c1-uebungen` | Aktives Niveau | C1 | `htmlS/C1` | [c1.daf.frankburkert-daf.de](https://c1.daf.frankburkert-daf.de/) | ✓ |
+| `daf-materialien` | Materialien | — | `daf-materialien` | [materialien.daf.frankburkert-daf.de](https://materialien.daf.frankburkert-daf.de/) | ✓ |
+| `daf-architektur` | Architektur | — | `htmlS/Architektur` | [architektur.daf.frankburkert-daf.de](https://architektur.daf.frankburkert-daf.de/) | ✓ |
+| `daf-lueckentexte` | Spezial | — | `htmlS/Lückentexte Mattmüller` | [lueckentexte.daf.frankburkert-daf.de](https://lueckentexte.daf.frankburkert-daf.de/) | ✓ |
 | `daf-archiv` | Archiv | — | `daf-archiv` | — | ✓ |
 | `A1-vokabeltrainer` | Spezial | A1 | `None` | — | ✗ (offen) |
 | `daf-vertragssprache-uebungen` | Privatschüler | — | `schueler/privat-1` | [fabdaf.github.io/daf-vertragssprache-uebungen](https://fabdaf.github.io/daf-vertragssprache-uebungen/) | ✓ |
@@ -43,8 +43,8 @@ _Aktive A1-Lektionen (ehem. A1-Einstieg + A1 + A1.2 NEW konsolidiert am 2026-04-
 
 - **Lokal:** `htmlS/A1.1 NEW`
 - **Remote:** https://github.com/fabDaF/daf-a1-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-a1-uebungen/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-a1-uebungen/`
+- **GitHub Pages:** aktiv unter https://a1.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://a1.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥190 tracked files, ≥180 HTML
 
 ### `daf-a2-uebungen`
@@ -53,8 +53,8 @@ _Aktive A2-Lektionen (A2.1 + A2.2 konsolidiert am 2026-04-10; 2026-04-29 Backup-
 
 - **Lokal:** `htmlS/A2.1`
 - **Remote:** https://github.com/fabDaF/daf-a2-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-a2-uebungen/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-a2-uebungen/`
+- **GitHub Pages:** aktiv unter https://a2.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://a2.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥150 tracked files, ≥100 HTML
 
 ### `daf-b1-uebungen`
@@ -63,8 +63,8 @@ _Aktive B1-Lektionen (B1.1 als Master; B1.2/B1.3 am 2026-04-10 verworfen, nur Gr
 
 - **Lokal:** `htmlS/B1.1`
 - **Remote:** https://github.com/fabDaF/daf-b1-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-b1-uebungen/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-b1-uebungen/`
+- **GitHub Pages:** aktiv unter https://b1.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://b1.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥170 tracked files, ≥165 HTML
 
 ### `daf-b2-uebungen`
@@ -73,8 +73,8 @@ _Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusät
 
 - **Lokal:** `.`
 - **Remote:** https://github.com/fabDaF/daf-b2-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-b2-uebungen/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-b2-uebungen/`
+- **GitHub Pages:** aktiv unter https://daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://daf.frankburkert-daf.de/`
 - **Erwartung:** ≥230 tracked files, ≥220 HTML
 
 ### `daf-c1-uebungen`
@@ -83,8 +83,8 @@ _C1-Lektionen-Repo. Im Dashboard als drei Sub-Kurse (C1.1, C1.2, C1.3) mit 23 Ei
 
 - **Lokal:** `htmlS/C1`
 - **Remote:** https://github.com/fabDaF/daf-c1-uebungen.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-c1-uebungen/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-c1-uebungen/`
+- **GitHub Pages:** aktiv unter https://c1.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://c1.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥8 tracked files, ≥7 HTML
 
 ### `daf-materialien`
@@ -93,8 +93,8 @@ _Niveau-übergreifende Materialien: Grundlagen, Texte, Treffen, Warum wir krank 
 
 - **Lokal:** `daf-materialien`
 - **Remote:** https://github.com/fabDaF/daf-materialien.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-materialien/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-materialien/`
+- **GitHub Pages:** aktiv unter https://materialien.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://materialien.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥40 tracked files, ≥40 HTML
 
 ### `daf-architektur`
@@ -103,8 +103,8 @@ _Architektur-Material für Privatschüler:innen (Kap13-Entwurfsplanung etc.)_
 
 - **Lokal:** `htmlS/Architektur`
 - **Remote:** https://github.com/fabDaF/daf-architektur.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-architektur/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-architektur/`
+- **GitHub Pages:** aktiv unter https://architektur.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://architektur.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥7 tracked files, ≥7 HTML
 
 ### `daf-lueckentexte`
@@ -113,8 +113,8 @@ _Lückentext-Übungen nach Mattmüller-Methode_
 
 - **Lokal:** `htmlS/Lückentexte Mattmüller`
 - **Remote:** https://github.com/fabDaF/daf-lueckentexte.git
-- **GitHub Pages:** aktiv unter https://fabdaf.github.io/daf-lueckentexte/
-- **Dashboard basis:** `https://fabdaf.github.io/daf-lueckentexte/`
+- **GitHub Pages:** aktiv unter https://lueckentexte.daf.frankburkert-daf.de/
+- **Dashboard basis:** `https://lueckentexte.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥10 tracked files, ≥10 HTML
 
 ### `daf-archiv`
