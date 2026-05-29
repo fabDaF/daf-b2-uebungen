@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Layout-Prototypen: Satz-für-Satz-Korrektur · Omar WCO02X · Aufgabe 1</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white;
+             border-radius: 12px; overflow: hidden;
+             box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 1.9em; font-family: Georgia, serif; color: white;
+             margin-bottom: 8px; }
+.header p { font-size: 1.0em; font-family: Georgia, serif; opacity: 0.95; }
+.header .meta { font-size: 0.85em; margin-top: 6px; opacity: 0.8; font-style: italic; }
+
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa;
+       border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer;
+           border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;
+           transition: all 0.3s; font-size: 0.88em; font-weight: 500; color: #666;
+           display: flex; flex-direction: column; align-items: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 600;
+                  border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; }
+.nav-label { font-size: 0.78em; margin-top: 2px; }
+
+.section { display: none; padding: 30px 36px; }
+.section.active { display: block; }
+
+.regie {
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+  border-left: 4px solid #f9a825; border-radius: 0 8px 8px 0;
+  padding: 16px 20px; margin: -10px 0 28px 0;
+  font-size: 0.92em; line-height: 1.55; color: #5d4037;
+}
+.regie strong { color: #e65100; }
+
+/* ── „Dein Text" — gemeinsamer Block oben in jedem Tab ── */
+.dein-text-box {
+  background: #fafafa; border: 1px solid #e8e8e8; border-radius: 10px;
+  padding: 22px 28px; margin-bottom: 28px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto;
+}
+.dein-text-label {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.72em; font-weight: 700;
+  color: #888; letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* ─────────────────────────────────────────────────── */
+/* VARIANTE A — KARTEN GESTAPELT                      */
+/* ─────────────────────────────────────────────────── */
+.va-karte {
+  background: white; border: 1px solid #e8e8e8; border-radius: 12px;
+  margin-bottom: 22px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.va-nr {
+  background: #667eea; color: white; font-size: 0.78em; font-weight: 700;
+  padding: 6px 14px; display: inline-block; border-radius: 0 0 8px 0;
+  letter-spacing: 0.08em;
+}
+.va-original {
+  padding: 14px 24px 18px 24px;
+  font-family: Georgia, serif; font-size: 1.05em; line-height: 1.7;
+  color: #555; font-style: italic;
+}
+.va-original .strike { text-decoration: line-through; color: #c62828; text-decoration-thickness: 1.5px; }
+.va-pfeil { text-align: center; font-size: 1.4em; color: #aaa; padding: 4px 0; }
+.va-korrektur {
+  padding: 14px 24px 18px 24px; background: #f1f8f1;
+  font-family: Georgia, serif; font-size: 1.08em; line-height: 1.7;
+  color: #1b5e20; font-weight: 500;
+  border-top: 1px solid #c8e6c9; border-bottom: 1px solid #c8e6c9;
+}
+.va-korrektur .ins { background: #c8e6c9; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+.va-warum {
+  padding: 16px 24px 20px 24px;
+}
+.va-warum-label {
+  font-size: 0.72em; font-weight: 700; color: #667eea;
+  letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;
+}
+.va-warum-titel {
+  font-size: 0.95em; font-weight: 600; color: #3949ab; margin-bottom: 10px;
+}
+.va-warum-text {
+  font-size: 0.95em; line-height: 1.65; color: #444;
+}
+.va-warum-text + .va-warum-text { margin-top: 10px; }
+
+/* ─────────────────────────────────────────────────── */
+/* VARIANTE B — DIPTYCHON                             */
+/* ─────────────────────────────────────────────────── */
+.vb-karte {
+  background: white; border: 1px solid #e8e8e8; border-radius: 12px;
+  margin-bottom: 22px; padding: 0; overflow: hidden;
+}
+.vb-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px; background: #f5f5f7; border-bottom: 1px solid #e8e8e8;
+}
+.vb-nr {
+  background: #667eea; color: white; font-size: 0.75em; font-weight: 700;
+  padding: 4px 10px; border-radius: 12px; letter-spacing: 0.06em;
+}
+.vb-fehlerart { font-size: 0.85em; color: #555; font-style: italic; }
+.vb-cols { display: grid; grid-template-columns: 1fr 1fr; }
+.vb-col {
+  padding: 18px 22px;
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.7;
+}
+.vb-col.original {
+  border-right: 2px dashed #ddd; color: #888; font-style: italic; background: #fafafa;
+}
+.vb-col.korrektur {
+  background: #f1f8f1; color: #1b5e20; font-weight: 500;
+}
+.vb-col-label {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.7em; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;
+  color: #888;
+}
+.vb-col.korrektur .vb-col-label { color: #2e7d32; }
+
+.vb-warum {
+  padding: 14px 22px; background: #f8f9ff; border-top: 1px solid #e8eaff;
+  font-size: 0.92em; line-height: 1.6; color: #444;
+  cursor: pointer; user-select: none;
+}
+.vb-warum-toggle { font-weight: 700; color: #667eea; font-size: 0.78em;
+                   letter-spacing: 0.06em; }
+.vb-warum-body { display: none; margin-top: 10px; }
+.vb-warum.open .vb-warum-body { display: block; }
+.vb-warum.open .vb-warum-toggle::before { content: '▾ '; }
+.vb-warum:not(.open) .vb-warum-toggle::before { content: '▸ '; }
+.vb-warum-titel { font-weight: 600; color: #3949ab; margin-bottom: 6px; }
+
+@media (max-width: 700px) {
+  .vb-cols { grid-template-columns: 1fr; }
+  .vb-col.original { border-right: none; border-bottom: 2px dashed #ddd; }
+}
+
+/* ─────────────────────────────────────────────────── */
+/* VARIANTE C — INLINE MIT MARGINALIA                 */
+/* ─────────────────────────────────────────────────── */
+.vc-row {
+  display: grid; grid-template-columns: 1fr 280px; gap: 24px;
+  margin-bottom: 28px; padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.vc-row:last-child { border-bottom: none; }
+.vc-satz {
+  font-family: Georgia, serif; font-size: 1.1em; line-height: 1.95;
+  color: #2c2c2c;
+}
+.vc-satz .nr {
+  background: #667eea; color: white; font-size: 0.65em; font-weight: 700;
+  padding: 3px 8px; border-radius: 10px; vertical-align: middle;
+  margin-right: 8px; letter-spacing: 0.06em; font-family: 'Segoe UI', sans-serif;
+}
+.vc-satz .del { text-decoration: line-through; color: #c62828; text-decoration-thickness: 1.5px; }
+.vc-satz .ins {
+  background: #c8e6c9; color: #1b5e20; padding: 1px 4px;
+  border-radius: 3px; font-weight: 600;
+}
+.vc-marginalia {
+  background: #fffde7; border-left: 3px solid #f9a825;
+  border-radius: 0 6px 6px 0; padding: 12px 14px;
+  font-size: 0.85em; line-height: 1.55; color: #5d4037;
+  align-self: start;
+}
+.vc-marginalia-titel { font-weight: 700; color: #e65100; margin-bottom: 6px; font-size: 0.95em; }
+
+@media (max-width: 800px) {
+  .vc-row { grid-template-columns: 1fr; gap: 12px; }
+}
+
+/* ─────────────────────────────────────────────────── */
+/* VARIANTE D — WERKSTATTISCH                         */
+/* ─────────────────────────────────────────────────── */
+.vd-tisch {
+  background: white; border: 1px solid #e8e8e8; border-radius: 12px;
+  margin-bottom: 26px; padding: 22px 26px;
+}
+.vd-original {
+  font-family: Georgia, serif; font-size: 1.1em; line-height: 1.85;
+  color: #2c2c2c; margin-bottom: 16px;
+}
+.vd-original .nr {
+  background: #667eea; color: white; font-size: 0.65em; font-weight: 700;
+  padding: 3px 8px; border-radius: 10px; vertical-align: middle;
+  margin-right: 8px; letter-spacing: 0.06em; font-family: 'Segoe UI', sans-serif;
+}
+.vd-original .hot {
+  background: #fff3e0; border-bottom: 2px solid #f9a825;
+  padding: 0 3px; cursor: pointer; transition: background 0.2s;
+  font-weight: 500;
+}
+.vd-original .hot:hover, .vd-original .hot.open { background: #ffe0b2; }
+.vd-original .hot::after {
+  content: '●'; vertical-align: super; font-size: 0.7em; color: #f9a825;
+  margin-left: 2px;
+}
+.vd-werkstattliste {
+  list-style: none; counter-reset: werkstatt;
+  border-top: 1px dashed #e0e0e0; padding-top: 12px;
+}
+.vd-werkstattliste li {
+  padding: 14px 0; border-bottom: 1px dashed #f0f0f0;
+  display: none;
+}
+.vd-werkstattliste li.open { display: block; }
+.vd-werkstattliste li:last-child { border-bottom: none; }
+.vd-diagnose {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.vd-was-stand {
+  color: #c62828; font-family: Georgia, serif;
+  text-decoration: line-through; text-decoration-thickness: 1.5px;
+}
+.vd-pfeil { color: #aaa; font-size: 1.1em; }
+.vd-was-sollte {
+  color: #1b5e20; font-family: Georgia, serif; font-weight: 600;
+  background: #e8f5e9; padding: 1px 6px; border-radius: 3px;
+}
+.vd-fehlerart {
+  font-size: 0.72em; font-weight: 700; color: #f9a825;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: #fff8e1; padding: 2px 8px; border-radius: 10px;
+  margin-left: auto;
+}
+.vd-warum {
+  font-size: 0.92em; line-height: 1.6; color: #444; margin-top: 4px;
+  padding-left: 6px; border-left: 2px solid #fff3e0;
+}
+
+.toggle-alle {
+  display: inline-block; background: #f5f7ff; color: #667eea;
+  border: 1px solid #c5cff5; padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; font-size: 0.85em; font-weight: 600;
+  margin-bottom: 18px;
+}
+.toggle-alle:hover { background: #667eea; color: white; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <h1>Vier Layout-Prototypen: Satz-für-Satz-Korrektur</h1>
+  <p>Omar Alnader · B2 WCO02X · Aufgabe 1 (Erster Eindruck)</p>
+  <div class="meta">Vier Sätze, derselbe Inhalt, vier visuelle Sprachen — zum Vergleichen.</div>
+</div>
+
+<div class="nav">
+  <div class="nav-btn active" onclick="showSection(0)">
+    <span class="nav-emoji">🧱</span><span class="nav-label">A · Karten gestapelt</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(1)">
+    <span class="nav-emoji">⚖️</span><span class="nav-label">B · Diptychon</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(2)">
+    <span class="nav-emoji">✏️</span><span class="nav-label">C · Marginalia</span>
+  </div>
+  <div class="nav-btn" onclick="showSection(3)">
+    <span class="nav-emoji">🛠</span><span class="nav-label">D · Werkstattisch</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ TAB A · KARTEN ════════ -->
+<div class="section active" id="sec-0">
+  <div class="regie">
+    <strong>Variante A · Karten gestapelt.</strong> Pro Satz eine Karte. Originalsatz oben in kursiver Serifenschrift (so wie er war), darunter die Korrektur in Grün, darunter ein Warum-Block mit Fehlerart-Etikett und Erklärung. Sehr ruhiges Lesebild, klare Hierarchie, gut auf dem Handy.
+  </div>
+
+  <div class="dein-text-box">
+    <div class="dein-text-label">Dein Text — so wie du ihn geschickt hast</div>
+    <p>Ich finde, dass die Videosequenz für den wichtigsten Teil ist, weil sie die Länge des Abschnitts zeigt. Die Video kann die dicke des Material prüfen, und sie wäre besser, wenn ein Längenmessrad für des Abschnitts nutzen. Die WCO braucht die Videosequenz, um zu belegen den Mehraufwand. Aus meiner Sicht die WCO kann nicht die Freigabe machen ohne die ganze Dokumentationen, zum Beispiel: nur die Kalkulation reicht nicht oder sie die Videosequenz und die Fotos sind nicht reicht, immer die Dokumentation mussen vollständig sein.</p>
+  </div>
+
+  <div id="va-container"></div>
+</div>
+
+<!-- ════════════════════════════════════════ TAB B · DIPTYCHON ════════ -->
+<div class="section" id="sec-1">
+  <div class="regie">
+    <strong>Variante B · Diptychon.</strong> Zwei Spalten nebeneinander: links dein Originalsatz, rechts die Korrektur. Das Warum klappt sich darunter auf, wenn man drauftippt. Kompakter als A, gut wenn man scrollend vergleichen will. Auf dem Handy stapeln sich die Spalten automatisch.
+  </div>
+
+  <div class="dein-text-box">
+    <div class="dein-text-label">Dein Text — so wie du ihn geschickt hast</div>
+    <p>Ich finde, dass die Videosequenz für den wichtigsten Teil ist, weil sie die Länge des Abschnitts zeigt. Die Video kann die dicke des Material prüfen, und sie wäre besser, wenn ein Längenmessrad für des Abschnitts nutzen. Die WCO braucht die Videosequenz, um zu belegen den Mehraufwand. Aus meiner Sicht die WCO kann nicht die Freigabe machen ohne die ganze Dokumentationen, zum Beispiel: nur die Kalkulation reicht nicht oder sie die Videosequenz und die Fotos sind nicht reicht, immer die Dokumentation mussen vollständig sein.</p>
+  </div>
+
+  <div id="vb-container"></div>
+</div>
+
+<!-- ════════════════════════════════════════ TAB C · MARGINALIA ════════ -->
+<div class="section" id="sec-2">
+  <div class="regie">
+    <strong>Variante C · Inline mit Marginalia.</strong> Dein Satz im Fließtext, mit roten Streichungen und grünen Einfügungen direkt drin — wie eine handschriftliche Lehrerkorrektur. Am rechten Rand steht das Warum auf einem gelben Notiz-Zettel. Visuell am dichtesten, am nächsten an traditioneller Korrektur. Auf dem Handy rutscht die Marginalia unter den Satz.
+  </div>
+
+  <div class="dein-text-box">
+    <div class="dein-text-label">Dein Text — so wie du ihn geschickt hast</div>
+    <p>Ich finde, dass die Videosequenz für den wichtigsten Teil ist, weil sie die Länge des Abschnitts zeigt. Die Video kann die dicke des Material prüfen, und sie wäre besser, wenn ein Längenmessrad für des Abschnitts nutzen. Die WCO braucht die Videosequenz, um zu belegen den Mehraufwand. Aus meiner Sicht die WCO kann nicht die Freigabe machen ohne die ganze Dokumentationen, zum Beispiel: nur die Kalkulation reicht nicht oder sie die Videosequenz und die Fotos sind nicht reicht, immer die Dokumentation mussen vollständig sein.</p>
+  </div>
+
+  <div id="vc-container"></div>
+</div>
+
+<!-- ════════════════════════════════════════ TAB D · WERKSTATTISCH ════════ -->
+<div class="section" id="sec-3">
+  <div class="regie">
+    <strong>Variante D · Werkstattisch.</strong> Dein Satz steht oben, unverändert, mit gelb markierten Hotspots an den Fehlerstellen. Klick auf einen Hotspot → unten klappt ein Werkstatt-Eintrag auf: was stand da, was muss hin, welche Fehlerart, warum. Du arbeitest dich Stück für Stück durch deinen eigenen Satz, wie an einem Werkstattisch. Interaktiver Modus.
+  </div>
+
+  <div class="dein-text-box">
+    <div class="dein-text-label">Dein Text — so wie du ihn geschickt hast</div>
+    <p>Ich finde, dass die Videosequenz für den wichtigsten Teil ist, weil sie die Länge des Abschnitts zeigt. Die Video kann die dicke des Material prüfen, und sie wäre besser, wenn ein Längenmessrad für des Abschnitts nutzen. Die WCO braucht die Videosequenz, um zu belegen den Mehraufwand. Aus meiner Sicht die WCO kann nicht die Freigabe machen ohne die ganze Dokumentationen, zum Beispiel: nur die Kalkulation reicht nicht oder sie die Videosequenz und die Fotos sind nicht reicht, immer die Dokumentation mussen vollständig sein.</p>
+  </div>
+
+  <button class="toggle-alle" onclick="vdToggleAll()">Alle Werkstatteinträge auf-/zuklappen</button>
+  <div id="vd-container"></div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ────────────────────────────────────────────────────────────────────
+// Navigation
+// ────────────────────────────────────────────────────────────────────
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Daten: Omars 5 Sätze aus Aufgabe 1 (4. wurde in 4a + 4b gesplittet)
+// ────────────────────────────────────────────────────────────────────
+var SAETZE = [
+  {
+    nr: 1,
+    fehlerart: 'Prädikatsnomen ohne Präposition',
+    // HTML mit <del> und <ins> Markierungen
+    originalRich: 'Ich finde, dass die Videosequenz <span class="del">für</span> <span class="ins">der wichtigste</span> <span class="del">den wichtigsten</span> Teil ist, weil sie die Länge des Abschnitts zeigt.',
+    original: 'Ich finde, dass die Videosequenz für den wichtigsten Teil ist, weil sie die Länge des Abschnitts zeigt.',
+    korrektur: 'Ich finde, dass die Videosequenz <span class="ins">der wichtigste</span> Teil ist, weil sie die Länge des Abschnitts zeigt.',
+    korrekturPlain: 'Ich finde, dass die Videosequenz der wichtigste Teil ist, weil sie die Länge des Abschnitts zeigt.',
+    warum: [
+      { titel: 'Nach „sein" steht der zweite Teil im Nominativ — ohne Präposition.',
+        text: 'Die Konstruktion ist einfach: „A ist B." Beide stehen im Nominativ, dazwischen kommt nichts. Du hast wahrscheinlich vom Englischen „is the most important part" gedacht und intuitiv „as" oder „for" ergänzt — auf Deutsch braucht „sein" nichts dazwischen.' },
+      { titel: 'Konsequenz für die Form: „der wichtigste Teil" (nicht „den wichtigsten").',
+        text: 'Weil „Teil" jetzt im Nominativ steht (nicht im Akkusativ nach „für"), ändert sich auch die Adjektiv-Endung: „der wichtigste Teil" — Endung -e. Wenn du dich verschreibst, prüfe immer zuerst den Kasus, dann die Endung.' }
+    ],
+    hotspots: [
+      { wort: 'für', korrektur: '(gestrichen)', fehlerart: 'überflüssige Präposition',
+        warum: 'Nach „sein" steht das Prädikatsnomen im Nominativ. „A ist B" — keine Präposition dazwischen. Vermutlich Einfluss vom Englischen „is the most important part" (mit „as"/„for").' },
+      { wort: 'den wichtigsten', korrektur: 'der wichtigste', fehlerart: 'Kasus + Adjektivendung',
+        warum: 'Weil die Präposition wegfällt, steht „Teil" im Nominativ (nicht Akkusativ). Daraus folgt die Adjektivendung -e statt -en: „der wichtigste Teil".' }
+    ]
+  },
+  {
+    nr: 2,
+    fehlerart: 'Genus · Großschreibung · Genitiv-s · Konjunktiv-II-Satzbau',
+    originalRich: '<span class="del">Die</span> <span class="ins">Das</span> Video kann die <span class="del">dicke</span> <span class="ins">Dicke</span> des <span class="del">Material</span> <span class="ins">Materials</span> <span class="del">prüfen</span> <span class="ins">zeigen</span>, und <span class="del">sie</span> <span class="ins">es</span> wäre besser, wenn <span class="ins">man dabei zusätzlich</span> ein Längenmessrad <span class="del">für des Abschnitts nutzen</span> <span class="ins">einsetzen würde</span>.',
+    original: 'Die Video kann die dicke des Material prüfen, und sie wäre besser, wenn ein Längenmessrad für des Abschnitts nutzen.',
+    korrektur: '<span class="ins">Das</span> Video <span class="ins">zeigt</span> die <span class="ins">Dicke</span> des <span class="ins">Materials</span>, und <span class="ins">es</span> wäre noch besser, wenn <span class="ins">man dabei zusätzlich ein Längenmessrad einsetzen würde</span>.',
+    korrekturPlain: 'Das Video zeigt die Dicke des Materials, und es wäre noch besser, wenn man dabei zusätzlich ein Längenmessrad einsetzen würde.',
+    warum: [
+      { titel: '„Video" ist Neutrum: das Video.',
+        text: 'Im Spanischen ist „el vídeo" maskulin, im Italienischen „il video" auch — im Deutschen ist es Neutrum. Solche Genus-Fehler verschwinden nur durch Hörgewohnheit: je öfter du „das Video" liest und hörst, desto sicherer wird es. Im Zweifel: dwds.de checken.' },
+      { titel: '„Dicke" ist ein Nomen → großgeschrieben.',
+        text: 'Aus dem Adjektiv „dick" wird das Nomen „die Dicke". Substantivierte Adjektive sind immer feminin und werden großgeschrieben: die Dicke, die Länge, die Breite, die Höhe, die Tiefe. Faustregel: kannst du einen Artikel davorsetzen, ist es ein Nomen → groß.' },
+      { titel: 'Genitiv Singular bei maskulin/neutral braucht ein -s.',
+        text: '„des Materials, des Betons, des Mehraufwands, des Standorts." Bei feminin entfällt das -s („der Dokumentation"). Bei Plural ohnehin („der Materialien").' },
+      { titel: 'Der wenn-Satz braucht ein Subjekt und ein konjugiertes Verb am Ende.',
+        text: 'Du hast geschrieben: „wenn ein Längenmessrad … nutzen" — das hat kein Subjekt und das Verb ist im Infinitiv. Sauber: „wenn man (Subjekt) ein Längenmessrad einsetzen würde (Verb am Ende)." Stilistisch eleganter mit Konjunktiv II („würde") als Ausdruck einer Empfehlung.' }
+    ],
+    hotspots: [
+      { wort: 'Die Video', korrektur: 'Das Video', fehlerart: 'Genus',
+        warum: '„Video" ist Neutrum: das Video. Falsches Genus verschwindet nur durch Hörgewohnheit — im Zweifel dwds.de.' },
+      { wort: 'dicke', korrektur: 'Dicke', fehlerart: 'Großschreibung',
+        warum: 'Substantiviertes Adjektiv: „die Dicke" ist ein Nomen, also groß. Genauso „die Länge", „die Höhe", „die Tiefe".' },
+      { wort: 'des Material', korrektur: 'des Materials', fehlerart: 'Genitiv-s',
+        warum: 'Maskuline und neutrale Nomen bekommen im Genitiv Singular ein -s: des Materials, des Betons, des Standorts.' },
+      { wort: 'wenn ein Längenmessrad für des Abschnitts nutzen', korrektur: 'wenn man dabei zusätzlich ein Längenmessrad einsetzen würde', fehlerart: 'Wenn-Satz: Subjekt + Verb',
+        warum: 'Der wenn-Satz braucht ein Subjekt („man") und ein konjugiertes Verb am Ende („einsetzen würde"). „Für" verlangt Akkusativ, nicht Genitiv. Mit Konjunktiv II klingt es wie eine Empfehlung.' }
+    ]
+  },
+  {
+    nr: 3,
+    fehlerart: 'Wortstellung im Infinitivsatz „um … zu"',
+    originalRich: 'Die WCO braucht die Videosequenz, um <span class="del">zu belegen den Mehraufwand</span> <span class="ins">den Mehraufwand zu belegen</span>.',
+    original: 'Die WCO braucht die Videosequenz, um zu belegen den Mehraufwand.',
+    korrektur: 'Die WCO braucht die Videosequenz, um <span class="ins">den Mehraufwand zu belegen</span>.',
+    korrekturPlain: 'Die WCO braucht die Videosequenz, um den Mehraufwand zu belegen.',
+    warum: [
+      { titel: '„um … zu + Infinitiv" steht IMMER am Satzende.',
+        text: 'Alles andere (Objekt, Adverb, Negation) kommt davor. Faustregel: erst das ganze Drumherum, dann der Schluss-Akkord mit „zu + Verb". Du hast vermutlich vom Englischen „in order to prove the additional work" gedacht — dort steht das Verb in der Mitte. Im Deutschen wandert es nach hinten.' },
+      { titel: 'Beispiele zum Mitnehmen.',
+        text: '„Ich brauche die Doku, um den Mehraufwand zu belegen." · „Wir vereinbaren einen Termin, um die Dicke zu prüfen." · „Sie macht ein Foto, um den Schaden zu dokumentieren."' }
+    ],
+    hotspots: [
+      { wort: 'zu belegen den Mehraufwand', korrektur: 'den Mehraufwand zu belegen', fehlerart: 'um-zu-Satz: Verb ans Ende',
+        warum: 'Im „um … zu"-Satz steht das „zu + Infinitiv" immer am Ende. Alles andere davor. Faustregel: erst aufbauen, dann mit „zu + Verb" abschließen.' }
+    ]
+  },
+  {
+    nr: 4,
+    fehlerart: 'V2-Inversion · Funktionsverb · Pluralfehler',
+    originalRich: 'Aus meiner Sicht <span class="del">die WCO kann</span> <span class="ins">kann die WCO</span> die Freigabe <span class="del">machen</span> <span class="ins">nicht erteilen</span><span class="del">,</span> <span class="ins">,</span> <span class="ins">solange</span> <span class="del">ohne</span> die <span class="del">ganze Dokumentationen</span> <span class="ins">Dokumentation nicht vollständig ist</span>.',
+    original: 'Aus meiner Sicht die WCO kann nicht die Freigabe machen ohne die ganze Dokumentationen.',
+    korrektur: 'Aus meiner Sicht <span class="ins">kann die WCO</span> die Freigabe <span class="ins">nicht erteilen</span>, <span class="ins">solange die Dokumentation nicht vollständig ist</span>.',
+    korrekturPlain: 'Aus meiner Sicht kann die WCO die Freigabe nicht erteilen, solange die Dokumentation nicht vollständig ist.',
+    warum: [
+      { titel: 'Steht ein Adverbial am Satzanfang, RUTSCHT das Subjekt hinter das Verb.',
+        text: '„Aus meiner Sicht" ist ein Adverbial — kein Subjekt. Das Verb bleibt aber auf Position 2. Daraus folgt: das Subjekt („die WCO") rutscht hinter das Verb („kann"). Vergleich: „Heute kommt sie." · „Vielleicht gehen wir." · „Deshalb prüft die WCO jeden Standort."' },
+      { titel: '„die Freigabe erteilen" — nicht „machen".',
+        text: '„Machen" ist zu allgemein für formale Akte. Im Behördendeutsch heißt es: eine Freigabe erteilen, ein Angebot abgeben, einen Termin vereinbaren, eine Rechnung stellen. Solche Funktionsverbgefüge sind keine Stilpolitur, sondern feste Fachsprache.' },
+      { titel: '„die ganze Dokumentation" — Singular.',
+        text: '„Dokumentation" als zählbares Konzept ist Singular. Plural „Dokumentationen" wäre nur sinnvoll, wenn du mehrere getrennte Dokumentationspakete meinst. Beim einzigen Vorgang pro Mehraufwand → Singular. Zusatztipp: „solange … nicht" ist eleganter als „ohne", wenn du auf einen unvollständigen Zustand zielst.' }
+    ],
+    hotspots: [
+      { wort: 'die WCO kann', korrektur: 'kann die WCO', fehlerart: 'V2-Inversion',
+        warum: 'Wenn ein Adverbial („Aus meiner Sicht") am Satzanfang steht, rutscht das Subjekt hinter das Verb. Verb bleibt auf Position 2.' },
+      { wort: 'machen', korrektur: 'erteilen', fehlerart: 'Funktionsverb',
+        warum: '„Die Freigabe erteilen" — nicht „machen". Behördensprache verwendet feste Funktionsverben: eine Freigabe erteilen, ein Angebot abgeben, einen Termin vereinbaren.' },
+      { wort: 'ohne die ganze Dokumentationen', korrektur: 'solange die Dokumentation nicht vollständig ist', fehlerart: 'Pluralfehler + Stil',
+        warum: '„Dokumentation" als zählbares Konzept ist Singular; der Plural „Dokumentationen" ist hier ein Übersetzungsfehler. Eleganter: „solange … nicht" statt „ohne".' }
+    ]
+  }
+];
+
+// ────────────────────────────────────────────────────────────────────
+// VARIANTE A — Karten gestapelt
+// ────────────────────────────────────────────────────────────────────
+function renderVA() {
+  var c = document.getElementById('va-container');
+  c.innerHTML = '';
+  SAETZE.forEach(function(s) {
+    var html = '';
+    html += '<div class="va-karte">';
+    html += '  <span class="va-nr">Satz ' + s.nr + '</span>';
+    html += '  <div class="va-original">' + s.originalRich + '</div>';
+    html += '  <div class="va-pfeil">↓</div>';
+    html += '  <div class="va-korrektur">' + s.korrektur + '</div>';
+    html += '  <div class="va-warum">';
+    html += '    <div class="va-warum-label">Warum · ' + s.fehlerart + '</div>';
+    s.warum.forEach(function(w) {
+      html += '    <div class="va-warum-titel">' + w.titel + '</div>';
+      html += '    <div class="va-warum-text">' + w.text + '</div>';
+    });
+    html += '  </div>';
+    html += '</div>';
+    c.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────
+// VARIANTE B — Diptychon
+// ────────────────────────────────────────────────────────────────────
+function renderVB() {
+  var c = document.getElementById('vb-container');
+  c.innerHTML = '';
+  SAETZE.forEach(function(s, i) {
+    var html = '';
+    html += '<div class="vb-karte">';
+    html += '  <div class="vb-header"><span class="vb-nr">Satz ' + s.nr + '</span><span class="vb-fehlerart">' + s.fehlerart + '</span></div>';
+    html += '  <div class="vb-cols">';
+    html += '    <div class="vb-col original"><div class="vb-col-label">Dein Satz</div>' + s.original + '</div>';
+    html += '    <div class="vb-col korrektur"><div class="vb-col-label">So funktioniert er</div>' + s.korrekturPlain + '</div>';
+    html += '  </div>';
+    html += '  <div class="vb-warum" onclick="this.classList.toggle(\'open\')">';
+    html += '    <span class="vb-warum-toggle">Warum?</span>';
+    html += '    <div class="vb-warum-body">';
+    s.warum.forEach(function(w) {
+      html += '<div class="vb-warum-titel">' + w.titel + '</div>';
+      html += '<div>' + w.text + '</div>';
+    });
+    html += '    </div>';
+    html += '  </div>';
+    html += '</div>';
+    c.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────
+// VARIANTE C — Inline mit Marginalia
+// ────────────────────────────────────────────────────────────────────
+function renderVC() {
+  var c = document.getElementById('vc-container');
+  c.innerHTML = '';
+  SAETZE.forEach(function(s) {
+    var html = '';
+    html += '<div class="vc-row">';
+    html += '  <div class="vc-satz"><span class="nr">Satz ' + s.nr + '</span>' + s.originalRich + '</div>';
+    html += '  <div class="vc-marginalia">';
+    html += '    <div class="vc-marginalia-titel">' + s.fehlerart + '</div>';
+    s.warum.forEach(function(w, i) {
+      html += '<div style="margin-bottom:8px"><strong>' + w.titel + '</strong><br>' + w.text + '</div>';
+    });
+    html += '  </div>';
+    html += '</div>';
+    c.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────
+// VARIANTE D — Werkstattisch (interaktiv)
+// ────────────────────────────────────────────────────────────────────
+function renderVD() {
+  var c = document.getElementById('vd-container');
+  c.innerHTML = '';
+  SAETZE.forEach(function(s, sidx) {
+    var satzText = s.original;
+    // ersetze in satzText jeden Hotspot durch span.hot
+    s.hotspots.forEach(function(h, hidx) {
+      var hotHtml = '<span class="hot" data-satz="' + sidx + '" data-hot="' + hidx + '" onclick="vdToggle(' + sidx + ', ' + hidx + ')">' + h.wort + '</span>';
+      satzText = satzText.replace(h.wort, hotHtml);
+    });
+    var html = '';
+    html += '<div class="vd-tisch">';
+    html += '  <div class="vd-original"><span class="nr">Satz ' + s.nr + '</span>' + satzText + '</div>';
+    html += '  <ul class="vd-werkstattliste" id="vd-liste-' + sidx + '">';
+    s.hotspots.forEach(function(h, hidx) {
+      html += '<li id="vd-eintrag-' + sidx + '-' + hidx + '">';
+      html += '  <div class="vd-diagnose">';
+      html += '    <span class="vd-was-stand">' + h.wort + '</span>';
+      html += '    <span class="vd-pfeil">→</span>';
+      html += '    <span class="vd-was-sollte">' + h.korrektur + '</span>';
+      html += '    <span class="vd-fehlerart">' + h.fehlerart + '</span>';
+      html += '  </div>';
+      html += '  <div class="vd-warum">' + h.warum + '</div>';
+      html += '</li>';
+    });
+    html += '  </ul>';
+    html += '</div>';
+    c.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+function vdToggle(sidx, hidx) {
+  var hot = document.querySelector('[data-satz="' + sidx + '"][data-hot="' + hidx + '"]');
+  var li  = document.getElementById('vd-eintrag-' + sidx + '-' + hidx);
+  if (hot) hot.classList.toggle('open');
+  if (li)  li.classList.toggle('open');
+}
+
+function vdToggleAll() {
+  var alle = document.querySelectorAll('#vd-container .vd-werkstattliste li');
+  var allOpen = Array.from(alle).every(function(li) { return li.classList.contains('open'); });
+  alle.forEach(function(li) { li.classList.toggle('open', !allOpen); });
+  document.querySelectorAll('#vd-container .hot').forEach(function(hot) { hot.classList.toggle('open', !allOpen); });
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Init
+// ────────────────────────────────────────────────────────────────────
+renderVA();
+renderVB();
+renderVC();
+renderVD();
+</script>
+</body>
+</html>
