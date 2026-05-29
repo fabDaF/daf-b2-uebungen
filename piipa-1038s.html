@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wie funktioniert unser Gedächtnis? · Korrektur für Piipa · C1 1038S</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       min-height: 100vh; padding: 20px; }
+.container { max-width: 1100px; margin: 0 auto; background: white;
+             border-radius: 12px; overflow: hidden;
+             box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 1.9em; font-family: Georgia, serif; color: white; margin-bottom: 8px; }
+.header p { font-size: 1.0em; font-family: Georgia, serif; opacity: 0.95; }
+.header .meta { font-size: 0.85em; margin-top: 6px; opacity: 0.85; font-style: italic; }
+.header .big-emoji { font-size: 2.6em; margin-top: 12px; }
+
+.body-area { padding: 40px 50px; }
+
+.regie {
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+  border-left: 4px solid #f9a825; border-radius: 0 8px 8px 0;
+  padding: 18px 22px; margin-bottom: 36px;
+  font-size: 0.95em; line-height: 1.6; color: #5d4037;
+}
+.regie strong { color: #e65100; }
+
+/* ── Aufgaben-Überschrift ── */
+.aufgabe-title {
+  font-family: Georgia, serif; font-size: 1.35em; color: #4527a0;
+  margin: 8px 0 18px 0; padding-bottom: 10px;
+  border-bottom: 3px solid #ede7f6;
+}
+.aufgabe-title .a-nr {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.6em; font-weight: 700;
+  background: #4527a0; color: white; padding: 4px 11px; border-radius: 12px;
+  vertical-align: middle; margin-right: 12px; letter-spacing: 0.06em;
+}
+.aufgabe-section { margin-bottom: 56px; }
+
+/* ── „Dein Text“ — als ehrwürdiger Block ── */
+.dein-text-box {
+  background: #fafafa; border: 1px solid #e8e8e8; border-radius: 10px;
+  padding: 22px 30px; margin-bottom: 30px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto;
+  max-width: 820px;
+}
+.dein-text-label {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.72em; font-weight: 700;
+  color: #888; letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ── Inline-Korrektur ── */
+.satz-inline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.22em; line-height: 2.05;
+  color: #2c2c2c;
+  margin-bottom: 24px;
+}
+.satz-inline .nr {
+  background: #667eea; color: white; font-size: 0.55em; font-weight: 700;
+  padding: 4px 10px; border-radius: 12px; vertical-align: middle;
+  margin-right: 14px; letter-spacing: 0.06em;
+  font-family: 'Segoe UI', sans-serif;
+}
+.satz-inline .del { text-decoration: line-through; color: #c62828; text-decoration-thickness: 1.5px; }
+.satz-inline .ins {
+  background: #c8e6c9; color: #1b5e20;
+  padding: 2px 6px; border-radius: 4px; font-weight: 600;
+}
+
+.satz-block {
+  margin-bottom: 48px; padding-bottom: 30px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.satz-block:last-child { border-bottom: none; }
+
+/* ── Mini-Lehrstücke (E2-Grid) ── */
+.lehrstuecke-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #888;
+  margin: 20px 0 18px 0;
+}
+.lehrstuecke-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+}
+.lehr-karte {
+  background: white; border: 1px solid #e8e8e8; border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex; flex-direction: column;
+}
+.fehler-name {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #f9a825;
+  margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 2px solid #fff8e1;
+}
+.regel {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.65;
+  color: #2c2c2c; margin-bottom: 14px;
+  font-weight: 500;
+}
+.beispiele {
+  background: #f8f9ff; border-radius: 8px;
+  padding: 12px 16px;
+  font-family: Georgia, serif; font-size: 0.92em; line-height: 1.65;
+  color: #3949ab;
+  margin-bottom: 18px;
+}
+.beispiele .b-zeile { display: block; margin-bottom: 4px; }
+.beispiele .b-zeile:last-child { margin-bottom: 0; }
+
+/* ── Mikro-Übung pro Karte ── */
+.uebung {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed #e0e8ff;
+}
+.uebung-kopf {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.uebung-label {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #667eea;
+}
+.uebung-ctrl { display: flex; gap: 5px; }
+.u-btn {
+  background: #f5f7ff; border: 1px solid #c5cff5;
+  color: #667eea; padding: 4px 10px; border-radius: 6px;
+  font-size: 0.75em; font-weight: 600; cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  transition: all 0.15s; line-height: 1.3;
+}
+.u-btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.uebung-item {
+  font-family: Georgia, serif; font-size: 0.98em; line-height: 1.95;
+  color: #2c2c2c; margin-bottom: 6px;
+}
+.u-inp {
+  border: none; border-bottom: 2px solid #667eea;
+  background: transparent;
+  font-family: inherit; font-size: 1em;
+  color: #1a237e; font-weight: 600;
+  outline: none; padding: 0 4px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.u-inp.ok    { border-bottom-color: #27ae60; color: #27ae60; }
+.u-inp.wrong { border-bottom-color: #e74c3c; color: #e74c3c; }
+.u-inp.w-art { width: 56px; }
+.u-inp.w-mid { width: 96px; }
+.u-inp.w-wide { width: 150px; }
+.u-inp.w-xl { width: 230px; }
+.u-fertig {
+  display: none;
+  margin-top: 12px;
+  font-size: 0.88em; color: #1b5e20; font-weight: 600;
+  background: #e8f5e9; padding: 8px 12px; border-radius: 6px;
+}
+.uebung.done .u-fertig { display: block; }
+
+/* ── Footer ── */
+.author-footer { text-align: center; margin: 28px auto 0 auto;
+                 max-width: 1100px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+
+@media (max-width: 700px) {
+  .body-area { padding: 24px 22px; }
+  .satz-inline { font-size: 1.1em; line-height: 1.95; }
+  .lehrstuecke-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <h1>Wie funktioniert unser Gedächtnis?</h1>
+  <p>C1 – Privatlektion 1038S · Schreibwerkstatt (vier Aufgaben)</p>
+  <p class="meta">Schreibwerkstatt-Korrektur für Piipa Poutiainen</p>
+  <div class="big-emoji">🧠</div>
+</div>
+
+<div class="body-area">
+
+  <div class="regie">
+    <strong>Liebe Piipa,</strong> du hast gleich vier Aufgaben auf einmal geschickt — das ist viel Mut und viel Material, danke dafür. Ich habe deine vier Antworten <em>nicht</em> zu einem glatten Text verschmolzen, sondern jede so gelassen, wie du sie geschrieben hast, und dann Satz für Satz die Stellen markiert, an denen du wachsen kannst. Eine Sache fällt mir sofort auf, und sie ist deine größte Chance: das Verb <strong>„sich erinnern an“</strong> kommt bei dir viermal vor und verrutscht jedes Mal an derselben Stelle. Wenn du diese eine Konstruktion festziehst, gewinnst du auf einen Schlag an vier Stellen. Schauen wir es uns gemeinsam an.
+  </div>
+
+  <!-- ════════════════════ AUFGABE 1 ════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 1</span>Welche Erinnerung hält besonders gut?</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Deine Antwort — so wie du sie geschickt hast</div>
+      <p>Ich erinnere mich ganz gut alle Sommerferien aus meinem Kindheit. Wir sind immer nach Deutschland mit dem Auto gefahren und meine Cousine getroffen. Wir haben viele Eis gegessen.</p>
+    </div>
+
+    <!-- Satz 1 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        Ich erinnere mich <span class="ins">gut an</span> <span class="del">ganz gut</span> alle Sommerferien aus <span class="del">meinem</span> <span class="ins">meiner</span> Kindheit.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">★ sich erinnern an + Akkusativ</div>
+          <div class="regel">„Sich erinnern“ verlangt immer die Präposition „an“ und danach den Akkusativ. Das ist dein Schlüsselverb in dieser Lektion.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Ich erinnere mich an die Sommerferien.</span>
+            <span class="b-zeile">Ich erinnere mich an meine Cousine.</span>
+            <span class="b-zeile">Faustformel: sich + erinnern + AN + Akkusativ.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — setze „an“ + Artikel</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich erinnere mich <input class="u-inp w-art" data-sol="an" placeholder="…"> die Ferien.</div>
+            <div class="uebung-item">Erinnerst du dich <input class="u-inp w-art" data-sol="an" placeholder="…"> den Sommer?</div>
+            <div class="uebung-item">Sie erinnert sich gern <input class="u-inp w-art" data-sol="an" placeholder="…"> ihre Kindheit.</div>
+            <div class="u-fertig">✓ Du hast es! „sich erinnern an“ sitzt — merk dir das, es kommt gleich wieder.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Genus + Präposition „aus“</div>
+          <div class="regel">„Kindheit“ ist feminin: die Kindheit. Nach „aus“ steht der Dativ, also: aus meiner Kindheit.</div>
+          <div class="beispiele">
+            <span class="b-zeile">die Kindheit · die Freiheit · die Gesundheit</span>
+            <span class="b-zeile">Wörter auf -heit / -keit sind immer feminin.</span>
+            <span class="b-zeile">aus + Dativ: aus meiner Kindheit, aus der Stadt.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — Possessiv im Dativ</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">aus <input class="u-inp w-mid" data-sol="meiner" placeholder="…"> Kindheit</div>
+            <div class="uebung-item">aus <input class="u-inp w-mid" data-sol="meiner" placeholder="…"> Schulzeit</div>
+            <div class="uebung-item">eine Frau auf -heit ist immer <input class="u-inp w-mid" data-sol="feminin" placeholder="…"></div>
+            <div class="u-fertig">✓ Du hast es! -heit ist feminin, „aus“ nimmt den Dativ.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Satz 2 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 2</span>
+        Wir sind immer <span class="ins">mit dem Auto</span> nach Deutschland <span class="del">mit dem Auto</span> gefahren und <span class="ins">haben</span> meine Cousine getroffen.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Perfekt: haben oder sein?</div>
+          <div class="regel">Bewegungsverben bilden das Perfekt mit „sein“ (gefahren), die meisten anderen mit „haben“ (getroffen). Bei zwei Verben muss jedes sein eigenes Hilfsverb bekommen.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Wir sind gefahren. (Bewegung → sein)</span>
+            <span class="b-zeile">Wir haben getroffen / gegessen / gesehen. (→ haben)</span>
+            <span class="b-zeile">Darum: sind gefahren UND haben getroffen.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — haben oder sein?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Wir <input class="u-inp w-mid" data-sol="sind" placeholder="…"> gefahren.</div>
+            <div class="uebung-item">Wir <input class="u-inp w-mid" data-sol="haben" placeholder="…"> sie getroffen.</div>
+            <div class="uebung-item">Ich <input class="u-inp w-mid" data-sol="bin" placeholder="…"> nach Hause gekommen.</div>
+            <div class="u-fertig">✓ Du hast es! Bewegung → sein, der Rest → haben.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Wortstellung: erst wie, dann wohin</div>
+          <div class="regel">Im Mittelfeld gilt die Reihenfolge Zeit – Art – Ort/Richtung (TeKaMoLo). „Wie“ (mit dem Auto) steht vor „wohin“ (nach Deutschland).</div>
+          <div class="beispiele">
+            <span class="b-zeile">… mit dem Auto nach Deutschland gefahren.</span>
+            <span class="b-zeile">… mit dem Zug in die Stadt gefahren.</span>
+            <span class="b-zeile">Merksatz: zuerst das Mittel, dann das Ziel.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — was kommt zuerst?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Wir fuhren <input class="u-inp w-wide" data-sol="mit dem Auto" placeholder="…"> nach Berlin.</div>
+            <div class="uebung-item">Sie reist <input class="u-inp w-wide" data-sol="mit dem Zug" placeholder="…"> nach Wien.</div>
+            <div class="u-fertig">✓ Du hast es! Erst das Mittel, dann das Ziel.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Satz 3 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 3</span>
+        Wir haben <span class="del">viele</span> <span class="ins">viel</span> Eis gegessen.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">viel oder viele?</div>
+          <div class="regel">Bei nicht zählbaren Stoffen (Eis, Wasser, Zeit) steht „viel“ ohne Endung. „Viele“ nur bei zählbaren Dingen im Plural.</div>
+          <div class="beispiele">
+            <span class="b-zeile">viel Eis · viel Wasser · viel Zeit (nicht zählbar)</span>
+            <span class="b-zeile">viele Kugeln · viele Tage · viele Fotos (zählbar)</span>
+            <span class="b-zeile">Trick: Kann man „eins, zwei, drei …“ zählen? → viele.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — viel oder viele?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Wir haben <input class="u-inp w-mid" data-sol="viel" placeholder="…"> Eis gegessen.</div>
+            <div class="uebung-item">Sie hatte <input class="u-inp w-mid" data-sol="viele" placeholder="…"> Ideen.</div>
+            <div class="uebung-item">Ich habe <input class="u-inp w-mid" data-sol="viel" placeholder="…"> Zeit.</div>
+            <div class="u-fertig">✓ Du hast es! Zählbar → viele, Stoff → viel.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════ AUFGABE 2 ════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 2</span>Outsourcing oder Befreiung?</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Deine Antwort — so wie du sie geschickt hast</div>
+      <p>Ich finde das als eine sinnvolle Befreiung der Kapasität. Man sollte nur erinnen was wichtig ist und Kapasität speichern. Man muss Kapasität sparen für wichtige Sachen.</p>
+    </div>
+
+    <!-- Satz 1 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        Ich <span class="del">finde</span> <span class="ins">halte</span> das <span class="del">als</span> <span class="ins">für</span> eine sinnvolle Befreiung der <span class="del">Kapasität</span> <span class="ins">Kapazität</span>.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">halten für / finden</div>
+          <div class="regel">„Finden“ steht nie mit „als“. Du hast zwei saubere Wege: „etwas für etwas halten“ oder „etwas + Adjektiv finden“.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Ich halte das für sinnvoll.</span>
+            <span class="b-zeile">Ich finde das sinnvoll.</span>
+            <span class="b-zeile">Falsch: Ich finde das als sinnvoll.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — halten + ?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich halte das <input class="u-inp w-art" data-sol="für" placeholder="…"> klug.</div>
+            <div class="uebung-item">Wir halten ihn <input class="u-inp w-art" data-sol="für" placeholder="…"> ehrlich.</div>
+            <div class="uebung-item">Ich <input class="u-inp w-mid" data-sol="finde" placeholder="…"> das gut. (ohne „als“)</div>
+            <div class="u-fertig">✓ Du hast es! halten FÜR, finden + Adjektiv.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Rechtschreibung: Kapazität</div>
+          <div class="regel">„Kapazität“ schreibt man mit „z“, nicht mit „s“. Dieses Wort kommt bei dir dreimal vor — einmal richtig gelernt, dreimal gewonnen.</div>
+          <div class="beispiele">
+            <span class="b-zeile">die Kapazität · die Kapazitäten</span>
+            <span class="b-zeile">verwandt: das Kapital, der Kapitän — immer mit „a“.</span>
+            <span class="b-zeile">Sprich innerlich „ka-pa-zi-tät“.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — setze den fehlenden Buchstaben</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Kapa<input class="u-inp w-art" data-sol="z" placeholder="…">ität</div>
+            <div class="uebung-item">die Kapa<input class="u-inp w-art" data-sol="z" placeholder="…">itäten</div>
+            <div class="u-fertig">✓ Du hast es! Kapazität — mit „z“.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Satz 2 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 2</span>
+        Man sollte <span class="ins">sich</span> nur <span class="del">erinnen</span> <span class="ins">merken</span><span class="ins">,</span> was wichtig ist<span class="ins">,</span> und <span class="del">Kapasität</span> <span class="ins">Kapazität</span> speichern.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">sich merken (nicht „erinnen“)</div>
+          <div class="regel">Wenn man etwas neu im Kopf behält, heißt das „sich etwas merken“. „Sich erinnern“ heißt dagegen, etwas wieder hervorzuholen. Zwei Verben, zwei Richtungen.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Ich merke mir die Nummer. (hinein)</span>
+            <span class="b-zeile">Ich erinnere mich an die Nummer. (heraus)</span>
+            <span class="b-zeile">Beide sind reflexiv: sich merken, sich erinnern.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — merken oder erinnern?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Neues behalten: sich etwas <input class="u-inp w-mid" data-sol="merken" placeholder="…"></div>
+            <div class="uebung-item">Altes hervorholen: sich <input class="u-inp w-mid" data-sol="erinnern" placeholder="…"></div>
+            <div class="u-fertig">✓ Du hast es! merken = hinein, erinnern = heraus.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Komma vor dem Nebensatz</div>
+          <div class="regel">Ein Nebensatz mit „was“, „dass“, „weil“ oder „wenn“ wird immer mit Komma abgetrennt — vorne und, wenn er eingeschoben ist, auch hinten.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Man sollte sich merken, was wichtig ist.</span>
+            <span class="b-zeile">Ich weiß, dass du Recht hast.</span>
+            <span class="b-zeile">Eingeschoben: …, was wichtig ist, und …</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — Komma ja oder nein?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Man merkt sich<input class="u-inp w-art" data-sol="," placeholder="…"> was zählt.</div>
+            <div class="uebung-item">Ich weiß<input class="u-inp w-art" data-sol="," placeholder="…"> dass es stimmt.</div>
+            <div class="u-fertig">✓ Du hast es! Vor „was/dass“ kommt ein Komma.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Satz 3 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 3</span>
+        Man muss <span class="del">Kapasität</span> <span class="ins">Kapazität</span> <span class="ins">für wichtige Sachen</span> sparen <span class="del">für wichtige Sachen</span>.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Verbklammer: Verb ans Ende</div>
+          <div class="regel">Nach einem Modalverb (muss, sollte, kann) wandert der Infinitiv ganz ans Satzende. Alle Ergänzungen stehen davor.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Man muss Kapazität für Wichtiges sparen.</span>
+            <span class="b-zeile">Ich will heute den Text lesen.</span>
+            <span class="b-zeile">Klammer: muss … sparen, will … lesen.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — wohin mit dem Verb?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Man muss Kraft für Wichtiges <input class="u-inp w-mid" data-sol="sparen" placeholder="…">.</div>
+            <div class="uebung-item">Ich will den Text heute <input class="u-inp w-mid" data-sol="lesen" placeholder="…">.</div>
+            <div class="u-fertig">✓ Du hast es! Der Infinitiv steht ganz hinten.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════ AUFGABE 3 ════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 3</span>Probiere die Loci-Methode</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Deine Antwort — so wie du sie geschickt hast</div>
+      <p>Ja, ich kann immer ganz gut mit Bilder lernen oder wenn ich erinnere mich wo ich war wenn ich etwas gesehen habe.</p>
+    </div>
+
+    <!-- Satz 1 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        Ja, ich kann immer ganz gut mit <span class="del">Bilder</span> <span class="ins">Bildern</span> lernen<span class="ins">,</span> oder wenn ich <span class="ins">mich daran</span> <span class="del">erinnere mich</span> erinnere, wo ich war, <span class="del">wenn</span> <span class="ins">als</span> ich etwas gesehen habe.
+      </div>
+      <div class="lehrstuecke-titel">Drei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Dativ Plural mit -n</div>
+          <div class="regel">Nach „mit“ steht der Dativ. Im Dativ Plural bekommt fast jedes Nomen ein zusätzliches -n.</div>
+          <div class="beispiele">
+            <span class="b-zeile">mit den Bildern · mit den Kindern · mit den Freunden</span>
+            <span class="b-zeile">Singular: das Bild → Plural: die Bilder → Dativ: den Bildern</span>
+            <span class="b-zeile">Ausnahme: Plural auf -s (mit den Autos).</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — Dativ Plural</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich lerne mit <input class="u-inp w-mid" data-sol="Bildern" placeholder="…">.</div>
+            <div class="uebung-item">Sie spielt mit den <input class="u-inp w-mid" data-sol="Kindern" placeholder="…">.</div>
+            <div class="u-fertig">✓ Du hast es! Dativ Plural → -n.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">★ Nebensatz: sich erinnern hinten</div>
+          <div class="regel">Im Nebensatz (nach „wenn“) steht das Verb am Ende, und das Reflexivpronomen „mich“ rückt nach vorne: „wenn ich mich daran erinnere“. Wieder dein Schlüsselverb!</div>
+          <div class="beispiele">
+            <span class="b-zeile">…, wenn ich mich daran erinnere.</span>
+            <span class="b-zeile">…, weil ich mich an den Ort erinnere.</span>
+            <span class="b-zeile">Reflexiv vorne, Verb ganz hinten.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — bring es in Ordnung</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">…, wenn ich <input class="u-inp w-art" data-sol="mich" placeholder="…"> daran <input class="u-inp w-mid" data-sol="erinnere" placeholder="…">.</div>
+            <div class="uebung-item">…, weil ich <input class="u-inp w-art" data-sol="mich" placeholder="…"> erinnere.</div>
+            <div class="u-fertig">✓ Du hast es! Reflexiv vorne, Verb hinten.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">als oder wenn?</div>
+          <div class="regel">Für ein einmaliges Ereignis in der Vergangenheit benutzt man „als“. „Wenn“ nur für Wiederholung oder die Zukunft.</div>
+          <div class="beispiele">
+            <span class="b-zeile">…, als ich etwas gesehen habe. (einmalig, Vergangenheit)</span>
+            <span class="b-zeile">Immer wenn es regnet, bleibe ich zu Hause. (Wiederholung)</span>
+            <span class="b-zeile">Merksatz: einmal + früher = als.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — als oder wenn?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">…, <input class="u-inp w-mid" data-sol="als" placeholder="…"> ich es gesehen habe.</div>
+            <div class="uebung-item">Immer <input class="u-inp w-mid" data-sol="wenn" placeholder="…"> ich übe, wird es besser.</div>
+            <div class="u-fertig">✓ Du hast es! einmal + früher = als.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════ AUFGABE 4 ════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 4</span>Falsche Erinnerungen</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Deine Antwort — so wie du sie geschickt hast</div>
+      <p>Neue Synopsis kann nicht alles erinnen. Dafür kann auch falsche Erinnerungen passieren. Ich erinnere mich oft die Artikel falsch oder etwas zu Hause zu tun.</p>
+    </div>
+
+    <!-- Satz 1 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        Neue <span class="del">Synopsis</span> <span class="ins">Synapsen</span> <span class="del">kann</span> <span class="ins">können</span> <span class="del">nicht alles erinnen</span> <span class="ins">sich nicht alles merken</span>.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke + ein Wort-Hinweis</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Wort-Hinweis: die Synapse</div>
+          <div class="regel">Du meintest sehr wahrscheinlich „die Synapse“ — die Verbindung zwischen zwei Nervenzellen. Im Plural: die Synapsen. „Synopsis“ ist eine Inhaltsangabe und passt hier nicht.</div>
+          <div class="beispiele">
+            <span class="b-zeile">die Synapse → die Synapsen</span>
+            <span class="b-zeile">die Nervenzelle · das Neuron · das Gedächtnis</span>
+            <span class="b-zeile">Ein schönes Fachwort für deinen C1-Wortschatz.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — Singular und Plural</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">eine einzelne <input class="u-inp w-mid" data-sol="Synapse" placeholder="…"></div>
+            <div class="uebung-item">viele <input class="u-inp w-mid" data-sol="Synapsen" placeholder="…"></div>
+            <div class="u-fertig">✓ Du hast es! die Synapse → die Synapsen.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Subjekt-Verb-Kongruenz</div>
+          <div class="regel">Ein Plural-Subjekt verlangt ein Plural-Verb. „Synapsen“ ist Plural, also „können“, nicht „kann“.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Die Synapse kann … (Singular)</span>
+            <span class="b-zeile">Die Synapsen können … (Plural)</span>
+            <span class="b-zeile">Erst das Subjekt zählen, dann das Verb wählen.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — kann oder können?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Die Synapsen <input class="u-inp w-mid" data-sol="können" placeholder="…"> sich vernetzen.</div>
+            <div class="uebung-item">Das Gehirn <input class="u-inp w-mid" data-sol="kann" placeholder="…"> viel speichern.</div>
+            <div class="u-fertig">✓ Du hast es! Plural-Subjekt → Plural-Verb.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Satz 2 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 2</span>
+        <span class="del">Dafür</span> <span class="ins">Dabei</span> <span class="del">kann</span> <span class="ins">können</span> auch falsche Erinnerungen <span class="del">passieren</span> <span class="ins">entstehen</span>.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">dabei statt dafür</div>
+          <div class="regel">„Dabei“ heißt „währenddessen / in diesem Vorgang“. „Dafür“ heißt „als Gegenleistung“ und passt hier nicht.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Dabei entstehen oft Fehler. (währenddessen)</span>
+            <span class="b-zeile">Ich helfe dir, dafür hilfst du mir. (Gegenleistung)</span>
+            <span class="b-zeile">Vorgang läuft → „dabei“.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — dabei oder dafür?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Das Gehirn ordnet — <input class="u-inp w-mid" data-sol="dabei" placeholder="…"> entstehen Fehler.</div>
+            <div class="uebung-item">Du kochst, <input class="u-inp w-mid" data-sol="dafür" placeholder="…"> spüle ich ab.</div>
+            <div class="u-fertig">✓ Du hast es! Vorgang → dabei, Tausch → dafür.</div>
+          </div>
+        </div>
+
+        <div class="lehr-karte">
+          <div class="fehler-name">Kollokation: Erinnerungen entstehen</div>
+          <div class="regel">Erinnerungen „passieren“ nicht — sie „entstehen“. Das ist die feste Verbindung im Deutschen.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Eine Erinnerung entsteht.</span>
+            <span class="b-zeile">Ein Bild entsteht im Kopf.</span>
+            <span class="b-zeile">„passieren“ nur für Ereignisse: Ein Unfall passiert.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — entstehen oder passieren?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Falsche Erinnerungen <input class="u-inp w-wide" data-sol="entstehen" placeholder="…">.</div>
+            <div class="uebung-item">Ein Unfall <input class="u-inp w-wide" data-sol="passiert" placeholder="…">.</div>
+            <div class="u-fertig">✓ Du hast es! Erinnerungen entstehen.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Satz 3 -->
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 3</span>
+        Ich erinnere mich oft falsch <span class="ins">an</span> die Artikel<span class="ins">,</span> oder <span class="ins">ich vergesse,</span> etwas zu Hause zu tun.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+
+        <div class="lehr-karte">
+          <div class="fehler-name">★ sich erinnern an — zum vierten Mal</div>
+          <div class="regel">Hier ist es wieder: „sich erinnern an + Akkusativ“. Du erinnerst dich falsch AN die Artikel. Genau dieselbe Konstruktion wie in Aufgabe 1 und 3 — jetzt sitzt sie hoffentlich.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Ich erinnere mich an die Artikel.</span>
+            <span class="b-zeile">Ich erinnere mich falsch an den Termin.</span>
+            <span class="b-zeile">Immer: erinnern + AN + Akkusativ.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Probier selbst — die ganze Klammer</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich erinnere <input class="u-inp w-art" data-sol="mich" placeholder="…"> oft falsch <input class="u-inp w-art" data-sol="an" placeholder="…"> die Artikel.</div>
+            <div class="uebung-item">Erinnerst du <input class="u-inp w-art" data-sol="dich" placeholder="…"> <input class="u-inp w-art" data-sol="an" placeholder="…"> den Plan?</div>
+            <div class="u-fertig">✓ Du hast es! sich + erinnern + an + Akkusativ — viermal gewonnen.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="author-footer">
+  <span style="font-weight:700">© Frank Burkert</span> · DaF-Materialien ·
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// Live-Feedback für alle .u-inp-Felder
+function lieveCheck(inp) {
+  var val = (inp.value || '').trim();
+  var sol = inp.dataset.sol || '';
+  inp.classList.remove('ok', 'wrong');
+  if (!val) return;
+  if (val === sol) {
+    inp.classList.add('ok');
+    checkKartenDone(inp.closest('.uebung'));
+    return;
+  }
+  // case-sensitive Präfix-Check
+  if (!sol.startsWith(val)) {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkKartenDone(uebung) {
+  if (!uebung) return;
+  var inputs = uebung.querySelectorAll('.u-inp');
+  var alleOk = Array.from(inputs).every(function(i) { return i.classList.contains('ok'); });
+  uebung.classList.toggle('done', alleOk);
+}
+
+document.querySelectorAll('.u-inp').forEach(function(inp) {
+  inp.addEventListener('input', function() { lieveCheck(inp); });
+});
+
+function showCardSolution(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = inp.dataset.sol || '';
+    inp.classList.remove('wrong');
+    inp.classList.add('ok');
+  });
+  uebung.classList.add('done');
+}
+
+function resetCard(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = '';
+    inp.classList.remove('ok', 'wrong');
+  });
+  uebung.classList.remove('done');
+}
+</script>
+</body>
+</html>
