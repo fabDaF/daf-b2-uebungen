@@ -107,9 +107,8 @@ input.blank.wrong { border-color: #e74c3c; color: #e74c3c; }
 /* Wortkasten */
 .wort-bank { display:flex; flex-wrap:wrap; gap:8px; background:#f0f2ff; border:1px solid #c5cae9; border-radius:10px; padding:12px 14px; margin-bottom:18px; }
 .wort-bank-label { width:100%; font-size:0.78em; font-weight:700; color:#667eea; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; }
-.wort-chip { padding:5px 14px; border-radius:20px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; font-size:0.87em; font-weight:600; cursor:pointer; border:none; transition:opacity 0.2s,transform 0.12s; user-select:none; }
-.wort-chip:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 10px rgba(102,126,234,0.35); }
-.wort-chip.used { opacity:0.22; cursor:default; pointer-events:none; }
+.wort-chip { padding:5px 12px; border-radius:14px; background:white; border:2px solid #667eea; color:#667eea; font-size:0.9em; font-weight:500; user-select:none; }
+.wort-chip.used { opacity:0.35; text-decoration:line-through; }
 </style>
 </head>
 <body>
@@ -480,7 +479,7 @@ function mcCheck(step, btn, correct) {
 /* ===== LIVE-CHECK (Lückentext) ===== */
 function liveCheck(inp) {
     var val = inp.value.trim();
-    var ans = (inp.dataset.answer || '').toLowerCase();
+    var ans = (inp.dataset.answer || '');
     inp.classList.remove('correct', 'wrong');
     if (!val) return;
     if (val === ans) {
@@ -935,7 +934,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // ── WORTKASTEN ──────────────────────────────────────────────────────────────
-var lkContainer = null, lkActiveInput = null;
+var lkContainer = null;
 function buildWordBank(containerEl) {
     if (!containerEl) return;
     lkContainer = containerEl;
@@ -955,19 +954,14 @@ function buildWordBank(containerEl) {
     bank.className = 'wort-bank';
     var lbl = document.createElement('div');
     lbl.className = 'wort-bank-label';
-    lbl.textContent = '📦 Wortkasten – klicke ein Wort, dann das Feld';
+    lbl.textContent = '🔤 Wortbank – tipp die richtigen Wörter selbst in die Lücken (achte auf Groß- und Kleinschreibung).';
     bank.appendChild(lbl);
     words.forEach(function(w) {
-        var btn = document.createElement('button');
+        var btn = document.createElement('span');
         btn.className = 'wort-chip'; btn.textContent = w; btn.dataset.word = w;
-        btn.addEventListener('click', function(){ insertWordFromBank(w); });
         bank.appendChild(btn);
     });
     containerEl.insertBefore(bank, containerEl.firstChild);
-    containerEl.addEventListener('focusin', function(e) {
-        if (e.target.matches('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer],input[data-sol]'))
-            lkActiveInput = e.target;
-    });
     containerEl.addEventListener('input', function(e) {
         if (e.target.matches('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer],input[data-sol]'))
             syncWordBankChips();
@@ -977,22 +971,13 @@ function syncWordBankChips() {
     if (!lkContainer) return;
     var bank = lkContainer.querySelector('.wort-bank');
     if (!bank) return;
-    bank.querySelectorAll('.wort-chip').forEach(function(c){ c.classList.remove('used'); });
-    lkContainer.querySelectorAll('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer],input[data-sol]').forEach(function(inp) {
-        var w = inp.value.trim();
-        if (w) { var c = bank.querySelector('.wort-chip[data-word="'+w+'"]'); if(c) c.classList.add('used'); }
+    var solved = Array.from(lkContainer.querySelectorAll('input.ok, input.correct')).map(function(i){ return i.value.trim(); });
+    var remaining = solved.slice();
+    Array.from(bank.querySelectorAll('.wort-chip')).forEach(function(chip) {
+        var idx = remaining.indexOf(chip.dataset.word);
+        if (idx >= 0) { chip.classList.add('used'); remaining.splice(idx, 1); }
+        else { chip.classList.remove('used'); }
     });
-}
-function insertWordFromBank(w) {
-    if (!lkContainer) return;
-    var all = Array.from(lkContainer.querySelectorAll('input.blank,input.l-inp,input.luecken-inp,input[data-ans],input[data-answer],input[data-sol]'));
-    var ok = function(i){ return !i.classList.contains('correct')&&!i.classList.contains('ok'); };
-    var t = (lkActiveInput && lkContainer.contains(lkActiveInput) && ok(lkActiveInput)) ? lkActiveInput
-          : (all.find(function(i){ return !i.value && ok(i); }) || all.find(ok));
-    if (!t) return;
-    t.value = w;
-    t.dispatchEvent(new Event('input',{bubbles:true}));
-    t.focus(); lkActiveInput = t;
 }
 // ────────────────────────────────────────────────────────────────────────────
 
