@@ -228,6 +228,34 @@ eine eigene Domain wie `daf.frankburkert.de` mit DNS-Eintrag auf
 keine Dashboard-Edits, keine Schüler-Kommunikation nötig. Ca. 10 EUR
 Domain pro Jahr, einmalig 30 Min Setup.
 
+## Lückentext braucht IMMER eine Wortbank (Pflicht, daf-kern §7)
+
+Ein Lückentext ohne sichtbare Wortbank ist im Unterricht unlösbar — der
+Lerner sieht nicht, welche Wörter gefragt sind. Genau dieser Fehler ist
+Frank am 2026-05-29 mitten im Unterricht passiert. Deshalb gilt
+ausnahmslos: **jede HTML-Datei mit einem Lückentext-Tab MUSS eine
+Wort-Hilfe haben** — entweder eine skill-konforme Wortbank (§7) oder die
+universelle Komponente.
+
+Es gibt eine fertige, format-agnostische Lösung im Repo:
+
+- `scripts/wortbank-module.js` — selbst-installierende Wortbank. Liest die
+  Antworten zur Laufzeit aus den gerenderten Lücken-Inputs
+  (`dataset.ans/answer/...`) bzw. aus einem globalen Daten-Array, rendert
+  eine nicht-klickbare, gemischte Wortbank und gibt `.used`-Feedback. Sie
+  **deaktiviert sich selbst**, wenn schon eine Wortbank/ein Wortkasten da
+  ist — kann also gefahrlos überall eingespielt werden.
+- `scripts/inject_wortbank.py datei.html …` — injiziert CSS + Modul
+  idempotent (Marker `FB-WORTBANK-MODULE`).
+- `scripts/check_wortbank.py` — Sicherheitsnetz. Scannt das Repo (oder
+  einzelne Dateien) und meldet jeden Lückentext-Tab ohne Wort-Hilfe mit
+  Exit-Code 1. **Vor jedem Lektions-Commit laufen lassen.**
+
+Am 2026-05-29 wurden so 277 Dateien repariert. Es bleiben **16
+Altfälle** offen, deren Lückentext-Lösungen in `const`-Arrays oder gar
+nicht im DOM stehen — die brauchen Handarbeit (eigene §7-Wortbank aus
+ihren Antwort-Arrays). `check_wortbank.py` listet sie.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
