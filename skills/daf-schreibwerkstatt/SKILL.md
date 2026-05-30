@@ -2,8 +2,7 @@
 name: daf-schreibwerkstatt
 description: >
   Verbindliches Pattern für den Schreibwerkstatt-Tab in DaF-HTML-Lektionen
-  (R, X, V, G, W, C — in jeder Lektion außer S und FDxx, seit 22.05.2026).
-  Definiert: 5 Mikroaufgaben statt einer
+  (R, X, C — nicht V, G, FDxx). Definiert: 5 Mikroaufgaben statt einer
   großen Schreibaufgabe, Name als Pflichtfeld oben, Button „📨 An Frank
   senden", Web3Forms-Mailversand mit body.success-Check, Customer-Success-
   Error-UX (📧/📋/🔄), LocalStorage-Persistenz, Niveau-Skalierung A1–C2.
@@ -28,9 +27,9 @@ description: >
 
 Frank stellte fest: produktives Schreiben ist die größte Schwachstelle im Online-Unterricht. Lerner überspringen große Schreibaufgaben — die psychologische Hürde ist zu hoch. Der C2-Pilot 0708R hat das Pattern etabliert, das funktioniert: **fünf Mikroaufgaben statt einer großen**, jede mit eigenem Sendebutton an Frank, **Web3Forms** als Endpoint (seit 2026-04-29; vorher formsubmit.co), LocalStorage zur Persistenz, Customer-Success-Error-UX im Fehlerfall.
 
-**Reichweite (Stand 22. Mai 2026):** R-, X-, V-, G-, W-, C-Dateien aller Niveaus von A1 bis C2. **Nur** S-Dateien (Aussprache) und FDxx-Drills bleiben ausgenommen. Frank am 22. Mai 2026: „Seit ich weiß, dass wir die Schreibwerkstatt gut integrieren können, möchte ich sie eigentlich in jeder Lektion sehen, weil Schüler müssen schreiben und hier können sie es endlich." In V- und G-Dateien werden die 5 Mikroaufgaben so weit wie möglich an die Vokabel- bzw. Grammatikreihe der Lektion gebunden (1023G Plusquamperfekt → alle fünf Aufgaben im Plusquamperfekt; 1011V „Meine Freunde" → Aufgaben über deine Freunde). Memory-Eintrag: `feedback_schreibwerkstatt-alle-dateitypen.md`.
+**Reichweite:** R-, G-, X-, C-Dateien aller Niveaus von A1 bis C2. Nicht in V (Vokabular) oder FDxx (Drills) einbauen.
 
-**Vorher (bis Mai 2026):** Reichweite war R-, X-, C-Dateien. V- und G-Dateien waren explizit ausgeschlossen. Diese Regel ist überholt.
+**G-Dateien (Grammatik):** Ja — aber die 5 Mikroaufgaben müssen die gelernte Grammatikstruktur explizit erzwingen (nicht nur thematisch anknüpfen). Jede Aufgabe enthält die Anweisung, die Zielstruktur zu verwenden. Beispiel 1063G: alle 5 Aufgaben schreiben im Futur I.
 
 ---
 
@@ -55,7 +54,8 @@ Die Skalierung wird im Skript automatisch über `--niveau` gesetzt.
 
 * **`titel`** — kurz, prägnant; wird zum Mail-Subject
 * **`frage`** — klare Anweisung mit Wortzahl-Hinweis
-* **`beispiel`** — Format `Beispiel: „..."` als Anker
+
+⛔ **KEIN `beispiel`-Feld, KEINE Musterantworten, KEINE Beispielsätze — niemals, nirgends, auf keinem Niveau.** Beispielantworten entwerten die eigene Produktion: der Lerner schreibt die Vorlage ab, statt selbst zu formulieren. Jede Aufgabe hat NUR `titel` und `frage`. Eine knappe Struktur- oder Worthilfe darf höchstens in die `frage` selbst — aber niemals ein ausformulierter Beispielsatz. (Frank, 2026-05-29: „niemals nirgends Beispielsätze für die Schreibaufgaben".)
 
 **Bewährte Aufgabentypen** (Reihenfolge variieren!):
 
@@ -71,14 +71,40 @@ Die Skalierung wird im Skript automatisch über `--niveau` gesetzt.
 
 ## 4. UI-PATTERN — Verbindlich, nicht verhandelbar
 
-* **Name-Eingabe ist PFLICHT** (orange-gelbe Box `.schreib-name-box`) und steht **OBEN** vor der ersten Aufgabe — niemals optional, niemals unten.
+* **Tab-Name:** Der Nav-Button heißt **"Schreibwerkstatt"** (nav-emoji 📨, nav-label `Schreibwerkstatt`). NICHT "Schreiben". Patcher `add-schreibwerkstatt-v2.py` seit 2026-05-10 aktualisiert.
+* **Name-Eingabe ist PFLICHT** (orange-gelbe Box `.schreib-name-box`) und steht **OBEN** vor der ersten Aufgabe — niemals optional, niemals unten. Das Label lautet **immer genau**: „Bitte, hier deinen Namen eintragen.“ — keine andere Formulierung, kein Klammer-Zusatz, keine Frank-Erklärung.
+* **Kein erklärender section-sub / Vorspann unter dem Schreibwerkstatt-Titel.** Direkt die Name-Box, dann die Aufgaben. Kein „Fünf kleine Schreibaufgaben …"-Text, der den Lerner anspricht.
 * **Send-Button-Text** je Karte: **„📨 An Frank senden"** (NICHT „Diese Antwort senden" — Wiederholung war Frank zu viel).
 * **Sammelbutton-Text** unten: **„📨 Alle noch nicht gesendeten Antworten schicken"**.
 * **Send-Button validiert Name:** leer → Shake-Animation, Fokus, Status-Hinweis pro Karte.
 * **Wortschatz bleibt LETZTER Tab.** Schreibwerkstatt ist VORLETZTER Tab. Ausnahme: Datei hat keinen Wortschatz-Tab oder Wortschatz steht nicht am Ende — dann wird Schreibwerkstatt LETZTER Tab.
-* **Anführungszeichen** im Beispiel: öffnend `„` (U+201E), schließend `"` (U+201C). Niemals ASCII `"`.
+* **Anführungszeichen** in allen Aufgabentexten: öffnend `„` (U+201E), schließend `"` (U+201C). Niemals ASCII `"`.
 
 ---
+
+## 4a. SCHREIBFELD-GRÖSSE — groß und einladend (verbindlich)
+
+⛔ **Die Textarea jeder Mikroaufgabe hat `min-height: 240px`** — rund das Fünffache eines Browser-Default-Feldes. Zu kleine Schreibfelder sind die häufigste Regression dieses Skills: Sie schrecken Lerner vom Schreiben ab und untergraben den ganzen Zweck der Schreibwerkstatt. Diese Größe ist nicht verhandelbar und darf NIE reduziert werden.
+
+Verbindliches CSS (in jede Datei):
+
+```css
+.schreib-mini-textarea {
+  width: 100%;
+  min-height: 240px;     /* PFLICHT — ca. 5x Default, nie kleiner */
+  padding: 14px 16px;
+  border: 1.5px solid #c5cae9;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1.02em;     /* gut lesbar */
+  line-height: 1.6;
+  outline: none;
+  resize: vertical;      /* Lerner darf vergrößern */
+}
+.schreib-mini-textarea:focus { border-color: #667eea; }
+```
+
+**Verifikation vor Auslieferung (PFLICHT):** Im Browser `document.querySelector('.schreib-mini-textarea').offsetHeight` prüfen — der Wert MUSS ≥ 240 sein.
 
 ## 5. TECHNIK — Web3Forms + LocalStorage + Customer-Success-Error-UX
 
@@ -89,7 +115,7 @@ Die Skalierung wird im Skript automatisch über `--niveau` gesetzt.
 ```js
 var FORMSUBMIT_ENDPOINT  = 'https://api.web3forms.com/submit';
 var FORMSUBMIT_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
-var FORMSUBMIT_MAILTO    = 'unterricht@frankburkert-daf.de';
+var FORMSUBMIT_MAILTO    = 'unterricht@fabdaf.onmicrosoft.com';
 ```
 
 Body: `{ access_key, name, subject, from_name: 'fabDaF Schreibwerkstatt', lektion, message }`. **KEINE** formsubmit-Felder mehr (`_subject`, `_template`, `_captcha` sind weg).
@@ -142,11 +168,11 @@ Vollständiger Reference-Code: `outputs/patch_schreib_web3forms.py` (Konstanten 
 
 ### Mailto-Fallback NIE auf Primäradresse
 
-`FORMSUBMIT_MAILTO` ist immer der Alias `unterricht@frankburkert-daf.de`. Niemals `FrankBurkert@…` hardcoden — selbst nicht, wenn Quellcode aus älteren C1-Dateien das suggeriert. Memory `feedback_schreibwerkstatt-mail-aus-footer.md` und `reference_schreibwerkstatt-web3forms.md` erzwingen das. Bei Alias-Rotation: im Patcher `MAILTO_FALLBACK` ändern und idempotent re-laufen lassen.
+`FORMSUBMIT_MAILTO` ist immer der Alias `unterricht@fabdaf.onmicrosoft.com`. Niemals `FrankBurkert@…` hardcoden — selbst nicht, wenn Quellcode aus älteren C1-Dateien das suggeriert. Memory `feedback_schreibwerkstatt-mail-aus-footer.md` und `reference_schreibwerkstatt-web3forms.md` erzwingen das. Bei Alias-Rotation: im Patcher `MAILTO_FALLBACK` ändern und idempotent re-laufen lassen.
 
 ### Access-Key-Rotation
 
-Bei Bedarf neuen Key auf web3forms.com generieren (an `unterricht@frankburkert-daf.de` binden), in `outputs/patch_schreib_web3forms.py` Konstante `ACCESS_KEY` aktualisieren, Patcher idempotent über alle 477 Dateien laufen lassen — pro-Datei-Diff ist eine Zeile.
+Bei Bedarf neuen Key auf web3forms.com generieren (an `unterricht@fabdaf.onmicrosoft.com` binden), in `outputs/patch_schreib_web3forms.py` Konstante `ACCESS_KEY` aktualisieren, Patcher idempotent über alle 477 Dateien laufen lassen — pro-Datei-Diff ist eine Zeile.
 
 ---
 
@@ -165,7 +191,7 @@ Konfigs liegen pro Niveau in `scripts/configs_<niveau>.py` (z. B. `configs_a2.py
 ### Pro Datei
 
 1. **Inhalt sichten** — Lesetext oder Lektionsthema lesen.
-2. **5 Aufgaben designen** — niveau-skaliert, lektionsgebunden, mit Beispiel.
+2. **5 Aufgaben designen** — niveau-skaliert, lektionsgebunden, ohne Beispielsätze (nur Titel + Frage).
 3. **Config in `configs_<niveau>.py` ergänzen** — Lektionscode als Schlüssel.
 4. **Patcher laufen lassen:**
    ```bash
@@ -243,6 +269,8 @@ Erwartete Resultate: bei `needs-activation` muss der Fallback-Block erscheinen U
 
 ---
 
+* **Geschrumpfte Schreibfelder (Regression 2026-05-29, C1 RTM01R).** Die Textarea war auf `min-height: 80px` zusammengefallen, weil die Feldgröße vorher nirgends im Skill stand — nur in früher generierten Dateien. Frank: „Die Schreibfelder sind so klein, das macht keinen Spaß.“ Fix: §4a macht `min-height: 240px` verbindlich; Browser-Check `offsetHeight >= 240` vor Auslieferung.
+
 ## 8. NACH DEM EINBAU — Audit & Push
 
 * **`daf-audit`-Skill** danach laufen lassen — er prüft Ladung der Pflicht-Skills, Layout-Konformität und Pattern-Verletzungen.
@@ -256,10 +284,10 @@ Erwartete Resultate: bei `needs-activation` muss der Fallback-Block erscheinen U
 ## 9. SCHNELLREFERENZ — Niveau-Aufgaben
 
 **A1-Beispiel** (1–15 Wörter):
-> *„Schreib deinen Namen und Nachnamen, jeden Buchstaben einzeln, getrennt durch Bindestriche. Beispiel: M-A-R-I-A   L-O-P-E-Z."*
+> *„Schreib deinen Namen und Nachnamen, jeden Buchstaben einzeln, getrennt durch Bindestriche.“*
 
 **A2-Beispiel** (10–30 Wörter):
-> *„Wie ist deine Wohnung? Beschreib sie in zwei oder drei Sätzen: Größe, Stockwerk, hell oder dunkel. Beispiel: „Ich wohne in einer Drei-Zimmer-Wohnung im zweiten Stock. Sie ist hell und hat einen kleinen Balkon."*
+> *„Wie ist deine Wohnung? Beschreib sie in zwei oder drei Sätzen: Größe, Stockwerk, hell oder dunkel.“*
 
 **B1-Beispiel** (30–50 Wörter):
 > *„Erzähle von einer Reise, die dich verändert hat. Was hast du dort erlebt? Warum hat sie dich verändert?"*
