@@ -78,20 +78,34 @@
     return fromGlobals();
   }
 
+  function wordsOf(arr) {
+    if (!Array.isArray(arr) || !arr.length) return [];
+    var words = [];
+    arr.forEach(function (item) {
+      if (!item || typeof item !== "object") return;
+      // 'blank'/'loesung' decken die {before, blank, after}- und {pre, blank, post}-Formate ab.
+      var direct = item.ans || item.answer || item.b || item.sol || item.solution || item.blank || item.loesung;
+      if (direct != null && direct !== "") { words.push(direct); return; }
+      var segs = item.segs || item.segments;
+      if (Array.isArray(segs)) segs.forEach(function (s) { if (s && s.b) words.push(s.b); });
+    });
+    return words;
+  }
   function fromGlobals() {
-    var names = ["LUECKE_DATA", "LUECKEN_DATA", "LT_DATA", "LUECKENDATA", "GAP_DATA", "BLANK_DATA"];
-    for (var n = 0; n < names.length; n++) {
-      var arr = window[names[n]];
-      if (!Array.isArray(arr) || !arr.length) continue;
-      var words = [];
-      arr.forEach(function (item) {
-        if (!item || typeof item !== "object") return;
-        var direct = item.ans || item.answer || item.b || item.sol || item.solution;
-        if (direct) { words.push(direct); return; }
-        var segs = item.segs || item.segments;
-        if (Array.isArray(segs)) segs.forEach(function (s) { if (s && s.b) words.push(s.b); });
-      });
-      if (words.length) return words;
+    var cands = [];
+    // var-deklarierte Arrays hängen an window:
+    ["LUECKE_DATA", "LUECKEN_DATA", "LT_DATA", "LUECKENDATA", "GAP_DATA", "BLANK_DATA", "LUECKEN", "LUECKE"].forEach(function (n) {
+      try { if (Array.isArray(window[n]) && window[n].length) cands.push(window[n]); } catch (e) {}
+    });
+    // const/let-deklarierte Arrays sind NICHT auf window, aber als bloße Globals über
+    // den geteilten lexikalischen Scope klassischer Scripts sichtbar:
+    try { if (typeof LUECKEN_DATA !== "undefined") cands.push(LUECKEN_DATA); } catch (e) {}
+    try { if (typeof LUECKEN !== "undefined") cands.push(LUECKEN); } catch (e) {}
+    try { if (typeof LUECKE_DATA !== "undefined") cands.push(LUECKE_DATA); } catch (e) {}
+    try { if (typeof LT_DATA !== "undefined") cands.push(LT_DATA); } catch (e) {}
+    for (var i = 0; i < cands.length; i++) {
+      var w = wordsOf(cands[i]);
+      if (w.length) return w;
     }
     return [];
   }

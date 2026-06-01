@@ -23,6 +23,10 @@ h3{color:#764ba2;margin:16px 0 10px;font-size:1rem}
 .lt-input{border:none;border-bottom:2px solid #bbb;outline:none;font-size:.97rem;font-family:'Segoe UI',sans-serif;padding:2px 4px;min-width:120px;background:transparent;transition:border-color .2s}
 .lt-input.correct{border-color:#4caf50;background:#f0fff0}
 .lt-input.wrong{border-color:#f44336;background:#fff0f0}
+.wortbank-label{font-weight:700;color:#667eea;font-size:.85em;margin-bottom:8px}
+.wortbank{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#f0f0f8;border-radius:10px;min-height:48px;margin-bottom:18px;border:1px dashed #bbb}
+.wortbank-chip{background:white;border:2px solid #667eea;color:#667eea;padding:5px 12px;border-radius:14px;font-weight:500;font-size:.9em;user-select:none}
+.wortbank-chip.used{opacity:.35;text-decoration:line-through}
 .hint-btn{background:none;border:1px solid #667eea;color:#667eea;border-radius:4px;padding:2px 8px;font-size:.78rem;cursor:pointer;margin-left:6px}
 /* Satzbau */
 .sb-task{margin-bottom:28px;padding:18px;background:#f9f9ff;border-radius:10px}
@@ -234,6 +238,8 @@ Heike Müller</div>
     <button class="sec" onclick="ltShowAll()">👁 Alle zeigen</button>
     
   </div>
+  <div class="wortbank-label">🔤 Wortbank – die richtigen Wörter, in zufälliger Reihenfolge.<br>Tipp sie selbst in die Lücken.</div>
+  <div class="wortbank" id="wortbank-luecken"></div>
   <div class="lt-wrap" id="lt-body"></div>
 </div>
 
@@ -328,6 +334,37 @@ function showTab(id, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
+  if (id === 'luecke') initWortbank();
+}
+
+function initWortbank() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  var words = ltSaetze.map(function (s) { return s.blank; }).filter(function (w) { return w && w.trim(); });
+  for (var i = words.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = words[i]; words[i] = words[j]; words[j] = t; }
+  bank.innerHTML = '';
+  words.forEach(function (w) {
+    var chip = document.createElement('span');
+    chip.className = 'wortbank-chip';
+    chip.textContent = w;
+    bank.appendChild(chip);
+  });
+  updateWortbankChips();
+}
+
+function updateWortbankChips() {
+  var bank = document.getElementById('wortbank-luecken');
+  if (!bank) return;
+  var solved = ltSaetze.map(function (s, i) {
+    var inp = document.getElementById('lt' + i);
+    return (inp && inp.classList.contains('correct')) ? s.blank : null;
+  }).filter(function (w) { return w; });
+  var remaining = solved.slice();
+  Array.prototype.forEach.call(bank.querySelectorAll('.wortbank-chip'), function (chip) {
+    var idx = remaining.indexOf(chip.textContent);
+    if (idx >= 0) { chip.classList.add('used'); remaining.splice(idx, 1); }
+    else { chip.classList.remove('used'); }
+  });
 }
 
 // ── TIMER ────────────────────────────────────────────────────────
@@ -364,6 +401,10 @@ function timerResetOne(n){
   if(el) el.textContent='0:00';
 }
 function fmtTime(s){ var m=Math.floor(s/60); var sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+// String-Key-Timer ('lt','vocab') war nie implementiert (keine timer-Anzeige im HTML).
+// Tolerante No-ops, damit ltCheck/vocabCheck nicht mit ReferenceError abbrechen.
+function timerStart(k){}
+function timerReset(k){}
 document.addEventListener('DOMContentLoaded',function(){
   [1,2,3].forEach(function(n){
     var b=localStorage.getItem(TIMER_PREFIX+n);
@@ -402,6 +443,7 @@ function ltCheck(i) {
   if (!v) { inp.className = 'lt-input'; return; }
   if (v === s.blank.toLowerCase()) {
     inp.className = 'lt-input correct';
+    updateWortbankChips();
     const allOk = ltSaetze.every((_, j) => document.getElementById('lt'+j).classList.contains('correct'));
     if (allOk) timerStop('lt');
   } else {
@@ -423,6 +465,7 @@ function ltReset() {
     inp.value = '';
     inp.className = 'lt-input';
   });
+  initWortbank();
 
 function ltShowAll() {
   timerStop('lt');
@@ -431,6 +474,7 @@ function ltShowAll() {
     inp.value = s.blank;
     inp.className = 'lt-input correct';
   });
+  updateWortbankChips();
 }
 
 // ── SATZBAU ──────────────────────────────────────────────────────
