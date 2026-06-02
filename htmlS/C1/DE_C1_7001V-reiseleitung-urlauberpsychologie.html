@@ -633,6 +633,8 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e
         <div class="hilfe-box">
             Kollokationen sind feste Wortverbindungen, die im Deutschen typisch sind. Auf C1-Niveau musst du wissen, <em>welches</em> Verb, Adjektiv oder Substantiv mit dem Stichwort üblich zusammensteht. Ergänze die fehlende Kollokationspartnerschaft.
         </div>
+        <div class="wortbank-label">🔤 Wortbank — alle Antworten, in zufälliger Reihenfolge:</div>
+        <div class="wortbank" id="wortbank-koll"></div>
         <div class="koll-grid" id="kollContainer"></div>
     </div>
 
@@ -755,6 +757,7 @@ function showSection(idx) {
     document.querySelectorAll('.section').forEach(function(s,i){ s.classList.toggle('active', i===idx); });
     document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
     if (idx === 1) initWortbank();
+    if (idx === 2) initKollWortbank();
     if (idx === 5) sbInit();
 }
 
@@ -965,14 +968,44 @@ function kollCheck(inp) {
     var val = inp.value;
     var ans = inp.dataset.answer;
     inp.classList.remove('ok', 'wrong');
-    if (!val) return;
+    if (!val) { updateKollWortbankChips(); return; }
     if (val === ans) {
         inp.classList.add('ok');
+        updateKollWortbankChips();
         var all = Array.from(document.querySelectorAll('#kollContainer input.blank'));
         if (all.every(function(i){ return i.classList.contains('ok'); })) stopTimer(KOLL_TAB_IDX);
     } else if (!ans.startsWith(val)) {
         inp.classList.add('wrong');
     }
+}
+
+function initKollWortbank() {
+    var bank = document.getElementById('wortbank-koll');
+    if (!bank) return;
+    bank.innerHTML = '';
+    var words = KOLL_DATA.map(function(d){ return d.key; });
+    for (var i = words.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = words[i]; words[i] = words[j]; words[j] = t;
+    }
+    words.forEach(function(w){
+        var chip = document.createElement('span');
+        chip.className = 'wortbank-chip';
+        chip.textContent = w;
+        bank.appendChild(chip);
+    });
+}
+
+function updateKollWortbankChips() {
+    var bank = document.getElementById('wortbank-koll');
+    if (!bank) return;
+    var solved = Array.from(document.querySelectorAll('#kollContainer input.blank.ok')).map(function(i){ return i.value; });
+    var remaining = solved.slice();
+    Array.from(bank.querySelectorAll('.wortbank-chip')).forEach(function(chip){
+        var idx = remaining.indexOf(chip.textContent);
+        if (idx >= 0) { chip.classList.add('used'); remaining.splice(idx, 1); }
+        else { chip.classList.remove('used'); }
+    });
 }
 
 function showKollLoesung() {
@@ -981,6 +1014,7 @@ function showKollLoesung() {
         inp.classList.remove('wrong');
         inp.classList.add('ok');
     });
+    updateKollWortbankChips();
 }
 
 function resetKoll() {
@@ -988,6 +1022,7 @@ function resetKoll() {
         inp.value = '';
         inp.classList.remove('ok', 'wrong');
     });
+    initKollWortbank();
     resetTimer(KOLL_TAB_IDX);
 }
 
