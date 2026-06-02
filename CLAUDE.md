@@ -256,12 +256,35 @@ Altfälle** offen, deren Lückentext-Lösungen in `const`-Arrays oder gar
 nicht im DOM stehen — die brauchen Handarbeit (eigene §7-Wortbank aus
 ihren Antwort-Arrays). `check_wortbank.py` listet sie.
 
+## Fließtext braucht IMMER Serifenschrift (Pflicht, daf-lesetext §1)
+
+Der `<body>` jeder Lektion trägt eine **Sans-Serif**-Schrift (`Segoe UI`)
+— richtig für UI, Navigation, Buttons. Aber: Wenn eine `.story-text`-
+oder `.lese-text`-Base-Regel **keine eigene `font-family` setzt, erbt der
+gesamte Lesetext diese Sans-Serif-Schrift** und sieht nackt aus. Genau
+dieser Fehler ist Frank am 2026-06-02 mitten im Unterricht passiert
+(A2 „Die Arbeitswelt"); projektweit waren 25 Dateien betroffen.
+
+Deshalb gilt ausnahmslos: **Jeder Fließtext-Container MUSS Serifenschrift
+tragen** — `font-family: Georgia, 'Times New Roman', serif;` als erste
+Deklaration der `.story-text`- bzw. `.lese-text`-Base-Regel. Override-
+Regeln (`@media`, zweite `max-width`-Regel) brauchen sie nicht erneut;
+eine Serif-Setzung pro Container genügt.
+
+- `scripts/check_serif.py` — Sicherheitsnetz. Scannt das Repo (oder
+  einzelne Dateien) und meldet jeden Fließtext-Container, der Sans-Serif
+  vom `<body>` erbt, mit Exit-Code 1. Aggregiert korrekt — Override-
+  Regeln lösen keinen Fehlalarm aus. **Vor jedem Lektions-Commit laufen
+  lassen**, zusammen mit `check_wortbank.py`.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
 - `MANIFEST.md` — dieselbe Info, menschenlesbar (generiert)
 - `scripts/verify_manifest.sh` — IST-gegen-SOLL-Prüfung
 - `scripts/render_manifest.py` — MD aus YAML erzeugen
+- `scripts/check_serif.py` — Fließtext-Serif-Prüfung (vor Lektions-Commit)
+- `scripts/check_wortbank.py` — Lückentext-Wortbank-Prüfung (vor Lektions-Commit)
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
   11-zu-9-Konsolidierung, warum die heutige Struktur so ist
 - `backup/INSTALL.md` — launchd-Backup-Aktivierung
