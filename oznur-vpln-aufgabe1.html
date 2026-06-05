@@ -153,6 +153,37 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 .uebung.done .u-fertig { display: block; }
 
+.schreibfeld-block {
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%);
+  border: 1px solid #d5dcf7; border-radius: 12px;
+  padding: 26px 30px; margin-top: 12px;
+}
+.schreibfeld-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.82em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #667eea; margin-bottom: 10px;
+}
+.schreibfeld-hinweis {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.6;
+  color: #2c2c2c; margin-bottom: 16px;
+}
+.schreibfeld-area {
+  width: 100%; min-height: 160px; resize: vertical;
+  border: 1px solid #c5cff5; border-radius: 8px;
+  padding: 14px 16px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.8; color: #2c2c2c; background: #fff;
+  outline: none; transition: border-color 0.2s;
+}
+.schreibfeld-area:focus { border-color: #667eea; }
+.schreibfeld-fuss {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.8em; color: #888;
+}
+.schreib-status { font-style: italic; }
+.schreib-count { font-weight: 600; color: #667eea; }
+
 .author-footer { text-align: center; margin: 28px auto 0 auto;
                  max-width: 1100px; padding: 16px; font-size: 0.8rem; color: #aaa; }
 .author-footer a { color: #aaa; }
@@ -415,6 +446,17 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     </div>
   </div>
 
+  <!-- ═══════════════════ SCHREIBFELD · SCHRIFTLICH ÜBEN ═══════════════════ -->
+  <div class="schreibfeld-block">
+    <div class="schreibfeld-titel">Schreibfeld — selbst schreiben</div>
+    <p class="schreibfeld-hinweis">Den Text jetzt noch einmal schreiben — diesmal mit den Korrekturen von oben. Der Text wird automatisch in diesem Browser gespeichert und bleibt auch nach dem Schließen erhalten.</p>
+    <textarea id="schreibfeld" class="schreibfeld-area" placeholder="Hier den verbesserten Text schreiben …"></textarea>
+    <div class="schreibfeld-fuss">
+      <span id="schreib-status" class="schreib-status">Noch nichts gespeichert.</span>
+      <span id="schreib-count" class="schreib-count">0 Wörter</span>
+    </div>
+  </div>
+
 </div>
 
 <div class="author-footer">
@@ -471,6 +513,32 @@ function resetCard(btn) {
   });
   uebung.classList.remove('done');
 }
+
+// Schreibfeld — lokales Üben mit Browser-Speicherung
+(function () {
+  var ta = document.getElementById('schreibfeld');
+  if (!ta) return;
+  var KEY = 'fb-schreibfeld-oznur-vpln-aufgabe1';
+  var status = document.getElementById('schreib-status');
+  var count = document.getElementById('schreib-count');
+  try {
+    var saved = localStorage.getItem(KEY);
+    if (saved) { ta.value = saved; }
+  } catch (e) {}
+  function update() {
+    var t = ta.value.trim();
+    var w = t ? t.split(/\s+/).length : 0;
+    if (count) count.textContent = w + (w === 1 ? ' Wort' : ' Wörter');
+    try {
+      localStorage.setItem(KEY, ta.value);
+      if (status) status.textContent = t ? 'Automatisch gespeichert.' : 'Noch nichts gespeichert.';
+    } catch (e) {
+      if (status) status.textContent = 'Speichern in diesem Browser nicht möglich.';
+    }
+  }
+  ta.addEventListener('input', update);
+  update();
+})();
 </script>
 </body>
 </html>
