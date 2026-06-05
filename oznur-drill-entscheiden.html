@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verb-Drill · entscheiden — feste Präpositionen, Partizip, Passiv</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white;
+             border-radius: 12px; overflow: hidden;
+             box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 1.8em; font-family: Georgia, serif; color: white; margin-bottom: 8px; }
+.header p { font-size: 1.0em; font-family: Georgia, serif; opacity: 0.95; }
+.header .big-emoji { font-size: 2.2em; margin-top: 10px; }
+
+.body-area { padding: 36px 44px; }
+
+/* Referenz / Spickzettel */
+.ref-box {
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+  border-left: 4px solid #f9a825; border-radius: 0 8px 8px 0;
+  padding: 20px 24px; margin-bottom: 14px;
+}
+.ref-titel {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.78em; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #e65100;
+  margin-bottom: 14px;
+}
+.ref-zeile {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.6;
+  color: #4e342e; margin-bottom: 10px;
+}
+.ref-zeile:last-child { margin-bottom: 0; }
+.ref-zeile b { color: #bf360c; }
+.ref-zeile .bsp { color: #6d4c41; font-style: italic; }
+.ref-pron {
+  margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e6c98a;
+  font-family: Georgia, serif; font-size: 0.96em; color: #5d4037; line-height: 1.7;
+}
+
+/* Steuerleiste + Fortschritt */
+.control-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  margin: 22px 0 18px;
+}
+.ctrl-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.c-btn {
+  background: #f5f7ff; border: 1px solid #c5cff5;
+  color: #667eea; padding: 8px 16px; border-radius: 8px;
+  font-size: 0.85em; font-weight: 600; cursor: pointer;
+  font-family: 'Segoe UI', sans-serif; transition: all 0.15s;
+}
+.c-btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.fortschritt { display: flex; align-items: center; gap: 12px; min-width: 220px; flex: 1; }
+.fortschritt-bar { flex: 1; height: 10px; background: #eceff8; border-radius: 6px; overflow: hidden; }
+.fortschritt-fill { height: 100%; width: 0%; background: linear-gradient(90deg,#667eea,#27ae60); transition: width 0.3s; }
+.fortschritt-text { font-family: 'Segoe UI', sans-serif; font-size: 0.85em; font-weight: 700; color: #667eea; white-space: nowrap; }
+
+/* Drill-Items */
+.drill-list { display: flex; flex-direction: column; gap: 10px; }
+.drill-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 18px; border-radius: 10px;
+  background: #fafafa; border: 1px solid #ececec;
+  transition: background 0.2s, border-color 0.2s;
+}
+.drill-item.ok { background: #f1f8f1; border-color: #cde9cd; }
+.di-nr {
+  flex: 0 0 auto; min-width: 26px; height: 26px; line-height: 26px;
+  text-align: center; border-radius: 50%;
+  background: #667eea; color: white; font-size: 0.8em; font-weight: 700;
+  font-family: 'Segoe UI', sans-serif;
+}
+.drill-item.ok .di-nr { background: #27ae60; }
+.di-main { flex: 1; }
+.di-satz {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.1em; line-height: 1.95; color: #2c2c2c;
+}
+.di-muster {
+  display: none; margin-top: 7px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.78em; font-weight: 600;
+  color: #1b5e20; letter-spacing: 0.02em;
+}
+.drill-item.ok .di-muster { display: block; }
+
+.u-inp {
+  border: none; border-bottom: 2px solid #667eea; background: transparent;
+  font-family: inherit; font-size: 1em; color: #1a237e; font-weight: 600;
+  outline: none; padding: 0 4px; text-align: center; transition: all 0.2s;
+}
+.u-inp.ok    { border-bottom-color: #27ae60; color: #27ae60; }
+.u-inp.wrong { border-bottom-color: #e74c3c; color: #e74c3c; }
+.u-inp.w-art  { width: 60px; }
+.u-inp.w-mid  { width: 96px; }
+.u-inp.w-wide { width: 150px; }
+
+/* Schreibfeld */
+.schreibfeld-block {
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%);
+  border: 1px solid #d5dcf7; border-radius: 12px;
+  padding: 26px 30px; margin-top: 30px;
+}
+.schreibfeld-titel {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.82em; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #667eea; margin-bottom: 10px;
+}
+.schreibfeld-hinweis {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.6; color: #2c2c2c; margin-bottom: 16px;
+}
+.schreibfeld-area {
+  width: 100%; min-height: 420px; resize: vertical;
+  border: 1px solid #c5cff5; border-radius: 8px; padding: 14px 16px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.8; color: #2c2c2c; background: #fff; outline: none; transition: border-color 0.2s;
+}
+.schreibfeld-area:focus { border-color: #667eea; }
+.schreibfeld-fuss {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.8em; color: #888;
+}
+.schreib-status { font-style: italic; }
+.schreib-count { font-weight: 600; color: #667eea; }
+
+.author-footer { text-align: center; margin: 28px auto 0 auto; max-width: 1000px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+
+@media (max-width: 700px) {
+  .body-area { padding: 22px 18px; }
+  .di-satz { font-size: 1.0em; line-height: 1.85; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <h1>Das Verb „entscheiden“ — der große Drill</h1>
+  <p>B1 – Privatlektion · feste Präpositionen, Partizip II, Passiv</p>
+  <div class="big-emoji">⚖️</div>
+</div>
+
+<div class="body-area">
+
+  <div class="ref-box">
+    <div class="ref-titel">Die Formen im Überblick</div>
+    <div class="ref-zeile">1 · <b>sich entscheiden für</b> + Akkusativ — eine Wahl treffen. <span class="bsp">Ich entscheide mich für den Holzbau.</span></div>
+    <div class="ref-zeile">2 · <b>entscheiden über</b> + Akkusativ — als zuständige Person bestimmen. <span class="bsp">Der Bauherr entscheidet über das Budget.</span></div>
+    <div class="ref-zeile">3 · <b>etwas entscheiden</b> (transitiv) — eine Sache klären, festlegen. <span class="bsp">Das Gericht hat den Fall entschieden.</span></div>
+    <div class="ref-zeile">4 · Partizip II: <b>entschieden</b> — <span class="bsp">Wir haben uns entschieden.</span></div>
+    <div class="ref-zeile">5 · Passiv: <b>entschieden werden</b> — <span class="bsp">Das muss noch entschieden werden. · Darüber wird morgen entschieden.</span></div>
+    <div class="ref-zeile">6 · das Adjektiv <b>entscheidend</b> — <span class="bsp">Die Vorplanung spielt eine entscheidende Rolle.</span></div>
+    <div class="ref-pron">Reflexivpronomen (Akkusativ): ich → <b>mich</b> · du → <b>dich</b> · er/sie/es → <b>sich</b> · wir → <b>uns</b> · ihr → <b>euch</b> · sie/Sie → <b>sich</b></div>
+  </div>
+
+  <div class="control-bar">
+    <div class="ctrl-btns">
+      <button type="button" class="c-btn" onclick="mischen()">🔀 Mischen</button>
+      <button type="button" class="c-btn" onclick="alleLoesungen()">Alle Lösungen</button>
+      <button type="button" class="c-btn" onclick="alleZuruecksetzen()">Zurücksetzen</button>
+    </div>
+    <div class="fortschritt">
+      <div class="fortschritt-bar"><div class="fortschritt-fill" id="fortFill"></div></div>
+      <div class="fortschritt-text" id="fortText">0 / 30</div>
+    </div>
+  </div>
+
+  <div class="drill-list" id="drillList">
+
+    <div class="drill-item"><span class="di-nr">1</span><div class="di-main"><span class="di-satz">Die Architektin entscheidet sich <input class="u-inp w-art" data-sol="für" placeholder="…"> den modernen Entwurf.</span><div class="di-muster">sich entscheiden für + Akkusativ</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">2</span><div class="di-main"><span class="di-satz">Ich entscheide <input class="u-inp w-art" data-sol="mich" placeholder="…"> für das größere Büro.</span><div class="di-muster">Reflexivpronomen: ich → mich</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">3</span><div class="di-main"><span class="di-satz">Der Bauherr entscheidet <input class="u-inp w-mid" data-sol="über" placeholder="…"> das Budget.</span><div class="di-muster">entscheiden über + Akkusativ</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">4</span><div class="di-main"><span class="di-satz">Wir haben uns für den ersten Plan <input class="u-inp w-wide" data-sol="entschieden" placeholder="…">.</span><div class="di-muster">Partizip II: entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">5</span><div class="di-main"><span class="di-satz">Das Konzept wurde schon in LPH 2 <input class="u-inp w-wide" data-sol="entschieden" placeholder="…">.</span><div class="di-muster">Passiv: wurde … entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">6</span><div class="di-main"><span class="di-satz">Wir entscheiden <input class="u-inp w-art" data-sol="uns" placeholder="…"> für eine klare Linie.</span><div class="di-muster">Reflexivpronomen: wir → uns</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">7</span><div class="di-main"><span class="di-satz">Sie entscheidet sich für <input class="u-inp w-art" data-sol="den" placeholder="…"> neuen Standort.</span><div class="di-muster">für + Akkusativ: der → den</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">8</span><div class="di-main"><span class="di-satz">Der Ausschuss entscheidet über <input class="u-inp w-art" data-sol="den" placeholder="…"> Antrag.</span><div class="di-muster">über + Akkusativ: der → den</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">9</span><div class="di-main"><span class="di-satz">Diese Frage muss bald <input class="u-inp w-wide" data-sol="entschieden" placeholder="…"> werden.</span><div class="di-muster">Passiv mit Modalverb: entschieden werden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">10</span><div class="di-main"><span class="di-satz">Über die Fassade? Darüber wird morgen <input class="u-inp w-wide" data-sol="entschieden" placeholder="…">.</span><div class="di-muster">Passiv mit da-Wort: darüber wird entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">11</span><div class="di-main"><span class="di-satz">Ich kann <input class="u-inp w-art" data-sol="mich" placeholder="…"> nicht entscheiden.</span><div class="di-muster">Reflexivpronomen: ich → mich</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">12</span><div class="di-main"><span class="di-satz">Der Plan ist gut — ich entscheide mich <input class="u-inp w-mid" data-sol="dafür" placeholder="…">.</span><div class="di-muster">da-Wort: für → dafür</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">13</span><div class="di-main"><span class="di-satz">Das Team hat die Frage gestern <input class="u-inp w-wide" data-sol="entschieden" placeholder="…">.</span><div class="di-muster">Partizip II (transitiv): hat … entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">14</span><div class="di-main"><span class="di-satz">Wer entscheidet <input class="u-inp w-mid" data-sol="über" placeholder="…"> die Materialien?</span><div class="di-muster">entscheiden über + Akkusativ</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">15</span><div class="di-main"><span class="di-satz"><input class="u-inp w-mid" data-sol="Wofür" placeholder="…"> entscheidest du dich? — Für den Neubau.</span><div class="di-muster">Frage-da-Wort: für → wofür</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">16</span><div class="di-main"><span class="di-satz">Entscheidest du <input class="u-inp w-art" data-sol="dich" placeholder="…"> für Holz oder Beton?</span><div class="di-muster">Reflexivpronomen: du → dich</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">17</span><div class="di-main"><span class="di-satz">Die Vorplanung spielt eine <input class="u-inp w-wide" data-sol="entscheidende" placeholder="…"> Rolle.</span><div class="di-muster">das Adjektiv: entscheidend</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">18</span><div class="di-main"><span class="di-satz">Über den Zeitplan <input class="u-inp w-art" data-sol="wird" placeholder="…"> heute entschieden.</span><div class="di-muster">Passiv Präsens: wird … entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">19</span><div class="di-main"><span class="di-satz">Sie entscheidet sich für <input class="u-inp w-art" data-sol="die" placeholder="…"> offene Bauweise.</span><div class="di-muster">für + Akkusativ: die → die</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">20</span><div class="di-main"><span class="di-satz">Habt ihr euch schon <input class="u-inp w-wide" data-sol="entschieden" placeholder="…">?</span><div class="di-muster">Partizip II: entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">21</span><div class="di-main"><span class="di-satz">Der Richter hat über den Fall <input class="u-inp w-wide" data-sol="entschieden" placeholder="…">.</span><div class="di-muster">über + Partizip II: hat über … entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">22</span><div class="di-main"><span class="di-satz">Er entscheidet <input class="u-inp w-art" data-sol="sich" placeholder="…"> für den günstigeren Anbieter.</span><div class="di-muster">Reflexivpronomen: er → sich</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">23</span><div class="di-main"><span class="di-satz">Das muss vom Bauherrn <input class="u-inp w-wide" data-sol="entschieden" placeholder="…"> werden.</span><div class="di-muster">Passiv mit Modalverb: entschieden werden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">24</span><div class="di-main"><span class="di-satz">Zwischen zwei Plänen: ich entscheide mich <input class="u-inp w-art" data-sol="für" placeholder="…"> den zweiten.</span><div class="di-muster">sich entscheiden für + Akkusativ</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">25</span><div class="di-main"><span class="di-satz">Sie entscheiden über <input class="u-inp w-art" data-sol="das" placeholder="…"> Konzept.</span><div class="di-muster">über + Akkusativ: das → das</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">26</span><div class="di-main"><span class="di-satz">Es ist schwer, sich schnell zu <input class="u-inp w-wide" data-sol="entscheiden" placeholder="…">.</span><div class="di-muster">Infinitiv mit zu: zu entscheiden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">27</span><div class="di-main"><span class="di-satz">Wer entscheidet <input class="u-inp w-mid" data-sol="darüber" placeholder="…">, ob gebaut wird?</span><div class="di-muster">da-Wort: über → darüber</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">28</span><div class="di-main"><span class="di-satz">Ihr entscheidet <input class="u-inp w-art" data-sol="euch" placeholder="…"> für die teurere Lösung.</span><div class="di-muster">Reflexivpronomen: ihr → euch</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">29</span><div class="di-main"><span class="di-satz">Gestern <input class="u-inp w-mid" data-sol="wurde" placeholder="…"> über den Auftrag entschieden.</span><div class="di-muster">Passiv Präteritum: wurde … entschieden</div></div></div>
+
+    <div class="drill-item"><span class="di-nr">30</span><div class="di-main"><span class="di-satz">Wir haben uns <input class="u-inp w-wide" data-sol="entschieden" placeholder="…">, das Projekt zu starten.</span><div class="di-muster">sich entscheiden + zu: haben uns entschieden</div></div></div>
+
+  </div>
+
+  <!-- Schreibfeld · schriftlich üben -->
+  <div class="schreibfeld-block">
+    <div class="schreibfeld-titel">Schreibfeld — eigene Sätze</div>
+    <p class="schreibfeld-hinweis">Zum Schluss selbst formulieren: eigene Sätze mit „entscheiden“ schreiben — für jede der sechs Formen oben mindestens einen. Der Text wird automatisch in diesem Browser gespeichert.</p>
+    <textarea id="schreibfeld" class="schreibfeld-area" placeholder="Hier eigene Sätze mit „entscheiden“ schreiben …"></textarea>
+    <div class="schreibfeld-fuss">
+      <span id="schreib-status" class="schreib-status">Noch nichts gespeichert.</span>
+      <span id="schreib-count" class="schreib-count">0 Wörter</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="author-footer">
+  <span style="font-weight:700">© Frank Burkert</span> · DaF-Materialien ·
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+var GESAMT = 30;
+
+function pruefe(inp) {
+  var val = (inp.value || '').trim();
+  var sol = inp.dataset.sol || '';
+  var item = inp.closest('.drill-item');
+  inp.classList.remove('ok', 'wrong');
+  if (!val) { if (item) item.classList.remove('ok'); fortschritt(); return; }
+  if (val === sol) {
+    inp.classList.add('ok');
+    if (item) item.classList.add('ok');
+  } else {
+    if (item) item.classList.remove('ok');
+    if (!sol.startsWith(val)) inp.classList.add('wrong');
+  }
+  fortschritt();
+}
+
+function fortschritt() {
+  var fertig = document.querySelectorAll('.drill-item.ok').length;
+  var pct = Math.round(fertig / GESAMT * 100);
+  document.getElementById('fortFill').style.width = pct + '%';
+  document.getElementById('fortText').textContent = fertig + ' / ' + GESAMT;
+}
+
+document.querySelectorAll('.u-inp').forEach(function (inp) {
+  if (inp.id === 'schreibfeld') return;
+  inp.addEventListener('input', function () { pruefe(inp); });
+});
+
+function alleLoesungen() {
+  document.querySelectorAll('.drill-item .u-inp').forEach(function (inp) {
+    inp.value = inp.dataset.sol || '';
+    inp.classList.remove('wrong');
+    inp.classList.add('ok');
+    var item = inp.closest('.drill-item');
+    if (item) item.classList.add('ok');
+  });
+  fortschritt();
+}
+
+function alleZuruecksetzen() {
+  document.querySelectorAll('.drill-item .u-inp').forEach(function (inp) {
+    inp.value = '';
+    inp.classList.remove('ok', 'wrong');
+    var item = inp.closest('.drill-item');
+    if (item) item.classList.remove('ok');
+  });
+  fortschritt();
+}
+
+function mischen() {
+  var liste = document.getElementById('drillList');
+  var items = Array.prototype.slice.call(liste.children);
+  for (var i = items.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    liste.appendChild(items[j]);
+    items.splice(j, 1);
+  }
+  // Nummern neu vergeben
+  Array.prototype.forEach.call(liste.children, function (item, idx) {
+    var nr = item.querySelector('.di-nr');
+    if (nr) nr.textContent = idx + 1;
+  });
+}
+
+// Schreibfeld — lokales Üben mit Browser-Speicherung
+(function () {
+  var ta = document.getElementById('schreibfeld');
+  if (!ta) return;
+  var KEY = 'fb-schreibfeld-oznur-drill-entscheiden';
+  var status = document.getElementById('schreib-status');
+  var count = document.getElementById('schreib-count');
+  try { var saved = localStorage.getItem(KEY); if (saved) { ta.value = saved; } } catch (e) {}
+  function update() {
+    var t = ta.value.trim();
+    var w = t ? t.split(/\s+/).length : 0;
+    if (count) count.textContent = w + (w === 1 ? ' Wort' : ' Wörter');
+    try {
+      localStorage.setItem(KEY, ta.value);
+      if (status) status.textContent = t ? 'Automatisch gespeichert.' : 'Noch nichts gespeichert.';
+    } catch (e) { if (status) status.textContent = 'Speichern in diesem Browser nicht möglich.'; }
+  }
+  ta.addEventListener('input', update);
+  update();
+})();
+
+fortschritt();
+</script>
+</body>
+</html>
