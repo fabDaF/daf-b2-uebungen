@@ -162,6 +162,29 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   .satz-inline { font-size: 1.1em; line-height: 1.95; }
   .lehrstuecke-grid { grid-template-columns: 1fr; }
 }
+.schreibfeld-block { background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%); border: 1px solid #d5dcf7; border-radius: 12px; padding: 26px 30px; margin-top: 12px; }
+.schreibfeld-titel { font-family: 'Segoe UI', sans-serif; font-size: 0.82em; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667eea; margin-bottom: 10px; }
+.schreibfeld-hinweis { font-family: Georgia, serif; font-size: 1.0em; line-height: 1.6; color: #2c2c2c; margin-bottom: 16px; }
+.schreibfeld-area { width: 100%; min-height: 630px; resize: vertical; border: 1px solid #c5cff5; border-radius: 8px; padding: 14px 16px; font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 1.8; color: #2c2c2c; background: #fff; outline: none; transition: border-color 0.2s; }
+.schreibfeld-area:focus { border-color: #667eea; }
+.schreibfeld-fuss { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-family: 'Segoe UI', sans-serif; font-size: 0.8em; color: #888; }
+.schreib-status { font-style: italic; }
+.schreib-count { font-weight: 600; color: #667eea; }
+.schreibfeld-aktion { margin-top: 16px; }
+.schreibfeld-btn { background: #667eea; color: #fff; border: none; padding: 12px 22px; border-radius: 8px; font-family: 'Segoe UI', sans-serif; font-size: 0.95em; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.schreibfeld-btn:hover { background: #5568d3; }
+.schreibfeld-btn:disabled { opacity: 0.6; cursor: default; }
+.schreibfeld-btn.gesendet { background: #27ae60; }
+.schreib-send-status { margin-top: 12px; font-family: 'Segoe UI', sans-serif; font-size: 0.9em; line-height: 1.55; }
+.schreib-send-status.success { color: #1b5e20; }
+.schreib-send-status.error { color: #b71c1c; }
+.schreib-fb { background: #fff5f5; border: 1px solid #f3c6c6; border-radius: 8px; padding: 14px 16px; }
+.schreib-fb-titel { font-weight: 700; margin-bottom: 6px; }
+.schreib-fb-text { margin-bottom: 10px; }
+.schreib-fb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.schreib-fb-btn { display: inline-block; background: #fff; border: 1px solid #c5cff5; color: #667eea; padding: 7px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 600; cursor: pointer; text-decoration: none; }
+.schreib-fb-btn-prim { background: #667eea; color: #fff; border-color: #667eea; }
+/* FB-SCHREIBFELD-MODULE */
 </style>
 </head>
 <body>
@@ -300,6 +323,21 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     </div>
   </div>
 
+  <!-- ═══ SCHREIBFELD ═══ -->
+  <div class="schreibfeld-block">
+    <div class="schreibfeld-titel">Schreibfeld — selbst schreiben und an Frank senden</div>
+    <p class="schreibfeld-hinweis">Den Text noch einmal schreiben — diesmal mit den Korrekturen von oben. Der Text wird automatisch in diesem Browser gespeichert. Mit „An Frank senden“ geht die Neufassung direkt an den Unterricht.</p>
+    <textarea id="schreibfeld" class="schreibfeld-area" placeholder="Hier den verbesserten Text schreiben …"></textarea>
+    <div class="schreibfeld-fuss">
+      <span id="schreib-status" class="schreib-status">Noch nichts gespeichert.</span>
+      <span id="schreib-count" class="schreib-count">0 Wörter</span>
+    </div>
+    <div class="schreibfeld-aktion">
+      <button type="button" id="schreib-send" class="schreibfeld-btn" onclick="schreibfeldSenden()">📨 An Frank senden</button>
+    </div>
+    <div id="schreib-send-status" class="schreib-send-status"></div>
+  </div>
+
 </div>
 
 <div class="author-footer">
@@ -356,6 +394,99 @@ function resetCard(btn) {
   });
   uebung.classList.remove('done');
 }
+
+/* FB-SCHREIBFELD-MODULE */
+var SCHREIBFELD_ENDPOINT   = 'https://api.web3forms.com/submit';
+var SCHREIBFELD_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var SCHREIBFELD_MAILTO     = 'unterricht@frankburkert-daf.de';
+var SCHREIBFELD_NAME       = 'Balaji';
+var SCHREIBFELD_LEKTION    = 'C1.3 – Korrektur 3017R · Aufgabe 1';
+
+(function () {
+  var ta = document.getElementById('schreibfeld');
+  if (!ta) return;
+  var KEY = 'fb-schreibfeld-balaji-3017r-aufgabe1';
+  var status = document.getElementById('schreib-status');
+  var count = document.getElementById('schreib-count');
+  try { var saved = localStorage.getItem(KEY); if (saved) { ta.value = saved; } } catch (e) {}
+  function update() {
+    var t = ta.value.trim();
+    var w = t ? t.split(/\s+/).length : 0;
+    if (count) count.textContent = w + (w === 1 ? ' Wort' : ' Wörter');
+    try {
+      localStorage.setItem(KEY, ta.value);
+      if (status) status.textContent = t ? 'Automatisch gespeichert.' : 'Noch nichts gespeichert.';
+    } catch (e) { if (status) status.textContent = 'Speichern in diesem Browser nicht möglich.'; }
+    var sb = document.getElementById('schreib-send');
+    if (sb && sb.classList.contains('gesendet')) { sb.classList.remove('gesendet'); sb.innerHTML = '📨 Erneut senden'; }
+  }
+  ta.addEventListener('input', update);
+  update();
+})();
+
+function schreibfeldSenden() {
+  var ta = document.getElementById('schreibfeld');
+  var btn = document.getElementById('schreib-send');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !btn || !st) return;
+  var text = ta.value.trim();
+  if (text.length < 14) { st.className = 'schreib-send-status error'; st.textContent = 'Noch zu kurz — bitte zuerst den Text schreiben.'; return; }
+  var subject = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + ' · ' + SCHREIBFELD_NAME;
+  var message = '=== Schreibtraining (Korrektur-Neufassung) ===\n\n' + text;
+  btn.disabled = true; var orig = btn.innerHTML; btn.innerHTML = '⏳ Wird gesendet …';
+  fetch(SCHREIBFELD_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      access_key: SCHREIBFELD_ACCESS_KEY, name: SCHREIBFELD_NAME,
+      subject: subject, from_name: 'fabDaF Schreibwerkstatt',
+      lektion: SCHREIBFELD_LEKTION, message: message
+    })
+  })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP_' + r.status); return r.json(); })
+    .then(function (data) {
+      var ok = data && (data.success === true || data.success === 'true');
+      if (!ok) { var e = new Error('API_ERROR'); e.apiMessage = (data && data.message) || ''; throw e; }
+      btn.disabled = false; btn.classList.add('gesendet');
+      var j = new Date(); var info = 'gesendet um ' + String(j.getHours()).padStart(2, '0') + ':' + String(j.getMinutes()).padStart(2, '0');
+      btn.innerHTML = '✓ ' + info + ' · erneut senden';
+      st.className = 'schreib-send-status success'; st.textContent = '✓ Die Neufassung ist bei Frank angekommen.';
+    })
+    .catch(function (err) {
+      btn.disabled = false; btn.innerHTML = orig;
+      var subjectEnc = encodeURIComponent(subject);
+      var bodyEnc = encodeURIComponent('Name: ' + SCHREIBFELD_NAME + '\n\n' + message);
+      var mailto = 'mailto:' + SCHREIBFELD_MAILTO + '?subject=' + subjectEnc + '&body=' + bodyEnc;
+      st.className = 'schreib-send-status error';
+      st.innerHTML =
+        '<div class="schreib-fb">' +
+          '<div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — der Text ist sicher im Browser gespeichert.</div>' +
+          '<div class="schreib-fb-text">Einen Weg wählen, damit Frank die Neufassung trotzdem bekommt:</div>' +
+          '<div class="schreib-fb-actions">' +
+            '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 In Mail-Programm öffnen</a>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldKopieren()">📋 In Zwischenablage</button>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldSenden()">🔄 Nochmal versuchen</button>' +
+          '</div>' +
+        '</div>';
+    });
+}
+
+function schreibfeldKopieren() {
+  var ta = document.getElementById('schreibfeld');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !st) return;
+  var text = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + '\nName: ' + SCHREIBFELD_NAME + '\n\n' + ta.value.trim();
+  function fertig(ok) {
+    st.className = 'schreib-send-status ' + (ok ? 'success' : 'error');
+    st.textContent = ok ? '✓ In die Zwischenablage kopiert. Jetzt in eine Mail an Frank einfügen.' : '✗ Kopieren ging nicht — Text in der Box markieren und selbst kopieren.';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { fertig(true); }, function () { fertig(false); });
+  } else {
+    try { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); fertig(true); } catch (e) { fertig(false); }
+  }
+}
+
 </script>
 </body>
 </html>
