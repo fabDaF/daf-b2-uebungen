@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ein merkwürdiger Akzent – Sprachbausteine B2</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.1em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+
+/* ── Navigation ── */
+.nav {
+    display: flex;
+    flex-wrap: nowrap;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.nav-btn {
+    flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    transition: all 0.3s;
+    font-size: 0.92em;
+    font-weight: 500;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e9ecef; color: #495057; }
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 600;
+    border-bottom: 3px solid #667eea;
+}
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+
+/* ── Tab-Bereich ── */
+.content-pad { padding: 26px 30px 10px; }
+.section { display: none; }
+.section.active { display: block; }
+
+.tab-banner {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.section-title { font-size: 1.4em; font-weight: 700; color: #667eea; margin-bottom: 8px; }
+.section-sub { color: #888; font-size: 0.92em; margin-bottom: 20px; }
+
+/* ── Control-Bar ── */
+.control-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 6px 12px; background: #f8f9fa; border-radius: 8px; }
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* ── Hilfe-/Merkkasten ── */
+.hilfe-box {
+    background: #f0f4ff;
+    border-left: 4px solid #667eea;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    font-size: 0.9em;
+    color: #444;
+    line-height: 1.6;
+}
+.merk-box {
+    background: #fff8e6;
+    border-left: 4px solid #f0ad4e;
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-bottom: 22px;
+    font-size: 0.95em;
+    color: #5b4a23;
+    line-height: 1.7;
+}
+.merk-box b { color: #8a6d1c; }
+
+/* ── Einstieg: Fließtext + Vokabelkarten ── */
+.lese-text {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 22px 26px;
+    font-size: 1.0em;
+    line-height: 1.9;
+    color: #333;
+    margin-bottom: 18px;
+}
+.lese-text p { margin-bottom: 12px; }
+.lese-text p:last-child { margin-bottom: 0; }
+
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+.vocab-card { background: #f8f9ff; border: 1px solid #dde3ff; border-radius: 10px; padding: 14px 16px; }
+.vocab-term { font-weight: 700; color: #667eea; font-size: 1.05em; margin-bottom: 2px; }
+.vocab-en { color: #999; font-size: 0.85em; margin-bottom: 5px; font-style: italic; }
+.vocab-def { color: #555; font-size: 0.92em; line-height: 1.5; }
+
+/* ── Sprachbausteine: Cloze mit Inline-Pills ── */
+.sb-text {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.05em;
+    line-height: 2.3;
+    color: #1a1a1a;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.sb-text p { margin-bottom: 1.1em; }
+.gap { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; vertical-align: middle; margin: 0 3px; }
+.gap-num {
+    font-size: 10px; font-weight: 700; color: #fff; background: #764ba2;
+    border-radius: 9px; min-width: 18px; height: 16px; padding: 0 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.gap .mc-opts { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.gap .mc-opt {
+    padding: 2px 9px; border: 1.5px solid #c5cae9; border-radius: 20px;
+    background: #fff; cursor: pointer; font-size: 11px; letter-spacing: 0.2px;
+    font-family: 'Segoe UI', sans-serif; transition: all .2s;
+}
+.gap .mc-opt:hover { border-color: #667eea; background: #eef0ff; }
+.gap .mc-opt.correct { border-color: #27ae60; background: #e8f5e9; color: #2e7d32; font-weight: 700; }
+.gap .mc-opt.wrong { border-color: #e74c3c; background: #ffebee; color: #c62828; text-decoration: line-through; }
+.gap.solved .mc-opt:not(.correct) { opacity: 0.35; }
+.gap-beispiel {
+    background: #e8f5e9; border: 1.5px solid #27ae60; color: #2e7d32; font-weight: 700;
+    padding: 2px 10px; border-radius: 20px; font-size: 0.92em; font-family: 'Segoe UI', sans-serif;
+}
+.gap-beispiel-num {
+    font-size: 10px; font-weight: 700; color: #fff; background: #27ae60;
+    border-radius: 9px; min-width: 18px; height: 16px; padding: 0 4px; margin-right: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.sb-progress { text-align: center; color: #888; font-size: 0.85em; margin: 14px 0 4px; }
+.story-source { margin-top: 18px; color: #aaa; font-size: 0.8em; text-align: right; }
+
+/* ── Erklärungen ── */
+.erk-card {
+    border: 1px solid #e3e3ee; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0;
+    padding: 14px 18px; margin-bottom: 14px; background: #fcfcff;
+}
+.erk-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
+.erk-luecke { font-weight: 700; color: #4a148c; font-size: 1.05em; }
+.erk-loesung { font-weight: 700; color: #27ae60; font-size: 1.05em; }
+.erk-kat { font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    color: #fff; background: #764ba2; border-radius: 12px; padding: 2px 10px; }
+.erk-kat.fest { background: #2e7d32; }
+.erk-kat.gram { background: #1565c0; }
+.erk-kat.konn { background: #c2185b; }
+.erk-kat.modal { background: #ef6c00; }
+.erk-kat.lex { background: #6a1b9a; }
+.erk-warum { color: #333; font-size: 0.95em; line-height: 1.6; margin-bottom: 8px; }
+.erk-andere { color: #555; font-size: 0.9em; line-height: 1.6; background: #f6f6fb; border-radius: 8px; padding: 8px 12px; }
+.erk-andere b { color: #444; }
+
+/* ── Tabelle feste Wendungen ── */
+.fw-table { width: 100%; border-collapse: collapse; font-size: 0.92em; margin-top: 6px; }
+.fw-table th { background: #667eea; color: #fff; text-align: left; padding: 10px 12px; font-weight: 600; }
+.fw-table td { padding: 9px 12px; border-bottom: 1px solid #eee; vertical-align: top; color: #333; line-height: 1.5; }
+.fw-table tr:nth-child(even) td { background: #f8f9ff; }
+.fw-wendung { font-weight: 700; color: #4a148c; white-space: nowrap; }
+.fw-kasus { color: #c2185b; font-weight: 600; font-size: 0.85em; }
+.fw-bsp { font-family: Georgia, serif; color: #444; }
+.fw-luecke { text-align: center; font-weight: 700; color: #764ba2; }
+
+/* ── Wortschatz ── */
+.luecken-item { background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px; padding: 12px 14px; }
+input.blank {
+    border: none; border-bottom: 2px solid #c5cae9; background: transparent;
+    padding: 3px 6px; font-family: inherit; font-size: 0.95em; outline: none;
+    transition: all 0.2s; min-width: 4ch;
+}
+input.blank:focus { border-bottom-color: #667eea; }
+input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #1e7e44; font-weight: 600; }
+input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #c0392b; }
+
+/* ── Footer ── */
+.author-footer { text-align: center; margin-top: 30px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .content-pad { padding: 18px 16px 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .tab-banner { max-height: 120px; }
+    .sb-text { font-size: 1.0em; line-height: 2.2; }
+    .vocab-grid { grid-template-columns: 1fr; }
+    .fw-wendung { white-space: normal; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>Ein merkwürdiger Akzent</h1>
+        <p>B2 – Sprachbausteine · Lesen &amp; feste Wendungen</p>
+        <span class="big-emoji">🗣️</span>
+    </div>
+
+    <div class="nav">
+        <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📚</span><span class="nav-label">Einstieg</span></div>
+        <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">🧩</span><span class="nav-label">Sprachbausteine</span></div>
+        <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">💡</span><span class="nav-label">Erklärungen</span></div>
+        <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">🔗</span><span class="nav-label">Feste Wendungen</span></div>
+        <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">📖</span><span class="nav-label">Wortschatz</span></div>
+    </div>
+
+    <div class="content-pad">
+
+    <!-- ============ TAB 0: EINSTIEG ============ -->
+    <div class="section active" id="sec-0">
+        <img class="tab-banner" src="https://images.pexels.com/photos/7089331/pexels-photo-7089331.jpeg?auto=compress&cs=tinysrgb&w=1000" alt="Gehirn und Sprache">
+        <div class="section-title">📚 Worum geht es?</div>
+        <div class="section-sub">Lies kurz das Thema und sieh dir die Schlüsselwörter an, bevor du die Lücken löst.</div>
+
+        <div class="lese-text">
+            <p>Manche Menschen sprechen nach einem Schlaganfall plötzlich ihre eigene Muttersprache mit einem fremden Akzent – so, als kämen sie aus einem anderen Land. Diese sehr seltene neurologische Störung heißt „Foreign Accent Syndrome“ (Fremdsprachenakzentsyndrom). Der folgende Text erzählt davon.</p>
+            <p>Deine Aufgabe ist ein typischer <b>Sprachbausteine</b>-Test (telc B2): In den Text sind 22 Lücken eingebaut. Für jede Lücke gibt es vier Optionen – nur eine ist richtig.</p>
+        </div>
+
+        <div class="merk-box">
+            <b>Worauf es ankommt – feste Wendungen.</b> Sehr oft ist eine Lücke <b>kein</b> Logik-Rätsel,
+            sondern eine <b>feste Verbindung</b>, die man als Ganzes lernt. Im Deutschen verlangen viele
+            Verben und Nomen eine <b>bestimmte Präposition und einen bestimmten Kasus</b>:
+            <i>erinnern <b>an</b> + Akkusativ</i>, <i>zurückgehen <b>auf</b> + Akkusativ</i>,
+            <i>der Experte <b>für</b> …</i>, <i>jemandem etwas <b>zu</b>schreiben + Dativ</i>.
+            Rein logisch klingen oft auch andere Wörter möglich – aber der <b>Sprachstandard</b> ist festgelegt.
+            Wo die Lücke dagegen eine <b>Grammatikform</b> testet (Konjunktiv, Adjektivendung, Infinitiv mit „zu“),
+            kann man die falschen Optionen <b>grammatisch erklären</b>. Genau das macht der Tab „Erklärungen“.
+        </div>
+
+        <div class="vocab-grid" id="vocabGrid"></div>
+    </div>
+
+    <!-- ============ TAB 1: SPRACHBAUSTEINE ============ -->
+    <div class="section" id="sec-1">
+        <img class="tab-banner" src="https://images.pexels.com/photos/9227243/pexels-photo-9227243.jpeg?auto=compress&cs=tinysrgb&w=1000" alt="Puzzleteile – Sprachbausteine">
+        <h2 style="color:#667eea;margin-bottom:4px;">🧩 Sprachbausteine</h2>
+        <div class="control-bar">
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showLoesung(1)">Lösungen</button>
+                <button class="btn btn-reset" onclick="resetTab(1); timerResetOne(1);">Neu starten</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-1">00:00</span></span>
+                <span class="best-time">🏆 <span id="best-1">--:--</span></span>
+            </div>
+        </div>
+        <div class="hilfe-box">
+            Klicke in jeder Lücke auf die richtige Option. <b>Grün</b> = richtig (die Lücke wird fixiert),
+            <b>rot</b> = noch nicht – du kannst es weiter versuchen. Lücke <b>0</b> ist das Beispiel.
+        </div>
+        <div class="sb-text" id="sbContainer"></div>
+        <div class="sb-progress" id="sbProgress"></div>
+        <div class="story-source">Quelle: spektrum.de (zu Übungszwecken bearbeitet)</div>
+    </div>
+
+    <!-- ============ TAB 2: ERKLÄRUNGEN ============ -->
+    <div class="section" id="sec-2">
+        <img class="tab-banner" src="https://images.pexels.com/photos/12198521/pexels-photo-12198521.jpeg?auto=compress&cs=tinysrgb&w=1000" alt="Glühbirne – Erklärungen">
+        <div class="section-title">💡 Warum ist welche Lösung richtig?</div>
+        <div class="section-sub">Für jede Lücke: die richtige Lösung, der Grund – und warum die anderen Optionen nicht passen.</div>
+        <div id="erkContainer"></div>
+    </div>
+
+    <!-- ============ TAB 3: FESTE WENDUNGEN ============ -->
+    <div class="section" id="sec-3">
+        <img class="tab-banner" src="https://images.pexels.com/photos/15161407/pexels-photo-15161407.jpeg?auto=compress&cs=tinysrgb&w=1000" alt="Kettenglieder – feste Verbindungen">
+        <div class="section-title">🔗 Feste Wendungen aus dem Text</div>
+        <div class="section-sub">Diese Verbindungen lernt man als Ganzes – mit Präposition und Kasus. Sie tauchen im Text auf.</div>
+        <table class="fw-table">
+            <thead>
+                <tr><th>Feste Wendung</th><th>Bau / Kasus</th><th>Im Text</th><th>Lücke</th></tr>
+            </thead>
+            <tbody id="fwBody"></tbody>
+        </table>
+        <div class="merk-box" style="margin-top:22px;">
+            <b>Merksatz.</b> Bei einer festen Wendung fragt man nicht „Was ist logisch?“, sondern
+            „<b>Welche Präposition und welchen Kasus verlangt dieses Wort?</b>“ – und die lernt man
+            zusammen mit dem Verb oder Nomen: <i>erinnern an + A</i>, nicht <i>erinnern über</i>.
+        </div>
+    </div>
+
+    <!-- ============ TAB 4: WORTSCHATZ ============ -->
+    <div class="section" id="sec-4">
+        <img class="tab-banner" src="https://images.pexels.com/photos/4440715/pexels-photo-4440715.jpeg?auto=compress&cs=tinysrgb&w=1000" alt="Wörterbuch – Wortschatz">
+        <h2 style="color:#667eea;margin-bottom:4px;">📖 Wortschatz</h2>
+        <div class="control-bar">
+            <div class="btn-row">
+                <button class="btn btn-show" onclick="showLoesung(4)">Lösungen</button>
+                <button class="btn btn-reset" onclick="resetTab(4); timerResetOne(4);">Neu starten</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+                <span class="best-time">🏆 <span id="best-4">--:--</span></span>
+            </div>
+        </div>
+        <div class="hilfe-box">
+            Tippe die deutschen Wörter. Bei Nomen: <b>Artikel</b>, <b>Wort</b> (großgeschrieben) und <b>Plural</b> (volles Wort).
+        </div>
+        <div id="wortschatzContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+    </div>
+
+    <div class="author-footer">
+        <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+        <a href="mailto:FrankBurkert@fabdaf.onmicrosoft.com">FrankBurkert@fabdaf.onmicrosoft.com</a>
+    </div>
+
+    </div><!-- /content-pad -->
+</div><!-- /container -->
+
+<script>
+/* =================== DATEN =================== */
+
+var VORENTLASTUNG = [
+    { term: 'der Schlaganfall', en: 'stroke', def: 'Plötzliche Durchblutungsstörung im Gehirn.' },
+    { term: 'die Störung', en: 'disorder', def: 'Etwas funktioniert nicht richtig (hier: im Gehirn/Sprechen).' },
+    { term: 'die Lautbildung', en: 'articulation', def: 'Wie man die Laute einer Sprache mit dem Mund formt.' },
+    { term: 'der Tonfall', en: 'tone of voice', def: 'Die Melodie und Färbung beim Sprechen.' },
+    { term: 'der Eindruck', en: 'impression', def: 'Das Bild, das bei anderen entsteht.' },
+    { term: 'gelähmt', en: 'paralysed', def: 'Ein Körperteil kann nicht mehr bewegt werden.' }
+];
+
+/* Sprachbausteine: Text in Segmenten. String = Text, {ex} = Beispiel (Lücke 0),
+   {g, opts, a} = Lücke mit vier Optionen und richtiger Lösung (a). */
+var SB_DATA = [
+    [
+        { ex: 'Stellen' },
+        ' Sie sich vor, Sie wachen eines Morgens auf und wünschen Ihrem Partner einen guten Morgen – ',
+        { g: 25, opts: ['und', 'doch', 'denn', 'weil'], a: 'doch' },
+        ' die Worte aus Ihrem Mund klingen ',
+        { g: 26, opts: ['fremd', 'fremde', 'fremden', 'fremdes'], a: 'fremd' },
+        '. Dann könnte es sich um eine ',
+        { g: 27, opts: ['viel', 'äußerst', 'mehr', 'weniger'], a: 'äußerst' },
+        ' seltene neurologische Störung handeln: das „Foreign Accent Syndrome“, zu Deutsch Fremdsprachenakzentsyndrom.'
+    ],
+    [
+        'Beim Fremdsprachenakzentsyndrom sprechen Patienten plötzlich ihre Muttersprache mit einem ',
+        { g: 28, opts: ['fremde', 'fremden', 'fremd', 'fremder'], a: 'fremden' },
+        ' regionalen oder ausländischen Akzent. Meist geht die veränderte Sprechweise auf Hirnschäden ',
+        { g: 29, opts: ['trotz', 'infolge', 'statt', 'dank'], a: 'infolge' },
+        ' eines Schlaganfalls oder einer Verletzung ',
+        { g: 30, opts: ['hervor', 'zurück', 'voran', 'aus'], a: 'zurück' },
+        '. Die Erkrankung beeinflusst die Sprachmelodie, wobei die ',
+        { g: 31, opts: ['verändert', 'veränderte', 'verändernde', 'Veränderung'], a: 'veränderte' },
+        ' Lautbildung und Betonung fälschlicherweise den Eindruck erweckt, der Betroffene sei kein Muttersprachler.'
+    ],
+    [
+        'Ein in der Fachwelt bekanntes Beispiel ist der Fall von Sabine Kindschuh. Hätte die Patientin ein paar hundert Jahre früher gelebt, ',
+        { g: 32, opts: ['war', 'wäre', 'ist', 'würde'], a: 'wäre' },
+        ' sie eine Kandidatin für den Scheiterhaufen gewesen. Ihr Heimatdorf Oberalba in Thüringen war im 17. Jahrhundert Schauplatz mehrerer Hexenprozesse, und was mit der 57-Jährigen ',
+        { g: 33, opts: ['geschieht', 'geschah', 'geschehen', 'geschehe'], a: 'geschah' },
+        ', hätte man einst wohl übernatürlichen Mächten ',
+        { g: 34, opts: ['geschrieben', 'zugeschrieben', 'beschrieben', 'verschrieben'], a: 'zugeschrieben' },
+        ': Sie sprach nach einem Schlaganfall plötzlich mit einem Tonfall, der an den Schweizer Dialekt erinnerte. ',
+        { g: 35, opts: ['Obwohl', 'Sosehr', 'Wenn', 'Indem'], a: 'Sosehr' },
+        ' sie auch versuchte, wieder normal zu sprechen, es gelang ihr einfach nicht.'
+    ],
+    [
+        'Die ',
+        { g: 36, opts: ['behandelten', 'behandelnden', 'behandelnde', 'behandelte'], a: 'behandelnden' },
+        ' Ärzte vermuteten psychische Ursachen dahinter, ',
+        { g: 37, opts: ['was', 'wie', 'wodurch', 'als'], a: 'wie' },
+        ' eine regionale Tageszeitung berichtete. Erst ein Sprachtherapeut erkannte: Es handelte sich um das „Foreign Accent Syndrome“, eine neurologische Erkrankung, die ',
+        { g: 38, opts: ['zu', 'so', 'sehr', 'wie'], a: 'so' },
+        ' selten ist, dass ein durchschnittlicher Mediziner in seinem gesamten Leben keinen einzigen Betroffenen ',
+        { g: 39, opts: ['zur Kenntnis', 'zu Gesicht', 'in den Griff', 'ans Licht'], a: 'zu Gesicht' },
+        ' bekommt. Experten sprechen von weltweit rund 60, maximal 100 Fällen, die überhaupt jemals ',
+        { g: 40, opts: ['auftreten', 'auftraten', 'aufträten', 'auftritt'], a: 'auftraten' },
+        '.'
+    ],
+    [
+        { g: 41, opts: ['Erstmal', 'Erstmals', 'Erstens', 'Erstlich'], a: 'Erstmals' },
+        ' beschrieb der französische Neurologe Pierre Marie 1907: Eine Pariserin, die einen Schlaganfall erlitten hatte und danach rechtsseitig gelähmt war, begann ',
+        { g: 42, opts: ['plötzliche', 'plötzlich', 'plötzlichem', 'Plötzlichkeit'], a: 'plötzlich' },
+        ' mit einem elsässisch klingenden Akzent zu sprechen. Mehr Details sind von einer anderen historischen Patientin überliefert: Der Experte ',
+        { g: 43, opts: ['von', 'für', 'über', 'in'], a: 'für' },
+        ' Sprachstörungen Georg Herman Monrad-Krohn dokumentierte 1943 die Geschichte der Norwegerin Astrid L., die bei einem Unfall am linken Stirnhirn verletzt wurde. Sie ',
+        { g: 44, opts: ['will', 'soll', 'muss', 'kann'], a: 'soll' },
+        ' mehrere Tage bewusstlos und danach rechtsseitig gelähmt gewesen sein. Zunächst hatte sie enorme Schwierigkeiten, einfache Gegenstände wie eine Streichholzschachtel ',
+        { g: 45, opts: ['benennen', 'zu benennen', 'benannte', 'zu benennend'], a: 'zu benennen' },
+        ', und machte zahlreiche Grammatikfehler. Mit der Zeit lernte sie zwar wieder, korrekt und flüssig zu sprechen, allerdings mit einem Tonfall, der ihre Landsleute offenbar ',
+        { g: 46, opts: ['an einem', 'an einen', 'über einen', 'auf einen'], a: 'an einen' },
+        ' deutschen Akzent erinnerte.'
+    ]
+];
+
+/* Erklärungen — kat: fest | gram | konn | modal | lex */
+var ERKLAERUNGEN = [
+    { g: 25, a: 'doch', kat: 'konn', katlabel: 'Konnektor',
+      warum: 'Zwischen dem freundlichen „Guten Morgen“ und dem fremden Klang besteht ein Gegensatz. „doch“ verbindet zwei Hauptsätze adversativ; das Verb bleibt auf Position 2 („klingen“).',
+      andere: '„und“ ist nur additiv und unterschlägt den Kontrast. „denn“ begründet (hier gibt es keinen Grund). „weil“ leitet einen Nebensatz ein und verlangte Endstellung des Verbs („…fremd klingen“) – das passt nicht zum folgenden Hauptsatz.' },
+    { g: 26, a: 'fremd', kat: 'gram', katlabel: 'Grammatik – Form',
+      warum: 'Nach „klingen“ steht ein prädikatives Adjektiv in der Grundform, also unflektiert: „Die Worte klingen fremd.“',
+      andere: '„fremde / fremden / fremdes“ sind flektierte Attributformen. Sie brauchen ein Nomen, das sie begleiten („fremde Worte“). Als Satzaussage (Prädikativ) ist eine Endung falsch.' },
+    { g: 27, a: 'äußerst', kat: 'lex', katlabel: 'Wortschatz – Gradadverb',
+      warum: '„äußerst“ ist ein Steigerungsadverb (= sehr, in hohem Maße) und verstärkt das Adjektiv „selten“: „eine äußerst seltene Störung“.',
+      andere: '„viel / mehr / weniger“ sind Mengen- bzw. Vergleichswörter und graduieren hier kein Adjektiv: „eine viel seltene Störung“ ist falsch. „viel“ geht nur vor einem Komparativ („eine viel seltenere Störung“).' },
+    { g: 28, a: 'fremden', kat: 'gram', katlabel: 'Grammatik – Adjektivendung',
+      warum: 'Nach „mit“ steht der Dativ; „ein“ wird zu „einem“. Das attributive Adjektiv bekommt im Dativ Singular die Endung „-en“: „mit einem fremden … Akzent“.',
+      andere: '„fremde / fremder / fremd“ passen nicht zur Kombination Dativ + „einem“. Die Kongruenz (Kasus-Numerus-Genus) verlangt hier „-en“.' },
+    { g: 29, a: 'infolge', kat: 'fest', katlabel: 'Feste Wendung – Präposition + Genitiv',
+      warum: '„infolge“ (+ Genitiv) bedeutet „als Folge von“. Die Hirnschäden sind die Folge des Schlaganfalls: „Hirnschäden infolge eines Schlaganfalls“.',
+      andere: 'Alle drei sind ebenfalls Genitivpräpositionen, passen aber inhaltlich nicht: „trotz“ (Gegengrund), „statt“ (Ersatz), „dank“ (positiver Grund). Logisch denkbar wären „wegen/aufgrund“ – der Text wählt aber die Folge-Präposition „infolge“.' },
+    { g: 30, a: 'zurück', kat: 'fest', katlabel: 'Feste Wendung – Verb + Präposition',
+      warum: 'Feste Wendung „auf etwas (Akkusativ) zurückgehen“ = „seine Ursache in etwas haben“. Das trennbare Präfix „zurück“ steht am Satzende: „Die Sprechweise geht auf Hirnschäden zurück.“',
+      andere: '„hervor- / voran- / aus-“ bilden andere Verben mit anderer Rektion („hervorgehen aus“, „ausgehen von“). Mit „auf … (Akkusativ)“ ist nur „zurückgehen“ das idiomatisch feste Gefüge.' },
+    { g: 31, a: 'veränderte', kat: 'gram', katlabel: 'Grammatik – Partizip als Attribut',
+      warum: 'Partizip II „verändert“ als Attribut, flektiert nach „die“ (Nom. Sg. f.): „die veränderte Lautbildung“. Bedeutung: Die Lautbildung wurde verändert.',
+      andere: '„verändert“ (unflektiert) kann nicht vor dem Nomen stehen. „verändernde“ (Partizip I) hätte aktive Bedeutung („die sich verändernde“) und trifft den Sinn nicht. „Veränderung“ ist ein Nomen und kein Attribut.' },
+    { g: 32, a: 'wäre', kat: 'gram', katlabel: 'Grammatik – Konjunktiv II',
+      warum: 'Irrealer Bedingungssatz: Der Nebensatz steht im Konjunktiv II der Vergangenheit („Hätte sie … gelebt“), der Hauptsatz braucht die passende Form: „wäre sie … gewesen“.',
+      andere: '„war / ist“ sind Indikativ und passen nicht zur Irrealität. „würde“ verlangte einen Infinitiv („würde … sein“), nicht das Partizip „gewesen“ – „würde … gewesen“ ist ungrammatisch.' },
+    { g: 33, a: 'geschah', kat: 'gram', katlabel: 'Grammatik – Tempus',
+      warum: 'Die Erzählung steht im Präteritum. „was mit der 57-Jährigen geschah“ – 3. Person Singular Präteritum von „geschehen“.',
+      andere: '„geschieht“ (Präsens) bricht die Erzählzeit. „geschehen“ (Infinitiv/Partizip) bräuchte ein Hilfsverb („geschehen war“). „geschehe“ (Konjunktiv I) gehört in die indirekte Rede, die hier nicht vorliegt.' },
+    { g: 34, a: 'zugeschrieben', kat: 'fest', katlabel: 'Feste Wendung – Verb + Dativ',
+      warum: 'Feste Wendung „jemandem/etwas (Dativ) etwas zuschreiben“ = „als Ursache annehmen“. „übernatürlichen Mächten“ steht im Dativ; im Konjunktiv der Vergangenheit: „hätte man … zugeschrieben“.',
+      andere: '„schreiben / beschreiben / verschreiben“ haben andere Bedeutungen und andere Rektion („etwas beschreiben“ = schildern). Nur „zuschreiben“ trägt den Sinn „auf eine Ursache zurückführen“.' },
+    { g: 35, a: 'Sosehr', kat: 'konn', katlabel: 'Konnektor – Konzessiv',
+      warum: 'Das Muster „Sosehr … auch“ räumt ein, dass die Anstrengung groß war – ohne Erfolg. Das verstärkende „auch“ gehört zu diesem Muster.',
+      andere: '„Obwohl“ ist inhaltlich nah, verträgt sich aber nicht mit dem „auch“ („Obwohl sie auch versuchte“ ist unidiomatisch). „Wenn“ (konditional) und „Indem“ (Mittel/Art und Weise) treffen den Sinn des erfolglosen Bemühens nicht.' },
+    { g: 36, a: 'behandelnden', kat: 'gram', katlabel: 'Grammatik – Partizip I/II',
+      warum: 'Partizip I „behandelnd“ mit aktiver Bedeutung („die Ärzte, die behandeln“), flektiert nach „die“ im Plural: „die behandelnden Ärzte“.',
+      andere: '„behandelten“ (Partizip II) hieße „die Ärzte, die behandelt wurden“ – falsche, passive Bedeutung. „behandelnde / behandelte“ haben hier die falsche Endung (nach „die“ im Plural „-en“).' },
+    { g: 37, a: 'wie', kat: 'konn', katlabel: 'Konnektor – Quellenangabe',
+      warum: '„wie“ leitet den Hinweis auf die Quelle ein: „…, wie eine Tageszeitung berichtete“ (= entsprechend dem Bericht).',
+      andere: '„was“ bezöge sich auf den ganzen Satz und ergäbe eine andere, holprige Aussage. „wodurch“ (= dadurch, dass) nennt ein Mittel. „als“ wäre temporal/vergleichend – beides passt nicht.' },
+    { g: 38, a: 'so', kat: 'gram', katlabel: 'Grammatik – Konsekutiv (so … dass)',
+      warum: 'Korrelat „so … , dass“: Die Folge wird mit „so“ + Adjektiv eingeleitet und mit „dass“ angeschlossen: „so selten …, dass …“.',
+      andere: '„zu“ („zu selten“) drückt ein Übermaß aus und verlangte „als dass“ + Konjunktiv. „sehr“ hat keine Korrelat-Funktion zu „dass“. „wie“ ist vergleichend, nicht konsekutiv.' },
+    { g: 39, a: 'zu Gesicht', kat: 'fest', katlabel: 'Feste Wendung – Funktionsverbgefüge',
+      warum: 'Feste Wendung „jemanden/etwas zu Gesicht bekommen“ = „zufällig zu sehen bekommen“: „…keinen einzigen Betroffenen zu Gesicht bekommt“.',
+      andere: '„zur Kenntnis (nehmen)“, „in den Griff (bekommen)“, „ans Licht (kommen)“ sind ebenfalls feste Wendungen, aber mit anderer Bedeutung. Für „einen Menschen sehen“ + „bekommen“ passt nur „zu Gesicht“.' },
+    { g: 40, a: 'auftraten', kat: 'gram', katlabel: 'Grammatik – Tempus/Form',
+      warum: 'Relativsatz zu „Fällen“, Erzählzeit Präteritum, 3. Person Plural: „Fälle, die … auftraten“ („auftreten“ = vorkommen, sich ereignen).',
+      andere: '„auftreten“ (Infinitiv/Präsens) bricht die Zeit. „aufträten“ (Konjunktiv II) ergäbe einen irrealen Sinn. „auftritt“ ist Singular und Präsens und passt weder im Numerus noch im Tempus.' },
+    { g: 41, a: 'Erstmals', kat: 'lex', katlabel: 'Wortschatz – Adverb',
+      warum: '„Erstmals“ (= zum ersten Mal) ist ein Temporaladverb auf Position 0; danach folgt Inversion: „Erstmals beschrieb der Neurologe …“.',
+      andere: '„Erstmal“ (umgangssprachlich „erst einmal“) meint „zunächst“. „Erstens“ ordnet eine Aufzählung („erstens … zweitens“). „Erstlich“ ist veraltet und unüblich.' },
+    { g: 42, a: 'plötzlich', kat: 'gram', katlabel: 'Grammatik – Adverb',
+      warum: '„plötzlich“ ist hier eine Umstandsangabe zum Verb und bleibt unflektiert: „begann plötzlich … zu sprechen“.',
+      andere: '„plötzliche / plötzlichem“ sind flektierte Adjektivformen und bräuchten ein Nomen. „Plötzlichkeit“ ist ein Nomen. Beim Verb steht die unflektierte Adverbform.' },
+    { g: 43, a: 'für', kat: 'fest', katlabel: 'Feste Wendung – Nomen + Präposition',
+      warum: 'Festes Nomen-Präpositional-Gefüge „der Experte für etwas“: „Der Experte für Sprachstörungen …“.',
+      andere: '„Experte von / über / in“ ist nicht standardsprachlich. Auch sinnverwandte Wörter verlangen „für“ („Spezialist für“, „Fachmann für“). Die feste Präposition zu „Experte“ ist „für“.' },
+    { g: 44, a: 'soll', kat: 'modal', katlabel: 'Modalverb – subjektiv',
+      warum: '„sollen“ im subjektiven Gebrauch = „es wird berichtet / man sagt“. „Sie soll … gewesen sein“ gibt eine fremde Quelle wieder – passend zu einem dokumentierten historischen Fall.',
+      andere: '„will“ (subjektiv) hieße „sie behauptet von sich selbst“ – die Patientin ist aber nicht die Quelle. „muss“ wäre eine logische Schlussfolgerung, „kann“ eine bloße Möglichkeit. Berichtete Information → „soll“.' },
+    { g: 45, a: 'zu benennen', kat: 'gram', katlabel: 'Grammatik – Infinitiv mit „zu“',
+      warum: 'Nach „Schwierigkeiten haben“ folgt ein Infinitivsatz mit „zu“: „Schwierigkeiten, … zu benennen“ („benennen“ = mit Namen bezeichnen).',
+      andere: 'Der reine Infinitiv „benennen“ (ohne „zu“) ist hier falsch. „benannte“ ist eine finite Form (passt nicht in den Infinitivsatz). „zu benennend“ (Gerundivum) bräuchte ein Nomen („die zu benennenden Gegenstände“).' },
+    { g: 46, a: 'an einen', kat: 'fest', katlabel: 'Feste Wendung – Verb + Präposition + Akkusativ',
+      warum: 'Feste Verb-Präposition „jemanden an etwas (Akkusativ) erinnern“. „Akzent“ ist maskulin → Akkusativ „einen“: „erinnerte … an einen deutschen Akzent“.',
+      andere: '„an einem“ steht im Dativ – „erinnern an“ verlangt aber den Akkusativ. „über einen / auf einen“ sind die falschen Präpositionen (vgl. „sich freuen über“, „warten auf“). Zu „erinnern“ gehört „an“.' }
+];
+
+/* Feste-Wendungen-Tabelle */
+var FW_ROWS = [
+    { w: 'auf etwas zurückgehen', k: '+ Akkusativ', b: 'Die Sprechweise geht auf Hirnschäden zurück.', l: '30' },
+    { w: 'infolge', k: 'Präposition + Genitiv', b: 'Hirnschäden infolge eines Schlaganfalls', l: '29' },
+    { w: 'jdm./etwas etwas zuschreiben', k: '+ Dativ', b: '…hätte man übernatürlichen Mächten zugeschrieben.', l: '34' },
+    { w: 'den Eindruck erwecken', k: 'Funktionsverbgefüge', b: '…erweckt den Eindruck, der Betroffene sei kein Muttersprachler.', l: '31 (Kontext)' },
+    { w: 'es handelt sich um', k: '+ Akkusativ', b: 'Es handelte sich um das „Foreign Accent Syndrome“.', l: '38 (Kontext)' },
+    { w: 'der Experte für etwas', k: 'Nomen + „für“', b: 'Der Experte für Sprachstörungen …', l: '43' },
+    { w: 'jdn. an etwas erinnern', k: '+ Akkusativ', b: '…der an einen deutschen Akzent erinnerte.', l: '46' },
+    { w: 'jdn./etwas zu Gesicht bekommen', k: 'feste Wendung', b: '…keinen einzigen Betroffenen zu Gesicht bekommt.', l: '39' },
+    { w: 'Schwierigkeiten haben, … zu …', k: 'Infinitiv mit „zu“', b: '…enorme Schwierigkeiten, … zu benennen.', l: '45' },
+    { w: 'so … , dass', k: 'Konsekutiv-Korrelat', b: '…eine Erkrankung, die so selten ist, dass …', l: '38' },
+    { w: 'sosehr … auch', k: 'Konzessiv', b: 'Sosehr sie auch versuchte, … es gelang ihr nicht.', l: '35' }
+];
+
+var WORTSCHATZ = [
+    { id: 1, type: 'n', en: '🩺 stroke', artikel: 'der', de: 'Schlaganfall', plural: 'Schlaganfälle' },
+    { id: 2, type: 'n', en: '⚠️ disorder', artikel: 'die', de: 'Störung', plural: 'Störungen' },
+    { id: 3, type: 'n', en: '🤕 injury', artikel: 'die', de: 'Verletzung', plural: 'Verletzungen' },
+    { id: 4, type: 'n', en: '💭 impression', artikel: 'der', de: 'Eindruck', plural: 'Eindrücke' },
+    { id: 5, type: 'n', en: '🎵 tone of voice', artikel: 'der', de: 'Tonfall', plural: 'Tonfälle' },
+    { id: 6, type: 'n', en: '🗣️ accent', artikel: 'der', de: 'Akzent', plural: 'Akzente' },
+    { id: 7, type: 'n', en: '👄 articulation (of sounds)', artikel: 'die', de: 'Lautbildung', plural: '–' },
+    { id: 8, type: 'p', en: 'rare', de: 'selten' },
+    { id: 9, type: 'p', en: 'paralysed', de: 'gelähmt' },
+    { id: 10, type: 'p', en: 'unconscious', de: 'bewusstlos' },
+    { id: 11, type: 'p', en: 'to be attributable to (sth)', de: 'zurückgehen auf' },
+    { id: 12, type: 'p', en: 'to remind sb of sth', de: 'erinnern an' },
+    { id: 13, type: 'p', en: 'to attribute sth to sb', de: 'zuschreiben' }
+];
+
+/* =================== NAVIGATION =================== */
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
+}
+
+/* =================== TIMER (kanonisch) =================== */
+var TIMER_PREFIX = 'b2_sb01_';
+var timerStarted   = [false,false,false,false,false];
+var timerRunning   = [false,false,false,false,false];
+var timerSeconds   = [0,0,0,0,0];
+var timerIntervals = [null,null,null,null,null];
+
+function fmtTime(s) { var m = Math.floor(s/60), sec = s%60; return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec; }
+function timerAutoStart(n) {
+    if (timerStarted[n]) return;
+    timerStarted[n] = true; timerRunning[n] = true;
+    timerIntervals[n] = setInterval(function() {
+        timerSeconds[n]++;
+        var el = document.getElementById('timer-'+n); if (el) el.textContent = fmtTime(timerSeconds[n]);
+    }, 1000);
+}
+function stopTimer(n) {
+    if (!timerRunning[n]) return;
+    timerRunning[n] = false; clearInterval(timerIntervals[n]);
+    var key = TIMER_PREFIX+'best_'+n, prev = localStorage.getItem(key);
+    if (!prev || timerSeconds[n] < parseInt(prev)) localStorage.setItem(key, String(timerSeconds[n]));
+    loadBest(n);
+}
+function loadBest(n) {
+    var v = localStorage.getItem(TIMER_PREFIX+'best_'+n);
+    var el = document.getElementById('best-'+n); if (el) el.textContent = v ? fmtTime(parseInt(v)) : '--:--';
+}
+function timerResetOne(n) {
+    if (timerRunning[n]) clearInterval(timerIntervals[n]);
+    timerStarted[n] = false; timerRunning[n] = false; timerSeconds[n] = 0;
+    var el = document.getElementById('timer-'+n); if (el) el.textContent = '00:00';
+}
+
+/* =================== EINSTIEG =================== */
+function initVorentlastung() {
+    var grid = document.getElementById('vocabGrid');
+    grid.innerHTML = '';
+    VORENTLASTUNG.forEach(function(v) {
+        var card = document.createElement('div');
+        card.className = 'vocab-card';
+        card.innerHTML = '<div class="vocab-term">'+v.term+'</div>' +
+                         '<div class="vocab-en">'+v.en+'</div>' +
+                         '<div class="vocab-def">'+v.def+'</div>';
+        grid.appendChild(card);
+    });
+}
+
+/* =================== SPRACHBAUSTEINE =================== */
+function initSB() {
+    var c = document.getElementById('sbContainer');
+    c.innerHTML = '';
+    SB_DATA.forEach(function(para) {
+        var p = document.createElement('p');
+        para.forEach(function(part) {
+            if (typeof part === 'string') {
+                p.appendChild(document.createTextNode(part));
+            } else if (part.ex) {
+                var bsp = document.createElement('span');
+                bsp.className = 'gap-beispiel';
+                bsp.innerHTML = '<span class="gap-beispiel-num">0</span>' + part.ex;
+                p.appendChild(bsp);
+            } else {
+                p.appendChild(buildGap(part));
+            }
+        });
+        c.appendChild(p);
+    });
+    updateSBProgress();
+}
+
+function buildGap(part) {
+    var g = document.createElement('span');
+    g.className = 'gap';
+    g.dataset.g = part.g;
+    g.dataset.a = part.a;
+    var num = document.createElement('span');
+    num.className = 'gap-num';
+    num.textContent = part.g;
+    g.appendChild(num);
+    var opts = document.createElement('span');
+    opts.className = 'mc-opts';
+    part.opts.forEach(function(o) {
+        var b = document.createElement('button');
+        b.className = 'mc-opt';
+        b.type = 'button';
+        b.textContent = o;
+        b.addEventListener('click', function() { onGapClick(g, b); });
+        opts.appendChild(b);
+    });
+    g.appendChild(opts);
+    return g;
+}
+
+function onGapClick(gapEl, btn) {
+    if (gapEl.classList.contains('solved')) return;
+    timerAutoStart(1);
+    if (btn.textContent === gapEl.dataset.a) {
+        btn.classList.remove('wrong');
+        btn.classList.add('correct');
+        gapEl.classList.add('solved');
+    } else {
+        btn.classList.add('wrong');
+    }
+    updateSBProgress();
+    checkSBDone();
+}
+
+function updateSBProgress() {
+    var all = document.querySelectorAll('#sbContainer .gap');
+    var done = document.querySelectorAll('#sbContainer .gap.solved');
+    var el = document.getElementById('sbProgress');
+    if (el) el.textContent = done.length + ' von ' + all.length + ' Lücken richtig';
+}
+
+function checkSBDone() {
+    var all = document.querySelectorAll('#sbContainer .gap');
+    var done = document.querySelectorAll('#sbContainer .gap.solved');
+    if (all.length > 0 && done.length === all.length) stopTimer(1);
+}
+
+/* =================== ERKLÄRUNGEN =================== */
+function initErklaerungen() {
+    var c = document.getElementById('erkContainer');
+    c.innerHTML = '';
+    ERKLAERUNGEN.forEach(function(e) {
+        var card = document.createElement('div');
+        card.className = 'erk-card';
+        card.innerHTML =
+            '<div class="erk-head">' +
+                '<span class="erk-luecke">Lücke ' + e.g + '</span>' +
+                '<span class="erk-loesung">→ ' + e.a + '</span>' +
+                '<span class="erk-kat ' + e.kat + '">' + e.katlabel + '</span>' +
+            '</div>' +
+            '<div class="erk-warum"><b>Warum richtig:</b> ' + e.warum + '</div>' +
+            '<div class="erk-andere"><b>Die anderen Optionen:</b> ' + e.andere + '</div>';
+        c.appendChild(card);
+    });
+}
+
+/* =================== FESTE WENDUNGEN =================== */
+function initFW() {
+    var b = document.getElementById('fwBody');
+    b.innerHTML = '';
+    FW_ROWS.forEach(function(r) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td class="fw-wendung">' + r.w + '</td>' +
+            '<td class="fw-kasus">' + r.k + '</td>' +
+            '<td class="fw-bsp">' + r.b + '</td>' +
+            '<td class="fw-luecke">' + r.l + '</td>';
+        b.appendChild(tr);
+    });
+}
+
+/* =================== WORTSCHATZ =================== */
+function initWortschatz() {
+    var container = document.getElementById('wortschatzContainer');
+    container.innerHTML = '';
+    WORTSCHATZ.forEach(function(item) {
+        var row = document.createElement('div');
+        row.className = 'luecken-item';
+        var prompt = document.createElement('div');
+        prompt.style.cssText = 'font-weight:600; color:#667eea; margin-bottom:6px; font-size:1.05em;';
+        prompt.textContent = item.en;
+        row.appendChild(prompt);
+        var fields = document.createElement('div');
+        fields.style.cssText = 'display:flex; gap:8px; flex-wrap:wrap; align-items:center;';
+        if (item.type === 'n') {
+            var artInp = mkInput('Artikel', '70px', item.artikel, 'art');
+            fields.appendChild(artInp);
+            var wordInp = mkInput('Wort', '160px', item.de, 'word');
+            fields.appendChild(wordInp);
+            var plInp = document.createElement('input');
+            plInp.className = 'blank'; plInp.type = 'text';
+            plInp.placeholder = 'Plural'; plInp.style.width = '140px';
+            plInp.dataset.answer = item.plural; plInp.dataset.field = 'plural';
+            if (item.plural === '–') {
+                plInp.value = '–'; plInp.disabled = true;
+                plInp.classList.add('correct'); plInp.style.opacity = '0.6';
+                plInp.title = 'Dieses Wort hat keinen Plural';
+            } else {
+                plInp.oninput = function() { wortschatzCheck(this); timerAutoStart(4); checkWortschatzAllOk(); };
+            }
+            fields.appendChild(plInp);
+        } else {
+            var inp = mkInput('Deutsch', '230px', item.de, 'word');
+            fields.appendChild(inp);
+        }
+        row.appendChild(fields);
+        container.appendChild(row);
+    });
+}
+function mkInput(ph, w, ans, field) {
+    var inp = document.createElement('input');
+    inp.className = 'blank'; inp.type = 'text';
+    inp.placeholder = ph; inp.style.width = w;
+    inp.dataset.answer = ans; inp.dataset.field = field;
+    inp.oninput = function() { wortschatzCheck(this); timerAutoStart(4); checkWortschatzAllOk(); };
+    return inp;
+}
+function wortschatzCheck(inp) {
+    var user = inp.value, answer = inp.dataset.answer, field = inp.dataset.field;
+    inp.classList.remove('correct', 'wrong');
+    if (!user) return;
+    var cmpUser   = (field === 'art') ? user.toLowerCase().trim() : user.trim();
+    var cmpAnswer = (field === 'art') ? answer.toLowerCase() : answer;
+    if (cmpUser === cmpAnswer) inp.classList.add('correct');
+    else if (cmpAnswer.indexOf(cmpUser) === 0) { /* Präfix – neutral */ }
+    else inp.classList.add('wrong');
+}
+function checkWortschatzAllOk() {
+    var inputs = document.querySelectorAll('#wortschatzContainer input.blank');
+    var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) {
+        return i.disabled || i.classList.contains('correct');
+    });
+    if (allOk) stopTimer(4);
+}
+
+/* =================== LÖSUNGEN / RESET =================== */
+function showLoesung(n) {
+    if (n === 1) {
+        stopTimer(1);
+        document.querySelectorAll('#sbContainer .gap').forEach(function(gapEl) {
+            var a = gapEl.dataset.a;
+            gapEl.classList.add('solved');
+            gapEl.querySelectorAll('.mc-opt').forEach(function(b) {
+                b.classList.remove('wrong', 'correct');
+                if (b.textContent === a) b.classList.add('correct');
+            });
+        });
+        updateSBProgress();
+    } else if (n === 4) {
+        stopTimer(4);
+        document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp) {
+            inp.value = inp.dataset.answer;
+            inp.classList.add('correct'); inp.classList.remove('wrong');
+        });
+    }
+}
+function resetTab(n) {
+    if (n === 1) { initSB(); }
+    else if (n === 4) {
+        document.querySelectorAll('#wortschatzContainer input.blank').forEach(function(inp) {
+            if (!inp.disabled) { inp.value = ''; inp.classList.remove('correct', 'wrong'); }
+        });
+    }
+}
+
+/* =================== INIT =================== */
+window.addEventListener('DOMContentLoaded', function() {
+    initVorentlastung();
+    initSB();
+    initErklaerungen();
+    initFW();
+    initWortschatz();
+    loadBest(1);
+    loadBest(4);
+});
+</script>
+</body>
+</html>
