@@ -12,9 +12,24 @@
   (alter Add-on-Block wird ersetzt). Zwei Familien: A (chips-/builder-/sfb-, Klick+Drag,
   flaches valid) und B (sb-bank-/sb-row-/sb-fb-, kanonisch).
 
-## Frank-Direktive für B1+ (2026-06-09)
-**Ab B1 Nebensatz-Training:** Komma-Chip + entsprechend längere Sätze (12+ Wörter,
-Nebensätze; deckt sich mit daf-registry canonical_values.satzbau_words_per_sentence).
+## Frank-Direktive für B1+ (2026-06-09, präzisiert 2026-06-10)
+**Ab B1 Nebensatz-Training:** Komma-Chip + Sätze mit **12 bis maximal 14 Wörtern**
+(ohne Satzzeichen-Chips gezählt). 14 ist hartes Maximum — Deutschlerner neigen zu
+überlangen Sätzen, die Übungen dürfen das nicht vorleben. Sätze mit 15+ Wörtern
+sind ein Fehler, auch wenn sie grammatisch sauber sind. (Die daf-registry sagt
+nur „12+" — beim nächsten Skill-Update auf „12–14" präzisieren.)
+
+**Geführter Modus (2026-06-10, Franks didaktische Auflösung der Komplexität):**
+Sofort-Feedback pro Chip-Platzierung. Richtig (konsistent mit mind. einer
+valid-Reihenfolge unter Berücksichtigung aller schon platzierten Chips) →
+Chip wird grün und fixiert (nicht mehr beweglich). Falsch → Chip wird rot,
+Feedback „✗ Das passt hier nicht!", nach 800 ms Rücksprung in die Bank.
+Letzter richtiger Chip → Punkt + „✓ Korrekt!". Implementiert im Add-on
+(placeJudge/consistent/finishRow in geruest_patch.js); Guards gegen
+Verschieben fixierter Chips in dragstart, Slot-Drop und Bank-Drop.
+JSDOM-Test: /outputs/jsdom_test_geruest.js (5 Testfälle, Drag-Pfad).
+ACHTUNG für B2/C1-Rollout: C2-Bestand (71 Dateien) hat noch das ALTE
+Add-on ohne geführten Modus — bei Gelegenheit re-patchen.
 → Der Rollout für B1.1/B2/C1 ist daher ZWEISTUFIG pro Datei:
 1. **Inhalt:** satzbauData prüfen; zu kurze/einfache Sätze durch themengebundene
    12+-Wort-Sätze MIT Nebensätzen (Komma als eigener Chip in parts UND valid) ersetzen.
