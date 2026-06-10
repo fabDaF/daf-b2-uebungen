@@ -238,7 +238,7 @@ function addon(cfg, merged){
 '  function ensureButtons(i){',
 '    if (document.getElementById("sb-btns-" + i)) return;',
 '    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;',
-'    var item = anchor.closest ? anchor.closest(".satzbau-item") : null;',
+'    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;',
 '    if (item && [].some.call(item.querySelectorAll("button"), function(b){',
 '      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden',
 '    var box = document.createElement("div");',
