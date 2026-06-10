@@ -75,7 +75,14 @@ SBGAP-Konsistenz: Lücken==parts, Anker invariant, nie Komma als Anker).
    daf-archiv/B1.1-legacy überführt und aus dem B1.1-Repo entfernt.
 
 ## Erledigt (2026-06-10, Session 2) — B2 begonnen
-**B2-Einheiten 101–106 + 201–204 komplett (82 von 143 Dateien, ~500 Sätze):** B2 war
+**B2 fast komplett: 127 von 142 Satzbau-Dateien (~760 Sätze), Session 3:**
+Einheiten 101–106, 201–206, 301–306 inkl. 3013R-Syntaxreparatur (CSS war in
+Script-Block gerutscht) und Patcher-Lockerung (fehlendes natives
+sbShowSolution nicht mehr fatal — Add-on-Buttons übernehmen).
+VERBLEIBEND B2 (15 Dateien): 9013R-schauspielkunst, GEHIRN_08S und die
+13 WCOxx-Dateien (Privatlektionen Bau/Prozesse) — alle kurze Sätze ohne
+Komma, normale Fix-Route. 1047X bleibt bewusst ohne Gerüst (Satzglieder).
+Ursprünglich (Session 2, 82/143):** B2 war
 inhaltlich schon nah dran (Nebensätze + Komma-Chips vorhanden, aber meist
 10–11 Wörter) → chirurgische Verlängerung auf 12–16 statt Komplett-Neuschreibung.
 Werkzeuge: `/outputs/apply_lib2.js` (applyFix = Index-genauer Ersatz mit
