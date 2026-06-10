@@ -18,6 +18,9 @@
 überlangen Sätzen, die Übungen dürfen das nicht vorleben. Sätze mit 15+ Wörtern
 sind ein Fehler, auch wenn sie grammatisch sauber sind. (Die daf-registry sagt
 nur „12+" — beim nächsten Skill-Update auf „12–14" präzisieren.)
+**Ausnahme C2:** 15–18 Wörter sind auf C2-Niveau ausdrücklich in Ordnung
+(Frank, 2026-06-10) — C2-Bestand NICHT kürzen. Grenze für B2/C1 vor deren
+Rollout mit Frank klären.
 
 **Geführter Modus (2026-06-10, Franks didaktische Auflösung der Komplexität):**
 Sofort-Feedback pro Chip-Platzierung. Richtig (konsistent mit mind. einer
@@ -29,7 +32,8 @@ Letzter richtiger Chip → Punkt + „✓ Korrekt!". Implementiert im Add-on
 Verschieben fixierter Chips in dragstart, Slot-Drop und Bank-Drop.
 JSDOM-Test: /outputs/jsdom_test_geruest.js (5 Testfälle, Drag-Pfad).
 ACHTUNG für B2/C1-Rollout: C2-Bestand (71 Dateien) hat noch das ALTE
-Add-on ohne geführten Modus — bei Gelegenheit re-patchen.
+Add-on ohne geführten Modus — bei Gelegenheit re-patchen (nur Technik;
+die C2-Satzlängen bleiben unangetastet, siehe Ausnahme oben).
 → Der Rollout für B1.1/B2/C1 ist daher ZWEISTUFIG pro Datei:
 1. **Inhalt:** satzbauData prüfen; zu kurze/einfache Sätze durch themengebundene
    12+-Wort-Sätze MIT Nebensätzen (Komma als eigener Chip in parts UND valid) ersetzen.
