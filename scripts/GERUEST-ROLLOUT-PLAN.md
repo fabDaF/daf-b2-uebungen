@@ -209,16 +209,22 @@ Komma-Chip, lowercase-Chips).
   gepatchten Dateien → alle 30 re-gepatcht (B2 7, B1.1 3, C1 20), Audit
   jetzt 0 über alle 489 gepatchten Dateien.
 
-**Noch offen (neu entdeckte Lücken, Stand 2026-06-10):**
-- B2-Root 16 Dateien alte Familien: 3025G (sbData), 3054X–3057X, 3062G–3065G,
-  GEHIRN 01X–06R, NDEKL-PSYCHO (je `var SATZBAU`) — Vorgehen wie 3061X/07X:
-  erst Migration aufs kanonische Pattern (+ Sätze auf 12–16W), dann Patcher.
+**Stand nach Session 8b (2026-06-10 nachmittags):**
+- ERLEDIGT: 3054X–3057X, 3061X–3065G (Sessions 8a/8b parallel), 3025G
+  (sbData→kanonisch, Konnektor-Kern erhalten, sb-label für Prompts),
+  NDEKL-PSYCHO (SATZBAU_DATA→satzbauData, N-Dekl-Formen NIE als Anker —
+  Zielform gehört in die Bank; 3 Alt-Quote-Fixes). Anker-Audit 0/499.
+- GEHIRN 01X–06R: migriert von Parallel-Session, dort noch uncommitted —
+  NICHT doppelt anfassen, Commit der anderen Session abwarten.
 - B1.1 49 Dateien mit DRITTER Familie `const SATZBAU_DATA` (words:-Schema,
   eigene Klick-Reihen-UI) trotz „101/101 komplett" — Migrationsaufwand prüfen.
-- htmlS/A2.1/DE_B2_Eskalationsfalle-Iran.html: B2-Inhalt im A2-Repo,
-  satzbauData ohne Add-on (Zwilling in daf-materialien ist gepatcht).
+- htmlS/A2.1/DE_B2_Eskalationsfalle-Iran.html: NIRGENDS verlinkt, Dashboard
+  zeigt nur auf die gepatchte daf-materialien-Version → parallele Arbeitskopie,
+  Lösch-/Archiv-Kandidat (Frank entscheidet).
 - Vollständigkeits-Checks künftig auf ALLE Familien-Marker keyen:
   `satzbauData` | `var SATZBAU` | `SATZBAU_DATA` | `sbData`.
+- Fachregel NEU: In Grammatik-Dateien darf die ZIELFORM des Grammatik-Themas
+  nie Anker sein (N-Dekl-Nomen, Ziel-Konnektoren je nach Übungsfokus prüfen).
 
 ## Offene Bestände gesamt
 - A1/A2/B1.1/B2-Root/C1/schueler/Architektur/daf-materialien: KOMPLETT.
