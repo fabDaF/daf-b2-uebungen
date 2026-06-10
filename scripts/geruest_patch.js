@@ -2,7 +2,7 @@
 /* Gerüst-Modus-Rollout-Patcher (B1+), zweigleisig: Familie A (chips-/builder-) + B (sb-bank-/sb-row-). */
 const fs = require('fs'), vm = require('vm');
 
-const AUX = new Set(('bin bist ist sind seid war warst waren wäre wären habe hast hat haben habt hatte hattest hatten hätte hätten werde wirst wird werden werdet wurde wurden würde würden kann kannst können könnt konnte konnten könnte könnten muss musst müssen müsst musste mussten müsste müssten soll sollst sollen sollt sollte sollten will willst wollen wollt wollte wollten darf darfst dürfen dürft durfte durften dürfte dürften mag magst mögen mögt mochte möchte möchten gibt gab ging kam sah las lief fuhr nahm sprach traf blieb fand stand hielt ließ tut tat rief sang lag saß hieß trug schlug schrieb fiel fing flog schloss verlor zog bot riss schnitt trat starb warf half galt hing klang sprang stieg schien schwieg wuchs lud band bat bog brach drang empfing erschien gewann goss griff hob litt mied pfiff rang roch sank schob schoss schuf schwamm schwand schwor stach stahl stank stieß strich stritt trank verdarb vergaß verlieh verschwand wandte wich wies wog zwang aß betrug ertrug vertrug sein').split(/\s+/));
+const AUX = new Set(('bin bist ist sind seid war warst waren wäre wären habe hast hat haben habt hatte hattest hatten hätte hätten werde wirst wird werden werdet wurde wurden würde würden kann kannst können könnt konnte konnten könnte könnten muss musst müssen müsst musste mussten müsste müssten soll sollst sollen sollt sollte sollten will willst wollen wollt wollte wollten darf darfst dürfen dürft durfte durften dürfte dürften mag magst mögen mögt mochte möchte möchten gibt gab ging kam sah las lief fuhr nahm sprach traf blieb fand stand hielt ließ tut tat rief sang lag saß hieß trug schlug schrieb fiel fing flog schloss verlor zog bot riss schnitt trat starb warf half galt hing klang sprang stieg schien schwieg wuchs lud band bat bog brach drang empfing erschien gewann goss griff hob litt mied pfiff rang roch sank schob schoss schuf schwamm schwand schwor stach stahl stank stieß strich stritt trank verdarb vergaß verlieh verschwand wandte wich wies wog zwang aß betrug ertrug vertrug gann nommen sein').split(/\s+/));
 const PREFIX = new Set('ab an auf aus bei ein los mit nach vor weg zu zurück zusammen weiter fest statt teil um durch über unter wieder her hin dazu hinzu hinaus hinein heraus herein hervor empor entgegen voran voraus vorbei davon daran darauf darunter'.split(/\s+/));
 const NOTVERB = new Set('heute gerade bitte ende gegenteil name liste seite stelle frage farbe sprache woche stunde minute leute familie reise küche miete'.split(/\s+/));
 function suspectVerb(w){
@@ -10,6 +10,9 @@ function suspectVerb(w){
   if (AUX.has(lw)) return true;
   if (NOTVERB.has(lw)) return false;
   if (w[0] === w[0].toUpperCase() && w[0] !== w[0].toLowerCase()) return false;
+  for (const p of ['be','emp','ent','er','ge','miss','ver','zer','über','unter','um','durch','wieder','wider','an','auf','aus','ab','bei','ein','mit','nach','vor','zu','los','weg','her','hin','zurück','zusammen','weiter']) {
+    if (lw.startsWith(p) && lw.length - p.length >= 3 && AUX.has(lw.slice(p.length))) return true;  // bekam, verstand, erhielt, übernahm …
+  }
   if (/^ge.+(t|en)$/.test(lw)) return true;
   if (/(ieren|en)$/.test(lw) && lw.length > 4) return true;
   if (/(st|t)$/.test(lw) && lw.length > 3) return true;
