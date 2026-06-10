@@ -179,6 +179,18 @@ Erstlade-Pfad ohne initSatzbau-Aufruf in allen Familien JSDOM-verifiziert.
 Lehre: Browser-Test = Seite laden und Satzbau-Tab SOFORT ansehen, nicht
 erst nach Neustart; JSDOM-Test um Erstlade-Pfad ergänzen.
 
+**ZWEITER FUND (gleiche Session): stille Push-Rejects seit 2026-06-01.**
+Frank hatte am 1.6. per GitHub-Web-Upload den Mirror-Workflow in mehrere
+Repos eingespielt → jeder lokale Push danach non-fast-forward-rejected.
+safe-commit.sh verschluckte das (`|| true`) und setzte die lokale
+origin/main-Ref selbst → jede HEAD==origin/main-Prüfung war zirkulär.
+Betroffen: C1, Architektur, Lückentexte, daf-materialien, daf-archiv —
+der GESAMTE C1-Rollout war bis 14:00 nur lokal. Behoben durch Merge-Commits
+(`git commit-tree HEAD^{tree} -p HEAD -p <remote>`, lokale Workflow-Version
+behalten, sie ist die neuere nicht-destruktive). safe-commit.sh verifiziert
+seit d94f80f jeden Push per `git ls-remote` und bricht sonst ab.
+Alle 9 Repos per GitHub-API gegen lokalen HEAD abgeglichen: synchron.
+
 ## Offene Bestände gesamt
 - A1/A2/B1.1/B2-Root/C1/schueler/Architektur/daf-materialien: KOMPLETT.
   Mattmüller: A-Niveau, bewusst ohne Gerüst.
