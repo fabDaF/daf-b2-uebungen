@@ -63,16 +63,16 @@ Werkzeuge der Session: `/outputs/apply_lib.js` (Batch-Apply mit Pre-Checks:
 `verify_geruest.js` (Script-Syntax, Quote-Regex mit `<`-Ausschluss,
 SBGAP-Konsistenz: Lücken==parts, Anker invariant, nie Komma als Anker).
 
-## Offene Bestände B1.1 (14 Dateien)
-1. **8 Piloten 1011X–1018S:** haben inline-`row`, aber Sätze noch 7–11 Wörter.
-   Inhalt neu schreiben UND `row` von Hand neu berechnen (Patcher überspringt
-   Sätze mit row) — ODER row-Felder entfernen, dann normale Zweistufen-Route.
-2. **6 Sonderschema-Dateien** (`chip-bank-N` + `satzbau-container`, Patcher
-   meldet „unbekanntes ID-Schema"): 3044X, 3045G, 3046R, 3047X, 3048S —
-   Inhalt noch alt; 2054X Inhalt schon neu. Option: Familie C im Patcher
-   ergänzen (Render ist dynamisch, analog Familie B).
-3. **B1_1013R_Neue_Berufe.html + DE_B1_1013R-neue-berufe.html:** Altdateien
-   ohne satzbauContainer, vermutlich Legacy — prüfen, ob 1013R-Pilot sie ersetzt.
+## B1.1 KOMPLETT (2026-06-10, Session 3) — 101/101 Dateien
+1. **Piloten 1011X–1018S:** 65 Sätze neu (12–14W), inline-row entfernt,
+   Add-on mit geführtem Modus übernimmt (JSDOM 6/6 grün, auch 1016R-Relativsätze).
+2. **Sonderschema gelöst:** 3044X–3048S nutzten intern längst Familie-B-IDs
+   (Fehlalarm der Verdachtsliste) — 35 Sätze neu, direkt patchbar. 2054X auf
+   Familie-B-IDs konvertiert (bank/builder/feedback bekommen sb-*-IDs in
+   initSatzbau, Add-on ersetzt das native Free-Build-Rendering).
+   ensureButtons hat jetzt parentNode-Fallback für Container ohne .satzbau-item.
+3. **Legacy bereinigt:** B1_1011X/B1_1013R (nirgends verlinkt) ins
+   daf-archiv/B1.1-legacy überführt und aus dem B1.1-Repo entfernt.
 
 ## Erledigt (2026-06-10, Session 2) — B2 begonnen
 **B2-Einheiten 101–106 + 201–203 komplett (72 von 143 Dateien, ~440 Sätze):** B2 war
