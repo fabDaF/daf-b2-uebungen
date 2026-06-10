@@ -191,6 +191,35 @@ behalten, sie ist die neuere nicht-destruktive). safe-commit.sh verifiziert
 seit d94f80f jeden Push per `git ls-remote` und bricht sonst ab.
 Alle 9 Repos per GitHub-API gegen lokalen HEAD abgeglichen: synchron.
 
+## KORREKTUR (2026-06-10, Session 8): „KOMPLETT" war zu früh — Detektions-Blindfleck
+
+Alle bisherigen Vollständigkeits-Zählungen (Patcher, triage, „141 patchbar")
+keyten auf `satzbauData`. Dateien mit Satzbau in ANDEREN Datenfamilien waren
+für die gesamte Werkzeugkette unsichtbar — Frank fand das live an
+DE_B2_3061X (B2.3 E6 „Mein Berufsweg", `var SATZBAU`, 7–11-Wort-Sätze ohne
+Komma-Chip, lowercase-Chips).
+
+**Erledigt Session 8:**
+- 3061X komplett migriert (Typ B → kanonisches Skill-Pattern, 9 Sätze neu
+  12–16W mit Nebensatz + Komma-Chip, check-satzbau-migration ✓, Patcher 9/9
+  flag-frei, JSDOM Erstlade-/Drag-/Lösen-/Neustart-Pfad grün).
+- **Patcher-Fix:** suspectVerb erkannte Präfix-Präterita nicht (bekam,
+  begann, entstand, verließ, übernahm …) → Präfix-Stamm-Check ergänzt,
+  `gann`/`nommen` in AUX. Bestand-Audit fand 33 Verb-Anker in 30 bereits
+  gepatchten Dateien → alle 30 re-gepatcht (B2 7, B1.1 3, C1 20), Audit
+  jetzt 0 über alle 489 gepatchten Dateien.
+
+**Noch offen (neu entdeckte Lücken, Stand 2026-06-10):**
+- B2-Root 16 Dateien alte Familien: 3025G (sbData), 3054X–3057X, 3062G–3065G,
+  GEHIRN 01X–06R, NDEKL-PSYCHO (je `var SATZBAU`) — Vorgehen wie 3061X/07X:
+  erst Migration aufs kanonische Pattern (+ Sätze auf 12–16W), dann Patcher.
+- B1.1 49 Dateien mit DRITTER Familie `const SATZBAU_DATA` (words:-Schema,
+  eigene Klick-Reihen-UI) trotz „101/101 komplett" — Migrationsaufwand prüfen.
+- htmlS/A2.1/DE_B2_Eskalationsfalle-Iran.html: B2-Inhalt im A2-Repo,
+  satzbauData ohne Add-on (Zwilling in daf-materialien ist gepatcht).
+- Vollständigkeits-Checks künftig auf ALLE Familien-Marker keyen:
+  `satzbauData` | `var SATZBAU` | `SATZBAU_DATA` | `sbData`.
+
 ## Offene Bestände gesamt
 - A1/A2/B1.1/B2-Root/C1/schueler/Architektur/daf-materialien: KOMPLETT.
   Mattmüller: A-Niveau, bewusst ohne Gerüst.
