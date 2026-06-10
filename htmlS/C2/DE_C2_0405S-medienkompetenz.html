@@ -1116,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
 <script>
 /* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
    hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
@@ -1223,18 +1224,32 @@ document.addEventListener('DOMContentLoaded', function() {
     mov.forEach(function(w){ bank.appendChild(makeChip(w, i)); });
     ex.row.forEach(function(tok){ row.appendChild(tok === "_" ? makeSlot(i) : makeLocked(tok)); });
     registerBank(bank, i);
+    ensureButtons(i);
   }
   function rebuildAll(){ satzbauData.forEach(function(ex,i){ if (ex.row) rebuild(i); }); }
   function showSol(i){
     rebuild(i);
-    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0], pool = {};
-    bank.querySelectorAll(".chip").forEach(function(c){ pool[c.dataset.orig] = c; });
+    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0];
+    var pool = Array.from(bank.querySelectorAll(".chip"));
     positions(row).forEach(function(pos,k){
       if (!pos.classList.contains("sb-gap")) return;
-      var chip = pool[sol[k]];
-      if (chip){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(chip); delete pool[sol[k]]; }
+      var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
+      if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
     });
     afterChange(i);
+  }
+  function ensureButtons(i){
+    if (document.getElementById("sb-btns-" + i)) return;
+    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
+    var box = document.createElement("div");
+    box.id = "sb-btns-" + i;
+    box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
+    var b1 = document.createElement("button"); b1.type = "button"; b1.className = "btn"; b1.textContent = "Lösen";
+    b1.addEventListener("click", function(){ showSol(i); });
+    var b2 = document.createElement("button"); b2.type = "button"; b2.className = "btn"; b2.textContent = "↺ Neustart";
+    b2.addEventListener("click", function(){ rebuild(i); });
+    box.appendChild(b1); box.appendChild(b2);
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
   }
   ["initSatzbau","buildSatzbau"].forEach(function(fn){
     if (typeof window[fn] === "function"){ var o = window[fn];
