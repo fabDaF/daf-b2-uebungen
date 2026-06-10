@@ -147,10 +147,24 @@ meldet 0 defiziente Sätze. Ohne Gerüst bleiben bewusst:
 - DE_C1_7001V-reiseleitung-urlauberpsychologie.html (kein satzbauData)
 Diese brauchen kein Wortstellungs-Training — korrekt so.
 
+## Erledigt (2026-06-10, Session 7) — Berufs-/Privatschüler-Dateien
+- **schueler/ (B2-Root-Repo, Commit ae7b351):** ir/DE_B1_7011V-energiewelt (5 Sätze,
+  12–14), ir/DE_C1_7010V-investor-relations (7 Sätze, 12–18, Finanzzahlen wörtlich
+  aus Bestand übernommen), privat-1/DE_B1_DEVOPS-opencultur-fehler (8, 12–14),
+  privat-1/Komposita-FVG (7, 12–16, FVG-Kern erhalten). 27 Sätze gesamt.
+- **htmlS/Architektur (eigenes Repo, Commit d183f07):** Bauprojektarten (10),
+  Kap08-Bauelemente (8), Kap09-Baustoffe (8), Kap10-Haustechnik (8) — 34 Sätze,
+  konservativ B1-Staffel 12–14 (kein Niveau-Marker in den Dateien), Fachwortschatz-
+  Kern erhalten. Alle Checks + JSDOM grün.
+- privat-omar/ ist leer, Vertragssprache.html/Geschaeftsemail.html ohne satzbauData.
+
 ## Offene Bestände gesamt
-- A1/A2/B1.1/B2-Root/C1: KOMPLETT.
+- A1/A2/B1.1/B2-Root/C1/schueler/Architektur: KOMPLETT.
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
+- Mattmüller + daf-materialien: Mattmüller-Lückentexte haben satzbauData-Treffer
+  (noch nicht geprüft, ob echtes Satzbau-Training); daf-materialien hat 7
+  satzbauData-Dateien (5 Grammatik + 2 B2-Texte) — nächster Spezial-Batch.
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
 - Spezialordner (Architektur, Mattmüller, schueler/, ir/, daf-materialien): zuletzt, separat.
