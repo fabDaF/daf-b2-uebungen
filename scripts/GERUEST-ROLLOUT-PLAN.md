@@ -100,7 +100,7 @@ Mehr-Wort-Chips 2035G/2036R, Semikolon-Chip 2022G, Kleinschreibung 2026R.
   (wie die A2-Fälle vom 2026-06-03) → vor dem Gerüst-Patch reparieren.
 
 ## Offene Bestände gesamt
-- B2-Root: 61 verbleibend (ab Einheit 205; inkl. 3013R-Syntax-Reparatur) · C1: 165
+- B2-Root: 15 verbleibend (9013R, GEHIRN_08S, 13× WCO) · C1: 165
   (C1-Schema sauber: alle Familie A/B, keine rows, 12–18W-Grenze)
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
