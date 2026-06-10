@@ -30,6 +30,10 @@ Nebenbei bereinigt: Punkt-Chips (2033R), Kleinschreibungs-Bugs
 (2046R/2053R/2054X/2055G/2056R/konnektor-insofern), Mehr-Wort-Chips
 (1023R „der Wind", partizip2, 1063R/1064X Datums-Chips), elliptischer Satz
 (2057X), fehlende Kommas (2027X), ~50 Alt-Quote-Fehler (ASCII-Schließer).
+**Patcher-Fix:** `ensureButtons` erkennt jetzt native Lösen/Neustart-Buttons
+im `.satzbau-item` und legt kein zweites Paar mehr an (B1.1-Dateien erzeugen
+ihre Buttons selbst in initSatzbau — C2 nicht; vor B2/C1-Rollout beachten).
+Browser-Test 1021X + 3038S: 1 Buttonpaar/Satz, Lösen/Neustart/Komma-Chips ok.
 Werkzeuge der Session: `/outputs/apply_lib.js` (Batch-Apply mit Pre-Checks:
 12W-Minimum, Komma-Pflicht, valid-Längen/Multiset, Ein-Wort-Chips) +
 `verify_geruest.js` (Script-Syntax, Quote-Regex mit `<`-Ausschluss,
