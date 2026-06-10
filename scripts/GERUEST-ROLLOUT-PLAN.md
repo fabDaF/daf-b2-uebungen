@@ -18,9 +18,10 @@
 überlangen Sätzen, die Übungen dürfen das nicht vorleben. Sätze mit 15+ Wörtern
 sind ein Fehler, auch wenn sie grammatisch sauber sind. (Die daf-registry sagt
 nur „12+" — beim nächsten Skill-Update auf „12–14" präzisieren.)
-**Ausnahme C2:** 15–18 Wörter sind auf C2-Niveau ausdrücklich in Ordnung
-(Frank, 2026-06-10) — C2-Bestand NICHT kürzen. Grenze für B2/C1 vor deren
-Rollout mit Frank klären.
+**Satzlängen-Staffel (Frank, 2026-06-10):** B1: 12–14 Wörter (14 = hartes
+Maximum) · B2: max. 16 · C1 und C2: max. 18. C2-Bestand NICHT kürzen
+(15–18 dort ausdrücklich in Ordnung). Prüfskripte beim B2/C1-Rollout auf
+die jeweilige Grenze einstellen.
 
 **Geführter Modus (2026-06-10, Franks didaktische Auflösung der Komplexität):**
 Sofort-Feedback pro Chip-Platzierung. Richtig (konsistent mit mind. einer
