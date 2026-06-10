@@ -62,20 +62,34 @@ table.bildung td b { color:#c0392b; }
 .wortbank b { color:#667eea; margin:0 8px; }
 
 /* Satzbau chips */
-.sb-list { display:flex; flex-direction:column; gap:14px; max-width:820px; margin:0 auto; }
-.sb-item { padding:14px 16px; background:#f8f9ff; border:2px solid #e0e4f0; border-radius:10px; }
-.sb-item.correct { background:#e8f5e8; border-color:#4caf50; }
-.sb-item.wrong { background:#ffebee; border-color:#e74c3c; }
-.sb-prompt { color:#555; font-size:.9em; margin-bottom:6px; font-style:italic; }
-.sb-drop { display:flex; flex-wrap:wrap; gap:6px; min-height:46px; padding:6px 8px; background:white; border:2px dashed #cfd4e5; border-radius:6px; margin-bottom:8px; }
-.sb-pool { display:flex; flex-wrap:wrap; gap:6px; padding:4px 0; }
-.sb-chip { display:inline-block; padding:6px 12px; background:#667eea; color:white; border-radius:20px; cursor:grab; font-size:.95em; user-select:none; transition:transform .15s; }
-.sb-chip:hover { transform:translateY(-1px); }
-.sb-chip.dragging { opacity:.4; }
+.satzbau-item { margin-bottom: 24px; background: #fafbff; border-radius: 12px; padding: 14px 16px; border: 1px solid #e3e5f0; }
+.sb-label { font-size: 0.85em; color: #667eea; margin-bottom: 6px; font-weight: 700; }
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: #f8f8f8; border-radius: 10px; min-height: 48px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 48px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 7px 13px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.85em; font-weight: 600; margin-top: 6px; min-height: 1.1em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+.chip.punct-chip { background: #f8f8f8; border: 2px solid #667eea; padding: 8px 16px; color: #333; font-weight: 700; font-size: 1.3em; min-width: 18px; text-align: center; cursor: move; }
+.chip.punct-chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.punct-chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-btn-row { display: flex; gap: 8px; margin-top: 10px; }
 
 .author-footer { text-align:center; margin-top:40px; max-width:1000px; margin-left:auto; margin-right:auto; padding:16px; font-size:0.8rem; color:#aaa; }
 .author-footer a { color:#aaa; }
 .author-name { font-weight:700; }
+
+/* ── Gerüst-Modus (B1+): sichtbare Lücken + feste Anker ── */
+.sb-gap { display:inline-flex; align-items:center; justify-content:center; min-width:66px; min-height:38px; padding:2px 6px; border:2px dashed #b9a7f0; border-radius:20px; background:#faf8ff; }
+.sb-gap.drag-over { border-color:#e67e22; background:#fff5ec; }
+.sb-gap .chip { margin:0; }
+.chip.sb-locked { background:#eef0ff; border-style:solid; border-color:#c3c9f5; color:#555; cursor:default; }
+.chip.sb-locked.correct { background:#27ae60; border-color:#27ae60; color:#fff; }
 </style>
 </head>
 <body>
@@ -175,10 +189,10 @@ table.bildung td b { color:#c0392b; }
 <h2>Sätze zusammensetzen</h2>
 <div class="instructions">Ziehen Sie die Chips in die richtige Reihenfolge. Achten Sie auf die Verbposition nach der Konjunktion.</div>
 <div class="control-bar">
-<div class="btn-row"><button class="btn" onclick="sbSolve()">Lösungen</button><button class="btn secondary" onclick="sbReset(); resetTimer(3);">Neu starten</button></div>
-<div class="timer-display">⏱ <span id="timer-3">00:00</span> · <span id="sb-score">0 / 0</span></div>
+<div class="btn-row"><button class="btn" onclick="sbShowAll()">Lösungen</button><button class="btn secondary" onclick="sbResetAll(); resetTimer(3);">Neu starten</button></div>
+<div class="timer-display">⏱ <span id="timer-3">00:00</span></div>
 </div>
-<div class="sb-list" id="sb-list"></div>
+<div id="satzbauContainer"></div>
 </div>
 </div>
 
@@ -292,74 +306,497 @@ function lueckenReset(){
 }
 
 /* Satzbau */
-const sbData=[
-{prompt:"Konzessiv (obwohl):",chips:["Obwohl","es","regnet,","geht","er","spazieren."],answer:["Obwohl","es","regnet,","geht","er","spazieren."]},
-{prompt:"Konzessiv (trotzdem):",chips:["Es","ist","spät,","trotzdem","arbeitet","sie","weiter."],answer:["Es","ist","spät,","trotzdem","arbeitet","sie","weiter."]},
-{prompt:"Konsekutiv (sodass):",chips:["Er","war","müde,","sodass","er","früh","ins","Bett","ging."],answer:["Er","war","müde,","sodass","er","früh","ins","Bett","ging."]},
-{prompt:"Konsekutiv (deshalb):",chips:["Der","Bus","hatte","Verspätung,","deshalb","kam","ich","zu","spät."],answer:["Der","Bus","hatte","Verspätung,","deshalb","kam","ich","zu","spät."]},
-{prompt:"Konzessiv (obwohl):",chips:["Obwohl","sie","krank","ist,","geht","sie","zur","Arbeit."],answer:["Obwohl","sie","krank","ist,","geht","sie","zur","Arbeit."]},
-{prompt:"Konsekutiv (so … dass):",chips:["Der","Film","war","so","traurig,","dass","wir","geweint","haben."],answer:["Der","Film","war","so","traurig,","dass","wir","geweint","haben."]}
+var satzbauData = [
+  { label: 'Konzessiv (obwohl)',
+    parts: ['obwohl', 'es', 'den', 'ganzen', 'Tag', 'regnet', ',', 'geht', 'er', 'mit', 'seinem', 'Hund', 'spazieren'],
+    valid: [['obwohl', 'es', 'den', 'ganzen', 'Tag', 'regnet', ',', 'geht', 'er', 'mit', 'seinem', 'Hund', 'spazieren']],
+    punct: '.' },
+  { label: 'Konzessiv (trotzdem)',
+    parts: ['es', 'ist', 'schon', 'sehr', 'spät', ',', 'trotzdem', 'arbeitet', 'sie', 'konzentriert', 'an', 'ihrem', 'Bericht', 'weiter'],
+    valid: [['es', 'ist', 'schon', 'sehr', 'spät', ',', 'trotzdem', 'arbeitet', 'sie', 'konzentriert', 'an', 'ihrem', 'Bericht', 'weiter']],
+    punct: '.' },
+  { label: 'Konsekutiv (sodass)',
+    parts: ['er', 'war', 'nach', 'der', 'langen', 'Schicht', 'völlig', 'müde', ',', 'sodass', 'er', 'früh', 'ins', 'Bett', 'ging'],
+    valid: [['er', 'war', 'nach', 'der', 'langen', 'Schicht', 'völlig', 'müde', ',', 'sodass', 'er', 'früh', 'ins', 'Bett', 'ging']],
+    punct: '.' },
+  { label: 'Konsekutiv (deshalb)',
+    parts: ['der', 'Bus', 'hatte', 'am', 'Morgen', 'viel', 'Verspätung', ',', 'deshalb', 'kam', 'ich', 'zu', 'spät', 'zur', 'Arbeit'],
+    valid: [['der', 'Bus', 'hatte', 'am', 'Morgen', 'viel', 'Verspätung', ',', 'deshalb', 'kam', 'ich', 'zu', 'spät', 'zur', 'Arbeit']],
+    punct: '.' },
+  { label: 'Konzessiv (obwohl)',
+    parts: ['obwohl', 'sie', 'seit', 'Tagen', 'krank', 'ist', ',', 'geht', 'sie', 'jeden', 'Morgen', 'zur', 'Arbeit'],
+    valid: [['obwohl', 'sie', 'seit', 'Tagen', 'krank', 'ist', ',', 'geht', 'sie', 'jeden', 'Morgen', 'zur', 'Arbeit']],
+    punct: '.' },
+  { label: 'Konsekutiv (so … dass)',
+    parts: ['der', 'Film', 'war', 'so', 'traurig', ',', 'dass', 'wir', 'am', 'Ende', 'alle', 'geweint', 'haben'],
+    valid: [['der', 'Film', 'war', 'so', 'traurig', ',', 'dass', 'wir', 'am', 'Ende', 'alle', 'geweint', 'haben']],
+    punct: '.' }
 ];
-function initSB(){
-  const list=document.getElementById('sb-list');list.innerHTML='';
-  sbData.forEach((it,i)=>{
-    const div=document.createElement('div');
-    div.className='sb-item';div.dataset.idx=i;
-    const shuffled=[...it.chips].sort(()=>Math.random()-0.5);
-    div.innerHTML=`<div class="sb-prompt">${i+1}. ${it.prompt}</div>
-      <div class="sb-drop" data-idx="${i}"></div>
-      <div class="sb-pool" data-idx="${i}">${shuffled.map((c,j)=>`<span class="sb-chip" draggable="true" data-w="${c}">${c}</span>`).join('')}</div>`;
-    list.appendChild(div);
-  });
-  document.querySelectorAll('.sb-chip').forEach(ch=>{
-    ch.ondragstart=(e)=>{e.dataTransfer.setData('w',ch.dataset.w);e.dataTransfer.setData('src',ch.parentElement.className);ch.classList.add('dragging');window._sbActive=ch;};
-    ch.ondragend=()=>ch.classList.remove('dragging');
-  });
-  document.querySelectorAll('.sb-drop, .sb-pool').forEach(zone=>{
-    zone.ondragover=(e)=>e.preventDefault();
-    zone.ondrop=(e)=>{
-      e.preventDefault();
-      const ch=window._sbActive;if(!ch)return;
-      zone.appendChild(ch);
-      timerAutoStart(3);
-      sbCheckAuto(zone.dataset.idx);
-    };
+var sbDragged = null;
+
+function getSbCursor() {
+  var c = document.getElementById('sb-insert-cursor');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'sb-insert-cursor';
+    c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+  }
+  return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+  var chips = Array.from(zone.querySelectorAll('.chip'));
+  for (var i = 0; i < chips.length; i++) {
+    var r = chips[i].getBoundingClientRect();
+    if (clientX < r.left + r.width / 2) return chips[i];
+  }
+  return null;
+}
+
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function sbUpdateCapitalization(row) {
+  var chips = Array.from(row.querySelectorAll('.chip:not(.punct-chip)'));
+  chips.forEach(function(c, i) {
+    var orig = c.dataset.orig;
+    var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase() && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+    if (isProper) { c.textContent = orig; }
+    else { c.textContent = (i === 0) ? sbCapitalize(orig) : orig; }
   });
 }
-function sbCheckAuto(idx){
-  const drop=document.querySelector('.sb-drop[data-idx="'+idx+'"]');
-  const item=document.querySelector('.sb-item[data-idx="'+idx+'"]');
-  const pool=document.querySelector('.sb-pool[data-idx="'+idx+'"]');
-  const target=sbData[idx].answer;
-  if(pool.children.length>0){item.classList.remove('correct','wrong');updateSbScore();return;}
-  const cur=[...drop.children].map(c=>c.dataset.w);
-  item.classList.remove('correct','wrong');
-  if(cur.length===target.length && cur.every((w,i)=>w===target[i])){item.classList.add('correct');}
-  else{item.classList.add('wrong');}
-  updateSbScore();
-  if(allSbOk())stopTimer(3);
-}
-function updateSbScore(){let c=document.querySelectorAll('.sb-item.correct').length;document.getElementById('sb-score').textContent=c+' / '+sbData.length;}
-function allSbOk(){return document.querySelectorAll('.sb-item.correct').length===sbData.length;}
-function sbSolve(){
-  sbData.forEach((it,i)=>{
-    const drop=document.querySelector('.sb-drop[data-idx="'+i+'"]');
-    const pool=document.querySelector('.sb-pool[data-idx="'+i+'"]');
-    const item=document.querySelector('.sb-item[data-idx="'+i+'"]');
-    drop.innerHTML='';pool.innerHTML='';
-    it.answer.forEach(w=>{
-      const span=document.createElement('span');
-      span.className='sb-chip';span.draggable=true;span.dataset.w=w;span.textContent=w;
-      drop.appendChild(span);
-    });
-    item.classList.remove('wrong');item.classList.add('correct');
+
+function sbMakeChip(word, idx) {
+  var chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.dataset.orig = word;
+  chip.dataset.sbIdx = String(idx);
+  chip.draggable = true;
+  if (word === ',' || word === ';' || word === '–') chip.classList.add('punct-chip');
+  chip.addEventListener('dragstart', function(e) {
+    sbDragged = chip;
+    timerAutoStart(3);
+    e.dataTransfer.setData('text/plain', '');
+    setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
   });
-  updateSbScore();
+  chip.addEventListener('dragend', function() {
+    chip.style.opacity = '';
+    sbDragged = null;
+    var c = document.getElementById('sb-insert-cursor');
+    if (c && c.parentNode) c.parentNode.removeChild(c);
+  });
+  chip.addEventListener('click', function() {
+    timerAutoStart(3);
+    var myIdx = parseInt(chip.dataset.sbIdx);
+    var bank = document.getElementById('sb-bank-' + myIdx);
+    var row = document.getElementById('sb-row-' + myIdx);
+    if (chip.parentNode === bank) {
+      row.appendChild(chip);
+    } else {
+      bank.appendChild(chip);
+    }
+    sbUpdateCapitalization(row);
+    sbCheckAuto(myIdx);
+  });
+  return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = getSbCursor();
+    var before = getSbInsertPos(zone, e.clientX);
+    if (before) zone.insertBefore(cursor, before);
+    else zone.appendChild(cursor);
+  });
+  zone.addEventListener('dragleave', function(e) {
+    if (!zone.contains(e.relatedTarget)) {
+      var c = document.getElementById('sb-insert-cursor');
+      if (c && c.parentNode === zone) zone.removeChild(c);
+    }
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (!sbDragged || sbDragged.dataset.sbIdx !== String(idx)) return;
+    var cursor = document.getElementById('sb-insert-cursor');
+    if (cursor && cursor.parentNode === zone) {
+      zone.insertBefore(sbDragged, cursor);
+      zone.removeChild(cursor);
+    } else {
+      zone.appendChild(sbDragged);
+    }
+    sbDragged = null;
+    var row = document.getElementById('sb-row-' + idx);
+    sbUpdateCapitalization(row);
+    sbCheckAuto(idx);
+  });
+}
+
+function sbColorRow(idx) {
+  var row = document.getElementById('sb-row-' + idx);
+  var chips = Array.from(row.querySelectorAll('.chip'));
+  var order = chips.map(function(c) { return c.dataset.orig; });
+  var ok = satzbauData[idx].valid.some(function(v) {
+    return JSON.stringify(v) === JSON.stringify(order);
+  });
+  chips.forEach(function(c) {
+    c.classList.remove('correct', 'incorrect');
+    c.classList.add(ok ? 'correct' : 'incorrect');
+  });
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  if (ok) {
+    var punkt = document.createElement('span');
+    punkt.className = 'sb-punkt';
+    punkt.textContent = satzbauData[idx].punct || '.';
+    row.appendChild(punkt);
+  }
+  return ok;
+}
+
+function sbCheckAuto(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row = document.getElementById('sb-row-' + idx);
+  var fb = document.getElementById('sb-fb-' + idx);
+  if (bank.querySelectorAll('.chip').length > 0) {
+    row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    return;
+  }
+  setTimeout(function() {
+    timerAutoStart(3);
+    var ok = sbColorRow(idx);
+    if (ok) {
+      row.classList.add('correct'); row.classList.remove('incorrect');
+      fb.className = 'satzbau-feedback correct';
+      fb.textContent = '✓ Korrekt!';
+      sbCheckAllDone();
+    } else {
+      row.classList.add('incorrect'); row.classList.remove('correct');
+      fb.className = 'satzbau-feedback incorrect';
+      fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+    }
+  }, 500);
+}
+
+function sbCheckAllDone() {
+  var allOk = satzbauData.every(function(_, i) {
+    var row = document.getElementById('sb-row-' + i);
+    return row && row.classList.contains('correct');
+  });
+  if (allOk) stopTimer(3);
+}
+
+function sbShowSolution(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row = document.getElementById('sb-row-' + idx);
+  var fb = document.getElementById('sb-fb-' + idx);
+  var solution = satzbauData[idx].valid[0];
+  var allChips = [];
+  Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips.push(c); });
+  Array.from(row.querySelectorAll('.chip')).forEach(function(c) { allChips.push(c); });
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild) row.removeChild(row.firstChild);
+  solution.forEach(function(word, i) {
+    var pos = -1;
+    for (var k = 0; k < allChips.length; k++) {
+      if (allChips[k].dataset.orig === word) { pos = k; break; }
+    }
+    if (pos > -1) {
+      var chip = allChips.splice(pos, 1)[0];
+      if (word !== ',' && word !== ';' && word !== '–') {
+        chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+      }
+      chip.classList.remove('correct', 'incorrect');
+      row.appendChild(chip);
+    }
+  });
+  fb.textContent = '';
+  setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+  var bank = document.getElementById('sb-bank-' + idx);
+  var row = document.getElementById('sb-row-' + idx);
+  var fb = document.getElementById('sb-fb-' + idx);
+  while (bank.firstChild) bank.removeChild(bank.firstChild);
+  while (row.firstChild) row.removeChild(row.firstChild);
+  row.classList.remove('correct', 'incorrect');
+  fb.textContent = ''; fb.className = 'satzbau-feedback';
+  var existing = row.querySelector('.sb-punkt');
+  if (existing) existing.parentNode.removeChild(existing);
+  var parts = satzbauData[idx].parts.slice();
+  for (var i = parts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+  }
+  parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+}
+
+function sbShowAll() {
+  satzbauData.forEach(function(_, i) { sbShowSolution(i); });
   stopTimer(3);
 }
-function sbReset(){initSB();document.getElementById('sb-score').textContent='0 / '+sbData.length;}
 
-initMC();initLuecken();initSB();
+function sbResetAll() {
+  satzbauData.forEach(function(_, i) { sbResetOne(i); });
+}
+
+function initSatzbau() {
+  var container = document.getElementById('satzbauContainer');
+  container.innerHTML = '';
+  satzbauData.forEach(function(ex, idx) {
+    var item = document.createElement('div');
+    item.className = 'satzbau-item';
+    if (ex.label) { var lab = document.createElement('div'); lab.className = 'sb-label'; lab.textContent = (idx + 1) + '. ' + ex.label; item.appendChild(lab); }
+    var bank = document.createElement('div');
+    bank.className = 'chips-container';
+    bank.id = 'sb-bank-' + idx;
+    var row = document.createElement('div');
+    row.className = 'sentence-builder';
+    row.id = 'sb-row-' + idx;
+    var fb = document.createElement('div');
+    fb.className = 'satzbau-feedback';
+    fb.id = 'sb-fb-' + idx;
+    var parts = ex.parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word, idx)); });
+    sbRegisterZone(bank, idx);
+    sbRegisterZone(row, idx);
+    var btnRow = document.createElement('div');
+    btnRow.className = 'sb-btn-row';
+    var solveBtn = document.createElement('button');
+    solveBtn.className = 'btn';
+    solveBtn.textContent = 'Lösen';
+    solveBtn.setAttribute('data-idx', idx);
+    solveBtn.addEventListener('click', function() { sbShowSolution(parseInt(this.getAttribute('data-idx'))); });
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = '↺ Neustart';
+    resetBtn.setAttribute('data-idx', idx);
+    resetBtn.addEventListener('click', function() { sbResetOne(parseInt(this.getAttribute('data-idx'))); });
+    btnRow.appendChild(solveBtn);
+    btnRow.appendChild(resetBtn);
+    item.appendChild(bank);
+    item.appendChild(row);
+    item.appendChild(fb);
+    item.appendChild(btnRow);
+    container.appendChild(item);
+  });
+}
+
+initMC();initLuecken();initSatzbau();
+</script>
+
+<script>
+/* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
+   hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
+(function(){
+  var CFG = {"bank":"sb-bank-","row":"sb-row-","fb":"sb-fb-","caps":true,"click":false,"tab":3};
+  var SBGAP = [{"i":0,"row":["_","_","_","_","Tag","_","_","_","er","_","seinem","Hund","_"],"parts":["obwohl","es","den","ganzen","regnet",",","geht","mit","spazieren"]},{"i":1,"row":["_","_","_","sehr","_","_","trotzdem","_","_","_","_","ihrem","Bericht","_"],"parts":["es","ist","schon","spät",",","arbeitet","sie","konzentriert","an","weiter"]},{"i":2,"row":["_","_","_","der","_","_","_","müde","_","_","er","_","_","Bett","_"],"parts":["er","war","nach","langen","Schicht","völlig",",","sodass","früh","ins","ging"]},{"i":3,"row":["_","_","_","am","_","viel","_","_","_","_","ich","_","_","_","Arbeit"],"parts":["der","Bus","hatte","Morgen","Verspätung",",","deshalb","kam","zu","spät","zur"]},{"i":4,"row":["_","_","_","Tagen","krank","_","_","_","_","_","_","zur","Arbeit"],"parts":["obwohl","sie","seit","ist",",","geht","sie","jeden","Morgen"]},{"i":5,"row":["_","_","_","so","_","_","dass","_","am","_","alle","_","_"],"parts":["der","Film","war","traurig",",","wir","Ende","geweint","haben"]}];
+  SBGAP.forEach(function(g){ var ex = satzbauData[g.i]; if (!ex) return;
+    ex.row = g.row; ex.parts = g.parts;
+    if (typeof ex.valid[0] === "string") ex.valid = [ex.valid];
+  });
+  if (typeof window.sbDragged === "undefined") window.sbDragged = null;
+  function bankEl(i){ return document.getElementById(CFG.bank + i); }
+  function rowEl(i){ return document.getElementById(CFG.row + i); }
+  function fbEl(i){ return document.getElementById(CFG.fb + i); }
+  function cap(w){ return w.charAt(0).toUpperCase() + w.slice(1); }
+  function positions(row){ return Array.from(row.children).filter(function(n){ return n.classList.contains("sb-gap") || n.classList.contains("chip"); }); }
+  function chipOf(pos){ return pos.classList.contains("sb-gap") ? pos.querySelector(".chip") : pos; }
+  function updateCaps(row){ if (!CFG.caps) return;
+    positions(row).forEach(function(pos,i){ var c = chipOf(pos); if (!c) return;
+      var o = c.dataset.orig;
+      var proper = o.charAt(0) === o.charAt(0).toUpperCase() && o.charAt(0) !== o.charAt(0).toLowerCase();
+      c.textContent = proper ? o : (i === 0 ? cap(o) : o); });
+  }
+  function sequence(i){ var row = rowEl(i), seq = [], complete = true;
+    positions(row).forEach(function(pos){ var c = chipOf(pos); if (c) seq.push(c.dataset.orig); else complete = false; });
+    return { seq: seq, complete: complete }; }
+  function clearMarks(i){ var row = rowEl(i);
+    row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+    row.classList.remove("correct","incorrect");
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p); }
+  function afterChange(i){
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i), info = sequence(i);
+    if (!info.complete){ clearMarks(i); if (fb){ fb.textContent=""; fb.className="satzbau-feedback"; } return; }
+    setTimeout(function(){
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var fresh = sequence(i);
+      var ok = satzbauData[i].valid.some(function(v){ return JSON.stringify(v) === JSON.stringify(fresh.seq); });
+      var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+      if (ok){
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("incorrect"); c.classList.add("correct"); });
+        var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+        punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+        row.classList.add("correct"); row.classList.remove("incorrect");
+        if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+        if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+      } else {
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+        row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("incorrect"); });
+        row.classList.add("incorrect"); row.classList.remove("correct");
+        if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Noch nicht richtig – verschiebe die Wörter!"; }
+      }
+    }, 450);
+  }
+  /* Geführter Modus (B1, 2026-06-10): Sofort-Feedback pro Chip-Platzierung.
+     Richtig (konsistent mit mind. einer valid-Reihenfolge) -> grün + fixiert.
+     Falsch -> rot + Rücksprung in die Bank nach 800 ms. */
+  function toBank(i, chip){
+    chip.textContent = chip.dataset.orig;  // Kleinschreibung wiederherstellen — Bank darf den Satzanfang nicht verraten
+    bankEl(i).appendChild(chip);
+  }
+  function consistent(i){
+    var pos = positions(rowEl(i));
+    var v = satzbauData[i].valid;
+    return v.some(function(o){
+      for (var k = 0; k < pos.length; k++){ var c = chipOf(pos[k]); if (c && c.dataset.orig !== o[k]) return false; }
+      return true; });
+  }
+  function finishRow(i){
+    var row = rowEl(i), fb = fbEl(i);
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+    var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+    punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+    row.classList.add("correct"); row.classList.remove("incorrect");
+    if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+    if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+  }
+  function placeJudge(i, chip){
+    if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i);
+    if (consistent(i)){
+      chip.classList.remove("incorrect"); chip.classList.add("correct");
+      chip.dataset.fixed = "1"; chip.draggable = false;
+      if (sequence(i).complete){ finishRow(i); }
+      else if (fb){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+    } else {
+      chip.classList.add("incorrect");
+      if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Das passt hier nicht!"; }
+      setTimeout(function(){
+        chip.classList.remove("incorrect");
+        if (!chip.dataset.fixed && chip.closest(".sb-gap")) toBank(i, chip);
+        updateCaps(rowEl(i));
+        if (fb && /incorrect/.test(fb.className)){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+      }, 800);
+    }
+  }
+  function makeChip(word, i){
+    var chip = document.createElement("div");
+    var isPunct = [",",".","!","?",";",":"].indexOf(word) !== -1;
+    chip.className = "chip" + (isPunct ? " punct-chip" : ""); chip.textContent = word; chip.draggable = true;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.sbIdx = String(i);
+    chip.addEventListener("dragstart", function(e){ if (chip.dataset.fixed){ e.preventDefault(); return; } window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
+    if (CFG.click) chip.addEventListener("click", function(){
+      if (chip.dataset.fixed) return;
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var inSlot = chip.closest(".sb-gap");
+      if (inSlot){ toBank(i, chip); updateCaps(rowEl(i)); return; }
+      var free = Array.from(rowEl(i).querySelectorAll(".sb-gap")).find(function(s){ return !s.querySelector(".chip"); });
+      if (free){ free.appendChild(chip); placeJudge(i, chip); }
+    });
+    return chip;
+  }
+  function makeLocked(word){
+    var chip = document.createElement("div");
+    chip.className = "chip sb-locked"; chip.textContent = word;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.locked = "1";
+    return chip;
+  }
+  function makeSlot(i){
+    var slot = document.createElement("div"); slot.className = "sb-gap";
+    slot.addEventListener("dragover", function(e){ e.preventDefault(); if (window.sbDragged) slot.classList.add("drag-over"); });
+    slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
+    slot.addEventListener("drop", function(e){
+      e.preventDefault(); slot.classList.remove("drag-over");
+      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      if (slot.querySelector(".chip")) return;  // Lücke schon belegt
+      slot.appendChild(d); window.sbDragged = null; placeJudge(i, d);
+    });
+    return slot;
+  }
+  function registerBank(bank, i){
+    bank.addEventListener("dragover", function(e){ e.preventDefault(); });
+    bank.addEventListener("drop", function(e){
+      e.preventDefault(); var d = window.sbDragged;
+      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      toBank(i, d); window.sbDragged = null; updateCaps(rowEl(i));
+    });
+  }
+  function freshEl(id){ var el = document.getElementById(id); if (!el) return null;
+    var c = el.cloneNode(false); el.parentNode.replaceChild(c, el); return c; }
+  function rebuild(i){
+    var ex = satzbauData[i]; if (!ex || !ex.row) return;
+    var bank = freshEl(CFG.bank + i), row = freshEl(CFG.row + i);
+    if (!bank || !row) return;
+    var fb = fbEl(i); if (fb){ fb.textContent = ""; fb.className = "satzbau-feedback"; }
+    var mov = ex.parts.slice();
+    for (var k = mov.length - 1; k > 0; k--){ var j = Math.floor(Math.random()*(k+1)); var t = mov[k]; mov[k] = mov[j]; mov[j] = t; }
+    mov.forEach(function(w){ bank.appendChild(makeChip(w, i)); });
+    ex.row.forEach(function(tok){ row.appendChild(tok === "_" ? makeSlot(i) : makeLocked(tok)); });
+    registerBank(bank, i);
+    ensureButtons(i);
+  }
+  function rebuildAll(){ satzbauData.forEach(function(ex,i){ if (ex.row) rebuild(i); }); }
+  function showSol(i){
+    rebuild(i);
+    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0];
+    var pool = Array.from(bank.querySelectorAll(".chip"));
+    positions(row).forEach(function(pos,k){
+      if (!pos.classList.contains("sb-gap")) return;
+      var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
+      if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
+    });
+    row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("correct"); c.dataset.fixed = "1"; c.draggable = false; });
+    updateCaps(row);
+    finishRow(i);
+  }
+  function ensureButtons(i){
+    if (document.getElementById("sb-btns-" + i)) return;
+    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
+    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;
+    if (item && [].some.call(item.querySelectorAll("button"), function(b){
+      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden
+    var box = document.createElement("div");
+    box.id = "sb-btns-" + i;
+    box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
+    var b1 = document.createElement("button"); b1.type = "button"; b1.className = "btn"; b1.textContent = "Lösen";
+    b1.addEventListener("click", function(){ showSol(i); });
+    var b2 = document.createElement("button"); b2.type = "button"; b2.className = "btn"; b2.textContent = "↺ Neustart";
+    b2.addEventListener("click", function(){ rebuild(i); });
+    box.appendChild(b1); box.appendChild(b2);
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+  ["initSatzbau","buildSatzbau"].forEach(function(fn){
+    if (typeof window[fn] === "function"){ var o = window[fn];
+      window[fn] = function(){ o.apply(this, arguments); rebuildAll(); }; }
+  });
+  if (typeof window.sbReset === "function" && window.sbReset.length === 0){
+    var orall = window.sbReset;
+    window.sbReset = function(){ orall.apply(this, arguments); rebuildAll(); };
+  }
+  if (typeof window.sbResetOne === "function"){
+    var orst = window.sbResetOne;
+    window.sbResetOne = function(i){ if (satzbauData[i] && satzbauData[i].row){ rebuild(i); return; } orst.apply(this, arguments); };
+  }
+  if (typeof window.sbShowSolution === "function"){
+    var osol = window.sbShowSolution;
+    window.sbShowSolution = function(i){ if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
+  }
+  /* Bugfix 2026-06-10: bei leerer Row (Free-Build) zusätzlich die Bank prüfen,
+     sonst baut sich das Gerüst beim Erstladen nie auf (nur nach Neustart). */
+  var pRow = rowEl(0), pBank = bankEl(0);
+  if ((pRow && pRow.children.length) || (pBank && pBank.children.length)) rebuildAll();
+})();
 </script>
 </body>
 </html>
