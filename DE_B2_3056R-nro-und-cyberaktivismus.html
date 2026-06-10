@@ -135,7 +135,7 @@ h3 { color: #764ba2; margin: 16px 0 10px; font-size: 1rem; }
 .blank.correct { border-color: #4caf50; background: #f0fff0; }
 .blank.wrong { border-color: #f44336; background: #fff0f0; }
 
-/* ── SATZBAU ─────────────────────────────────────────────── */
+/* ── satzbauData ─────────────────────────────────────────────── */
 .sb-task { margin-bottom: 24px; padding: 18px; background: #f9f9ff; border-radius: 10px; }
 .sb-bank {
   display: flex; flex-wrap: wrap; gap: 8px;
@@ -285,6 +285,13 @@ h3 { color: #764ba2; margin: 16px 0 10px; font-size: 1rem; }
 .fb-wortbank{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#f0f0f8;border-radius:10px;min-height:48px;border:1px dashed #bbb;}
 .fb-wortbank-chip{background:#fff;border:2px solid #667eea;color:#667eea;padding:5px 12px;border-radius:14px;font-weight:500;font-size:0.9em;user-select:none;}
 .fb-wortbank-chip.used{opacity:0.35;text-decoration:line-through;}
+
+/* ── Gerüst-Modus (B1+): sichtbare Lücken + feste Anker ── */
+.sb-gap { display:inline-flex; align-items:center; justify-content:center; min-width:66px; min-height:38px; padding:2px 6px; border:2px dashed #b9a7f0; border-radius:20px; background:#faf8ff; }
+.sb-gap.drag-over { border-color:#e67e22; background:#fff5ec; }
+.sb-gap .chip { margin:0; }
+.chip.sb-locked { background:#eef0ff; border-style:solid; border-color:#c3c9f5; color:#555; cursor:default; }
+.chip.sb-locked.correct { background:#27ae60; border-color:#27ae60; color:#fff; }
 </style>
 </head>
 <body>
@@ -378,7 +385,7 @@ h3 { color: #764ba2; margin: 16px 0 10px; font-size: 1rem; }
 </div>
 
 <!-- ══════════════════════════════════════════════════════════ -->
-<!-- TAB 5 · SATZBAU                                          -->
+<!-- TAB 5 · satzbauData                                          -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div id="sec-5" class="section">
   <img src="data:image/jpeg;base64,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" class="tab-banner" alt="Satzbau">
@@ -703,25 +710,33 @@ function resetLuecken() {
 }
 
 /* ══════════════════════════════════════════════════════════ */
-/* SATZBAU (Tab 5)                                           */
+/* satzbauData (Tab 5)                                           */
 /* ══════════════════════════════════════════════════════════ */
-var SATZBAU = [
-  { parts: ['NROs', 'arbeiten', 'unabhängig', 'von', 'staatlichen', 'Regierungen', 'und', 'Institutionen'],
-    valid: [['nros', 'arbeiten', 'unabhängig', 'von', 'staatlichen', 'regierungen', 'und', 'institutionen']], punct: '.' },
-  { parts: ['der', 'Cyberaktivismus', 'nutzt', 'das', 'Internet', 'als', 'politisches', 'Werkzeug'],
-    valid: [['der', 'cyberaktivismus', 'nutzt', 'das', 'internet', 'als', 'politisches', 'werkzeug']], punct: '.' },
-  { parts: ['Online-Petitionen', 'sammeln', 'Unterschriften', 'und', 'üben', 'politischen', 'Druck', 'aus'],
-    valid: [['online-petitionen', 'sammeln', 'unterschriften', 'und', 'üben', 'politischen', 'druck', 'aus']], punct: '.' },
-  { parts: ['Hacktivismus', 'ist', 'eine', 'kontroverse', 'und', 'illegale', 'Form', 'des', 'Aktivismus'],
-    valid: [['hacktivismus', 'ist', 'eine', 'kontroverse', 'und', 'illegale', 'form', 'des', 'aktivismus']], punct: '.' },
-  { parts: ['Falschinformationen', 'gehören', 'zu', 'den', 'größten', 'Risiken', 'des', 'Cyberaktivismus'],
-    valid: [['falschinformationen', 'gehören', 'zu', 'den', 'größten', 'risiken', 'des', 'cyberaktivismus']], punct: '.' },
-  { parts: ['Amnesty', 'International', 'kämpft', 'weltweit', 'für', 'die', 'Einhaltung', 'der', 'Menschenrechte'],
-    valid: [['amnesty', 'international', 'kämpft', 'weltweit', 'für', 'die', 'einhaltung', 'der', 'menschenrechte']], punct: '.' },
-  { parts: ['Hashtag-Kampagnen', 'können', 'innerhalb', 'weniger', 'Stunden', 'Millionen', 'Menschen', 'mobilisieren'],
-    valid: [['hashtag-kampagnen', 'können', 'innerhalb', 'weniger', 'stunden', 'millionen', 'menschen', 'mobilisieren']], punct: '.' },
-  { parts: ['Hacker', 'veröffentlichen', 'geheime', 'Dokumente', 'im', 'Namen', 'der', 'Transparenz'],
-    valid: [['hacker', 'veröffentlichen', 'geheime', 'dokumente', 'im', 'namen', 'der', 'transparenz']], punct: '.' }
+var satzbauData = [
+  { parts: ['Nichtregierungsorganisationen', 'arbeiten', 'unabhängig', 'von', 'den', 'Regierungen', ',', 'damit', 'sie', 'frei', 'Kritik', 'äußern', 'können'],
+    valid: [['Nichtregierungsorganisationen', 'arbeiten', 'unabhängig', 'von', 'den', 'Regierungen', ',', 'damit', 'sie', 'frei', 'Kritik', 'äußern', 'können']],
+    punct: '.' },
+  { parts: ['der', 'Cyberaktivismus', 'nutzt', 'das', 'Internet', 'als', 'Werkzeug', ',', 'um', 'gezielt', 'politischen', 'Druck', 'aufzubauen'],
+    valid: [['der', 'Cyberaktivismus', 'nutzt', 'das', 'Internet', 'als', 'Werkzeug', ',', 'um', 'gezielt', 'politischen', 'Druck', 'aufzubauen']],
+    punct: '.' },
+  { parts: ['Online-Petitionen', 'sammeln', 'rasch', 'viele', 'Unterschriften', ',', 'damit', 'politische', 'Forderungen', 'ein', 'sichtbares', 'Gewicht', 'bekommen'],
+    valid: [['Online-Petitionen', 'sammeln', 'rasch', 'viele', 'Unterschriften', ',', 'damit', 'politische', 'Forderungen', 'ein', 'sichtbares', 'Gewicht', 'bekommen']],
+    punct: '.' },
+  { parts: ['der', 'Hacktivismus', 'ist', 'umstritten', ',', 'weil', 'er', 'häufig', 'die', 'Grenzen', 'der', 'Legalität', 'überschreitet'],
+    valid: [['der', 'Hacktivismus', 'ist', 'umstritten', ',', 'weil', 'er', 'häufig', 'die', 'Grenzen', 'der', 'Legalität', 'überschreitet']],
+    punct: '.' },
+  { parts: ['Falschinformationen', 'gehören', 'zu', 'den', 'größten', 'Risiken', ',', 'weil', 'sie', 'sich', 'online', 'rasend', 'verbreiten'],
+    valid: [['Falschinformationen', 'gehören', 'zu', 'den', 'größten', 'Risiken', ',', 'weil', 'sie', 'sich', 'online', 'rasend', 'verbreiten']],
+    punct: '.' },
+  { parts: ['Amnesty', 'International', 'kämpft', 'seit', 'Jahrzehnten', 'dafür', ',', 'dass', 'die', 'Menschenrechte', 'überall', 'eingehalten', 'werden'],
+    valid: [['Amnesty', 'International', 'kämpft', 'seit', 'Jahrzehnten', 'dafür', ',', 'dass', 'die', 'Menschenrechte', 'überall', 'eingehalten', 'werden']],
+    punct: '.' },
+  { parts: ['Hashtag-Kampagnen', 'können', 'Millionen', 'Menschen', 'mobilisieren', ',', 'obwohl', 'sie', 'oft', 'nur', 'wenige', 'Stunden', 'dauern'],
+    valid: [['Hashtag-Kampagnen', 'können', 'Millionen', 'Menschen', 'mobilisieren', ',', 'obwohl', 'sie', 'oft', 'nur', 'wenige', 'Stunden', 'dauern']],
+    punct: '.' },
+  { parts: ['manche', 'Hacker', 'veröffentlichen', 'geheime', 'Dokumente', ',', 'weil', 'sie', 'sich', 'auf', 'die', 'Transparenz', 'berufen'],
+    valid: [['manche', 'Hacker', 'veröffentlichen', 'geheime', 'Dokumente', ',', 'weil', 'sie', 'sich', 'auf', 'die', 'Transparenz', 'berufen']],
+    punct: '.' }
 ];
 
 var sbDragged = null;
@@ -735,7 +750,7 @@ function getSbCursor(row) {
 function initSatzbau() {
   var container = document.getElementById('satzbauContainer');
   container.innerHTML = '';
-  SATZBAU.forEach(function(data, idx) {
+  satzbauData.forEach(function(data, idx) {
     var task = document.createElement('div'); task.className = 'sb-task';
     var bank = document.createElement('div'); bank.className = 'sb-bank'; bank.id = 'sb-bank-'+idx; task.appendChild(bank);
     var row = document.createElement('div'); row.className = 'sb-row'; row.id = 'sb-row-'+idx;
@@ -822,7 +837,7 @@ function sbUpdateCapitalization(idx) {
 
 function sbCheckAuto(idx) {
   setTimeout(function(){
-    var row = document.getElementById('sb-row-'+idx); var data = SATZBAU[idx];
+    var row = document.getElementById('sb-row-'+idx); var data = satzbauData[idx];
     var chips = Array.from(row.querySelectorAll('.chip'));
     if (chips.length !== data.parts.length) return;
     sbColorRow(idx);
@@ -831,7 +846,7 @@ function sbCheckAuto(idx) {
 }
 
 function sbColorRow(idx) {
-  var row = document.getElementById('sb-row-'+idx); var data = SATZBAU[idx];
+  var row = document.getElementById('sb-row-'+idx); var data = satzbauData[idx];
   var chips = Array.from(row.querySelectorAll('.chip'));
   if (chips.length !== data.parts.length) return false;
   var ok = data.valid.some(function(v) {
@@ -847,7 +862,7 @@ function sbColorRow(idx) {
 }
 
 function sbCheckAllDone() {
-  var allOk = SATZBAU.every(function(data,idx) {
+  var allOk = satzbauData.every(function(data,idx) {
     var row = document.getElementById('sb-row-'+idx);
     var chips = Array.from(row.querySelectorAll('.chip'));
     return data.valid.some(function(v) {
@@ -861,7 +876,7 @@ function sbCheckAllDone() {
 function sbShowSolution(idx) {
   var row = document.getElementById('sb-row-'+idx);
   var bank = document.getElementById('sb-bank-'+idx);
-  var data = SATZBAU[idx];
+  var data = satzbauData[idx];
   var all = Array.from(row.querySelectorAll('.chip')).concat(Array.from(bank.querySelectorAll('.chip')));
   row.querySelectorAll('.chip').forEach(function(c){ bank.appendChild(c); });
   data.valid[0].forEach(function(word) {
@@ -879,8 +894,8 @@ function sbResetOne(idx) {
   var fb = document.getElementById('sb-fb-'+idx); if (fb) fb.textContent = '';
 }
 
-function resetAllSatzbau() { SATZBAU.forEach(function(_,idx){ sbResetOne(idx); }); resetTimer(5); }
-function showAllSbLoesungen() { SATZBAU.forEach(function(_,idx){ sbShowSolution(idx); }); }
+function resetAllSatzbau() { satzbauData.forEach(function(_,idx){ sbResetOne(idx); }); resetTimer(5); }
+function showAllSbLoesungen() { satzbauData.forEach(function(_,idx){ sbShowSolution(idx); }); }
 
 /* ══════════════════════════════════════════════════════════ */
 /* WORTSCHATZ (Tab 6)                                        */
@@ -1507,6 +1522,212 @@ function schreibLeeren() {
   });
 })();
 
+</script>
+
+<script>
+/* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
+   hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
+(function(){
+  var CFG = {"bank":"sb-bank-","row":"sb-row-","fb":"sb-fb-","caps":true,"click":false,"tab":4};
+  var SBGAP = [{"i":0,"row":["_","_","_","von","_","Regierungen","_","_","sie","_","Kritik","_","_"],"parts":["Nichtregierungsorganisationen","arbeiten","unabhängig","den",",","damit","frei","äußern","können"]},{"i":1,"row":["_","_","_","das","Internet","_","Werkzeug","_","_","_","_","Druck","_"],"parts":["der","Cyberaktivismus","nutzt","als",",","um","gezielt","politischen","aufzubauen"]},{"i":2,"row":["_","_","_","viele","_","_","_","politische","Forderungen","_","_","Gewicht","_"],"parts":["Online-Petitionen","sammeln","rasch","Unterschriften",",","damit","ein","sichtbares","bekommen"]},{"i":3,"row":["_","_","_","_","_","weil","_","häufig","_","Grenzen","_","Legalität","_"],"parts":["der","Hacktivismus","ist","umstritten",",","er","die","der","überschreitet"]},{"i":4,"row":["_","_","_","den","_","_","_","weil","_","sich","_","rasend","_"],"parts":["Falschinformationen","gehören","zu","größten","Risiken",",","sie","online","verbreiten"]},{"i":5,"row":["_","_","_","_","Jahrzehnten","_","_","dass","die","_","überall","_","_"],"parts":["Amnesty","International","kämpft","seit","dafür",",","Menschenrechte","eingehalten","werden"]},{"i":6,"row":["_","_","Millionen","_","_","_","obwohl","_","_","nur","_","Stunden","_"],"parts":["Hashtag-Kampagnen","können","Menschen","mobilisieren",",","sie","oft","wenige","dauern"]},{"i":7,"row":["_","_","_","geheime","_","_","weil","_","sich","_","_","Transparenz","_"],"parts":["manche","Hacker","veröffentlichen","Dokumente",",","sie","auf","die","berufen"]}];
+  SBGAP.forEach(function(g){ var ex = satzbauData[g.i]; if (!ex) return;
+    ex.row = g.row; ex.parts = g.parts;
+    if (typeof ex.valid[0] === "string") ex.valid = [ex.valid];
+  });
+  if (typeof window.sbDragged === "undefined") window.sbDragged = null;
+  function bankEl(i){ return document.getElementById(CFG.bank + i); }
+  function rowEl(i){ return document.getElementById(CFG.row + i); }
+  function fbEl(i){ return document.getElementById(CFG.fb + i); }
+  function cap(w){ return w.charAt(0).toUpperCase() + w.slice(1); }
+  function positions(row){ return Array.from(row.children).filter(function(n){ return n.classList.contains("sb-gap") || n.classList.contains("chip"); }); }
+  function chipOf(pos){ return pos.classList.contains("sb-gap") ? pos.querySelector(".chip") : pos; }
+  function updateCaps(row){ if (!CFG.caps) return;
+    positions(row).forEach(function(pos,i){ var c = chipOf(pos); if (!c) return;
+      var o = c.dataset.orig;
+      var proper = o.charAt(0) === o.charAt(0).toUpperCase() && o.charAt(0) !== o.charAt(0).toLowerCase();
+      c.textContent = proper ? o : (i === 0 ? cap(o) : o); });
+  }
+  function sequence(i){ var row = rowEl(i), seq = [], complete = true;
+    positions(row).forEach(function(pos){ var c = chipOf(pos); if (c) seq.push(c.dataset.orig); else complete = false; });
+    return { seq: seq, complete: complete }; }
+  function clearMarks(i){ var row = rowEl(i);
+    row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+    row.classList.remove("correct","incorrect");
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p); }
+  function afterChange(i){
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i), info = sequence(i);
+    if (!info.complete){ clearMarks(i); if (fb){ fb.textContent=""; fb.className="satzbau-feedback"; } return; }
+    setTimeout(function(){
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var fresh = sequence(i);
+      var ok = satzbauData[i].valid.some(function(v){ return JSON.stringify(v) === JSON.stringify(fresh.seq); });
+      var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+      if (ok){
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("incorrect"); c.classList.add("correct"); });
+        var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+        punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+        row.classList.add("correct"); row.classList.remove("incorrect");
+        if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+        if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+      } else {
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+        row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("incorrect"); });
+        row.classList.add("incorrect"); row.classList.remove("correct");
+        if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Noch nicht richtig – verschiebe die Wörter!"; }
+      }
+    }, 450);
+  }
+  /* Geführter Modus (B1, 2026-06-10): Sofort-Feedback pro Chip-Platzierung.
+     Richtig (konsistent mit mind. einer valid-Reihenfolge) -> grün + fixiert.
+     Falsch -> rot + Rücksprung in die Bank nach 800 ms. */
+  function toBank(i, chip){
+    chip.textContent = chip.dataset.orig;  // Kleinschreibung wiederherstellen — Bank darf den Satzanfang nicht verraten
+    bankEl(i).appendChild(chip);
+  }
+  function consistent(i){
+    var pos = positions(rowEl(i));
+    var v = satzbauData[i].valid;
+    return v.some(function(o){
+      for (var k = 0; k < pos.length; k++){ var c = chipOf(pos[k]); if (c && c.dataset.orig !== o[k]) return false; }
+      return true; });
+  }
+  function finishRow(i){
+    var row = rowEl(i), fb = fbEl(i);
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+    var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+    punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+    row.classList.add("correct"); row.classList.remove("incorrect");
+    if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+    if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+  }
+  function placeJudge(i, chip){
+    if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i);
+    if (consistent(i)){
+      chip.classList.remove("incorrect"); chip.classList.add("correct");
+      chip.dataset.fixed = "1"; chip.draggable = false;
+      if (sequence(i).complete){ finishRow(i); }
+      else if (fb){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+    } else {
+      chip.classList.add("incorrect");
+      if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Das passt hier nicht!"; }
+      setTimeout(function(){
+        chip.classList.remove("incorrect");
+        if (!chip.dataset.fixed && chip.closest(".sb-gap")) toBank(i, chip);
+        updateCaps(rowEl(i));
+        if (fb && /incorrect/.test(fb.className)){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+      }, 800);
+    }
+  }
+  function makeChip(word, i){
+    var chip = document.createElement("div");
+    var isPunct = [",",".","!","?",";",":"].indexOf(word) !== -1;
+    chip.className = "chip" + (isPunct ? " punct-chip" : ""); chip.textContent = word; chip.draggable = true;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.sbIdx = String(i);
+    chip.addEventListener("dragstart", function(e){ if (chip.dataset.fixed){ e.preventDefault(); return; } window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
+    if (CFG.click) chip.addEventListener("click", function(){
+      if (chip.dataset.fixed) return;
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var inSlot = chip.closest(".sb-gap");
+      if (inSlot){ toBank(i, chip); updateCaps(rowEl(i)); return; }
+      var free = Array.from(rowEl(i).querySelectorAll(".sb-gap")).find(function(s){ return !s.querySelector(".chip"); });
+      if (free){ free.appendChild(chip); placeJudge(i, chip); }
+    });
+    return chip;
+  }
+  function makeLocked(word){
+    var chip = document.createElement("div");
+    chip.className = "chip sb-locked"; chip.textContent = word;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.locked = "1";
+    return chip;
+  }
+  function makeSlot(i){
+    var slot = document.createElement("div"); slot.className = "sb-gap";
+    slot.addEventListener("dragover", function(e){ e.preventDefault(); if (window.sbDragged) slot.classList.add("drag-over"); });
+    slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
+    slot.addEventListener("drop", function(e){
+      e.preventDefault(); slot.classList.remove("drag-over");
+      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      if (slot.querySelector(".chip")) return;  // Lücke schon belegt
+      slot.appendChild(d); window.sbDragged = null; placeJudge(i, d);
+    });
+    return slot;
+  }
+  function registerBank(bank, i){
+    bank.addEventListener("dragover", function(e){ e.preventDefault(); });
+    bank.addEventListener("drop", function(e){
+      e.preventDefault(); var d = window.sbDragged;
+      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      toBank(i, d); window.sbDragged = null; updateCaps(rowEl(i));
+    });
+  }
+  function freshEl(id){ var el = document.getElementById(id); if (!el) return null;
+    var c = el.cloneNode(false); el.parentNode.replaceChild(c, el); return c; }
+  function rebuild(i){
+    var ex = satzbauData[i]; if (!ex || !ex.row) return;
+    var bank = freshEl(CFG.bank + i), row = freshEl(CFG.row + i);
+    if (!bank || !row) return;
+    var fb = fbEl(i); if (fb){ fb.textContent = ""; fb.className = "satzbau-feedback"; }
+    var mov = ex.parts.slice();
+    for (var k = mov.length - 1; k > 0; k--){ var j = Math.floor(Math.random()*(k+1)); var t = mov[k]; mov[k] = mov[j]; mov[j] = t; }
+    mov.forEach(function(w){ bank.appendChild(makeChip(w, i)); });
+    ex.row.forEach(function(tok){ row.appendChild(tok === "_" ? makeSlot(i) : makeLocked(tok)); });
+    registerBank(bank, i);
+    ensureButtons(i);
+  }
+  function rebuildAll(){ satzbauData.forEach(function(ex,i){ if (ex.row) rebuild(i); }); }
+  function showSol(i){
+    rebuild(i);
+    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0];
+    var pool = Array.from(bank.querySelectorAll(".chip"));
+    positions(row).forEach(function(pos,k){
+      if (!pos.classList.contains("sb-gap")) return;
+      var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
+      if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
+    });
+    row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("correct"); c.dataset.fixed = "1"; c.draggable = false; });
+    updateCaps(row);
+    finishRow(i);
+  }
+  function ensureButtons(i){
+    if (document.getElementById("sb-btns-" + i)) return;
+    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
+    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;
+    if (item && [].some.call(item.querySelectorAll("button"), function(b){
+      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden
+    var box = document.createElement("div");
+    box.id = "sb-btns-" + i;
+    box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
+    var b1 = document.createElement("button"); b1.type = "button"; b1.className = "btn"; b1.textContent = "Lösen";
+    b1.addEventListener("click", function(){ showSol(i); });
+    var b2 = document.createElement("button"); b2.type = "button"; b2.className = "btn"; b2.textContent = "↺ Neustart";
+    b2.addEventListener("click", function(){ rebuild(i); });
+    box.appendChild(b1); box.appendChild(b2);
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+  ["initSatzbau","buildSatzbau"].forEach(function(fn){
+    if (typeof window[fn] === "function"){ var o = window[fn];
+      window[fn] = function(){ o.apply(this, arguments); rebuildAll(); }; }
+  });
+  if (typeof window.sbReset === "function" && window.sbReset.length === 0){
+    var orall = window.sbReset;
+    window.sbReset = function(){ orall.apply(this, arguments); rebuildAll(); };
+  }
+  if (typeof window.sbResetOne === "function"){
+    var orst = window.sbResetOne;
+    window.sbResetOne = function(i){ if (satzbauData[i] && satzbauData[i].row){ rebuild(i); return; } orst.apply(this, arguments); };
+  }
+  if (typeof window.sbShowSolution === "function"){
+    var osol = window.sbShowSolution;
+    window.sbShowSolution = function(i){ if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
+  }
+  /* Bugfix 2026-06-10: bei leerer Row (Free-Build) zusätzlich die Bank prüfen,
+     sonst baut sich das Gerüst beim Erstladen nie auf (nur nach Neustart). */
+  var pRow = rowEl(0), pBank = bankEl(0);
+  if ((pRow && pRow.children.length) || (pBank && pBank.children.length)) rebuildAll();
+})();
 </script>
 </body>
 </html>
