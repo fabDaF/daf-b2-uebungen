@@ -29,8 +29,12 @@ valid-Reihenfolge unter Berücksichtigung aller schon platzierten Chips) →
 Chip wird grün und fixiert (nicht mehr beweglich). Falsch → Chip wird rot,
 Feedback „✗ Das passt hier nicht!", nach 800 ms Rücksprung in die Bank.
 Letzter richtiger Chip → Punkt + „✓ Korrekt!". Implementiert im Add-on
-(placeJudge/consistent/finishRow in geruest_patch.js); Guards gegen
+(placeJudge/consistent/finishRow/toBank in geruest_patch.js); Guards gegen
 Verschieben fixierter Chips in dragstart, Slot-Drop und Bank-Drop.
+toBank() stellt bei jedem Chip-Rücksprung die Kleinschreibung wieder her —
+ein an Position 0 großgeschriebener Chip darf in der Bank den Satzanfang
+nicht verraten (Frank, 2026-06-10; Skill-Fallstrick „Großbuchstabe bleibt
+in Bank").
 JSDOM-Test: /outputs/jsdom_test_geruest.js (5 Testfälle, Drag-Pfad).
 ACHTUNG für B2/C1-Rollout: C2-Bestand (71 Dateien) hat noch das ALTE
 Add-on ohne geführten Modus — bei Gelegenheit re-patchen (nur Technik;
