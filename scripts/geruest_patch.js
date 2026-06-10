@@ -289,7 +289,7 @@ if (!fam) { report.skip = 'unbekanntes ID-Schema'; out(); process.exit(0); }
 report.fam = fam;
 const initFn = ['initSatzbau','buildSatzbau'].find(f => html.includes('function ' + f));
 if (!initFn) { report.skip = 'keine Init-Funktion'; out(); process.exit(0); }
-if (!html.includes('function sbShowSolution')) { report.skip = 'sbShowSolution fehlt'; out(); process.exit(0); }
+if (!html.includes('function sbShowSolution')) { report.note = 'kein natives sbShowSolution — Add-on-Buttons übernehmen'; }
 let m = html.match(/sbDragged\s*=\s*chip;\s*timerAutoStart\((\d+)\)/)
      || html.match(/function sbCheckAuto[\s\S]{0,800}?timerAutoStart\((\d+)\)/)
      || html.match(/sbReset(?:One)?\([^)]*\);\s*resetTimer\((\d+)\)/)
