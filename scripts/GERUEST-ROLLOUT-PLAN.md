@@ -79,9 +79,9 @@ SBGAP-Konsistenz: Lücken==parts, Anker invariant, nie Komma als Anker).
 Einheiten 101–106, 201–206, 301–306 inkl. 3013R-Syntaxreparatur (CSS war in
 Script-Block gerutscht) und Patcher-Lockerung (fehlendes natives
 sbShowSolution nicht mehr fatal — Add-on-Buttons übernehmen).
-VERBLEIBEND B2 (15 Dateien): 9013R-schauspielkunst, GEHIRN_08S und die
-13 WCOxx-Dateien (Privatlektionen Bau/Prozesse) — alle kurze Sätze ohne
-Komma, normale Fix-Route. 1047X bleibt bewusst ohne Gerüst (Satzglieder).
+B2 KOMPLETT (2026-06-10, Session 4): alle 141 patchbaren Dateien fertig
+(inkl. 9013R, GEHIRN_08S, WCO01–13 mit ~200 Sätzen). 1047X bleibt bewusst
+ohne Gerüst (Satzglieder-Übung). JSDOM-Stichproben grün.
 Ursprünglich (Session 2, 82/143):** B2 war
 inhaltlich schon nah dran (Nebensätze + Komma-Chips vorhanden, aber meist
 10–11 Wörter) → chirurgische Verlängerung auf 12–16 statt Komplett-Neuschreibung.
@@ -100,7 +100,7 @@ Mehr-Wort-Chips 2035G/2036R, Semikolon-Chip 2022G, Kleinschreibung 2026R.
   (wie die A2-Fälle vom 2026-06-03) → vor dem Gerüst-Patch reparieren.
 
 ## Offene Bestände gesamt
-- B2-Root: 15 verbleibend (9013R, GEHIRN_08S, 13× WCO) · C1: 165
+- B2-Root: KOMPLETT · C1: 165 als nächster Block
   (C1-Schema sauber: alle Familie A/B, keine rows, 12–18W-Grenze)
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
