@@ -158,13 +158,33 @@ Diese brauchen kein Wortstellungs-Training — korrekt so.
   Kern erhalten. Alle Checks + JSDOM grün.
 - privat-omar/ ist leer, Vertragssprache.html/Geschaeftsemail.html ohne satzbauData.
 
+## Erledigt (2026-06-10, Session 7b) — daf-materialien + HOTFIX Erstlade-Bug
+**daf-materialien (Commit 2054c17):** konnektoren-kausal-konsekutiv (B1, 12–14,
+Ziel-Konnektor je Satz erhalten), modalsaetze-instrumental-komparativ +
+modalsaetze-restriktiv-substitutiv (B2, 12–16, Modalstruktur erhalten),
+DE_B2_Chinas-Aufstieg + DE_B2_Eskalationsfalle-Iran (12–16, Aussagen am
+Textkontext verifiziert) — 46 Sätze. NICHT gepatcht (A-Niveau, außerhalb
+B1+-Rollout): adjdekl-nom-akk-familie, partizip2-bildung-100verben, alle 9
+Mattmüller-Lückentexte („ich komme aus Deutschland"-Niveau).
+
+**HOTFIX Erstlade-Bug (Frank-Fund an 1062G im Live-Unterricht):** Die Add-on-
+Schlussprobe `rowEl(0) || bankEl(0)` + `children.length` schlug fehl, wenn das
+native Init die Row LEER lässt (Free-Build) — Gerüst erschien erst nach Klick
+auf „Neustart", nie beim Erstladen. JSDOM-Test kaschierte das, weil er
+initSatzbau() selbst aufruft. Fix in geruest_patch.js: Probe prüft Row ODER
+Bank auf Kinder. **Alle 485 Add-on-Dateien re-gepatcht + committed:**
+B2-Root+schueler 143 (88d0043), B1.1 100 (535ab0f), C1 162 (3d23cb4),
+C2 71 (e0b4d4c), Architektur 4 (cffc753), daf-materialien 5 (2054c17).
+Erstlade-Pfad ohne initSatzbau-Aufruf in allen Familien JSDOM-verifiziert.
+Lehre: Browser-Test = Seite laden und Satzbau-Tab SOFORT ansehen, nicht
+erst nach Neustart; JSDOM-Test um Erstlade-Pfad ergänzen.
+
 ## Offene Bestände gesamt
-- A1/A2/B1.1/B2-Root/C1/schueler/Architektur: KOMPLETT.
+- A1/A2/B1.1/B2-Root/C1/schueler/Architektur/daf-materialien: KOMPLETT.
+  Mattmüller: A-Niveau, bewusst ohne Gerüst.
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
-- Mattmüller + daf-materialien: Mattmüller-Lückentexte haben satzbauData-Treffer
-  (noch nicht geprüft, ob echtes Satzbau-Training); daf-materialien hat 7
-  satzbauData-Dateien (5 Grammatik + 2 B2-Texte) — nächster Spezial-Batch.
+- Danach: geruest_patch.js + diese Erkenntnisse in den daf-satzbau-Skill übernehmen.
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
 - Spezialordner (Architektur, Mattmüller, schueler/, ir/, daf-materialien): zuletzt, separat.
