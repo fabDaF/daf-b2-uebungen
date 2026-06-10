@@ -119,12 +119,38 @@ JSDOM-Stichprobe Familie B (3021G/3031G) grün; Familie-A-Dateien sind vom
 JSDOM-Test (nur sb-*-IDs) erwartungsgemäß nicht abgedeckt — SBGAP-Konsistenz
 deckt sie ab.
 
+## Erledigt (2026-06-10, Session 6) — C1 Einheiten 304–308
+**37 Dateien, 246 Sätze auf 12–18W mit Nebensatz + Komma-Chip** (4 Batches):
+- 304 (8 Dateien, Commit b61f7e4): Partizipialkonstr./akad. Wortschatz/Amazonas/
+  7 Weltwunder/Alpen/Sächsische Schweiz/Pangaea/Überleben Wüste.
+- 305 (8, d8137f3): Ausdruck/Rhetorik/biolog. Unsterblichkeit/Synästhesie/
+  kambrische Explosion/Erkältungsmythen/Darwin/mündliche Prüfungen.
+- 306+307 (11, 08d06de): Verbpräfixe/Slang/Gehirn/Sprache&Gesellschaft/Metakognition/
+  Bewältigung/Land der Blinden/Präsentation/DevOps (10 Sätze)/Essay/kreatives Schreiben.
+  3067R: em-Titel umformuliert (nie als Chip), 3069X mit 10 Sätzen.
+- 308 (5, f0a7c3f): Kulturgeschichte (10)/Nominalstil/Merz-Bilanz (10)/Passiv/
+  Politik&Geistesgeschichte (3085V mit satzbauData). 3086S ohne satzbauData ausgenommen.
+Alle Patcher-Läufe flag-frei, verify/check_wortbank/check_serif grün.
+JSDOM-Stichprobe Familie B (3082G/3084G/3061G) grün.
+- 900er-Block (8 Dateien, 55 Sätze, Commit 2199679): 9011G Nominalstil/9013R
+  Sense-Memory/9021G subj. Modalverben/9031G Sonderstellung/9041G Verbpräfixe/
+  9051G Genitiv-Verben/9061G Modalpartikeln/9071G Kommasetzung. Grammatik-Kern
+  je Satz erhalten, Gedankenstriche durch Komma-Nebensätze ersetzt (kein —-Chip).
+  JSDOM Familie B (9061G/9031G/9051G) grün.
+
+## C1 KOMPLETT (2026-06-10) — Gerüst-Rollout abgeschlossen
+**Alle 162 satzbau-tragenden C1-Dateien fertig** (Einheiten 101–106, 201–207,
+301–308, 900er-Block; von 164 HTML-Dateien gesamt), rund 1000 Sätze auf 12–18W
+mit Nebensatz + Komma-Chip, geführter Modus überall. triage über das ganze C1-Repo
+meldet 0 defiziente Sätze. Ohne Gerüst bleiben bewusst:
+- DE_C1_3086S-diskussion-bilanz-geistesgeschichte.html (kein satzbauData, Diskussions-S)
+- DE_C1_7001V-reiseleitung-urlauberpsychologie.html (kein satzbauData)
+Diese brauchen kein Wortstellungs-Training — korrekt so.
+
 ## Offene Bestände gesamt
-- B2-Root: KOMPLETT · C1: 122 von 162 Dateien fertig (Einheiten 101–106 + 201–207
-  + 301–303, ~730 Sätze auf 12–18W). C1-Befund: fast alle Sätze waren <12W ohne
-  Komma → volle Fix-Route pro Einheit. Weiter ab Einheit 304 (DE_C1_304x ff.,
-  dann 305–308 sowie die Blöcke 700 und 901–907), gleiche Werkzeugkette
-  (triage.js → applyFix mit min 12 / max 18 → geruest_patch → verify).
+- A1/A2/B1.1/B2-Root/C1: KOMPLETT.
+- Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
+  (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
 - Spezialordner (Architektur, Mattmüller, schueler/, ir/, daf-materialien): zuletzt, separat.
