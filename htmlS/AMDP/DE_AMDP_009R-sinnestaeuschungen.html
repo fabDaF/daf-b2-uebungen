@@ -161,6 +161,62 @@ input.blank.wrong   { border-bottom-color:#e74c3c; background:#fdeaea; color:#e7
 @media (max-width: 979px) {
   .amdp-margin { margin-bottom: 10px; margin-top: 2px; }
 }
+/* ── SATZBAU (daf-satzbau kanonisch) ── */
+.satzbau-item { margin-bottom: 28px; }
+.chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    background: #f0f4ff;
+    border: 2px dashed #c5cae9;
+    border-radius: 10px;
+    min-height: 52px;
+    margin-bottom: 8px;
+}
+.sentence-builder {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    min-height: 52px;
+    margin-bottom: 6px;
+    transition: border-color 0.2s;
+    align-items: center;
+}
+.sentence-builder.correct { border-color: #27ae60; background: #f0faf5; }
+.sentence-builder.incorrect { border-color: #e74c3c; }
+.chip {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: move;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    user-select: none;
+    white-space: nowrap;
+}
+.chip:hover { transform: translateY(-2px); box-shadow: 0 3px 10px rgba(102,126,234,0.4); }
+.chip.correct { background: #27ae60; }
+.chip.incorrect { background: #e74c3c; }
+.chip.punct-chip { background: #f8f8f8; border: 2px solid #667eea; padding: 8px 16px; color: #333; font-weight: 700; font-size: 1.3em; min-width: 18px; text-align: center; cursor: move; }
+.chip.punct-chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.punct-chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.2em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; }
+.satzbau-feedback { font-size: 0.88em; font-weight: 600; margin-top: 4px; min-height: 18px; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+/* ── Gerüst-Modus (B1+): sichtbare Lücken + feste Anker ── */
+.sb-gap { display:inline-flex; align-items:center; justify-content:center; min-width:66px; min-height:38px; padding:2px 6px; border:2px dashed #b9a7f0; border-radius:20px; background:#faf8ff; }
+.sb-gap.drag-over { border-color:#e67e22; background:#fff5ec; }
+.sb-gap .chip { margin:0; }
+.chip.sb-locked { background:#eef0ff; border-style:solid; border-color:#c3c9f5; color:#555; cursor:default; }
+.chip.sb-locked.correct { background:#27ae60; border-color:#27ae60; color:#fff; }
 </style>
 </head>
 <body>
@@ -190,10 +246,14 @@ input.blank.wrong   { border-bottom-color:#e74c3c; background:#fdeaea; color:#e7
       <span class="nav-label">Muster&shy;befund</span>
     </div>
     <div class="nav-btn" onclick="showTab(4)">
+      <span class="nav-emoji">🧩</span>
+      <span class="nav-label">Satz&shy;bau</span>
+    </div>
+    <div class="nav-btn" onclick="showTab(5)">
       <span class="nav-emoji">✍️</span>
       <span class="nav-label">Schreib&shy;werkstatt</span>
     </div>
-    <div class="nav-btn" onclick="showTab(5)">
+    <div class="nav-btn" onclick="showTab(6)">
       <span class="nav-emoji">📚</span>
       <span class="nav-label">Wort&shy;schatz</span>
     </div>
@@ -378,7 +438,7 @@ input.blank.wrong   { border-bottom-color:#e74c3c; background:#fdeaea; color:#e7
       <div class="control-bar">
         <div class="btn-row">
           <button class="btn" onclick="showTab(2)">← Lückentext</button>
-          <button class="btn" onclick="showTab(4)">Zur Schreibwerkstatt →</button>
+          <button class="btn" onclick="showTab(5)">Zur Schreibwerkstatt →</button>
         </div>
         <div class="timer-display">
           <span id="t3-el">⏱ –</span>
@@ -434,13 +494,35 @@ input.blank.wrong   { border-bottom-color:#e74c3c; background:#fdeaea; color:#e7
   </div>
 
   <!-- ===== TAB 4: SCHREIBWERKSTATT ===== -->
+  
+  <!-- ===== TAB: SATZBAU ===== -->
   <div class="section" id="sec-4">
+    <div class="sec-inner">
+      <img class="tab-banner" src="https://images.pexels.com/photos/7176033/pexels-photo-7176033.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Befunddokumentation">
+      <div class="control-bar">
+        <div class="btn-row">
+          <button class="btn" onclick="resetAllSatzbau()">↺ Alles neu</button>
+        </div>
+        <div class="timer-display">
+          <span id="sb-t-el">⏱ –</span>
+        </div>
+      </div>
+      <div class="section-title">🧩 Satzbau: Befundsätze ordnen</div>
+      <p class="section-sub">Ziehen Sie die Wörter in die Lücken. Die festen Bausteine geben die Satzstruktur vor.</p>
+      <div class="hilfe-box">
+        Bauen Sie typische Sätze der Befunddokumentation. Jeder richtig platzierte Baustein wird grün und bleibt stehen; falsche Bausteine springen in die Bank zurück.
+      </div>
+      <div id="satzbauContainer"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-5">
     <div class="sec-inner">
       <img class="tab-banner" src="https://images.pexels.com/photos/6806704/pexels-photo-6806704.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Schreiben">
       <div class="control-bar">
         <div class="btn-row">
           <button class="btn" onclick="showTab(3)">← Musterbefund</button>
-          <button class="btn" onclick="showTab(5)">Zum Wortschatz →</button>
+          <button class="btn" onclick="showTab(6)">Zum Wortschatz →</button>
         </div>
         <div class="timer-display">
           <span id="t4-el">⏱ –</span>
@@ -463,12 +545,12 @@ input.blank.wrong   { border-bottom-color:#e74c3c; background:#fdeaea; color:#e7
   </div>
 
   <!-- ===== TAB 5: WORTSCHATZ ===== -->
-  <div class="section" id="sec-5">
+  <div class="section" id="sec-6">
     <div class="sec-inner">
       <img class="tab-banner" src="https://images.pexels.com/photos/7054519/pexels-photo-7054519.jpeg?auto=compress&cs=tinysrgb&w=900&h=200&fit=crop" alt="Wortschatz">
       <div class="control-bar">
         <div class="btn-row">
-          <button class="btn" onclick="showTab(4)">← Schreibwerkstatt</button>
+          <button class="btn" onclick="showTab(5)">← Schreibwerkstatt</button>
         </div>
         <div class="timer-display">
           <span id="t5-el">⏱ –</span>
@@ -721,9 +803,9 @@ function highlightVocabInText() {
 /* ============================================================
    TAB-STEUERUNG + TIMER
    ============================================================ */
-var timers = [null, null, null, null, null, null];
-var seconds = [0, 0, 0, 0, 0, 0];
-var timerEls = ['t0-el', 't1-el', 't2-el', 't3-el', 't4-el', 't5-el'];
+var timers = [null, null, null, null, null, null, null];
+var seconds = [0, 0, 0, 0, 0, 0, 0];
+var timerEls = ['t0-el', 't1-el', 't2-el', 't3-el', 'sb-t-el', 't4-el', 't5-el'];
 var currentTab = 0;
 
 function showTab(idx) {
@@ -1025,7 +1107,7 @@ function schreibSammelversand() {
 /* ============================================================
    WORTSCHATZ — kanonisches Pattern (daf-uebungsformen)
    ============================================================ */
-var WORTSCHATZ_TAB_IDX = 5;
+var WORTSCHATZ_TAB_IDX = 6;
 
 function timerAutoStart(idx) { if (!timers[idx]) startTimer(idx); }
 function resetTimer(idx) {
@@ -1107,7 +1189,7 @@ function wortschatzCheck(inp) {
 }
 
 function checkWortschatzAllOk() {
-  var inputs = document.querySelectorAll('#sec-5 input.blank');
+  var inputs = document.querySelectorAll('#sec-6 input.blank');
   var allOk = inputs.length > 0 && Array.from(inputs).every(function(i) {
     return i.disabled || i.classList.contains('correct');
   });
@@ -1116,14 +1198,14 @@ function checkWortschatzAllOk() {
 
 function showWortschatzLoesung() {
   stopTimer(WORTSCHATZ_TAB_IDX);
-  document.querySelectorAll('#sec-5 input.blank').forEach(function(inp) {
+  document.querySelectorAll('#sec-6 input.blank').forEach(function(inp) {
     inp.value = inp.dataset.answer;
     inp.classList.add('correct'); inp.classList.remove('wrong');
   });
 }
 
 function resetWortschatz() {
-  document.querySelectorAll('#sec-5 input.blank').forEach(function(inp) {
+  document.querySelectorAll('#sec-6 input.blank').forEach(function(inp) {
     if (!inp.disabled) {
       inp.value = ''; inp.classList.remove('correct', 'wrong');
     }
@@ -1137,6 +1219,508 @@ initWortschatz();
    INIT
    ============================================================ */
 startTimer(0);
+
+var satzbauData = [
+  { parts: ['bei', 'einer', 'Illusion', 'wird', 'ein', 'realer', 'Gegenstand', 'verkannt', ',', 'zum', 'Beispiel', 'der', 'Bademantel', 'als', 'Tier'],
+    valid: [['bei', 'einer', 'Illusion', 'wird', 'ein', 'realer', 'Gegenstand', 'verkannt', ',', 'zum', 'Beispiel', 'der', 'Bademantel', 'als', 'Tier']],
+    punct: '.' },
+  { parts: ['die', 'Patientin', 'sieht', 'kleine', 'Tiere', 'auf', 'dem', 'Zimmerboden', ',', 'obwohl', 'dort', 'objektiv', 'nichts', 'zu', 'erkennen', 'ist'],
+    valid: [['die', 'Patientin', 'sieht', 'kleine', 'Tiere', 'auf', 'dem', 'Zimmerboden', ',', 'obwohl', 'dort', 'objektiv', 'nichts', 'zu', 'erkennen', 'ist']],
+    punct: '.' },
+  { parts: ['der', 'Patient', 'hört', 'drei', 'männliche', 'Stimmen', ',', 'die', 'sein', 'Verhalten', 'kommentieren', 'und', 'ihm', 'Befehle', 'geben'],
+    valid: [['der', 'Patient', 'hört', 'drei', 'männliche', 'Stimmen', ',', 'die', 'sein', 'Verhalten', 'kommentieren', 'und', 'ihm', 'Befehle', 'geben']],
+    punct: '.' },
+  { parts: ['imperative', 'Stimmen', 'mit', 'gefährlichen', 'Befehlsinhalten', 'gelten', 'in', 'der', 'Akutpsychiatrie', 'immer', 'als', 'ein', 'ernstes', 'Warnsignal'],
+    valid: [['imperative', 'Stimmen', 'mit', 'gefährlichen', 'Befehlsinhalten', 'gelten', 'in', 'der', 'Akutpsychiatrie', 'immer', 'als', 'ein', 'ernstes', 'Warnsignal']],
+    punct: '.' },
+  { parts: ['vor', 'jedem', 'Stimmenkomplex', 'nimmt', 'der', 'Patient', 'ein', 'leises', 'Klicken', 'wahr', ',', 'das', 'real', 'nicht', 'existiert'],
+    valid: [['vor', 'jedem', 'Stimmenkomplex', 'nimmt', 'der', 'Patient', 'ein', 'leises', 'Klicken', 'wahr', ',', 'das', 'real', 'nicht', 'existiert']],
+    punct: '.' },
+  { parts: ['Halluzinationen', 'entstehen', 'ohne', 'jede', 'äußere', 'Reizquelle', ',', 'während', 'Illusionen', 'reale', 'Wahrnehmungen', 'nur', 'falsch', 'deuten'],
+    valid: [['Halluzinationen', 'entstehen', 'ohne', 'jede', 'äußere', 'Reizquelle', ',', 'während', 'Illusionen', 'reale', 'Wahrnehmungen', 'nur', 'falsch', 'deuten']],
+    punct: '.' }
+];
+
+/* ── SATZBAU (daf-satzbau kanonisch, Quelle Kap08) ── */
+var sbDragged = null;
+function timerAutoStart(n) { /* Timer läuft tab-gebunden automatisch */ }
+
+// ─── Insert-Cursor ─────────────────────────────────────────────
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+
+function sbCapitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function sbUpdateCapitalization(row) {
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        if (orig === ',' || orig === ';') return;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase()
+                    && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        if (isProper) {
+            c.textContent = orig;
+        } else {
+            c.textContent = (i === 0) ? sbCapitalize(orig) : orig;
+        }
+    });
+}
+
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    if (word === ',' || word === ';') chip.classList.add('punct-chip');
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        timerAutoStart(4);
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) {
+            zone.insertBefore(sbDragged, cursor);
+            zone.removeChild(cursor);
+        } else {
+            zone.appendChild(sbDragged);
+        }
+        sbDragged = null;
+        var row = document.getElementById('sb-row-' + idx);
+        sbUpdateCapitalization(row);
+        sbCheckAuto(idx);
+    });
+}
+
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) {
+        return JSON.stringify(v) === JSON.stringify(order);
+    });
+    chips.forEach(function(c) {
+        c.classList.remove('correct', 'incorrect');
+        c.classList.add(ok ? 'correct' : 'incorrect');
+    });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        timerAutoStart(4);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct';
+            fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk) stopTimer(4);
+}
+
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+
+    // Collect all chips by word (handle unique words per sentence)
+    var bankChips = Array.from(bank.querySelectorAll('.chip'));
+    var rowChips  = Array.from(row.querySelectorAll('.chip'));
+    var allChipsList = bankChips.concat(rowChips);
+
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+
+    // Map by orig for this sentence (words should be unique within a sentence)
+    var chipMap = {};
+    allChipsList.forEach(function(c) { chipMap[c.dataset.orig] = c; });
+
+    solution.forEach(function(word, i) {
+        var chip = chipMap[word];
+        if (chip) {
+            if (word !== ',' && word !== ';') {
+                chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            }
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function sbResetOne(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row  = document.getElementById('sb-row-' + idx);
+    var fb   = document.getElementById('sb-fb-' + idx);
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild)  row.removeChild(row.firstChild);
+    row.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    fb.className = 'satzbau-feedback';
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+
+    var parts = satzbauData[idx].parts.slice();
+    for (var i = parts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = parts[i]; parts[i] = parts[j]; parts[j] = t;
+    }
+    parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+}
+
+function initSatzbau() {
+    var container = document.getElementById('satzbauContainer');
+    container.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'satzbau-item';
+
+        var bank = document.createElement('div');
+        bank.className = 'chips-container';
+        bank.id = 'sb-bank-' + idx;
+
+        var row = document.createElement('div');
+        row.className = 'sentence-builder';
+        row.id = 'sb-row-' + idx;
+
+        var fb = document.createElement('div');
+        fb.className = 'satzbau-feedback';
+        fb.id = 'sb-fb-' + idx;
+
+        // Fisher-Yates shuffle
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var t = parts[i]; parts[i] = parts[j]; parts[j] = t;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
+
+        var solveBtn = document.createElement('button');
+        solveBtn.className = 'btn';
+        solveBtn.textContent = 'Lösen';
+        solveBtn.setAttribute('data-idx', idx);
+        solveBtn.addEventListener('click', function() {
+            sbShowSolution(parseInt(this.getAttribute('data-idx')));
+        });
+
+        var resetBtn = document.createElement('button');
+        resetBtn.className = 'btn';
+        resetBtn.textContent = '↺ Neustart';
+        resetBtn.setAttribute('data-idx', idx);
+        resetBtn.addEventListener('click', function() {
+            sbResetOne(parseInt(this.getAttribute('data-idx')));
+        });
+
+        btnRow.appendChild(solveBtn);
+        btnRow.appendChild(resetBtn);
+
+        item.appendChild(bank);
+        item.appendChild(row);
+        item.appendChild(fb);
+        item.appendChild(btnRow);
+
+        container.appendChild(item);
+    });
+}
+
+function resetAllSatzbau() {
+    resetTimer(4);
+    initSatzbau();
+}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', function() { initSatzbau(); }); } else { initSatzbau(); }
+</script>
+
+<script>
+/* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
+   hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
+(function(){
+  var CFG = {"bank":"sb-bank-","row":"sb-row-","fb":"sb-fb-","caps":true,"click":false,"tab":4};
+  var SBGAP = [{"i":0,"row":["_","_","_","_","_","_","Gegenstand","_","_","zum","_","_","Bademantel","_","Tier"],"parts":["bei","einer","Illusion","wird","ein","realer","verkannt",",","Beispiel","der","als"]},{"i":1,"row":["_","Patientin","_","_","Tiere","_","_","Zimmerboden","_","_","_","objektiv","_","_","_","_"],"parts":["die","sieht","kleine","auf","dem",",","obwohl","dort","nichts","zu","erkennen","ist"]},{"i":2,"row":["_","Patient","_","_","_","Stimmen","_","_","_","Verhalten","_","_","_","Befehle","_"],"parts":["der","hört","drei","männliche",",","die","sein","kommentieren","und","ihm","geben"]},{"i":3,"row":["_","Stimmen","_","_","Befehlsinhalten","_","_","_","Akutpsychiatrie","_","_","_","ernstes","_"],"parts":["imperative","mit","gefährlichen","gelten","in","der","immer","als","ein","Warnsignal"]},{"i":4,"row":["_","_","Stimmenkomplex","_","_","Patient","_","_","Klicken","_","_","_","real","_","_"],"parts":["vor","jedem","nimmt","der","ein","leises","wahr",",","das","nicht","existiert"]},{"i":5,"row":["_","_","_","_","_","Reizquelle","_","während","_","_","Wahrnehmungen","_","falsch","_"],"parts":["Halluzinationen","entstehen","ohne","jede","äußere",",","Illusionen","reale","nur","deuten"]}];
+  SBGAP.forEach(function(g){ var ex = satzbauData[g.i]; if (!ex) return;
+    ex.row = g.row; ex.parts = g.parts;
+    if (typeof ex.valid[0] === "string") ex.valid = [ex.valid];
+  });
+  if (typeof window.sbDragged === "undefined") window.sbDragged = null;
+  function bankEl(i){ return document.getElementById(CFG.bank + i); }
+  function rowEl(i){ return document.getElementById(CFG.row + i); }
+  function fbEl(i){ return document.getElementById(CFG.fb + i); }
+  function cap(w){ return w.charAt(0).toUpperCase() + w.slice(1); }
+  function positions(row){ return Array.from(row.children).filter(function(n){ return n.classList.contains("sb-gap") || n.classList.contains("chip"); }); }
+  function chipOf(pos){ return pos.classList.contains("sb-gap") ? pos.querySelector(".chip") : pos; }
+  function updateCaps(row){ if (!CFG.caps) return;
+    positions(row).forEach(function(pos,i){ var c = chipOf(pos); if (!c) return;
+      var o = c.dataset.orig;
+      var proper = o.charAt(0) === o.charAt(0).toUpperCase() && o.charAt(0) !== o.charAt(0).toLowerCase();
+      c.textContent = proper ? o : (i === 0 ? cap(o) : o); });
+  }
+  function sequence(i){ var row = rowEl(i), seq = [], complete = true;
+    positions(row).forEach(function(pos){ var c = chipOf(pos); if (c) seq.push(c.dataset.orig); else complete = false; });
+    return { seq: seq, complete: complete }; }
+  function clearMarks(i){ var row = rowEl(i);
+    row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+    row.classList.remove("correct","incorrect");
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p); }
+  function afterChange(i){
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i), info = sequence(i);
+    if (!info.complete){ clearMarks(i); if (fb){ fb.textContent=""; fb.className="satzbau-feedback"; } return; }
+    setTimeout(function(){
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var fresh = sequence(i);
+      var ok = satzbauData[i].valid.some(function(v){ return JSON.stringify(v) === JSON.stringify(fresh.seq); });
+      var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+      if (ok){
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("incorrect"); c.classList.add("correct"); });
+        var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+        punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+        row.classList.add("correct"); row.classList.remove("incorrect");
+        if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+        if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+      } else {
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+        row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("incorrect"); });
+        row.classList.add("incorrect"); row.classList.remove("correct");
+        if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Noch nicht richtig – verschiebe die Wörter!"; }
+      }
+    }, 450);
+  }
+  /* Geführter Modus (B1, 2026-06-10): Sofort-Feedback pro Chip-Platzierung.
+     Richtig (konsistent mit mind. einer valid-Reihenfolge) -> grün + fixiert.
+     Falsch -> rot + Rücksprung in die Bank nach 800 ms. */
+  function toBank(i, chip){
+    chip.textContent = chip.dataset.orig;  // Kleinschreibung wiederherstellen — Bank darf den Satzanfang nicht verraten
+    bankEl(i).appendChild(chip);
+  }
+  function consistent(i){
+    var pos = positions(rowEl(i));
+    var v = satzbauData[i].valid;
+    return v.some(function(o){
+      for (var k = 0; k < pos.length; k++){ var c = chipOf(pos[k]); if (c && c.dataset.orig !== o[k]) return false; }
+      return true; });
+  }
+  function finishRow(i){
+    var row = rowEl(i), fb = fbEl(i);
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+    var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+    punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+    row.classList.add("correct"); row.classList.remove("incorrect");
+    if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+    if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+  }
+  function placeJudge(i, chip){
+    if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i);
+    if (consistent(i)){
+      chip.classList.remove("incorrect"); chip.classList.add("correct");
+      chip.dataset.fixed = "1"; chip.draggable = false;
+      if (sequence(i).complete){ finishRow(i); }
+      else if (fb){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+    } else {
+      chip.classList.add("incorrect");
+      if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Das passt hier nicht!"; }
+      setTimeout(function(){
+        chip.classList.remove("incorrect");
+        if (!chip.dataset.fixed && chip.closest(".sb-gap")) toBank(i, chip);
+        updateCaps(rowEl(i));
+        if (fb && /incorrect/.test(fb.className)){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+      }, 800);
+    }
+  }
+  function makeChip(word, i){
+    var chip = document.createElement("div");
+    var isPunct = [",",".","!","?",";",":"].indexOf(word) !== -1;
+    chip.className = "chip" + (isPunct ? " punct-chip" : ""); chip.textContent = word; chip.draggable = true;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.sbIdx = String(i);
+    chip.addEventListener("dragstart", function(e){ if (chip.dataset.fixed){ e.preventDefault(); return; } window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
+    if (CFG.click) chip.addEventListener("click", function(){
+      if (chip.dataset.fixed) return;
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var inSlot = chip.closest(".sb-gap");
+      if (inSlot){ toBank(i, chip); updateCaps(rowEl(i)); return; }
+      var free = Array.from(rowEl(i).querySelectorAll(".sb-gap")).find(function(s){ return !s.querySelector(".chip"); });
+      if (free){ free.appendChild(chip); placeJudge(i, chip); }
+    });
+    return chip;
+  }
+  function makeLocked(word){
+    var chip = document.createElement("div");
+    chip.className = "chip sb-locked"; chip.textContent = word;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.locked = "1";
+    return chip;
+  }
+  function makeSlot(i){
+    var slot = document.createElement("div"); slot.className = "sb-gap";
+    slot.addEventListener("dragover", function(e){ e.preventDefault(); if (window.sbDragged) slot.classList.add("drag-over"); });
+    slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
+    slot.addEventListener("drop", function(e){
+      e.preventDefault(); slot.classList.remove("drag-over");
+      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      if (slot.querySelector(".chip")) return;  // Lücke schon belegt
+      slot.appendChild(d); window.sbDragged = null; placeJudge(i, d);
+    });
+    return slot;
+  }
+  function registerBank(bank, i){
+    bank.addEventListener("dragover", function(e){ e.preventDefault(); });
+    bank.addEventListener("drop", function(e){
+      e.preventDefault(); var d = window.sbDragged;
+      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      toBank(i, d); window.sbDragged = null; updateCaps(rowEl(i));
+    });
+  }
+  function freshEl(id){ var el = document.getElementById(id); if (!el) return null;
+    var c = el.cloneNode(false); el.parentNode.replaceChild(c, el); return c; }
+  function rebuild(i){
+    var ex = satzbauData[i]; if (!ex || !ex.row) return;
+    var bank = freshEl(CFG.bank + i), row = freshEl(CFG.row + i);
+    if (!bank || !row) return;
+    var fb = fbEl(i); if (fb){ fb.textContent = ""; fb.className = "satzbau-feedback"; }
+    var mov = ex.parts.slice();
+    for (var k = mov.length - 1; k > 0; k--){ var j = Math.floor(Math.random()*(k+1)); var t = mov[k]; mov[k] = mov[j]; mov[j] = t; }
+    mov.forEach(function(w){ bank.appendChild(makeChip(w, i)); });
+    ex.row.forEach(function(tok){ row.appendChild(tok === "_" ? makeSlot(i) : makeLocked(tok)); });
+    registerBank(bank, i);
+    ensureButtons(i);
+  }
+  function rebuildAll(){ satzbauData.forEach(function(ex,i){ if (ex.row) rebuild(i); }); }
+  function showSol(i){
+    rebuild(i);
+    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0];
+    var pool = Array.from(bank.querySelectorAll(".chip"));
+    positions(row).forEach(function(pos,k){
+      if (!pos.classList.contains("sb-gap")) return;
+      var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
+      if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
+    });
+    row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("correct"); c.dataset.fixed = "1"; c.draggable = false; });
+    updateCaps(row);
+    finishRow(i);
+  }
+  function ensureButtons(i){
+    if (document.getElementById("sb-btns-" + i)) return;
+    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
+    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;
+    if (item && [].some.call(item.querySelectorAll("button"), function(b){
+      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden
+    var box = document.createElement("div");
+    box.id = "sb-btns-" + i;
+    box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
+    var b1 = document.createElement("button"); b1.type = "button"; b1.className = "btn"; b1.textContent = "Lösen";
+    b1.addEventListener("click", function(){ showSol(i); });
+    var b2 = document.createElement("button"); b2.type = "button"; b2.className = "btn"; b2.textContent = "↺ Neustart";
+    b2.addEventListener("click", function(){ rebuild(i); });
+    box.appendChild(b1); box.appendChild(b2);
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+  ["initSatzbau","buildSatzbau"].forEach(function(fn){
+    if (typeof window[fn] === "function"){ var o = window[fn];
+      window[fn] = function(){ o.apply(this, arguments); rebuildAll(); }; }
+  });
+  if (typeof window.sbReset === "function" && window.sbReset.length === 0){
+    var orall = window.sbReset;
+    window.sbReset = function(){ orall.apply(this, arguments); rebuildAll(); };
+  }
+  if (typeof window.sbResetOne === "function"){
+    var orst = window.sbResetOne;
+    window.sbResetOne = function(i){ if (satzbauData[i] && satzbauData[i].row){ rebuild(i); return; } orst.apply(this, arguments); };
+  }
+  if (typeof window.sbShowSolution === "function"){
+    var osol = window.sbShowSolution;
+    window.sbShowSolution = function(i){ if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
+  }
+  /* Bugfix 2026-06-10: bei leerer Row (Free-Build) zusätzlich die Bank prüfen,
+     sonst baut sich das Gerüst beim Erstladen nie auf (nur nach Neustart). */
+  var pRow = rowEl(0), pBank = bankEl(0);
+  if ((pRow && pRow.children.length) || (pBank && pBank.children.length)) rebuildAll();
+})();
 </script>
 </body>
 </html>
