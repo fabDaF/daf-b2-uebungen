@@ -36,9 +36,9 @@ ein an Position 0 großgeschriebener Chip darf in der Bank den Satzanfang
 nicht verraten (Frank, 2026-06-10; Skill-Fallstrick „Großbuchstabe bleibt
 in Bank").
 JSDOM-Test: /outputs/jsdom_test_geruest.js (5 Testfälle, Drag-Pfad).
-ACHTUNG für B2/C1-Rollout: C2-Bestand (71 Dateien) hat noch das ALTE
-Add-on ohne geführten Modus — bei Gelegenheit re-patchen (nur Technik;
-die C2-Satzlängen bleiben unangetastet, siehe Ausnahme oben).
+ERLEDIGT 2026-06-10: C2-Bestand (71 Dateien, Familie A) re-gepatcht —
+geführter Modus + toBank überall; JSDOM-Klick-Pfad-Test grün; Satzlängen
+unangetastet.
 → Der Rollout für B1.1/B2/C1 ist daher ZWEISTUFIG pro Datei:
 1. **Inhalt:** satzbauData prüfen; zu kurze/einfache Sätze durch themengebundene
    12+-Wort-Sätze MIT Nebensätzen (Komma als eigener Chip in parts UND valid) ersetzen.
@@ -75,7 +75,7 @@ SBGAP-Konsistenz: Lücken==parts, Anker invariant, nie Komma als Anker).
    daf-archiv/B1.1-legacy überführt und aus dem B1.1-Repo entfernt.
 
 ## Erledigt (2026-06-10, Session 2) — B2 begonnen
-**B2-Einheiten 101–106 + 201–203 komplett (72 von 143 Dateien, ~440 Sätze):** B2 war
+**B2-Einheiten 101–106 + 201–204 komplett (82 von 143 Dateien, ~500 Sätze):** B2 war
 inhaltlich schon nah dran (Nebensätze + Komma-Chips vorhanden, aber meist
 10–11 Wörter) → chirurgische Verlängerung auf 12–16 statt Komplett-Neuschreibung.
 Werkzeuge: `/outputs/apply_lib2.js` (applyFix = Index-genauer Ersatz mit
@@ -93,7 +93,7 @@ Mehr-Wort-Chips 2035G/2036R, Semikolon-Chip 2022G, Kleinschreibung 2026R.
   (wie die A2-Fälle vom 2026-06-03) → vor dem Gerüst-Patch reparieren.
 
 ## Offene Bestände gesamt
-- B2-Root: 71 verbleibend (ab Einheit 204; inkl. 3013R-Syntax-Reparatur) · C1: 165
+- B2-Root: 61 verbleibend (ab Einheit 205; inkl. 3013R-Syntax-Reparatur) · C1: 165
   (C1-Schema sauber: alle Familie A/B, keine rows, 12–18W-Grenze)
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
