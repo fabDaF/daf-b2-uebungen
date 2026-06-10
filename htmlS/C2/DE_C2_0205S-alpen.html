@@ -1115,6 +1115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
+
 <script>
 /* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
    hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
@@ -1169,17 +1170,62 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }, 450);
   }
+  /* Geführter Modus (B1, 2026-06-10): Sofort-Feedback pro Chip-Platzierung.
+     Richtig (konsistent mit mind. einer valid-Reihenfolge) -> grün + fixiert.
+     Falsch -> rot + Rücksprung in die Bank nach 800 ms. */
+  function toBank(i, chip){
+    chip.textContent = chip.dataset.orig;  // Kleinschreibung wiederherstellen — Bank darf den Satzanfang nicht verraten
+    bankEl(i).appendChild(chip);
+  }
+  function consistent(i){
+    var pos = positions(rowEl(i));
+    var v = satzbauData[i].valid;
+    return v.some(function(o){
+      for (var k = 0; k < pos.length; k++){ var c = chipOf(pos[k]); if (c && c.dataset.orig !== o[k]) return false; }
+      return true; });
+  }
+  function finishRow(i){
+    var row = rowEl(i), fb = fbEl(i);
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+    var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+    punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+    row.classList.add("correct"); row.classList.remove("incorrect");
+    if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+    if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+  }
+  function placeJudge(i, chip){
+    if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i);
+    if (consistent(i)){
+      chip.classList.remove("incorrect"); chip.classList.add("correct");
+      chip.dataset.fixed = "1"; chip.draggable = false;
+      if (sequence(i).complete){ finishRow(i); }
+      else if (fb){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+    } else {
+      chip.classList.add("incorrect");
+      if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Das passt hier nicht!"; }
+      setTimeout(function(){
+        chip.classList.remove("incorrect");
+        if (!chip.dataset.fixed && chip.closest(".sb-gap")) toBank(i, chip);
+        updateCaps(rowEl(i));
+        if (fb && /incorrect/.test(fb.className)){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+      }, 800);
+    }
+  }
   function makeChip(word, i){
     var chip = document.createElement("div");
-    chip.className = "chip"; chip.textContent = word; chip.draggable = true;
+    var isPunct = [",",".","!","?",";",":"].indexOf(word) !== -1;
+    chip.className = "chip" + (isPunct ? " punct-chip" : ""); chip.textContent = word; chip.draggable = true;
     chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.sbIdx = String(i);
-    chip.addEventListener("dragstart", function(e){ window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
+    chip.addEventListener("dragstart", function(e){ if (chip.dataset.fixed){ e.preventDefault(); return; } window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
     if (CFG.click) chip.addEventListener("click", function(){
+      if (chip.dataset.fixed) return;
       if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
       var inSlot = chip.closest(".sb-gap");
-      if (inSlot){ bankEl(i).appendChild(chip); afterChange(i); return; }
+      if (inSlot){ toBank(i, chip); updateCaps(rowEl(i)); return; }
       var free = Array.from(rowEl(i).querySelectorAll(".sb-gap")).find(function(s){ return !s.querySelector(".chip"); });
-      if (free){ free.appendChild(chip); afterChange(i); }
+      if (free){ free.appendChild(chip); placeJudge(i, chip); }
     });
     return chip;
   }
@@ -1195,10 +1241,9 @@ document.addEventListener('DOMContentLoaded', function() {
     slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
     slot.addEventListener("drop", function(e){
       e.preventDefault(); slot.classList.remove("drag-over");
-      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked) return;
-      var occ = slot.querySelector(".chip");
-      if (occ && occ !== d) bankEl(i).appendChild(occ);
-      slot.appendChild(d); window.sbDragged = null; afterChange(i);
+      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      if (slot.querySelector(".chip")) return;  // Lücke schon belegt
+      slot.appendChild(d); window.sbDragged = null; placeJudge(i, d);
     });
     return slot;
   }
@@ -1206,8 +1251,8 @@ document.addEventListener('DOMContentLoaded', function() {
     bank.addEventListener("dragover", function(e){ e.preventDefault(); });
     bank.addEventListener("drop", function(e){
       e.preventDefault(); var d = window.sbDragged;
-      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked) return;
-      bank.appendChild(d); window.sbDragged = null; afterChange(i);
+      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      toBank(i, d); window.sbDragged = null; updateCaps(rowEl(i));
     });
   }
   function freshEl(id){ var el = document.getElementById(id); if (!el) return null;
@@ -1234,11 +1279,16 @@ document.addEventListener('DOMContentLoaded', function() {
       var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
       if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
     });
-    afterChange(i);
+    row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("correct"); c.dataset.fixed = "1"; c.draggable = false; });
+    updateCaps(row);
+    finishRow(i);
   }
   function ensureButtons(i){
     if (document.getElementById("sb-btns-" + i)) return;
     var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
+    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;
+    if (item && [].some.call(item.querySelectorAll("button"), function(b){
+      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden
     var box = document.createElement("div");
     box.id = "sb-btns-" + i;
     box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
