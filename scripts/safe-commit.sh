@@ -68,7 +68,19 @@ echo "$COMMIT" > ".git/refs/heads/$BRANCH"
 # 4. Push — Push-Hook triggert ggf. automatisch nochmal, das ist OK
 git push "$REMOTE" "$BRANCH" 2>&1 | tail -5 || true
 
-# 5. remote-tracking ref lokal angleichen (ignoriert Lock-Fehler vom push)
-echo "$COMMIT" > ".git/refs/remotes/$REMOTE/$BRANCH"
+# 5. VERIFIKATION gegen den echten Remote (Lehre vom 2026-06-10: ein
+#    abgelehnter Push [non-fast-forward nach Web-Upload] blieb wochenlang
+#    unbemerkt, weil die remote-tracking-Ref hier blind gesetzt wurde).
+#    ls-remote fragt GitHub direkt — nur bei Übereinstimmung ist der Push ok.
+REMOTE_SHA="$(git ls-remote "$REMOTE" "refs/heads/$BRANCH" 2>/dev/null | cut -f1)"
+if [[ "$REMOTE_SHA" != "$COMMIT" ]]; then
+  echo "FEHLER: Push NICHT angekommen — Remote steht auf ${REMOTE_SHA:-<unbekannt>}, erwartet $COMMIT." >&2
+  echo "Mögliche Ursache: non-fast-forward (Remote hat fremde Commits, z.B. Web-Upload)." >&2
+  echo "NICHT erneut blind pushen — erst 'git fetch' + Merge-Commit (siehe GERUEST-ROLLOUT-PLAN.md)." >&2
+  exit 1
+fi
 
-echo "OK: $COMMIT"
+# 6. remote-tracking ref lokal angleichen (ignoriert Lock-Fehler vom push)
+echo "$COMMIT" > ".git/refs/remotes/$REMOTE/$BRANCH" 2>/dev/null || true
+
+echo "OK: $COMMIT (Push verifiziert)"
