@@ -99,11 +99,31 @@ Mehr-Wort-Chips 2035G/2036R, Semikolon-Chip 2022G, Kleinschreibung 2026R.
 - 3013R-die-geschichte-der-mythologie: JS-Syntaxfehler schon in HEAD
   (wie die A2-Fälle vom 2026-06-03) → vor dem Gerüst-Patch reparieren.
 
+## Erledigt (2026-06-10, Session 5) — C1 Einheiten 204–207 + 301–303
+**50 Dateien, 300 Sätze auf 12–18W mit Nebensatz + Komma-Chip** (7 Batches,
+je Batch Inhalt → geruest_patch → verify → safe-commit):
+- 204 (8 Dateien, Commit adf7c8f): Wortstellung/Beschwerde/Guillotine/Wall-Street/
+  Urheberrecht/Freemium/Menschenrechte/Datenschutz.
+- 205 (8, c9f5add): Ausdruck/Ethik/Ökolandbau/inform. Kommunikation/Tiny-Houses/
+  Minimalismus/Robinson/Trampen.
+- 206+207 (10, e538ca5): Konj. II Vergangenheit/Etymologie/alte Zivilisationen/
+  Vorstellungsgespräch/Frauenwahlrecht/Titanic/Thoreau/Konsumismus/Rede/Essay.
+- 301 (8, ed6ce66): Genitiv-Verben/Diagramm/Null-Emissions/Abholzung/Vogelschutz/
+  Polarkappen/Humboldt/Nachhaltigkeit.
+- 302 (8, 0bfb0e7): Nominalisierung/Textabschnitt/Kreativität/Placebo/Projektmgmt/
+  Konfliktmgmt/Naturwiss. 19. Jh./Recycling.
+- 303 (8, ad15cea): Konnektoren/effizient schreiben/Zwillingsparadoxon/Eiszeitalter/
+  wiss. Artikel/schwarzes Loch/Mars/Verhandlungstaktiken.
+Alle Patcher-Läufe flag-frei, verify_geruest grün, check_wortbank + check_serif grün.
+JSDOM-Stichprobe Familie B (3021G/3031G) grün; Familie-A-Dateien sind vom
+JSDOM-Test (nur sb-*-IDs) erwartungsgemäß nicht abgedeckt — SBGAP-Konsistenz
+deckt sie ab.
+
 ## Offene Bestände gesamt
-- B2-Root: KOMPLETT · C1: 72 von 162 Dateien fertig (Einheiten 101–106 + 201–203,
-  ~430 Sätze auf 12–18W). C1-Befund: 983 von 997 Sätzen waren <12W, fast
-  alle ohne Komma → volle Fix-Route pro Einheit. Weiter ab Einheit 204
-  (DE_C1_204x ff., dann 205–207, 301–303), gleiche Werkzeugkette
+- B2-Root: KOMPLETT · C1: 122 von 162 Dateien fertig (Einheiten 101–106 + 201–207
+  + 301–303, ~730 Sätze auf 12–18W). C1-Befund: fast alle Sätze waren <12W ohne
+  Komma → volle Fix-Route pro Einheit. Weiter ab Einheit 304 (DE_C1_304x ff.,
+  dann 305–308 sowie die Blöcke 700 und 901–907), gleiche Werkzeugkette
   (triage.js → applyFix mit min 12 / max 18 → geruest_patch → verify).
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
