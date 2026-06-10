@@ -100,8 +100,11 @@ Mehr-Wort-Chips 2035G/2036R, Semikolon-Chip 2022G, Kleinschreibung 2026R.
   (wie die A2-Fälle vom 2026-06-03) → vor dem Gerüst-Patch reparieren.
 
 ## Offene Bestände gesamt
-- B2-Root: KOMPLETT · C1: 165 als nächster Block
-  (C1-Schema sauber: alle Familie A/B, keine rows, 12–18W-Grenze)
+- B2-Root: KOMPLETT · C1: BEGONNEN (Session 4) — Einheiten 101–103 fertig
+  (24 von 162 Dateien, ~140 Sätze auf 12–18W). C1-Befund: 983 von 997
+  Sätzen waren <12W, fast alle ohne Komma → volle Fix-Route pro Einheit.
+  Weiter ab Einheit 104 (Dateien DE_C1_104x ff.), gleiche Werkzeugkette
+  (triage.js → applyFix mit min 12 / max 18 → geruest_patch → verify).
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
 - Spezialordner (Architektur, Mattmüller, schueler/, ir/, daf-materialien): zuletzt, separat.
