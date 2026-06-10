@@ -75,7 +75,7 @@ SBGAP-Konsistenz: Lücken==parts, Anker invariant, nie Komma als Anker).
    ohne satzbauContainer, vermutlich Legacy — prüfen, ob 1013R-Pilot sie ersetzt.
 
 ## Erledigt (2026-06-10, Session 2) — B2 begonnen
-**B2-Einheiten 101–105 komplett (39 von 143 Dateien, ~230 Sätze):** B2 war
+**B2-Einheiten 101–106 + 201–203 komplett (72 von 143 Dateien, ~440 Sätze):** B2 war
 inhaltlich schon nah dran (Nebensätze + Komma-Chips vorhanden, aber meist
 10–11 Wörter) → chirurgische Verlängerung auf 12–16 statt Komplett-Neuschreibung.
 Werkzeuge: `/outputs/apply_lib2.js` (applyFix = Index-genauer Ersatz mit
@@ -83,7 +83,8 @@ min/max-Checks pro Niveau) + `/outputs/triage.js` (zeigt nur defiziente Sätze).
 Nebenbei: Quote-Altlast GLOBAL beseitigt (995 ASCII-Schließer in 238 B2/C1-
 Dateien, alle in Single-Quote-JS-Strings = gefahrlos), als-ob-Indikativ-Fix
 (1046R), defekter Satz 1055G#0, fehlendes „uns" 1052G#5, Gedankenstrich-Chip
-1048S, Serif-Fix 1056R, sbData→satzbauData-Rename 1053R.
+1048S, Serif-Fixes 1056R/1063R, sbData→satzbauData-Rename 1053R,
+Mehr-Wort-Chips 2035G/2036R, Semikolon-Chip 2022G, Kleinschreibung 2026R.
 
 **B2-Sonderfälle:**
 - 1047X-satzglieder-erkennen: satzbauData OHNE valid (Satzglieder-Übung,
@@ -92,7 +93,7 @@ Dateien, alle in Single-Quote-JS-Strings = gefahrlos), als-ob-Indikativ-Fix
   (wie die A2-Fälle vom 2026-06-03) → vor dem Gerüst-Patch reparieren.
 
 ## Offene Bestände gesamt
-- B2-Root: 104 verbleibend (Einheiten 106 ff., inkl. 3013R-Reparatur) · C1: 165
+- B2-Root: 71 verbleibend (ab Einheit 204; inkl. 3013R-Syntax-Reparatur) · C1: 165
   (C1-Schema sauber: alle Familie A/B, keine rows, 12–18W-Grenze)
 - Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
   (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
