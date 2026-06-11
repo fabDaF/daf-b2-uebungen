@@ -253,26 +253,41 @@ Remote synchron.
 - Entwarnung: `rahaf-sprachbausteine-akzent.html` nutzt `SB_DATA` für
   Multiple-Choice-Sprachbausteine, KEIN Satzbau — braucht kein Gerüst.
 
-## Offene Bestände gesamt (Stand 2026-06-11)
+## B1.1-Fremdfamilien KOMPLETT (2026-06-11, Session 9b) — GERÜST-ROLLOUT ABGESCHLOSSEN
 
-**B1.1: 56 Dateien mit Fremdfamilien — der einzige große Restposten.**
-49× `const SATZBAU_DATA` (words:-Schema, eigene Klick-Reihen-UI), dazu
-8× `SB_DATA` (B1_werden_Tabelle, B1_werden_Uebungen, 2032G, 2035G, 2042G,
-2045G, 3012G, komplementsatz-uebungen) und 2× `sbData` (3071W, 3072W).
-Jede braucht echte Migration (Typ A/B → kanonisch) + Inhalt auf 12–14W.
-Vollständige Liste:
-2011X 2012G 2013R 2014X 2015G 2016R 2017X 2018S · 2031X 2032G 2034X 2035G
-2037X · 2041X 2042G 2045G 2047X · 2061X 2063R 2064X 2065G 2066R 2067X 2068S ·
-2071W 2072W · 3012G 3013R 3014X 3015G 3016R 3017X 3018S · 3051X 3052G 3053R
-3054X 3055G 3056R 3057X 3058S · 3061X 3062G 3063R 3064X-aussehen 3064X-mode
-3065G 3066R 3067X 3068S · 3071W 3072W · Hoefliche_Modalverben_B1B2 ·
-komplementsatz-uebungen · B1_werden_Tabelle · B1_werden_Uebungen
+**Alle 55 Fremdfamilien-Dateien migriert** (6 Batches, je: Inhalt 12–14W mit
+Nebensatz + Komma → kanonisches Pattern aus 2046R-Template gespliced →
+geruest_patch.js → Syntax/SBGAP/Anker-Invarianz/Quote/JSDOM-Erstlade →
+check_wortbank/check_serif → safe-commit). Die 56. Datei
+(B1_werden_Tabelle) war ein nie funktionsfähiges Fragment ohne `<body>` →
+archiviert in daf-archiv/Altkopien-2026-06-11/.
+**Abschluss-Scan: 578 Dateien mit geführtem Gerüst + Erstlade-Fix + caps:true,
+0 offen** (außer dokumentierte Ausnahmen: 1047X Satzglieder, Mattmüller +
+daf-materialien A-Niveau, rahaf = MC ohne Satzbau).
 
-**Bewusst ohne Gerüst (korrekt so):** 1047X (Satzglieder-Übung),
-Mattmüller (A-Niveau), daf-materialien A-Niveau (adjdekl-nom-akk-familie,
-adjektivdeklination, partizip2-bildung), rahaf (kein Satzbau).
+**Werkzeuge Session 9b** (in /outputs der Session, Muster reproduzierbar):
+sb_migrate.py (Brace-balanciertes Excisen der Altfunktionen + Splice von
+Daten + 2046R-Template mit Timer-Guards und sb-label-Support),
+fix_anchors.py (Zielform/Verb-Anker → '_' + Bank), verify_batch.sh.
 
-**Kleinposten:** Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") —
-Inhaltsqualität, Add-on ist überall drauf.
+**Zielform-nie-Anker durchgesetzt** (Bann-Listen pro G-Datei): indirekte
+Fragewörter (2042G), Kausal-/Konsekutiv-Konnektoren (2047X/3014X),
+Passiversatz (2045G), Partizip I (3015G), FVG-Nomen (3052G),
+Reziprokpronomen (3055G), Komparativ/als/am (3062G), deklinierte
+Adjektive (3065G), Nullartikel-Nomen (2015G), zu/um/ohne/statt
+(2035G/3012G/komplementsatz), dass/ob/wie (2065G).
 
-**Danach:** geruest_patch.js + diese Erkenntnisse in den daf-satzbau-Skill übernehmen.
+**Nebenbefunde gefixt (alle schon in HEAD kaputt):**
+- Kommentar-verschlucktes `return chip;` in 6 Dateien (1026R/1033R
+  sbMakeChip, 3014X/3017X/3021X/3024X makeGenusChip) — Init-Kette live tot.
+- 2061X: vocabGrid-IIFE ohne Element killte Block 0 (alle Tabs tot).
+- B1_werden_Tabelle: fehlendes `</style><script>` — JS wurde als CSS geparst.
+- 3071W/3072W: Alt-Bridge `var satzbauData=[]` überschrieb Daten nach Splice.
+- ~20 Quote-Altlasten (ASCII-Schließer) in 2013R/2016R/2063R/2066R.
+- suspectVerb-Lücke: 1.-Person-Formen auf -e (komme/bleibe/besuche/spare/
+  verstehe/beherrsche/anpries) werden NICHT erkannt → bei künftigen Patches
+  Anker-Review gegen Satz-Verben fahren (fix_anchors-Muster).
+
+**Letzter Schritt (offen):** geruest_patch.js + Session-8/9-Erkenntnisse in
+den daf-satzbau-Skill übernehmen (Skill-Update via skill-verwaltung, nicht
+aus Cowork heraus möglich).
