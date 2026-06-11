@@ -226,13 +226,53 @@ Komma-Chip, lowercase-Chips).
 - Fachregel NEU: In Grammatik-Dateien darf die ZIELFORM des Grammatik-Themas
   nie Anker sein (N-Dekl-Nomen, Ziel-Konnektoren je nach Übungsfokus prüfen).
 
-## Offene Bestände gesamt
-- A1/A2/B1.1/B2-Root/C1/schueler/Architektur/daf-materialien: KOMPLETT.
-  Mattmüller: A-Niveau, bewusst ohne Gerüst.
-- Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
-  (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
-- Danach: geruest_patch.js + diese Erkenntnisse in den daf-satzbau-Skill übernehmen.
-- Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") + ~10 Sonderdateien
-  (sbShowSolution fehlt / abweichende Struktur) — einzeln nacharbeiten.
-- Spezialordner (Architektur, Mattmüller, schueler/, ir/, daf-materialien): zuletzt, separat.
-- Danach: geruest_patch.js + diese Erkenntnisse in den daf-satzbau-Skill übernehmen.
+## Erledigt (2026-06-11, Session 9) — Vollständigkeits-Scan über ALLE Repos + Schnellfälle
+
+**Scan mit allen FÜNF Markern** (`satzbauData` | `var SATZBAU` | `sbData` |
+`SATZBAU_DATA` | `SB_DATA`) über alle Repos außer A1/A2/daf-archiv:
+**520 Dateien OK** (Add-on + geführter Modus + Erstlade-Fix), 0 alte Add-ons,
+0 ohne Erstlade-Fix. GEHIRN 01X–06R: von der Parallel-Session committed (1fc0885),
+Remote synchron.
+
+**Schnellfälle erledigt (alle 4 live verlinkt bzw. im Dashboard):**
+- `ir/DE_C1_7010V` — gepatchten Stand aus schueler/ir an den Live-Link-Pfad
+  übernommen. **Lehre:** Session 7 hatte die schueler/ir-KOPIEN gepatcht, aber
+  `BASIS + 'ir/…'` im Lehrer-Dashboard zeigt auf das Root-`ir/`. Root = Wahrheit;
+  schueler/ir aufgelöst (archiviert in `daf-archiv/Altkopien-2026-06-11/`).
+- `ir/DE_C1_7011R` — 6 Sätze auf C1 12–18W + Nebensatz/Komma, gepatcht (Familie A).
+- `ir/DE_B1_7011V-energiewelt` — aus schueler/ir an den Live-Link-Pfad geholt.
+- `omar-wco01x-pilot.html` — 8 Sätze auf B2 12–16W + Nebensatz/Komma, gepatcht.
+- `htmlS/C1/DE_C1_7001V-reiseleitung` — hatte SEHR WOHL Satzbau (`SB_DATA` mit
+  valid; frühere „kein satzbauData"-Notiz war der Marker-Blindfleck). SB_DATA→
+  satzbauData, sbInit→initSatzbau, 6 Sätze auf C1-Norm verlängert, gepatcht.
+- Alle 5: Syntax-, SBGAP-/Anker-Invarianz-, Quote-, JSDOM-Erstlade-Test grün
+  (JSDOM braucht `url:`-Option, sonst stirbt initTimers an localStorage —
+  Test-Artefakt, kein Datei-Bug).
+- Altkopien archiviert + aus Repos entfernt: `nominalisierung-verbalisierung-b2.html`
+  (B2-Root, kanonisch ist GEHIRN_05G) und `htmlS/A2.1/DE_B2_Eskalationsfalle-Iran.html`.
+- Entwarnung: `rahaf-sprachbausteine-akzent.html` nutzt `SB_DATA` für
+  Multiple-Choice-Sprachbausteine, KEIN Satzbau — braucht kein Gerüst.
+
+## Offene Bestände gesamt (Stand 2026-06-11)
+
+**B1.1: 56 Dateien mit Fremdfamilien — der einzige große Restposten.**
+49× `const SATZBAU_DATA` (words:-Schema, eigene Klick-Reihen-UI), dazu
+8× `SB_DATA` (B1_werden_Tabelle, B1_werden_Uebungen, 2032G, 2035G, 2042G,
+2045G, 3012G, komplementsatz-uebungen) und 2× `sbData` (3071W, 3072W).
+Jede braucht echte Migration (Typ A/B → kanonisch) + Inhalt auf 12–14W.
+Vollständige Liste:
+2011X 2012G 2013R 2014X 2015G 2016R 2017X 2018S · 2031X 2032G 2034X 2035G
+2037X · 2041X 2042G 2045G 2047X · 2061X 2063R 2064X 2065G 2066R 2067X 2068S ·
+2071W 2072W · 3012G 3013R 3014X 3015G 3016R 3017X 3018S · 3051X 3052G 3053R
+3054X 3055G 3056R 3057X 3058S · 3061X 3062G 3063R 3064X-aussehen 3064X-mode
+3065G 3066R 3067X 3068S · 3071W 3072W · Hoefliche_Modalverben_B1B2 ·
+komplementsatz-uebungen · B1_werden_Tabelle · B1_werden_Uebungen
+
+**Bewusst ohne Gerüst (korrekt so):** 1047X (Satzglieder-Übung),
+Mattmüller (A-Niveau), daf-materialien A-Niveau (adjdekl-nom-akk-familie,
+adjektivdeklination, partizip2-bildung), rahaf (kein Satzbau).
+
+**Kleinposten:** Manuell-Liste C2 (14 Sätze „unter 2 sichere Anker") —
+Inhaltsqualität, Add-on ist überall drauf.
+
+**Danach:** geruest_patch.js + diese Erkenntnisse in den daf-satzbau-Skill übernehmen.
