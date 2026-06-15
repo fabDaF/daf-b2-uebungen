@@ -50,6 +50,10 @@ function planSentence(ex){
     if (w2 && w2[0] === w2[0].toLowerCase()) ban.add(w2);
   });
   valid[0].forEach(w => { if (suspectVerb(w) || PREFIX.has(w.toLowerCase())) ban.add(w); });
+  // Konnektoren sind ZIELFORM der Übung -> beweglich in der Bank, nie Anker
+  // (koordinierend + subordinierend + Adverbkonnektoren). Skill: "Konnektoren nie Anker".
+  const CONJ = new Set('und oder aber denn sondern weil dass wenn als damit obwohl bevor nachdem während ob sobald falls indem deshalb deswegen darum trotzdem danach außerdem dennoch sowie doch'.split(/\s+/));
+  valid[0].forEach(w => { if (CONJ.has(w.toLowerCase())) ban.add(w); });
   const invariant = [];
   for (let k=1; k<L; k++) if (valid.every(v=>v[k]===valid[0][k])) invariant.push(k);
   const anchorable = invariant.filter(k => !ban.has(valid[0][k]));
