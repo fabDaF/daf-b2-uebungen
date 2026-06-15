@@ -4,7 +4,13 @@ const fs = require('fs'), vm = require('vm');
 
 const AUX = new Set(('bin bist ist sind seid war warst waren wäre wären habe hast hat haben habt hatte hattest hatten hätte hätten werde wirst wird werden werdet wurde wurden würde würden kann kannst können könnt konnte konnten könnte könnten muss musst müssen müsst musste mussten müsste müssten soll sollst sollen sollt sollte sollten will willst wollen wollt wollte wollten darf darfst dürfen dürft durfte durften dürfte dürften mag magst mögen mögt mochte möchte möchten gibt gab ging kam sah las lief fuhr nahm sprach traf blieb fand stand hielt ließ tut tat rief sang lag saß hieß trug schlug schrieb fiel fing flog schloss verlor zog bot riss schnitt trat starb warf half galt hing klang sprang stieg schien schwieg wuchs lud band bat bog brach drang empfing erschien gewann goss griff hob litt mied pfiff rang roch sank schob schoss schuf schwamm schwand schwor stach stahl stank stieß strich stritt trank verdarb vergaß verlieh verschwand wandte wich wies wog zwang aß betrug ertrug vertrug gann nommen sein').split(/\s+/));
 const PREFIX = new Set('ab an auf aus bei ein los mit nach vor weg zu zurück zusammen weiter fest statt teil um durch über unter wieder her hin dazu hinzu hinaus hinein heraus herein hervor empor entgegen voran voraus vorbei davon daran darauf darunter'.split(/\s+/));
-const NOTVERB = new Set('heute gerade bitte ende gegenteil name liste seite stelle frage farbe sprache woche stunde minute leute familie reise küche miete'.split(/\s+/));
+const NOTVERB = new Set(('heute gerade bitte ende gegenteil name liste seite stelle frage farbe sprache woche stunde minute leute familie reise küche miete '
+  // flektierte Artikel/Possessiva/Demonstrativa/Indefinita auf -en/-em (keine Verben)
+  + 'einen einem keinen keinem meinen meinem deinen deinem seinen seinem ihren ihrem unseren unserem euren eurem diesen diesem jenen jenem jeden jedem allen manchen solchen welchen denen beiden '
+  // häufige flektierte Adjektive auf -en (keine Verben)
+  + 'neuen alten großen kleinen guten schönen langen kurzen jungen ganzen ersten letzten nächsten besten roten netten lieben gleichen eigenen ruhigen hohen schweren leichten teuren billigen wichtigen '
+  // Adverbien/Partikeln auf -t (keine Verben)
+  + 'jetzt dort fast oft sofort bald zuletzt überhaupt').split(/\s+/));
 function suspectVerb(w){
   const lw = w.toLowerCase();
   if (AUX.has(lw)) return true;
