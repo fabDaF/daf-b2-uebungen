@@ -25,7 +25,7 @@ import re
 import sys
 import os
 
-TARGETS = ('.story-text', '.lese-text')
+TARGETS = ('.story-text', '.lese-text', '.luecken-text')
 
 
 def has_serif(value: str) -> bool:
