@@ -277,6 +277,19 @@ eine Serif-Setzung pro Container genügt.
   Regeln lösen keinen Fehlalarm aus. **Vor jedem Lektions-Commit laufen
   lassen**, zusammen mit `check_wortbank.py`.
 
+## Genus-Tab braucht IMMER mindestens 20 Wörter (Pflicht)
+
+Der Genus-Tab ist das wichtigste Training beim Deutschlernen — Genus ist
+Systemwissen, das täglich gebraucht wird. Ein Tab mit 8 Wörtern verschenkt
+diese Chance. Deshalb gilt ausnahmslos: **GENUS_DATA muss mindestens 20
+Einträge haben.** Empfohlen: 24, aufgeteilt auf alle vier Kategorien
+(der / die / das / pl), mit thematisch passenden Common Nouns aus der
+Lektion. Keine Eigennamen, keine Marken, keine Akronyme.
+
+Dieser Fehler ist Frank am 2026-06-17 bei 7011R aufgefallen (8 statt 24
+Wörter). Die Mindestanzahl gilt für alle Niveaus und alle Dateitypen, die
+einen Genus-Tab haben.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
