@@ -187,58 +187,73 @@ def main():
     nav_re = re.compile(r'<(\w+)([^>]*onclick="' + fn + r'\(\d+\)"[^>]*)>(.*?)</\1>', re.S)
     navs = list(nav_re.finditer(t))
     if not navs:
-        print("ABBRUCH (keine showSection-Nav):", path); sys.exit(2)
+        print("ABBRUCH (keine Tab-Nav):", path); sys.exit(2)
     def strip_tags(s): return re.sub(r'<[^>]+>', '', s)
     wnav = None
     for m in navs:
         if 'Wortschatz' in strip_tags(m.group(3)): wnav = m
-    if wnav is None or wnav is not navs[-1]:
-        print("ABBRUCH (Wortschatz ist nicht letzter Nav-Tab):", path); sys.exit(2)
-    # Genus-Nav aus Wortschatz-Tab klonen (Format-treu), Emoji + Label tauschen
-    gnav = wnav.group(0)
-    gnav = re.sub(r'&#1\d{4,5};|[\U0001F300-\U0001FAFF]', '🏷️', gnav, count=1)
-    gnav = gnav.replace('Wortschatz', 'Genus')
+    ws_last = (wnav is not None) and (wnav is navs[-1])
 
-    if id_based:
-        # Genus als LETZTEN Tab anhängen: neue ID sec-<n>, neuer Index <n>.
-        # Nichts Bestehendes wird umnummeriert (sonst bräche getElementById('sec-N')).
-        genus_idx = len(navs)              # neuer letzter Nav-Index (0-basiert)
-        sec_id = "sec-%d" % genus_idx
-        gnav = re.sub(r'onclick="' + fn + r'\(\d+\)"',
-                      'onclick="%s(%d)"' % (fn, genus_idx), gnav)
-        t = t[:wnav.end()] + "\n        " + gnav + t[wnav.end():]
-    else:
-        # Index-basiert: Genus VOR Wortschatz, danach alle onclick fortlaufend renummerieren.
+    def make_genus_nav(src):
+        g = src.group(0)
+        g = re.sub(r'&#1\d{4,5};|[\U0001F300-\U0001FAFF]', '🏷️', g, count=1)
+        if 'nav-label' in g:
+            g = re.sub(r'(<span[^>]*class="[^"]*nav-label[^"]*"[^>]*>).*?(</span>)',
+                       r'\1Genus\2', g, count=1, flags=re.S)
+        else:
+            g2 = re.sub(r'(🏷️\s*)[^<]*', r'\1Genus', g, count=1)
+            g = g2 if g2 != g else re.sub(r'(>)[^<]*(</)', r'\1🏷️ Genus\2', g, count=1)
+        return g
+
+    # Modus A (index-basiert UND Wortschatz ist letzter Tab): Genus VOR Wortschatz + renummerieren.
+    # Modus B (sonst: id-basiert ODER kein Wortschatz-letzter): Genus als LETZTEN Tab anhängen.
+    if (not id_based) and ws_last:
+        append_mode = False
         sec_id = "sec-genus"
+        gnav = make_genus_nav(wnav)
         t = t[:wnav.start()] + gnav + "\n        " + t[wnav.start():]
         cnt = {'n': 0}
         def renum(m):
             r = 'onclick="%s(%d)"' % (fn, cnt['n']); cnt['n'] += 1; return r
         t = re.sub(r'onclick="' + fn + r'\(\d+\)"', renum, t)
+    else:
+        append_mode = True
+        genus_idx = len(navs)                      # neuer letzter Nav-Index (0-basiert)
+        sec_id = ("sec-%d" % genus_idx) if id_based else "sec-genus"
+        gnav = make_genus_nav(navs[-1])
+        gnav = re.sub(r'onclick="' + fn + r'\(\d+\)"',
+                      'onclick="%s(%d)"' % (fn, genus_idx), gnav)
+        t = t[:navs[-1].end()] + "\n        " + gnav + t[navs[-1].end():]
 
     # --- Sections (div ODER section-Element, Klasse enthält "section") ---
     secs = list(re.finditer(r'<(?:div|section)\b[^>]*\bclass="[^"]*\bsection\b[^"]*"[^>]*>', t))
     if not secs:
         print("ABBRUCH (keine sections):", path); sys.exit(2)
-    last_sec = secs[-1]
-    # letzter Tab muss Wortschatz sein (Guard) — h2-Text prüfen (Base64-Banner ignorieren)
-    tail = t[last_sec.start():]
-    h2m = re.search(r'<h2>(.*?)</h2>', tail, re.S)
-    h2txt = h2m.group(1) if h2m else ''
-    if 'Wortschatz' not in h2txt and 'wortschatzContainer' not in tail:
-        print("ABBRUCH (letzte Section ist nicht Wortschatz):", path); sys.exit(2)
+    if append_mode:
+        # Genus-Section als LETZTE Section: vor Footer bzw. erstem <script> nach den Sektionen.
+        after = secs[-1].end()
+        fm = re.search(r'<(?:footer\b|div[^>]*class="[^"]*\bfooter)', t[after:])
+        sm = re.search(r'<script\b', t[after:])
+        if fm: insert_at = after + fm.start()
+        elif sm: insert_at = after + sm.start()
+        else: insert_at = len(t)
+    else:
+        last_sec = secs[-1]
+        tail = t[last_sec.start():]
+        h2m = re.search(r'<h2>(.*?)</h2>', tail, re.S)
+        h2txt = h2m.group(1) if h2m else ''
+        if 'Wortschatz' not in h2txt and 'wortschatzContainer' not in tail:
+            print("ABBRUCH (letzte Section ist nicht Wortschatz):", path); sys.exit(2)
+        pre = t[:last_sec.start()]
+        cmt = re.search(r'(\n\s*<!--[^\n]*-->\s*)$', pre)
+        insert_at = cmt.start() if cmt else last_sec.start()
 
     has_help = 'help-box' in t
     has_ctrl = 'control-bar' in t
-    # freien Timer-Index bestimmen
     idxs = [int(x) for x in re.findall(r'id="timer-(\d+)"', t)]
     timer_idx = (max(idxs)+1) if idxs else 6
 
     sec = section_html(words, has_help, has_ctrl, timer_idx, sec_id)
-    # Section-Kommentar direkt davor mitnehmen, falls vorhanden
-    pre = t[:last_sec.start()]
-    cmt = re.search(r'(\n\s*<!--[^\n]*-->\s*)$', pre)
-    insert_at = cmt.start() if cmt else last_sec.start()
     t = t[:insert_at] + sec + t[insert_at:]
 
     # --- CSS vor letztem </style> ---
