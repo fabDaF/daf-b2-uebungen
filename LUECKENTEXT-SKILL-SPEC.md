@@ -1,9 +1,13 @@
-# Lückentext — verbindlicher Ziel-Spec (Entwurf zur Abstimmung)
+# Lückentext — verbindlicher Ziel-Spec · VERBINDLICH v1.0
 
-Stand: 2026-06-19. Grundlage: **daf-kern §7**, **daf-uebungsformen**, **shared-rules**.
-Ziel: EIN einziger, skill-konformer Lückentext-Stil, der über alle Niveaus (A1–C1)
-ausgerollt wird. Dieser Entwurf hält fest, was der Skill ohnehin vorschreibt, und
-markiert die wenigen Punkte, über die wir uns noch einig werden müssen.
+Stand: 2026-06-19 — **mit Frank abgenommen.** Grundlage: **daf-kern §7**,
+**daf-uebungsformen**, **shared-rules**, plus die unten dokumentierten, mit Frank
+vereinbarten Abweichungen. Referenz-Implementierung: **`LUECKENTEXT-BEISPIEL.html`**
+(live: https://daf.frankburkert-daf.de/LUECKENTEXT-BEISPIEL.html).
+
+Dies ist ab sofort die **eine Quelle der Wahrheit** für alle Lückentexte über alle
+Niveaus (A1–C1). Jeder neue oder migrierte Lückentext folgt diesem Spec exakt; die
+Referenzdatei ist das verbindliche Muster.
 
 ## Soll-Elemente
 
@@ -33,9 +37,9 @@ markiert die wenigen Punkte, über die wir uns noch einig werden müssen.
 | 22 | **Inhalts-Variante** | **G-Dateien → Grammatik** (Grundform-Wortbank, Lerner bildet die Form); **V/R/X-Dateien → Wortschatz** (Vollform-Wortbank, Lerner erinnert das Wort). Im Zweifel nach Lückenziel: prüft die Lücke ein *Wort* → Vollform; prüft sie eine *Form* → Grundform | daf-kern §7 (Geltungsbereich) | fest |
 | 23 | **Keine Anweisungstexte** | **keine Hilfe-Box, keine Wortbank-Erklärsätze, keine Lese-Anleitung** — die Übung erklärt sich rein visuell (Wortbank-Chips über den Lücken). Nur Tab-Titel zur Orientierung. Begründung: A1-Lerner können Anweisungstext nicht lesen, er stört nur | mit Frank vereinbart 2026-06-19 | fest |
 
-## Offene Entscheidungen (das müssen wir gemeinsam festlegen)
+## Entschiedene Festlegungen (abgenommen 2026-06-19)
 
-**D1 — Ziel-Stil.** Verbindlicher Stil = die native §7-Wortbank (lila Chips, JS-gerendert,
+**D1 — Ziel-Stil. ✓ entschieden: ja.** Verbindlicher Stil = die native §7-Wortbank (lila Chips, JS-gerendert,
 gemischt, Durchstreichen). Alle abweichenden Stile (graues Universal-Modul, statische
 wb-chip-/Wortkasten-Boxen, Drag-Lückentexte) werden Schritt für Schritt darauf umgestellt.
 *Mein Vorschlag: ja — es ist der Skill-Original-Stil und C1 nutzt ihn schon durchgängig.*
