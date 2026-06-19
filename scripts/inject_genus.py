@@ -229,8 +229,10 @@ def main():
                       'onclick="%s(%d)"' % (fn, genus_idx), gnav)
         t = t[:navs[-1].end()] + "\n        " + gnav + t[navs[-1].end():]
 
-    # --- Sections (div ODER section-Element, Klasse enthält "section") ---
-    secs = list(re.finditer(r'<(?:div|section)\b[^>]*\bclass="[^"]*\bsection\b[^"]*"[^>]*>', t))
+    # --- Sections (div ODER section-Element, Klasse hat Token "section") ---
+    # WICHTIG: "section" muss ein eigenes Klassen-Token sein, sonst matchen
+    # auch "section-title"/"section-sub" -> Genus würde verschachtelt eingefügt.
+    secs = list(re.finditer(r'<(?:div|section)\b[^>]*\bclass="(?:[^"]*\s)?section(?:\s[^"]*)?"[^>]*>', t))
     if not secs:
         print("ABBRUCH (keine sections):", path); sys.exit(2)
     if append_mode:
