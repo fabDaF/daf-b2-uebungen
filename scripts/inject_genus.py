@@ -230,13 +230,16 @@ def main():
     if not secs:
         print("ABBRUCH (keine sections):", path); sys.exit(2)
     if append_mode:
-        # Genus-Section als LETZTE Section: vor Footer bzw. erstem <script> nach den Sektionen.
-        after = secs[-1].end()
-        fm = re.search(r'<(?:footer\b|div[^>]*class="[^"]*\bfooter)', t[after:])
+        # Genus-Section als LETZTE Top-Level-Section: vor dem ECHTEN Seiten-Footer
+        # (author-footer) bzw. dem Skriptblock. NICHT auf beliebiges "*-footer"
+        # ankern (z. B. schreib-mini-footer liegt INNERHALB der Schreibwerkstatt-
+        # Section -> Genus würde verschachtelt und damit unsichtbar).
+        after = secs[-1].start()
+        am = re.search(r'<\w+[^>]*class="[^"]*\bauthor-footer\b', t[after:])
         sm = re.search(r'<script\b', t[after:])
-        if fm: insert_at = after + fm.start()
+        if am:   insert_at = after + am.start()
         elif sm: insert_at = after + sm.start()
-        else: insert_at = len(t)
+        else:    insert_at = len(t)
     else:
         last_sec = secs[-1]
         tail = t[last_sec.start():]

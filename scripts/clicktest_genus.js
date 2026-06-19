@@ -22,7 +22,18 @@ for (const p of process.argv.slice(2)) {
       url: 'http://localhost/', virtualConsole: new VirtualConsole()
     });
     const w = dom.window, d = w.document;
-    const navs = [...d.querySelectorAll('.nav-btn')]; const bad = []; const seen = [];
+    // Genus-Section finden (über den Pool) und prüfen: NICHT verschachtelt + Inhalt da.
+    const pool = d.getElementById('genusPool');
+    const gsec = pool ? pool.closest('.section') : null;
+    const pre = [];
+    if (!pool || !gsec) pre.push('keine Genus-Section');
+    else {
+      if (gsec.parentElement && gsec.parentElement.closest('.section'))
+        pre.push('VERSCHACHTELT in andere .section');
+      if (pool.children.length < 20)
+        pre.push('Pool leer/zu klein (' + pool.children.length + ')');
+    }
+    const navs = [...d.querySelectorAll('.nav-btn')]; const bad = pre.slice(); const seen = [];
     navs.forEach((b, i) => {
       try { b.click(); } catch (e) { bad.push(i + ':EXC'); return; }
       const act = [...d.querySelectorAll('.section.active')];
