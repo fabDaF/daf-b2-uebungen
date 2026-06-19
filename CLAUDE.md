@@ -263,7 +263,7 @@ Der `<body>` jeder Lektion trägt eine **Sans-Serif**-Schrift (`Segoe UI`)
 oder `.lese-text`-Base-Regel **keine eigene `font-family` setzt, erbt der
 gesamte Lesetext diese Sans-Serif-Schrift** und sieht nackt aus. Genau
 dieser Fehler ist Frank am 2026-06-02 mitten im Unterricht passiert
-(A2 „Die Arbeitswelt"); projektweit waren 25 Dateien betroffen.
+(A2 „Die Arbeitswelt“); projektweit waren 25 Dateien betroffen.
 
 Deshalb gilt ausnahmslos: **Jeder Fließtext-Container MUSS Serifenschrift
 tragen** — `font-family: Georgia, 'Times New Roman', serif;` als erste
@@ -313,6 +313,51 @@ einen Genus-Tab haben.
   `GENUS_DATA` wiederverwenden (z. B. Konjunktiv-II-Klassen, Verbgruppen),
   korrekt heraus — keine Fehlalarme. **Vor jedem Lektions-Commit laufen
   lassen**, zusammen mit `check_serif.py` und `check_wortbank.py`.
+
+## Vokabel-Vorentlastung — verbindliches Muster (Pflicht seit 2026-06-19)
+
+Wenn eine Lektion ihre Schlüsselbegriffe vorab präsentiert, ist das eine
+**Vorentlastung** — niemals ein zweiter, an den Anfang gestellter
+„Wortschatz“-Tab. Genau dieser Fehler ist Frank am 2026-06-19 bei der
+B1-Lektion 2011X (Werbekampagne) aufgefallen: Der erste Tab hieß
+„💡 Wortschatz“ und zeigte eine ungestylte Begriffs-„Mindmap“, während
+„🔠 Wortschatz“ am Ende ohnehin schon das Wortschatz-Training trägt — zwei
+Tabs gleichen Namens, falsches Konzept.
+
+Deshalb gilt ausnahmslos: **Der vokabel-vorentlastende erste Tab heißt
+📖 Vorentlastung und folgt dem kanonischen Vokabelkarten-Muster.**
+„Wortschatz“(-Training) bleibt der **letzte** Tab (siehe
+`feedback_wortschatz-letzter-tab`).
+
+Verbindliche Struktur (Goldstandard: `htmlS/C1/DE_C1_1024S-sisyphos.html`;
+Pilot: `htmlS/B1.1/DE_B1_2011X-werbekampagne.html`):
+
+- **Nav:** `<span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span>`
+  als erster Tab (nie 💡/Wortschatz an Position 0).
+- **Section:** `<div class="section-title">📖 Vorentlastung</div>`, darunter
+  eine kurze `<div class="section-sub">`-Zusammenfassung (ein Satz, neutrales
+  Material-Register, keine Schüler-Ansprache), dann
+  `<div id="vorentlastungGrid" class="vocab-grid"></div>`.
+- **CSS:**
+  ```css
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 4px; }
+  .vocab-card { background: #f8f9ff; border: 1px solid #dde3ff; border-radius: 10px; padding: 14px 16px; }
+  .vocab-term { font-weight: 700; color: #667eea; font-size: 1.05em; margin-bottom: 5px; }
+  .vocab-def  { color: #555; font-size: 0.92em; line-height: 1.5; }
+  ```
+- **JS:** Array `VORENTLASTUNG = [{ term, def }, …]` (Begriff inkl. Artikel
+  und Pluralendung im `term`, z. B. `"die Werbekampagne, -en"`, Singularia
+  als `"(Sg.)"`) plus `buildVorentlastung()`, aufgerufen in `DOMContentLoaded`.
+- Hat die Lektion einen Lesetext, werden die Vorentlastungs-Vokabeln dort
+  per `highlightVocabInText()` gelb markiert (daf-lesetext §6); reine
+  Sach-/Struktur-Lektionen ohne Lesetext (wie 2011X) brauchen das nicht.
+
+Fotokarten (Pexels) sind **optional** und nur nach ausdrücklicher Ansage
+zu ergänzen — das Basismuster ist banner + Vokabelkarten ohne Foto-pro-Karte.
+
+Skill-Bezug: Das Muster ist in `daf-lesetext` §5 (Vorentlastung) verankert.
+Die Skill-Datei selbst wird über den `skill-verwaltung`-Workflow gepflegt,
+nicht aus der laufenden Cowork-Session heraus.
 
 ## Ergänzende Dokumente in diesem Repo
 
