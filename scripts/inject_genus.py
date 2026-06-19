@@ -66,27 +66,28 @@ def section_html(words, has_helpbox, has_controlbar, timer_idx, sec_id):
       '<div class="genus-kat kat-pl"><div class="kat-title">Plural</div><div class="genus-drop" id="drop-pl" data-cat="pl"></div></div>'
       '</div>')
     ti = str(timer_idx)
+    # Skill-konforme Control-Leiste: Buttons + Timer in EINER Zeile (nie getrennt),
+    # direkt unter dem h2. Inline-Styles -> rendert unabhängig von der Datei-CSS.
+    # KEINE Instruktionsbox (Frank 2026-06-19). Timer ohne "Best:".
     controls = (
-      '<div class="control-bar"><div class="btn-row">'
+      '<div style="display:flex;align-items:center;justify-content:space-between;'
+      'margin:0 0 18px;padding:6px 12px;background:#f8f9fa;border-radius:8px;">'
+      '<div style="display:flex;gap:6px;">'
       '<button class="btn btn-show" onclick="showGenusLoesung()">Lösungen</button>'
       '<button class="btn btn-reset" onclick="resetGenus()">Neu starten</button></div>'
-      '<div class="timer-display"><span class="current-time">⏱ <span id="timer-'+ti+'">00:00</span></span>'
-      '<span class="best-time">🏆 <span id="best-'+ti+'">--:--</span></span></div></div>'
-    ) if has_controlbar else (
-      '<div class="btn-row">'
-      '<button class="btn btn-show" onclick="showGenusLoesung()">Lösungen</button>'
-      '<button class="btn btn-reset" onclick="resetGenus()">Neu starten</button></div>'
-      '<div class="timer-display"><span class="current-time">⏱ <span id="timer-'+ti+'">00:00</span></span>'
-      '<span class="best-time">🏆 <span id="best-'+ti+'">--:--</span></span></div>'
+      '<div style="display:flex;gap:14px;align-items:center;font-size:0.82em;color:#888;'
+      'font-variant-numeric:tabular-nums;">'
+      '<span>⏱ <span id="timer-'+ti+'">00:00</span></span>'
+      '<span>🏆 <span id="best-'+ti+'">--:--</span></span></div></div>'
     )
     return ('\n    <!-- ===== TAB: GENUS ===== -->\n'
             '    <div class="section" id="'+sec_id+'">\n'
             '        <img class="tab-banner" src="'+BANNER+'" alt="Genus üben — der, die, das">\n'
             '        <h2>🏷️ Genus</h2>\n'
+            '        '+controls+'\n'
             '        <div class="genus-pool" id="genusPool"></div>\n'
             '        '+kats+'\n'
             '        <div id="genusFeedback" style="margin-top:14px;font-weight:600;"></div>\n'
-            '        '+controls+'\n'
             '    </div>\n')
 
 def js_block(words, timer_idx, sec_id):
