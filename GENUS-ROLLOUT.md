@@ -51,11 +51,32 @@ Einfügung ist **pro Datei chirurgisch**, kein blindes Massen-Skript.
 ⚠️ **Wortschatz bleibt letzter Tab** (Projektregel) — Genus-Tab davor
 einordnen.
 
-## Offene strategische Entscheidung: Banner
+## Banner (Entscheidung Frank, 2026-06-19)
 
-daf-kern §2 verlangt ein eigenes Bild pro Tab (kein Bild doppelt). Bei 570
-neuen Genus-Tabs bedeutet das 570 einzelne Pexels-Fetches über Chrome —
-der dominierende Zeitfaktor der Kampagne. Optionen siehe Chat-Rückfrage.
+**Eine** wiederverwendbare Spezialgrafik fürs Genus-Üben statt 570
+Einzelbilder: `htmlS/genus-banner.svg` (der/die/das, projektfarben,
+editorial-typografisch, abgenommen). Wird als
+`data:image/svg+xml;base64,…` in jeden neuen Genus-Tab eingebettet
+(SVG muss embedded sein — die Niveau-Repos sind getrennt, ein relativer
+Pfad bräche). Bestehende Genus-Tabs behalten ihr Bild.
+
+## Insertion-Rezept (am Piloten 1101V verifiziert)
+
+1. **Nav:** Genus-`nav-btn` (🏷️, „Genus") direkt VOR dem Wortschatz-Button
+   einfügen; `onclick=showSection(N)` mit N = alter Wortschatz-Index;
+   Wortschatz-Button auf N+1 hochzählen.
+2. **Section:** `id="sec-genus"` direkt VOR der Wortschatz-Section. DOM-
+   Reihenfolge = showSection-Index (rein positionsbasiert).
+3. **CSS:** Genus-Block vor `</style>`.
+4. **JS:** `GENUS_DATA` (≥20) + initGenus/checkGenusChip/updateGenusFeedback/
+   createGenusChip + eigener Shuffle vor dem INIT-Block; `initGenus()` in den
+   INIT-Block; `initTimer`-Schleife um den Genus-Timer-Index erweitern.
+5. **⚠️ Timer-Funktionsname variiert pro Generation!** `timerAutoStart` ist
+   NICHT überall definiert (im Piloten gar nicht — Alt-Bug der Datei). Daher
+   `genusTimerStart/Stop/Reset`-Helfer mit `typeof`-Guard, Fallback auf
+   `startTimer`/`stopTimer`/`resetTimer`.
+6. **Test:** check_genus grün + JS-`node --check` + JSDOM-Funktionstest
+   (24 Chips, korrekt→grün, falsch→rot, Lösung 24/24, keine JS-Fehler).
 
 ## Wellen-Plan (Vorschlag)
 
