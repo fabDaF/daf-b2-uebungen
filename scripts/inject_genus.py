@@ -173,6 +173,10 @@ def main():
 
     if genus_cats(t) & {"der","die","das","pl"}:
         print("SKIP (hat schon Genus-Tab):", path); sys.exit(0)
+    # Kollisions-Guard: Datei hat bereits genus-Code (eigener Drill o. Ä.) -> nicht injizieren,
+    # sonst kollidieren GENUS_DATA/initGenus/genusPool (überschreiben fremde Funktionen).
+    if 'id="genusPool"' in t or re.search(r'function\s+initGenus\b', t) or re.search(r'\bGENUS_DATA\s*=', t):
+        print("SKIP (hat schon genus-Code/genusPool/GENUS_DATA):", path); sys.exit(0)
     # Tab-Umschaltfunktion: showSection ODER showTab (gleiche Index-Mechanik)
     fn = 'showTab' if re.search(r'onclick="showTab\(', t) else 'showSection'
     if ('onclick="%s(' % fn) not in t:
