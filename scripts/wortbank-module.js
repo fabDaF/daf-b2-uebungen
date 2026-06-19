@@ -9,7 +9,7 @@
   window.__fbWortbankInit = true;
 
   var ANSWER_KEYS = ["ans", "answer", "sol", "solution", "correct", "loesung", "b"];
-  var GAP_CLASS_RE = /(^|\s)(luecken-inp|luecke-inp|luecke-input|luecken-text|luecken-person|luecke-satz|blank|gap-input|gap)(\s|$)/;
+  var GAP_CLASS_RE = /(^|\s)(luecken-inp|luecke-inp|luecke-input|luecken-text|luecken-person|luecke-satz|blank|gap-input|gap-inp|gap)(\s|$)/;
 
   function answerOf(inp) {
     var d = inp.dataset || {};
@@ -24,6 +24,7 @@
   function isGapInput(inp) {
     if (inp.tagName !== "INPUT") return false;
     if (!GAP_CLASS_RE.test(inp.className || "")) return false;
+    if (inp.dataset && inp.dataset.field) return false;  // Wortschatz-Felder ausschliessen
     // Wortschatz-Felder ausschließen (eigene Section, aber defensiv)
     var id = inp.id || "";
     if (/^ws[-_]/.test(id)) return false;
@@ -131,14 +132,23 @@
     bank.className = "fb-wortbank";
     wrap.appendChild(label);
     wrap.appendChild(bank);
-    // Einfügeort: nach control-bar falls vorhanden, sonst als erstes Inhaltselement
+    // Einfügeort: direkt vor dem ersten Inhaltsblock, der eine Lücke enthält — so
+    // landet die Bank nie über dem Tab-Banner, sondern zwischen Steuerleiste und
+    // Lückentext. Fällt zurück auf "nach der Steuerleiste" (.control-bar ODER .btn-row).
     var host = sec.querySelector(".sec-inner") || sec.querySelector(".luecken-block") || sec;
-    var cb = host.querySelector(".control-bar");
-    if (cb && cb.parentNode === host) {
-      host.insertBefore(wrap, cb.nextSibling);
-    } else {
-      host.insertBefore(wrap, host.firstChild);
+    var anchor = null;
+    var gi = gapInputs(host);
+    if (gi.length) {
+      var node = gi[0];
+      while (node && node.parentNode !== host) node = node.parentNode;
+      anchor = node;
     }
+    if (!anchor) {
+      var cb = host.querySelector(".control-bar, .btn-row");
+      if (cb && cb.parentNode === host) anchor = cb.nextSibling;
+    }
+    if (anchor) host.insertBefore(wrap, anchor);
+    else host.insertBefore(wrap, host.firstChild);
     return bank;
   }
 
