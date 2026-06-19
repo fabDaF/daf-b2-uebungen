@@ -277,14 +277,31 @@ eine Serif-Setzung pro Container genügt.
   Regeln lösen keinen Fehlalarm aus. **Vor jedem Lektions-Commit laufen
   lassen**, zusammen mit `check_wortbank.py`.
 
-## Genus-Tab braucht IMMER mindestens 20 Wörter (Pflicht)
+## JEDE Lektion braucht einen Genus-Tab (Pflicht seit 2026-06-19)
 
-Der Genus-Tab ist das wichtigste Training beim Deutschlernen — Genus ist
-Systemwissen, das täglich gebraucht wird. Ein Tab mit 8 Wörtern verschenkt
-diese Chance. Deshalb gilt ausnahmslos: **GENUS_DATA muss mindestens 20
-Einträge haben.** Empfohlen: 24, aufgeteilt auf alle vier Kategorien
-(der / die / das / pl), mit thematisch passenden Common Nouns aus der
-Lektion. Keine Eigennamen, keine Marken, keine Akronyme.
+Genus ist integraler Bestandteil des Deutschlernens und muss strukturell
+**überall** präsent sein. Deshalb gilt ausnahmslos: **Jede neu erstellte
+oder migrierte Lektion bekommt einen Genus-Tab** — alle Niveaus (A1–C2),
+alle Dateitypen (R/G/V/X/C/S/W). **Einzige Ausnahme: die expliziten
+Drill-Aufgaben (FDxx)** — die sind selbst schon Genus-/Formentraining.
+
+Der Genus-Tab (🏷️, Drag-&-Drop + Klick, Kategorien der/die/das/Plural)
+gehört **direkt vor den Wortschatz-Tab** (Wortschatz bleibt letzter Tab).
+Banner: die gemeinsame Spezialgrafik `htmlS/genus-banner.svg` als
+eingebetteter `data:image/svg+xml;base64`-URI (NICHT pro Datei ein neues
+Pexels-Bild). Bestehende Genus-Tabs behalten ihr Bild.
+
+Werkzeug: `scripts/inject_genus.py DATEI.html woerter.json` baut den Tab
+generationsrobust ein (Nav, CSS, Section, JS; Guards brechen sicher ab,
+wenn das Layout abweicht). Beim Neubau einer Lektion den Genus-Tab gleich
+mitbauen. Vollständiger Kampagnen-Stand: `GENUS-ROLLOUT.md`.
+
+### Mindestens 20 Wörter
+
+**GENUS_DATA muss mindestens 20 Einträge haben.** Empfohlen: 24,
+aufgeteilt auf alle vier Kategorien (der / die / das / pl), mit thematisch
+passenden Common Nouns aus der Lektion. Keine Eigennamen, keine Marken,
+keine Akronyme, keine doppelten Wortformen.
 
 Dieser Fehler ist Frank am 2026-06-17 bei 7011R aufgefallen (8 statt 24
 Wörter). Die Mindestanzahl gilt für alle Niveaus und alle Dateitypen, die
