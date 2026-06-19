@@ -24,7 +24,8 @@ Exit 1, sobald eine Datei BROKEN ist.
 import re, sys
 
 def nav_targets(t):
-    return [int(m.group(1)) for m in re.finditer(r'onclick="showSection\((\d+)\)"', t)]
+    # Tab-Umschaltung heißt showSection ODER showTab (gleiche Index-Mechanik)
+    return [int(m.group(1)) for m in re.finditer(r'onclick="(?:showSection|showTab)\((\d+)\)"', t)]
 
 def section_count(t):
     # echte .section: Klassen-Token exakt "section" (nicht "schreib-section" o.ä.)

@@ -173,16 +173,18 @@ def main():
 
     if genus_cats(t) & {"der","die","das","pl"}:
         print("SKIP (hat schon Genus-Tab):", path); sys.exit(0)
-    if 'showSection(' not in t:
-        print("ABBRUCH (kein showSection):", path); sys.exit(2)
+    # Tab-Umschaltfunktion: showSection ODER showTab (gleiche Index-Mechanik)
+    fn = 'showTab' if re.search(r'onclick="showTab\(', t) else 'showSection'
+    if ('onclick="%s(' % fn) not in t:
+        print("ABBRUCH (keine Tab-Funktion showSection/showTab):", path); sys.exit(2)
 
-    # showSection-Variante erkennen:
+    # Mechanik erkennen:
     #  ID-basiert  -> getElementById('sec-'+n)  (n ist ID-Suffix UND Nav-Index)
-    #  Index-basiert-> querySelectorAll('.section')[idx]
+    #  Index-basiert-> querySelectorAll('.section')[idx]   (showSection ODER showTab)
     id_based = bool(re.search(r"getElementById\(\s*['\"]sec-['\"]\s*\+", t))
 
-    # --- Nav: element-agnostisch (div/span/button/a) mit onclick="showSection(N)" ---
-    nav_re = re.compile(r'<(\w+)([^>]*onclick="showSection\(\d+\)"[^>]*)>(.*?)</\1>', re.S)
+    # --- Nav: element-agnostisch (div/span/button/a) mit onclick="FN(N)" ---
+    nav_re = re.compile(r'<(\w+)([^>]*onclick="' + fn + r'\(\d+\)"[^>]*)>(.*?)</\1>', re.S)
     navs = list(nav_re.finditer(t))
     if not navs:
         print("ABBRUCH (keine showSection-Nav):", path); sys.exit(2)
@@ -202,8 +204,8 @@ def main():
         # Nichts Bestehendes wird umnummeriert (sonst bräche getElementById('sec-N')).
         genus_idx = len(navs)              # neuer letzter Nav-Index (0-basiert)
         sec_id = "sec-%d" % genus_idx
-        gnav = re.sub(r'onclick="showSection\(\d+\)"',
-                      'onclick="showSection(%d)"' % genus_idx, gnav)
+        gnav = re.sub(r'onclick="' + fn + r'\(\d+\)"',
+                      'onclick="%s(%d)"' % (fn, genus_idx), gnav)
         t = t[:wnav.end()] + "\n        " + gnav + t[wnav.end():]
     else:
         # Index-basiert: Genus VOR Wortschatz, danach alle onclick fortlaufend renummerieren.
@@ -211,8 +213,8 @@ def main():
         t = t[:wnav.start()] + gnav + "\n        " + t[wnav.start():]
         cnt = {'n': 0}
         def renum(m):
-            r = 'onclick="showSection(%d)"' % cnt['n']; cnt['n'] += 1; return r
-        t = re.sub(r'onclick="showSection\(\d+\)"', renum, t)
+            r = 'onclick="%s(%d)"' % (fn, cnt['n']); cnt['n'] += 1; return r
+        t = re.sub(r'onclick="' + fn + r'\(\d+\)"', renum, t)
 
     # --- Sections (div ODER section-Element, Klasse enthält "section") ---
     secs = list(re.finditer(r'<(?:div|section)\b[^>]*\bclass="[^"]*\bsection\b[^"]*"[^>]*>', t))
