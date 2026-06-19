@@ -75,8 +75,23 @@ Pfad bräche). Bestehende Genus-Tabs behalten ihr Bild.
    NICHT überall definiert (im Piloten gar nicht — Alt-Bug der Datei). Daher
    `genusTimerStart/Stop/Reset`-Helfer mit `typeof`-Guard, Fallback auf
    `startTimer`/`stopTimer`/`resetTimer`.
-6. **Test:** check_genus grün + JS-`node --check` + JSDOM-Funktionstest
-   (24 Chips, korrekt→grün, falsch→rot, Lösung 24/24, keine JS-Fehler).
+6. **Test (PFLICHT, in dieser Reihenfolge):**
+   a. `scripts/audit_genus.py DATEI` — onclick-Ziele == 0..n-1 UND nav==sec.
+      **Ohne diesen Check NICHT committen.** (Siehe Vorfall unten.)
+   b. `scripts/check_genus.py DATEI` — ≥20 Wörter.
+   c. JS-`node --check` + optional JSDOM-Funktionstest (Chips/Feedback).
+
+## ⚠️ Vorfall 2026-06-19 — Nav-Renummerierung
+
+Eine frühe `inject_genus`-Version renummerierte nur `class="nav-btn"` und
+übersah den ersten Button `class="nav-btn active"` → onclick-Ziele wurden
+`0,0,1,2,…` statt `0,1,2,…`. Folge: **jeder Tab-Klick zeigte die falsche
+Sektion** (18 A1-Dateien betroffen, von Frank im Unterricht entdeckt).
+Der JSDOM-Test rief `showSection(i)` per Schleifenindex auf statt über das
+echte `onclick` — und **maskierte den Bug**. Lehre: Tab-Korrektheit IMMER
+über die tatsächlichen `onclick`-Werte prüfen → `audit_genus.py`. Die
+aktuelle `inject_genus.py` renummeriert ALLE `onclick`-Attribute (klassen-
+unabhängig); die 18 Dateien wurden per Renummerierung repariert.
 
 ## Wellen-Plan (Vorschlag)
 
