@@ -101,9 +101,11 @@ var GENUS_DATA = [
 ];
 var GENUS_TIMER = %s;
 var draggedGenus = null, selectedGenus = null;
-function genusTimerStart(){ try{ if(typeof timerAutoStart==='function') timerAutoStart(GENUS_TIMER); else if(typeof startTimer==='function') startTimer(GENUS_TIMER); }catch(e){} }
-function genusTimerStop(){ try{ if(typeof stopTimer==='function') stopTimer(GENUS_TIMER); }catch(e){} }
-function genusTimerReset(){ try{ if(typeof resetTimer==='function') resetTimer(GENUS_TIMER); }catch(e){} }
+var genusSec = 0, genusInt = null;
+function genusFmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%%60).padStart(2,'0'); }
+function genusTimerStart(){ if(genusInt) return; genusInt=setInterval(function(){ genusSec++; var el=document.getElementById('timer-'+GENUS_TIMER); if(el) el.textContent=genusFmt(genusSec); },1000); }
+function genusTimerStop(){ if(genusInt){ clearInterval(genusInt); genusInt=null; } var b=document.getElementById('best-'+GENUS_TIMER); if(b){ var pv=/^\\d\\d:\\d\\d$/.test(b.textContent)?parseInt(b.textContent.slice(0,2))*60+parseInt(b.textContent.slice(3)):1e9; if(genusSec<pv) b.textContent=genusFmt(genusSec); } }
+function genusTimerReset(){ if(genusInt){ clearInterval(genusInt); genusInt=null; } genusSec=0; var el=document.getElementById('timer-'+GENUS_TIMER); if(el) el.textContent='00:00'; }
 function shuffleGenus(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 function createGenusChip(d){
   var chip=document.createElement('div');
@@ -154,7 +156,7 @@ function showGenusLoesung(){
   updateGenusFeedback();
 }
 function resetGenus(){ initGenus(); genusTimerReset(); }
-(function(){ try{ if(typeof initTimer==='function') initTimer(GENUS_TIMER); }catch(e){} initGenus(); })();
+(function(){ initGenus(); })();
 </script>
 ''' % (data, ti)).replace('#sec-genus', '#' + sec_id)
 
