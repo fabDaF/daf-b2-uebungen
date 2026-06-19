@@ -246,7 +246,8 @@ def main():
     else:
         last_sec = secs[-1]
         tail = t[last_sec.start():]
-        h2m = re.search(r'<h2>(.*?)</h2>', tail, re.S)
+        h2m = re.search(r'<h2>(.*?)</h2>', tail, re.S) or \
+              re.search(r'class="[^"]*\bsection-title\b[^"]*"[^>]*>(.*?)</', tail, re.S)
         h2txt = h2m.group(1) if h2m else ''
         if 'Wortschatz' not in h2txt and 'wortschatzContainer' not in tail:
             print("ABBRUCH (letzte Section ist nicht Wortschatz):", path); sys.exit(2)
