@@ -51,7 +51,7 @@ def genus_cats(text):
     body=text[i+1:j]
     return {c.lower() for c in re.findall(r"cat\s*:\s*['\"]([^'\"]+)['\"]", body)}
 
-def section_html(words, has_helpbox, has_controlbar, timer_idx):
+def section_html(words, has_helpbox, has_controlbar, timer_idx, sec_id):
     box_cls = "help-box" if has_helpbox else "hilfe-box"
     helpbox = ('<div class="%s"><strong>Genus üben:</strong> Ziehe jedes Wort in die richtige Kategorie — '
                '<span style="color:#1565c0;font-weight:700;">der</span>, '
@@ -80,7 +80,7 @@ def section_html(words, has_helpbox, has_controlbar, timer_idx):
       '<span class="best-time">🏆 Best: <span id="best-'+ti+'">--:--</span></span></div>'
     )
     return ('\n    <!-- ===== TAB: GENUS ===== -->\n'
-            '    <div class="section" id="sec-genus">\n'
+            '    <div class="section" id="'+sec_id+'">\n'
             '        <img class="tab-banner" src="'+BANNER+'" alt="Genus üben — der, die, das">\n'
             '        <h2>🏷️ Genus</h2>\n'
             '        '+helpbox+'\n'
@@ -90,10 +90,10 @@ def section_html(words, has_helpbox, has_controlbar, timer_idx):
             '        '+controls+'\n'
             '    </div>\n')
 
-def js_block(words, timer_idx):
+def js_block(words, timer_idx, sec_id):
     data = ",\n  ".join('{ word: %s, cat: "%s" }' % (json.dumps(w["word"], ensure_ascii=False), w["cat"]) for w in words)
     ti = str(timer_idx)
-    return '''
+    return ('''
 <script>
 /* ========== TAB: GENUS (injiziert) ========== */
 var GENUS_DATA = [
@@ -156,7 +156,7 @@ function showGenusLoesung(){
 function resetGenus(){ initGenus(); genusTimerReset(); }
 (function(){ try{ if(typeof initTimer==='function') initTimer(GENUS_TIMER); }catch(e){} initGenus(); })();
 </script>
-''' % (data, ti)
+''' % (data, ti)).replace('#sec-genus', '#' + sec_id)
 
 def main():
     if len(sys.argv) != 3:
@@ -165,6 +165,10 @@ def main():
     words = json.load(open(wjson, encoding='utf-8'))
     if len(words) < 20 or any(w["cat"] not in ("der","die","das","pl") for w in words):
         print("ABBRUCH: woerter.json braucht >=20 Einträge, cat in der/die/das/pl"); sys.exit(2)
+    forms = [w["word"] for w in words]
+    if len(set(forms)) != len(forms):
+        dups = sorted({x for x in forms if forms.count(x) > 1})
+        print("ABBRUCH: doppelte Wortformen (mehrdeutig):", dups); sys.exit(2)
     t = open(path, encoding='utf-8').read()
 
     if genus_cats(t) & {"der","die","das","pl"}:
@@ -172,30 +176,46 @@ def main():
     if 'showSection(' not in t:
         print("ABBRUCH (kein showSection):", path); sys.exit(2)
 
-    # --- Nav: alle nav-btn finden ---
-    navs = list(re.finditer(r'<div class="nav-btn"[^>]*onclick="showSection\(\d+\)"[^>]*>.*?</div>', t, re.S))
+    # showSection-Variante erkennen:
+    #  ID-basiert  -> getElementById('sec-'+n)  (n ist ID-Suffix UND Nav-Index)
+    #  Index-basiert-> querySelectorAll('.section')[idx]
+    id_based = bool(re.search(r"getElementById\(\s*['\"]sec-['\"]\s*\+", t))
+
+    # --- Nav: element-agnostisch (div/span/button/a) mit onclick="showSection(N)" ---
+    nav_re = re.compile(r'<(\w+)([^>]*onclick="showSection\(\d+\)"[^>]*)>(.*?)</\1>', re.S)
+    navs = list(nav_re.finditer(t))
     if not navs:
-        print("ABBRUCH (keine nav-btn):", path); sys.exit(2)
+        print("ABBRUCH (keine showSection-Nav):", path); sys.exit(2)
+    def strip_tags(s): return re.sub(r'<[^>]+>', '', s)
     wnav = None
     for m in navs:
-        if 'Wortschatz' in m.group(0): wnav = m
+        if 'Wortschatz' in strip_tags(m.group(3)): wnav = m
     if wnav is None or wnav is not navs[-1]:
         print("ABBRUCH (Wortschatz ist nicht letzter Nav-Tab):", path); sys.exit(2)
-    # Genus-Nav aus Wortschatz-Button klonen (Format-treu)
+    # Genus-Nav aus Wortschatz-Tab klonen (Format-treu), Emoji + Label tauschen
     gnav = wnav.group(0)
-    gnav = re.sub(r'(&#128218;|📚|📖|🏷️)', '🏷️', gnav, count=1)
+    gnav = re.sub(r'&#1\d{4,5};|[\U0001F300-\U0001FAFF]', '🏷️', gnav, count=1)
     gnav = gnav.replace('Wortschatz', 'Genus')
-    t = t[:wnav.start()] + gnav + "\n        " + t[wnav.start():]
-    # Nav neu durchnummerieren (DOM-Reihenfolge)
-    counter = {'n': 0}
-    def renum(m):
-        r = '<div class="nav-btn"' + m.group(1) + 'onclick="showSection(%d)"' % counter['n']
-        counter['n'] += 1
-        return r
-    t = re.sub(r'<div class="nav-btn"([^>]*?)onclick="showSection\(\d+\)"', renum, t)
 
-    # --- Sections ---
-    secs = list(re.finditer(r'<div class="section(?:\s+active)?"\s+id="[^"]*"', t))
+    if id_based:
+        # Genus als LETZTEN Tab anhängen: neue ID sec-<n>, neuer Index <n>.
+        # Nichts Bestehendes wird umnummeriert (sonst bräche getElementById('sec-N')).
+        genus_idx = len(navs)              # neuer letzter Nav-Index (0-basiert)
+        sec_id = "sec-%d" % genus_idx
+        gnav = re.sub(r'onclick="showSection\(\d+\)"',
+                      'onclick="showSection(%d)"' % genus_idx, gnav)
+        t = t[:wnav.end()] + "\n        " + gnav + t[wnav.end():]
+    else:
+        # Index-basiert: Genus VOR Wortschatz, danach alle onclick fortlaufend renummerieren.
+        sec_id = "sec-genus"
+        t = t[:wnav.start()] + gnav + "\n        " + t[wnav.start():]
+        cnt = {'n': 0}
+        def renum(m):
+            r = 'onclick="showSection(%d)"' % cnt['n']; cnt['n'] += 1; return r
+        t = re.sub(r'onclick="showSection\(\d+\)"', renum, t)
+
+    # --- Sections (div ODER section-Element, Klasse enthält "section") ---
+    secs = list(re.finditer(r'<(?:div|section)\b[^>]*\bclass="[^"]*\bsection\b[^"]*"[^>]*>', t))
     if not secs:
         print("ABBRUCH (keine sections):", path); sys.exit(2)
     last_sec = secs[-1]
@@ -212,7 +232,7 @@ def main():
     idxs = [int(x) for x in re.findall(r'id="timer-(\d+)"', t)]
     timer_idx = (max(idxs)+1) if idxs else 6
 
-    sec = section_html(words, has_help, has_ctrl, timer_idx)
+    sec = section_html(words, has_help, has_ctrl, timer_idx, sec_id)
     # Section-Kommentar direkt davor mitnehmen, falls vorhanden
     pre = t[:last_sec.start()]
     cmt = re.search(r'(\n\s*<!--[^\n]*-->\s*)$', pre)
@@ -230,10 +250,10 @@ def main():
     if jpos == -1:
         print("ABBRUCH (kein </script>):", path); sys.exit(2)
     jpos += len('</script>')
-    t = t[:jpos] + js_block(words, timer_idx) + t[jpos:]
+    t = t[:jpos] + js_block(words, timer_idx, sec_id) + t[jpos:]
 
     open(path, 'w', encoding='utf-8').write(t)
-    print("OK injiziert (timer=%d, help=%s, ctrl=%s):" % (timer_idx, has_help, has_ctrl), path)
+    print("OK injiziert (%s, timer=%d, sec_id=%s):" % ("ID-basiert" if id_based else "Index-basiert", timer_idx, sec_id), path)
 
 if __name__ == "__main__":
     main()

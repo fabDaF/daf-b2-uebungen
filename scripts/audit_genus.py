@@ -30,6 +30,13 @@ def section_count(t):
     # echte .section: Klassen-Token exakt "section" (nicht "schreib-section" o.ä.)
     return len(re.findall(r'class="(?:[^"]*\s)?section(?:\s[^"]*)?"', t))
 
+def is_id_based(t):
+    # showSection nutzt getElementById('sec-' + n) -> ID-basiert (n = ID-Suffix UND Nav-Index)
+    return bool(re.search(r"getElementById\(\s*['\"]sec-['\"]\s*\+", t))
+
+def section_ids(t):
+    return set(re.findall(r'id="(sec-[0-9A-Za-z]+)"', t))
+
 def main():
     bad = 0
     for p in sys.argv[1:]:
@@ -41,15 +48,27 @@ def main():
             continue
         tg = nav_targets(t)
         secs = section_count(t)
-        seq_ok = tg == list(range(len(tg)))
-        cnt_ok = len(tg) == secs
-        if seq_ok and cnt_ok:
+        n = len(tg)
+        cnt_ok = n == secs
+        info = ""
+        if is_id_based(t):
+            # ID-basiert: jedes onclick-Ziel N braucht eine Section id="sec-N",
+            # und N muss ein gültiger Nav-Index sein (0..n-1) für nav[N].
+            ids = section_ids(t)
+            map_ok = all(0 <= N < n and ('sec-%d' % N) in ids for N in tg)
+            uniq_ok = len(set(tg)) == n
+            ok = map_ok and uniq_ok and cnt_ok
+            if not map_ok: info += " ID-Mapping defekt onclick=%s ids=%s" % (tg, sorted(ids))
+            if not uniq_ok: info += " doppelte onclick-Ziele=%s" % tg
+        else:
+            # Index-basiert: onclick-Ziele in DOM-Reihenfolge == 0..n-1.
+            ok = (tg == list(range(n))) and cnt_ok
+            if tg != list(range(n)): info += " onclick-Ziele=" + str(tg)
+        if not cnt_ok: info += " nav=%d sec=%d" % (n, secs)
+        if ok:
             print("OK      ", p.split('/')[-1])
         else:
             bad += 1
-            info = ""
-            if not seq_ok: info += " onclick-Ziele=" + str(tg)
-            if not cnt_ok: info += " nav=%d sec=%d" % (len(tg), secs)
             print("BROKEN  ", p.split('/')[-1], info)
     sys.exit(1 if bad else 0)
 

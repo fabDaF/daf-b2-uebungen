@@ -60,6 +60,25 @@ editorial-typografisch, abgenommen). Wird als
 (SVG muss embedded sein — die Niveau-Repos sind getrennt, ein relativer
 Pfad bräche). Bestehende Genus-Tabs behalten ihr Bild.
 
+## Zwei showSection-Varianten — KRITISCH
+
+DaF-Dateien nutzen **zwei** Tab-Mechaniken; `inject_genus.py` erkennt sie
+automatisch (`getElementById('sec-'+n)` → ID-basiert):
+
+- **Index-basiert** (`querySelectorAll('.section')[idx]`): Genus VOR Wortschatz
+  einfügen, danach alle `onclick="showSection(N)"` fortlaufend renummerieren.
+  Section-ID egal (`sec-genus`).
+- **ID-basiert** (`getElementById('sec-'+n)`, `n` ist ID-Suffix UND Nav-Index):
+  Genus als **LETZTEN** Tab anhängen (neue ID `sec-<n>`, neuer Index `<n>`),
+  **nichts** Bestehendes umnummerieren — sonst bricht `getElementById('sec-N')`.
+  (Hier steht Genus im Nav NACH Wortschatz — bewusste Ausnahme zur „Wortschatz
+  letzter Tab"-Regel, weil sicheres Einfügen davor IDs verschieben würde.)
+
+Prüfung: `scripts/audit_genus.py` prüft beide Varianten (index: onclick==0..n-1;
+id: jedes onclick-Ziel hat eine `sec-N`-Section + gültiger Nav-Index). Tiefe
+Bestätigung: `scripts/clicktest_genus.js` (JSDOM, klickt jeden Tab über sein
+echtes onclick).
+
 ## Insertion-Rezept (am Piloten 1101V verifiziert)
 
 1. **Nav:** Genus-`nav-btn` (🏷️, „Genus") direkt VOR dem Wortschatz-Button
