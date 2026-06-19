@@ -290,6 +290,13 @@ Dieser Fehler ist Frank am 2026-06-17 bei 7011R aufgefallen (8 statt 24
 Wörter). Die Mindestanzahl gilt für alle Niveaus und alle Dateitypen, die
 einen Genus-Tab haben.
 
+- `scripts/check_genus.py` — Sicherheitsnetz. Scannt das Repo (oder
+  einzelne Dateien) und meldet jeden echten Genus-Tab mit weniger als 20
+  Wörtern mit Exit-Code 1. Filtert Nicht-Genus-Arrays, die nur den Namen
+  `GENUS_DATA` wiederverwenden (z. B. Konjunktiv-II-Klassen, Verbgruppen),
+  korrekt heraus — keine Fehlalarme. **Vor jedem Lektions-Commit laufen
+  lassen**, zusammen mit `check_serif.py` und `check_wortbank.py`.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -298,6 +305,7 @@ einen Genus-Tab haben.
 - `scripts/render_manifest.py` — MD aus YAML erzeugen
 - `scripts/check_serif.py` — Fließtext-Serif-Prüfung (vor Lektions-Commit)
 - `scripts/check_wortbank.py` — Lückentext-Wortbank-Prüfung (vor Lektions-Commit)
+- `scripts/check_genus.py` — Genus-Tab-Mindestanzahl-Prüfung (≥20, vor Lektions-Commit)
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
   11-zu-9-Konsolidierung, warum die heutige Struktur so ist
 - `backup/INSTALL.md` — launchd-Backup-Aktivierung
