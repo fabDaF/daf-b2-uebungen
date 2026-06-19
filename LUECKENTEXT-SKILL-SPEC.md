@@ -27,9 +27,11 @@ markiert die wenigen Punkte, über die wir uns noch einig werden müssen.
 | 16 | Drei Zustände | neutral (leer/korrektes Präfix), grün `.correct`, rot `.wrong` (Präfix-Regel) | daf-kern §7 / shared-rules §8a | fest |
 | 17 | Farben | grün `#27ae60`, rot `#e74c3c`, neutral grauer Unterstrich | daf-uebungsformen | fest |
 | 18 | Buttons | „Lösung zeigen" + „Reset"; `initWortbank`/`updateWortbankChips` an den 4 Pflicht-Stellen (Tabwechsel, korrekte Eingabe, Lösung zeigen, Reset) | daf-kern §7 | fest |
-| 19 | Label | „🔤 Wortbank – die richtigen Wörter, in zufälliger Reihenfolge. Tipp sie selbst … achte auf Groß- und Kleinschreibung." | daf-kern §7 | fest |
+| 19 | Label / Marker | nur Emoji-Marker 🔤 — **kein Erklärsatz** | Abweichung daf-kern §7, mit Frank vereinbart 2026-06-19 | fest |
 | 20 | CSS-Klassen | `.wortbank`, `.wortbank-label`, `.wortbank-chip`, `.wortbank-chip.used` exakt nach Skill-CSS | daf-kern §7 | fest |
 | 21 | Anführungszeichen | deutsche Quotes „…", restliche shared-rules | daf-kern §4 | fest |
+| 22 | **Inhalts-Variante** | **G-Dateien → Grammatik** (Grundform-Wortbank, Lerner bildet die Form); **V/R/X-Dateien → Wortschatz** (Vollform-Wortbank, Lerner erinnert das Wort). Im Zweifel nach Lückenziel: prüft die Lücke ein *Wort* → Vollform; prüft sie eine *Form* → Grundform | daf-kern §7 (Geltungsbereich) | fest |
+| 23 | **Keine Anweisungstexte** | **keine Hilfe-Box, keine Wortbank-Erklärsätze, keine Lese-Anleitung** — die Übung erklärt sich rein visuell (Wortbank-Chips über den Lücken). Nur Tab-Titel zur Orientierung. Begründung: A1-Lerner können Anweisungstext nicht lesen, er stört nur | mit Frank vereinbart 2026-06-19 | fest |
 
 ## Offene Entscheidungen (das müssen wir gemeinsam festlegen)
 
