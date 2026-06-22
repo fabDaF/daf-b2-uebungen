@@ -27,7 +27,9 @@ Exit-Code 1, wenn Verstöße gefunden werden — geeignet als Pre-Commit-/CI-Gat
 """
 import os, re, sys
 
-TAB_RE = re.compile(r'nav-label[^>]*>\s*Lückentext|<h2[^>]*>[^<]*Lückentext')
+# „Lückentext" kommt auch HTML-entity-kodiert vor (ältere Dateien: „L&uuml;ckentext").
+# Beide Formen erkennen, sonst rutschen entity-kodierte Dateien komplett durch das Netz.
+TAB_RE = re.compile(r'nav-label[^>]*>\s*L(?:ü|&uuml;)ckentext|<h2[^>]*>[^<]*L(?:ü|&uuml;)ckentext')
 
 # Irgendeine Wort-Hilfe vorhanden?
 HELP_RE = re.compile(
@@ -42,6 +44,38 @@ LETTER_RE = re.compile(r'class="letter-input"|\bletter-group\b')
 
 # Eigener Wortbank-Container im Markup (skill-konforme §7-Wortbank).
 CONTAINER_RE = re.compile(r'id="wortbank-luecken"|class="[^"]*wortbank[^"]*"', re.I)
+
+# G-Datei am Dateinamen erkennen (z. B. DE_B2_1032G-..., DE_A1_1033G_...).
+GFILE_RE = re.compile(r'_\d{4}G[-_.]')
+
+
+def _func_body(s, name):
+    """Funktionskörper {…} per Klammerzählung extrahieren (defensiv begrenzt)."""
+    m = re.search(r"function\s+" + re.escape(name) + r"\s*\([^)]*\)\s*\{", s)
+    if not m:
+        return ""
+    i = m.end() - 1  # Position der öffnenden '{'
+    depth = 0
+    for j in range(i, min(len(s), i + 8000)):
+        if s[j] == "{":
+            depth += 1
+        elif s[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return s[i:j + 1]
+    return s[i:i + 8000]
+
+
+def gfile_wortbank_from_answers(path, s):
+    """True bei G-Dateien, deren Lückentext-Wortbank aus den LÖSUNGEN (.answer)
+    gebaut wird. Das verrät bei Grammatik-/Transformationsübungen die konjugierte
+    Zielform — daf-grammatik verlangt stattdessen einen Infinitiv-Wortkasten
+    (G-Datei-Ausnahme zur Wortbank-Pflicht, daf-kern §7). VERDACHT, kein Beweis:
+    reine Wort-/Präpositions-Lückentexte sind ggf. unkritisch und vom Menschen
+    zu bestätigen."""
+    if not GFILE_RE.search(os.path.basename(path)):
+        return False
+    return bool(re.search(r"\.answer\b", _func_body(s, "initWortbank")))
 
 
 def initwortbank_defined_but_unused(s):
@@ -61,6 +95,7 @@ def initwortbank_defined_but_unused(s):
 def scan(paths):
     missing = []   # (A) gar keine Hilfe
     empty = []     # (B) Container da, aber nie befüllt
+    suspect = []   # (C) G-Datei: Wortbank aus Lösungen abgeleitet (Infinitiv-Wortkasten nötig)
     for p in paths:
         try:
             s = open(p, encoding="utf-8", errors="replace").read()
@@ -77,7 +112,10 @@ def scan(paths):
         # Hilfe im Markup vorhanden — aber bleibt sie zur Laufzeit leer?
         if CONTAINER_RE.search(s) and initwortbank_defined_but_unused(s):
             empty.append(p)
-    return missing, empty
+        # G-Datei: Wortbank verrät evtl. die konjugierte Zielform?
+        if gfile_wortbank_from_answers(p, s):
+            suspect.append(p)
+    return missing, empty, suspect
 
 
 def collect_repo():
@@ -94,8 +132,8 @@ def collect_repo():
 if __name__ == "__main__":
     args = sys.argv[1:]
     files = args if args else collect_repo()
-    missing, empty = scan(files)
-    if missing or empty:
+    missing, empty, suspect = scan(files)
+    if missing or empty or suspect:
         if missing:
             print(f"✗ {len(missing)} Lückentext-Datei(en) OHNE Wort-Hilfe (daf-kern §7 verletzt):")
             for p in missing:
@@ -105,8 +143,18 @@ if __name__ == "__main__":
                   f"(initWortbank definiert, aber nicht aufgerufen):")
             for p in empty:
                 print("   ", p)
-        print("\nFix: scripts/wortbank-module.js injizieren, §7-Wortbank ergänzen, "
-              "oder initWortbank() in der Init-Sequenz aufrufen.")
+        if suspect:
+            print(f"⚠ {len(suspect)} G-Datei(en) mit Wortbank AUS DEN LÖSUNGEN abgeleitet "
+                  f"(verrät evtl. die konjugierte/transformierte Zielform — daf-grammatik "
+                  f"verlangt einen Infinitiv-Wortkasten). VERDACHT, bitte pro Datei prüfen:")
+            for p in suspect:
+                print("   ", p)
+        if missing or empty:
+            print("\nFix: scripts/wortbank-module.js injizieren, §7-Wortbank ergänzen, "
+                  "oder initWortbank() in der Init-Sequenz aufrufen.")
+        if suspect:
+            print("\nFix (VERDACHT): Wortbank-Quelle von .answer auf einen festen "
+                  "Infinitiv-Wortkasten umstellen; konjugierte Zielformen nie sichtbar.")
         sys.exit(1)
     print(f"✓ Alle {len(files)} geprüften Dateien haben eine befüllte Wort-Hilfe "
           f"(oder keinen Wort-Lückentext-Tab).")
