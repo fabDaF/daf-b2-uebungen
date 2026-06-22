@@ -75,6 +75,9 @@ def gfile_wortbank_from_answers(path, s):
     zu bestätigen."""
     if not GFILE_RE.search(os.path.basename(path)):
         return False
+    # Vom Lehrer bestätigte Ausnahme (Wort-Auswahl/Deklination: Vollform zulässig).
+    if "WORTBANK-VOLLFORM-OK" in s:
+        return False
     return bool(re.search(r"\.answer\b", _func_body(s, "initWortbank")))
 
 
