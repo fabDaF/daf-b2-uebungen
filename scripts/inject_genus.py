@@ -254,16 +254,27 @@ def main():
     if not secs:
         print("ABBRUCH (keine sections):", path); sys.exit(2)
     if append_mode:
-        # Genus-Section als LETZTE Top-Level-Section: vor dem ECHTEN Seiten-Footer
-        # (author-footer) bzw. dem Skriptblock. NICHT auf beliebiges "*-footer"
-        # ankern (z. B. schreib-mini-footer liegt INNERHALB der Schreibwerkstatt-
-        # Section -> Genus würde verschachtelt und damit unsichtbar).
-        after = secs[-1].start()
-        am = re.search(r'<\w+[^>]*class="[^"]*\bauthor-footer\b', t[after:])
-        sm = re.search(r'<script\b', t[after:])
-        if am:   insert_at = after + am.start()
-        elif sm: insert_at = after + sm.start()
-        else:    insert_at = len(t)
+        # Genus-Section als LETZTE Top-Level-Section: HINTER dem schließenden Tag
+        # der letzten Section. NICHT auf author-footer/script ankern — diese können
+        # INNERHALB einer Section liegen (z. B. author-footer/schreib-mini-footer als
+        # Mini-Footer je Tab) -> Genus würde verschachtelt und damit unsichtbar
+        # (Bug 1018S/1042G/1045G, 2026-06-23). Robust: das öffnende Section-Element
+        # per gleichnamigem Tag balancieren, bis die Tiefe wieder 0 ist.
+        sm0 = secs[-1]
+        tag = re.match(r'<(\w+)', sm0.group(0)).group(1)
+        opens  = [(m.start(), 1)  for m in re.compile(r'<' + tag + r'\b', re.I).finditer(t, sm0.start())]
+        closes = [(m.end(),  -1)  for m in re.compile(r'</' + tag + r'\s*>', re.I).finditer(t, sm0.start())]
+        depth = 0; insert_at = None
+        for at, delta in sorted(opens + closes):
+            depth += delta
+            if depth == 0:
+                insert_at = at; break
+        if insert_at is None:
+            # Fallback: author-footer/script nach letzter Section
+            after = sm0.start()
+            am = re.search(r'<\w+[^>]*class="[^"]*\bauthor-footer\b', t[after:])
+            sm = re.search(r'<script\b', t[after:])
+            insert_at = after + (am.start() if am else sm.start()) if (am or sm) else len(t)
     else:
         last_sec = secs[-1]
         tail = t[last_sec.start():]
