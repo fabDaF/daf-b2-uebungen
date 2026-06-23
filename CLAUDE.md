@@ -359,6 +359,44 @@ Skill-Bezug: Das Muster ist in `daf-lesetext` §5 (Vorentlastung) verankert.
 Die Skill-Datei selbst wird über den `skill-verwaltung`-Workflow gepflegt,
 nicht aus der laufenden Cowork-Session heraus.
 
+## Schreibwerkstatt-Tab braucht IMMER Innen-Padding (Pflicht seit 2026-06-23)
+
+Der Inhalt jedes Tabs muss vom Container-Rand eingerückt sein (daf-kern §1:
+`.sec-inner`, padding 28px 30px; Banner bleibt randlos). Der Schreibwerkstatt-
+Patcher hängte den Tab aber lange als nackte Section OHNE Innen-Padding an —
+Folge: Name-Box, Aufgaben-Karten und Textareas kleben randlos am Container, das
+Layout wirkt „an den Rand gequetscht". Frank am 2026-06-19 UND erneut am
+2026-06-23 (A2 2014R) mitten im Unterricht passiert — obwohl ein erster
+Reparatur-Lauf „erledigt" gemeldet hatte. Ursache der Wiederkehr: es gab **kein
+Sicherheitsnetz** wie bei Serif/Wortbank/Genus, also fielen übersehene und neu
+erzeugte Dateien immer wieder durch.
+
+Es gibt zwei reale Tab-Architekturen, und nur EINE ist betroffen:
+
+- R/X/V/W/C-Dateien: Tabs sind `<div class="section">`, und `.section` hat KEIN
+  Padding (`.section { display:none }`). Der Inhalt wird über `.sec-inner`
+  eingerückt — fehlt der Wrapper, klebt er. **Das ist der Bug.**
+- G-Dateien: Tabs sind `<section class="section">`, und `.section` trägt das
+  Padding selbst (`.section { display:none; padding:28px 30px }`) — automatisch
+  eingerückt, kein Bug. (Manche B1-Dateien nutzen analog `.tab-content`.)
+
+Ein Schreibwerkstatt-Tab ist korrekt, wenn EINES gilt: Inhalt in `.sec-inner`,
+ODER eine `#<sid> { … padding … }`-Regel (der FB-SCHREIB-PAD-Fix), ODER die
+Container-Klasse setzt selbst horizontales Padding. Sonst ist er kaputt.
+
+- `scripts/schreib_pad_lib.py` — gemeinsame, architektur-agnostische
+  Erkennungslogik (Tab-Klassen aus den `display:none`-Regeln gelesen, nicht
+  geraten). Quelle der Wahrheit für Prüfer UND Reparateur — so driften sie nie.
+- `scripts/inject_schreib_pad.py datei.html …` — idempotenter Reparateur.
+  Fügt id-bewusst den FB-SCHREIB-PAD-CSS-Block ein
+  (`#<sid> { padding:28px 30px }` + randloser Banner via Negativ-Margin).
+  Überspringt Dateien, die bereits eingerückt sind (kein Doppel-Padding).
+- `scripts/check_schreib_pad.py` — Sicherheitsnetz. Scannt das ganze Repo
+  (inkl. B2-Root-Lektionen, die `check_serif.py` übersieht!) und meldet jeden
+  Schreibwerkstatt-Tab ohne Padding mit Exit-Code 1. **Vor jedem Lektions-Commit
+  laufen lassen**, zusammen mit `check_serif.py`, `check_wortbank.py` und
+  `check_genus.py`.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -368,6 +406,8 @@ nicht aus der laufenden Cowork-Session heraus.
 - `scripts/check_serif.py` — Fließtext-Serif-Prüfung (vor Lektions-Commit)
 - `scripts/check_wortbank.py` — Lückentext-Wortbank-Prüfung (vor Lektions-Commit)
 - `scripts/check_genus.py` — Genus-Tab-Mindestanzahl-Prüfung (≥20, vor Lektions-Commit)
+- `scripts/check_schreib_pad.py` — Schreibwerkstatt-Innen-Padding-Prüfung (vor Lektions-Commit)
+- `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
   11-zu-9-Konsolidierung, warum die heutige Struktur so ist
 - `backup/INSTALL.md` — launchd-Backup-Aktivierung
