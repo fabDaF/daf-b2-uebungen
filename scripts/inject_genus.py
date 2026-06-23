@@ -231,7 +231,16 @@ def main():
         t = re.sub(r'(onclick="' + fn + r'\()\d+', renum, t)
     else:
         append_mode = True
-        genus_idx = len(navs)                      # neuer letzter Nav-Index (0-basiert)
+        # Neuer Index = höchste vorhandene onclick-Nummer + 1. Robust für 0- UND
+        # 1-basierte Nav-Nummerierung: bei 0-basiert (showTab(0..n-1)) ergibt das
+        # len(navs); bei 1-basiert (showSection(1..n)) ergibt das n+1. NICHT
+        # len(navs) hart nehmen — das erzeugt bei 1-basierten Dateien eine
+        # Duplikat-ID (z. B. sec-5 existiert schon) und der Tab aktiviert nie.
+        _nums = []
+        for _m in navs:
+            _mm = re.search(r'onclick="' + fn + r'\((\d+)', _m.group(0))
+            if _mm: _nums.append(int(_mm.group(1)))
+        genus_idx = (max(_nums) + 1) if _nums else len(navs)
         sec_id = (id_prefix + str(genus_idx)) if id_based else "sec-genus"
         gnav = make_genus_nav(navs[-1])
         gnav = re.sub(r'(onclick="' + fn + r'\()\d+',
