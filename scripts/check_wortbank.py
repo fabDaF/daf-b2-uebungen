@@ -33,7 +33,7 @@ TAB_RE = re.compile(r'nav-label[^>]*>\s*L(?:ü|&uuml;)ckentext|<h2[^>]*>[^<]*L(?
 
 # Irgendeine Wort-Hilfe vorhanden?
 HELP_RE = re.compile(
-    r'FB-WORTBANK-MODULE'                     # universelle Komponente
+    r'FB-WORTBANK-MODULE|FB-LT-V1'            # universelle Komponente / FB-LT-V1-Engine
     r'|class="[^"]*(?:wortbank|wortkasten|wort-kasten|wordbank|wordbox|wortliste)[^"]*"'
     r'|id="[^"]*(?:wortbank|wortkasten|wordbank|wortliste)[^"]*"'
     r"|\.join\(\s*['\"] · "                    # alter Wortkasten via join
@@ -84,7 +84,7 @@ def gfile_wortbank_from_answers(path, s):
 def initwortbank_defined_but_unused(s):
     """True, wenn initWortbank() definiert, aber nirgends referenziert/aufgerufen wird.
     Das universelle Modul (FB-WORTBANK-MODULE) befüllt eigenständig — dann irrelevant."""
-    if "FB-WORTBANK-MODULE" in s:
+    if "FB-WORTBANK-MODULE" in s or "FB-LT-V1" in s:
         return False
     defs = len(re.findall(r"function\s+initWortbank\b", s))
     if defs == 0:
