@@ -184,11 +184,15 @@ def main():
     if ('onclick="%s(' % fn) not in t:
         print("ABBRUCH (keine Tab-Funktion showSection/showTab):", path); sys.exit(2)
 
-    # Mechanik erkennen:
-    #  ID-basiert  -> getElementById('PREFIX'+n)  (n ist ID-Suffix UND Nav-Index;
-    #                 PREFIX ist 'sec-' ODER 'tab-' o. Ä.)
-    #  Index-basiert-> querySelectorAll('.section')[idx]   (showSection ODER showTab)
-    idm = re.search(r"getElementById\(\s*['\"]([a-z]+-)['\"]\s*\+", t)
+    # Mechanik erkennen — Präfix AUS DEM Tab-Funktionskörper lesen (nicht das erste
+    # getElementById der Datei, das z. B. 'status-' sein kann):
+    #  ID-basiert  -> getElementById('PREFIX'+n)  (PREFIX z. B. 'sec-', 'tab-', 'tab')
+    #  Index-basiert-> querySelectorAll('.section')[idx] / forEach
+    _fn0 = re.search(r'function\s+' + fn + r'\s*\([^)]*\)\s*\{', t)
+    idm = None
+    if _fn0:
+        _body0 = t[_fn0.end():_fn0.end()+600]
+        idm = re.search(r"getElementById\(\s*['\"]([a-zA-Z]+-?)['\"]\s*\+", _body0)
     id_based = bool(idm)
     id_prefix = idm.group(1) if idm else 'sec-'
 
@@ -275,18 +279,22 @@ def main():
     # Manche Generationen löschen/aktivieren Tabs per `for(i=0;i<TABS;i++)` statt
     # forEach. Ohne Erhöhung erreicht die Schleife den neuen Genus-Index nie ->
     # der Tab wird nie aktiviert (Bug A2 showTab 'tab-'-Generation, 2026-06-19).
+    # Zielwert = Anzahl Nav-Buttons NACH dem Einfügen (= neuer höchster Index + 1),
+    # damit die Schleife den neuen Genus-Index erreicht. NICHT bloß +1 auf den alten
+    # Wert (der konnte schon „falsch" sein, z. B. bei vorbestehenden Defekten).
+    navbtn_now = len(re.findall(r'class="nav-btn', t))
     fnm = re.search(r'function\s+' + fn + r'\s*\([^)]*\)\s*\{', t)
-    if fnm:
+    if fnm and navbtn_now > 0:
         body = t[fnm.end():fnm.end()+800]
         lm = re.search(r'for\s*\(\s*var\s+\w+\s*=\s*0\s*;\s*\w+\s*<\s*(\w+)\s*;', body)
         if lm:
             bound = lm.group(1)
             if bound.isdigit():
                 old_for = lm.group(0)
-                t = t.replace(old_for, old_for.replace('< ' + bound, '< ' + str(int(bound)+1)).replace('<' + bound, '<' + str(int(bound)+1)), 1)
+                t = t.replace(old_for, re.sub(r'<\s*' + bound + r'\s*;', '< %d;' % navbtn_now, old_for), 1)
             else:
-                t = re.sub(r'(\bvar\s+' + re.escape(bound) + r'\s*=\s*)(\d+)\b',
-                           lambda m: m.group(1) + str(int(m.group(2))+1), t, count=1)
+                t = re.sub(r'(\bvar\s+' + re.escape(bound) + r'\s*=\s*)\d+',
+                           lambda m: m.group(1) + str(navbtn_now), t, count=1)
 
     # --- CSS vor letztem </style> ---
     pos = t.rfind('</style>')
