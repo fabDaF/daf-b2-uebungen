@@ -196,8 +196,8 @@ def main():
     id_based = bool(idm)
     id_prefix = idm.group(1) if idm else 'sec-'
 
-    # --- Nav: element-agnostisch (div/span/button/a) mit onclick="FN(N)" ---
-    nav_re = re.compile(r'<(\w+)([^>]*onclick="' + fn + r'\(\d+\)"[^>]*)>(.*?)</\1>', re.S)
+    # --- Nav: element-agnostisch; onclick="FN(N)" ODER "FN(N, this)" (2. Argument erlaubt) ---
+    nav_re = re.compile(r'<(\w+)([^>]*onclick="' + fn + r'\(\d+[^"]*"[^>]*)>(.*?)</\1>', re.S)
     navs = list(nav_re.finditer(t))
     if not navs:
         print("ABBRUCH (keine Tab-Nav):", path); sys.exit(2)
@@ -227,15 +227,15 @@ def main():
         t = t[:wnav.start()] + gnav + "\n        " + t[wnav.start():]
         cnt = {'n': 0}
         def renum(m):
-            r = 'onclick="%s(%d)"' % (fn, cnt['n']); cnt['n'] += 1; return r
-        t = re.sub(r'onclick="' + fn + r'\(\d+\)"', renum, t)
+            r = m.group(1) + str(cnt['n']); cnt['n'] += 1; return r
+        t = re.sub(r'(onclick="' + fn + r'\()\d+', renum, t)
     else:
         append_mode = True
         genus_idx = len(navs)                      # neuer letzter Nav-Index (0-basiert)
         sec_id = (id_prefix + str(genus_idx)) if id_based else "sec-genus"
         gnav = make_genus_nav(navs[-1])
-        gnav = re.sub(r'onclick="' + fn + r'\(\d+\)"',
-                      'onclick="%s(%d)"' % (fn, genus_idx), gnav)
+        gnav = re.sub(r'(onclick="' + fn + r'\()\d+',
+                      lambda m: m.group(1) + str(genus_idx), gnav, count=1)
         t = t[:navs[-1].end()] + "\n        " + gnav + t[navs[-1].end():]
 
     # --- Sections (div ODER section-Element, Klasse hat Token "section") ---
