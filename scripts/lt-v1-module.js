@@ -16,9 +16,9 @@
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 
   function sections() {
-    var out = [], nodes = document.querySelectorAll(".section, .tab, .tab-content");
+    var out = [], nodes = document.querySelectorAll(".section, .tab, .tab-content, .sec, .tab-pane");
     Array.prototype.forEach.call(nodes, function (n) {
-      if (n.querySelector(".section, .tab, .tab-content")) return;
+      if (n.querySelector(".section, .tab, .tab-content, .sec, .tab-pane")) return;
       var gaps = Array.prototype.filter.call(n.querySelectorAll("input"), isGap);
       if (gaps.length >= 2) out.push(n);
     });
