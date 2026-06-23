@@ -185,9 +185,12 @@ def main():
         print("ABBRUCH (keine Tab-Funktion showSection/showTab):", path); sys.exit(2)
 
     # Mechanik erkennen:
-    #  ID-basiert  -> getElementById('sec-'+n)  (n ist ID-Suffix UND Nav-Index)
+    #  ID-basiert  -> getElementById('PREFIX'+n)  (n ist ID-Suffix UND Nav-Index;
+    #                 PREFIX ist 'sec-' ODER 'tab-' o. Ä.)
     #  Index-basiert-> querySelectorAll('.section')[idx]   (showSection ODER showTab)
-    id_based = bool(re.search(r"getElementById\(\s*['\"]sec-['\"]\s*\+", t))
+    idm = re.search(r"getElementById\(\s*['\"]([a-z]+-)['\"]\s*\+", t)
+    id_based = bool(idm)
+    id_prefix = idm.group(1) if idm else 'sec-'
 
     # --- Nav: element-agnostisch (div/span/button/a) mit onclick="FN(N)" ---
     nav_re = re.compile(r'<(\w+)([^>]*onclick="' + fn + r'\(\d+\)"[^>]*)>(.*?)</\1>', re.S)
@@ -225,7 +228,7 @@ def main():
     else:
         append_mode = True
         genus_idx = len(navs)                      # neuer letzter Nav-Index (0-basiert)
-        sec_id = ("sec-%d" % genus_idx) if id_based else "sec-genus"
+        sec_id = (id_prefix + str(genus_idx)) if id_based else "sec-genus"
         gnav = make_genus_nav(navs[-1])
         gnav = re.sub(r'onclick="' + fn + r'\(\d+\)"',
                       'onclick="%s(%d)"' % (fn, genus_idx), gnav)
@@ -267,6 +270,23 @@ def main():
 
     sec = section_html(words, has_help, has_ctrl, timer_idx, sec_id)
     t = t[:insert_at] + sec + t[insert_at:]
+
+    # --- Tab-Zähler erhöhen, falls die Tab-Funktion eine Clear-Schleife nutzt ---
+    # Manche Generationen löschen/aktivieren Tabs per `for(i=0;i<TABS;i++)` statt
+    # forEach. Ohne Erhöhung erreicht die Schleife den neuen Genus-Index nie ->
+    # der Tab wird nie aktiviert (Bug A2 showTab 'tab-'-Generation, 2026-06-19).
+    fnm = re.search(r'function\s+' + fn + r'\s*\([^)]*\)\s*\{', t)
+    if fnm:
+        body = t[fnm.end():fnm.end()+800]
+        lm = re.search(r'for\s*\(\s*var\s+\w+\s*=\s*0\s*;\s*\w+\s*<\s*(\w+)\s*;', body)
+        if lm:
+            bound = lm.group(1)
+            if bound.isdigit():
+                old_for = lm.group(0)
+                t = t.replace(old_for, old_for.replace('< ' + bound, '< ' + str(int(bound)+1)).replace('<' + bound, '<' + str(int(bound)+1)), 1)
+            else:
+                t = re.sub(r'(\bvar\s+' + re.escape(bound) + r'\s*=\s*)(\d+)\b',
+                           lambda m: m.group(1) + str(int(m.group(2))+1), t, count=1)
 
     # --- CSS vor letztem </style> ---
     pos = t.rfind('</style>')
