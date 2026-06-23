@@ -15,9 +15,17 @@ input.wrong{border-bottom:2px solid #e74c3c !important;background:#fdeaea !impor
 """
 SCRIPT = "\n<script>\n" + MODULE_JS + "\n</script>\n"
 
+import re
 def inject(path):
     s = open(path, encoding="utf-8", errors="replace").read()
+    # Fremd-Engine (andere Session) entfernen — genau eine Engine pro Datei
+    s2 = re.sub(r'<script id="fb-lt-engine">.*?</script>\s*', '', s, flags=re.S)
+    stripped = s2 != s
+    s = s2
     if "FB-LT-V1" in s:
+        if stripped:
+            open(path, "w", encoding="utf-8").write(s)
+            return "fremd-engine-entfernt (FB-LT-V1 war schon da)"
         return "skip-exists"
     i = s.find("</style>")
     if i != -1:
