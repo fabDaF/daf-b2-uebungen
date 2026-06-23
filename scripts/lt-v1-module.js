@@ -15,10 +15,18 @@
   function isGap(i) { return i.tagName === "INPUT" && GAP.test(i.className || "") && ansOf(i) !== ""; }
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 
+  function isTrainer(n) {
+    // Wortschatz-/Genus-Trainingstab: NIE eine Lückentext-Wortbank einbauen — sonst
+    // stünden die Vokabel-/Genus-Lösungen als Chips da (zerstört die Tippübung).
+    if (n.querySelector("input.art, input.wort")) return true;
+    var h = n.querySelector(".section-title, h2, h3, .tab-title");
+    return !!(h && /wortschatz|genus/i.test(h.textContent || ""));
+  }
   function sections() {
     var out = [], nodes = document.querySelectorAll(".section, .tab, .tab-content, .sec, .tab-pane");
     Array.prototype.forEach.call(nodes, function (n) {
       if (n.querySelector(".section, .tab, .tab-content, .sec, .tab-pane")) return;
+      if (isTrainer(n)) return;
       var gaps = Array.prototype.filter.call(n.querySelectorAll("input"), isGap);
       if (gaps.length >= 2) out.push(n);
     });

@@ -18,15 +18,14 @@ SCRIPT = "\n<script>\n" + MODULE_JS + "\n</script>\n"
 import re
 def inject(path):
     s = open(path, encoding="utf-8", errors="replace").read()
+    orig = s
     # Fremd-Engine (andere Session) entfernen — genau eine Engine pro Datei
-    s2 = re.sub(r'<script id="fb-lt-engine">.*?</script>\s*', '', s, flags=re.S)
-    stripped = s2 != s
-    s = s2
-    if "FB-LT-V1" in s:
-        if stripped:
-            open(path, "w", encoding="utf-8").write(s)
-            return "fremd-engine-entfernt (FB-LT-V1 war schon da)"
-        return "skip-exists"
+    s = re.sub(r'<script id="fb-lt-engine">.*?</script>\s*', '', s, flags=re.S)
+    # Eigene alte FB-LT-V1-Bloecke entfernen, damit Re-Inject das Modul aktualisiert
+    # (idempotent + immer neuestes Modul; CSS-Block endet bei input.wrong{...}).
+    had = "FB-LT-V1" in s
+    s = re.sub(r'\n?\s*/\* FB-LT-V1 — Wortbank.*?input\.wrong\{[^}]*\}\n?', '', s, flags=re.S)
+    s = re.sub(r'\n?<script>\s*/\* FB-LT-V1 — kanonischer.*?</script>\n?', '', s, flags=re.S)
     i = s.find("</style>")
     if i != -1:
         s = s[:i] + CSS + s[i:]
@@ -39,7 +38,7 @@ def inject(path):
         p = s.rfind("</html>")
     s = (s[:p] + SCRIPT + s[p:]) if p != -1 else s + SCRIPT
     open(path, "w", encoding="utf-8").write(s)
-    return "injected"
+    return "updated" if had else "injected"
 
 if __name__ == "__main__":
     for p in sys.argv[1:]:
