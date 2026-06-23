@@ -35,7 +35,7 @@ for (const p of process.argv.slice(2)) {
       if (containerCls && gsec.parentElement && gsec.parentElement.closest('.' + containerCls))
         bad.push('VERSCHACHTELT');
       if (pool.children.length < 20) bad.push('Pool=' + pool.children.length);
-      const gnav = [...d.querySelectorAll('.nav-btn, .nav button, .nav a, .nav div[onclick]')]
+      const gnav = [...d.querySelectorAll('.nav-btn, .tab-btn, .nav button, .nav a, .nav div[onclick]')]
         .find(b => /Genus/.test(b.textContent || ''));
       if (!gnav) bad.push('kein Genus-Nav');
       else {

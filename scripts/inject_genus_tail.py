@@ -26,7 +26,7 @@ def find_tab_fn(t):
     im Körper die TABS umschaltet. Zur Abgrenzung von z. B. selectMC (toggelt
     auch classList) muss der Körper auch die NAV-Leiste anfassen
     (nav-btn / .nav / querySelectorAll('.nav...'))."""
-    calls = re.findall(r'onclick="([A-Za-z_]\w*)\(\s*\d+', t)
+    calls = re.findall(r'onclick="([A-Za-z_]\w*)\(\s*[\'"\d]', t)
     for name, _ in Counter(calls).most_common():
         m = re.search(r'function\s+' + re.escape(name) + r'\s*\([^)]*\)\s*\{', t)
         if not m:
@@ -36,7 +36,7 @@ def find_tab_fn(t):
             continue
         if not ('querySelectorAll' in body or 'getElementById' in body):
             continue
-        if not re.search(r"nav-btn|\.nav\b|querySelectorAll\(\s*['\"]\.nav", body):
+        if not re.search(r"nav-btn|tab-btn|\.nav\b|querySelectorAll\(\s*['\"]\.nav", body):
             continue
         return name, body
     return None, None
@@ -46,7 +46,7 @@ def detect_container(body):
     """Container-Klasse = erste querySelectorAll('.X')-Klasse, die NICHT die
     Nav-Leiste ist (nav/nav-btn). Fallback 'section'."""
     for cls in re.findall(r"querySelectorAll\(\s*['\"]\.([A-Za-z][\w-]*)", body):
-        if cls in ('nav', 'nav-btn') or cls.startswith('nav'):
+        if cls in ('nav', 'nav-btn', 'tab-btn') or cls.startswith('nav'):
             continue
         return cls
     return 'section'
@@ -80,31 +80,43 @@ def main():
     id_prefix = idm.group(1) if idm else 'sec-'
     container = detect_container(body)
 
-    # Nav-Buttons (element-agnostisch) über ihr onclick="fn(N ...)"
-    nav_re = re.compile(r'<(\w+)([^>]*onclick="' + re.escape(fn) + r'\(\d+[^"]*"[^>]*)>(.*?)</\1>', re.S)
+    # Manche Generationen rufen die Tab-Funktion mit einer STRING-id auf
+    # (onclick="show('genus', this)" + getElementById('tab-'+id)) statt mit einem
+    # Integer-Index. Beide Spielarten unterstützen.
+    str_mode = bool(re.search(r'onclick="' + re.escape(fn) + r"\(\s*'", t))
+
+    if str_mode:
+        nav_re = re.compile(r'<(\w+)([^>]*onclick="' + re.escape(fn) + r"\('[^']*'[^\"]*\"[^>]*)>(.*?)</\1>", re.S)
+    else:
+        nav_re = re.compile(r'<(\w+)([^>]*onclick="' + re.escape(fn) + r'\(\d+[^"]*"[^>]*)>(.*?)</\1>', re.S)
     navs = list(nav_re.finditer(t))
     if not navs:
         print("ABBRUCH (keine Tab-Nav):", path); sys.exit(2)
 
-    nums = []
-    for m in navs:
-        mm = re.search(r'onclick="' + re.escape(fn) + r'\((\d+)', m.group(0))
-        if mm:
-            nums.append(int(mm.group(1)))
-    # Index-basierte Dispatch (querySelectorAll('.container')[idx]) indexiert in die
-    # DOM-Reihenfolge der Container — NICHT in die Nav-Nummern. Bei vorbestehenden
-    # Defekten (Orphan-Tab ohne Nav, doppelte showTab-Nummer) divergieren beide.
-    # Der angehängte Genus-Container landet an DOM-Index = Anzahl bisheriger Container.
     container_re = (r'<(?:div|section)\b[^>]*\bclass="(?:[^"]*\s)?'
                     + re.escape(container) + r'(?:\s[^"]*)?"[^>]*>')
     n_containers = len(re.findall(container_re, t))
-    if id_based:
-        genus_idx = (max(nums) + 1) if nums else len(navs)
-    else:
-        genus_idx = n_containers
-    sec_id = (id_prefix + str(genus_idx)) if id_based else "sec-genus"
 
-    # Genus-Nav aus letztem Nav-Button klonen (Emoji+Label tauschen, Nummer setzen)
+    if str_mode:
+        # String-id: feste id 'genus'
+        sec_id = (id_prefix + 'genus') if id_based else 'sec-genus'
+    else:
+        nums = []
+        for m in navs:
+            mm = re.search(r'onclick="' + re.escape(fn) + r'\((\d+)', m.group(0))
+            if mm:
+                nums.append(int(mm.group(1)))
+        # Index-basierte Dispatch (querySelectorAll('.container')[idx]) indexiert in die
+        # DOM-Reihenfolge der Container — NICHT in die Nav-Nummern. Bei vorbestehenden
+        # Defekten (Orphan-Tab ohne Nav, doppelte showTab-Nummer) divergieren beide.
+        # Der angehängte Genus-Container landet an DOM-Index = Anzahl bisheriger Container.
+        if id_based:
+            genus_idx = (max(nums) + 1) if nums else len(navs)
+        else:
+            genus_idx = n_containers
+        sec_id = (id_prefix + str(genus_idx)) if id_based else "sec-genus"
+
+    # Genus-Nav aus letztem Nav-Button klonen (Emoji+Label tauschen, Nummer/id setzen)
     def make_genus_nav(src):
         g = src.group(0)
         g = re.sub(r'&#1\d{4,5};|[\U0001F300-\U0001FAFF]', '🏷️', g, count=1)
@@ -113,7 +125,10 @@ def main():
         else:
             g2 = re.sub(r'(🏷️\s*)[^<]*', r'\1Genus', g, count=1)
             g = g2 if g2 != g else re.sub(r'(>)[^<]*(</)', r'\1🏷️ Genus\2', g, count=1)
-        g = re.sub(r'(onclick="' + re.escape(fn) + r'\()\d+', lambda m: m.group(1) + str(genus_idx), g, count=1)
+        if str_mode:
+            g = re.sub(r'(onclick="' + re.escape(fn) + r"\()'[^']*'", lambda m: m.group(1) + "'genus'", g, count=1)
+        else:
+            g = re.sub(r'(onclick="' + re.escape(fn) + r'\()\d+', lambda m: m.group(1) + str(genus_idx), g, count=1)
         return g
 
     gnav = make_genus_nav(navs[-1])
@@ -171,8 +186,9 @@ def main():
     t = t[:jpos] + IG.js_block(words, timer_idx, sec_id) + t[jpos:]
 
     open(path, 'w', encoding='utf-8').write(t)
-    print("OK injiziert (fn=%s, container=.%s, %s, idx=%d, sec_id=%s):" %
-          (fn, container, "id" if id_based else "index", genus_idx, sec_id), path)
+    disp = "'genus'" if str_mode else str(genus_idx)
+    print("OK injiziert (fn=%s, container=.%s, %s, idx=%s, sec_id=%s):" %
+          (fn, container, "id" if id_based else "index", disp, sec_id), path)
 
 
 if __name__ == "__main__":
