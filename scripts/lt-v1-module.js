@@ -18,7 +18,7 @@
   function isTrainer(n) {
     // Wortschatz-/Genus-Trainingstab: NIE eine Lückentext-Wortbank einbauen — sonst
     // stünden die Vokabel-/Genus-Lösungen als Chips da (zerstört die Tippübung).
-    if (n.querySelector("input.art, input.wort")) return true;
+    if (n.querySelector("input.art, input.wort, input[data-field], #wortschatzContainer")) return true;
     var h = n.querySelector(".section-title, h2, h3, .tab-title");
     return !!(h && /wortschatz|genus/i.test(h.textContent || ""));
   }
