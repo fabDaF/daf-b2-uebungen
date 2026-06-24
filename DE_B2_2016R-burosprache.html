@@ -1523,9 +1523,18 @@ function resetGenus(){ initGenus(); genusTimerReset(); }
   function isTrainer(n) {
     // Wortschatz-/Genus-Trainingstab: NIE eine Lückentext-Wortbank einbauen — sonst
     // stünden die Vokabel-/Genus-Lösungen als Chips da (zerstört die Tippübung).
-    if (n.querySelector("input.art, input.wort")) return true;
+    if (n.querySelector("input.art, input.wort, input[data-field], #wortschatzContainer")) return true;
     var h = n.querySelector(".section-title, h2, h3, .tab-title");
-    return !!(h && /wortschatz|genus/i.test(h.textContent || ""));
+    if (h && /wortschatz|genus/i.test(h.textContent || "")) return true;
+    // Nav-Button-Label des zugehörigen Tabs prüfen. WICHTIG: auf die Top-Level-
+    // .section abbilden (Gaps liegen oft in verschachtelten .tab-content-Leafs),
+    // und im NARROW .section-Index zählen — der allein deckt sich mit der Nav-Reihe.
+    var top = (n.closest && n.closest(".section")) || n;
+    var secs = Array.prototype.slice.call(document.querySelectorAll(".section"));
+    var navs = document.querySelectorAll(".nav-btn");
+    var idx = secs.indexOf(top);
+    if (idx >= 0 && navs[idx] && /wortschatz|genus/i.test(navs[idx].textContent || "")) return true;
+    return false;
   }
   function sections() {
     var out = [], nodes = document.querySelectorAll(".section, .tab, .tab-content, .sec, .tab-pane");
