@@ -201,6 +201,14 @@ input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
 .fw-folgt { color:#777; font-size:0.85rem; }
 .fw-bsp em { font-style:normal; font-weight:700; color:#667eea; }
 .fw-bsp b { font-weight:700; color:#c62828; }
+.fw-bank-label { font-weight:700; color:#667eea; font-size:0.85em; margin:6px 0 8px; }
+.fw-bank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; border:1px dashed #bbb; margin-bottom:16px; }
+.fw-bank-chip { background:#fff; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.fw-bank-chip.used { opacity:0.35; text-decoration:line-through; }
+input.fw-inp { border:2px solid #c5cae9; border-radius:6px; padding:3px 8px; font-size:0.95rem; font-family:inherit; outline:none; transition:border-color .2s,background .2s; background:#fff; margin:0 2px; text-align:center; }
+input.fw-inp:focus { border-color:#667eea; }
+input.fw-inp.correct { border-color:#27ae60; background:#e8f5e9; color:#1b5e20; font-weight:700; }
+input.fw-inp.wrong { border-color:#e74c3c; background:#ffebee; }
 @media (max-width:600px){ .fw-table{ font-size:0.82rem; } .fw-table th,.fw-table td{ padding:6px 6px; } .fw-wend,.fw-kasus{ white-space:normal; } }
 </style>
 </head>
@@ -502,6 +510,20 @@ input.blank.wrong { border-color: #e74c3c; background: #ffebee; }
             <tr><td class="fw-wend">es wagen</td><td class="fw-kasus akk">Akk.</td><td class="fw-folgt">(+ zu-Inf.)</td><td class="fw-bsp">„Ich wage <em>es</em> nicht.“</td></tr>
             <tr><td class="fw-wend">es schaffen</td><td class="fw-kasus akk">Akk.</td><td class="fw-folgt">—</td><td class="fw-bsp">„Du schaffst <em>es</em>!“</td></tr>
             </tbody></table>
+
+            <div class="fw-h3">3 · Training — die richtige Wendung</div>
+            <div class="fw-sub">Das fehlende Verb (oder die fehlende Präposition) der festen Wendung ergänzen. Alle Bausteine stehen in der Wortbank; Großschreibung ist hier egal.</div>
+            <div class="control-bar">
+                <div class="btn-row">
+                    <button class="btn" onclick="fwShowLoesung()">Lösungen</button>
+                    <button class="btn" onclick="fwReset()">Neu starten</button>
+                </div>
+                <div class="timer-display"><span id="fwScore">0 / 0</span></div>
+            </div>
+            <!-- WORTBANK-VOLLFORM-OK: Wort-Auswahl der Verben/Präpositionen fester Wendungen -->
+            <div class="fw-bank-label">🔤 Bausteine:</div>
+            <div class="fw-bank" id="fwBank"></div>
+            <div id="fwUebungContainer"></div>
         </div>
     </div>
 
@@ -1755,28 +1777,28 @@ var SCHREIB_MIN_CHARS = 14;
 var SCHREIB_AUFGABEN = [
     {
         nr: 1,
-        titel: 'Wetter und Stimmung',
-        frage: 'Beschreibe einen Tag, an dem das Wetter deine Stimmung bestimmt hat. Verwende mindestens vier unpersönliche <em>es</em>-Ausdrücke, etwa <em>es regnet, es ist kalt, es wird dunkel, es zieht</em>. (50–70 Wörter)'
+        titel: 'Worum es geht',
+        frage: 'Stell ein Buch, einen Film oder eine Serie kurz vor. Verwende dabei die Wendungen <em>es geht um</em>, <em>es handelt sich um</em> und <em>es gibt</em>. (50–70 Wörter)'
     },
     {
         nr: 2,
-        titel: 'Worum es geht',
-        frage: 'Stell ein Buch, einen Film oder eine Serie kurz vor. Benutze dabei die festen Wendungen <em>es geht um</em>, <em>es handelt sich um</em> und <em>es gibt</em>. (50–70 Wörter)'
+        titel: 'Worauf es ankommt',
+        frage: 'Beschreibe, worauf es bei einer guten Freundschaft oder im Beruf wirklich ankommt. Verwende <em>es kommt auf … an</em>, <em>es liegt an</em> und <em>es hängt von … ab</em>. (50–70 Wörter)'
     },
     {
         nr: 3,
-        titel: 'Meinung mit Korrelat-es',
-        frage: 'Schreib deine Meinung zum Thema Home-Office. Beginne drei Sätze mit dem Korrelat <em>es</em>: <em>Es ist wichtig, dass …</em>, <em>Es stört mich, dass …</em>, <em>Es freut mich, dass …</em>. (50–70 Wörter)'
+        titel: 'Was fehlt',
+        frage: 'Beschreibe ein Problem in deiner Stadt oder deiner Firma. Verwende <em>es fehlt an</em>, <em>es mangelt an</em> und <em>es gibt</em> (zu wenige oder keine …). (50–70 Wörter)'
     },
     {
         nr: 4,
-        titel: 'es oder das? — bewusst gewählt',
-        frage: 'Schildere ein Erlebnis, das dich beeindruckt hat. Verwende einmal <em>das</em> als Rückverweis auf den ganzen Sachverhalt und einmal <em>es</em> als unpersönliches Subjekt. (50–70 Wörter)'
+        titel: 'Stress und Erholung',
+        frage: 'Schreib über einen stressigen und einen entspannten Tag. Verwende <em>es eilig haben</em>, <em>es satt haben</em> und <em>es sich gemütlich machen</em>. (50–70 Wörter)'
     },
     {
         nr: 5,
-        titel: 'Mini-Dialog: Wochenende',
-        frage: 'Schreib einen kurzen Dialog (zwei Fragen, zwei Antworten) über das Wetter und Pläne fürs Wochenende. In jeder Zeile soll ein <em>es</em> vorkommen. (50–70 Wörter)'
+        titel: 'Mini-Dialog: ein gemeinsamer Plan',
+        frage: 'Schreib einen kurzen Dialog (zwei Fragen, zwei Antworten) über ein gemeinsames Vorhaben. Verwende in den Antworten <em>es kommt darauf an</em>, <em>es lohnt sich</em> und <em>es geht um</em>. (50–70 Wörter)'
     }
 ];
 
@@ -2007,5 +2029,67 @@ function schreibSendenAlle() {
 }
 </script>
 
+<script>
+'use strict';
+var FW_UEBUNG=[
+ {satz:'In dem Roman ___ es ___ eine große Liebe.', loesung:['geht','um']},
+ {satz:'Im Kühlschrank ___ es nur noch Reste.', loesung:['gibt']},
+ {satz:'Leider ___ es ___ Personal und Zeit.', loesung:['fehlt','an']},
+ {satz:'Warum klappt das nicht? — Es ___ ___ der alten Technik.', loesung:['liegt','an']},
+ {satz:'Es ___ sich ___ ein simples Missverständnis.', loesung:['handelt','um']},
+ {satz:'Bei dieser Prüfung ___ es ___ jedes Detail ___.', loesung:['kommt','auf','an']},
+ {satz:'Wie ___ es Ihnen heute?', loesung:['geht']},
+ {satz:'Diese Entscheidung ___ großer Sorgfalt.', loesung:['bedarf']},
+ {satz:'Ich ___ es eilig, der Zug fährt gleich.', loesung:['habe']},
+ {satz:'Sie ___ es wirklich gut mit dir.', loesung:['meint']},
+ {satz:'Am Sonntag ___ wir es uns gemütlich.', loesung:['machen']},
+ {satz:'Nach Jahren harter Arbeit ___ er es weit ___.', loesung:['hat','gebracht']}
+];
+function fwBuild(){
+  var c=document.getElementById('fwUebungContainer'); if(!c) return; c.innerHTML='';
+  FW_UEBUNG.forEach(function(item){
+    var row=document.createElement('div'); row.className='luecke-row';
+    var li=0;
+    row.innerHTML=item.satz.replace(/___/g,function(){
+      var ans=item.loesung[li++]; var w=Math.max(ans.length,3)*11+16;
+      return '<input class="fw-inp" data-answer="'+ans+'" oninput="fwCheck(this)" style="width:'+w+'px" placeholder="" autocomplete="off" autocorrect="off" spellcheck="false">';
+    });
+    c.appendChild(row);
+  });
+  fwBank(); fwScore();
+}
+function fwBank(){
+  var b=document.getElementById('fwBank'); if(!b) return; b.innerHTML='';
+  var words=[]; FW_UEBUNG.forEach(function(it){ it.loesung.forEach(function(w){ words.push(w); }); });
+  for(var i=words.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=words[i]; words[i]=words[j]; words[j]=t; }
+  words.forEach(function(w){ var sp=document.createElement('span'); sp.className='fw-bank-chip'; sp.textContent=w; b.appendChild(sp); });
+}
+function fwUpd(){
+  var b=document.getElementById('fwBank'); if(!b) return;
+  var solved=Array.prototype.map.call(document.querySelectorAll('#fwUebungContainer input.fw-inp.correct'),function(i){return i.value.trim().toLowerCase();});
+  var rem=solved.slice();
+  Array.prototype.forEach.call(b.querySelectorAll('.fw-bank-chip'),function(ch){ var k=rem.indexOf(ch.textContent.toLowerCase()); if(k>=0){ch.classList.add('used');rem.splice(k,1);}else ch.classList.remove('used'); });
+}
+function fwCheck(inp){
+  var val=inp.value.trim().toLowerCase(); var ans=(inp.getAttribute('data-answer')||'').toLowerCase();
+  inp.classList.remove('correct','wrong');
+  if(val){ if(val===ans) inp.classList.add('correct'); else if(ans.indexOf(val)!==0) inp.classList.add('wrong'); }
+  fwUpd(); fwScore();
+}
+function fwScore(){
+  var all=document.querySelectorAll('#fwUebungContainer input.fw-inp').length;
+  var ok=document.querySelectorAll('#fwUebungContainer input.fw-inp.correct').length;
+  var el=document.getElementById('fwScore'); if(el) el.textContent=ok+' / '+all;
+}
+function fwShowLoesung(){
+  Array.prototype.forEach.call(document.querySelectorAll('#fwUebungContainer input.fw-inp'),function(inp){ inp.value=inp.getAttribute('data-answer'); inp.classList.remove('wrong'); inp.classList.add('correct'); });
+  fwUpd(); fwScore();
+}
+function fwReset(){
+  Array.prototype.forEach.call(document.querySelectorAll('#fwUebungContainer input.fw-inp'),function(inp){ inp.value=''; inp.classList.remove('correct','wrong'); });
+  fwBank(); fwScore();
+}
+fwBuild();
+</script>
 </body>
 </html>
