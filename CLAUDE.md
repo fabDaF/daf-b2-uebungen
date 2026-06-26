@@ -397,6 +397,49 @@ Container-Klasse setzt selbst horizontales Padding. Sonst ist er kaputt.
   laufen lassen**, zusammen mit `check_serif.py`, `check_wortbank.py` und
   `check_genus.py`.
 
+## Banner dürfen KEIN abgeschnittenes Gesicht zeigen (Pflicht seit 2026-06-26)
+
+Tab-Banner werden per `object-fit: cover` auf eine feste, niedrige Höhe
+(`max-height: 180px`, mobil `120px`) beschnitten, `object-position` ist
+„center". Ein Porträtfoto, dessen Gesicht oben sitzt, verliert dadurch Stirn
+und **Augen** — ein „kopfloses", demotivierendes Banner. Genau das ist Frank am
+2026-06-26 mitten im Unterricht passiert (B2 1011X, Lückentext-Tab). Ein
+zweites Banner derselben Datei (Vorentlastung) war noch schlimmer: dort fehlten
+die Augen schon **im Quellbild** — kein Crop-Trick kann sie zurückholen.
+
+Deshalb gilt ausnahmslos: **Zeigt ein Banner einen Menschen, MUSS das ganze
+Gesicht (mit Augen) im sichtbaren Crop-Band liegen.** Banner, die nur durch
+glückliches Zuschneiden funktionieren, sind verboten. Im Zweifel — und immer
+dann, wenn die Augen nicht auf einfachste Weise sichtbar zu machen sind — wird
+das Foto durch ein **selbstgebautes, gesichtsfreies SVG-Banner** ersetzt (so
+geschehen in 1011X: zwei flache Reise-Grafiken, viewBox `1200×200`, also breiter
+als die Crop-Box → der Crop trimmt nur die Seiten, vertikal bleibt alles
+sichtbar). Ein Banner ohne Gesicht kann baulich nicht geköpft werden.
+
+Das 100-%-Vorgehen hat drei Ebenen, weil **kein** klassischer CV-Detektor allein
+100 % schafft (ein im Quellbild bereits kopflos beschnittenes, zusätzlich
+getöntes Porträt liefert der Gesichtserkennung null Gesichter):
+
+1. **Guardrail `scripts/check_banner_faces.py`** — dekodiert jedes Banner,
+   erkennt frontale/seitliche Gesichter, simuliert den `cover`-Crop und
+   **blockt (Exit 1)** jedes Banner mit angeschnittenem Gesicht. Verdacht auf
+   ein bereits kopflos beschnittenes Porträt wird als ⚠ zur Sicht-Prüfung
+   gemeldet (`--strict` blockt auch das). SVG-Banner werden übersprungen
+   (selbstgebaut, gesichtsfrei). **Vor jedem Lektions-Commit laufen lassen**,
+   zusammen mit `check_serif.py`, `check_wortbank.py`, `check_genus.py` und
+   `check_schreib_pad.py`. Braucht `opencv-python-headless`; fehlt sie,
+   überspringt das Skript mit Warnung (Exit 0), blockiert also nie den Workflow.
+2. **Regel** (dieser Abschnitt) — schließt die Lücke, die der Detektor nicht
+   automatisch fassen kann: voll im Bild komponieren oder ersetzen.
+3. **Struktur-Default** — bei neuen Lektionen im Zweifel gleich ein
+   selbstgebautes SVG-Banner oder ein menschenfreies Motiv wählen.
+
+Inventar-Stand 2026-06-26: ein Erst-Scan meldet rund **190 Dateien über alle
+Niveaus** mit mindestens einem verdächtig beschnittenen Gesichts-Banner
+(B2-Root 47, C1 42, B1 42, A1 34, C2 22, A2 5; heuristisch, mit Fehlalarmen).
+Die Bereinigung ist eine eigene Kampagne wie der Genus-/Serif-Rollout — Datei
+für Datei mit `check_banner_faces.py` als Wahrheit.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -407,6 +450,7 @@ Container-Klasse setzt selbst horizontales Padding. Sonst ist er kaputt.
 - `scripts/check_wortbank.py` — Lückentext-Wortbank-Prüfung (vor Lektions-Commit)
 - `scripts/check_genus.py` — Genus-Tab-Mindestanzahl-Prüfung (≥20, vor Lektions-Commit)
 - `scripts/check_schreib_pad.py` — Schreibwerkstatt-Innen-Padding-Prüfung (vor Lektions-Commit)
+- `scripts/check_banner_faces.py` — Banner-Gesichts-Prüfung: blockt angeschnittene Gesichter (vor Lektions-Commit)
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
   11-zu-9-Konsolidierung, warum die heutige Struktur so ist
