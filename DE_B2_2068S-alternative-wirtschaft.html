@@ -80,6 +80,28 @@
 .genus-drop { min-height:90px; background:#fff; border:2px dashed #ccc; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px; }
 .genus-drop.dragover { border-color:#667eea; background:#eef1ff; }
 @media (max-width:600px){ .genus-kategorien { grid-template-columns:repeat(2,1fr); } }
+
+/* FB-JUMPTOP - Nach-oben-Button (Glas-Look) */
+.fb-jumptop {
+  position: fixed; bottom: 30px;
+  right: max(18px, calc(50vw - 500px + 14px));
+  background: rgba(118, 75, 162, 0.26);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  color: #34206b; border: 1.5px solid rgba(255,255,255,0.75); border-radius: 28px;
+  padding: 15px 26px; font-size: 1.05em; font-weight: 800;
+  letter-spacing: 0.2px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(102,126,234,0.40), inset 0 1px 0 rgba(255,255,255,0.6);
+  text-shadow: 0 1px 1px rgba(255,255,255,0.55);
+  opacity: 0; visibility: hidden; transform: translateY(10px);
+  transition: opacity .25s, visibility .25s, transform .25s, background .2s, box-shadow .2s;
+  z-index: 9999; display: inline-flex; align-items: center; gap: 8px;
+}
+.fb-jumptop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.fb-jumptop:hover { background: rgba(118, 75, 162, 0.40); color: #241048; box-shadow: 0 10px 32px rgba(102,126,234,0.50), inset 0 1px 0 rgba(255,255,255,0.65); }
+@media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
 </style></head><body><div class="container"><header><h1>Über alternative Wirtschaft sprechen</h1><p>B2.2 – Lektion 2068S · Sprechen</p></header><div class="nav"><div class="nav-btn active" onclick="showTab('sprechanlaesse',this)">💬 Sprechanlässe</div><div class="nav-btn" onclick="showTab('redemittel',this)">📝 Redemittel</div><div class="nav-btn" onclick="showTab('wuerfelspiel',this)">🎲 Würfelspiel</div>
         <div class="nav-btn" onclick="showTab('genus',this)">🏷️ Genus</div></div><div id="tab-sprechanlaesse" class="tab active"><img src="https://images.pexels.com/photos/210600/pexels-photo-210600.jpeg?auto=compress&w=900" class="tab-banner"><h2>Sprechanlässe: Alternative Wirtschaft</h2><div class="sprech-item"><strong>1. Sharing Economy:</strong> „Die Sharing Economy ist fairer als die Marktwirtschaft.“ Stimmen Sie zu? Warum oder warum nicht?</div><div class="sprech-item"><strong>2. Tauschwirtschaft:</strong> „Tauschen ist besser als Kaufen.“ Was sind die Vor- und Nachteile?</div><div class="sprech-item"><strong>3. Nachhaltigkeit:</strong> „Wirtschaft muss umweltfreundlicher werden.“ Wie kann das passieren?</div><div class="sprech-item"><strong>4. Genossenschaften:</strong> „Genossenschaften sind das Modell der Zukunft.“ Ist das realistisch?</div><div class="sprech-item"><strong>5. Arbeitsteilung:</strong> „Jeder sollte die Arbeit machen, die er/sie am besten kann.“ Wie funktioniert das praktisch?</div><div class="sprech-item"><strong>6. Gerechtigkeit:</strong> „Alternative Wirtschaftsmodelle sind gerechter.“ Für wen sind sie gerechter?</div></div><div id="tab-redemittel" class="tab"><img src="https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg?auto=compress&w=900" class="tab-banner"><h2>Redemittel: Alternative Wirtschaft diskutieren</h2><div class="rm-card"><div class="rm-title">Pro/Contra</div><ul><li>Ich bin dafür, weil...</li><li>Ich bin dagegen, weil...</li><li>Das spricht für...</li><li>Das spricht gegen...</li></ul></div><div class="rm-card"><div class="rm-title">Einschränkungen</div><ul><li>Das ist zwar richtig, aber...</li><li>Allerdings...</li><li>Andererseits...</li><li>Ich sehe das differenzierter...</li></ul></div><div class="rm-card"><div class="rm-title">Beispiele nennen</div><ul><li>Ein Beispiel wäre...</li><li>Man könnte sagen...</li><li>Zum Beispiel...</li><li>Das zeigt sich bei...</li></ul></div><div class="rm-card"><div class="rm-title">Abschließen</div><ul><li>Zusammengefasst...</li><li>Letztendlich...</li><li>Das wichtigste ist...</li><li>Meine Meinung ist...</li></ul></div></div><div id="tab-wuerfelspiel" class="tab"><img src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&w=900" class="tab-banner"><h2>Würfelspiel: Wirtschafts-Themen</h2><p style="margin-bottom:16px;color:#666;font-size:.95rem;">Würfeln Sie und bekommen ein zufälliges Wirtschafts-Thema. Diskutieren Sie mit einem Partner.</p><div class="dice-container"><button class="dice-btn" onclick="rollDice()">🎲 WÜRFELN</button></div><div class="dice-result" id="diceResult"><h4>Ihr Thema:</h4><p id="resultText"></p></div></div>
     <!-- ===== TAB: GENUS ===== -->
@@ -183,4 +205,22 @@ function showGenusLoesung(){
 function resetGenus(){ initGenus(); genusTimerReset(); }
 (function(){ initGenus(); })();
 </script>
+
+<!-- FB-JUMPTOP -->
+<button class="fb-jumptop" id="fbJumpTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben springen" aria-label="Nach oben springen">↑ Nach oben</button>
+<script>
+(function(){
+  var btn = document.getElementById('fbJumpTop');
+  if (!btn) return;
+  function toggle(){
+    var scrollable = document.documentElement.scrollHeight > window.innerHeight + 60;
+    btn.classList.toggle('show', scrollable);
+  }
+  window.addEventListener('scroll', toggle, {passive:true});
+  window.addEventListener('resize', toggle);
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ setTimeout(toggle, 60); }); });
+  setTimeout(toggle, 80);
+})();
+</script>
+
 </body></html>
