@@ -409,21 +409,37 @@ die Augen schon **im Quellbild** — kein Crop-Trick kann sie zurückholen.
 
 Deshalb gilt ausnahmslos: **Zeigt ein Banner einen Menschen, MUSS das ganze
 Gesicht (mit Augen) im sichtbaren Crop-Band liegen.** Banner, die nur durch
-glückliches Zuschneiden funktionieren, sind verboten. Im Zweifel — und immer
-dann, wenn die Augen nicht auf einfachste Weise sichtbar zu machen sind — wird
-das Foto durch ein **selbstgebautes, gesichtsfreies SVG-Banner** ersetzt (so
-geschehen in 1011X: zwei flache Reise-Grafiken, viewBox `1200×200`, also breiter
-als die Crop-Box → der Crop trimmt nur die Seiten, vertikal bleibt alles
-sichtbar). Ein Banner ohne Gesicht kann baulich nicht geköpft werden.
+glückliches Zuschneiden funktionieren, sind verboten.
+
+**Bevorzugter Fix (Franks Methode, 2026-06-27): den Ausschnitt nach oben
+schieben, nicht das Bild ersetzen.** Die meisten Köpfe sitzen oben im Bild;
+`style="object-position: top"` am `<img class="tab-banner">` zeigt das obere
+Band (mit Augen) und schneidet stattdessen unten den Rumpf weg, was niemanden
+stört. Das rettet praktisch jedes Foto, dessen Augen im Quellbild vorhanden
+sind — chirurgisch, ohne Bildtausch. **Nur gezielt auf die betroffenen Banner
+setzen, nie global** auf `.tab-banner`: mittig komponierte Porträts und
+Sach-/Landschaftsbilder sind bei „center" richtig, oberbündig würden sie Kinn
+oder Motiv verlieren. (Mathematisch kann `object-position: top` nie ein Auge
+über den oberen Bandrand schieben — der Guardrail wird damit grün.)
+
+Erst wenn das Schieben die Augen NICHT hereinholt — d. h. die Augen fehlen schon
+**im Quellbild** (wie 1011X-Vorentlastung) — wird das Foto durch ein
+**selbstgebautes, gesichtsfreies SVG-Banner** ersetzt (so in 1011X: zwei flache
+Reise-Grafiken, viewBox `1200×200`, also breiter als die Crop-Box → der Crop
+trimmt nur die Seiten, vertikal bleibt alles sichtbar). Ein Banner ohne Gesicht
+kann baulich nicht geköpft werden.
 
 Das 100-%-Vorgehen hat drei Ebenen, weil **kein** klassischer CV-Detektor allein
 100 % schafft (ein im Quellbild bereits kopflos beschnittenes, zusätzlich
 getöntes Porträt liefert der Gesichtserkennung null Gesichter):
 
 1. **Guardrail `scripts/check_banner_faces.py`** — dekodiert jedes Banner,
-   erkennt frontale/seitliche Gesichter, simuliert den `cover`-Crop und
-   **blockt (Exit 1)** jedes Banner mit angeschnittenem Gesicht. Verdacht auf
-   ein bereits kopflos beschnittenes Porträt wird als ⚠ zur Sicht-Prüfung
+   erkennt frontale/seitliche Gesichter, liest die `object-position` des `<img>`
+   und simuliert das tatsächlich sichtbare `cover`-Band. **Blockt (Exit 1)** jedes
+   Banner, dessen Augenlinie über dem oberen Bandrand liegt (Augen weg); ein nur
+   unten beschnittenes Kinn ist kosmetisch und wird nicht geblockt — so passt ein
+   korrekt nach oben geschobenes Banner durch. Verdacht auf ein bereits kopflos
+   beschnittenes Porträt wird als ⚠ zur Sicht-Prüfung
    gemeldet (`--strict` blockt auch das). SVG-Banner werden übersprungen
    (selbstgebaut, gesichtsfrei). **Vor jedem Lektions-Commit laufen lassen**,
    zusammen mit `check_serif.py`, `check_wortbank.py`, `check_genus.py` und
