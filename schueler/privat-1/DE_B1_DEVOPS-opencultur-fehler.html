@@ -248,37 +248,6 @@ h2 { font-size: 1.3em; color: #3949ab; margin-bottom: 16px; font-family: Georgia
 .ws-inputs input.plural { width: 130px; flex-shrink: 0; }
 .ws-inputs input.verb   { flex: 1; min-width: 200px; }
 @media (max-width: 700px) { #wortschatzContainer { grid-template-columns: 1fr; } }
-
-/* ── Gerüst-Modus (B1+): sichtbare Lücken + feste Anker ── */
-.sb-gap { display:inline-flex; align-items:center; justify-content:center; min-width:66px; min-height:38px; padding:2px 6px; border:2px dashed #b9a7f0; border-radius:20px; background:#faf8ff; }
-.sb-gap.drag-over { border-color:#e67e22; background:#fff5ec; }
-.sb-gap .chip { margin:0; }
-.chip.sb-locked { background:#eef0ff; border-style:solid; border-color:#c3c9f5; color:#555; cursor:default; }
-.chip.sb-locked.correct { background:#27ae60; border-color:#27ae60; color:#fff; }
-
-/* FB-JUMPTOP - Nach-oben-Button (Glas-Look) */
-.fb-jumptop {
-  position: fixed; bottom: 30px;
-  right: max(18px, calc(50vw - 500px + 14px));
-  background: rgba(118, 75, 162, 0.26);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-  backdrop-filter: blur(14px) saturate(180%);
-  color: #34206b; border: 1.5px solid rgba(255,255,255,0.75); border-radius: 28px;
-  padding: 15px 26px; font-size: 1.05em; font-weight: 800;
-  letter-spacing: 0.2px;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  cursor: pointer;
-  box-shadow: 0 8px 28px rgba(102,126,234,0.40), inset 0 1px 0 rgba(255,255,255,0.6);
-  text-shadow: 0 1px 1px rgba(255,255,255,0.55);
-  opacity: 0; visibility: hidden; transform: translateY(10px);
-  transition: opacity .25s, visibility .25s, transform .25s, background .2s, box-shadow .2s;
-  z-index: 9999; display: inline-flex; align-items: center; gap: 8px;
-}
-.fb-jumptop.show { opacity: 1; visibility: visible; transform: translateY(0); }
-.fb-jumptop:hover { background: rgba(118, 75, 162, 0.40); color: #241048; box-shadow: 0 10px 32px rgba(102,126,234,0.50), inset 0 1px 0 rgba(255,255,255,0.65); }
-@media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
-/* FB-SCHREIB-LAST */
-.nav-btn.schreib-last{order:99;}
 </style>
 </head>
 <body>
@@ -295,7 +264,7 @@ h2 { font-size: 1.3em; color: #3949ab; margin-bottom: 16px; font-family: Georgia
         <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
         <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔍</span><span class="nav-label">Fehler finden</span></div>
         <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
-        <div class="nav-btn schreib-last" onclick="showSection(4)"><span class="nav-emoji">📨</span><span class="nav-label">Schreiben</span></div>
+        <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">📨</span><span class="nav-label">Schreiben</span></div>
         <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
     </div>
 
@@ -345,7 +314,7 @@ h2 { font-size: 1.3em; color: #3949ab; margin-bottom: 16px; font-family: Georgia
                 <strong>Aufgabe:</strong> Setze das passende Wort ein. Das sind genau die Stellen, an denen im Originaltext kleine Fehler waren — Präpositionen, Relativpronomen, Reflexivpronomen, Adjektivendung. <em>Achte auf Groß- und Kleinschreibung!</em>
             </div>
 
-            <div class="wortbank-label">🔤 Wortbank — die richtigen Wörter, in zufälliger Reihenfolge.<br>Tipp sie selbst in die Lücken — achte auf Groß- und Kleinschreibung.</div>
+            <div class="wortbank-label">🔤 Wortbank — die richtigen Wörter, in zufälliger Reihenfolge.</div>
             <div class="wortbank" id="wortbank-luecken"></div>
 
             <div id="luecke-container"></div>
@@ -406,9 +375,6 @@ h2 { font-size: 1.3em; color: #3949ab; margin-bottom: 16px; font-family: Georgia
       <div class="section-title">📨 Schreibwerkstatt</div>
       <div class="section-sub">Fünf kleine Schreibaufgaben rund um OpenCulture und Fehlerkultur.</div>
 
-      <div class="hilfe-box">
-        Schreiben ist das beste Training. Nimm dir Zeit für eine, zwei oder alle fünf Aufgaben. <strong>Jede Antwort kannst du einzeln an Frank schicken</strong> — du musst nicht alle bearbeiten. Wenn du den Sammelbutton am Ende benutzt, gehen alle noch nicht gesendeten Antworten in einer Mail.
-      </div>
 
       <div class="schreib-name-box">
         <label class="schreib-label" for="sw-name">Dein Name (Pflicht — damit Frank weiß, wer geschrieben hat):</label>
@@ -587,7 +553,7 @@ var LUECKEN_DATA = [
 
 function liveCheck(inp) {
     var val = inp.value.trim();
-    var ans = (inp.dataset.answer || '');
+    var ans = (inp.dataset.answer || '').toLowerCase();
     inp.classList.remove('correct', 'wrong');
     if (val.length === 0) return;
     var valLow = val.toLowerCase();
@@ -796,30 +762,46 @@ function mcReset() {
 
 // ─── Satzbau (Skill: satzbau-drag-drop) ───────────────────────────────────
 var satzbauData = [
-  { parts: ['jetzt', 'müssen', 'wir', 'uns', 'auf', 'die', 'nächsten', 'Schritte', 'konzentrieren', ',', 'damit', 'das', 'Projekt', 'weitergeht'],
-    valid: [['jetzt', 'müssen', 'wir', 'uns', 'auf', 'die', 'nächsten', 'Schritte', 'konzentrieren', ',', 'damit', 'das', 'Projekt', 'weitergeht']],
-    punct: '.' },
-  { parts: ['für', 'viele', 'Kollegen', 'ist', 'das', 'Thema', 'neu', ',', 'weil', 'sie', 'vorher', 'anders', 'gearbeitet', 'haben'],
-    valid: [['für', 'viele', 'Kollegen', 'ist', 'das', 'Thema', 'neu', ',', 'weil', 'sie', 'vorher', 'anders', 'gearbeitet', 'haben']],
-    punct: '.' },
-  { parts: ['jede', 'Woche', 'stand', 'eine', 'andere', 'Haltung', 'im', 'Mittelpunkt', ',', 'die', 'das', 'Team', 'gemeinsam', 'geübt', 'hat'],
-    valid: [['jede', 'Woche', 'stand', 'eine', 'andere', 'Haltung', 'im', 'Mittelpunkt', ',', 'die', 'das', 'Team', 'gemeinsam', 'geübt', 'hat']],
-    punct: '.' },
-  { parts: ['vor', 'zwanzig', 'Jahren', 'war', 'es', 'keine', 'Option', ',', 'offen', 'über', 'eigene', 'Fehler', 'zu', 'sprechen'],
-    valid: [['vor', 'zwanzig', 'Jahren', 'war', 'es', 'keine', 'Option', ',', 'offen', 'über', 'eigene', 'Fehler', 'zu', 'sprechen']],
-    punct: '.' },
-  { parts: ['in', 'einer', 'DevOps-Organisation', 'ist', 'es', 'wichtig', ',', 'dass', 'alle', 'offen', 'über', 'Fehler', 'sprechen', 'können'],
-    valid: [['in', 'einer', 'DevOps-Organisation', 'ist', 'es', 'wichtig', ',', 'dass', 'alle', 'offen', 'über', 'Fehler', 'sprechen', 'können']],
-    punct: '.' },
-  { parts: ['die', 'Sessions', 'mussten', 'einen', 'Bezug', 'zur', 'Haltung', 'der', 'Woche', 'haben', ',', 'damit', 'alles', 'zusammenpasst'],
-    valid: [['die', 'Sessions', 'mussten', 'einen', 'Bezug', 'zur', 'Haltung', 'der', 'Woche', 'haben', ',', 'damit', 'alles', 'zusammenpasst']],
-    punct: '.' },
-  { parts: ['ein', 'Scrum', 'Master', 'hat', 'über', 'seinen', 'Arbeitstag', 'berichtet', ',', 'der', 'oft', 'sehr', 'voll', 'ist'],
-    valid: [['ein', 'Scrum', 'Master', 'hat', 'über', 'seinen', 'Arbeitstag', 'berichtet', ',', 'der', 'oft', 'sehr', 'voll', 'ist']],
-    punct: '.' },
-  { parts: ['Fehler', 'sind', 'ein', 'wichtiges', 'Signal', ',', 'dass', 'Menschen', 'mutig', 'experimentieren', 'und', 'Neues', 'ausprobieren'],
-    valid: [['Fehler', 'sind', 'ein', 'wichtiges', 'Signal', ',', 'dass', 'Menschen', 'mutig', 'experimentieren', 'und', 'Neues', 'ausprobieren']],
-    punct: '.' }
+    {
+        parts: ['jetzt', 'müssen', 'wir', 'uns', 'auf', 'die', 'nächsten', 'Schritte', 'konzentrieren'],
+        valid: [['jetzt', 'müssen', 'wir', 'uns', 'auf', 'die', 'nächsten', 'Schritte', 'konzentrieren']],
+        punct: '.'
+    },
+    {
+        parts: ['für', 'viele', 'Kollegen', 'ist', 'das', 'Thema', 'neu'],
+        valid: [['für', 'viele', 'Kollegen', 'ist', 'das', 'Thema', 'neu']],
+        punct: '.'
+    },
+    {
+        parts: ['jede', 'Woche', 'stand', 'eine', 'andere', 'Haltung', 'im', 'Mittelpunkt'],
+        valid: [['jede', 'Woche', 'stand', 'eine', 'andere', 'Haltung', 'im', 'Mittelpunkt']],
+        punct: '.'
+    },
+    {
+        parts: ['vor', 'zwanzig', 'Jahren', 'war', 'es', 'keine', 'Option', ',', 'über', 'Fehler', 'zu', 'sprechen'],
+        valid: [['vor', 'zwanzig', 'Jahren', 'war', 'es', 'keine', 'Option', ',', 'über', 'Fehler', 'zu', 'sprechen']],
+        punct: '.'
+    },
+    {
+        parts: ['in', 'einer', 'DevOps-Organisation', 'ist', 'es', 'wichtig', ',', 'offen', 'über', 'Fehler', 'zu', 'sprechen'],
+        valid: [['in', 'einer', 'DevOps-Organisation', 'ist', 'es', 'wichtig', ',', 'offen', 'über', 'Fehler', 'zu', 'sprechen']],
+        punct: '.'
+    },
+    {
+        parts: ['die', 'Sessions', 'mussten', 'einen', 'Bezug', 'zur', 'Haltung', 'der', 'Woche', 'haben'],
+        valid: [['die', 'Sessions', 'mussten', 'einen', 'Bezug', 'zur', 'Haltung', 'der', 'Woche', 'haben']],
+        punct: '.'
+    },
+    {
+        parts: ['ein', 'Scrum', 'Master', 'hat', 'über', 'seinen', 'Arbeitstag', 'berichtet'],
+        valid: [['ein', 'Scrum', 'Master', 'hat', 'über', 'seinen', 'Arbeitstag', 'berichtet']],
+        punct: '.'
+    },
+    {
+        parts: ['Fehler', 'sind', 'ein', 'Signal', ',', 'dass', 'Menschen', 'experimentieren'],
+        valid: [['Fehler', 'sind', 'ein', 'Signal', ',', 'dass', 'Menschen', 'experimentieren']],
+        punct: '.'
+    },
 ];
 
 var sbDragged = null;
@@ -1519,230 +1501,5 @@ function showLoesungWortschatz() {
     });
 }
 </script>
-
-
-<script>
-/* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
-   hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
-(function(){
-  var CFG = {"bank":"sb-bank-","row":"sb-row-","fb":"sb-fb-","caps":true,"click":false,"tab":3};
-  var SBGAP = [{"i":0,"row":["_","_","_","uns","_","die","_","_","_","_","_","das","Projekt","_"],"parts":["jetzt","müssen","wir","auf","nächsten","Schritte","konzentrieren",",","damit","weitergeht"]},{"i":1,"row":["_","_","Kollegen","_","_","Thema","_","_","_","sie","_","anders","_","_"],"parts":["für","viele","ist","das","neu",",","weil","vorher","gearbeitet","haben"]},{"i":2,"row":["_","_","_","eine","_","_","im","_","_","die","_","_","gemeinsam","_","_"],"parts":["jede","Woche","stand","andere","Haltung","Mittelpunkt",",","das","Team","geübt","hat"]},{"i":3,"row":["_","_","Jahren","_","_","keine","Option","_","_","_","_","Fehler","_","_"],"parts":["vor","zwanzig","war","es",",","offen","über","eigene","zu","sprechen"]},{"i":4,"row":["_","_","DevOps-Organisation","_","_","wichtig","_","dass","_","_","_","Fehler","_","_"],"parts":["in","einer","ist","es",",","alle","offen","über","sprechen","können"]},{"i":5,"row":["_","_","_","_","Bezug","_","Haltung","der","_","_","_","_","alles","_"],"parts":["die","Sessions","mussten","einen","zur","Woche","haben",",","damit","zusammenpasst"]},{"i":6,"row":["_","_","Master","_","_","_","_","_","_","der","oft","_","voll","_"],"parts":["ein","Scrum","hat","über","seinen","Arbeitstag","berichtet",",","sehr","ist"]},{"i":7,"row":["_","_","_","wichtiges","_","_","dass","_","mutig","_","_","Neues","_"],"parts":["Fehler","sind","ein","Signal",",","Menschen","experimentieren","und","ausprobieren"]}];
-  SBGAP.forEach(function(g){ var ex = satzbauData[g.i]; if (!ex) return;
-    ex.row = g.row; ex.parts = g.parts;
-    if (typeof ex.valid[0] === "string") ex.valid = [ex.valid];
-  });
-  if (typeof window.sbDragged === "undefined") window.sbDragged = null;
-  function bankEl(i){ return document.getElementById(CFG.bank + i); }
-  function rowEl(i){ return document.getElementById(CFG.row + i); }
-  function fbEl(i){ return document.getElementById(CFG.fb + i); }
-  function cap(w){ return w.charAt(0).toUpperCase() + w.slice(1); }
-  function positions(row){ return Array.from(row.children).filter(function(n){ return n.classList.contains("sb-gap") || n.classList.contains("chip"); }); }
-  function chipOf(pos){ return pos.classList.contains("sb-gap") ? pos.querySelector(".chip") : pos; }
-  function updateCaps(row){ if (!CFG.caps) return;
-    positions(row).forEach(function(pos,i){ var c = chipOf(pos); if (!c) return;
-      var o = c.dataset.orig;
-      var proper = o.charAt(0) === o.charAt(0).toUpperCase() && o.charAt(0) !== o.charAt(0).toLowerCase();
-      c.textContent = proper ? o : (i === 0 ? cap(o) : o); });
-  }
-  function sequence(i){ var row = rowEl(i), seq = [], complete = true;
-    positions(row).forEach(function(pos){ var c = chipOf(pos); if (c) seq.push(c.dataset.orig); else complete = false; });
-    return { seq: seq, complete: complete }; }
-  function clearMarks(i){ var row = rowEl(i);
-    row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
-    row.classList.remove("correct","incorrect");
-    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p); }
-  function afterChange(i){
-    var row = rowEl(i); updateCaps(row);
-    var fb = fbEl(i), info = sequence(i);
-    if (!info.complete){ clearMarks(i); if (fb){ fb.textContent=""; fb.className="satzbau-feedback"; } return; }
-    setTimeout(function(){
-      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
-      var fresh = sequence(i);
-      var ok = satzbauData[i].valid.some(function(v){ return JSON.stringify(v) === JSON.stringify(fresh.seq); });
-      var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
-      if (ok){
-        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("incorrect"); c.classList.add("correct"); });
-        var punkt = document.createElement("span"); punkt.className = "sb-punkt";
-        punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
-        row.classList.add("correct"); row.classList.remove("incorrect");
-        if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
-        if (typeof sbCheckAllDone === "function") sbCheckAllDone();
-      } else {
-        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
-        row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("incorrect"); });
-        row.classList.add("incorrect"); row.classList.remove("correct");
-        if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Noch nicht richtig – verschiebe die Wörter!"; }
-      }
-    }, 450);
-  }
-  /* Geführter Modus (B1, 2026-06-10): Sofort-Feedback pro Chip-Platzierung.
-     Richtig (konsistent mit mind. einer valid-Reihenfolge) -> grün + fixiert.
-     Falsch -> rot + Rücksprung in die Bank nach 800 ms. */
-  function toBank(i, chip){
-    chip.textContent = chip.dataset.orig;  // Kleinschreibung wiederherstellen — Bank darf den Satzanfang nicht verraten
-    bankEl(i).appendChild(chip);
-  }
-  function consistent(i){
-    var pos = positions(rowEl(i));
-    var v = satzbauData[i].valid;
-    return v.some(function(o){
-      for (var k = 0; k < pos.length; k++){ var c = chipOf(pos[k]); if (c && c.dataset.orig !== o[k]) return false; }
-      return true; });
-  }
-  function finishRow(i){
-    var row = rowEl(i), fb = fbEl(i);
-    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
-    var punkt = document.createElement("span"); punkt.className = "sb-punkt";
-    punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
-    row.classList.add("correct"); row.classList.remove("incorrect");
-    if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
-    if (typeof sbCheckAllDone === "function") sbCheckAllDone();
-  }
-  function placeJudge(i, chip){
-    if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
-    var row = rowEl(i); updateCaps(row);
-    var fb = fbEl(i);
-    if (consistent(i)){
-      chip.classList.remove("incorrect"); chip.classList.add("correct");
-      chip.dataset.fixed = "1"; chip.draggable = false;
-      if (sequence(i).complete){ finishRow(i); }
-      else if (fb){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
-    } else {
-      chip.classList.add("incorrect");
-      if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Das passt hier nicht!"; }
-      setTimeout(function(){
-        chip.classList.remove("incorrect");
-        if (!chip.dataset.fixed && chip.closest(".sb-gap")) toBank(i, chip);
-        updateCaps(rowEl(i));
-        if (fb && /incorrect/.test(fb.className)){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
-      }, 800);
-    }
-  }
-  function makeChip(word, i){
-    var chip = document.createElement("div");
-    var isPunct = [",",".","!","?",";",":"].indexOf(word) !== -1;
-    chip.className = "chip" + (isPunct ? " punct-chip" : ""); chip.textContent = word; chip.draggable = true;
-    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.sbIdx = String(i);
-    chip.addEventListener("dragstart", function(e){ if (chip.dataset.fixed){ e.preventDefault(); return; } window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
-    if (CFG.click) chip.addEventListener("click", function(){
-      if (chip.dataset.fixed) return;
-      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
-      var inSlot = chip.closest(".sb-gap");
-      if (inSlot){ toBank(i, chip); updateCaps(rowEl(i)); return; }
-      var free = Array.from(rowEl(i).querySelectorAll(".sb-gap")).find(function(s){ return !s.querySelector(".chip"); });
-      if (free){ free.appendChild(chip); placeJudge(i, chip); }
-    });
-    return chip;
-  }
-  function makeLocked(word){
-    var chip = document.createElement("div");
-    chip.className = "chip sb-locked"; chip.textContent = word;
-    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.locked = "1";
-    return chip;
-  }
-  function makeSlot(i){
-    var slot = document.createElement("div"); slot.className = "sb-gap";
-    slot.addEventListener("dragover", function(e){ e.preventDefault(); if (window.sbDragged) slot.classList.add("drag-over"); });
-    slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
-    slot.addEventListener("drop", function(e){
-      e.preventDefault(); slot.classList.remove("drag-over");
-      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
-      if (slot.querySelector(".chip")) return;  // Lücke schon belegt
-      slot.appendChild(d); window.sbDragged = null; placeJudge(i, d);
-    });
-    return slot;
-  }
-  function registerBank(bank, i){
-    bank.addEventListener("dragover", function(e){ e.preventDefault(); });
-    bank.addEventListener("drop", function(e){
-      e.preventDefault(); var d = window.sbDragged;
-      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
-      toBank(i, d); window.sbDragged = null; updateCaps(rowEl(i));
-    });
-  }
-  function freshEl(id){ var el = document.getElementById(id); if (!el) return null;
-    var c = el.cloneNode(false); el.parentNode.replaceChild(c, el); return c; }
-  function rebuild(i){
-    var ex = satzbauData[i]; if (!ex || !ex.row) return;
-    var bank = freshEl(CFG.bank + i), row = freshEl(CFG.row + i);
-    if (!bank || !row) return;
-    var fb = fbEl(i); if (fb){ fb.textContent = ""; fb.className = "satzbau-feedback"; }
-    var mov = ex.parts.slice();
-    for (var k = mov.length - 1; k > 0; k--){ var j = Math.floor(Math.random()*(k+1)); var t = mov[k]; mov[k] = mov[j]; mov[j] = t; }
-    mov.forEach(function(w){ bank.appendChild(makeChip(w, i)); });
-    ex.row.forEach(function(tok){ row.appendChild(tok === "_" ? makeSlot(i) : makeLocked(tok)); });
-    registerBank(bank, i);
-    ensureButtons(i);
-  }
-  function rebuildAll(){ satzbauData.forEach(function(ex,i){ if (ex.row) rebuild(i); }); }
-  function showSol(i){
-    rebuild(i);
-    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0];
-    var pool = Array.from(bank.querySelectorAll(".chip"));
-    positions(row).forEach(function(pos,k){
-      if (!pos.classList.contains("sb-gap")) return;
-      var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
-      if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
-    });
-    row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("correct"); c.dataset.fixed = "1"; c.draggable = false; });
-    updateCaps(row);
-    finishRow(i);
-  }
-  function ensureButtons(i){
-    if (document.getElementById("sb-btns-" + i)) return;
-    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
-    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;
-    if (item && [].some.call(item.querySelectorAll("button"), function(b){
-      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden
-    var box = document.createElement("div");
-    box.id = "sb-btns-" + i;
-    box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
-    var b1 = document.createElement("button"); b1.type = "button"; b1.className = "btn"; b1.textContent = "Lösen";
-    b1.addEventListener("click", function(){ showSol(i); });
-    var b2 = document.createElement("button"); b2.type = "button"; b2.className = "btn"; b2.textContent = "↺ Neustart";
-    b2.addEventListener("click", function(){ rebuild(i); });
-    box.appendChild(b1); box.appendChild(b2);
-    anchor.parentNode.insertBefore(box, anchor.nextSibling);
-  }
-  ["initSatzbau","buildSatzbau"].forEach(function(fn){
-    if (typeof window[fn] === "function"){ var o = window[fn];
-      window[fn] = function(){ o.apply(this, arguments); rebuildAll(); }; }
-  });
-  if (typeof window.sbReset === "function" && window.sbReset.length === 0){
-    var orall = window.sbReset;
-    window.sbReset = function(){ orall.apply(this, arguments); rebuildAll(); };
-  }
-  if (typeof window.sbResetOne === "function"){
-    var orst = window.sbResetOne;
-    window.sbResetOne = function(i){ if (satzbauData[i] && satzbauData[i].row){ rebuild(i); return; } orst.apply(this, arguments); };
-  }
-  if (typeof window.sbShowSolution === "function"){
-    var osol = window.sbShowSolution;
-    window.sbShowSolution = function(i){ if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
-  }
-  /* Bugfix 2026-06-10: bei leerer Row (Free-Build) zusätzlich die Bank prüfen,
-     sonst baut sich das Gerüst beim Erstladen nie auf (nur nach Neustart). */
-  var pRow = rowEl(0), pBank = bankEl(0);
-  if ((pRow && pRow.children.length) || (pBank && pBank.children.length)) rebuildAll();
-})();
-</script>
-
-<!-- FB-JUMPTOP -->
-<button class="fb-jumptop" id="fbJumpTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben springen" aria-label="Nach oben springen">↑ Nach oben</button>
-<script>
-(function(){
-  var btn = document.getElementById('fbJumpTop');
-  if (!btn) return;
-  function toggle(){
-    var scrollable = document.documentElement.scrollHeight > window.innerHeight + 60;
-    btn.classList.toggle('show', scrollable);
-  }
-  window.addEventListener('scroll', toggle, {passive:true});
-  window.addEventListener('resize', toggle);
-  document.querySelectorAll('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ setTimeout(toggle, 60); }); });
-  setTimeout(toggle, 80);
-})();
-</script>
-
 </body>
 </html>

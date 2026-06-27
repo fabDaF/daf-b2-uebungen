@@ -360,6 +360,53 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e
     .header h1 { font-size: 1.6em; }
     .header .subtitle { font-size: 0.95em; }
 }
+
+/* ── Gerüst-Modus (B1+): sichtbare Lücken + feste Anker ── */
+.sb-gap { display:inline-flex; align-items:center; justify-content:center; min-width:66px; min-height:38px; padding:2px 6px; border:2px dashed #b9a7f0; border-radius:20px; background:#faf8ff; }
+.sb-gap.drag-over { border-color:#e67e22; background:#fff5ec; }
+.sb-gap .chip { margin:0; }
+.chip.sb-locked { background:#eef0ff; border-style:solid; border-color:#c3c9f5; color:#555; cursor:default; }
+.chip.sb-locked.correct { background:#27ae60; border-color:#27ae60; color:#fff; }
+/* ===== GENUS-TAB ===== */
+.genus-pool { display:flex; flex-wrap:wrap; gap:10px; padding:16px; background:#f0f0f8; border:1px dashed #bbb; border-radius:10px; min-height:60px; margin-bottom:18px; }
+.genus-chip { background:#fff; border:2px solid #667eea; color:#333; padding:8px 14px; border-radius:14px; font-weight:600; font-size:0.95em; cursor:grab; user-select:none; }
+.genus-chip.dragging { opacity:0.5; }
+.genus-chip.selected { outline:3px solid #f39c12; }
+.genus-chip.correct { border-color:#2e7d32; background:#e8f5e9; color:#1b5e20; }
+.genus-chip.wrong { border-color:#c62828; background:#ffebee; color:#b71c1c; }
+.genus-kategorien { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.genus-kat { background:#fafaff; border-radius:10px; padding:10px; border-top:4px solid #999; }
+.genus-kat.kat-der { border-top-color:#1565c0; }
+.genus-kat.kat-die { border-top-color:#ad1457; }
+.genus-kat.kat-das { border-top-color:#1b5e20; }
+.genus-kat.kat-pl  { border-top-color:#5e35b1; }
+.kat-title { text-align:center; font-weight:700; margin-bottom:8px; font-size:1.05em; }
+.kat-der .kat-title { color:#1565c0; } .kat-die .kat-title { color:#ad1457; } .kat-das .kat-title { color:#1b5e20; } .kat-pl .kat-title { color:#5e35b1; }
+.genus-drop { min-height:90px; background:#fff; border:2px dashed #ccc; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px; }
+.genus-drop.dragover { border-color:#667eea; background:#eef1ff; }
+@media (max-width:600px){ .genus-kategorien { grid-template-columns:repeat(2,1fr); } }
+
+/* FB-JUMPTOP - Nach-oben-Button (Glas-Look) */
+.fb-jumptop {
+  position: fixed; bottom: 30px;
+  right: max(18px, calc(50vw - 500px + 14px));
+  background: rgba(118, 75, 162, 0.26);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  color: #34206b; border: 1.5px solid rgba(255,255,255,0.75); border-radius: 28px;
+  padding: 15px 26px; font-size: 1.05em; font-weight: 800;
+  letter-spacing: 0.2px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(102,126,234,0.40), inset 0 1px 0 rgba(255,255,255,0.6);
+  text-shadow: 0 1px 1px rgba(255,255,255,0.55);
+  opacity: 0; visibility: hidden; transform: translateY(10px);
+  transition: opacity .25s, visibility .25s, transform .25s, background .2s, box-shadow .2s;
+  z-index: 9999; display: inline-flex; align-items: center; gap: 8px;
+}
+.fb-jumptop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.fb-jumptop:hover { background: rgba(118, 75, 162, 0.40); color: #241048; box-shadow: 0 10px 32px rgba(102,126,234,0.50), inset 0 1px 0 rgba(255,255,255,0.65); }
+@media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
 /* FB-SCHREIB-LAST */
 .nav-btn.schreib-last{order:99;}
 </style>
@@ -380,7 +427,8 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e
         <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">❓</span><span class="nav-label">Bedeutung</span></div>
         <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
         <div class="nav-btn schreib-last" onclick="showSection(6)"><span class="nav-emoji">📨</span><span class="nav-label">Schreibwerkstatt</span></div>
-        <div class="nav-btn" onclick="showSection(7)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
+        <div class="nav-btn" onclick="showSection(7)"><span class="nav-emoji">🏷️</span><span class="nav-label">Genus</span></div>
+        <div class="nav-btn" onclick="showSection(8)"><span class="nav-emoji">📚</span><span class="nav-label">Wortschatz</span></div>
     </div>
 
     <!-- ═══════════ TAB 0: WORTLISTE ═══════════ -->
@@ -608,9 +656,6 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e
                 <span>🏆 <span id="best-1">--:--</span></span>
             </div>
         </div>
-        <div class="hilfe-box">
-            Setze die passenden Wörter aus der Wortbank in die Lücken. Achte auf <strong>Groß- und Kleinschreibung</strong> und auf die richtige <strong>grammatische Form</strong> (Endung, Plural, Konjugation).
-        </div>
 
         <div class="wortbank-label">🔤 Wortbank — alle Antworten, in zufälliger Reihenfolge:</div>
         <div class="wortbank" id="wortbank-luecken"></div>
@@ -653,9 +698,6 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e
                 <span>⏱ <span id="timer-3">00:00</span></span>
                 <span>🏆 <span id="best-3">--:--</span></span>
             </div>
-        </div>
-        <div class="hilfe-box">
-            Ziehe oder klicke die Chips in die richtige Spalte. Die mittlere Spalte zeigt an, ob ein <strong>Synonym</strong> (gleichbedeutendes Wort) oder ein <strong>Antonym</strong> (Gegenteil) gesucht wird.
         </div>
         <div class="zo-bank" id="zoBank"></div>
         <div class="zo-grid" id="zoContainer"></div>
@@ -704,9 +746,6 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e
     <div class="section" id="sec-6">
         <img class="tab-banner" src="https://images.pexels.com/photos/3059747/pexels-photo-3059747.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Hand schreibt in Notizbuch">
         <h2>📨 Schreibwerkstatt — Den Wortschatz produktiv anwenden</h2>
-        <div class="hilfe-box">
-            Fünf kleine Schreibaufgaben (jeweils 40–80 Wörter) zwingen dich, den neuen Wortschatz aktiv zu verwenden. Klick „📨 An Frank senden“ pro Aufgabe oder am Ende „📨 Alle noch nicht gesendeten Antworten schicken“. Dein Name oben ist Pflicht.
-        </div>
 
         <div class="schreib-name-box" id="schreibNameBox">
             <label for="sw-name">Dein Name:</label>
@@ -719,6 +758,16 @@ input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e
             <button class="btn" onclick="schreibSendenAlle()">📨 Alle noch nicht gesendeten Antworten schicken</button>
         </div>
     </div>
+    <!-- ===== TAB: GENUS ===== -->
+    <div class="section" id="sec-genus">
+        <img class="tab-banner" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAwIDIyMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJHZW51cyDigJQgZGVyLCBkaWUsIGRhcyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzVkNmZjMiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM2YTRhOTIiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgoKICA8cmVjdCB3aWR0aD0iMTAwMCIgaGVpZ2h0PSIyMjAiIGZpbGw9InVybCgjYmcpIi8+CgogIDwhLS0gZGV6ZW50ZSBIYWlybGluZS1SYWhtdW5nIC0tPgogIDxyZWN0IHg9IjI0IiB5PSIyNCIgd2lkdGg9Ijk1MiIgaGVpZ2h0PSIxNzIiIHJ4PSI2IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjE4IiBzdHJva2Utd2lkdGg9IjEiLz4KCiAgPCEtLSBLaWNrZXI6IGtsZWluZSwgZ2VzcGVycnRlIFZlcnNhbGllbiAtLT4KICA8dGV4dCB4PSI1MDAiIHk9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iJ1NlZ29lIFVJJywgc3lzdGVtLXVpLCBzYW5zLXNlcmlmIgogICAgICAgIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI2MDAiIGxldHRlci1zcGFjaW5nPSI3IiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuNzgiPkdFTlVTJiMxNjA7JiMxNjA7JiMxODM7JiMxNjA7JiMxNjA7QVJUSUtFTCBCRVNUSU1NRU48L3RleHQ+CgogIDwhLS0gSGF1cHR6ZWlsZTogcnVoaWdlIFNlcmlmIC0tPgogIDx0ZXh0IHg9IjMyMCIgeT0iMTQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSwgJ1RpbWVzIE5ldyBSb21hbicsIHNlcmlmIiBmb250LXNpemU9IjY2IiBmaWxsPSIjZmZmZmZmIj5kZXI8L3RleHQ+CiAgPHRleHQgeD0iNTAwIiB5PSIxNDgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCAnVGltZXMgTmV3IFJvbWFuJywgc2VyaWYiIGZvbnQtc2l6ZT0iNjYiIGZpbGw9IiNmZmZmZmYiPmRpZTwvdGV4dD4KICA8dGV4dCB4PSI2ODAiIHk9IjE0OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsICdUaW1lcyBOZXcgUm9tYW4nLCBzZXJpZiIgZm9udC1zaXplPSI2NiIgZmlsbD0iI2ZmZmZmZiI+ZGFzPC90ZXh0PgoKICA8IS0tIGRlemVudGUgRmFyYmFremVudGUgdW50ZXIgamVkZW0gQXJ0aWtlbCAtLT4KICA8cmVjdCB4PSIyODkiIHk9IjE2NiIgd2lkdGg9IjYyIiBoZWlnaHQ9IjMiIHJ4PSIxLjUiIGZpbGw9IiM3ZWEyZTYiLz4KICA8cmVjdCB4PSI0NjkiIHk9IjE2NiIgd2lkdGg9IjYyIiBoZWlnaHQ9IjMiIHJ4PSIxLjUiIGZpbGw9IiNkOThjYWUiLz4KICA8cmVjdCB4PSI2NDkiIHk9IjE2NiIgd2lkdGg9IjYyIiBoZWlnaHQ9IjMiIHJ4PSIxLjUiIGZpbGw9IiM4NmNiYWIiLz4KPC9zdmc+Cg==" alt="Genus üben — der, die, das">
+        <h2>🏷️ Genus</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 18px;padding:6px 12px;background:#f8f9fa;border-radius:8px;"><div style="display:flex;gap:6px;"><button class="btn btn-show" onclick="showGenusLoesung()">Lösungen</button><button class="btn btn-reset" onclick="resetGenus()">Neu starten</button></div><div style="display:flex;gap:14px;align-items:center;font-size:0.82em;color:#888;font-variant-numeric:tabular-nums;"><span>⏱ <span id="timer-8">00:00</span></span><span>🏆 <span id="best-8">--:--</span></span></div></div>
+        <div class="genus-pool" id="genusPool"></div>
+        <div class="genus-kategorien"><div class="genus-kat kat-der"><div class="kat-title">der</div><div class="genus-drop" id="drop-der" data-cat="der"></div></div><div class="genus-kat kat-die"><div class="kat-title">die</div><div class="genus-drop" id="drop-die" data-cat="die"></div></div><div class="genus-kat kat-das"><div class="kat-title">das</div><div class="genus-drop" id="drop-das" data-cat="das"></div></div><div class="genus-kat kat-pl"><div class="kat-title">Plural</div><div class="genus-drop" id="drop-pl" data-cat="pl"></div></div></div>
+        <div id="genusFeedback" style="margin-top:14px;font-weight:600;"></div>
+    </div>
+
 
     <!-- ═══════════ TAB 7: WORTSCHATZ ═══════════ -->
     <div class="section" id="sec-7">
@@ -760,7 +809,7 @@ function showSection(idx) {
     document.querySelectorAll('.nav-btn').forEach(function(b,i){ b.classList.toggle('active', i===idx); });
     if (idx === 1) initWortbank();
     if (idx === 2) initKollWortbank();
-    if (idx === 5) sbInit();
+    if (idx === 5) initSatzbau();
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1171,86 +1220,176 @@ function resetZo() {
    TAB 4: MULTIPLE CHOICE
    ═══════════════════════════════════════════════════════════════ */
 var MC_DATA = [
-    {
-        q: 'Welcher Satz verwendet „auffallen“ stilistisch korrekt im negativen Sinne?',
-        opts: [
-            { t: 'Er fällt durch sein elegantes Auftreten unangenehm auf.', ok: false },
-            { t: 'Die jungen Männer fielen schon am Hotelpool durch ihre Lautstärke unangenehm auf.', ok: true },
-            { t: 'Sie fällt unangenehm freundlich auf.', ok: false }
-        ]
-    },
-    {
-        q: '„Ausgesprochen“ als Verstärker — welcher Satz ist idiomatisch?',
-        opts: [
-            { t: 'Das ist ausgesprochen ein Problem.', ok: false },
-            { t: 'Sie hat ein ausgesprochenes Talent für Sprachen.', ok: true },
-            { t: 'Er sagt ausgesprochen.', ok: false }
-        ]
-    },
-    {
-        q: 'Welche Verwendung von „durchaus“ ist semantisch korrekt?',
-        opts: [
-            { t: 'Ich habe durchaus keine Zeit.', ok: false },
-            { t: 'Deine Kritik ist durchaus berechtigt — aber unvollständig.', ok: true },
-            { t: 'Er ist durchaus zu Fuß gegangen.', ok: false }
-        ]
-    },
-    {
-        q: 'Welcher Satz drückt „überholt“ im übertragenen Sinn aus?',
-        opts: [
-            { t: 'Auf der Autobahn wurde er rechts überholt.', ok: false },
-            { t: 'Dieses Klischee ist längst überholt.', ok: true },
-            { t: 'Der Bus hat den Reisebus überholt.', ok: false }
-        ]
-    },
-    {
-        q: '„Begegnen“ als Verb mit Dativ — welche Form ist korrekt?',
-        opts: [
-            { t: 'Er begegnet den Besserwisser mit Geduld.', ok: false },
-            { t: 'Er begegnet dem Besserwisser mit Geduld.', ok: true },
-            { t: 'Er begegnet des Besserwissers mit Geduld.', ok: false }
-        ]
-    },
-    {
-        q: 'In welchem Kontext passt „eingehen auf“ am besten?',
-        opts: [
-            { t: 'Auf jede einzelne Beschwerde des Gastes geht er eingehend ein.', ok: true },
-            { t: 'Die Pflanze ist eingegangen, weil ich sie nicht gegossen habe.', ok: false },
-            { t: 'Er ging in das Hotel ein.', ok: false }
-        ]
-    },
-    {
-        q: 'Welche Formulierung mit „bewusst“ hat die richtige Bedeutung „mit Absicht“?',
-        opts: [
-            { t: 'Mir ist bewusst, dass ich zu spät bin.', ok: false },
-            { t: 'Er setzt seine Mimik bewusst ein, um zu beruhigen.', ok: true },
-            { t: 'Sie ist wieder bei Bewusstsein.', ok: false }
-        ]
-    },
-    {
-        q: '„Gelassen“ beschreibt eine Haltung — welcher Satz nutzt es korrekt?',
-        opts: [
-            { t: 'Sie hat das Buch gelassen.', ok: false },
-            { t: 'Er reagierte gelassen auf die Provokation.', ok: true },
-            { t: 'Die Tür wurde offen gelassen.', ok: false }
-        ]
-    },
-    {
-        q: 'Welche Bedeutung hat „spenden“ im Kontext von Trinkgeld?',
-        opts: [
-            { t: 'das Trinkgeld einbehalten', ok: false },
-            { t: 'das Trinkgeld freiwillig an eine Einrichtung weitergeben', ok: true },
-            { t: 'das Trinkgeld einfordern', ok: false }
-        ]
-    },
-    {
-        q: '„Erwünscht“ — in welchem Satz wird es korrekt verwendet?',
-        opts: [
-            { t: 'Auf Studienreisen ist eine vertraute Anrede durchaus erwünscht.', ok: true },
-            { t: 'Er hat sich einen neuen Hut erwünscht.', ok: false },
-            { t: 'Die Rückkehr wurde erwünscht.', ok: false }
-        ]
-    }
+  {
+    "q": "Welcher Satz verwendet „auffallen“ stilistisch korrekt im negativen Sinne?",
+    "opts": [
+      {
+        "t": "Die jungen Männer fielen schon am Hotelpool durch ihre Lautstärke unangenehm auf.",
+        "ok": true
+      },
+      {
+        "t": "Sie fällt unangenehm freundlich auf.",
+        "ok": false
+      },
+      {
+        "t": "Er fällt durch sein elegantes Auftreten unangenehm auf.",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "q": "„Ausgesprochen“ als Verstärker — welcher Satz ist idiomatisch?",
+    "opts": [
+      {
+        "t": "Sie hat ein ausgesprochenes Talent für Sprachen.",
+        "ok": true
+      },
+      {
+        "t": "Er sagt ausgesprochen.",
+        "ok": false
+      },
+      {
+        "t": "Das ist ausgesprochen ein Problem.",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "q": "Welche Verwendung von „durchaus“ ist semantisch korrekt?",
+    "opts": [
+      {
+        "t": "Er ist durchaus zu Fuß gegangen.",
+        "ok": false
+      },
+      {
+        "t": "Deine Kritik ist durchaus berechtigt — aber unvollständig.",
+        "ok": true
+      },
+      {
+        "t": "Ich habe durchaus keine Zeit.",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "q": "Welcher Satz drückt „überholt“ im übertragenen Sinn aus?",
+    "opts": [
+      {
+        "t": "Dieses Klischee ist längst überholt.",
+        "ok": true
+      },
+      {
+        "t": "Auf der Autobahn wurde er rechts überholt.",
+        "ok": false
+      },
+      {
+        "t": "Der Bus hat den Reisebus überholt.",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "q": "„Begegnen“ als Verb mit Dativ — welche Form ist korrekt?",
+    "opts": [
+      {
+        "t": "Er begegnet den Besserwisser mit Geduld.",
+        "ok": false
+      },
+      {
+        "t": "Er begegnet dem Besserwisser mit Geduld.",
+        "ok": true
+      },
+      {
+        "t": "Er begegnet des Besserwissers mit Geduld.",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "q": "In welchem Kontext passt „eingehen auf“ am besten?",
+    "opts": [
+      {
+        "t": "Auf jede einzelne Beschwerde des Gastes geht er eingehend ein.",
+        "ok": true
+      },
+      {
+        "t": "Die Pflanze ist eingegangen, weil ich sie nicht gegossen habe.",
+        "ok": false
+      },
+      {
+        "t": "Er ging in das Hotel ein.",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "q": "Welche Formulierung mit „bewusst“ hat die richtige Bedeutung „mit Absicht“?",
+    "opts": [
+      {
+        "t": "Sie ist wieder bei Bewusstsein.",
+        "ok": false
+      },
+      {
+        "t": "Mir ist bewusst, dass ich zu spät bin.",
+        "ok": false
+      },
+      {
+        "t": "Er setzt seine Mimik bewusst ein, um zu beruhigen.",
+        "ok": true
+      }
+    ]
+  },
+  {
+    "q": "„Gelassen“ beschreibt eine Haltung — welcher Satz nutzt es korrekt?",
+    "opts": [
+      {
+        "t": "Sie hat das Buch gelassen.",
+        "ok": false
+      },
+      {
+        "t": "Er reagierte gelassen auf die Provokation.",
+        "ok": true
+      },
+      {
+        "t": "Die Tür wurde offen gelassen.",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "q": "Welche Bedeutung hat „spenden“ im Kontext von Trinkgeld?",
+    "opts": [
+      {
+        "t": "das Trinkgeld einbehalten",
+        "ok": false
+      },
+      {
+        "t": "das Trinkgeld einfordern",
+        "ok": false
+      },
+      {
+        "t": "das Trinkgeld freiwillig an eine Einrichtung weitergeben",
+        "ok": true
+      }
+    ]
+  },
+  {
+    "q": "„Erwünscht“ — in welchem Satz wird es korrekt verwendet?",
+    "opts": [
+      {
+        "t": "Er hat sich einen neuen Hut erwünscht.",
+        "ok": false
+      },
+      {
+        "t": "Auf Studienreisen ist eine vertraute Anrede durchaus erwünscht.",
+        "ok": true
+      },
+      {
+        "t": "Die Rückkehr wurde erwünscht.",
+        "ok": false
+      }
+    ]
+  }
 ];
 var MC_TAB_IDX = 4;
 
@@ -1327,20 +1466,21 @@ function resetMc() {
 /* ═══════════════════════════════════════════════════════════════
    TAB 5: SATZBAU
    ═══════════════════════════════════════════════════════════════ */
-var SB_DATA = [
+var satzbauData = [
     {
         parts: ['er', 'setzt', 'seine', 'Körpersprache', 'bewusst', 'ein', ',', 'um', 'die', 'Nervosität', 'der', 'Urlauber', 'zu', 'überspielen'],
         valid: [['er', 'setzt', 'seine', 'Körpersprache', 'bewusst', 'ein', ',', 'um', 'die', 'Nervosität', 'der', 'Urlauber', 'zu', 'überspielen']],
         punct: '.'
     },
     {
-        parts: ['Nörgler', 'und', 'Unruhestifter', 'fallen', 'oft', 'schon', 'am', 'Anreisetag', 'unangenehm', 'auf'],
-        valid: [['Nörgler', 'und', 'Unruhestifter', 'fallen', 'oft', 'schon', 'am', 'Anreisetag', 'unangenehm', 'auf']],
+        parts: ['Nörgler', 'und', 'Unruhestifter', 'fallen', 'oft', 'schon', 'am', 'Anreisetag', 'unangenehm', 'auf', ',', 'weil', 'sie', 'ständig', 'etwas', 'zu', 'beanstanden', 'haben'],
+        valid: [['Nörgler', 'und', 'Unruhestifter', 'fallen', 'oft', 'schon', 'am', 'Anreisetag', 'unangenehm', 'auf', ',', 'weil', 'sie', 'ständig', 'etwas', 'zu', 'beanstanden', 'haben']],
         punct: '.'
     },
     {
-        parts: ['in', 'Krisensituationen', 'reagieren', 'manche', 'Reisende', 'besonders', 'panisch'],
-        valid: [['in', 'Krisensituationen', 'reagieren', 'manche', 'Reisende', 'besonders', 'panisch']],
+        parts: ['in', 'Krisensituationen', 'reagieren', 'manche', 'Reisende', 'besonders', 'panisch', ',', 'sodass', 'der', 'Reiseleiter', 'Ruhe', 'ausstrahlen', 'muss'],
+        valid: [['in', 'Krisensituationen', 'reagieren', 'manche', 'Reisende', 'besonders', 'panisch', ',', 'sodass', 'der', 'Reiseleiter', 'Ruhe', 'ausstrahlen', 'muss'],
+                ['manche', 'Reisende', 'reagieren', 'in', 'Krisensituationen', 'besonders', 'panisch', ',', 'sodass', 'der', 'Reiseleiter', 'Ruhe', 'ausstrahlen', 'muss']],
         punct: '.'
     },
     {
@@ -1349,23 +1489,23 @@ var SB_DATA = [
         punct: '.'
     },
     {
-        parts: ['der', 'deutsche', 'Urlauber', 'hat', 'ein', 'ausgesprochenes', 'Strukturbedürfnis'],
-        valid: [['der', 'deutsche', 'Urlauber', 'hat', 'ein', 'ausgesprochenes', 'Strukturbedürfnis']],
+        parts: ['der', 'deutsche', 'Urlauber', 'hat', 'ein', 'ausgesprochenes', 'Strukturbedürfnis', ',', 'das', 'sich', 'im', 'Wunsch', 'nach', 'festen', 'Plänen', 'zeigt'],
+        valid: [['der', 'deutsche', 'Urlauber', 'hat', 'ein', 'ausgesprochenes', 'Strukturbedürfnis', ',', 'das', 'sich', 'im', 'Wunsch', 'nach', 'festen', 'Plänen', 'zeigt']],
         punct: '.'
     },
     {
-        parts: ['Besserwissern', 'begegnet', 'er', ',', 'indem', 'er', 'gar', 'nicht', 'erst', 'auf', 'sie', 'eingeht'],
-        valid: [['Besserwissern', 'begegnet', 'er', ',', 'indem', 'er', 'gar', 'nicht', 'erst', 'auf', 'sie', 'eingeht']],
+        parts: ['Besserwissern', 'begegnet', 'er', 'meistens', ',', 'indem', 'er', 'gar', 'nicht', 'erst', 'auf', 'ihre', 'Kommentare', 'eingeht'],
+        valid: [['Besserwissern', 'begegnet', 'er', 'meistens', ',', 'indem', 'er', 'gar', 'nicht', 'erst', 'auf', 'ihre', 'Kommentare', 'eingeht']],
         punct: '.'
     },
     {
-        parts: ['das', 'Duzen', 'schafft', 'eine', 'Vertrautheit', ',', 'die', 'bei', 'Studienreisen', 'durchaus', 'erwünscht', 'ist'],
-        valid: [['das', 'Duzen', 'schafft', 'eine', 'Vertrautheit', ',', 'die', 'bei', 'Studienreisen', 'durchaus', 'erwünscht', 'ist']],
+        parts: ['das', 'Duzen', 'schafft', 'schnell', 'eine', 'Vertrautheit', ',', 'die', 'bei', 'längeren', 'Studienreisen', 'durchaus', 'erwünscht', 'ist'],
+        valid: [['das', 'Duzen', 'schafft', 'schnell', 'eine', 'Vertrautheit', ',', 'die', 'bei', 'längeren', 'Studienreisen', 'durchaus', 'erwünscht', 'ist']],
         punct: '.'
     },
     {
-        parts: ['sein', 'Trinkgeld', 'spendet', 'er', 'grundsätzlich', 'an', 'eine', 'soziale', 'Einrichtung'],
-        valid: [['sein', 'Trinkgeld', 'spendet', 'er', 'grundsätzlich', 'an', 'eine', 'soziale', 'Einrichtung']],
+        parts: ['sein', 'Trinkgeld', 'spendet', 'er', 'grundsätzlich', 'an', 'eine', 'soziale', 'Einrichtung', ',', 'weil', 'ihm', 'der', 'persönliche', 'Gewinn', 'unangenehm', 'wäre'],
+        valid: [['sein', 'Trinkgeld', 'spendet', 'er', 'grundsätzlich', 'an', 'eine', 'soziale', 'Einrichtung', ',', 'weil', 'ihm', 'der', 'persönliche', 'Gewinn', 'unangenehm', 'wäre']],
         punct: '.'
     }
 ];
@@ -1464,7 +1604,7 @@ function sbColorRow(idx) {
         return;
     }
     var current = Array.from(row.querySelectorAll('.chip')).map(function(c){ return c.dataset.orig; });
-    var ok = SB_DATA[idx].valid.some(function(v){
+    var ok = satzbauData[idx].valid.some(function(v){
         return JSON.stringify(v) === JSON.stringify(current);
     });
     row.classList.toggle('correct', ok);
@@ -1478,7 +1618,7 @@ function sbColorRow(idx) {
         if (!punkt) {
             punkt = document.createElement('span');
             punkt.className = 'sb-punkt';
-            punkt.textContent = SB_DATA[idx].punct || '.';
+            punkt.textContent = satzbauData[idx].punct || '.';
             row.appendChild(punkt);
         }
         sbCheckAllDone();
@@ -1490,11 +1630,11 @@ function sbCheckAllDone() {
     if (rows.every(function(r){ return r.classList.contains('correct'); })) stopTimer(SB_TAB_IDX);
 }
 
-function sbInit() {
+function initSatzbau() {
     var c = document.getElementById('satzbauContainer');
     if (c.dataset.built === '1') return;
     c.innerHTML = '';
-    SB_DATA.forEach(function(d, idx){
+    satzbauData.forEach(function(d, idx){
         var item = document.createElement('div');
         item.className = 'satzbau-item';
         var hint = document.createElement('div');
@@ -1551,7 +1691,7 @@ function sbShowSolution(idx) {
     Array.from(row.querySelectorAll('.chip')).forEach(function(c){ bank.appendChild(c); });
     var punkt = row.querySelector('.sb-punkt'); if (punkt) punkt.remove();
     // Richtige Reihenfolge in die Row
-    SB_DATA[idx].valid[0].forEach(function(word){
+    satzbauData[idx].valid[0].forEach(function(word){
         var chip = Array.from(bank.children).find(function(c){ return c.dataset.orig === word && !c.classList.contains('used-sb'); });
         if (chip) {
             chip.classList.add('used-sb');
@@ -1580,7 +1720,7 @@ function resetSb() {
     c.innerHTML = '';
     delete c.dataset.built;
     resetTimer(SB_TAB_IDX);
-    sbInit();
+    initSatzbau();
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2004,5 +2144,317 @@ document.addEventListener('DOMContentLoaded', function(){
     for (var i = 0; i <= 7; i++) refreshBest(i);
 });
 </script>
+
+<script>
+/* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
+   hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
+(function(){
+  var CFG = {"bank":"sb-bank-","row":"sb-row-","fb":"sb-fb-","caps":true,"click":false,"tab":4};
+  var SBGAP = [{"i":0,"row":["_","_","_","Körpersprache","_","_","_","_","die","_","der","Urlauber","_","_"],"parts":["er","setzt","seine","bewusst","ein",",","um","Nervosität","zu","überspielen"]},{"i":1,"row":["_","_","Unruhestifter","_","_","_","am","_","_","_","_","weil","_","_","etwas","_","_","_"],"parts":["Nörgler","und","fallen","oft","schon","Anreisetag","unangenehm","auf",",","sie","ständig","zu","beanstanden","haben"]},{"i":2,"row":["_","_","_","_","_","besonders","_","_","sodass","der","_","Ruhe","_","_"],"parts":["in","Krisensituationen","reagieren","manche","Reisende","panisch",",","Reiseleiter","ausstrahlen","muss"]},{"i":3,"row":["_","_","_","dass","_","Deutsche","_","_","Fälle","_","_","_","_","_","_","für","_"],"parts":["das","Klischee",",","der","für","alle","ausgerüstet","sein","will",",","hält","er","überholt"]},{"i":4,"row":["_","_","Urlauber","_","_","_","Strukturbedürfnis","_","_","_","im","_","_","_","Plänen","_"],"parts":["der","deutsche","hat","ein","ausgesprochenes",",","das","sich","Wunsch","nach","festen","zeigt"]},{"i":5,"row":["_","_","_","meistens","_","indem","_","_","_","_","_","ihre","Kommentare","_"],"parts":["Besserwissern","begegnet","er",",","er","gar","nicht","erst","auf","eingeht"]},{"i":6,"row":["_","_","_","schnell","_","Vertrautheit","_","die","_","_","_","durchaus","_","_"],"parts":["das","Duzen","schafft","eine",",","bei","längeren","Studienreisen","erwünscht","ist"]},{"i":7,"row":["_","_","_","er","_","_","_","soziale","_","_","_","_","der","_","_","unangenehm","_"],"parts":["sein","Trinkgeld","spendet","grundsätzlich","an","eine","Einrichtung",",","weil","ihm","persönliche","Gewinn","wäre"]}];
+  SBGAP.forEach(function(g){ var ex = satzbauData[g.i]; if (!ex) return;
+    ex.row = g.row; ex.parts = g.parts;
+    if (typeof ex.valid[0] === "string") ex.valid = [ex.valid];
+  });
+  if (typeof window.sbDragged === "undefined") window.sbDragged = null;
+  function bankEl(i){ return document.getElementById(CFG.bank + i); }
+  function rowEl(i){ return document.getElementById(CFG.row + i); }
+  function fbEl(i){ return document.getElementById(CFG.fb + i); }
+  function cap(w){ return w.charAt(0).toUpperCase() + w.slice(1); }
+  function positions(row){ return Array.from(row.children).filter(function(n){ return n.classList.contains("sb-gap") || n.classList.contains("chip"); }); }
+  function chipOf(pos){ return pos.classList.contains("sb-gap") ? pos.querySelector(".chip") : pos; }
+  function updateCaps(row){ if (!CFG.caps) return;
+    positions(row).forEach(function(pos,i){ var c = chipOf(pos); if (!c) return;
+      var o = c.dataset.orig;
+      var proper = o.charAt(0) === o.charAt(0).toUpperCase() && o.charAt(0) !== o.charAt(0).toLowerCase();
+      c.textContent = proper ? o : (i === 0 ? cap(o) : o); });
+  }
+  function sequence(i){ var row = rowEl(i), seq = [], complete = true;
+    positions(row).forEach(function(pos){ var c = chipOf(pos); if (c) seq.push(c.dataset.orig); else complete = false; });
+    return { seq: seq, complete: complete }; }
+  function clearMarks(i){ var row = rowEl(i);
+    row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+    row.classList.remove("correct","incorrect");
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p); }
+  function afterChange(i){
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i), info = sequence(i);
+    if (!info.complete){ clearMarks(i); if (fb){ fb.textContent=""; fb.className="satzbau-feedback"; } return; }
+    setTimeout(function(){
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var fresh = sequence(i);
+      var ok = satzbauData[i].valid.some(function(v){ return JSON.stringify(v) === JSON.stringify(fresh.seq); });
+      var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+      if (ok){
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("incorrect"); c.classList.add("correct"); });
+        var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+        punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+        row.classList.add("correct"); row.classList.remove("incorrect");
+        if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+        if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+      } else {
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+        row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("incorrect"); });
+        row.classList.add("incorrect"); row.classList.remove("correct");
+        if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Noch nicht richtig – verschiebe die Wörter!"; }
+      }
+    }, 450);
+  }
+  /* Geführter Modus (B1, 2026-06-10): Sofort-Feedback pro Chip-Platzierung.
+     Richtig (konsistent mit mind. einer valid-Reihenfolge) -> grün + fixiert.
+     Falsch -> rot + Rücksprung in die Bank nach 800 ms. */
+  function toBank(i, chip){
+    chip.textContent = chip.dataset.orig;  // Kleinschreibung wiederherstellen — Bank darf den Satzanfang nicht verraten
+    bankEl(i).appendChild(chip);
+  }
+  function consistent(i){
+    var pos = positions(rowEl(i));
+    var v = satzbauData[i].valid;
+    return v.some(function(o){
+      for (var k = 0; k < pos.length; k++){ var c = chipOf(pos[k]); if (c && c.dataset.orig !== o[k]) return false; }
+      return true; });
+  }
+  function finishRow(i){
+    var row = rowEl(i), fb = fbEl(i);
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+    var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+    punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+    row.classList.add("correct"); row.classList.remove("incorrect");
+    if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+    if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+  }
+  function placeJudge(i, chip){
+    if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i);
+    if (consistent(i)){
+      chip.classList.remove("incorrect"); chip.classList.add("correct");
+      chip.dataset.fixed = "1"; chip.draggable = false;
+      if (sequence(i).complete){ finishRow(i); }
+      else if (fb){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+    } else {
+      chip.classList.add("incorrect");
+      if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Das passt hier nicht!"; }
+      setTimeout(function(){
+        chip.classList.remove("incorrect");
+        if (!chip.dataset.fixed && chip.closest(".sb-gap")) toBank(i, chip);
+        updateCaps(rowEl(i));
+        if (fb && /incorrect/.test(fb.className)){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+      }, 800);
+    }
+  }
+  function makeChip(word, i){
+    var chip = document.createElement("div");
+    var isPunct = [",",".","!","?",";",":"].indexOf(word) !== -1;
+    chip.className = "chip" + (isPunct ? " punct-chip" : ""); chip.textContent = word; chip.draggable = true;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.sbIdx = String(i);
+    chip.addEventListener("dragstart", function(e){ if (chip.dataset.fixed){ e.preventDefault(); return; } window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
+    if (CFG.click) chip.addEventListener("click", function(){
+      if (chip.dataset.fixed) return;
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var inSlot = chip.closest(".sb-gap");
+      if (inSlot){ toBank(i, chip); updateCaps(rowEl(i)); return; }
+      var free = Array.from(rowEl(i).querySelectorAll(".sb-gap")).find(function(s){ return !s.querySelector(".chip"); });
+      if (free){ free.appendChild(chip); placeJudge(i, chip); }
+    });
+    return chip;
+  }
+  function makeLocked(word){
+    var chip = document.createElement("div");
+    chip.className = "chip sb-locked"; chip.textContent = word;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.locked = "1";
+    return chip;
+  }
+  function makeSlot(i){
+    var slot = document.createElement("div"); slot.className = "sb-gap";
+    slot.addEventListener("dragover", function(e){ e.preventDefault(); if (window.sbDragged) slot.classList.add("drag-over"); });
+    slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
+    slot.addEventListener("drop", function(e){
+      e.preventDefault(); slot.classList.remove("drag-over");
+      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      if (slot.querySelector(".chip")) return;  // Lücke schon belegt
+      slot.appendChild(d); window.sbDragged = null; placeJudge(i, d);
+    });
+    return slot;
+  }
+  function registerBank(bank, i){
+    bank.addEventListener("dragover", function(e){ e.preventDefault(); });
+    bank.addEventListener("drop", function(e){
+      e.preventDefault(); var d = window.sbDragged;
+      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      toBank(i, d); window.sbDragged = null; updateCaps(rowEl(i));
+    });
+  }
+  function freshEl(id){ var el = document.getElementById(id); if (!el) return null;
+    var c = el.cloneNode(false); el.parentNode.replaceChild(c, el); return c; }
+  function rebuild(i){
+    var ex = satzbauData[i]; if (!ex || !ex.row) return;
+    var bank = freshEl(CFG.bank + i), row = freshEl(CFG.row + i);
+    if (!bank || !row) return;
+    var fb = fbEl(i); if (fb){ fb.textContent = ""; fb.className = "satzbau-feedback"; }
+    var mov = ex.parts.slice();
+    for (var k = mov.length - 1; k > 0; k--){ var j = Math.floor(Math.random()*(k+1)); var t = mov[k]; mov[k] = mov[j]; mov[j] = t; }
+    mov.forEach(function(w){ bank.appendChild(makeChip(w, i)); });
+    ex.row.forEach(function(tok){ row.appendChild(tok === "_" ? makeSlot(i) : makeLocked(tok)); });
+    registerBank(bank, i);
+    ensureButtons(i);
+  }
+  function rebuildAll(){ satzbauData.forEach(function(ex,i){ if (ex.row) rebuild(i); }); }
+  function showSol(i){
+    rebuild(i);
+    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0];
+    var pool = Array.from(bank.querySelectorAll(".chip"));
+    positions(row).forEach(function(pos,k){
+      if (!pos.classList.contains("sb-gap")) return;
+      var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
+      if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
+    });
+    row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("correct"); c.dataset.fixed = "1"; c.draggable = false; });
+    updateCaps(row);
+    finishRow(i);
+  }
+  function ensureButtons(i){
+    if (document.getElementById("sb-btns-" + i)) return;
+    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
+    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;
+    if (item && [].some.call(item.querySelectorAll("button"), function(b){
+      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden
+    var box = document.createElement("div");
+    box.id = "sb-btns-" + i;
+    box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
+    var b1 = document.createElement("button"); b1.type = "button"; b1.className = "btn"; b1.textContent = "Lösen";
+    b1.addEventListener("click", function(){ showSol(i); });
+    var b2 = document.createElement("button"); b2.type = "button"; b2.className = "btn"; b2.textContent = "↺ Neustart";
+    b2.addEventListener("click", function(){ rebuild(i); });
+    box.appendChild(b1); box.appendChild(b2);
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+  ["initSatzbau","buildSatzbau"].forEach(function(fn){
+    if (typeof window[fn] === "function"){ var o = window[fn];
+      window[fn] = function(){ o.apply(this, arguments); rebuildAll(); }; }
+  });
+  if (typeof window.sbReset === "function" && window.sbReset.length === 0){
+    var orall = window.sbReset;
+    window.sbReset = function(){ orall.apply(this, arguments); rebuildAll(); };
+  }
+  if (typeof window.sbResetOne === "function"){
+    var orst = window.sbResetOne;
+    window.sbResetOne = function(i){ if (satzbauData[i] && satzbauData[i].row){ rebuild(i); return; } orst.apply(this, arguments); };
+  }
+  if (typeof window.sbShowSolution === "function"){
+    var osol = window.sbShowSolution;
+    window.sbShowSolution = function(i){ if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
+  }
+  /* Bugfix 2026-06-10: bei leerer Row (Free-Build) zusätzlich die Bank prüfen,
+     sonst baut sich das Gerüst beim Erstladen nie auf (nur nach Neustart). */
+  var pRow = rowEl(0), pBank = bankEl(0);
+  if ((pRow && pRow.children.length) || (pBank && pBank.children.length)) rebuildAll();
+})();
+</script>
+<script>
+/* ========== TAB: GENUS (injiziert) ========== */
+var GENUS_DATA = [
+  { word: "Urlaub", cat: "der" },
+  { word: "Flug", cat: "der" },
+  { word: "Koffer", cat: "der" },
+  { word: "Strand", cat: "der" },
+  { word: "Pass", cat: "der" },
+  { word: "Zug", cat: "der" },
+  { word: "Reise", cat: "die" },
+  { word: "Fahrt", cat: "die" },
+  { word: "Karte", cat: "die" },
+  { word: "Grenze", cat: "die" },
+  { word: "Insel", cat: "die" },
+  { word: "Küste", cat: "die" },
+  { word: "Hotel", cat: "das" },
+  { word: "Ticket", cat: "das" },
+  { word: "Gepäck", cat: "das" },
+  { word: "Meer", cat: "das" },
+  { word: "Ziel", cat: "das" },
+  { word: "Visum", cat: "das" },
+  { word: "Reisen", cat: "pl" },
+  { word: "Flüge", cat: "pl" },
+  { word: "Hotels", cat: "pl" },
+  { word: "Strände", cat: "pl" },
+  { word: "Inseln", cat: "pl" },
+  { word: "Tickets", cat: "pl" }
+];
+var GENUS_TIMER = 8;
+var draggedGenus = null, selectedGenus = null;
+var genusSec = 0, genusInt = null;
+function genusFmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function genusTimerStart(){ if(genusInt) return; genusInt=setInterval(function(){ genusSec++; var el=document.getElementById('timer-'+GENUS_TIMER); if(el) el.textContent=genusFmt(genusSec); },1000); }
+function genusTimerStop(){ if(genusInt){ clearInterval(genusInt); genusInt=null; } var b=document.getElementById('best-'+GENUS_TIMER); if(b){ var pv=/^\d\d:\d\d$/.test(b.textContent)?parseInt(b.textContent.slice(0,2))*60+parseInt(b.textContent.slice(3)):1e9; if(genusSec<pv) b.textContent=genusFmt(genusSec); } }
+function genusTimerReset(){ if(genusInt){ clearInterval(genusInt); genusInt=null; } genusSec=0; var el=document.getElementById('timer-'+GENUS_TIMER); if(el) el.textContent='00:00'; }
+function shuffleGenus(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function createGenusChip(d){
+  var chip=document.createElement('div');
+  chip.className='genus-chip'; chip.draggable=true; chip.dataset.cat=d.cat; chip.textContent=d.word;
+  chip.addEventListener('dragstart',function(e){ genusTimerStart(); draggedGenus=chip; chip.classList.add('dragging'); e.dataTransfer.setData('text/plain',''); });
+  chip.addEventListener('dragend',function(){ chip.classList.remove('dragging'); });
+  chip.addEventListener('click',function(){
+    if(selectedGenus===chip){ chip.classList.remove('selected'); selectedGenus=null; return; }
+    if(selectedGenus) selectedGenus.classList.remove('selected');
+    selectedGenus=chip; chip.classList.add('selected'); genusTimerStart();
+  });
+  return chip;
+}
+function initGenus(){
+  var pool=document.getElementById('genusPool'); if(!pool) return;
+  pool.innerHTML='';
+  ['der','die','das','pl'].forEach(function(c){ var z=document.getElementById('drop-'+c); if(z) z.innerHTML=''; });
+  var fb=document.getElementById('genusFeedback'); if(fb) fb.textContent='';
+  shuffleGenus(GENUS_DATA).forEach(function(d){ pool.appendChild(createGenusChip(d)); });
+  document.querySelectorAll('#sec-genus .genus-drop').forEach(function(zone){
+    zone.addEventListener('dragover',function(e){ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave',function(){ zone.classList.remove('dragover'); });
+    zone.addEventListener('drop',function(e){ e.preventDefault(); zone.classList.remove('dragover'); if(!draggedGenus) return; zone.appendChild(draggedGenus); checkGenusChip(draggedGenus, zone.dataset.cat); draggedGenus=null; updateGenusFeedback(); });
+    zone.addEventListener('click',function(){ if(!selectedGenus) return; zone.appendChild(selectedGenus); checkGenusChip(selectedGenus, zone.dataset.cat); selectedGenus.classList.remove('selected'); selectedGenus=null; updateGenusFeedback(); });
+  });
+  pool.addEventListener('dragover',function(e){ e.preventDefault(); });
+  pool.addEventListener('drop',function(e){ e.preventDefault(); if(draggedGenus){ pool.appendChild(draggedGenus); draggedGenus.classList.remove('correct','wrong'); draggedGenus=null; updateGenusFeedback(); } });
+}
+function checkGenusChip(chip,cat){
+  var ok=chip.dataset.cat===cat;
+  chip.classList.toggle('correct',ok); chip.classList.toggle('wrong',!ok);
+  if(!ok){ setTimeout(function(){ chip.classList.remove('wrong'); document.getElementById('genusPool').appendChild(chip); updateGenusFeedback(); },900); }
+}
+function updateGenusFeedback(){
+  var platziert=document.querySelectorAll('#sec-genus .genus-drop .genus-chip').length;
+  var richtig=document.querySelectorAll('#sec-genus .genus-drop .genus-chip.correct').length;
+  var fb=document.getElementById('genusFeedback'); if(!fb) return;
+  if(platziert===0){ fb.textContent=''; return; }
+  fb.textContent=richtig+' von '+GENUS_DATA.length+' richtig zugeordnet.';
+  fb.style.color=(richtig===GENUS_DATA.length)?'#2e7d32':'#555';
+  if(richtig===GENUS_DATA.length) genusTimerStop();
+}
+function showGenusLoesung(){
+  Array.from(document.querySelectorAll('#sec-genus .genus-chip')).forEach(function(chip){
+    var z=document.getElementById('drop-'+chip.dataset.cat);
+    if(z){ z.appendChild(chip); chip.classList.remove('wrong'); chip.classList.add('correct'); }
+  });
+  updateGenusFeedback();
+}
+function resetGenus(){ initGenus(); genusTimerReset(); }
+(function(){ initGenus(); })();
+</script>
+
+
+<!-- FB-JUMPTOP -->
+<button class="fb-jumptop" id="fbJumpTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben springen" aria-label="Nach oben springen">↑ Nach oben</button>
+<script>
+(function(){
+  var btn = document.getElementById('fbJumpTop');
+  if (!btn) return;
+  function toggle(){
+    var scrollable = document.documentElement.scrollHeight > window.innerHeight + 60;
+    btn.classList.toggle('show', scrollable);
+  }
+  window.addEventListener('scroll', toggle, {passive:true});
+  window.addEventListener('resize', toggle);
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ setTimeout(toggle, 60); }); });
+  setTimeout(toggle, 80);
+})();
+</script>
+
 </body>
 </html>
