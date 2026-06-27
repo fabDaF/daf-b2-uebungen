@@ -450,11 +450,22 @@ getöntes Porträt liefert der Gesichtserkennung null Gesichter):
 3. **Struktur-Default** — bei neuen Lektionen im Zweifel gleich ein
    selbstgebautes SVG-Banner oder ein menschenfreies Motiv wählen.
 
-Inventar-Stand 2026-06-26: ein Erst-Scan meldet rund **190 Dateien über alle
-Niveaus** mit mindestens einem verdächtig beschnittenen Gesichts-Banner
-(B2-Root 47, C1 42, B1 42, A1 34, C2 22, A2 5; heuristisch, mit Fehlalarmen).
-Die Bereinigung ist eine eigene Kampagne wie der Genus-/Serif-Rollout — Datei
-für Datei mit `check_banner_faces.py` als Wahrheit.
+Stand 2026-06-27: Kampagne durchgezogen. Der erste Heuristik-Scan (~190
+Verdachtsdateien) war stark von Fehlalarmen aufgebläht; verifiziert wurde
+Banner für Banner. Behoben sind ~100 Dateien (1011X durch SVG ersetzt; alle
+übrigen erkannten Augen-Schnitte auf `object-position: top` geschoben, per
+HEAD-basiertem Plumbing committet, Netto-Diff je Datei = nur `object-position`).
+Verbleibende erkannte Augen-oben-Schnitte: **0**.
+
+**Geschärfte Erkennung (nachdem B2 3021X durchrutschte — Junge seitlich, mit
+Kopfhörern):** Der Detektor lokalisiert die Augenlinie jetzt mit der
+Augen-Kaskade INNERHALB der Gesichts-Box (robust gegen schräge Köpfe) und
+flaggt nur bei BESTÄTIGTEN Augen über dem Bandrand — hohe Präzision, kaum
+Fehlalarme auf Grafiken. **Ehrliche Grenze: keine klassische CV-Kaskade fängt
+100 %** (starke Neigung, Sonnenbrille, geschlossene Augen, Haarverdeckung).
+Das letzte Sicherheitsnetz bleibt das menschliche Auge — bei jeder geöffneten
+Lektion kurz auf geköpfte Banner achten und melden; `check_banner_faces.py` ist
+die automatische, aber nicht unfehlbare erste Verteidigungslinie.
 
 ## Ergänzende Dokumente in diesem Repo
 
