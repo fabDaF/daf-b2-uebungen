@@ -81,6 +81,37 @@ def gfile_wortbank_from_answers(path, s):
     return bool(re.search(r"\.answer\b", _func_body(s, "initWortbank")))
 
 
+def js_builder_defined_and_called(s, name):
+    """True, wenn eine JS-Wortbank-Baufunktion `name` DEFINIERT UND auch AUFGERUFEN
+    wird. Viele Lektionen bauen ihre §7-Wortbank rein dynamisch — der Container
+    bekommt seine Klasse via `.className = 'wort-bank'` (kein literales class=/id=),
+    deshalb greifen HELP_RE/CONTAINER_RE nicht. Eine definierte UND aufgerufene
+    Baufunktion ist ein verlässliches Signal für eine zur Laufzeit befüllte Wortbank.
+    Nur-definiert-aber-nie-aufgerufen zählt NICHT (dann bliebe die Box leer)."""
+    defs = len(re.findall(r"function\s+" + re.escape(name) + r"\b", s))
+    if defs == 0:
+        return False
+    total = len(re.findall(r"\b" + re.escape(name) + r"\b", s))
+    # total = Definition(en) + echte Referenzen. Bleibt nach Abzug der Definitionen
+    # mindestens eine Referenz übrig, wird die Funktion tatsächlich aufgerufen.
+    return (total - defs) > 0
+
+
+def has_js_wortbank(s):
+    """Eine zur Laufzeit befüllte JS-Wortbank über das selbst-genügsame B1-Generikum
+    `buildWordBank` — diese Funktion erzeugt Container UND Chips selbst und setzt die
+    Klasse via `.className='wort-bank'` (kein literales class=/id=, daher von HELP_RE
+    nicht erfasst). Definiert UND aufgerufen = verlässliches Signal für eine befüllte
+    Wortbank (browser-verifiziert an DE_B1_1013R).
+
+    Bewusst NICHT als Signal: das §7-`initWortbank`. Es baut nur in einen bereits
+    vorhandenen Container `#wortbank-luecken`; fehlt der (oder ist LUECKEN_DATA leer),
+    läuft die Funktion ins Leere und rendert NICHTS — genau dieser stille Leerlauf trat
+    bei Hoefliche_Modalverben_B1B2 auf (initWortbank() aufgerufen, aber 0 Chips im DOM).
+    Eine bloße initWortbank-Referenz darf also keine Datei freigeben."""
+    return js_builder_defined_and_called(s, "buildWordBank")
+
+
 def initwortbank_defined_but_unused(s):
     """True, wenn initWortbank() definiert, aber nirgends referenziert/aufgerufen wird.
     Das universelle Modul (FB-WORTBANK-MODULE) befüllt eigenständig — dann irrelevant."""
@@ -109,7 +140,7 @@ def scan(paths):
         # Buchstaben-/Fragment-Gitter: ausgenommen.
         if LETTER_RE.search(s):
             continue
-        if not HELP_RE.search(s):
+        if not (HELP_RE.search(s) or has_js_wortbank(s)):
             missing.append(p)
             continue
         # Hilfe im Markup vorhanden — aber bleibt sie zur Laufzeit leer?
