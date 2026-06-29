@@ -286,7 +286,11 @@ alle Dateitypen (R/G/V/X/C/S/W). **Einzige Ausnahme: die expliziten
 Drill-Aufgaben (FDxx)** — die sind selbst schon Genus-/Formentraining.
 
 Der Genus-Tab (🏷️, Drag-&-Drop + Klick, Kategorien der/die/das/Plural)
-gehört **direkt vor den Wortschatz-Tab** (Wortschatz bleibt letzter Tab).
+gehört **direkt vor den Wortschatz-Tab**. Wortschatz wiederum steht direkt
+vor der Schreibwerkstatt — die **kanonische Tail-Ordnung** lautet seit
+2026-06-29: **… → Genus → Wortschatz → Schreibwerkstatt (letzter Tab)**.
+Die frühere Regel „Wortschatz ist letzter Tab" ist damit abgelöst (siehe
+den eigenen Abschnitt „Schreibwerkstatt ist IMMER der letzte Tab" weiter unten).
 Banner: die gemeinsame Spezialgrafik `htmlS/genus-banner.svg` als
 eingebetteter `data:image/svg+xml;base64`-URI (NICHT pro Datei ein neues
 Pexels-Bild). Bestehende Genus-Tabs behalten ihr Bild.
@@ -358,6 +362,36 @@ zu ergänzen — das Basismuster ist banner + Vokabelkarten ohne Foto-pro-Karte.
 Skill-Bezug: Das Muster ist in `daf-lesetext` §5 (Vorentlastung) verankert.
 Die Skill-Datei selbst wird über den `skill-verwaltung`-Workflow gepflegt,
 nicht aus der laufenden Cowork-Session heraus.
+
+## Schreibwerkstatt ist IMMER der letzte Tab (Pflicht seit 2026-06-29)
+
+Grundsatzentscheidung von Frank: **Der Schreibwerkstatt-Tab (📨 Schreiben)
+steht in JEDER Lektion ganz am Ende — ausnahmslos der letzte Tab.** Das hat
+didaktischen Sinn: Schreiben ist die produktive Abschlussleistung; sie kommt
+nach allem Üben (Lesen, Lückentext, Satzbau, Genus, Wortschatz).
+
+Damit ist die alte Regel „Wortschatz ist der letzte Tab" **abgelöst**. Die
+neue kanonische Tail-Ordnung lautet: **… → Genus → Wortschatz → Schreibwerkstatt**.
+Wo kein Wortschatz-/Genus-Tab existiert, rückt Schreiben trotzdem ans Ende.
+
+Beim Neubau einer Lektion den Schreiben-Tab gleich als letzten setzen. Beim
+Migrieren von Altbeständen den Schreiben-Tab ans Ende verschieben, **ohne die
+relative Reihenfolge der übrigen Tabs zu ändern**.
+
+Technik beim Verschieben (generationsrobust): `showTab(n)`/`showSection(n)`
+wählen die Section per `getElementById('sec-'+n)` und heben den Nav-Button
+positional per `nav-btn[n]` hervor. Ein sicheres Verschieben ans Ende heißt
+deshalb: (1) den Schreiben-Nav-Button physisch ans Ende der `.nav` setzen,
+(2) **alle** Nav-Buttons in DOM-Reihenfolge neu durchnummerieren
+(`onclick="showTab(k)"`), (3) die `id="sec-k"` der Sections passend zur neuen
+Position umbenennen (Zwei-Phasen-Remap gegen ID-Kollisionen). Timer-IDs im
+Section-Inhalt bleiben unangetastet — sie hängen am Inhalt, nicht an der
+Section-Position. Nach jedem Lauf: JS-Parse + Browser-Stichprobe (Klick auf
+den letzten Tab zeigt die Schreibwerkstatt, korrekte Hervorhebung).
+
+Sicherheitsnetz: `scripts/check_schreib_last.py` meldet jede Lektion mit
+Schreiben-Tab, der nicht der letzte ist (Exit 1). **Vor jedem Lektions-Commit
+laufen lassen**, zusammen mit den übrigen `check_*`-Skripten.
 
 ## Schreibwerkstatt-Tab braucht IMMER Innen-Padding (Pflicht seit 2026-06-23)
 
