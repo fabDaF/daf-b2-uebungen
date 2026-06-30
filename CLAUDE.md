@@ -598,6 +598,36 @@ Rollout über die ~66 inline-kaputten B1-Dateien (und die anderen Niveaus) ist g
 und läuft separat per `fix_nav.py` — er ist nicht Voraussetzung dafür, dass neue
 Lektionen ab sofort korrekt entstehen.
 
+## Lückentext ist IMMER eine kanonische Story (Pflicht seit 2026-06-30)
+
+Grundsatzentscheidung von Frank, an zwei B1-Piloten abgenommen (1057X Wortschatz,
+3065G Grammatik): **Der Lückentext-Tab ist eine zusammenhängende STORY** — ein
+durchlaufender, kohärenter Text mit Lücken, **keine isolierten Einzelsätze, keine
+Nummern**. Die Story ist das pädagogisch wertvollste Element; wo ein Altbestand keine
+Story hat, wird er **mit Story neu gebaut**, nicht bloß mechanisch geflickt.
+
+Verbindliche Form: Story · **Serifenschrift** (inkl. Eingabefelder) · §7-Wortbank
+(gemischt, nicht klickbar, `.used`-Durchstreichen) · case-sensitiv · kein Prüfen-Button
+· **genau 10 Lücken**. Zwei Varianten, die die Engine selbst erkennt: **Wortschatz**
+(R/V/X) zeigt die Vollform (`data-answer`); **Grammatik** (G) zeigt die **Grundform**
+(`data-base`), die Zielform ist nie sichtbar (Durchstreichen per Grundform).
+
+Eine Quelle der Wahrheit + Genus-Disziplin (ein Produzent, ein Gate):
+
+- `scripts/lt-story-engine.js` — die Engine (variantenerkennend). Nie pro Datei von
+  Hand kopieren — sonst Drift.
+- `scripts/lt-story.css` — die CSS.
+- `scripts/inject_lt.py DATEI.html` — Produzent: spielt Engine + CSS + Timer-Hooks
+  idempotent ein (verdrahtet den Lückentext-Tab-Index).
+- `scripts/check_lueckentext.py` — Gate (+ Inventur). **Vor jedem Lektions-Commit
+  laufen lassen**, zusammen mit den übrigen `check_*`-Skripten.
+
+Workflow pro Lektion: (1) Story mit genau 10 Inline-Lücken schreiben (G: jede Lücke mit
+`data-base`), (2) `inject_lt.py` laufen lassen, (3) `check_lueckentext.py` muss grün sein.
+Vollständige Regeln + Markup-Vertrag: Skill **`daf-lueckentext`** (die einzige Heimat;
+`daf-kern §7` / `daf-uebungsformen` / `daf-grammatik` verweisen nur noch dorthin). Bei
+Widerspruch gilt diese Datei; der Skill-Text wird über `skill-verwaltung` nachgezogen.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
