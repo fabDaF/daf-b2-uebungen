@@ -62,7 +62,12 @@ def classify(s):
     body = _func_body(s, "initWortschatz")
     if body is None:
         return "KEIN-INIT"
-    has_input = bool(re.search(r"createElement\(\s*['\"]input['\"]\s*\)", body)) or ("<input" in body)
+    # Type-bare Felder — auch über Helfer (makeWsInput o.ä.) oder Antwort-Verdrahtung erkennen,
+    # nicht nur literales createElement('input')/<input (7001V baut Felder via makeWsInput-Helfer).
+    make_input = bool(re.search(r"make\w*[Ii]nput\s*\(", body))
+    answer_wire = any(k in body for k in ("dataset.field", "data-field", "dataset.answer", "data-answer"))
+    has_input = (bool(re.search(r"createElement\(\s*['\"]input['\"]\s*\)", body))
+                 or ("<input" in body) or make_input or answer_wire)
     is_card = ("ws-card" in body) or ("vocab-card" in body)
     if not has_input:
         return "PASSIV"          # keine type-baren Felder
@@ -73,7 +78,7 @@ def classify(s):
     # Feldnamen sind BEWUSST beliebig — Spezial-Wortschatz (z.B. Verb-Drill Präteritum/Partizip II
     # in G-Dateien wie 2012G) ist legitim; nicht auf art/word/plural einengen. Kartenklasse darf
     # luecke-item ODER luecken-item sein (historische Variante).
-    has_answer = any(k in body for k in ("dataset.field", "data-field", "dataset.answer", "data-answer"))
+    has_answer = answer_wire or make_input  # Helfer (makeWsInput) verdrahtet die Antworten selbst
     has_card_row = ("luecken-item" in body) or ("luecke-item" in body)
     if not (has_answer and has_card_row):
         return "ABWEICHEND"
