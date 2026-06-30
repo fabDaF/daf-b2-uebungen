@@ -112,7 +112,8 @@ def canonical_block(secid, tidx, datavar):
 'function resetWortschatz(){\n'
 '  document.querySelectorAll("#' + secid + ' input.blank").forEach(function(inp){if(!inp.disabled){inp.value="";inp.classList.remove("correct","wrong");}});\n'
 '  if(typeof resetTimer==="function") resetTimer(' + str(tidx) + ');\n'
-'}\n')
+'}\n'
+'try{window.initWortschatz=initWortschatz;window.wortschatzCheck=wortschatzCheck;window.checkWortschatzAllOk=checkWortschatzAllOk;window.showWortschatzLoesung=showWortschatzLoesung;window.resetWortschatz=resetWortschatz;}catch(e){}\n')
 
 
 def process(path):
@@ -157,11 +158,23 @@ def process(path):
     if s2 == s and cont_id != "wortschatzContainer":
         return "ABBRUCH: Container-Tag nicht ersetzbar (id=" + cont_id + ")"
     s = s2
-    # 5) Steuerleisten-Buttons normalisieren
-    s = re.sub(r'onclick="\s*showWsLoesung\(\)\s*"', 'onclick="showWortschatzLoesung()"', s)
-    # 6) alte Funktionen entfernen
+    # 5) Steuerleisten-Buttons normalisieren: JEDE Wortschatz-Lösungen-Variante (Name enthält
+    #    "loesung/lösung" UND "wortschatz/ws") → showWortschatzLoesung(). Andere Tabs (showZuoLoesung,
+    #    showLueckeLoesung, showGenusLoesung) enthalten kein wortschatz/ws → unberührt.
+    def _is_ws_loesung(name):
+        n = name.lower()
+        return ("loesung" in n or "lösung" in n) and ("wortschatz" in n or "ws" in n)
+
+    def _norm_onclick(m):
+        return 'onclick="showWortschatzLoesung()"' if _is_ws_loesung(m.group(1)) else m.group(0)
+
+    s = re.sub(r'onclick="\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*"', _norm_onclick, s)
+    # 6) alte Funktionen entfernen — feste Liste + alle Wortschatz-Lösungs-Varianten (außer der kanonischen)
     for fn in FUNCS_TO_STRIP:
         s = strip_func(s, fn)
+    for fn in set(re.findall(r'function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(', s)):
+        if _is_ws_loesung(fn) and fn != "showWortschatzLoesung":
+            s = strip_func(s, fn)
     # 7) kanonischen Block DIREKT NACH dem Daten-Array einfügen (gleicher <script>-Block
     #    wie der initWortschatz()-Aufruf — sonst ReferenceError über Block-Grenzen hinweg).
     blk = canonical_block(secid, tidx, datavar)
