@@ -40,17 +40,24 @@ MARKER = "FB-LT-STORY"
 COMPETITORS = ("FB-WORTBANK-MODULE", "FB-LT-V1")
 GAP_RE = re.compile(r'<input\s+class="blank"\s+data-answer="([^"]*)"([^>]*)>')
 GFILE_RE = re.compile(r'_\d{4}G[-_.]')
-NUM_RE = re.compile(r'class="luecken-story"[^>]*>(.*?)</div>\s*(?:</div>|<!--)', re.S)
+# Story-Container: <div id="lueckenContainer" class="luecken-story"> … </div>
+# (Inhalt sind nur <p>…</p>, kein verschachteltes <div> → das erste </div> schließt.)
+STORY_RE = re.compile(r'id="lueckenContainer"[^>]*>(.*?)</div>', re.S)
+
+
+def story_region(s):
+    """Nur der Story-Container. Lücken/Nummern werden NUR hier gezählt, NIE dateiweit
+    (sonst zählen Eingaben anderer Tabs mit — Fund am Test 1013R: 11 statt 10)."""
+    m = STORY_RE.search(s)
+    return m.group(1) if m else ""
 
 
 def gaps(s):
-    return GAP_RE.findall(s)
+    return GAP_RE.findall(story_region(s))
 
 
 def has_numbering(s):
-    # <ol> in der Story oder führende "1. " Nummern in den Story-Absätzen
-    m = re.search(r'class="luecken-story".*?</div>\s*</div>', s, re.S)
-    region = m.group(0) if m else s
+    region = story_region(s)
     if re.search(r'<ol\b', region):
         return True
     if re.search(r'<p>\s*\d+\.\s', region):
