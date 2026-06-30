@@ -49,6 +49,28 @@ def func_body(s, name):
     return None
 
 
+CSS_BLOCK = (
+'\n/* FB-WORTSCHATZ-KANON-CSS — skill-konforme Karten-Optik, NUR im Wortschatz-Tab (überschreibt'
+' abweichende Datei-CSS, Lückentext bleibt unberührt) */\n'
+'#wortschatzContainer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}\n'
+'#wortschatzContainer .luecken-item{background:#f8f9ff;border:1px solid #dde3ff;border-left:4px solid #667eea;border-radius:10px;padding:12px 16px;margin:0;display:block;}\n'
+'#wortschatzContainer .luecken-item>div:first-child{font-weight:700;color:#667eea;margin-bottom:8px;font-size:1.05em;}\n'
+'#wortschatzContainer input.blank{border:none;border-bottom:2px solid #667eea;border-radius:0;background:#fff;padding:4px 6px;outline:none;font-family:inherit;font-size:0.95em;}\n'
+'#wortschatzContainer input.blank:focus{border-bottom-color:#764ba2;}\n'
+'#wortschatzContainer input.blank.correct{border-bottom-color:#27ae60;background:#e8f8f0;}\n'
+'#wortschatzContainer input.blank.wrong{border-bottom-color:#e74c3c;background:#fdeaea;}\n'
+'@media(max-width:640px){#wortschatzContainer{grid-template-columns:1fr;}}\n')
+
+
+def inject_css(s):
+    if "FB-WORTSCHATZ-KANON-CSS" in s:
+        return s
+    i = s.find("</style>")
+    if i < 0:
+        return s
+    return s[:i] + CSS_BLOCK + s[i:]
+
+
 def canonical_block(secid, tidx, datavar):
     return ('\n/* FB-WORTSCHATZ-KANON — deterministisch, schema-adaptiv (inject_wortschatz.py) */\n'
 'function initWortschatz(){\n'
@@ -158,6 +180,8 @@ def process(path):
     ins = (semi + 1) if (semi != -1 and semi - end < 4) else (end + 1)
     call = "" if re.search(r'\binitWortschatz\(\)', s) else "\ninitWortschatz();"
     s = s[:ins] + "\n" + blk + call + "\n" + s[ins:]
+    # 8) kanonische Wortschatz-Optik (scoped CSS) sicherstellen
+    s = inject_css(s)
     io.open(path, "w", encoding="utf-8").write(s)
     return "OK sec=" + secid + " timer=" + str(tidx) + " data=" + datavar + " container=" + cont_id
 
