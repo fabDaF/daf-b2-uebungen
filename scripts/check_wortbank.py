@@ -150,11 +150,38 @@ def has_double_wortbank(s):
     return not guarded
 
 
+def has_shadowed_buildwordbank(s):
+    """(E) 3011X-Klasse: ZWEI buildWordBank-Definitionen — eine ohne, eine MIT Parameter.
+    Die spätere Parameter-Version überschreibt (JS-Hoisting) die parameterlose; ein
+    parameterloser Aufruf `buildWordBank()` landet dann in der Parameter-Version und
+    bricht via `if(!containerEl) return` sofort ab → die Wortbank rendert NICHT, obwohl
+    die Funktion „definiert UND aufgerufen" ist. Genau dieser stille Leerlauf trat
+    2026-06-30 in 3011X/2022G/2023R/2055G auf — has_js_wortbank() meldete brav OK.
+    KEIN Treffer, wenn zusätzlich ein Aufruf MIT Argument existiert: der rendert die
+    Parameter-Version korrekt (so funktioniert 3069X trotz Doppeldefinition)."""
+    noarg_def = re.search(r"function\s+buildWordBank\s*\(\s*\)", s) is not None
+    param_def = re.search(r"function\s+buildWordBank\s*\(\s*\w", s) is not None
+    if not (noarg_def and param_def):
+        return False
+    s2 = re.sub(r"function\s+buildWordBank\s*\([^)]*\)", "", s)  # Definitionen entfernen
+    noarg_call = re.search(r"\bbuildWordBank\s*\(\s*\)", s2) is not None
+    witharg_call = re.search(r"\bbuildWordBank\s*\(\s*[^)\s]", s2) is not None
+    return noarg_call and not witharg_call
+
+
+# (F) Platzhalter-Leak: ein internes Datenfeld ist in den Input-placeholder durchgesickert
+# (z. B. placeholder="Größe: m" in 2031X — das Breiten-Feld `size` landete im sichtbaren Text).
+PLACEHOLDER_LEAK_RE = re.compile(
+    r'placeholder=\\?"[^"]*(?:Gr(?:ö|&ouml;)ße|undefined|\bnull\b|cat:|size:)[^"]*"', re.I)
+
+
 def scan(paths):
     missing = []   # (A) gar keine Hilfe
     empty = []     # (B) Container da, aber nie befüllt
     suspect = []   # (C) G-Datei: Wortbank aus Lösungen abgeleitet (Infinitiv-Wortkasten nötig)
     double = []    # (D) zwei Wortbanken gleichzeitig sichtbar
+    shadowed = []  # (E) buildWordBank-Schattendefinition -> Wortbank rendert nicht
+    leak = []      # (F) internes Feld im Input-placeholder
     for p in paths:
         try:
             s = open(p, encoding="utf-8", errors="replace").read()
@@ -165,6 +192,12 @@ def scan(paths):
         # Buchstaben-/Fragment-Gitter: ausgenommen.
         if LETTER_RE.search(s):
             continue
+        # Platzhalter-Leak (unabhängig von der Wort-Hilfe) — vor dem missing-continue prüfen.
+        if PLACEHOLDER_LEAK_RE.search(s):
+            leak.append(p)
+        # buildWordBank-Schattendefinition -> Wortbank rendert trotz „definiert+aufgerufen" nicht.
+        if has_shadowed_buildwordbank(s):
+            shadowed.append(p)
         if not (HELP_RE.search(s) or has_js_wortbank(s)):
             missing.append(p)
             continue
@@ -177,7 +210,7 @@ def scan(paths):
         # Zwei Wortbanken gleichzeitig sichtbar?
         if has_double_wortbank(s):
             double.append(p)
-    return missing, empty, suspect, double
+    return missing, empty, suspect, double, shadowed, leak
 
 
 def collect_repo():
@@ -194,8 +227,8 @@ def collect_repo():
 if __name__ == "__main__":
     args = sys.argv[1:]
     files = args if args else collect_repo()
-    missing, empty, suspect, double = scan(files)
-    if missing or empty or suspect or double:
+    missing, empty, suspect, double, shadowed, leak = scan(files)
+    if missing or empty or suspect or double or shadowed or leak:
         if missing:
             print(f"✗ {len(missing)} Lückentext-Datei(en) OHNE Wort-Hilfe (daf-kern §7 verletzt):")
             for p in missing:
@@ -218,6 +251,20 @@ if __name__ == "__main__":
                 print("   ", p)
             print("\nFix (DOPPELT): in buildWordBank einen Selbstabschalt-Guard ergänzen — "
                   "`if (document.querySelector('.wortkasten')) return;` (FB-DOPPELBANK-GUARD).")
+        if shadowed:
+            print(f"✗ {len(shadowed)} Datei(en) mit buildWordBank-SCHATTENDEFINITION "
+                  f"(zwei Definitionen, parameterloser Aufruf rendert nichts -> Wortbank LEER):")
+            for p in shadowed:
+                print("   ", p)
+            print("\nFix (SCHATTEN): die überschreibende `function buildWordBank(containerEl)` "
+                  "umbenennen, damit die wirksame parameterlose Version greift.")
+        if leak:
+            print(f"✗ {len(leak)} Datei(en) mit internem Datenfeld im Input-placeholder "
+                  f"(z. B. placeholder=\"Größe: m\" — durchgesickert):")
+            for p in leak:
+                print("   ", p)
+            print("\nFix (LEAK): placeholder leeren (placeholder=\"\") bzw. das interne Feld "
+                  "nicht in den sichtbaren Platzhalter schreiben.")
         if missing or empty:
             print("\nFix: scripts/wortbank-module.js injizieren, §7-Wortbank ergänzen, "
                   "oder initWortbank() in der Init-Sequenz aufrufen.")
