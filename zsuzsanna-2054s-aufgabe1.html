@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smalltalk — Korrektur · C1 2054S · Aufgabe 1</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       min-height: 100vh; padding: 20px; }
+.container { max-width: 1100px; margin: 0 auto; background: white;
+             border-radius: 12px; overflow: hidden;
+             box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 1.9em; font-family: Georgia, serif; color: white; margin-bottom: 8px; }
+.header p { font-size: 1.0em; font-family: Georgia, serif; opacity: 0.95; }
+.header .meta { font-size: 0.85em; margin-top: 6px; opacity: 0.8; font-style: italic; }
+.header .big-emoji { font-size: 2.6em; margin-top: 12px; line-height: 1; }
+
+.body-area { padding: 40px 50px; }
+
+.regie {
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+  border-left: 4px solid #f9a825; border-radius: 0 8px 8px 0;
+  padding: 18px 22px; margin-bottom: 36px;
+  font-size: 0.95em; line-height: 1.6; color: #5d4037;
+}
+.regie strong { color: #e65100; }
+
+/* — Originaltext-Block — */
+.dein-text-box {
+  background: #fafafa; border: 1px solid #e8e8e8; border-radius: 10px;
+  padding: 24px 32px; margin-bottom: 36px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto;
+  max-width: 820px;
+}
+.dein-text-box p { margin-bottom: 6px; }
+.dein-text-box p:last-child { margin-bottom: 0; }
+.dein-text-label {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.72em; font-weight: 700;
+  color: #888; letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* — Inline-Korrektur — */
+.satz-inline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.25em; line-height: 2.05;
+  color: #2c2c2c;
+  margin-bottom: 18px;
+}
+.satz-inline .nr {
+  background: #667eea; color: white; font-size: 0.55em; font-weight: 700;
+  padding: 4px 10px; border-radius: 12px; vertical-align: middle;
+  margin-right: 14px; letter-spacing: 0.06em;
+  font-family: 'Segoe UI', sans-serif;
+}
+.satz-inline .del { text-decoration: line-through; color: #c62828; text-decoration-thickness: 1.5px; }
+.satz-inline .ins {
+  background: #c8e6c9; color: #1b5e20;
+  padding: 2px 6px; border-radius: 4px; font-weight: 600;
+}
+
+/* — Affirmation: was schon richtig ist — */
+.affirm {
+  background: #e8f5e9; border-left: 4px solid #43a047; border-radius: 0 8px 8px 0;
+  padding: 11px 18px; margin: 4px 0 24px 0;
+  font-family: Georgia, serif; font-size: 0.95em; line-height: 1.6; color: #1b5e20;
+}
+
+.satz-block {
+  margin-bottom: 64px; padding-bottom: 36px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.satz-block:last-child { border-bottom: none; }
+
+/* — Mini-Lehrstücke (Grid) — */
+.lehrstuecke-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #888;
+  margin: 24px 0 20px 0;
+}
+.lehrstuecke-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+}
+.lehr-karte {
+  background: white; border: 1px solid #e8e8e8; border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex; flex-direction: column;
+}
+.fehler-name {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #f9a825;
+  margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 2px solid #fff8e1;
+}
+.regel {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.65;
+  color: #2c2c2c; margin-bottom: 14px;
+  font-weight: 500;
+}
+.beispiele {
+  background: #f8f9ff; border-radius: 8px;
+  padding: 12px 16px;
+  font-family: Georgia, serif; font-size: 0.92em; line-height: 1.65;
+  color: #3949ab;
+  margin-bottom: 18px;
+}
+.beispiele .b-zeile { display: block; margin-bottom: 4px; }
+.beispiele .b-zeile:last-child { margin-bottom: 0; }
+
+/* — Mikro-Übung pro Karte — */
+.uebung {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed #e0e8ff;
+}
+.uebung-kopf {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.uebung-label {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #667eea;
+}
+.uebung-ctrl { display: flex; gap: 5px; }
+.u-btn {
+  background: #f5f7ff; border: 1px solid #c5cff5;
+  color: #667eea; padding: 4px 10px; border-radius: 6px;
+  font-size: 0.75em; font-weight: 600; cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  transition: all 0.15s; line-height: 1.3;
+}
+.u-btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.uebung-item {
+  font-family: Georgia, serif; font-size: 0.98em; line-height: 1.95;
+  color: #2c2c2c; margin-bottom: 6px;
+}
+.u-inp {
+  border: none; border-bottom: 2px solid #667eea;
+  background: transparent;
+  font-family: inherit; font-size: 1em;
+  color: #1a237e; font-weight: 600;
+  outline: none; padding: 0 4px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.u-inp.ok    { border-bottom-color: #27ae60; color: #27ae60; }
+.u-inp.wrong { border-bottom-color: #e74c3c; color: #e74c3c; }
+.u-inp.w-art { width: 64px; }
+.u-inp.w-mid { width: 120px; }
+.u-inp.w-wide { width: 170px; }
+.u-fertig {
+  display: none;
+  margin-top: 12px;
+  font-size: 0.88em; color: #1b5e20; font-weight: 600;
+  background: #e8f5e9; padding: 8px 12px; border-radius: 6px;
+}
+.uebung.done .u-fertig { display: block; }
+
+/* — Schreibfeld — */
+.schreibfeld-block {
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%);
+  border: 1px solid #d5dcf7; border-radius: 12px;
+  padding: 26px 30px; margin-top: 12px;
+}
+.schreibfeld-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.82em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #667eea; margin-bottom: 10px;
+}
+.schreibfeld-hinweis {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.6;
+  color: #2c2c2c; margin-bottom: 16px;
+}
+.schreibfeld-area {
+  width: 100%; min-height: 630px; resize: vertical;
+  border: 1px solid #c5cff5; border-radius: 8px;
+  padding: 14px 16px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.8; color: #2c2c2c; background: #fff;
+  outline: none; transition: border-color 0.2s;
+}
+.schreibfeld-area:focus { border-color: #667eea; }
+.schreibfeld-fuss {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.8em; color: #888;
+}
+.schreib-status { font-style: italic; }
+.schreib-count { font-weight: 600; color: #667eea; }
+.schreibfeld-aktion { margin-top: 16px; }
+.schreibfeld-btn {
+  background: #667eea; color: #fff; border: none;
+  padding: 12px 22px; border-radius: 8px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.95em; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.schreibfeld-btn:hover { background: #5568d3; }
+.schreibfeld-btn:disabled { opacity: 0.6; cursor: default; }
+.schreibfeld-btn.gesendet { background: #27ae60; }
+.schreib-send-status {
+  margin-top: 12px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.9em; line-height: 1.55;
+}
+.schreib-send-status.success { color: #1b5e20; }
+.schreib-send-status.error { color: #b71c1c; }
+.schreib-fb { background: #fff5f5; border: 1px solid #f3c6c6; border-radius: 8px; padding: 14px 16px; }
+.schreib-fb-titel { font-weight: 700; margin-bottom: 6px; }
+.schreib-fb-text { margin-bottom: 10px; }
+.schreib-fb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.schreib-fb-btn {
+  display: inline-block; background: #fff; border: 1px solid #c5cff5;
+  color: #667eea; padding: 7px 12px; border-radius: 6px;
+  font-size: 0.85em; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.schreib-fb-btn-prim { background: #667eea; color: #fff; border-color: #667eea; }
+
+.author-footer { text-align: center; margin: 28px auto 0 auto;
+                 max-width: 1100px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+
+@media (max-width: 700px) {
+  .body-area { padding: 24px 22px; }
+  .satz-inline { font-size: 1.1em; line-height: 1.95; }
+  .lehrstuecke-grid { grid-template-columns: 1fr; }
+}
+
+/* FB-JUMPTOP - Nach-oben-Button (Glas-Look) */
+.fb-jumptop {
+  position: fixed; bottom: 30px;
+  right: max(18px, calc(50vw - 500px + 14px));
+  background: rgba(118, 75, 162, 0.26);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  color: #34206b; border: 1.5px solid rgba(255,255,255,0.75); border-radius: 28px;
+  padding: 15px 26px; font-size: 1.05em; font-weight: 800;
+  letter-spacing: 0.2px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(102,126,234,0.40), inset 0 1px 0 rgba(255,255,255,0.6);
+  text-shadow: 0 1px 1px rgba(255,255,255,0.55);
+  opacity: 0; visibility: hidden; transform: translateY(10px);
+  transition: opacity .25s, visibility .25s, transform .25s, background .2s, box-shadow .2s;
+  z-index: 9999; display: inline-flex; align-items: center; gap: 8px;
+}
+.fb-jumptop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.fb-jumptop:hover { background: rgba(118, 75, 162, 0.40); color: #241048; box-shadow: 0 10px 32px rgba(102,126,234,0.50), inset 0 1px 0 rgba(255,255,255,0.65); }
+@media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <h1>Smalltalk — die Kunst des leichten Gesprächs</h1>
+  <p>C1 – Privatlektion 2054S · Aufgabe 1 · Smalltalk</p>
+  <div class="meta">Schreibwerkstatt-Korrektur · Zsuzsanna</div>
+  <div class="big-emoji">💬</div>
+</div>
+
+<div class="body-area">
+
+  <div class="regie">
+    Ein flüssiger, klar gegliederter C1-Text mit reichem Smalltalk-Wortschatz und einer sauberen Aufzählung (erstens / zweitens / drittens). Die Aussagen stimmen — der <strong>Schliff liegt in der Satzstellung</strong>: das Verb an zweiter Stelle nach „Zweitens / Drittens“, das Verb ans Ende im „dass“-Satz, das Komma vor der Infinitivgruppe sowie ein paar feste Präpositionen („Interesse an“, „passen zu“). Der unveränderte Originaltext steht im Kasten oben.
+  </div>
+
+  <div class="dein-text-box">
+    <div class="dein-text-label">Originaltext — unverändert</div>
+    <p>Im Alltag finde ich Smalltalk sehr wichtig für Kommunikation und soziale Beziehungen. Meistens benutze ich Smalltalk-Themen mit meinen Kollegen, entweder online oder persönlich. Ich finde Smalltalk eine gute Methode ein Gespräch zu beginnen, auch als Ice-Breaker, bevor wir über Business-Themen sprechen. Die heufigsten Smalltalk-Themen, die ich meistens verwende, sind über Urlaub oder Reisen. Ich denke, dass alle sprechen gerne über ihre Reiseerfahrungen oder über ihre nächsten Reisepläne. Zweitens, Hobbys und Sport sind auch allgemeine Smalltalk-Themen, weil alle etwas darüber sagen können. Zum Beispiel, jetzt sprechen alle über die Fußballweltmeisterschaft, egal ob man interesse in Fußball haben. Drittens, ich sehe Essen als ein anderes wichtiges Thema, beziehungsweise Lieblingsgerichte oder Restaurantempfehlungen. Wenn man mit fremden Leuten spricht, ist es immer interessant über fremde Gerichte zu sprechen. Ich finde ein Thema gut als Smalltalk-Thema, wenn es spannend ist. Zum Beispiel, ich versuche über Religion oder Politik nicht zu sprechen, weil es für mich nicht immer früher bekannt, wie sensible diese Themen für die anderen sind. Es ist immer wichtig, solche Smalltalk-Themen zu finden, die mit deinem Sprechpartner gut passen.</p>
+  </div>
+
+  <!-- ════════════════════ SATZ 1 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 1</span>
+      Im Alltag finde ich Smalltalk sehr wichtig für Kommunikation und soziale Beziehungen.
+    </div>
+    <div class="affirm">Ein klarer, korrekter Einstieg: Das Verb „finde“ steht an zweiter Stelle, obwohl der Satz mit „Im Alltag“ beginnt — genau richtig. Der Wortschatz passt zum Thema.</div>
+  </div>
+
+  <!-- ════════════════════ SATZ 2 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 2</span>
+      Meistens <span class="del">benutze</span> <span class="ins">spreche</span> ich Smalltalk-Themen mit meinen Kollegen <span class="ins">an</span>, entweder online oder persönlich.
+    </div>
+    <div class="affirm">Inhaltlich klar, und die Stellung mit „Meistens“ vorn ist korrekt. Eine Feinheit der Wortwahl: Ein Thema wird nicht „benutzt“, sondern angesprochen oder aufgegriffen.</div>
+
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück + eine Übung</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Kollokation — ein Thema ansprechen</div>
+        <div class="regel">Zu „Thema“ passt „ansprechen“ oder „aufgreifen“, nicht „benutzen“. Bei „ansprechen“ rückt das „an“ ans Satzende: Ich spreche ein Thema an.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Ich spreche ein leichtes Thema an.</span>
+          <span class="b-zeile">Beim Smalltalk spreche ich oft das Wetter an.</span>
+          <span class="b-zeile">Mit Kollegen greife ich gern Reisethemen auf.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — „an“ ans Ende</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Ich spreche ein leichtes Thema <input class="u-inp w-art" data-sol="an" placeholder="…">. (ansprechen)</div>
+          <div class="uebung-item">Beim Smalltalk spreche ich oft das Wetter <input class="u-inp w-art" data-sol="an" placeholder="…">. (ansprechen)</div>
+          <div class="uebung-item">Mit Kollegen spreche ich Reisethemen <input class="u-inp w-art" data-sol="an" placeholder="…">. (ansprechen)</div>
+          <div class="u-fertig">✓ Richtig: „ansprechen“ — das „an“ steht am Ende.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SATZ 3 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 3</span>
+      Ich finde Smalltalk eine gute Methode<span class="ins">,</span> ein Gespräch zu beginnen, auch als Ice-Breaker, bevor wir über Business-Themen sprechen.
+    </div>
+    <div class="affirm">Gut formuliert, und der „bevor“-Satz ist korrekt gebaut. Vor der Infinitivgruppe mit „zu“ fehlt nur ein Komma: …, ein Gespräch zu beginnen.</div>
+
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück + eine Übung</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Komma vor der Infinitivgruppe</div>
+        <div class="regel">Eine Infinitivgruppe mit „zu“ und weiteren Wörtern wird mit einem Komma abgetrennt: …, ein Gespräch zu beginnen.</div>
+        <div class="beispiele">
+          <span class="b-zeile">eine gute Methode, ein Gespräch zu beginnen</span>
+          <span class="b-zeile">Es ist interessant, über Gerichte zu sprechen.</span>
+          <span class="b-zeile">Ich versuche, nicht über Politik zu sprechen.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Komma setzen</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">eine gute Methode<input class="u-inp w-art" data-sol="," placeholder="…"> ein Gespräch zu beginnen</div>
+          <div class="uebung-item">Es ist wichtig<input class="u-inp w-art" data-sol="," placeholder="…"> neue Themen zu finden.</div>
+          <div class="uebung-item">Ich versuche<input class="u-inp w-art" data-sol="," placeholder="…"> nicht über Politik zu sprechen.</div>
+          <div class="u-fertig">✓ Richtig: Komma vor der Infinitivgruppe mit „zu“.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SATZ 4 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 4</span>
+      Die <span class="del">heufigsten</span> <span class="ins">häufigsten</span> Smalltalk-Themen, die ich meistens verwende, sind <span class="del">über</span> Urlaub oder Reisen.
+    </div>
+    <div class="affirm">Der Relativsatz „die ich meistens verwende“ ist sauber gebaut — das Verb steht am Ende. Zwei Stellen: „häufigsten“ schreibt man mit „äu“, und nach „sind“ folgt das Thema direkt, ohne „über“.</div>
+
+    <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke + zwei Übungen</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Rechtschreibung — „häufig“</div>
+        <div class="regel">„häufig“ schreibt man mit „äu“. Der Superlativ heißt „am häufigsten“ bzw. „die häufigsten“.</div>
+        <div class="beispiele">
+          <span class="b-zeile">häufig – häufiger – am häufigsten</span>
+          <span class="b-zeile">die häufigsten Themen</span>
+          <span class="b-zeile">Ich spreche häufig über Reisen.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — „äu“ einsetzen</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">die h<input class="u-inp w-art" data-sol="äu" placeholder="…">figsten Themen</div>
+          <div class="uebung-item">Ich rede h<input class="u-inp w-art" data-sol="äu" placeholder="…">fig über Urlaub.</div>
+          <div class="uebung-item">am h<input class="u-inp w-art" data-sol="äu" placeholder="…">figsten</div>
+          <div class="u-fertig">✓ Richtig: „häufig“ mit „äu“.</div>
+        </div>
+      </div>
+
+      <div class="lehr-karte">
+        <div class="fehler-name">Nach „sein“ kein „über“</div>
+        <div class="regel">„sein“ verbindet das Subjekt direkt mit dem Thema — ohne „über“: Meine Themen sind Urlaub und Reisen.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Meine Lieblingsthemen sind Reisen und Sport.</span>
+          <span class="b-zeile">Das beste Thema ist Essen.</span>
+          <span class="b-zeile">Ihre Themen sind Hobbys und Urlaub.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — „ist / sind“ + Thema</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Meine häufigsten Themen <input class="u-inp w-mid" data-sol="sind" placeholder="…"> Urlaub und Reisen.</div>
+          <div class="uebung-item">Das beste Thema <input class="u-inp w-mid" data-sol="ist" placeholder="…"> Essen.</div>
+          <div class="uebung-item">Ihre Themen <input class="u-inp w-mid" data-sol="sind" placeholder="…"> Sport und Hobbys.</div>
+          <div class="u-fertig">✓ Richtig: nach „sein“ folgt das Thema direkt.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SATZ 5 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 5</span>
+      Ich denke, dass alle <span class="del">sprechen</span> gerne über ihre Reiseerfahrungen oder über ihre nächsten Reisepläne <span class="ins">sprechen</span>.
+    </div>
+    <div class="affirm">Der Gedanke ist klar. Im „dass“-Satz gehört das gebeugte Verb „sprechen“ ganz ans Ende: …, dass alle gerne über ihre Reiseerfahrungen … sprechen.</div>
+
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück + eine Übung</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Verb am Ende im Nebensatz</div>
+        <div class="regel">In einem Nebensatz mit „dass“ (auch „weil“, „wenn“) steht das gebeugte Verb ganz am Ende: …, dass alle gern über Reisen sprechen.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Ich denke, dass alle gern reisen.</span>
+          <span class="b-zeile">Ich glaube, dass viele über Sport sprechen.</span>
+          <span class="b-zeile">Es ist gut, weil alle etwas sagen können.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Verb ans Ende</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Ich denke, dass alle gern über Reisen <input class="u-inp w-mid" data-sol="sprechen" placeholder="…">. (sprechen)</div>
+          <div class="uebung-item">Ich glaube, dass viele über ihre Pläne <input class="u-inp w-mid" data-sol="reden" placeholder="…">. (reden)</div>
+          <div class="uebung-item">Sie sagt, dass alle gern darüber <input class="u-inp w-mid" data-sol="sprechen" placeholder="…">. (sprechen)</div>
+          <div class="u-fertig">✓ Richtig: im Nebensatz steht das Verb am Ende.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SATZ 6 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 6</span>
+      <span class="del">Zweitens, Hobbys und Sport sind</span> <span class="ins">Zweitens sind Hobbys und Sport</span> auch allgemeine Smalltalk-Themen, weil alle etwas darüber sagen können.
+    </div>
+    <div class="affirm">Der „weil“-Satz ist korrekt — „können“ steht am Ende. Am Satzanfang gilt: Nach „Zweitens“ rückt das Verb an die zweite Stelle, das Subjekt dahinter: Zweitens sind Hobbys und Sport …</div>
+
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück + eine Übung</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Verb an zweiter Stelle</div>
+        <div class="regel">Beginnt der Satz mit „Zweitens“, „Drittens“ oder „Zum Beispiel“, steht das Verb trotzdem an zweiter Stelle — das Subjekt rückt dahinter: Zweitens sind Hobbys beliebt.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Zweitens sind Hobbys ein gutes Thema.</span>
+          <span class="b-zeile">Drittens nenne ich das Essen.</span>
+          <span class="b-zeile">Zum Beispiel sprechen alle über Sport.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Verb auf Position 2</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Zweitens <input class="u-inp w-mid" data-sol="sind" placeholder="…"> Hobbys und Sport gute Themen. (sein)</div>
+          <div class="uebung-item">Drittens <input class="u-inp w-mid" data-sol="sehe" placeholder="…"> ich das Essen als Thema. (sehen)</div>
+          <div class="uebung-item">Zum Beispiel <input class="u-inp w-mid" data-sol="spreche" placeholder="…"> ich nicht über Politik. (sprechen)</div>
+          <div class="u-fertig">✓ Richtig: das Verb bleibt an zweiter Stelle.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SATZ 7 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 7</span>
+      Zum Beispiel<span class="del">,</span> jetzt sprechen alle über die Fußballweltmeisterschaft, egal ob man <span class="del">interesse in</span> <span class="ins">Interesse an</span> Fußball <span class="del">haben</span> <span class="ins">hat</span>.
+    </div>
+    <div class="affirm">Die Idee ist gut, und „jetzt sprechen alle“ steht korrekt mit dem Verb an zweiter Stelle. Drei Stellen: „Interesse“ groß und mit „an“ (Interesse an Fußball), und zu „man“ gehört „hat“.</div>
+
+    <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke + zwei Übungen</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Feste Präposition — „Interesse an“</div>
+        <div class="regel">Das Nomen „Interesse“ verlangt die feste Präposition „an“ mit dem Dativ: Interesse an Fußball. Als Nomen schreibt man „Interesse“ groß.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Interesse an Fußball</span>
+          <span class="b-zeile">Interesse an Politik</span>
+          <span class="b-zeile">Sie hat Interesse an Sprachen.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — „an“ + Großschreibung</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Hast du <input class="u-inp w-mid" data-sol="Interesse" placeholder="…"> an Fußball? (interesse)</div>
+          <div class="uebung-item">Ich habe Interesse <input class="u-inp w-art" data-sol="an" placeholder="…"> Sport.</div>
+          <div class="uebung-item">Sein Interesse <input class="u-inp w-art" data-sol="an" placeholder="…"> Reisen ist groß.</div>
+          <div class="u-fertig">✓ Richtig: „Interesse an“ + Dativ, groß geschrieben.</div>
+        </div>
+      </div>
+
+      <div class="lehr-karte">
+        <div class="fehler-name">„man“ + Verb (3. Person Singular)</div>
+        <div class="regel">„man“ ist 3. Person Singular wie „er / sie / es“ — das Verb endet auf -t: man hat, man spricht, man findet.</div>
+        <div class="beispiele">
+          <span class="b-zeile">man hat Interesse</span>
+          <span class="b-zeile">man spricht über Reisen</span>
+          <span class="b-zeile">man findet ein Thema</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Verb zu „man“</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">egal, ob man Interesse <input class="u-inp w-art" data-sol="hat" placeholder="…">. (haben)</div>
+          <div class="uebung-item">Beim Smalltalk <input class="u-inp w-mid" data-sol="spricht" placeholder="…"> man über Reisen. (sprechen)</div>
+          <div class="uebung-item">So <input class="u-inp w-mid" data-sol="findet" placeholder="…"> man leicht ein Thema. (finden)</div>
+          <div class="u-fertig">✓ Richtig: „man“ → Verb auf -t.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SATZ 8 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 8</span>
+      <span class="del">Drittens, ich sehe</span> <span class="ins">Drittens sehe ich</span> Essen als ein anderes wichtiges Thema, beziehungsweise Lieblingsgerichte oder Restaurantempfehlungen.
+    </div>
+    <div class="affirm">Wie bei „Zweitens“: Nach „Drittens“ steht das Verb an zweiter Stelle — Drittens sehe ich Essen … Der Rest des Satzes ist korrekt, „als ein anderes wichtiges Thema“ ist gut gewählt.</div>
+  </div>
+
+  <!-- ════════════════════ SATZ 9 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 9</span>
+      Wenn man mit fremden Leuten spricht, ist es immer interessant<span class="ins">,</span> über fremde Gerichte zu sprechen.
+    </div>
+    <div class="affirm">Der „wenn“-Satz und die Umstellung „ist es“ sind korrekt. Wie in Satz 3 fehlt nur das Komma vor „über fremde Gerichte zu sprechen“.</div>
+  </div>
+
+  <!-- ════════════════════ SATZ 10 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 10</span>
+      Ich finde ein Thema gut als Smalltalk-Thema, wenn es spannend ist.
+    </div>
+    <div class="affirm">Korrekt gebaut — der „wenn“-Satz steht am Ende, und das Verb „ist“ schließt ihn ab.</div>
+  </div>
+
+  <!-- ════════════════════ SATZ 11 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 11</span>
+      <span class="del">Zum Beispiel, ich versuche</span> <span class="ins">Zum Beispiel versuche ich,</span> über Religion oder Politik nicht zu sprechen, weil es für mich nicht immer <span class="del">früher</span> <span class="ins">im Voraus</span> bekannt <span class="ins">ist</span>, wie <span class="del">sensible</span> <span class="ins">sensibel</span> diese Themen für die anderen sind.
+    </div>
+    <div class="affirm">Ein anspruchsvoller Satz mit mehreren Bauteilen. Vier Stellen: nach „Zum Beispiel“ das Verb an zweiter Stelle (versuche ich), das Komma vor der Infinitivgruppe, im „weil“-Satz fehlt das Verb „ist“ am Ende (… bekannt ist), und nach „wie“ bleibt das Adjektiv endungslos: sensibel. „Im Voraus“ passt hier besser als „früher“.</div>
+
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück + eine Übung</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Adjektiv nach „sein“ ohne Endung</div>
+        <div class="regel">Nach „sein“ steht das Adjektiv ohne Endung: Die Themen sind sensibel. Vor einem Nomen bekommt es eine Endung: sensible Themen.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Die Themen sind sensibel.</span>
+          <span class="b-zeile">Das Thema ist heikel.</span>
+          <span class="b-zeile">Die Frage ist schwierig.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Adjektiv ohne Endung</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">wie <input class="u-inp w-mid" data-sol="sensibel" placeholder="…"> diese Themen sind (sensibel)</div>
+          <div class="uebung-item">Das Thema ist <input class="u-inp w-mid" data-sol="heikel" placeholder="…">. (heikel)</div>
+          <div class="uebung-item">Die Frage ist <input class="u-inp w-mid" data-sol="schwierig" placeholder="…">. (schwierig)</div>
+          <div class="u-fertig">✓ Richtig: nach „sein“ bleibt das Adjektiv endungslos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SATZ 12 ════════════════════ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Satz 12</span>
+      Es ist immer wichtig, solche Smalltalk-Themen zu finden, die <span class="del">mit</span> <span class="ins">zu</span> deinem <span class="del">Sprechpartner</span> <span class="ins">Gesprächspartner</span> gut passen.
+    </div>
+    <div class="affirm">Der Bau mit zwei Nebensätzen („zu finden“ … „die … passen“) ist klar und richtig. „passen“ verlangt die feste Präposition „zu“: Themen, die zu deinem Gesprächspartner passen.</div>
+
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück + eine Übung</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Feste Präposition — „passen zu“</div>
+        <div class="regel">„passen“ verlangt die feste Präposition „zu“ mit dem Dativ: Das Thema passt zu dem Gesprächspartner.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Das Thema passt zu dir.</span>
+          <span class="b-zeile">Reisen passt zu dem Anlass.</span>
+          <span class="b-zeile">Das passt zu einem lockeren Gespräch.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — „zu“ einsetzen</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Themen, die <input class="u-inp w-art" data-sol="zu" placeholder="…"> deinem Gesprächspartner passen</div>
+          <div class="uebung-item">Das Thema passt <input class="u-inp w-art" data-sol="zu" placeholder="…"> dem Anlass.</div>
+          <div class="uebung-item">Reisen passt gut <input class="u-inp w-art" data-sol="zu" placeholder="…"> einem lockeren Gespräch.</div>
+          <div class="u-fertig">✓ Richtig: „passen zu“ + Dativ.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCHREIBFELD · schriftlich üben (PFLICHT) ═══ -->
+  <div class="schreibfeld-block">
+    <div class="schreibfeld-titel">Schreibfeld — selbst schreiben und an Frank senden</div>
+    <p class="schreibfeld-hinweis">Den Text noch einmal schreiben — diesmal mit dem Verb an zweiter Stelle nach „Zweitens / Drittens“, dem Verb am Ende im „dass“-Satz, dem Komma vor der Infinitivgruppe sowie „Interesse an“ und „passen zu“. Eigene Beispiele für gute Smalltalk-Themen gern ergänzen. Der Text wird automatisch in diesem Browser gespeichert; „An Frank senden“ schickt die Neufassung an den Unterricht.</p>
+    <textarea id="schreibfeld" class="schreibfeld-area" placeholder="Hier den Text über Smalltalk neu schreiben …"></textarea>
+    <div class="schreibfeld-fuss">
+      <span id="schreib-status" class="schreib-status">Noch nichts gespeichert.</span>
+      <span id="schreib-count" class="schreib-count">0 Wörter</span>
+    </div>
+    <div class="schreibfeld-aktion">
+      <button type="button" id="schreib-send" class="schreibfeld-btn" onclick="schreibfeldSenden()">📨 An Frank senden</button>
+    </div>
+    <div id="schreib-send-status" class="schreib-send-status"></div>
+  </div>
+
+</div>
+
+<div class="author-footer">
+  <span style="font-weight:700">© Frank Burkert</span> · DaF-Materialien ·
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// Live-Feedback für alle .u-inp-Felder (case-sensitive Präfix-Check)
+function lieveCheck(inp) {
+  var val = (inp.value || '').trim();
+  var sol = inp.dataset.sol || '';
+  inp.classList.remove('ok', 'wrong');
+  if (!val) return;
+  if (val === sol) {
+    inp.classList.add('ok');
+    checkKartenDone(inp.closest('.uebung'));
+    return;
+  }
+  if (!sol.startsWith(val)) {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkKartenDone(uebung) {
+  if (!uebung) return;
+  var inputs = uebung.querySelectorAll('.u-inp');
+  var alleOk = Array.from(inputs).every(function(i) { return i.classList.contains('ok'); });
+  uebung.classList.toggle('done', alleOk);
+}
+
+document.querySelectorAll('.u-inp').forEach(function(inp) {
+  inp.addEventListener('input', function() { lieveCheck(inp); });
+});
+
+function showCardSolution(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = inp.dataset.sol || '';
+    inp.classList.remove('wrong');
+    inp.classList.add('ok');
+  });
+  uebung.classList.add('done');
+}
+
+function resetCard(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = '';
+    inp.classList.remove('ok', 'wrong');
+  });
+  uebung.classList.remove('done');
+}
+
+// Schreibfeld — Üben mit Browser-Speicherung + Versand an Frank
+var SCHREIBFELD_ENDPOINT   = 'https://api.web3forms.com/submit';
+var SCHREIBFELD_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var SCHREIBFELD_MAILTO     = 'unterricht@frankburkert-daf.de';
+var SCHREIBFELD_NAME       = 'Zsuzsanna';
+var SCHREIBFELD_LEKTION    = 'C1 – Korrektur 2054S · Aufgabe 1';
+
+(function () {
+  var ta = document.getElementById('schreibfeld');
+  if (!ta) return;
+  var KEY = 'fb-schreibfeld-zsuzsanna-2054s-aufgabe1';
+  var status = document.getElementById('schreib-status');
+  var count = document.getElementById('schreib-count');
+  try { var saved = localStorage.getItem(KEY); if (saved) { ta.value = saved; } } catch (e) {}
+  function update() {
+    var t = ta.value.trim();
+    var w = t ? t.split(/\s+/).length : 0;
+    if (count) count.textContent = w + (w === 1 ? ' Wort' : ' Wörter');
+    try {
+      localStorage.setItem(KEY, ta.value);
+      if (status) status.textContent = t ? 'Automatisch gespeichert.' : 'Noch nichts gespeichert.';
+    } catch (e) { if (status) status.textContent = 'Speichern in diesem Browser nicht möglich.'; }
+    var sb = document.getElementById('schreib-send');
+    if (sb && sb.classList.contains('gesendet')) { sb.classList.remove('gesendet'); sb.innerHTML = '📨 Erneut senden'; }
+  }
+  ta.addEventListener('input', update);
+  update();
+})();
+
+function schreibfeldSenden() {
+  var ta = document.getElementById('schreibfeld');
+  var btn = document.getElementById('schreib-send');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !btn || !st) return;
+  var text = ta.value.trim();
+  if (text.length < 14) { st.className = 'schreib-send-status error'; st.textContent = 'Noch zu kurz — bitte zuerst den Text schreiben.'; return; }
+  var subject = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + ' · ' + SCHREIBFELD_NAME;
+  var message = '=== Schreibtraining (Korrektur-Neufassung) ===\n\n' + text;
+  btn.disabled = true; var orig = btn.innerHTML; btn.innerHTML = '⏳ Wird gesendet …';
+  fetch(SCHREIBFELD_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      access_key: SCHREIBFELD_ACCESS_KEY, name: SCHREIBFELD_NAME,
+      subject: subject, from_name: 'fabDaF Schreibwerkstatt',
+      lektion: SCHREIBFELD_LEKTION, message: message
+    })
+  })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP_' + r.status); return r.json(); })
+    .then(function (data) {
+      var ok = data && (data.success === true || data.success === 'true');
+      if (!ok) { var e = new Error('API_ERROR'); e.apiMessage = (data && data.message) || ''; throw e; }
+      btn.disabled = false; btn.classList.add('gesendet');
+      var j = new Date(); var info = 'gesendet um ' + String(j.getHours()).padStart(2, '0') + ':' + String(j.getMinutes()).padStart(2, '0');
+      btn.innerHTML = '✓ ' + info + ' · erneut senden';
+      st.className = 'schreib-send-status success'; st.textContent = '✓ Die Neufassung ist bei Frank angekommen.';
+    })
+    .catch(function (err) {
+      btn.disabled = false; btn.innerHTML = orig;
+      var subjectEnc = encodeURIComponent(subject);
+      var bodyEnc = encodeURIComponent('Name: ' + SCHREIBFELD_NAME + '\n\n' + message);
+      var mailto = 'mailto:' + SCHREIBFELD_MAILTO + '?subject=' + subjectEnc + '&body=' + bodyEnc;
+      st.className = 'schreib-send-status error';
+      st.innerHTML =
+        '<div class="schreib-fb">' +
+          '<div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — der Text ist sicher im Browser gespeichert.</div>' +
+          '<div class="schreib-fb-text">Einen Weg wählen, damit Frank die Neufassung trotzdem bekommt:</div>' +
+          '<div class="schreib-fb-actions">' +
+            '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 In Mail-Programm öffnen</a>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldKopieren()">📋 In Zwischenablage</button>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldSenden()">🔄 Nochmal versuchen</button>' +
+          '</div>' +
+        '</div>';
+    });
+}
+
+function schreibfeldKopieren() {
+  var ta = document.getElementById('schreibfeld');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !st) return;
+  var text = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + '\nName: ' + SCHREIBFELD_NAME + '\n\n' + ta.value.trim();
+  function fertig(ok) {
+    st.className = 'schreib-send-status ' + (ok ? 'success' : 'error');
+    st.textContent = ok ? '✓ In die Zwischenablage kopiert. Jetzt in eine Mail an Frank einfügen.' : '✗ Kopieren ging nicht — Text in der Box markieren und selbst kopieren.';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { fertig(true); }, function () { fertig(false); });
+  } else {
+    try { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); fertig(true); } catch (e) { fertig(false); }
+  }
+}
+</script>
+
+<!-- FB-JUMPTOP -->
+<button class="fb-jumptop" id="fbJumpTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben springen" aria-label="Nach oben springen">↑ Nach oben</button>
+<script>
+(function(){
+  var btn = document.getElementById('fbJumpTop');
+  if (!btn) return;
+  function toggle(){
+    var scrollable = document.documentElement.scrollHeight > window.innerHeight + 60;
+    btn.classList.toggle('show', scrollable);
+  }
+  window.addEventListener('scroll', toggle, {passive:true});
+  window.addEventListener('resize', toggle);
+  setTimeout(toggle, 80);
+})();
+</script>
+
+</body>
+</html>
