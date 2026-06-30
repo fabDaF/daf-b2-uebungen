@@ -65,9 +65,31 @@ def has_numbering(s):
     return False
 
 
+LEGACY_WORDBANK_FN_RE = re.compile(r'function\s+buildWordBank\s*\([^)]*\)\s*\{\s*')
+
+
+def has_active_legacy_wordbank(s):
+    """Datei-lokale Alt-Wortkasten-Funktion (Fund 2026-06-30, B1 1013R u.a.):
+    eigene buildWordBank()-Implementierung mit Anweisungstext ('… tipp die
+    richtigen Wörter selbst …'), NICHT durch die FB-WORTBANK-MODULE/FB-LT-V1-
+    Marker erfasst, deshalb von COMPETITORS nicht gesehen. Neutralisierung ist
+    ein UNBEDINGTES 'return;' als allererste Anweisung im Funktionskörper —
+    ein 'if (!containerEl) return;'-Guard (im Original immer vorhanden) zählt
+    NICHT, sonst erkennt der Check die unneutralisierte Originalfunktion
+    fälschlich als sauber (genau dieser Fehler ist im ersten Anlauf passiert)."""
+    for m in LEGACY_WORDBANK_FN_RE.finditer(s):
+        start = m.end()
+        if not re.match(r'return;', s[start:start + 20]):
+            return True
+    return False
+
+
 def check_canonical(path, s):
     """Liefert Liste von Verstoß-Strings für eine FB-LT-STORY-Datei."""
     problems = []
+    if has_active_legacy_wordbank(s):
+        problems.append("aktive Alt-Wortbank (buildWordBank mit Anweisungstext) "
+                         "nicht neutralisiert — Leak in die Story (Fund 2026-06-30)")
     g = gaps(s)
     n = len(g)
     if n != 10:
