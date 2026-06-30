@@ -88,7 +88,7 @@ Mara hält nervös einen Vortrag, die Fragen ihres Bruders helfen ihr, am Ende e
 - Tooling-Änderungen in `scripts/` → B2-Root-Repo (aus `fabDaF/`).
 - Verifizieren: `git rev-parse HEAD origin/main` (gleich = ok). Post-commit-Hook pusht selbst.
 
-## 7. Stand (27 fertig, B1.1)
+## 7. Stand (28 fertig, B1.1)
 
 ERLEDIGT: 1011X, 1013R, 1015G, 1016R, 1017X, 1018S, 1021X, 1026R, 1027X, 1034X, 1037X,
 1057X, 3065G. (1057X/3065G/1011X waren von Anfang an echte Stories; 1015G/1016R/1017X/
@@ -105,7 +105,9 @@ News — Karims Faktencheck-Team, anderer Container `luecken-container`), 1053R 
 Angebote — Karims Freizeit-Wochenenden, 6→10 Vokabeln aus Vorentlastung ergänzt), 1055G
 (Infinitiv mit zu — Ninas Pläne nach dem Studium, **Grammatik-Variante** mit data-base),
 1056R (Leben auf dem Land — Markus zieht aufs Land, 7→10), 1061X (Historische Ereignisse —
-Opa Friedrichs Fotoalbum, Inline-`<ul id="lueckenList">`-Format, 8→10).
+Opa Friedrichs Fotoalbum, Inline-`<ul id="lueckenList">`-Format, 8→10), 1062G (Verb lassen
+— Mamas Familienfest, **Grammatik-Variante** mit einheitlicher data-base="lassen": die Engine
+dedupliziert die Grundform zu EINEM „lassen"-Chip, Zielform produziert der Lerner — sauber).
 Merke 1: G-Dateiname ≠ Grammatik-Variante!
 Merke 2: Manche Dateien haben eine SEPARATE `buildWordBank()`-Funktion (nicht nur
 FB-WORTBANK-MODULE) — die muss auch per early-return neutralisiert werden, sonst meldet das
@@ -120,8 +122,8 @@ for f in $(ls DE_B1_*.html | sort); do
   grep -qE 'nav-label[^>]*>\s*L(ü|&uuml;)ckentext' "$f" && ! grep -q 'FB-LT-STORY' "$f" && echo "$f"
 done
 ```
-**Nächste reguläre dran:** 1062G, 1063R, 1064X, 1065G, 1066R, 1067X … dann 20xx/30xx.
-(1032G–1046R, 1053R, 1055G, 1056R, 1061X sind ab 2026-06-30 erledigt, siehe §7.)
+**Nächste reguläre dran:** 1063R, 1064X, 1065G, 1066R, 1067X … dann 20xx/30xx.
+(1032G–1046R, 1053R, 1055G, 1056R, 1061X, 1062G sind ab 2026-06-30 erledigt, siehe §7.)
 (1071W/1072W/2071W/… sind **W = Schreibaufgaben** — prüfen, ob sie überhaupt einen
 Lückentext-Tab haben; viele tun das nicht und sind dann gar nicht im Backlog.)
 
