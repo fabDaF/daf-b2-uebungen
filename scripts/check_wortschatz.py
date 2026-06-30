@@ -44,7 +44,17 @@ def _func_body(s, name):
 
 
 def has_wortschatz_tab(s):
-    return ("initWortschatz" in s) or ("wortschatzContainer" in s)
+    """Nur ein ECHTER Wortschatz-Tab zählt — nicht ein Reststring (z.B. ein verwaistes
+    'wortschatzContainer' in JS/Kommentar bei Lektionen ganz ohne Wortschatz-Tab, wie 2034X).
+    Echt = Nav-Tab 'Wortschatz' ODER ein Container-DIV id="wortschatzContainer" im Markup
+    ODER eine definierte initWortschatz-Funktion."""
+    if re.search(r'nav-label[^>]*>\s*Wortschatz', s):
+        return True
+    if re.search(r'id="wortschatzContainer"', s):
+        return True
+    if re.search(r'function\s+initWortschatz\s*\(', s):
+        return True
+    return False
 
 
 def classify(s):
@@ -82,13 +92,14 @@ def loesung_button_ok(s):
     alte Funktion auf der ersetzten Struktur arbeitet. Erkennung: onclick-Funktionsname enthält
     loesung/lösung UND wortschatz/ws, ist aber nicht showWortschatzLoesung; oder die kanonische
     Funktion wird aufgerufen, ist aber nicht definiert."""
+    # Nur flaggen, wenn ein Wortschatz-Lösungen-Button eine NICHT DEFINIERTE Funktion aufruft
+    # (= echt toter Button). Variantennamen (showLoesungWortschatz …) sind ok, solange definiert
+    # und auf der vorhandenen Struktur arbeitend. „Kein Lösungen-Button" ist ebenfalls kein Fehler.
     for name in re.findall(r'onclick="\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*"', s):
         n = name.lower()
         if ("loesung" in n or "lösung" in n) and ("wortschatz" in n or "ws" in n):
-            if name != "showWortschatzLoesung":
+            if not re.search(r'function\s+' + re.escape(name) + r'\s*\(', s):
                 return False
-    if "showWortschatzLoesung()" in s and "function showWortschatzLoesung" not in s:
-        return False
     return True
 
 
