@@ -533,6 +533,71 @@ die Buttons (`onclick` mit `reset`/`neu` → „↺ Neustart", sonst → „💡
 (Ausgenommen: `daf-archiv` ist eingefroren — die dortigen Altbestände bleiben.
 Reine `class="btn"`-Buttons ohne `btn-show`/`btn-reset` sind nicht Teil dieser Regel.)
 
+## Nav-Header IMMER Variante C — Aktiv-Pille (Pflicht seit 2026-06-30)
+
+Grundsatzentscheidung von Frank: **Die Tab-Navigation jeder Lektion hat genau
+EINE kanonische Optik — Variante C, die „Aktiv-Pille".** Schluss mit dem Wald aus
+Header-Varianten (mal Emoji über dem Wort, mal daneben; mal Unterstrich, mal
+nichts). Auslöser war B1 1027X (2026-06-30): Emoji stand neben statt über dem Wort,
+weil die `.nav-btn`-Regel weder `flex-direction:column` noch `.nav-emoji`/`.nav-label`
+hatte.
+
+Variante C heißt verbindlich:
+
+- **Emoji ÜBER dem Wort** (`flex-direction: column` auf `.nav-btn`).
+- **Tabs als abgerundete Pillen** auf hellem Lila-Band (`.nav` mit `padding`,
+  `gap`, getöntem `background:#eef0fb`).
+- **Aktiver Tab = weiße Pille mit weichem Schatten** — KEIN Unterstrich
+  (`border-bottom`). Genau das unterscheidet C von der alten Unterstrich-Variante.
+- **`nav-emoji` 1.3em, `nav-label` 0.78em.**
+
+Die kanonische CSS (Quelle der Wahrheit: `scripts/nav_lib.py`, `CANONICAL_NAV_CSS`):
+
+```css
+/* ===== NAV (Variante C: Aktiv-Pille) ===== */
+.nav {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  background: #eef0fb; padding: 6px;
+  border-bottom: 2px solid #e9ecef;
+}
+.nav-btn {
+  flex: 1 1 auto; min-width: 64px; padding: 12px 8px;
+  border: none; background: none; cursor: pointer;
+  font-weight: 500; color: #666; transition: all 0.2s; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.nav-btn:hover { background: #e1e5fb; color: #667eea; }
+.nav-btn.active { background: #fff; color: #667eea; font-weight: 700; box-shadow: 0 1px 4px rgba(102,126,234,.25); }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+```
+
+HTML pro Tab: `<span class="nav-emoji">🌪️</span><span class="nav-label">Vokabular</span>`
+in einem `.nav-btn`. `.nav-btn.schreib-last { order:99; }` (Schreiben ans Ende)
+bleibt unberührt — es ist Reihenfolge, keine Optik.
+
+**Diese Regel ist die Wahrheit und steht ÜBER der Nav-Leisten-CSS im Skill
+`daf-kern §1`** (dessen Beispiel noch die alte Unterstrich-Aktiv-Optik zeigt). Bei
+Widerspruch gilt diese Datei. Der Skill-Text wird über den
+`skill-verwaltung`-Workflow nachgezogen, nicht aus einer laufenden Cowork-Session.
+
+Werkzeuge (Vorbild Genus-Tab):
+
+- `scripts/nav_lib.py` — geteilte Wahrheit (kanonische CSS + Erkennung), Quelle für
+  Prüfer UND Reparateur, damit sie nie auseinanderdriften.
+- `scripts/fix_nav.py datei.html …` — deterministischer Normalisierer. Ersetzt den
+  ganzen Nav-Block durch die kanonische Variante C. Idempotent; bricht pro Datei
+  sicher ab, wenn keine `.nav-btn`-Basisregel existiert. **Beim Neubau einer Lektion
+  am Ende einmal laufen lassen — dann ist der Header garantiert kanonisch.**
+- `scripts/check_nav.py` — Sicherheitsnetz. Meldet jede Datei mit nicht-kanonischem
+  Nav (Exit 1). **Vor jedem Lektions-Commit laufen lassen**, zusammen mit den
+  übrigen `check_*`-Skripten.
+
+Pilot/Referenz: `htmlS/B1.1/DE_B1_1027X-naturkatastrophen.html`. Der projektweite
+Rollout über die ~66 inline-kaputten B1-Dateien (und die anderen Niveaus) ist groß
+und läuft separat per `fix_nav.py` — er ist nicht Voraussetzung dafür, dass neue
+Lektionen ab sofort korrekt entstehen.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -545,6 +610,7 @@ Reine `class="btn"`-Buttons ohne `btn-show`/`btn-reset` sind nicht Teil dieser R
 - `scripts/check_schreib_pad.py` — Schreibwerkstatt-Innen-Padding-Prüfung (vor Lektions-Commit)
 - `scripts/check_banner_faces.py` — Banner-Gesichts-Prüfung: blockt angeschnittene Gesichter (vor Lektions-Commit)
 - `scripts/check_genus_buttons.py` — Control-Button-Prüfung: blockt nicht-kanonische btn-show/btn-reset (vor Lektions-Commit); Reparateur `scripts/fix_genus_buttons.py`
+- `scripts/check_nav.py` — Nav-Header-Prüfung: blockt nicht-kanonische Nav (Variante C, vor Lektions-Commit); Normalisierer `scripts/fix_nav.py`, geteilte Wahrheit `scripts/nav_lib.py`
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
   11-zu-9-Konsolidierung, warum die heutige Struktur so ist
