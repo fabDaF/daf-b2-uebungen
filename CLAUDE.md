@@ -501,6 +501,38 @@ Das letzte Sicherheitsnetz bleibt das menschliche Auge — bei jeder geöffneten
 Lektion kurz auf geköpfte Banner achten und melden; `check_banner_faces.py` ist
 die automatische, aber nicht unfehlbare erste Verteidigungslinie.
 
+## Control-Buttons IMMER im kanonischen Pill-Stil (Pflicht seit 2026-06-30)
+
+Die „Lösungen"- und „Neu starten"-Buttons in den Übungs-Steuerleisten (Genus,
+Lückentext, Zuordnung, Satzbau …) trugen lange die CSS-Klassen `btn btn-show` /
+`btn btn-reset`. Diese Klassen sind in **fast keiner Lektion definiert** — der
+Browser rendert sie als hässliche graue Default-Buttons. Genau das ist Frank am
+2026-06-30 im Genus-Tab von B1.1 1022G mitten im Unterricht aufgefallen. Quelle
+war der Genus-Injektor `scripts/inject_genus.py`, der den Stil fest einbaute;
+betroffen waren ~530 Lektionen über alle Niveaus.
+
+Deshalb gilt ausnahmslos: **Control-Buttons tragen den kanonischen inline-Pill-Stil**
+(`background:#f5f7ff; border:1px solid #c5cff5; border-radius:8px; padding:6px 16px;
+font-size:0.85em; color:#667eea; font-weight:600;`) mit den Standard-Beschriftungen
+**„💡 Lösungen" / „↺ Neustart"** (per-Item-Lösungsbutton: „💡 Lösung"). Inline-Stil,
+weil die meisten Lektionen die `.tc-buttons`-CSS gar nicht haben — so rendert der
+Pill generationsunabhängig korrekt.
+
+Wichtig: **Die Beschriftung wird aus dem `onclick`-Handler abgeleitet, NIE aus der
+Klasse.** Es gibt hunderte Dateien, in denen `btn-show` auf dem Reset-Button und
+`btn-reset` auf dem Lösungen-Button sitzt — wer nach Klasse beschriftet, vertauscht
+die Buttons (`onclick` mit `reset`/`neu` → „↺ Neustart", sonst → „💡 Lösungen").
+
+- `scripts/inject_genus.py` — Produzent, erzeugt seit 2026-06-30 die Pill-Buttons.
+- `scripts/fix_genus_buttons.py` — idempotenter Reparateur (Label aus onclick,
+  bestehende inline-Styles bleiben erhalten).
+- `scripts/check_genus_buttons.py` — Sicherheitsnetz. Meldet jede Datei mit
+  `btn btn-show`/`btn btn-reset` (Exit 1). **Vor jedem Lektions-Commit laufen lassen**,
+  zusammen mit den übrigen `check_*`-Skripten.
+
+(Ausgenommen: `daf-archiv` ist eingefroren — die dortigen Altbestände bleiben.
+Reine `class="btn"`-Buttons ohne `btn-show`/`btn-reset` sind nicht Teil dieser Regel.)
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -512,6 +544,7 @@ die automatische, aber nicht unfehlbare erste Verteidigungslinie.
 - `scripts/check_genus.py` — Genus-Tab-Mindestanzahl-Prüfung (≥20, vor Lektions-Commit)
 - `scripts/check_schreib_pad.py` — Schreibwerkstatt-Innen-Padding-Prüfung (vor Lektions-Commit)
 - `scripts/check_banner_faces.py` — Banner-Gesichts-Prüfung: blockt angeschnittene Gesichter (vor Lektions-Commit)
+- `scripts/check_genus_buttons.py` — Control-Button-Prüfung: blockt nicht-kanonische btn-show/btn-reset (vor Lektions-Commit); Reparateur `scripts/fix_genus_buttons.py`
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
   11-zu-9-Konsolidierung, warum die heutige Struktur so ist
