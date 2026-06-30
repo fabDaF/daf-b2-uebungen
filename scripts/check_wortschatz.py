@@ -67,7 +67,26 @@ def classify(s):
     # Struktur kanonisch — aber auch die OPTIK? (sonst Voll-Box statt Karte, wie Frank 2026-06-30)
     if not canonical_look(s):
         return "OPTIK"
+    # Lösungen-Button korrekt verdrahtet? (sonst toter Button, wie Frank 2026-06-30: showLoesungWortschatz)
+    if not loesung_button_ok(s):
+        return "BUTTON"
     return None
+
+
+def loesung_button_ok(s):
+    """False, wenn ein Wortschatz-Lösungen-Button auf eine NICHT-kanonische Funktion zeigt
+    (Namensvariante wie showLoesungWortschatz/showWsLoesung) — dann ist der Button tot, weil die
+    alte Funktion auf der ersetzten Struktur arbeitet. Erkennung: onclick-Funktionsname enthält
+    loesung/lösung UND wortschatz/ws, ist aber nicht showWortschatzLoesung; oder die kanonische
+    Funktion wird aufgerufen, ist aber nicht definiert."""
+    for name in re.findall(r'onclick="\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*"', s):
+        n = name.lower()
+        if ("loesung" in n or "lösung" in n) and ("wortschatz" in n or "ws" in n):
+            if name != "showWortschatzLoesung":
+                return False
+    if "showWortschatzLoesung()" in s and "function showWortschatzLoesung" not in s:
+        return False
+    return True
 
 
 def _css_rule_body(s, selector):
