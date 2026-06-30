@@ -606,6 +606,12 @@ durchlaufender, kohärenter Text mit Lücken, **keine isolierten Einzelsätze, k
 Nummern**. Die Story ist das pädagogisch wertvollste Element; wo ein Altbestand keine
 Story hat, wird er **mit Story neu gebaut**, nicht bloß mechanisch geflickt.
 
+**Was eine Story heißt (verbindlich):** **Figur + konkrete Szene + Ereignis/Wendung** —
+etwas passiert, idealerweise mit Pointe. KEIN Sachtext, KEINE Themen-Aufzählung; auch
+abstrakte Themen (Umwelt, Werbung) werden durch das Erleben einer Figur erzählt. „So
+originell wie möglich, ohne Künstelei." Das Gate kann das nicht prüfen — redaktionelle
+Verantwortung. Definition + Gegen-/Gut-Beispiel im Skill `daf-lueckentext`.
+
 Verbindliche Form: Story · **Serifenschrift** (inkl. Eingabefelder) · §7-Wortbank
 (gemischt, nicht klickbar, `.used`-Durchstreichen) · case-sensitiv · kein Prüfen-Button
 · **genau 10 Lücken**. Zwei Varianten, die die Engine selbst erkennt: **Wortschatz**
