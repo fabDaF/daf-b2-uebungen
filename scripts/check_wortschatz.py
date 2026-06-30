@@ -59,10 +59,13 @@ def classify(s):
     if is_card:
         return "WS-CARD"         # falscher Wrapper (1023R/1024X-Klasse)
     # Eingabefelder vorhanden — ist es das kanonische luecken-item/dataset.field-Muster?
-    canonical = ("luecken-item" in body) and (
-        ("dataset.field" in body) or ("data-field" in body)
-        or ("dataset.answer" in body) or ("data-answer" in body))
-    if not canonical:
+    # Struktur kanonisch: type-bare Felder mit bekannter Antwort, in einer Karten-Zeile.
+    # Feldnamen sind BEWUSST beliebig — Spezial-Wortschatz (z.B. Verb-Drill Präteritum/Partizip II
+    # in G-Dateien wie 2012G) ist legitim; nicht auf art/word/plural einengen. Kartenklasse darf
+    # luecke-item ODER luecken-item sein (historische Variante).
+    has_answer = any(k in body for k in ("dataset.field", "data-field", "dataset.answer", "data-answer"))
+    has_card_row = ("luecken-item" in body) or ("luecke-item" in body)
+    if not (has_answer and has_card_row):
         return "ABWEICHEND"
     # Struktur kanonisch — aber auch die OPTIK? (sonst Voll-Box statt Karte, wie Frank 2026-06-30)
     if not canonical_look(s):
@@ -101,7 +104,7 @@ def canonical_look(s):
     wie im Goldstandard musterdatei-1023G. Sonst rendert der Tab als nackte Voll-Box-Felder."""
     if "FB-WORTSCHATZ-KANON-CSS" in s:
         return True
-    li = _css_rule_body(s, ".luecken-item")
+    li = _css_rule_body(s, ".luecken-item") or _css_rule_body(s, ".luecke-item")
     card = ("background" in li) and ("border-left" in li)
     blank = _css_rule_body(s, "input.blank") or _css_rule_body(s, ".blank")
     underline = "border-bottom" in blank
