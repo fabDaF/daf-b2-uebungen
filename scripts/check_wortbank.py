@@ -126,10 +126,35 @@ def initwortbank_defined_but_unused(s):
     return (total - defs) <= 0
 
 
+# (D) DOPPELTE Wort-Hilfe: eine hardcodierte statische §7-Zeile („<strong>Wörter:</strong> …")
+# UND ein dynamischer `buildWordBank`, der einen ZWEITEN Kasten (.wort-bank) erzeugt, ohne sich
+# abzuschalten. Folge: im Lückentext-Tab erscheinen ZWEI Wortbanken übereinander. Genau dieser
+# Fehler ist Frank am 2026-06-30 bei 3042G (und 25 weiteren B1.3-Dateien) aufgefallen — das
+# bisherige Netz erkannte ihn nicht, weil JEDE der beiden Banken den §7-Pflicht-Check erfüllt.
+STATIC_WOERTER_RE = re.compile(r'<strong>\s*W(?:ö|&ouml;)rter\s*:\s*</strong>')
+
+
+def has_double_wortbank(s):
+    """True, wenn eine statische §7-Zeile UND ein ungeschützter buildWordBank-Zweitkasten
+    koexistieren. Der Selbstabschalt-Guard (FB-DOPPELBANK-GUARD bzw. ein early-return gegen
+    eine bestehende `.wortkasten`) macht die Datei wieder konform — dann KEIN Treffer."""
+    if not STATIC_WOERTER_RE.search(s):
+        return False
+    if not js_builder_defined_and_called(s, "buildWordBank"):
+        return False
+    body = _func_body(s, "buildWordBank")
+    creates_second = ("'wort-bank'" in body) or ('"wort-bank"' in body)
+    if not creates_second:
+        return False
+    guarded = ("FB-DOPPELBANK-GUARD" in body) or ("querySelector('.wortkasten')" in body)
+    return not guarded
+
+
 def scan(paths):
     missing = []   # (A) gar keine Hilfe
     empty = []     # (B) Container da, aber nie befüllt
     suspect = []   # (C) G-Datei: Wortbank aus Lösungen abgeleitet (Infinitiv-Wortkasten nötig)
+    double = []    # (D) zwei Wortbanken gleichzeitig sichtbar
     for p in paths:
         try:
             s = open(p, encoding="utf-8", errors="replace").read()
@@ -149,7 +174,10 @@ def scan(paths):
         # G-Datei: Wortbank verrät evtl. die konjugierte Zielform?
         if gfile_wortbank_from_answers(p, s):
             suspect.append(p)
-    return missing, empty, suspect
+        # Zwei Wortbanken gleichzeitig sichtbar?
+        if has_double_wortbank(s):
+            double.append(p)
+    return missing, empty, suspect, double
 
 
 def collect_repo():
@@ -166,8 +194,8 @@ def collect_repo():
 if __name__ == "__main__":
     args = sys.argv[1:]
     files = args if args else collect_repo()
-    missing, empty, suspect = scan(files)
-    if missing or empty or suspect:
+    missing, empty, suspect, double = scan(files)
+    if missing or empty or suspect or double:
         if missing:
             print(f"✗ {len(missing)} Lückentext-Datei(en) OHNE Wort-Hilfe (daf-kern §7 verletzt):")
             for p in missing:
@@ -183,6 +211,13 @@ if __name__ == "__main__":
                   f"verlangt einen Infinitiv-Wortkasten). VERDACHT, bitte pro Datei prüfen:")
             for p in suspect:
                 print("   ", p)
+        if double:
+            print(f"✗ {len(double)} Datei(en) mit ZWEI Wortbanken gleichzeitig "
+                  f"(statische §7-Zeile + ungeschützter buildWordBank-Zweitkasten):")
+            for p in double:
+                print("   ", p)
+            print("\nFix (DOPPELT): in buildWordBank einen Selbstabschalt-Guard ergänzen — "
+                  "`if (document.querySelector('.wortkasten')) return;` (FB-DOPPELBANK-GUARD).")
         if missing or empty:
             print("\nFix: scripts/wortbank-module.js injizieren, §7-Wortbank ergänzen, "
                   "oder initWortbank() in der Init-Sequenz aufrufen.")
