@@ -135,7 +135,7 @@
     // Einfügeort: direkt vor dem ersten Inhaltsblock, der eine Lücke enthält — so
     // landet die Bank nie über dem Tab-Banner, sondern zwischen Steuerleiste und
     // Lückentext. Fällt zurück auf "nach der Steuerleiste" (.control-bar ODER .btn-row).
-    var host = sec.querySelector(".sec-inner") || sec.querySelector(".luecken-block") || sec;
+    var host = sec.querySelector(".sec-inner") || sec.querySelector(".luecken-block") || sec.querySelector(".section-body") || sec;
     var anchor = null;
     var gi = gapInputs(host);
     if (gi.length) {
@@ -144,7 +144,7 @@
       anchor = node;
     }
     if (!anchor) {
-      var cb = host.querySelector(".control-bar, .btn-row");
+      var cb = host.querySelector(".control-bar, .btn-row, .timer-controls");
       if (cb && cb.parentNode === host) anchor = cb.nextSibling;
     }
     if (anchor) host.insertBefore(wrap, anchor);
