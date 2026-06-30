@@ -131,6 +131,14 @@ def process(path):
     old = func_body(s, "initWortschatz")
     cont_id = None
     if old:
+        # SICHERHEIT: Nicht-Standard-Wortschatz mit MEHREREN Render-Containern (z.B. Vergleich
+        # stadtGrid/landGrid) NICHT anfassen — sonst bleiben Referenzen auf den nicht-ersetzten
+        # Container hängen → Laufzeit-Crash (1051X-Lehre). Sauber abbrechen, manuell behandeln.
+        grids = set(re.findall(r"getElementById\(\s*['\"]([\w-]+)['\"]\s*\)", old))
+        grid_like = [g for g in grids if ("grid" in g.lower() or "container" in g.lower()
+                                          or "vokab" in g.lower() or "wortschatz" in g.lower())]
+        if len(grid_like) > 1:
+            return "ABBRUCH: mehrere Render-Container (" + ",".join(sorted(grid_like)) + ") — Nicht-Standard, manuell"
         mm = re.search(r"getElementById\(\s*['\"]([\w-]+)['\"]\s*\)", old)
         if mm: cont_id = mm.group(1)
     if not cont_id:
