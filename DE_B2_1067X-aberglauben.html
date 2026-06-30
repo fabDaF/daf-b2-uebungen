@@ -35,38 +35,20 @@ body {
 .header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
 
 /* ── NAV ─────────────────────────────────────────────────────── */
+/* ===== NAV (Variante C: Aktiv-Pille) ===== */
 .nav {
-    display: flex;
-    flex-wrap: nowrap;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
+  display: flex; flex-wrap: wrap; gap: 4px;
+  background: #eef0fb; padding: 6px;
+  border-bottom: 2px solid #e9ecef;
 }
 .nav-btn {
-    flex: 1;
-    padding: 14px 10px;
-    text-align: center;
-    cursor: pointer;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    transition: all 0.3s;
-    font-size: 0.92em;
-    font-weight: 500;
-    color: #666;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  flex: 1 1 auto; min-width: 64px; padding: 12px 8px;
+  border: none; background: none; cursor: pointer;
+  font-weight: 500; color: #666; transition: all 0.2s; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.nav-btn:last-child { border-right: none; }
-.nav-btn:hover { background: #e9ecef; color: #495057; }
-.nav-btn.active {
-    background: white;
-    color: #667eea;
-    font-weight: 600;
-    border-bottom: 3px solid #667eea;
-}
+.nav-btn:hover { background: #e1e5fb; color: #667eea; }
+.nav-btn.active { background: #fff; color: #667eea; font-weight: 700; box-shadow: 0 1px 4px rgba(102,126,234,.25); }
 .nav-emoji { font-size: 1.3em; line-height: 1.2; }
 .nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
 
@@ -150,6 +132,9 @@ body {
 .luecken-inp.ok { border-bottom-color: #27ae60; color: #27ae60; font-weight: 700; }
 .luecken-inp.no { border-bottom-color: #e74c3c; color: #e74c3c; }
 
+.word-chip { background: white; border: 1.5px solid #667eea; border-radius: 16px; padding: 4px 12px; font-size: 0.83rem; color: #667eea; cursor: pointer; transition: all 0.2s; }
+.word-chip:hover { background: #667eea; color: white; }
+.word-chip.used { opacity: 0.4; text-decoration: line-through; cursor: default; }
 
 /* ── SATZBAU ─────────────────────────────────────────────────── */
 .satzbau-item {
@@ -197,16 +182,7 @@ input.blank.wrong   { border-bottom-color: #e74c3c; background: #fdeaea; }
 /* ── MOBILE ──────────────────────────────────────────────────── */
 @media (max-width: 600px) {
     body { padding: 8px; }
-    .nav { flex-wrap: wrap; }
-    .nav-btn {
-        flex: 1 1 33%;
-        min-width: 0;
-        font-size: 0.8em;
-        padding: 10px 6px;
-        border-right: 1px solid #ddd;
-    }
-    .nav-btn:last-child { border-right: 1px solid #ddd; }
-}
+            }
 .sb-btn-row { display:flex; gap:8px; margin-top:10px; }
     .sb-btn-row .btn { padding:6px 16px; font-size:0.85em; color:#667eea; border-color:#c5cff5; border-radius:8px; background:#f5f7ff; }
     .sb-btn-row .btn:hover { background:#667eea; color:white; border-color:#667eea; }
@@ -459,6 +435,20 @@ input.wrong{border-bottom:2px solid #e74c3c !important;background:#fdeaea !impor
 
       <div class="hilfe-box">Setzen Sie das passende Wort ein. Sie können die Wörter aus der Wortbank anklicken oder direkt tippen.</div>
 
+      <div class="word-bank" id="wbank">
+        <span class="word-chip" onclick="chipClick(this)">Angst</span>
+        <span class="word-chip" onclick="chipClick(this)">neidisch</span>
+        <span class="word-chip" onclick="chipClick(this)">auskennt</span>
+        <span class="word-chip" onclick="chipClick(this)">Schwäche</span>
+        <span class="word-chip" onclick="chipClick(this)">Moral</span>
+        <span class="word-chip" onclick="chipClick(this)">kritisch</span>
+        <span class="word-chip" onclick="chipClick(this)">Täuschung</span>
+        <span class="word-chip" onclick="chipClick(this)">Wahrnehmung</span>
+        <span class="word-chip" onclick="chipClick(this)">evaluieren</span>
+        <span class="word-chip" onclick="chipClick(this)">Glücksbringer</span>
+        <span class="word-chip" onclick="chipClick(this)">Unheil</span>
+        <span class="word-chip" onclick="chipClick(this)">Verhaltensritual</span>
+      </div>
 
       <div id="luecken-area">
         <div class="luecken-item">Ich habe <input class="luecken-inp" data-ans="Angst" oninput="lueckenLiveCheck(this)" style="width:10ch"> vor Spinnen — das ist total irrational, ich weiß.</div>
@@ -673,6 +663,18 @@ function checkLueckenAllOk() {
     if (allOk) stopTimer(1);
 }
 
+function chipClick(chip) {
+    if (chip.classList.contains('used')) return;
+    var inputs = document.querySelectorAll('.luecken-inp');
+    for (var i = 0; i < inputs.length; i++) {
+        if (!inputs[i].value) {
+            inputs[i].value = chip.textContent;
+            lueckenLiveCheck(inputs[i]);
+            chip.classList.add('used');
+            break;
+        }
+    }
+}
 
 function showLoesung(tabIdx) {
     if (tabIdx === 1) {
@@ -682,7 +684,7 @@ function showLoesung(tabIdx) {
             inp.classList.remove('no');
             inp.classList.add('ok');
         });
-        document.querySelectorAll('.wortbank-chip').forEach(function(c) { c.classList.add('used'); });
+        document.querySelectorAll('.word-chip').forEach(function(c) { c.classList.add('used'); });
     }
 }
 
@@ -691,7 +693,7 @@ function resetLuecken() {
         inp.value = '';
         inp.classList.remove('ok', 'no');
     });
-    document.querySelectorAll('.wortbank-chip').forEach(function(c) { c.classList.remove('used'); });
+    document.querySelectorAll('.word-chip').forEach(function(c) { c.classList.remove('used'); });
 }
 
 // ══════════════════════════════════════════════════════════════════
