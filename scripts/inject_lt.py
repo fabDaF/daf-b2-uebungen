@@ -81,6 +81,26 @@ def inject(path):
         if "Alt-Engine entfernt" not in actions:
             actions.append("Alt-Engine entfernt")
 
+    # 0b) FB-LT-V1 (Vorgänger-Engine) entfernen: erst der CSS-Block (Marker im
+    # /* */-Kommentar im <style>), dann der selbst-enthaltene <script>-Block.
+    new = re.sub(r'\n?\s*/\* FB-LT-V1 — Wortbank.*?input\.wrong\{[^}]*\}\n?', '', s, flags=re.S)
+    if new != s:
+        s = new
+        if "Alt-Engine entfernt" not in actions:
+            actions.append("Alt-Engine entfernt")
+    while "FB-LT-V1" in s:
+        idx = s.find("FB-LT-V1")
+        start = s.rfind("<script", 0, idx)
+        end = s.find("</script>", idx)
+        if start < 0 or end < 0:
+            break
+        end += len("</script>")
+        if not (200 < end - start < 20000):
+            break
+        s = s[:start] + s[end:]
+        if "Alt-Engine entfernt" not in actions:
+            actions.append("Alt-Engine entfernt")
+
     # 1) CSS
     if CSS_MARK not in s:
         i = s.rfind("</style>")
