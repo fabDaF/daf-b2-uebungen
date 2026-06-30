@@ -64,6 +64,23 @@ def inject(path):
     orig = s
     actions = []
 
+    # 0) Konkurrierende graue Alt-Engine entfernen (genau EINE Engine pro Datei).
+    # Das FB-WORTBANK-MODULE ist ein selbst-enthaltener <script>-Block; bounded
+    # entfernen (Marker steht nur im Script, nicht in einer CSS). Das Gate verbietet
+    # konkurrierende Engines — ohne Entfernung bliebe die Datei rot.
+    while "FB-WORTBANK-MODULE" in s:
+        idx = s.find("FB-WORTBANK-MODULE")
+        start = s.rfind("<script", 0, idx)
+        end = s.find("</script>", idx)
+        if start < 0 or end < 0:
+            break
+        end += len("</script>")
+        if not (200 < end - start < 20000):
+            break  # unplausibel -> Finger weg, lieber manuell
+        s = s[:start] + s[end:]
+        if "Alt-Engine entfernt" not in actions:
+            actions.append("Alt-Engine entfernt")
+
     # 1) CSS
     if CSS_MARK not in s:
         i = s.rfind("</style>")
