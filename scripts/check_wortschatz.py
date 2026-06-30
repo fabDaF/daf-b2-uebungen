@@ -62,9 +62,31 @@ def classify(s):
     canonical = ("luecken-item" in body) and (
         ("dataset.field" in body) or ("data-field" in body)
         or ("dataset.answer" in body) or ("data-answer" in body))
-    if canonical:
-        return None
-    return "ABWEICHEND"
+    if not canonical:
+        return "ABWEICHEND"
+    # Struktur kanonisch — aber auch die OPTIK? (sonst Voll-Box statt Karte, wie Frank 2026-06-30)
+    if not canonical_look(s):
+        return "OPTIK"
+    return None
+
+
+def _css_rule_body(s, selector):
+    m = re.search(re.escape(selector) + r"\s*\{([^}]*)\}", s)
+    return m.group(1) if m else ""
+
+
+def canonical_look(s):
+    """True, wenn der Wortschatz-Tab die skill-konforme Karten-Optik garantiert: entweder der
+    vom Injektor gelieferte scoped CSS-Block (Marker), ODER die globale `.luecken-item`-Regel
+    trägt Karten-Styling (background + border-left) UND `input.blank` ist Unterstrich (border-bottom),
+    wie im Goldstandard musterdatei-1023G. Sonst rendert der Tab als nackte Voll-Box-Felder."""
+    if "FB-WORTSCHATZ-KANON-CSS" in s:
+        return True
+    li = _css_rule_body(s, ".luecken-item")
+    card = ("background" in li) and ("border-left" in li)
+    blank = _css_rule_body(s, "input.blank") or _css_rule_body(s, ".blank")
+    underline = "border-bottom" in blank
+    return card and underline
 
 
 def scan(paths):
