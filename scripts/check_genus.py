@@ -83,6 +83,24 @@ def file_offense(path: str):
     return None
 
 
+def genus_style_orphan(txt: str):
+    """Liefert den verwaisten Selektor, wenn das Genus-Chip-Pill-Styling an eine
+    Section-ID gebunden ist, die es im Dokument NICHT (mehr) gibt — dann rendern die
+    Chips als nackter Text statt als Pillen. Genau dieser Fehler ist Frank am
+    2026-06-30 bei 3017X aufgefallen: CSS `#sec-genus .chip {…}`, die Genus-Section
+    hieß nach der Tab-Umnummerierung aber `id="sec-2"`. Die Drag-Logik (JS nutzte
+    `#sec-2`) lief, nur das Styling war tot — check_genus zählte brav 24 Wörter und
+    merkte nichts. Fix: id-unabhängiger Selektor (.genus-bank/.genus-zones .chip).
+
+    Nur ID-gebundene Chip-Styling-Regeln sind fragil; klassenbasierte Selektoren
+    (.genus-chip, .genus-bank .chip) überstehen jede Umnummerierung und werden ignoriert.
+    """
+    for sid in re.findall(r"#(sec-[\w-]+)\s+\.(?:genus-)?chip\b", txt):
+        if re.search(r'id="' + re.escape(sid) + r'"', txt) is None:
+            return sid
+    return None
+
+
 def collect_repo():
     out = []
     for dp, dn, fn in os.walk("."):
@@ -98,8 +116,16 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     files = args if args else collect_repo()
     offenders = []
+    style_orphans = []
     geprueft = 0
     for p in files:
+        try:
+            _txt = open(p, encoding="utf-8", errors="replace").read()
+            orph = genus_style_orphan(_txt)
+            if orph:
+                style_orphans.append((orph, p))
+        except OSError:
+            pass
         n = file_offense(p)
         if n is not None:
             offenders.append((n, p))
@@ -112,14 +138,22 @@ if __name__ == "__main__":
             if body is not None and is_genus_tab(body):
                 geprueft += 1
 
-    if offenders:
-        print(f"✗ {len(offenders)} Genus-Tab(s) mit weniger als {MINDEST} Wörtern "
-              f"(CLAUDE.md-Pflicht verletzt):")
-        for n, p in sorted(offenders):
-            print(f"    {n:>3}  {p}")
-        print(f"\nFix: GENUS_DATA auf mindestens {MINDEST} Einträge erweitern "
-              f"(empf. 24: 6 der / 6 die / 6 das / 4–6 pl). "
-              f"Nur Common Nouns, keine Eigennamen/Marken/Akronyme.")
+    if offenders or style_orphans:
+        if offenders:
+            print(f"✗ {len(offenders)} Genus-Tab(s) mit weniger als {MINDEST} Wörtern "
+                  f"(CLAUDE.md-Pflicht verletzt):")
+            for n, p in sorted(offenders):
+                print(f"    {n:>3}  {p}")
+            print(f"\nFix: GENUS_DATA auf mindestens {MINDEST} Einträge erweitern "
+                  f"(empf. 24: 6 der / 6 die / 6 das / 4–6 pl). "
+                  f"Nur Common Nouns, keine Eigennamen/Marken/Akronyme.")
+        if style_orphans:
+            print(f"✗ {len(style_orphans)} Genus-Tab(s) mit verwaistem Chip-Styling-Selektor "
+                  f"(Chips rendern als nackter Text statt als Pillen):")
+            for sid, p in sorted(style_orphans):
+                print(f"    #{sid} (keine passende Section-ID)  {p}")
+            print("\nFix: ID-gebundenen Selektor auf id-unabhängig umstellen — "
+                  "`.genus-bank .chip, .genus-zones .chip` (überlebt Tab-Umnummerierung).")
         sys.exit(1)
 
     print(f"✓ Alle {geprueft} echten Genus-Tabs haben mindestens {MINDEST} Wörter "
