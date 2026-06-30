@@ -88,7 +88,7 @@ Mara hält nervös einen Vortrag, die Fragen ihres Bruders helfen ihr, am Ende e
 - Tooling-Änderungen in `scripts/` → B2-Root-Repo (aus `fabDaF/`).
 - Verifizieren: `git rev-parse HEAD origin/main` (gleich = ok). Post-commit-Hook pusht selbst.
 
-## 7. Stand (23 fertig, B1.1)
+## 7. Stand (24 fertig, B1.1)
 
 ERLEDIGT: 1011X, 1013R, 1015G, 1016R, 1017X, 1018S, 1021X, 1026R, 1027X, 1034X, 1037X,
 1057X, 3065G. (1057X/3065G/1011X waren von Anfang an echte Stories; 1015G/1016R/1017X/
@@ -101,7 +101,8 @@ Karims erstes Jahr), 1038S (Kulturelle Vielfalt — Karims Einbürgerung), 1041X
 — Yaras erstes Profil, 8→10 Vokabeln ergänzt), 1042G (Pronomen — Lenas Paket, Wortschatz-
 Variante), 1043R (Partnersuche — Stefans Online-Date, 12→10), 1044X (Online einkaufen —
 Opa Werner), 1045G (Negation — Robert im Stromausfall, Wortschatz-Variante), 1046R (Fake
-News — Karims Faktencheck-Team, anderer Container `luecken-container`).
+News — Karims Faktencheck-Team, anderer Container `luecken-container`), 1053R (Kulturelle
+Angebote — Karims Freizeit-Wochenenden, 6→10 Vokabeln aus Vorentlastung ergänzt).
 Merke: G-Dateiname ≠ Grammatik-Variante! Variante ist **inhaltsgetrieben** (nur echte
 Transformation wie 1035G bekommt data-base; Lokaladverbien/Pronomen/Negation = Wortschatz).
 
@@ -113,8 +114,8 @@ for f in $(ls DE_B1_*.html | sort); do
   grep -qE 'nav-label[^>]*>\s*L(ü|&uuml;)ckentext' "$f" && ! grep -q 'FB-LT-STORY' "$f" && echo "$f"
 done
 ```
-**Nächste reguläre dran:** 1053R, 1055G, 1056R, 1061X, 1062G, 1063R, 1064X, 1065G, 1066R,
-1067X … dann 20xx/30xx. (1032G–1046R sind ab 2026-06-30 erledigt, siehe §7.)
+**Nächste reguläre dran:** 1055G, 1056R, 1061X, 1062G, 1063R, 1064X, 1065G, 1066R,
+1067X … dann 20xx/30xx. (1032G–1046R + 1053R sind ab 2026-06-30 erledigt, siehe §7.)
 (1071W/1072W/2071W/… sind **W = Schreibaufgaben** — prüfen, ob sie überhaupt einen
 Lückentext-Tab haben; viele tun das nicht und sind dann gar nicht im Backlog.)
 
