@@ -79,13 +79,14 @@ def check_canonical(path, s):
             problems.append(f"konkurrierende Alt-Engine vorhanden: {c}")
     if 'class="wortkasten"' in s:
         problems.append("statischer wortkasten vorhanden (Leak-/Doppelbank-Gefahr)")
-    # G-Variante: jede Lücke braucht data-base; Zielform nie über Wortbank sichtbar
-    is_g = bool(GFILE_RE.search(os.path.basename(path)))
+    # Variante INHALTSGETRIEBEN (nicht per Dateiname): keine data-base = Wortschatz,
+    # alle = Grammatik. Nur GEMISCHT ist ein Fehler. (G-Dateiname erzwingt NICHT
+    # data-base — z. B. 1015G temporaladverbien ist Vokabel-Einsetzung ohne
+    # Transformation, also korrekt Wortschatz-Variante.)
     with_base = sum(1 for _, rest in g if "data-base=" in rest)
-    if is_g or (0 < with_base < n):
-        if with_base != n:
-            problems.append(f"G-Variante: {with_base}/{n} Lücken mit data-base "
-                            f"(alle brauchen die Grundform)")
+    if 0 < with_base < n:
+        problems.append(f"gemischte Variante: {with_base}/{n} Lücken mit data-base "
+                        f"(entweder alle = Grammatik/Grundform, oder keine = Wortschatz)")
     return problems
 
 
