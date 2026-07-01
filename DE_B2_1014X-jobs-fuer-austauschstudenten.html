@@ -349,13 +349,6 @@ nav{
 .genus-drop { min-height:90px; background:#fff; border:2px dashed #ccc; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px; }
 .genus-drop.dragover { border-color:#667eea; background:#eef1ff; }
 @media (max-width:600px){ .genus-kategorien { grid-template-columns:repeat(2,1fr); } }
-/* FB-LT-V1 — Wortbank + Feedback (LUECKENTEXT-SKILL-SPEC v1.0) */
-.wortbank{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#f0f0f8;border-radius:10px;min-height:48px;margin:8px 0 18px;border:1px dashed #bbb;}
-.wortbank-chip{background:#fff;border:2px solid #667eea;color:#667eea;padding:5px 12px;border-radius:14px;font-weight:500;font-size:0.9em;user-select:none;}
-.wortbank-chip.used{opacity:0.35;text-decoration:line-through;}
-input.correct{border-bottom:2px solid #27ae60 !important;background:#e8f8f0 !important;color:#27ae60 !important;font-weight:700;}
-input.wrong{border-bottom:2px solid #e74c3c !important;background:#fdeaea !important;color:#e74c3c !important;}
-
 /* FB-JUMPTOP - Nach-oben-Button (Glas-Look) */
 .fb-jumptop {
   position: fixed; bottom: 30px;
@@ -379,6 +372,21 @@ input.wrong{border-bottom:2px solid #e74c3c !important;background:#fdeaea !impor
 @media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
 /* FB-SCHREIB-LAST */
 .nav-btn.schreib-last{order:99;}
+
+/* FB-LT-STORY-CSS */
+/* FB-LT-STORY-CSS — kanonische CSS des Story-Lückentexts (EINE Quelle der Wahrheit).
+   Vom Produzenten scripts/inject_lt.py eingespielt. Nicht pro Datei von Hand kopieren. */
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+
 </style>
 </head>
 <body>
@@ -468,7 +476,8 @@ input.wrong{border-bottom:2px solid #e74c3c !important;background:#fdeaea !impor
 
     <div class="control-bar">
       <div class="btns">
-        <button class="ctrl-btn btn-reset" onclick="resetLuecken()">↺ Reset</button>
+        <button class="ctrl-btn btn-show" onclick="fbLtShowLoesung()">💡 Lösungen</button>
+        <button class="ctrl-btn btn-reset" onclick="fbLtReset()">↺ Reset</button>
       </div>
       <div class="timer-box">
         ⏱ <span id="timer-1" class="timer-display">0:00</span>
@@ -476,95 +485,13 @@ input.wrong{border-bottom:2px solid #e74c3c !important;background:#fdeaea !impor
       </div>
     </div>
 
-    <div class="wortkasten">
-      <strong>Anerkennung</strong>
-      <strong>Arbeitsagentur</strong>
-      <strong>beglaubigen lassen</strong>
-      <strong>befristet</strong>
-      <strong>Berufsberatung</strong>
-      <strong>Bewerbung</strong>
-      <strong>Bewerbungsmappe</strong>
-      <strong>Lebenslauf</strong>
-      <strong>sozialversicherungspflichtig</strong>
-      <strong>Stellenangebot</strong>
-      <strong>übersetzen lassen</strong>
-      <strong>Vorstellungsgespräch</strong>
+    <div class="wortbank" id="wortbank-luecken"></div>
+    <div id="lueckenContainer" class="luecken-story">
+    <p>Nora ist erst seit drei Wochen in Deutschland, und schon stapeln sich auf ihrem Schreibtisch Formulare, die sie nie erwartet hätte. Alles beginnt harmlos: Für ihre erste Bewerbung braucht sie einen aktuellen <input class="blank" data-answer="Lebenslauf"> auf Deutsch — kein Problem, denkt sie, das übersetzt sie an einem Nachmittag.</p>
+    <p>Dann findet sie online ein interessantes <input class="blank" data-answer="Stellenangebot"> für eine Werkstudentenstelle in einem kleinen Verlag. Nach ihrer <input class="blank" data-answer="Bewerbung"> wird sie tatsächlich zu einem <input class="blank" data-answer="Vorstellungsgespräch"> eingeladen — und es läuft überraschend gut.</p>
+    <p>Doch dann beginnt die eigentliche Herausforderung. Bei der <input class="blank" data-answer="Arbeitsagentur"> erklärt man ihr, dass ihr Vertrag zunächst <input class="blank" data-answer="befristet"> sein wird, nur für sechs Monate, und dass sie ab einem bestimmten Gehalt <input class="blank" data-answer="sozialversicherungspflichtig"> beschäftigt ist. Nora nickt und versteht ungefähr die Hälfte der Wörter.</p>
+    <p>Am kompliziertesten ist die <input class="blank" data-answer="Anerkennung"> ihres norwegischen Bachelor-Abschlusses: Sie muss alle Zeugnisse zuerst ins Deutsche <input class="blank" data-answer="übersetzen lassen">, dann die Kopien beim Notar <input class="blank" data-answer="beglaubigen lassen"> — drei Ämter, zwei Monate, ein Ordner voller Stempel. Als sie am Ende endlich ihren Arbeitsvertrag unterschreibt, lacht sie: „Ich habe mehr über deutsche Bürokratie gelernt als in meinem ganzen Studium über Wirtschaft.“</p>
     </div>
-
-    <ol class="luecken-list">
-      <li>
-        <span class="luecken-num">1.</span>
-        <span>Für einen Job in Deutschland brauchst du einen aktuellen</span>
-        <input class="luecken-inp" data-answer="Lebenslauf" oninput="liveCheck(this)" placeholder="">
-        <span>auf Deutsch.</span>
-      </li>
-      <li>
-        <span class="luecken-num">2.</span>
-        <span>Die</span>
-        <input class="luecken-inp" data-answer="Berufsberatung" oninput="liveCheck(this)" placeholder="">
-        <span>hilft Studierenden, den richtigen Beruf zu finden.</span>
-      </li>
-      <li>
-        <span class="luecken-num">3.</span>
-        <span>Ich habe online ein interessantes</span>
-        <input class="luecken-inp" data-answer="Stellenangebot" oninput="liveCheck(this)" placeholder="">
-        <span>für eine Werkstudentenstelle gefunden.</span>
-      </li>
-      <li>
-        <span class="luecken-num">4.</span>
-        <span>Meine</span>
-        <input class="luecken-inp" data-answer="Bewerbungsmappe" oninput="liveCheck(this)" placeholder="">
-        <span>enthält Lebenslauf, Motivationsschreiben und alle Zeugnisse.</span>
-      </li>
-      <li>
-        <span class="luecken-num">5.</span>
-        <span>Nach meiner</span>
-        <input class="luecken-inp" data-answer="Bewerbung" oninput="liveCheck(this)" placeholder="">
-        <span>wurde ich zu einem Gespräch eingeladen.</span>
-      </li>
-      <li>
-        <span class="luecken-num">6.</span>
-        <span>Das</span>
-        <input class="luecken-inp wide" data-answer="Vorstellungsgespräch" oninput="liveCheck(this)" placeholder="">
-        <span>dauerte eine Stunde und verlief sehr gut.</span>
-      </li>
-      <li>
-        <span class="luecken-num">7.</span>
-        <span>Bei der</span>
-        <input class="luecken-inp wide" data-answer="Arbeitsagentur" oninput="liveCheck(this)" placeholder="">
-        <span>kann man offene Stellen suchen und Hilfe bei der Bewerbung bekommen.</span>
-      </li>
-      <li>
-        <span class="luecken-num">8.</span>
-        <span>Mein Vertrag ist</span>
-        <input class="luecken-inp" data-answer="befristet" oninput="liveCheck(this)" placeholder="">
-        <span>— er gilt nur für sechs Monate.</span>
-      </li>
-      <li>
-        <span class="luecken-num">9.</span>
-        <span>Wenn du mehr als 520 Euro im Monat verdienst, bist du</span>
-        <input class="luecken-inp xwide" data-answer="sozialversicherungspflichtig" oninput="liveCheck(this)" placeholder="">
-        <span>beschäftigt.</span>
-      </li>
-      <li>
-        <span class="luecken-num">10.</span>
-        <span>Die</span>
-        <input class="luecken-inp wide" data-answer="Anerkennung" oninput="liveCheck(this)" placeholder="">
-        <span>meines ausländischen Abschlusses hat drei Monate gedauert.</span>
-      </li>
-      <li>
-        <span class="luecken-num">11.</span>
-        <span>Ich musste alle meine Dokumente ins Deutsche</span>
-        <input class="luecken-inp wide" data-answer="übersetzen lassen" oninput="liveCheck(this)" placeholder="">
-        <span>.</span>
-      </li>
-      <li>
-        <span class="luecken-num">12.</span>
-        <span>Die Kopien meiner Zeugnisse musste ich beim Notar</span>
-        <input class="luecken-inp wide" data-answer="beglaubigen lassen" oninput="liveCheck(this)" placeholder="">
-        <span>.</span>
-      </li>
-    </ol>
   </div>
 
   <!-- TAB 3: SATZBAU -->
@@ -1826,109 +1753,7 @@ function resetGenus(){ initGenus(); genusTimerReset(); }
 </script>
 
 
-<script>
-/* FB-LT-V1 — kanonischer Vokabel-Lückentext nach LUECKENTEXT-SKILL-SPEC v1.0.
-   NUR für Wortschatz-Lücken (V/R/X): die Wortbank zeigt die Vollformen (= Antworten).
-   NICHT in G-Dateien einsetzen (dort gilt der Grundform-/Infinitiv-Wortkasten).
-   Selbst-installierend, idempotent. Liest die Antworten aus den vorhandenen Lücken-
-   Inputs (data-ans/answer), rendert eine gemischte, nicht-klickbare Wortbank mit
-   .used-Durchstreichen, setzt ch-Breite, entfernt Anweisungs-/Altboxen, verdrahtet
-   case-sensitives Live-Feedback. */
-(function () {
-  "use strict";
-  if (window.__fbLtV1) return;
-  window.__fbLtV1 = true;
 
-  var GAP = /(^|\s)(luecken-inp|gap-inp|luecke-inp|lt-input|gap-input|blank)(\s|$)/;
-  function ansOf(i) { var d = i.dataset || {}; return d.ans || d.answer || d.loesung || d.sol || ""; }
-  function isGap(i) { return i.tagName === "INPUT" && GAP.test(i.className || "") && ansOf(i) !== ""; }
-  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-
-  function isTrainer(n) {
-    // Wortschatz-/Genus-Trainingstab: NIE eine Lückentext-Wortbank einbauen — sonst
-    // stünden die Vokabel-/Genus-Lösungen als Chips da (zerstört die Tippübung).
-    if (n.querySelector("input.art, input.wort, input[data-field], #wortschatzContainer")) return true;
-    var h = n.querySelector(".section-title, h2, h3, .tab-title");
-    if (h && /wortschatz|genus/i.test(h.textContent || "")) return true;
-    // Nav-Button-Label des zugehörigen Tabs prüfen. WICHTIG: auf die Top-Level-
-    // .section abbilden (Gaps liegen oft in verschachtelten .tab-content-Leafs),
-    // und im NARROW .section-Index zählen — der allein deckt sich mit der Nav-Reihe.
-    var top = (n.closest && n.closest(".section")) || n;
-    var secs = Array.prototype.slice.call(document.querySelectorAll(".section"));
-    var navs = document.querySelectorAll(".nav-btn");
-    var idx = secs.indexOf(top);
-    if (idx >= 0 && navs[idx] && /wortschatz|genus/i.test(navs[idx].textContent || "")) return true;
-    return false;
-  }
-  function sections() {
-    var out = [], nodes = document.querySelectorAll(".section, .tab, .tab-content, .sec, .tab-pane");
-    Array.prototype.forEach.call(nodes, function (n) {
-      if (n.querySelector(".section, .tab, .tab-content, .sec, .tab-pane")) return;
-      if (isTrainer(n)) return;
-      var gaps = Array.prototype.filter.call(n.querySelectorAll("input"), isGap);
-      if (gaps.length >= 2) out.push(n);
-    });
-    return out;
-  }
-  function removeClutter(sec) {
-    Array.prototype.forEach.call(sec.querySelectorAll(".hilfe-box, .wortkasten, .wortbank-label"), function (w) {
-      if (!w.classList.contains("fb-lt-bank")) w.remove();
-    });
-  }
-  function ensureBank(sec) {
-    var bank = sec.querySelector(".wortbank");
-    if (bank) { bank.classList.add("fb-lt-bank"); return bank; }
-    bank = document.createElement("div");
-    bank.className = "wortbank fb-lt-bank";
-    var host = sec.querySelector(".sec-inner") || sec;
-    var gaps = Array.prototype.filter.call(host.querySelectorAll("input"), isGap), anchor = null;
-    if (gaps.length) { var n = gaps[0]; while (n && n.parentNode !== host) n = n.parentNode; anchor = n; }
-    if (anchor) host.insertBefore(bank, anchor); else host.insertBefore(bank, host.firstChild);
-    return bank;
-  }
-  function updateUsed(sec, bank) {
-    var solved = Array.prototype.filter.call(sec.querySelectorAll("input"), function (i) { return isGap(i) && i.value === ansOf(i); }).map(function (i) { return i.value; });
-    var rem = solved.slice();
-    Array.prototype.forEach.call(bank.querySelectorAll(".wortbank-chip"), function (c) {
-      var k = rem.indexOf(c.textContent);
-      if (k >= 0) { c.classList.add("used"); rem.splice(k, 1); } else c.classList.remove("used");
-    });
-  }
-  function live(i, sec, bank) {
-    var val = i.value, ans = ansOf(i);
-    i.classList.remove("correct", "wrong", "ok", "no");
-    if (val) { if (val === ans) i.classList.add("correct"); else if (!ans.startsWith(val)) i.classList.add("wrong"); }
-    updateUsed(sec, bank);
-  }
-  function build() {
-    sections().forEach(function (sec) {
-      var gaps = Array.prototype.filter.call(sec.querySelectorAll("input"), isGap);
-      if (gaps.length < 2) return;
-      removeClutter(sec);
-      var bank = ensureBank(sec);
-      var answers = gaps.map(ansOf);
-      var sig = answers.slice().sort().join("|");
-      if (bank.getAttribute("data-sig") !== sig) {
-        bank.setAttribute("data-sig", sig);
-        bank.innerHTML = "";
-        shuffle(answers.slice()).forEach(function (w) {
-          var c = document.createElement("span"); c.className = "wortbank-chip"; c.textContent = w; bank.appendChild(c);
-        });
-      }
-      gaps.forEach(function (i) {
-        i.placeholder = "";
-        i.style.width = (ansOf(i).length + 4) + "ch";
-        if (!i.__fbWired) { i.__fbWired = true; i.addEventListener("input", function () { live(i, sec, bank); }); }
-      });
-      updateUsed(sec, bank);
-    });
-  }
-  function run() { setTimeout(build, 0); setTimeout(build, 150); }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run); else run();
-  document.addEventListener("click", function (e) { if (e.target && e.target.closest && e.target.closest(".nav-btn")) setTimeout(build, 150); });
-})();
-
-</script>
 
 <!-- FB-JUMPTOP -->
 <button class="fb-jumptop" id="fbJumpTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben springen" aria-label="Nach oben springen">↑ Nach oben</button>
@@ -1947,5 +1772,158 @@ function resetGenus(){ initGenus(); genusTimerReset(); }
 })();
 </script>
 
+
+<!-- FB-LT-STORY-ENGINE -->
+<script>
+/* ============================================================================
+   FB-LT-STORY — kanonische Lückentext-Engine (EINE Quelle der Wahrheit)
+   ----------------------------------------------------------------------------
+   Mit Frank abgenommen 2026-06-30 (Piloten 1057X Heimweh, 3065G Adjektivdeklination).
+   Diese Datei ist die EINZIGE Quelle der mechanischen Lückentext-Logik. Der
+   Produzent scripts/inject_lt.py spielt sie (plus die CSS unten) in jede Lektion
+   ein — NIE von Hand pro Datei kopieren (sonst driften die Engines, genau der
+   Fehler, den wir abschaffen).
+
+   Kanonische Form:
+     · zusammenhängende STORY (Serif-Fließtext, Inline-Lücken), KEINE Nummern;
+     · GENAU 10 Lücken;  · §7-Wortbank (gemischt, nicht klickbar, .used);
+     · case-sensitiv, kein Prüfen-Button (nur Live-Feedback);
+     · Variante erkennt sich SELBST:
+         - hat eine Lücke data-base  → Grammatik (G): Wortbank zeigt die GRUNDFORM
+           (data-base), die Zielform (data-answer) ist nie sichtbar;
+         - sonst                     → Wortschatz (V/R/X): Wortbank zeigt die
+           Vollform (= data-answer).
+     · .used streicht den Chip der getroffenen Lücke durch (G: per data-base) —
+       Fortschrittsanzeige, verrät die Zielform nicht (Frank bestätigt 2026-06-30).
+
+   Markup-Vertrag (vom Produzenten erzeugt, vom Gate check_lueckentext.py geprüft):
+     <div class="wortbank" id="wortbank-luecken"></div>
+     <div id="lueckenContainer" class="luecken-story">
+       <p>… <input class="blank" data-answer="ZIELFORM" [data-base="GRUNDFORM"]> …</p>
+     </div>
+
+   Timer-Anbindung: die Engine ruft generische Hooks window.fbLtTimerStart()/
+   fbLtTimerStop(); der Produzent verdrahtet sie pro Datei auf den richtigen
+   Tab-Index (timerAutoStart(N)/timerStop(N)). Fehlen die Hooks, läuft die Engine
+   ohne Timer weiter.
+   ============================================================================ */
+
+/* ---- KANONISCHE CSS (vom Produzenten mit eingespielt) -----------------------
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+---------------------------------------------------------------------------- */
+
+(function () {
+  "use strict";
+  if (window.__fbLtStory) return;
+  window.__fbLtStory = true;
+
+  function gaps() {
+    return Array.prototype.slice.call(
+      document.querySelectorAll('#lueckenContainer input.blank'));
+  }
+  // Wortbank-Wort einer Lücke: Grundform (G) falls vorhanden, sonst Vollform.
+  function wordOf(i) {
+    return i.getAttribute('data-base') || i.getAttribute('data-answer') || '';
+  }
+  function shuffle(a) {
+    for (var k = a.length - 1; k > 0; k--) {
+      var j = Math.floor(Math.random() * (k + 1));
+      var t = a[k]; a[k] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function update() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var rem = gaps().filter(function (i) { return i.classList.contains('correct'); })
+                    .map(wordOf);
+    Array.prototype.slice.call(bank.querySelectorAll('.wortbank-chip')).forEach(function (c) {
+      var idx = rem.indexOf(c.textContent);
+      if (idx >= 0) { c.classList.add('used'); rem.splice(idx, 1); }
+      else { c.classList.remove('used'); }
+    });
+  }
+
+  function done() {
+    var gg = gaps();
+    if (gg.length && gg.every(function (i) { return i.classList.contains('correct'); })
+        && typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  }
+
+  function live(i) {
+    var ans = i.getAttribute('data-answer'), val = i.value;   // case-sensitive, kein trim
+    i.classList.remove('correct', 'wrong');
+    if (val) {
+      if (val === ans) i.classList.add('correct');
+      else if (ans.indexOf(val) !== 0) i.classList.add('wrong');
+      if (typeof window.fbLtTimerStart === 'function') window.fbLtTimerStart();
+    }
+    update();
+    done();
+  }
+
+  function build() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var gg = gaps();
+    if (!gg.length) return;
+    gg.forEach(function (i) {
+      var a = i.getAttribute('data-answer') || '', b = i.getAttribute('data-base') || '';
+      i.placeholder = '';
+      i.style.width = (Math.max(a.length, b.length) + 3) + 'ch';
+      if (!i.__fbWired) {
+        i.__fbWired = true;
+        i.addEventListener('input', function () { live(i); });
+      }
+    });
+    var seen = {}, words = [];
+    gg.forEach(function (i) { var w = wordOf(i); if (w && !seen[w]) { seen[w] = true; words.push(w); } });
+    bank.innerHTML = '';
+    shuffle(words).forEach(function (w) {
+      var c = document.createElement('span');
+      c.className = 'wortbank-chip';
+      c.textContent = w;
+      bank.appendChild(c);
+    });
+    update();
+  }
+
+  // Öffentliche Hooks für die Steuer-Buttons (Produzent verdrahtet onclick darauf).
+  window.fbLtBuild = build;
+  window.fbLtShowLoesung = function () {
+    gaps().forEach(function (i) {
+      i.value = i.getAttribute('data-answer');
+      i.classList.add('correct'); i.classList.remove('wrong');
+    });
+    update();
+    if (typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  };
+  window.fbLtReset = function () {
+    gaps().forEach(function (i) { i.value = ''; i.classList.remove('correct', 'wrong'); });
+    build();
+  };
+
+  function run() { build(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  // Beim Wechsel auf den Lückentext-Tab neu aufbauen (mischt die Wortbank).
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.nav-btn')) setTimeout(build, 80);
+  });
+})();
+
+</script>
+
+<!-- FB-LT-STORY-HOOKS --><script>window.fbLtTimerStart=function(){if(typeof timerAutoStart==='function')timerAutoStart(1);};window.fbLtTimerStop=function(){if(typeof timerStop==='function')timerStop(1);};</script>
 </body>
 </html>
