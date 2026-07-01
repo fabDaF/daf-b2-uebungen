@@ -65,21 +65,55 @@ def has_numbering(s):
     return False
 
 
-LEGACY_WORDBANK_FN_RE = re.compile(r'function\s+buildWordBank\s*\([^)]*\)\s*\{\s*')
+LEGACY_WORDBANK_FN_RE = re.compile(r'function\s+(\w*[Ww]ort[bB]ank\w*)\s*\([^)]*\)\s*\{\s*')
 
 
 def has_active_legacy_wordbank(s):
-    """Datei-lokale Alt-Wortkasten-Funktion (Fund 2026-06-30, B1 1013R u.a.):
-    eigene buildWordBank()-Implementierung mit Anweisungstext ('… tipp die
-    richtigen Wörter selbst …'), NICHT durch die FB-WORTBANK-MODULE/FB-LT-V1-
-    Marker erfasst, deshalb von COMPETITORS nicht gesehen. Neutralisierung ist
-    ein UNBEDINGTES 'return;' als allererste Anweisung im Funktionskörper —
-    ein 'if (!containerEl) return;'-Guard (im Original immer vorhanden) zählt
-    NICHT, sonst erkennt der Check die unneutralisierte Originalfunktion
-    fälschlich als sauber (genau dieser Fehler ist im ersten Anlauf passiert)."""
+    """Datei-lokale Alt-Wortkasten-Funktion — Sammelbegriff für ALLE Funktionen,
+    deren NAME 'wortbank'/'wordbank' enthält (buildWordBank, initWortbank,
+    buildWortbank, …), unabhängig davon, wie sie verdrahtet sind. Fund
+    2026-06-30 (B1 1013R, buildWordBank mit Anweisungstext) und erneut
+    2026-07-01 (B2 1036R: initWortbank() wird per eigenem
+    '<script>window.addEventListener("load", …)</script>'-Block NACH der
+    kanonischen Engine aufgerufen und überschreibt deren korrekt gefüllte
+    #wortbank-luecken mit den alten 12 LUECKEN_DATA-Wörtern — 12 statt 10 Chips
+    im Browser-Test). Die kanonische Engine (lt-story-engine.js) hat bewusst
+    KEINE Funktion mit 'wortbank' im Namen (dort heißt es schlicht 'bank'/
+    'build'/'update'), daher ist der Namensfilter kollisionsfrei.
+
+    WICHTIG (2026-07-01 nachgeschärft): nur eine tatsächlich AUFGERUFENE
+    Funktion ist ein Leak. Viele Dateien haben eine solche Funktion nur
+    DEFINIERT, aber nie aufgerufen (totes Overhead aus einer früheren
+    Migration) — das ist harmlos und KEIN Fehler. Deshalb zählen wir alle
+    Vorkommen von 'NAME(' im Dateitext; mehr als 1 Vorkommen (Definition +
+    mindestens ein Call, z. B. direkt oder per addEventListener) heißt aktiv.
+
+    ZWEITE Nachschärfung (2026-07-01, Fund an den Piloten 1057X/3065G): eine
+    aktiv aufgerufene wortbank-benannte Funktion ist NUR dann ein Leak, wenn
+    sie NEBEN der echten, eingespielten Shared-Engine (lt-story-engine.js)
+    existiert — erkennbar am literalen Fingerabdruck 'window.__fbLtStory'.
+    Die beiden Piloten wurden VOR der Shared-Engine von Hand gebaut; ihre
+    initWortbank()/buildWortbankG() & Co. sind dort die EINZIGE, korrekte
+    Implementierung (liest live aus dem DOM, keine Alt-Daten) — kein Leak,
+    obwohl der Name 'wortbank' enthält und die Funktion aktiv verdrahtet ist.
+    Reines Namens-/Aufruf-Matching hätte hier einen funktionierenden Pilot
+    kaputt „repariert" (Buttons auf nicht-existente fbLtShowLoesung/fbLtReset
+    umgebogen, echte Wortbank-Builder stillgelegt) — genau das ist im ersten
+    Anlauf passiert und wurde erst durch Franks Live-Meldung bemerkt.
+    Neutralisierung ist ein UNBEDINGTES 'return;' als allererste Anweisung im
+    Funktionskörper — ein 'if (!containerEl) return;'-Guard (im Original oft
+    vorhanden) zählt NICHT, sonst erkennt der Check die unneutralisierte
+    Originalfunktion fälschlich als sauber (genau dieser Fehler ist im ersten
+    Anlauf passiert)."""
+    if "window.__fbLtStory" not in s:
+        return False  # keine Shared-Engine im Spiel -> kein Konkurrenz-Leak möglich
     for m in LEGACY_WORDBANK_FN_RE.finditer(s):
+        name = m.group(1)
         start = m.end()
-        if not re.match(r'return;', s[start:start + 20]):
+        if re.match(r'return;', s[start:start + 20]):
+            continue  # bereits neutralisiert
+        occurrences = len(re.findall(r'\b' + re.escape(name) + r'\s*\(', s))
+        if occurrences > 1:
             return True
     return False
 
