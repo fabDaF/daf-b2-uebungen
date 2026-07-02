@@ -640,6 +640,7 @@ Widerspruch gilt diese Datei; der Skill-Text wird über `skill-verwaltung` nachg
 - `MANIFEST.md` — dieselbe Info, menschenlesbar (generiert)
 - `scripts/verify_manifest.sh` — IST-gegen-SOLL-Prüfung
 - `scripts/render_manifest.py` — MD aus YAML erzeugen
+- `scripts/check_quotes.py` — Anführungszeichen-Gate: blockt „…"-Paare mit ASCII-Schluss (daf-audit-Showstopper, vor Lektions-Commit); tag-fest — Zitate über Inline-Elemente (Lückentext-Inputs) sind keine Treffer
 - `scripts/check_serif.py` — Fließtext-Serif-Prüfung (vor Lektions-Commit)
 - `scripts/check_wortbank.py` — Lückentext-Wortbank-Prüfung (vor Lektions-Commit)
 - `scripts/check_genus.py` — Genus-Tab-Mindestanzahl-Prüfung (≥20, vor Lektions-Commit)
