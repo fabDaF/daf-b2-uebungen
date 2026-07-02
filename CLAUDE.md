@@ -577,7 +577,7 @@ in einem `.nav-btn`. `.nav-btn.schreib-last { order:99; }` (Schreiben ans Ende)
 bleibt unberührt — es ist Reihenfolge, keine Optik.
 
 **Diese Regel ist die Wahrheit und steht ÜBER der Nav-Leisten-CSS im Skill
-`daf-kern §1`** (dessen Beispiel noch die alte Unterstrich-Aktiv-Optik zeigt). Bei
+`daf-kern §1`** (seit 2026-07-02 ebenfalls auf Variante C aktualisiert). Bei
 Widerspruch gilt diese Datei. Der Skill-Text wird über den
 `skill-verwaltung`-Workflow nachgezogen, nicht aus einer laufenden Cowork-Session.
 
