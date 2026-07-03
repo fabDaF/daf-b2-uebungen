@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2 · Die Eskalationsfalle – Interaktive DaF-Übung</title>
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 2.2em; font-family: Georgia, 'Times New Roman', serif; color: white; margin-bottom: 8px; border: none; padding: 0; }
+.header p { font-size: 1.0em; font-family: Georgia, 'Times New Roman', serif; opacity: 0.95; color: rgba(255,255,255,0.9); margin: 0; }
+.header .big-emoji { font-size: 2.6em; display: block; margin-top: 8px; }
+.nav { display: flex; flex-wrap: nowrap; background: #f8f9fa; border-top: 1px solid #ddd; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+.nav-btn { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; transition: all 0.3s; font-size: 0.92em; font-weight: 500; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nav-btn:last-child { border-right: none; }
+.nav-btn:hover { background: #e8ecff; color: #667eea; }
+.nav-btn.active { background: white; color: #667eea; font-weight: 700; border-bottom: 3px solid #667eea; }
+.nav-emoji { font-size: 1.3em; line-height: 1.2; }
+.nav-label { font-size: 0.78em; margin-top: 2px; line-height: 1.2; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* Vorentlastung */
+.ve-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.ve-table td { padding: 10px 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+.ve-table td:first-child { font-weight: 600; color: #4a148c; white-space: nowrap; width: 35%; }
+.ve-table td:last-child { color: #555; line-height: 1.5; }
+
+/* Originaltext / Dialog */
+.text-block { line-height: 1.8; color: #333; font-size: 1.0em; font-family: Georgia, 'Times New Roman', serif; }
+.text-block p { margin-bottom: 14px; text-align: justify; }
+.source { margin-top: 20px; font-size: 0.8em; color: #999; font-style: italic; }
+.dialog { margin-bottom: 16px; }
+.dialog .speaker { font-weight: 700; color: #4a148c; margin-bottom: 2px; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+.dialog .speaker.host { color: #2c3e50; }
+.dialog .speaker.guest { color: #4a148c; }
+.dialog .utterance { margin-left: 0; margin-bottom: 14px; line-height: 1.75; text-align: justify; }
+
+/* Genus */
+.genus-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 16px; }
+.genus-chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.genus-chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.genus-chip.wrong { background: #e74c3c; border-color: #e74c3c; color: white; }
+.genus-zones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.drop-zone { min-height: 100px; padding: 12px; border: 2px dashed #ccc; border-radius: 10px; text-align: center; transition: all 0.2s; }
+.drop-zone h3 { color: #667eea; margin-bottom: 8px; font-size: 1.1em; }
+.drop-zone.dragover { background: #f0f4ff; border-color: #667eea; }
+.drop-zone .genus-chip { margin: 4px; display: inline-block; }
+
+/* Lückentext */
+.luecke-item { margin-bottom: 18px; line-height: 1.7; }
+.luecke-item input { border: 2px solid #ccc; border-radius: 6px; padding: 4px 8px; font-size: 0.95em; transition: border-color 0.2s; outline: none; }
+.luecke-item input.correct { border-color: #27ae60; background: #f0fff4; }
+.luecke-item input.wrong { border-color: #e74c3c; background: #fff5f5; }
+.luecke-item input:focus { border-color: #667eea; }
+.inp-s { width: 80px; } .inp-m { width: 140px; } .inp-l { width: 200px; } .inp-xl { width: 260px; }
+
+/* Multiple Choice */
+.mc-item { margin-bottom: 22px; }
+.mc-item p { font-weight: 600; margin-bottom: 8px; color: #333; }
+.mc-opt { display: block; padding: 10px 16px; margin: 4px 0; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.mc-opt:hover { background: #f0f4ff; border-color: #667eea; }
+.mc-opt.correct { background: #f0fff4; border-color: #27ae60; color: #27ae60; font-weight: 600; }
+.mc-opt.wrong { background: #fff5f5; border-color: #e74c3c; color: #e74c3c; }
+.mc-opt.disabled { pointer-events: none; opacity: 0.6; }
+
+/* Satzbau */
+.chips-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: #f8f8f8; border-radius: 10px; min-height: 56px; margin-bottom: 10px; }
+.sentence-builder { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; background: white; border: 2px dashed #ccc; border-radius: 10px; min-height: 56px; align-items: center; margin-bottom: 6px; }
+.sentence-builder.correct { border-color: #27ae60; background: #f0fff4; }
+.sentence-builder.incorrect { border-color: #e74c3c; background: #fff5f5; }
+.chip { background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
+.chip.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.chip.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+.sb-punkt { font-size: 1.1em; font-weight: 700; color: #27ae60; margin-left: 2px; align-self: center; user-select: none; }
+.satzbau-feedback { font-size: 0.9em; font-weight: 600; margin-top: 6px; min-height: 1.2em; }
+.satzbau-feedback.correct { color: #27ae60; }
+.satzbau-feedback.incorrect { color: #e74c3c; }
+
+/* Buttons */
+.btn-row { display: flex; gap: 6px; }
+.btn { background: #f5f7ff; border: 1px solid #c5cff5; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; color: #667eea; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.btn:hover { background: #eee; color: #444; }
+
+/* Timer */
+.timer-display { display: flex; gap: 14px; font-size: 0.82em; color: #bbb; font-variant-numeric: tabular-nums; }
+
+/* Footer */
+.author-footer { text-align: center; margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+.author-name { font-weight: 700; }
+
+/* Hilfe-Box */
+.hilfe-box { background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px; font-size: 0.9em; color: #444; line-height: 1.6; }
+
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .nav { flex-wrap: wrap; }
+    .nav-btn { flex: 1 1 33%; min-width: 0; font-size: 0.8em; padding: 10px 6px; border-right: 1px solid #ddd; }
+    .nav-btn:last-child { border-right: 1px solid #ddd; }
+    .genus-zones { grid-template-columns: repeat(2, 1fr); }
+}
+    
+/* FB-WORTBANK — universelle Lueckentext-Wortbank */
+.fb-wortbank-wrap{margin:14px 0 18px;}
+.fb-wortbank-label{display:none;}
+.fb-wortbank{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#f0f0f8;border-radius:10px;min-height:48px;border:1px dashed #bbb;}
+.fb-wortbank-chip{background:#fff;border:2px solid #667eea;color:#667eea;padding:5px 12px;border-radius:14px;font-weight:500;font-size:0.9em;user-select:none;}
+.fb-wortbank-chip.used{opacity:0.35;text-decoration:line-through;}
+
+/* ── Gerüst-Modus (B1+): sichtbare Lücken + feste Anker ── */
+.sb-gap { display:inline-flex; align-items:center; justify-content:center; min-width:66px; min-height:38px; padding:2px 6px; border:2px dashed #b9a7f0; border-radius:20px; background:#faf8ff; }
+.sb-gap.drag-over { border-color:#e67e22; background:#fff5ec; }
+.sb-gap .chip { margin:0; }
+.chip.sb-locked { background:#eef0ff; border-style:solid; border-color:#c3c9f5; color:#555; cursor:default; }
+.chip.sb-locked.correct { background:#27ae60; border-color:#27ae60; color:#fff; }
+
+/* FB-JUMPTOP - Nach-oben-Button (Glas-Look) */
+.fb-jumptop {
+  position: fixed; bottom: 30px;
+  right: max(18px, calc(50vw - 500px + 14px));
+  background: rgba(118, 75, 162, 0.26);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  color: #34206b; border: 1.5px solid rgba(255,255,255,0.75); border-radius: 28px;
+  padding: 15px 26px; font-size: 1.05em; font-weight: 800;
+  letter-spacing: 0.2px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(102,126,234,0.40), inset 0 1px 0 rgba(255,255,255,0.6);
+  text-shadow: 0 1px 1px rgba(255,255,255,0.55);
+  opacity: 0; visibility: hidden; transform: translateY(10px);
+  transition: opacity .25s, visibility .25s, transform .25s, background .2s, box-shadow .2s;
+  z-index: 9999; display: inline-flex; align-items: center; gap: 8px;
+}
+.fb-jumptop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.fb-jumptop:hover { background: rgba(118, 75, 162, 0.40); color: #241048; box-shadow: 0 10px 32px rgba(102,126,234,0.50), inset 0 1px 0 rgba(255,255,255,0.65); }
+@media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
+
+/* FB-LT-STORY-CSS */
+/* FB-LT-STORY-CSS — kanonische CSS des Story-Lückentexts (EINE Quelle der Wahrheit).
+   Vom Produzenten scripts/inject_lt.py eingespielt. Nicht pro Datei von Hand kopieren. */
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Die Eskalationsfalle</h1>
+        <p style="font-family: Georgia, serif;">B2 &middot; Podcast-Interview &middot; Geopolitik</p>
+        <div class="big-emoji">⚠️</div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-btn active" onclick="showSection(0)"><span class="nav-emoji">📖</span><span class="nav-label">Vorentlastung</span></div>
+        <div class="nav-btn" onclick="showSection(1)"><span class="nav-emoji">📄</span><span class="nav-label">Originaltext</span></div>
+        <div class="nav-btn" onclick="showSection(2)"><span class="nav-emoji">🔤</span><span class="nav-label">Genus</span></div>
+        <div class="nav-btn" onclick="showSection(3)"><span class="nav-emoji">✏️</span><span class="nav-label">Lückentext</span></div>
+        <div class="nav-btn" onclick="showSection(4)"><span class="nav-emoji">☑️</span><span class="nav-label">Multiple Choice</span></div>
+        <div class="nav-btn" onclick="showSection(5)"><span class="nav-emoji">🧩</span><span class="nav-label">Satzbau</span></div>
+    </div>
+
+    <!-- ═══════ TAB 0: VORENTLASTUNG ═══════ -->
+    <div class="section active" id="sec-0">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">📖 Vorentlastung</h2>
+            <p style="margin-bottom:14px; color:#555;">Lies die Begriffe und ihre Erklärungen, bevor du den Text liest.</p>
+            <table class="ve-table">
+                <tr><td>die Eskalation, -en</td><td>eine schrittweise Steigerung eines Konflikts oder einer Krise</td></tr>
+                <tr><td>die Simulation, -en</td><td>ein computergestütztes Modell, das eine mögliche Situation durchspielt</td></tr>
+                <tr><td>das Uran (nur Sg.)</td><td>ein radioaktives Material, das für Kernenergie und Atomwaffen benötigt wird</td></tr>
+                <tr><td>die Anreicherung, -en</td><td>der Prozess, bei dem der Anteil eines bestimmten Stoffes erhöht wird</td></tr>
+                <tr><td>die Koalition, -en</td><td>ein Bündnis mehrerer Staaten oder Parteien für ein gemeinsames Ziel</td></tr>
+                <tr><td>der Regimewechsel, -</td><td>der erzwungene Austausch einer Regierung durch eine andere</td></tr>
+                <tr><td>die Drohne, -n</td><td>ein unbemanntes Fluggerät, das ferngesteuert wird</td></tr>
+                <tr><td>die Abschreckung, -en</td><td>eine Strategie, die den Gegner durch die Drohung mit Vergeltung von einem Angriff abhält</td></tr>
+                <tr><td>die Vergeltung, -en</td><td>eine Gegenmaßnahme als Reaktion auf einen Angriff</td></tr>
+                <tr><td>die Resilienz (nur Sg.)</td><td>die Widerstandsfähigkeit eines Systems gegenüber Störungen oder Angriffen</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 1: ORIGINALTEXT ═══════ -->
+    <div class="section" id="sec-1">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">📄 Originaltext</h2>
+            <p style="margin-bottom:14px; color:#555; font-size:0.9em;"><em>Podcast-Interview mit Prof. Robert Pape (University of Chicago). Moderator: Steven Bartlett. Übersetzt und leicht gekürzt.</em></p>
+            <div class="text-block">
+                <p><strong>Die Eskalationsfalle — Warum Bomben Kriege nicht beenden</strong></p>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Sie haben 20 Jahre lang Simulationen über einen Krieg mit dem Iran durchgeführt. Was ist die Schlagzeile, die die Menschen kennen müssen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Dass Bomben nicht nur Ziele treffen — sie verändern die Politik. Bevor die Bomben fallen, konzentrieren wir uns auf den taktischen Erfolg: Haben die Bomben die Ziele getroffen? Und mit den Präzisionswaffen ist das fast hypnotisierend — sie treffen und zerstören das Ziel zu 90 Prozent. Das Problem ist: Kriege drehen sich nicht nur um die Hardware. Sie drehen sich um Politik. Und wenn die Bomben fallen, verändert sich die Politik — beim Feind und beim Angreifer. Diese Schwelle ist der Beginn dessen, was ich die Eskalationsfalle nenne.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Was genau ist im Juni passiert? Für alle, die es nicht mitbekommen haben.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Im Juni haben die USA Natans und Fordo bombardiert. Und was sieht man sofort? Über 90 Prozent — diese B-2-Bomber werden diese Ziele zerstören. Aber wir wissen nicht, wo das Nuklearmaterial ist. Der ganze Sinn war nicht, ein Gebäude zu zerstören. Es ging darum, an das angereicherte Uran zu kommen. Letzten Mai war klar: Sie hatten Material für 16 Atombomben. 1-6. Und nach der Simulation wussten wir nicht, wo eine einzige Unze davon war. Wir haben ein Satellitenbild, das zeigt: Zwei Tage bevor wir Fordo bombardiert haben, fahren Lastwagen Sachen weg. Was transportiert man wohl, wenn Amerika gleich deine Anlage bombardiert? Ich glaube nicht, dass sie das Popcorn rausbringen.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Und dann kamen die Verhandlungen — aber warum verhandelt man überhaupt mit dem Iran, wenn man das Programm angeblich zerstört hat?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Genau. Warum reden wir überhaupt mit ihnen? Wenn wir das Programm wirklich ausgelöscht haben, worüber verhandeln wir dann? Die Öffentlichkeit dachte, es sei vorbei. Aber die Geheimdienste — die Israelis, unsere Defense Intelligence Agency — ihre Berichte sagen alle dasselbe: Wir haben Löcher geschaffen. Wir haben wahrscheinlich die unterirdischen Kammern erschüttert. Aber wir haben keine Ahnung, wo das angereicherte Uran ist.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Und im Februar 2026?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Im Februar greifen wir wieder an, diesmal mit Regimewechsel. Wir gehen nicht mal mehr hinter das physische Material — wir wissen nicht, wo es ist. Also eliminieren wir die Führung. Aber der Oberste Führer, den wir getötet haben — dieser Mann hatte zwei Fatwas erlassen. Das sind religiöse Edikte, so etwas wie ein päpstlicher Erlass. Und diese Fatwas sagten: Der Iran soll keine Atomwaffen haben. Der Mann, den wir getötet haben, war eine der Leitplanken gegen Atomwaffen.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Aber er hat doch das Uran anreichern lassen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Nein, nein — er hat das Anreicherungsmaterial entwickelt. Es war noch nicht zu Atomwaffen verarbeitet worden. Jetzt haben wir die Person eliminiert, die an der Spitze die Falken und die Tauben ausbalanciert hat. Sein Sohn hat übernommen — der neue Oberste Führer. Keine Fatwa. Die Fatwa ist mit dem Vater gestorben. Dieser Sohn ist bekannt dafür, viel aggressiver zu sein. Er war für die Polizei zuständig, die die Demonstranten tötet.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Viele Leute denken: Wenn man den Führer ausschaltet, fällt das Regime wie ein Jenga-Turm zusammen.</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Das ist das falsche Bild. Das iranische Regime ist eher wie eine Matrix. Es ist nicht brüchig. Man kann Teile herausziehen, aber die Matrix passt sich an und füllt die Lücken. Und nicht mit einem Schwächling — das System hat Anreize, mit jemandem zurückzuschlagen, der noch aggressiver ist. Als wir versuchten, Gaddafi 1986 zu töten, schlug er zurück und sprengte Pan-Am-Flug 103 — 271 Zivilisten, 190 Amerikaner. Als wir versuchten, Milosevic 1999 zu degradieren, schickte er 30.000 Bodentruppen, um eine Million Zivilisten im Kosovo zu vertreiben. Immer und immer wieder.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Und jetzt greift der Iran die Nachbarländer an?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Ja, das ist Stufe zwei — horizontale Eskalation. Sie benutzen Drohnen, präzisionsgesteuert, gegen Saudi-Arabien, die VAE — die Koalition, die gegen sie gebildet wurde. Sie treffen Hotels, Flughäfen. Der Tourismus macht fünf bis zehn Prozent des BIP dieser Länder aus. Sie wollen, dass diese Länder die Amerikaner aus ihrem Land werfen. Und stellen Sie sich vor: Wir haben 500.000 amerikanische Staatsbürger dort, und das Außenministerium sagt im Fernsehen: Rufen Sie diese Nummer an, wir helfen Ihnen bei der Flucht.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Was ist Stufe drei?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Stufe drei: Der Konflikt wird global. Wir wissen immer noch nicht, wo das Nuklearmaterial ist. Und wir haben jetzt eine viel aggressivere Führung eingesetzt, die jeden Anreiz hat, die Bombe zu bauen. Wir töten sie bereits. Also — was genau ist ihr Anreiz, keine Atomwaffe zu haben? Ihr bester Weg zu überleben ist die Atombombe. Und dann stellt man sich die Fragen: Wird sie an die Hisbollah gehen? An die Huthis? Und das ist es, was uns zu Bodentruppen treiben wird. Die 82. Luftlandedivision — 5.000 Soldaten, die den Raum um Fordo kontrollieren sollen, wochenlang nach Material suchen, das tief vergraben ist.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Wie wahrscheinlich ist das — amerikanische Bodentruppen im Iran?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Mindestens 50 zu 50. Und die Leute erwarten, dass die Eskalation kontinuierlich ist. Wenn es eine Pause gibt, denken sie: Oh, es ist vorbei. Aber so funktioniert Eskalation nicht. Sie kann einen Ratscheneffekt haben — monatelange Pausen, die wie Frieden aussehen, und dann ist man wieder mittendrin. Wir hatten einen Deal — den Obama-Deal. Der Iran hat fast alles angereicherte Uran aus dem Land geschafft. Wir hatten 24-Stunden-Kameras, Vor-Ort-Inspektionen. 2018 hat Trump ihn einfach zerrissen. Und seitdem gibt der Iran Vollgas bei der Anreicherung. Und genau so kam man zu dem Material für 16 Bomben.</p></div>
+
+                <div class="dialog"><div class="speaker host">Moderator</div>
+                <p class="utterance">Wenn Trump zuhören würde — was würden Sie ihm sagen?</p></div>
+
+                <div class="dialog"><div class="speaker guest">Prof. Pape</div>
+                <p class="utterance">Nehmen Sie den Deal an. Hören Sie jetzt auf und tun Sie alles, um so viel angereichertes Uran wie möglich aus dem Land zu bekommen. Mein Ziel wäre: das auf 60 Prozent angereicherte Uran rausschaffen. Aber Sie werden wahrscheinlich keinen so guten Deal bekommen wie vorher, weil der Oberste Führer, mit dem Sie verhandelt haben, tot ist. Und Sie haben jetzt einen viel härteren Gegner. Manchmal ist die beste Lösung, ein Problem für 20 Jahre einzufrieren. Man hat keine hundertprozentige Sicherheit, aber wenn man ein Problem 20 Jahre lang einfrieren kann — das ist verdammt gut. Vielleicht hat man Glück. Vielleicht fällt das System von allein auseinander, wie die Sowjetunion. Diese Suche nach perfekter Sicherheit — so verlieren Großmächte Kriege.</p></div>
+
+            </div>
+            <p class="source">Quelle: „The Diary of a CEO“ Podcast mit Steven Bartlett, Interview mit Prof. Robert Pape (University of Chicago), 2025/26. Übersetzt und für den DaF-Unterricht bearbeitet.</p>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 2: GENUS ═══════ -->
+    <div class="section" id="sec-genus">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">🔤 Genus</h2>
+            <p style="margin-bottom:14px; color:#555;">Ziehe die Nomen in die richtige Kategorie.</p>
+            <div class="genus-bank" id="genus-bank"></div>
+            <div class="genus-zones">
+                <div class="drop-zone" data-cat="der"><h3>der</h3></div>
+                <div class="drop-zone" data-cat="die"><h3>die</h3></div>
+                <div class="drop-zone" data-cat="das"><h3>das</h3></div>
+                <div class="drop-zone" data-cat="pl"><h3>Plural</h3></div>
+            </div>
+            <div class="btn-row">
+                <button onclick="showGenusLoesungen()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">💡 Lösungen</button>
+                <button onclick="initGenus()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-2">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-2">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 3: LÜCKENTEXT ═══════ -->
+    <div class="section" id="sec-luecken">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">✏️ Lückentext</h2>
+            <div class="wortbank" id="wortbank-luecken"></div>
+            <div id="lueckenContainer" class="luecken-story">
+            <p>Karim recherchiert für ein Referat über die sogenannte Eskalationsfalle Iran und liest einen Artikel über den Analysten Pape.</p>
+            <p>Pape habe 20 Jahre lang <input class="blank" data-answer="Simulationen"> über einen möglichen Krieg mit dem Iran durchgeführt, notiert Karim.</p>
+            <p>Bomben träfen nicht nur Ziele — sie veränderten auch die <input class="blank" data-answer="Politik">, zitiert er den Analysten.</p>
+            <p>Der ganze Sinn sei nicht gewesen, ein Gebäude zu zerstören — es sei darum gegangen, an das angereicherte <input class="blank" data-answer="Uran"> zu kommen.</p>
+            <p>Zwei Tage bevor die Anlage Fordo bombardiert wurde, seien <input class="blank" data-answer="Lastwagen"> mit Material weggefahren, liest Karim erstaunt.</p>
+            <p>Der Oberste Führer habe zwei <input class="blank" data-answer="Fatwas"> gegen Atomwaffen erlassen, ergänzt der Artikel.</p>
+            <p>Sein Sohn dagegen sei bekannt dafür, viel <input class="blank" data-answer="aggressiver"> zu sein als der Vater.</p>
+            <p>Das iranische Regime sei eher wie eine <input class="blank" data-answer="Matrix"> — es passe sich an und fülle die Lücken, schreibt Karim in sein Heft.</p>
+            <p>Drohnen gegen Saudi-Arabien und die VAE nenne Pape horizontale <input class="blank" data-answer="Eskalation">.</p>
+            <p>2018 habe Trump den Obama-Deal einfach <input class="blank" data-answer="zerrissen">, notiert Karim als letzten Punkt für sein Referat.</p>
+            <p>Manchmal sei die beste Lösung, ein Problem für 20 Jahre <input class="blank" data-answer="einzufrieren">, zitiert Karim abschließend den Analysten.</p>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-3">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-3">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 4: MULTIPLE CHOICE ═══════ -->
+    <div class="section" id="sec-mc">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">☑️ Multiple Choice</h2>
+            <p style="margin-bottom:14px; color:#555;">Wähle die richtige Antwort.</p>
+            <div id="mc-area"></div>
+            <div class="btn-row">
+                <button onclick="showMcLoesungen()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">💡 Lösungen</button>
+                <button onclick="initMc()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-4">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-4">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB 5: SATZBAU ═══════ -->
+    <div class="section" id="sec-satzbau">
+        <div style="padding: 28px 30px;">
+            <h2 style="color:#4a148c; margin-bottom:16px;">🧩 Satzbau</h2>
+            <p style="margin-bottom:14px; color:#555;">Ordne die Wörter zu einem korrekten Satz.</p>
+            <div id="satzbauContainer"></div>
+            <div class="btn-row">
+                <button onclick="satzbauData.forEach(function(_,i){sbShowSolution(i);})" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">💡 Lösungen</button>
+                <button onclick="initSatzbau()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">↺ Neustart</button>
+            </div>
+            <div class="timer-display">
+                <span class="current-time">⏱ <span id="timer-5">00:00</span></span>
+                <span class="best-time">🏆 Best: <span id="best-5">--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="author-footer">
+        <span class="author-name">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+        <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a>
+    </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB-NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════
+function showSection(idx) {
+    document.querySelectorAll('.section').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    document.querySelectorAll('.nav-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════════════════════
+var timers = {};
+function initTimer(idx) {
+    if (!timers[idx]) timers[idx] = { running: false, seconds: 0, interval: null };
+    timers[idx].running = false;
+    timers[idx].seconds = 0;
+    clearInterval(timers[idx].interval);
+    var el = document.getElementById('timer-' + idx);
+    if (el) el.textContent = '00:00';
+    var best = document.getElementById('best-' + idx);
+    if (best) best.textContent = '--:--';
+}
+function fmtTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+function timerAutoStart(idx) {
+    if (!timers[idx]) initTimer(idx);
+    if (timers[idx].running) return;
+    timers[idx].running = true;
+    timers[idx].interval = setInterval(function() {
+        timers[idx].seconds++;
+        var el = document.getElementById('timer-' + idx);
+        if (el) el.textContent = fmtTime(timers[idx].seconds);
+    }, 1000);
+}
+function timerStop(idx) {
+    if (!timers[idx]) return;
+    timers[idx].running = false;
+    clearInterval(timers[idx].interval);
+    var best = document.getElementById('best-' + idx);
+    if (best) best.textContent = fmtTime(timers[idx].seconds);
+}
+function timerReset(idx) { initTimer(idx); }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 2: GENUS
+// ═══════════════════════════════════════════════════════════════════════
+var GENUS_DATA = [
+  { word: "Konflikt", cat: "der" },
+  { word: "Regimewechsel", cat: "der" },
+  { word: "Tourismus", cat: "der" },
+  { word: "Angriff", cat: "der" },
+  { word: "Uran", cat: "das" },
+  { word: "Netzwerk", cat: "das" },
+  { word: "Regime", cat: "das" },
+  { word: "Satellitenbild", cat: "das" },
+  { word: "Fatwa", cat: "die" },
+  { word: "Drohne", cat: "die" },
+  { word: "Koalition", cat: "die" },
+  { word: "Anreicherung", cat: "die" },
+  { word: "Eskalation", cat: "die" },
+  { word: "Bodentruppen", cat: "pl" },
+  { word: "Präzisionswaffen", cat: "pl" },
+  { word: "Begriffe", cat: "pl" },
+  { word: "Simulation", cat: "die" },
+  { word: "Abschreckung", cat: "die" },
+  { word: "Drohung", cat: "die" },
+  { word: "Vergeltung", cat: "die" },
+  { word: "Resilienz", cat: "die" },
+  { word: "Widerstandsfähigkeit", cat: "die" },
+  { word: "Schlagzeile", cat: "die" },
+  { word: "Menschen", cat: "pl" }
+];
+
+var draggedChip = null;
+
+function colorGenusChip(chip) {
+    var zone = chip.closest('.drop-zone');
+    if (zone && zone.dataset.cat) {
+        chip.classList.remove('correct', 'wrong');
+        chip.classList.add(chip.dataset.cat === zone.dataset.cat ? 'correct' : 'wrong');
+    } else {
+        chip.classList.remove('correct', 'wrong');
+    }
+}
+function colorAllGenusChips() {
+    document.querySelectorAll('#sec-genus .genus-chip').forEach(colorGenusChip);
+    checkGenusAllOk();
+}
+function checkGenusAllOk() {
+    var all = document.querySelectorAll('#sec-genus .genus-chip');
+    var bank = document.getElementById('genus-bank');
+    if (bank.querySelectorAll('.genus-chip').length > 0) return;
+    var allOk = true;
+    all.forEach(function(c) { if (!c.classList.contains('correct')) allOk = false; });
+    if (allOk) timerStop(2);
+}
+
+function initGenus() {
+    timerReset(2);
+    var bank = document.getElementById('genus-bank');
+    bank.innerHTML = '';
+    document.querySelectorAll('.drop-zone').forEach(function(z) {
+        z.querySelectorAll('.genus-chip').forEach(function(c) { c.remove(); });
+    });
+    var shuffled = GENUS_DATA.slice();
+    for (var i = shuffled.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t;
+    }
+    shuffled.forEach(function(item) {
+        var chip = document.createElement('div');
+        chip.className = 'genus-chip';
+        chip.textContent = item.word;
+        chip.dataset.cat = item.cat;
+        chip.draggable = true;
+        chip.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', '');
+            draggedChip = chip;
+        });
+        chip.addEventListener('dragend', function() { colorAllGenusChips(); });
+        chip.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (draggedChip && draggedChip !== chip) { draggedChip.style.outline = ''; }
+            if (draggedChip === chip) { draggedChip = null; chip.style.outline = ''; }
+            else { draggedChip = chip; chip.style.outline = '3px solid #e67e22'; }
+        });
+        bank.appendChild(chip);
+    });
+
+    document.querySelectorAll('.drop-zone').forEach(function(zone) {
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault(); zone.classList.remove('dragover');
+            if (draggedChip) { zone.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; }
+            timerAutoStart(2);
+            colorAllGenusChips();
+        });
+        zone.addEventListener('click', function() {
+            if (draggedChip) { zone.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; timerAutoStart(2); colorAllGenusChips(); }
+        });
+    });
+
+    bank.addEventListener('click', function() {
+        if (draggedChip) { bank.appendChild(draggedChip); draggedChip.style.outline = ''; draggedChip = null; colorAllGenusChips(); }
+    });
+}
+
+function showGenusLoesungen() {
+    var bank = document.getElementById('genus-bank');
+    bank.innerHTML = '';
+    GENUS_DATA.forEach(function(item) {
+        var zone = document.querySelector('.drop-zone[data-cat="' + item.cat + '"]');
+        var chip = document.createElement('div');
+        chip.className = 'genus-chip correct';
+        chip.textContent = item.word;
+        chip.dataset.cat = item.cat;
+        zone.appendChild(chip);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 3: LÜCKENTEXT
+// ═══════════════════════════════════════════════════════════════════════
+function showLueckenLoesungen() {
+    if (typeof window.fbLtShowLoesung === 'function') window.fbLtShowLoesung();
+}
+
+function initLuecken() {
+    if (typeof window.fbLtReset === 'function') window.fbLtReset();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 4: MULTIPLE CHOICE
+// ═══════════════════════════════════════════════════════════════════════
+var MC_DATA = [
+  {
+    "q": "1. Was ist laut Pape das Grundproblem mit Präzisionswaffen?",
+    "opts": [
+      "Sie sind zu teuer für einen langen Krieg.",
+      "Sie treffen die Ziele, aber verändern nicht die Politik.",
+      "Sie können unterirdische Anlagen nicht zerstören.",
+      "Sie erfordern zu viele Bodentruppen."
+    ],
+    "correct": 1
+  },
+  {
+    "q": "2. Warum verhandeln die USA nach der Bombardierung weiter mit dem Iran?",
+    "opts": [
+      "Weil die Bomben ihr eigentliches Ziel verfehlt haben — das angereicherte Uran fehlt.",
+      "Weil die USA einen Friedensvertrag unterzeichnen wollen.",
+      "Weil der Iran kapituliert hat und die Bedingungen klären will.",
+      "Weil die Vereinten Nationen Verhandlungen angeordnet haben."
+    ],
+    "correct": 0
+  },
+  {
+    "q": "3. Was zeigten die Satellitenbilder zwei Tage vor dem Angriff auf Fordo?",
+    "opts": [
+      "Iranische Truppen in Kampfposition",
+      "Neue unterirdische Tunnelbauten",
+      "Lastwagen, die Material von den Anlagen wegfuhren",
+      "Evakuierung der Zivilbevölkerung"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "4. Warum war die Fatwa des alten Obersten Führers so wichtig?",
+    "opts": [
+      "Sie verbot jede Zusammenarbeit mit dem Westen.",
+      "Sie war ein religiöses Edikt gegen iranische Atomwaffen.",
+      "Sie rief zum Heiligen Krieg gegen Israel auf.",
+      "Sie erlaubte dem Iran, Atomwaffen zu entwickeln."
+    ],
+    "correct": 1
+  },
+  {
+    "q": "5. Warum ist das Bild vom Jenga-Turm laut Pape falsch?",
+    "opts": [
+      "Weil der Iran nur von einer einzigen Person geführt wird",
+      "Weil das Regime wie eine Matrix funktioniert — es passt sich an und füllt Lücken",
+      "Weil der Iran gar keine Führungsstruktur hat",
+      "Weil Jenga ein amerikanisches Spiel ist, das Iraner nicht kennen"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "6. Was nennt Pape „horizontale Eskalation“?",
+    "opts": [
+      "Die Vergrößerung der iranischen Armee",
+      "Angriffe auf die Nachbarländer und Verbündeten des Gegners",
+      "Den Einsatz von Bodentruppen statt Luftangriffen",
+      "Die Ausweitung des Konflikts auf den Cyberraum"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "7. Was will der Iran mit den Drohnenangriffen auf die Golfstaaten erreichen?",
+    "opts": [
+      "Territorien erobern",
+      "Einen Weltkrieg auslösen",
+      "Die Ölproduktion vollständig stoppen",
+      "Dass diese Länder die Amerikaner aus ihrem Land werfen"
+    ],
+    "correct": 3
+  },
+  {
+    "q": "8. Was passierte 2018 mit dem Obama-Deal?",
+    "opts": [
+      "Trump hat ihn einseitig zerrissen.",
+      "Obama hat ihn selbst aufgelöst.",
+      "Der Iran hat den Deal gebrochen.",
+      "Der Deal lief planmäßig aus."
+    ],
+    "correct": 0
+  },
+  {
+    "q": "9. Was ist laut Pape der größte Anreiz für den Iran, jetzt eine Atombombe zu bauen?",
+    "opts": [
+      "Der neue Führer will seinen Vater übertreffen.",
+      "China hat sie dazu aufgefordert.",
+      "Die USA töten sie bereits — eine Bombe ist ihr bester Schutz.",
+      "Wirtschaftliche Vorteile durch Atomenergie"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "10. Was empfiehlt Pape Präsident Trump?",
+    "opts": [
+      "Aufhören und verhandeln — so viel angereichertes Uran wie möglich aus dem Land schaffen.",
+      "Den Krieg auf China ausweiten.",
+      "Sofort Bodentruppen entsenden.",
+      "Das iranische Regime durch eine Demokratie ersetzen."
+    ],
+    "correct": 0
+  }
+];
+
+function initMc() {
+    timerReset(4);
+    var area = document.getElementById('mc-area');
+    area.innerHTML = '';
+    MC_DATA.forEach(function(item, qIdx) {
+        var div = document.createElement('div');
+        div.className = 'mc-item';
+        var p = document.createElement('p');
+        p.textContent = item.q;
+        div.appendChild(p);
+        item.opts.forEach(function(opt, oIdx) {
+            var btn = document.createElement('div');
+            btn.className = 'mc-opt';
+            btn.textContent = opt;
+            btn.addEventListener('click', function() {
+                timerAutoStart(4);
+                var siblings = div.querySelectorAll('.mc-opt');
+                siblings.forEach(function(s) { s.classList.add('disabled'); });
+                if (oIdx === item.correct) {
+                    btn.classList.add('correct');
+                } else {
+                    btn.classList.add('wrong');
+                    siblings[item.correct].classList.add('correct');
+                }
+                checkAllMc();
+            });
+            div.appendChild(btn);
+        });
+        area.appendChild(div);
+    });
+}
+
+function checkAllMc() {
+    var items = document.querySelectorAll('.mc-item');
+    var allDone = true;
+    items.forEach(function(item) {
+        if (!item.querySelector('.mc-opt.correct') && !item.querySelector('.mc-opt.wrong')) allDone = false;
+    });
+    if (allDone) {
+        var allCorrect = true;
+        items.forEach(function(item) { if (item.querySelector('.mc-opt.wrong')) allCorrect = false; });
+        if (allCorrect) timerStop(4);
+    }
+}
+
+function showMcLoesungen() {
+    MC_DATA.forEach(function(item, qIdx) {
+        var mcItem = document.querySelectorAll('.mc-item')[qIdx];
+        var opts = mcItem.querySelectorAll('.mc-opt');
+        opts.forEach(function(o, i) {
+            o.classList.add('disabled');
+            if (i === item.correct) o.classList.add('correct');
+        });
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TAB 5: SATZBAU
+// ═══════════════════════════════════════════════════════════════════════
+var satzbauData = [
+  { parts: ['Bomben', 'treffen', 'nicht', 'nur', 'ihre', 'Ziele', ',', 'sondern', 'sie', 'verändern', 'auch', 'die', 'Politik'],
+    valid: [['Bomben', 'treffen', 'nicht', 'nur', 'ihre', 'Ziele', ',', 'sondern', 'sie', 'verändern', 'auch', 'die', 'Politik']],
+    punct: '.' },
+  { parts: ['sie', 'hatten', 'genug', 'Material', 'für', '16', 'Atombomben', ',', 'bevor', 'der', 'Angriff', 'die', 'Anlagen', 'traf'],
+    valid: [['sie', 'hatten', 'genug', 'Material', 'für', '16', 'Atombomben', ',', 'bevor', 'der', 'Angriff', 'die', 'Anlagen', 'traf']],
+    punct: '.' },
+  { parts: ['wir', 'wissen', 'bis', 'heute', 'nicht', 'genau', ',', 'wo', 'das', 'ganze', 'Nuklearmaterial', 'geblieben', 'ist'],
+    valid: [['wir', 'wissen', 'bis', 'heute', 'nicht', 'genau', ',', 'wo', 'das', 'ganze', 'Nuklearmaterial', 'geblieben', 'ist']],
+    punct: '.' },
+  { parts: ['zwei', 'Tage', 'vor', 'dem', 'Angriff', 'fuhren', 'Lastwagen', 'Material', 'weg', ',', 'das', 'niemand', 'mehr', 'fand'],
+    valid: [['zwei', 'Tage', 'vor', 'dem', 'Angriff', 'fuhren', 'Lastwagen', 'Material', 'weg', ',', 'das', 'niemand', 'mehr', 'fand']],
+    punct: '.' },
+  { parts: ['die', 'Fatwa', 'ist', 'mit', 'dem', 'Vater', 'gestorben', ',', 'weil', 'der', 'Sohn', 'kein', 'eigenes', 'Edikt', 'erließ'],
+    valid: [['die', 'Fatwa', 'ist', 'mit', 'dem', 'Vater', 'gestorben', ',', 'weil', 'der', 'Sohn', 'kein', 'eigenes', 'Edikt', 'erließ']],
+    punct: '.' },
+  { parts: ['das', 'iranische', 'Regime', 'ist', 'eher', 'wie', 'eine', 'Matrix', ',', 'die', 'sich', 'anpasst', 'und', 'Lücken', 'füllt'],
+    valid: [['das', 'iranische', 'Regime', 'ist', 'eher', 'wie', 'eine', 'Matrix', ',', 'die', 'sich', 'anpasst', 'und', 'Lücken', 'füllt']],
+    punct: '.' },
+  { parts: ['sie', 'wollen', ',', 'dass', 'diese', 'Länder', 'die', 'Amerikaner', 'endlich', 'aus', 'der', 'Region', 'rauswerfen'],
+    valid: [['sie', 'wollen', ',', 'dass', 'diese', 'Länder', 'die', 'Amerikaner', 'endlich', 'aus', 'der', 'Region', 'rauswerfen']],
+    punct: '.' },
+  { parts: ['ihr', 'bester', 'Weg', 'zu', 'überleben', 'ist', 'die', 'Atombombe', ',', 'wie', 'das', 'Regime', 'inzwischen', 'glaubt'],
+    valid: [['ihr', 'bester', 'Weg', 'zu', 'überleben', 'ist', 'die', 'Atombombe', ',', 'wie', 'das', 'Regime', 'inzwischen', 'glaubt']],
+    punct: '.' },
+  { parts: ['2018', 'hat', 'Trump', 'den', 'Obama-Deal', 'einfach', 'zerrissen', ',', 'ohne', 'einen', 'besseren', 'Plan', 'zu', 'haben'],
+    valid: [['2018', 'hat', 'Trump', 'den', 'Obama-Deal', 'einfach', 'zerrissen', ',', 'ohne', 'einen', 'besseren', 'Plan', 'zu', 'haben']],
+    punct: '.' },
+  { parts: ['manchmal', 'ist', 'die', 'beste', 'Lösung', ',', 'ein', 'gefährliches', 'Problem', 'für', '20', 'Jahre', 'einzufrieren'],
+    valid: [['manchmal', 'ist', 'die', 'beste', 'Lösung', ',', 'ein', 'gefährliches', 'Problem', 'für', '20', 'Jahre', 'einzufrieren']],
+    punct: '.' }
+];
+
+var sbDragged = null;
+
+function getSbCursor() {
+    var c = document.getElementById('sb-insert-cursor');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'sb-insert-cursor';
+        c.style.cssText = 'width:3px;min-height:32px;background:#e67e22;border-radius:2px;align-self:stretch;pointer-events:none;flex-shrink:0;';
+    }
+    return c;
+}
+
+function getSbInsertPos(zone, clientX) {
+    var chips = Array.from(zone.querySelectorAll('.chip'));
+    for (var i = 0; i < chips.length; i++) {
+        var r = chips[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return chips[i];
+    }
+    return null;
+}
+
+function sbCapitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function sbUpdateCapitalization(row) {
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    chips.forEach(function(c, i) {
+        var orig = c.dataset.orig;
+        var isProper = orig.charAt(0) === orig.charAt(0).toUpperCase() && orig.charAt(0) !== orig.charAt(0).toLowerCase();
+        if (isProper) { c.textContent = orig; }
+        else { c.textContent = (i === 0) ? sbCapitalize(orig) : orig; }
+    });
+}
+
+function sbMakeChip(word) {
+    var chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.dataset.orig = word;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', function(e) {
+        sbDragged = chip;
+        e.dataTransfer.setData('text/plain', '');
+        setTimeout(function() { chip.style.opacity = '0.4'; }, 0);
+    });
+    chip.addEventListener('dragend', function() {
+        chip.style.opacity = '';
+        sbDragged = null;
+        var c = document.getElementById('sb-insert-cursor');
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+    return chip;
+}
+
+function sbRegisterZone(zone, idx) {
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = getSbCursor();
+        var before = getSbInsertPos(zone, e.clientX);
+        if (before) zone.insertBefore(cursor, before);
+        else zone.appendChild(cursor);
+    });
+    zone.addEventListener('dragleave', function(e) {
+        if (!zone.contains(e.relatedTarget)) {
+            var c = document.getElementById('sb-insert-cursor');
+            if (c && c.parentNode === zone) zone.removeChild(c);
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!sbDragged) return;
+        var cursor = document.getElementById('sb-insert-cursor');
+        if (cursor && cursor.parentNode === zone) { zone.insertBefore(sbDragged, cursor); zone.removeChild(cursor); }
+        else { zone.appendChild(sbDragged); }
+        sbDragged = null;
+        var row = document.getElementById('sb-row-' + idx);
+        sbUpdateCapitalization(row);
+        sbCheckAuto(idx);
+    });
+}
+
+function sbColorRow(idx) {
+    var row = document.getElementById('sb-row-' + idx);
+    var chips = Array.from(row.querySelectorAll('.chip'));
+    var order = chips.map(function(c) { return c.dataset.orig; });
+    var ok = satzbauData[idx].valid.some(function(v) { return JSON.stringify(v) === JSON.stringify(order); });
+    chips.forEach(function(c) { c.classList.remove('correct', 'incorrect'); c.classList.add(ok ? 'correct' : 'incorrect'); });
+    var existing = row.querySelector('.sb-punkt');
+    if (existing) existing.parentNode.removeChild(existing);
+    if (ok) {
+        var punkt = document.createElement('span');
+        punkt.className = 'sb-punkt';
+        punkt.textContent = satzbauData[idx].punct || '.';
+        row.appendChild(punkt);
+    }
+    return ok;
+}
+
+function sbCheckAuto(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    if (bank.querySelectorAll('.chip').length > 0) {
+        row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('correct', 'incorrect'); });
+        row.classList.remove('correct', 'incorrect');
+        fb.textContent = '';
+        return;
+    }
+    setTimeout(function() {
+        timerAutoStart(5);
+        var ok = sbColorRow(idx);
+        if (ok) {
+            row.classList.add('correct'); row.classList.remove('incorrect');
+            fb.className = 'satzbau-feedback correct';
+            fb.textContent = '✓ Korrekt!';
+            sbCheckAllDone();
+        } else {
+            row.classList.add('incorrect'); row.classList.remove('correct');
+            fb.className = 'satzbau-feedback incorrect';
+            fb.textContent = '✗ Falsche Reihenfolge – verschiebe die Chips!';
+        }
+    }, 500);
+}
+
+function sbCheckAllDone() {
+    var allOk = satzbauData.every(function(_, i) {
+        var row = document.getElementById('sb-row-' + i);
+        return row && row.classList.contains('correct');
+    });
+    if (allOk) timerStop(5);
+}
+
+function sbShowSolution(idx) {
+    var bank = document.getElementById('sb-bank-' + idx);
+    var row = document.getElementById('sb-row-' + idx);
+    var fb = document.getElementById('sb-fb-' + idx);
+    var solution = satzbauData[idx].valid[0];
+    var allChips = {};
+    Array.from(bank.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    Array.from(row.querySelectorAll('.chip')).forEach(function(c) { allChips[c.dataset.orig] = c; });
+    while (bank.firstChild) bank.removeChild(bank.firstChild);
+    while (row.firstChild) row.removeChild(row.firstChild);
+    solution.forEach(function(word, i) {
+        var chip = allChips[word];
+        if (chip) {
+            chip.textContent = (i === 0) ? sbCapitalize(word) : word;
+            chip.classList.remove('correct', 'incorrect');
+            row.appendChild(chip);
+        }
+    });
+    fb.textContent = '';
+    setTimeout(function() { sbCheckAuto(idx); }, 100);
+}
+
+function initSatzbau() {
+    timerReset(5);
+    var area = document.getElementById('satzbauContainer');
+    area.innerHTML = '';
+    satzbauData.forEach(function(ex, idx) {
+        var label = document.createElement('p');
+        label.style.cssText = 'font-weight:600;color:#4a148c;margin:16px 0 8px;';
+        label.textContent = (idx + 1) + '. Satz';
+        area.appendChild(label);
+        var bank = document.createElement('div'); bank.className = 'chips-container'; bank.id = 'sb-bank-' + idx;
+        var row = document.createElement('div'); row.className = 'sentence-builder'; row.id = 'sb-row-' + idx;
+        var fb = document.createElement('div'); fb.className = 'satzbau-feedback'; fb.id = 'sb-fb-' + idx;
+        var parts = ex.parts.slice();
+        for (var i = parts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = parts[i]; parts[i] = parts[j]; parts[j] = tmp;
+        }
+        parts.forEach(function(word) { bank.appendChild(sbMakeChip(word)); });
+        sbRegisterZone(bank, idx);
+        sbRegisterZone(row, idx);
+        area.appendChild(bank);
+        area.appendChild(row);
+        area.appendChild(fb);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════════
+initGenus();
+initMc();
+initSatzbau();
+</script>
+
+
+
+<script>
+/* ── Gerüst-Modus Add-on (B1+) — additiv generiert. Mischt row/parts zur Laufzeit in satzbauData,
+   hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */
+(function(){
+  var CFG = {"bank":"sb-bank-","row":"sb-row-","fb":"sb-fb-","caps":true,"click":false,"tab":5};
+  var SBGAP = [{"i":0,"row":["_","_","_","nur","_","Ziele","_","_","_","_","auch","_","Politik"],"parts":["Bomben","treffen","nicht","ihre",",","sondern","sie","verändern","die"]},{"i":1,"row":["_","_","_","Material","_","_","Atombomben","_","_","der","_","_","Anlagen","_"],"parts":["sie","hatten","genug","für","16",",","bevor","Angriff","die","traf"]},{"i":2,"row":["_","_","_","heute","_","_","_","wo","das","_","Nuklearmaterial","_","_"],"parts":["wir","wissen","bis","nicht","genau",",","ganze","geblieben","ist"]},{"i":3,"row":["_","_","_","dem","_","_","Lastwagen","_","_","_","das","_","mehr","_"],"parts":["zwei","Tage","vor","Angriff","fuhren","Material","weg",",","niemand","fand"]},{"i":4,"row":["_","_","_","_","dem","_","_","_","_","der","_","kein","_","_","erließ"],"parts":["die","Fatwa","ist","mit","Vater","gestorben",",","weil","Sohn","eigenes","Edikt"]},{"i":5,"row":["_","_","Regime","_","_","_","eine","_","_","die","_","_","_","Lücken","_"],"parts":["das","iranische","ist","eher","wie","Matrix",",","sich","anpasst","und","füllt"]},{"i":6,"row":["_","_","_","dass","_","Länder","_","_","endlich","_","_","Region","_"],"parts":["sie","wollen",",","diese","die","Amerikaner","aus","der","rauswerfen"]},{"i":7,"row":["_","_","_","_","_","_","die","Atombombe","_","_","das","Regime","_","_"],"parts":["ihr","bester","Weg","zu","überleben","ist",",","wie","inzwischen","glaubt"]},{"i":8,"row":["_","_","Trump","_","Obama-Deal","einfach","_","_","_","_","_","Plan","_","_"],"parts":["2018","hat","den","zerrissen",",","ohne","einen","besseren","zu","haben"]},{"i":9,"row":["_","_","_","_","Lösung","_","_","_","Problem","für","_","Jahre","_"],"parts":["manchmal","ist","die","beste",",","ein","gefährliches","20","einzufrieren"]}];
+  SBGAP.forEach(function(g){ var ex = satzbauData[g.i]; if (!ex) return;
+    ex.row = g.row; ex.parts = g.parts;
+    if (typeof ex.valid[0] === "string") ex.valid = [ex.valid];
+  });
+  if (typeof window.sbDragged === "undefined") window.sbDragged = null;
+  function bankEl(i){ return document.getElementById(CFG.bank + i); }
+  function rowEl(i){ return document.getElementById(CFG.row + i); }
+  function fbEl(i){ return document.getElementById(CFG.fb + i); }
+  function cap(w){ return w.charAt(0).toUpperCase() + w.slice(1); }
+  function positions(row){ return Array.from(row.children).filter(function(n){ return n.classList.contains("sb-gap") || n.classList.contains("chip"); }); }
+  function chipOf(pos){ return pos.classList.contains("sb-gap") ? pos.querySelector(".chip") : pos; }
+  function updateCaps(row){ if (!CFG.caps) return;
+    positions(row).forEach(function(pos,i){ var c = chipOf(pos); if (!c) return;
+      var o = c.dataset.orig;
+      var proper = o.charAt(0) === o.charAt(0).toUpperCase() && o.charAt(0) !== o.charAt(0).toLowerCase();
+      c.textContent = proper ? o : (i === 0 ? cap(o) : o); });
+  }
+  function sequence(i){ var row = rowEl(i), seq = [], complete = true;
+    positions(row).forEach(function(pos){ var c = chipOf(pos); if (c) seq.push(c.dataset.orig); else complete = false; });
+    return { seq: seq, complete: complete }; }
+  function clearMarks(i){ var row = rowEl(i);
+    row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+    row.classList.remove("correct","incorrect");
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p); }
+  function afterChange(i){
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i), info = sequence(i);
+    if (!info.complete){ clearMarks(i); if (fb){ fb.textContent=""; fb.className="satzbau-feedback"; } return; }
+    setTimeout(function(){
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var fresh = sequence(i);
+      var ok = satzbauData[i].valid.some(function(v){ return JSON.stringify(v) === JSON.stringify(fresh.seq); });
+      var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+      if (ok){
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("incorrect"); c.classList.add("correct"); });
+        var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+        punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+        row.classList.add("correct"); row.classList.remove("incorrect");
+        if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+        if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+      } else {
+        row.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("correct","incorrect"); });
+        row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("incorrect"); });
+        row.classList.add("incorrect"); row.classList.remove("correct");
+        if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Noch nicht richtig – verschiebe die Wörter!"; }
+      }
+    }, 450);
+  }
+  /* Geführter Modus (B1, 2026-06-10): Sofort-Feedback pro Chip-Platzierung.
+     Richtig (konsistent mit mind. einer valid-Reihenfolge) -> grün + fixiert.
+     Falsch -> rot + Rücksprung in die Bank nach 800 ms. */
+  function toBank(i, chip){
+    chip.textContent = chip.dataset.orig;  // Kleinschreibung wiederherstellen — Bank darf den Satzanfang nicht verraten
+    bankEl(i).appendChild(chip);
+  }
+  function consistent(i){
+    var pos = positions(rowEl(i));
+    var v = satzbauData[i].valid;
+    return v.some(function(o){
+      for (var k = 0; k < pos.length; k++){ var c = chipOf(pos[k]); if (c && c.dataset.orig !== o[k]) return false; }
+      return true; });
+  }
+  function finishRow(i){
+    var row = rowEl(i), fb = fbEl(i);
+    var p = row.querySelector(".sb-punkt"); if (p) p.parentNode.removeChild(p);
+    var punkt = document.createElement("span"); punkt.className = "sb-punkt";
+    punkt.textContent = satzbauData[i].punct || "."; row.appendChild(punkt);
+    row.classList.add("correct"); row.classList.remove("incorrect");
+    if (fb){ fb.className = "satzbau-feedback correct"; fb.textContent = "✓ Korrekt!"; }
+    if (typeof sbCheckAllDone === "function") sbCheckAllDone();
+  }
+  function placeJudge(i, chip){
+    if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+    var row = rowEl(i); updateCaps(row);
+    var fb = fbEl(i);
+    if (consistent(i)){
+      chip.classList.remove("incorrect"); chip.classList.add("correct");
+      chip.dataset.fixed = "1"; chip.draggable = false;
+      if (sequence(i).complete){ finishRow(i); }
+      else if (fb){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+    } else {
+      chip.classList.add("incorrect");
+      if (fb){ fb.className = "satzbau-feedback incorrect"; fb.textContent = "✗ Das passt hier nicht!"; }
+      setTimeout(function(){
+        chip.classList.remove("incorrect");
+        if (!chip.dataset.fixed && chip.closest(".sb-gap")) toBank(i, chip);
+        updateCaps(rowEl(i));
+        if (fb && /incorrect/.test(fb.className)){ fb.className = "satzbau-feedback"; fb.textContent = ""; }
+      }, 800);
+    }
+  }
+  function makeChip(word, i){
+    var chip = document.createElement("div");
+    var isPunct = [",",".","!","?",";",":"].indexOf(word) !== -1;
+    chip.className = "chip" + (isPunct ? " punct-chip" : ""); chip.textContent = word; chip.draggable = true;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.sbIdx = String(i);
+    chip.addEventListener("dragstart", function(e){ if (chip.dataset.fixed){ e.preventDefault(); return; } window.sbDragged = chip; if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab); e.dataTransfer.effectAllowed = "move"; });
+    if (CFG.click) chip.addEventListener("click", function(){
+      if (chip.dataset.fixed) return;
+      if (typeof timerAutoStart === "function") timerAutoStart(CFG.tab);
+      var inSlot = chip.closest(".sb-gap");
+      if (inSlot){ toBank(i, chip); updateCaps(rowEl(i)); return; }
+      var free = Array.from(rowEl(i).querySelectorAll(".sb-gap")).find(function(s){ return !s.querySelector(".chip"); });
+      if (free){ free.appendChild(chip); placeJudge(i, chip); }
+    });
+    return chip;
+  }
+  function makeLocked(word){
+    var chip = document.createElement("div");
+    chip.className = "chip sb-locked"; chip.textContent = word;
+    chip.dataset.orig = word; chip.dataset.word = word; chip.dataset.locked = "1";
+    return chip;
+  }
+  function makeSlot(i){
+    var slot = document.createElement("div"); slot.className = "sb-gap";
+    slot.addEventListener("dragover", function(e){ e.preventDefault(); if (window.sbDragged) slot.classList.add("drag-over"); });
+    slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
+    slot.addEventListener("drop", function(e){
+      e.preventDefault(); slot.classList.remove("drag-over");
+      var d = window.sbDragged; if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      if (slot.querySelector(".chip")) return;  // Lücke schon belegt
+      slot.appendChild(d); window.sbDragged = null; placeJudge(i, d);
+    });
+    return slot;
+  }
+  function registerBank(bank, i){
+    bank.addEventListener("dragover", function(e){ e.preventDefault(); });
+    bank.addEventListener("drop", function(e){
+      e.preventDefault(); var d = window.sbDragged;
+      if (!d || d.dataset.sbIdx !== String(i) || d.dataset.locked || d.dataset.fixed) return;
+      toBank(i, d); window.sbDragged = null; updateCaps(rowEl(i));
+    });
+  }
+  function freshEl(id){ var el = document.getElementById(id); if (!el) return null;
+    var c = el.cloneNode(false); el.parentNode.replaceChild(c, el); return c; }
+  function rebuild(i){
+    var ex = satzbauData[i]; if (!ex || !ex.row) return;
+    var bank = freshEl(CFG.bank + i), row = freshEl(CFG.row + i);
+    if (!bank || !row) return;
+    var fb = fbEl(i); if (fb){ fb.textContent = ""; fb.className = "satzbau-feedback"; }
+    var mov = ex.parts.slice();
+    for (var k = mov.length - 1; k > 0; k--){ var j = Math.floor(Math.random()*(k+1)); var t = mov[k]; mov[k] = mov[j]; mov[j] = t; }
+    mov.forEach(function(w){ bank.appendChild(makeChip(w, i)); });
+    ex.row.forEach(function(tok){ row.appendChild(tok === "_" ? makeSlot(i) : makeLocked(tok)); });
+    registerBank(bank, i);
+    ensureButtons(i);
+  }
+  function rebuildAll(){ satzbauData.forEach(function(ex,i){ if (ex.row) rebuild(i); }); }
+  function showSol(i){
+    rebuild(i);
+    var row = rowEl(i), bank = bankEl(i), sol = satzbauData[i].valid[0];
+    var pool = Array.from(bank.querySelectorAll(".chip"));
+    positions(row).forEach(function(pos,k){
+      if (!pos.classList.contains("sb-gap")) return;
+      var ix = pool.findIndex(function(c){ return c.dataset.orig === sol[k]; });
+      if (ix >= 0){ while (pos.firstChild) pos.removeChild(pos.firstChild); pos.appendChild(pool[ix]); pool.splice(ix,1); }
+    });
+    row.querySelectorAll(".sb-gap .chip").forEach(function(c){ c.classList.add("correct"); c.dataset.fixed = "1"; c.draggable = false; });
+    updateCaps(row);
+    finishRow(i);
+  }
+  function ensureButtons(i){
+    if (document.getElementById("sb-btns-" + i)) return;
+    var anchor = fbEl(i) || rowEl(i); if (!anchor) return;
+    var item = (anchor.closest ? anchor.closest(".satzbau-item") : null) || anchor.parentNode;
+    if (item && [].some.call(item.querySelectorAll("button"), function(b){
+      return /(Lösen|Lösung|Neustart)/.test(b.textContent); })) return;  // native Buttons vorhanden
+    var box = document.createElement("div");
+    box.id = "sb-btns-" + i;
+    box.style.cssText = "display:flex;gap:8px;margin:6px 0 14px 0;";
+    var b1 = document.createElement("button"); b1.type = "button"; b1.className = "btn"; b1.textContent = "Lösen";
+    b1.addEventListener("click", function(){ showSol(i); });
+    var b2 = document.createElement("button"); b2.type = "button"; b2.className = "btn"; b2.textContent = "↺ Neustart";
+    b2.addEventListener("click", function(){ rebuild(i); });
+    box.appendChild(b1); box.appendChild(b2);
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+  ["initSatzbau","buildSatzbau"].forEach(function(fn){
+    if (typeof window[fn] === "function"){ var o = window[fn];
+      window[fn] = function(){ o.apply(this, arguments); rebuildAll(); }; }
+  });
+  if (typeof window.sbReset === "function" && window.sbReset.length === 0){
+    var orall = window.sbReset;
+    window.sbReset = function(){ orall.apply(this, arguments); rebuildAll(); };
+  }
+  if (typeof window.sbResetOne === "function"){
+    var orst = window.sbResetOne;
+    window.sbResetOne = function(i){ if (satzbauData[i] && satzbauData[i].row){ rebuild(i); return; } orst.apply(this, arguments); };
+  }
+  if (typeof window.sbShowSolution === "function"){
+    var osol = window.sbShowSolution;
+    window.sbShowSolution = function(i){ if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
+  }
+  /* Bugfix 2026-06-10: bei leerer Row (Free-Build) zusätzlich die Bank prüfen,
+     sonst baut sich das Gerüst beim Erstladen nie auf (nur nach Neustart). */
+  var pRow = rowEl(0), pBank = bankEl(0);
+  if ((pRow && pRow.children.length) || (pBank && pBank.children.length)) rebuildAll();
+})();
+</script>
+
+<!-- FB-JUMPTOP -->
+<button class="fb-jumptop" id="fbJumpTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben springen" aria-label="Nach oben springen">↑ Nach oben</button>
+<script>
+(function(){
+  var btn = document.getElementById('fbJumpTop');
+  if (!btn) return;
+  function toggle(){
+    var scrollable = document.documentElement.scrollHeight > window.innerHeight + 60;
+    btn.classList.toggle('show', scrollable);
+  }
+  window.addEventListener('scroll', toggle, {passive:true});
+  window.addEventListener('resize', toggle);
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ setTimeout(toggle, 60); }); });
+  setTimeout(toggle, 80);
+})();
+</script>
+
+
+<!-- FB-LT-STORY-ENGINE -->
+<script>
+/* ============================================================================
+   FB-LT-STORY — kanonische Lückentext-Engine (EINE Quelle der Wahrheit)
+   ----------------------------------------------------------------------------
+   Mit Frank abgenommen 2026-06-30 (Piloten 1057X Heimweh, 3065G Adjektivdeklination).
+   Diese Datei ist die EINZIGE Quelle der mechanischen Lückentext-Logik. Der
+   Produzent scripts/inject_lt.py spielt sie (plus die CSS unten) in jede Lektion
+   ein — NIE von Hand pro Datei kopieren (sonst driften die Engines, genau der
+   Fehler, den wir abschaffen).
+
+   Kanonische Form:
+     · zusammenhängende STORY (Serif-Fließtext, Inline-Lücken), KEINE Nummern;
+     · GENAU 10 Lücken;  · §7-Wortbank (gemischt, nicht klickbar, .used);
+     · case-sensitiv, kein Prüfen-Button (nur Live-Feedback);
+     · Variante erkennt sich SELBST:
+         - hat eine Lücke data-base  → Grammatik (G): Wortbank zeigt die GRUNDFORM
+           (data-base), die Zielform (data-answer) ist nie sichtbar;
+         - sonst                     → Wortschatz (V/R/X): Wortbank zeigt die
+           Vollform (= data-answer).
+     · .used streicht den Chip der getroffenen Lücke durch (G: per data-base) —
+       Fortschrittsanzeige, verrät die Zielform nicht (Frank bestätigt 2026-06-30).
+
+   Markup-Vertrag (vom Produzenten erzeugt, vom Gate check_lueckentext.py geprüft):
+     <div class="wortbank" id="wortbank-luecken"></div>
+     <div id="lueckenContainer" class="luecken-story">
+       <p>… <input class="blank" data-answer="ZIELFORM" [data-base="GRUNDFORM"]> …</p>
+     </div>
+
+   Timer-Anbindung: die Engine ruft generische Hooks window.fbLtTimerStart()/
+   fbLtTimerStop(); der Produzent verdrahtet sie pro Datei auf den richtigen
+   Tab-Index (timerAutoStart(N)/timerStop(N)). Fehlen die Hooks, läuft die Engine
+   ohne Timer weiter.
+   ============================================================================ */
+
+/* ---- KANONISCHE CSS (vom Produzenten mit eingespielt) -----------------------
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+---------------------------------------------------------------------------- */
+
+(function () {
+  "use strict";
+  if (window.__fbLtStory) return;
+  window.__fbLtStory = true;
+
+  function gaps() {
+    return Array.prototype.slice.call(
+      document.querySelectorAll('#lueckenContainer input.blank'));
+  }
+  // Wortbank-Wort einer Lücke: Grundform (G) falls vorhanden, sonst Vollform.
+  function wordOf(i) {
+    return i.getAttribute('data-base') || i.getAttribute('data-answer') || '';
+  }
+  function shuffle(a) {
+    for (var k = a.length - 1; k > 0; k--) {
+      var j = Math.floor(Math.random() * (k + 1));
+      var t = a[k]; a[k] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function update() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var rem = gaps().filter(function (i) { return i.classList.contains('correct'); })
+                    .map(wordOf);
+    Array.prototype.slice.call(bank.querySelectorAll('.wortbank-chip')).forEach(function (c) {
+      var idx = rem.indexOf(c.textContent);
+      if (idx >= 0) { c.classList.add('used'); rem.splice(idx, 1); }
+      else { c.classList.remove('used'); }
+    });
+  }
+
+  function done() {
+    var gg = gaps();
+    if (gg.length && gg.every(function (i) { return i.classList.contains('correct'); })
+        && typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  }
+
+  function live(i) {
+    var ans = i.getAttribute('data-answer'), val = i.value;   // case-sensitive, kein trim
+    i.classList.remove('correct', 'wrong');
+    if (val) {
+      if (val === ans) i.classList.add('correct');
+      else if (ans.indexOf(val) !== 0) i.classList.add('wrong');
+      if (typeof window.fbLtTimerStart === 'function') window.fbLtTimerStart();
+    }
+    update();
+    done();
+  }
+
+  function build() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var gg = gaps();
+    if (!gg.length) return;
+    gg.forEach(function (i) {
+      var a = i.getAttribute('data-answer') || '', b = i.getAttribute('data-base') || '';
+      i.placeholder = '';
+      i.style.width = (Math.max(a.length, b.length) + 3) + 'ch';
+      if (!i.__fbWired) {
+        i.__fbWired = true;
+        i.addEventListener('input', function () { live(i); });
+      }
+    });
+    var seen = {}, words = [];
+    gg.forEach(function (i) { var w = wordOf(i); if (w && !seen[w]) { seen[w] = true; words.push(w); } });
+    bank.innerHTML = '';
+    shuffle(words).forEach(function (w) {
+      var c = document.createElement('span');
+      c.className = 'wortbank-chip';
+      c.textContent = w;
+      bank.appendChild(c);
+    });
+    update();
+  }
+
+  // Öffentliche Hooks für die Steuer-Buttons (Produzent verdrahtet onclick darauf).
+  window.fbLtBuild = build;
+  window.fbLtShowLoesung = function () {
+    gaps().forEach(function (i) {
+      i.value = i.getAttribute('data-answer');
+      i.classList.add('correct'); i.classList.remove('wrong');
+    });
+    update();
+    if (typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  };
+  window.fbLtReset = function () {
+    gaps().forEach(function (i) { i.value = ''; i.classList.remove('correct', 'wrong'); });
+    build();
+  };
+
+  function run() { build(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  // Beim Wechsel auf den Lückentext-Tab neu aufbauen (mischt die Wortbank).
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.nav-btn')) setTimeout(build, 80);
+  });
+})();
+
+</script>
+
+<!-- FB-LT-STORY-HOOKS --><script>window.fbLtTimerStart=function(){if(typeof timerAutoStart==='function')timerAutoStart(3);};window.fbLtTimerStop=function(){if(typeof timerStop==='function')timerStop(3);};</script>
+</body>
+</html>
