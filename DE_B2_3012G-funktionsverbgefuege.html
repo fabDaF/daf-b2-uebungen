@@ -162,6 +162,21 @@ input.blank.no { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c
 .fb-jumptop.show { opacity: 1; visibility: visible; transform: translateY(0); }
 .fb-jumptop:hover { background: rgba(118, 75, 162, 0.40); color: #241048; box-shadow: 0 10px 32px rgba(102,126,234,0.50), inset 0 1px 0 rgba(255,255,255,0.65); }
 @media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
+
+/* FB-LT-STORY-CSS */
+/* FB-LT-STORY-CSS — kanonische CSS des Story-Lückentexts (EINE Quelle der Wahrheit).
+   Vom Produzenten scripts/inject_lt.py eingespielt. Nicht pro Datei von Hand kopieren. */
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+
 </style>
 </head>
 <body>
@@ -258,16 +273,22 @@ input.blank.no { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c
   <div class="section-title">✏️ Lückentext</div>
   <div class="control-bar">
     <div class="btn-row">
-      <button class="btn" onclick="ltShow()">Lösungen</button>
-      <button class="btn" onclick="ltReset(); timerResetOne(3);">Neu starten</button>
+      <button class="btn" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;font-weight:600;" onclick="fbLtShowLoesung()">💡 Lösungen</button>
+      <button class="btn" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;font-weight:600;" onclick="fbLtReset();timerResetOne(3);">↺ Neustart</button>
     </div>
     <div class="timer-display">
       <span>⏱ <span id="timer-3">0:00</span></span>
       <span>🏆 Best: <span id="best-3">--:--</span></span>
     </div>
   </div>
-  <div id="lt-wortkasten"></div>
-  <div id="lt-body"></div>
+  <div class="wortbank" id="wortbank-luecken"></div>
+  <div id="lueckenContainer" class="luecken-story">
+  <p>Karim liest die Zeitung und bespricht mit einem Kollegen die aktuellen Nachrichten. „Für diesen Posten <input class="blank" data-answer="kommt nur sie in Frage">“, liest er in einem Kommentar zur Wahl der neuen Direktorin. „Die Hochschule <input class="blank" data-answer="stellt den Studierenden Lernmaterial zur Verfügung">“, ergänzt der Artikel — ein Detail, das Karim besonders positiv auffällt.</p>
+  <p>Weiter hinten berichtet die Zeitung, dass die Rede des Präsidenten <input class="blank" data-answer="bringt die Sorgen des Landes zum Ausdruck">. Karim liest außerdem, dass das neue Datenschutzgesetz <input class="blank" data-answer="tritt im Juni in Kraft">.</p>
+  <p>Auf der nächsten Seite geht es um die Kommunalpolitik: Der Antrag <input class="blank" data-answer="kam heute nicht zur Entscheidung">, weil sich die Fraktionen nicht einig wurden. Auch ein Kompromiss <input class="blank" data-answer="kommt in Betracht">, schreibt der Reporter, sollte es zu keiner Einigung kommen.</p>
+  <p>Beim Aufräumen des alten Archivs, so ein weiterer Artikel, <input class="blank" data-answer="kamen alte Briefe zum Vorschein">, die bislang unbekannt waren. Am Bahnhof <input class="blank" data-answer="nahmen sie Abschied"> von der scheidenden Bürgermeisterin.</p>
+  <p>Nach langen Gesprächen <input class="blank" data-answer="fanden wir eine Lösung">, zitiert die Zeitung einen Sprecher der Verwaltung. Der ursprüngliche Vorschlag jedoch <input class="blank" data-answer="stieß auf Ablehnung"> in der Bevölkerung.</p>
+  </div>
 </div>
 
 <!-- Tab 4: Satzbau -->
@@ -490,55 +511,7 @@ function zuoShow() {
   });
 }
 
-/* ============ Lückentext ============ */
-var LUECKE = [{"pre": "Für diesen Posten ", "ans": "kommt nur sie in Frage", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Die Hochschule ", "ans": "stellt den Studierenden Lernmaterial zur Verfügung", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Die Rede des Präsidenten ", "ans": "bringt die Sorgen des Landes zum Ausdruck", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Das neue Datenschutzgesetz ", "ans": "tritt im Juni in Kraft", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Der Antrag ", "ans": "kam heute nicht zur Entscheidung", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Auch ein Kompromiss ", "ans": "kommt in Betracht", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Beim Aufräumen ", "ans": "kamen alte Briefe zum Vorschein", "hint": "Verb+Präp+Nomen", "post": "."}, {"pre": "Am Bahnhof ", "ans": "nahmen sie Abschied", "hint": "Verb+Nomen", "post": "."}, {"pre": "Nach langen Gesprächen ", "ans": "fanden wir eine Lösung", "hint": "Verb+Nomen", "post": "."}, {"pre": "Der Vorschlag ", "ans": "stieß auf Ablehnung", "hint": "Verb+Präp+Nomen", "post": "."}];
-function ltBuild() {
-  // Wortkasten: Antworten gemischt anzeigen
-  var wk = document.getElementById('lt-wortkasten');
-  if (wk) {
-    var antworten = LUECKE.map(function(s) { return s.ans; });
-    // Fisher-Yates Shuffle
-    for (var i = antworten.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = antworten[i]; antworten[i] = antworten[j]; antworten[j] = tmp;
-    }
-    wk.innerHTML = '<div class="lt-wortkasten-box"><div class="lt-wortkasten-label">📦 Wortkasten — alle Phrasen:</div>' +
-      antworten.map(function(a) {
-        return '<span class="lt-wort-chip" data-phrase="'+a.replace(/"/g,'&quot;')+'">'+a+'</span>';
-      }).join('') + '</div>';
-  }
-  var body = document.getElementById('lt-body');
-  body.innerHTML = LUECKE.map(function(s, i) {
-    var maxLen = Math.max(s.ans.length, (s.hint||'').length);
-    var w = (maxLen + 4);
-    return '<div class="luecken-item">' + s.pre +
-           '<input class="blank" id="lt'+i+'" placeholder="'+ (s.hint||'') +'" autocomplete="off" spellcheck="false" style="width:'+w+'ch;" oninput="ltCheck('+i+')" data-ans="'+s.ans+'">' +
-           s.post + '</div>';
-  }).join('');
-}
-function ltCheck(i) {
-  var s = LUECKE[i];
-  var inp = document.getElementById('lt'+i);
-  var v = inp.value.trim();
-  var ans = s.ans.toLowerCase();
-  inp.classList.remove('ok','no');
-  if (!v) return;
-  if (v === ans) {
-    inp.classList.add('ok');
-    timerAutoStart(3);
-    var allOk = LUECKE.every(function(_, j) { return document.getElementById('lt'+j).classList.contains('ok'); });
-    if (allOk) stopTimer(3);
-    return;
-  }
-  if (ans.startsWith(v)) { timerAutoStart(3); return; }
-  inp.classList.add('no');
-}
-function ltReset() { LUECKE.forEach(function(_, i) { var inp = document.getElementById('lt'+i); inp.value=''; inp.classList.remove('ok','no'); }); ltBuildWortkasten(); }
-function ltBuildWortkasten() {
-  // Wortkasten-Chips wieder aktivieren
-  document.querySelectorAll('.lt-wort-chip').forEach(function(c) { c.classList.remove('used'); });
-}
-function ltShow() { LUECKE.forEach(function(s, i) { var inp = document.getElementById('lt'+i); inp.value = s.ans; inp.classList.remove('no'); inp.classList.add('ok'); }); }
+/* ══ LÜCKENTEXT: FB-LT-STORY-Engine übernimmt ══ */
 
 /* ============ Satzbau ============ */
 var satzbauData = [
@@ -767,7 +740,6 @@ function wsShow() {
 /* ============ Init ============ */
 buildEntdeck();
 initZuo();
-ltBuild();
 initSatzbau();
 initWortschatz();
 </script>
@@ -1084,5 +1056,158 @@ function resetGenus(){ initGenus(); genusTimerReset(); }
 })();
 </script>
 
+
+<!-- FB-LT-STORY-ENGINE -->
+<script>
+/* ============================================================================
+   FB-LT-STORY — kanonische Lückentext-Engine (EINE Quelle der Wahrheit)
+   ----------------------------------------------------------------------------
+   Mit Frank abgenommen 2026-06-30 (Piloten 1057X Heimweh, 3065G Adjektivdeklination).
+   Diese Datei ist die EINZIGE Quelle der mechanischen Lückentext-Logik. Der
+   Produzent scripts/inject_lt.py spielt sie (plus die CSS unten) in jede Lektion
+   ein — NIE von Hand pro Datei kopieren (sonst driften die Engines, genau der
+   Fehler, den wir abschaffen).
+
+   Kanonische Form:
+     · zusammenhängende STORY (Serif-Fließtext, Inline-Lücken), KEINE Nummern;
+     · GENAU 10 Lücken;  · §7-Wortbank (gemischt, nicht klickbar, .used);
+     · case-sensitiv, kein Prüfen-Button (nur Live-Feedback);
+     · Variante erkennt sich SELBST:
+         - hat eine Lücke data-base  → Grammatik (G): Wortbank zeigt die GRUNDFORM
+           (data-base), die Zielform (data-answer) ist nie sichtbar;
+         - sonst                     → Wortschatz (V/R/X): Wortbank zeigt die
+           Vollform (= data-answer).
+     · .used streicht den Chip der getroffenen Lücke durch (G: per data-base) —
+       Fortschrittsanzeige, verrät die Zielform nicht (Frank bestätigt 2026-06-30).
+
+   Markup-Vertrag (vom Produzenten erzeugt, vom Gate check_lueckentext.py geprüft):
+     <div class="wortbank" id="wortbank-luecken"></div>
+     <div id="lueckenContainer" class="luecken-story">
+       <p>… <input class="blank" data-answer="ZIELFORM" [data-base="GRUNDFORM"]> …</p>
+     </div>
+
+   Timer-Anbindung: die Engine ruft generische Hooks window.fbLtTimerStart()/
+   fbLtTimerStop(); der Produzent verdrahtet sie pro Datei auf den richtigen
+   Tab-Index (timerAutoStart(N)/timerStop(N)). Fehlen die Hooks, läuft die Engine
+   ohne Timer weiter.
+   ============================================================================ */
+
+/* ---- KANONISCHE CSS (vom Produzenten mit eingespielt) -----------------------
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+---------------------------------------------------------------------------- */
+
+(function () {
+  "use strict";
+  if (window.__fbLtStory) return;
+  window.__fbLtStory = true;
+
+  function gaps() {
+    return Array.prototype.slice.call(
+      document.querySelectorAll('#lueckenContainer input.blank'));
+  }
+  // Wortbank-Wort einer Lücke: Grundform (G) falls vorhanden, sonst Vollform.
+  function wordOf(i) {
+    return i.getAttribute('data-base') || i.getAttribute('data-answer') || '';
+  }
+  function shuffle(a) {
+    for (var k = a.length - 1; k > 0; k--) {
+      var j = Math.floor(Math.random() * (k + 1));
+      var t = a[k]; a[k] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function update() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var rem = gaps().filter(function (i) { return i.classList.contains('correct'); })
+                    .map(wordOf);
+    Array.prototype.slice.call(bank.querySelectorAll('.wortbank-chip')).forEach(function (c) {
+      var idx = rem.indexOf(c.textContent);
+      if (idx >= 0) { c.classList.add('used'); rem.splice(idx, 1); }
+      else { c.classList.remove('used'); }
+    });
+  }
+
+  function done() {
+    var gg = gaps();
+    if (gg.length && gg.every(function (i) { return i.classList.contains('correct'); })
+        && typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  }
+
+  function live(i) {
+    var ans = i.getAttribute('data-answer'), val = i.value;   // case-sensitive, kein trim
+    i.classList.remove('correct', 'wrong');
+    if (val) {
+      if (val === ans) i.classList.add('correct');
+      else if (ans.indexOf(val) !== 0) i.classList.add('wrong');
+      if (typeof window.fbLtTimerStart === 'function') window.fbLtTimerStart();
+    }
+    update();
+    done();
+  }
+
+  function build() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var gg = gaps();
+    if (!gg.length) return;
+    gg.forEach(function (i) {
+      var a = i.getAttribute('data-answer') || '', b = i.getAttribute('data-base') || '';
+      i.placeholder = '';
+      i.style.width = (Math.max(a.length, b.length) + 3) + 'ch';
+      if (!i.__fbWired) {
+        i.__fbWired = true;
+        i.addEventListener('input', function () { live(i); });
+      }
+    });
+    var seen = {}, words = [];
+    gg.forEach(function (i) { var w = wordOf(i); if (w && !seen[w]) { seen[w] = true; words.push(w); } });
+    bank.innerHTML = '';
+    shuffle(words).forEach(function (w) {
+      var c = document.createElement('span');
+      c.className = 'wortbank-chip';
+      c.textContent = w;
+      bank.appendChild(c);
+    });
+    update();
+  }
+
+  // Öffentliche Hooks für die Steuer-Buttons (Produzent verdrahtet onclick darauf).
+  window.fbLtBuild = build;
+  window.fbLtShowLoesung = function () {
+    gaps().forEach(function (i) {
+      i.value = i.getAttribute('data-answer');
+      i.classList.add('correct'); i.classList.remove('wrong');
+    });
+    update();
+    if (typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  };
+  window.fbLtReset = function () {
+    gaps().forEach(function (i) { i.value = ''; i.classList.remove('correct', 'wrong'); });
+    build();
+  };
+
+  function run() { build(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  // Beim Wechsel auf den Lückentext-Tab neu aufbauen (mischt die Wortbank).
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.nav-btn')) setTimeout(build, 80);
+  });
+})();
+
+</script>
+
+<!-- FB-LT-STORY-HOOKS --><script>window.fbLtTimerStart=function(){if(typeof timerAutoStart==='function')timerAutoStart(3);};window.fbLtTimerStop=function(){if(typeof timerStop==='function')timerStop(3);};</script>
 </body>
 </html>
