@@ -243,6 +243,21 @@ input.blank.verb { width: 200px; }
 @media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
 /* FB-SCHREIB-LAST */
 .nav-btn.schreib-last{order:99;}
+
+/* FB-LT-STORY-CSS */
+/* FB-LT-STORY-CSS — kanonische CSS des Story-Lückentexts (EINE Quelle der Wahrheit).
+   Vom Produzenten scripts/inject_lt.py eingespielt. Nicht pro Datei von Hand kopieren. */
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+
 </style>
 </head>
 <body>
@@ -352,8 +367,8 @@ input.blank.verb { width: 200px; }
             <h2>✏️ Lückentext</h2>
             <div class="control-bar">
                 <div class="btn-row">
-                    <button class="btn" onclick="lueckenSolve()">Lösungen</button>
-                    <button class="btn" onclick="resetLuecken(); resetTimer(2);">Neu starten</button>
+                    <button class="btn" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;font-weight:600;" onclick="fbLtShowLoesung()">💡 Lösungen</button>
+                    <button class="btn" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;font-weight:600;" onclick="fbLtReset();resetTimer(2);">↺ Neustart</button>
                 </div>
                 <div class="timer-display">
                     <span>⏱ <span id="timer-2">00:00</span></span>
@@ -361,8 +376,14 @@ input.blank.verb { width: 200px; }
                 </div>
             </div>
             <div class="hilfe-box"><strong>Aufgabe:</strong> Ergänzen Sie das passende Wort. Der Wortkasten dient als Orientierung — tippen Sie die Antwort selbst ein.</div>
-            <div class="word-bank" id="wbank"></div>
-            <div id="luecken-area"></div>
+            <div class="wortbank" id="wortbank-luecken"></div>
+            <div id="lueckenContainer" class="luecken-story">
+            <p>Karim möchte auf dem Laufenden bleiben und abonniert dafür einen <input class="blank" data-answer="Newsletter">, um wichtige Meldungen bequem per E-Mail zu bekommen. Er weiß allerdings, dass der <input class="blank" data-answer="Algorithmus"> der sozialen Medien entscheidet, welche Beiträge ihm überhaupt angezeigt werden.</p>
+            <p>Deshalb hat er sich außerdem ein digitales <input class="blank" data-answer="Abonnement"> zugelegt, mit dem er alle Artikel einer großen Zeitung ohne Werbung lesen kann. Bei heiklen Themen achtet er besonders darauf, die <input class="blank" data-answer="Quelle"> einer Information sorgfältig zu prüfen.</p>
+            <p>Sein täglicher <input class="blank" data-answer="Medienkonsum"> umfasst drei Podcasts, zwei Zeitungen und unzählige Push-Meldungen. Auf dem Weg zur Arbeit hört er gern einen <input class="blank" data-answer="Podcast"> über Wirtschaftsthemen.</p>
+            <p>Karim ist sich auch des Phänomens der <input class="blank" data-answer="Filterblase"> bewusst, das beschreibt, dass Nutzer nur noch Meinungen sehen, die ihrer eigenen ähneln. Deshalb schätzt er es besonders, wenn seriöse Journalisten jede Information <input class="blank" data-answer="verifizieren">, bevor sie veröffentlicht wird.</p>
+            <p>Am Ende des Tages fasst Karim für sich zusammen: Ein guter <input class="blank" data-answer="Newsletter"> und eine geprüfte <input class="blank" data-answer="Quelle"> sind für ihn die beste Grundlage, um wirklich auf dem Laufenden zu bleiben.</p>
+            </div>
         </div>
     </div>
 
@@ -586,57 +607,7 @@ function updateZuoCounter() {
 }
 function resetZuo() { resetTimer(1); draggedZuo = null; selectedZuo = null; initZuo(); }
 
-/* ============ TAB 2 — LÜCKENTEXT ============ */
-var LUECKEN = [
-    { segs: [{t:'Viele Leser abonnieren einen '},{b:'Newsletter'},{t:', um wichtige Meldungen bequem per E-Mail zu bekommen.'}], hint: 'Nomen: regelmäßige E-Mail mit News' },
-    { segs: [{t:'Der '},{b:'Algorithmus'},{t:' der sozialen Medien entscheidet, welche Beiträge Ihnen angezeigt werden.'}], hint: 'Nomen: automatische Sortierlogik' },
-    { segs: [{t:'Mit einem digitalen '},{b:'Abonnement'},{t:' lesen Sie alle Artikel einer Zeitung ohne Werbung.'}], hint: 'Nomen: monatliches Paket' },
-    { segs: [{t:'Bei heiklen Themen ist es wichtig, die '},{b:'Quelle'},{t:' einer Information sorgfältig zu prüfen.'}], hint: 'Nomen: Woher stammt die Info?' },
-    { segs: [{t:'Sein täglicher '},{b:'Medienkonsum'},{t:' umfasst drei Podcasts, zwei Zeitungen und unzählige Push-Meldungen.'}], hint: 'Nomen: wieviel Medien man nutzt' },
-    { segs: [{t:'Auf dem Weg zur Arbeit höre ich gern einen '},{b:'Podcast'},{t:' über Wirtschaftsthemen.'}], hint: 'Nomen: Audio-Format zum Abonnieren' },
-    { segs: [{t:'Das Phänomen der '},{b:'Filterblase'},{t:' beschreibt, dass Nutzer nur noch Meinungen sehen, die ihrer eigenen ähneln.'}], hint: 'Nomen: Echo-Effekt' },
-    { segs: [{t:'Seriöse Journalisten '},{b:'verifizieren'},{t:' jede Information, bevor sie veröffentlicht wird.'}], hint: 'Verb: bestätigen, prüfen' },
-];
-function buildLuecken() {
-    var area = document.getElementById('luecken-area');
-    var wbank = document.getElementById('wbank');
-    area.innerHTML = ''; wbank.innerHTML = '';
-    var words = [];
-    LUECKEN.forEach(function(ex){ ex.segs.forEach(function(s){ if (s.b) words.push(s.b); }); });
-    var unique = []; words.forEach(function(w){ if (unique.indexOf(w) === -1) unique.push(w); });
-    shuffle(unique).forEach(function(w){
-        var sp = document.createElement('span'); sp.className = 'wb-chip'; sp.textContent = w; wbank.appendChild(sp);
-    });
-    LUECKEN.forEach(function(ex) {
-        var item = document.createElement('div'); item.className = 'luecken-item';
-        ex.segs.forEach(function(s) {
-            if (s.t) { item.appendChild(document.createTextNode(s.t)); }
-            else {
-                var inp = document.createElement('input'); inp.className = 'luecken-inp'; inp.dataset.answer = s.b;
-                inp.setAttribute('autocomplete', 'off');
-                var w = Math.max(s.b.length, (ex.hint || '').length) + 4;
-                inp.style.width = Math.min(w, 40) + 'ch';
-                inp.placeholder = ex.hint || '';
-                inp.addEventListener('input', function(){ lueckenCheck(this); });
-                item.appendChild(inp);
-            }
-        });
-        area.appendChild(item);
-    });
-}
-function lueckenCheck(inp) {
-    timerAutoStart(2);
-    var val = inp.value.trim(), ans = inp.dataset.answer;
-    inp.classList.remove('ok','no');
-    if (!val) return;
-    if (val === ans) { inp.classList.add('ok'); var allOk = Array.from(document.querySelectorAll('#luecken-area .luecken-inp')).every(function(i){ return i.classList.contains('ok'); }); if (allOk) timerStop(2); }
-    else if (ans.toLowerCase().indexOf(val.toLowerCase()) === 0) { /* typing */ }
-    else { inp.classList.add('no'); }
-}
-function lueckenSolve() {
-    document.querySelectorAll('#luecken-area .luecken-inp').forEach(function(inp){ inp.value = inp.dataset.answer; inp.classList.remove('no'); inp.classList.add('ok'); });
-}
-function resetLuecken() { resetTimer(2); buildLuecken(); }
+/* ══ LÜCKENTEXT: FB-LT-STORY-Engine übernimmt ══ */
 
 /* ============ TAB 3 — SATZBAU ============ */
 var satzbauData = [
@@ -816,7 +787,6 @@ initSchreibwerkstatt(); }
 
 /* ============ INIT ============ */
 initZuo();
-buildLuecken();
 initSatzbau();
 initWortschatz();
 
@@ -1140,210 +1110,7 @@ function schreibLeeren() {
 
 </script>
 
-<script>
-/* FB-WORTBANK-MODULE — universelle, format-agnostische Lückentext-Wortbank.
-   Liest Antworten zur Laufzeit aus den gerenderten Lücken-Inputs (dataset.ans/answer/...),
-   rendert eine NICHT klickbare, gemischte Wortbank und gibt .used-Feedback.
-   Greift nicht in die bestehende Seiten-Logik ein; tut nichts, wenn keine Antworten
-   gefunden werden oder bereits eine Wortbank existiert. */
-(function () {
-  "use strict";
-  if (window.__fbWortbankInit) return;
-  window.__fbWortbankInit = true;
 
-  var ANSWER_KEYS = ["ans", "answer", "sol", "solution", "correct", "loesung", "b"];
-  var GAP_CLASS_RE = /(^|\s)(luecken-inp|luecke-inp|luecke-input|blank|gap-input|gap)(\s|$)/;
-
-  function answerOf(inp) {
-    var d = inp.dataset || {};
-    for (var i = 0; i < ANSWER_KEYS.length; i++) {
-      var v = d[ANSWER_KEYS[i]];
-      if (v != null && v !== "") return v;
-    }
-    return null;
-  }
-
-  function isGapInput(inp) {
-    if (inp.tagName !== "INPUT") return false;
-    if (!GAP_CLASS_RE.test(inp.className || "")) return false;
-    // Wortschatz-Felder ausschließen (eigene Section, aber defensiv)
-    var id = inp.id || "";
-    if (/^ws[-_]/.test(id)) return false;
-    var oi = inp.getAttribute("oninput") || "";
-    if (/wortschatz/i.test(oi)) return false;
-    return true;
-  }
-
-  // Container-Kandidaten: alle Tab-/Section-Boxen. Eine Box bekommt eine Wortbank,
-  // wenn sie >=2 Lücken-Inputs enthält. Das deckt den Normalfall (eine Lückentext-
-  // Section), Mehr-Tab-Lückentextdateien (Mattmüller) und Closure-Dateien ab — ohne
-  // vom Tab-Label "Lückentext" abzuhängen.
-  function candidateSections() {
-    var nodes = document.querySelectorAll(".section, .tab, .tab-content");
-    var out = [];
-    Array.prototype.forEach.call(nodes, function (n) {
-      // verschachtelte Container nicht doppelt zählen
-      if (n.querySelector(".section, .tab, .tab-content")) return;
-      if (gapInputs(n).length >= 2) out.push(n);
-    });
-    if (out.length) return out;
-    // Fallback (Closure-Dateien ohne DOM-Antworten): Section per Label/Überschrift finden.
-    var sections = document.querySelectorAll(".section, .tab, .tab-content");
-    var navs = document.querySelectorAll(".nav-btn");
-    for (var i = 0; i < navs.length; i++) {
-      if (/Lückentext/i.test((navs[i].textContent || "").replace(/\s+/g, " ")) && sections[i]) return [sections[i]];
-    }
-    var heads = document.querySelectorAll(".section h1,.section h2,.section h3,.tab h1,.tab h2,.tab h3,.tab-content h2");
-    for (var k = 0; k < heads.length; k++) {
-      if (/Lückentext/i.test(heads[k].textContent || "")) {
-        var sec = heads[k].closest(".section, .tab, .tab-content");
-        if (sec) return [sec];
-      }
-    }
-    return [];
-  }
-
-  function gapInputs(sec) {
-    return Array.prototype.filter.call(sec.querySelectorAll("input"), isGapInput);
-  }
-
-  function collectAnswers(sec) {
-    var out = [];
-    gapInputs(sec).forEach(function (inp) {
-      var a = answerOf(inp);
-      if (a != null && a !== "") out.push(a);
-    });
-    if (out.length) return out;
-    // Fallback: Lösung steckt in einer Closure, nicht im DOM -> globales Daten-Array lesen.
-    return fromGlobals();
-  }
-
-  function fromGlobals() {
-    var names = ["LUECKE_DATA", "LUECKEN_DATA", "LT_DATA", "LUECKENDATA", "GAP_DATA", "BLANK_DATA"];
-    for (var n = 0; n < names.length; n++) {
-      var arr = window[names[n]];
-      if (!Array.isArray(arr) || !arr.length) continue;
-      var words = [];
-      arr.forEach(function (item) {
-        if (!item || typeof item !== "object") return;
-        var direct = item.ans || item.answer || item.b || item.sol || item.solution;
-        if (direct) { words.push(direct); return; }
-        var segs = item.segs || item.segments;
-        if (Array.isArray(segs)) segs.forEach(function (s) { if (s && s.b) words.push(s.b); });
-      });
-      if (words.length) return words;
-    }
-    return [];
-  }
-
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
-
-  function ensureBank(sec) {
-    var bank = sec.querySelector(".fb-wortbank");
-    if (bank) return bank;
-    var wrap = document.createElement("div");
-    wrap.className = "fb-wortbank-wrap";
-    var label = document.createElement("div");
-    label.className = "fb-wortbank-label";
-    label.innerHTML = "🔤 Wortbank – die richtigen Wörter, in zufälliger Reihenfolge.";
-    bank = document.createElement("div");
-    bank.className = "fb-wortbank";
-    wrap.appendChild(label);
-    wrap.appendChild(bank);
-    // Einfügeort: nach control-bar falls vorhanden, sonst als erstes Inhaltselement
-    var host = sec.querySelector(".sec-inner") || sec.querySelector(".luecken-block") || sec;
-    var cb = host.querySelector(".control-bar");
-    if (cb && cb.parentNode === host) {
-      host.insertBefore(wrap, cb.nextSibling);
-    } else {
-      host.insertBefore(wrap, host.firstChild);
-    }
-    return bank;
-  }
-
-  function renderChips(bank, answers) {
-    var sig = answers.slice().sort().join("");
-    if (bank.getAttribute("data-sig") === sig) return; // unverändert -> nicht neu mischen
-    bank.setAttribute("data-sig", sig);
-    bank.innerHTML = "";
-    shuffle(answers.slice()).forEach(function (w) {
-      var chip = document.createElement("span");
-      chip.className = "fb-wortbank-chip";
-      chip.textContent = w;
-      bank.appendChild(chip); // KEIN click-Handler — Wortbank ist nicht klickbar
-    });
-  }
-
-  function updateUsed(sec, bank) {
-    // "Gelöst" = Input dessen Wert exakt (case-sensitive) seiner eigenen Antwort entspricht.
-    var solved = [];
-    gapInputs(sec).forEach(function (inp) {
-      if (!inp.value) return;
-      var a = answerOf(inp);
-      var byAttr = a != null && a !== "" && inp.value === a;
-      // Closure-Dateien tragen die Lösung nicht im DOM, markieren das Feld aber
-      // mit einer Erfolgs-Klasse (ok/correct/right/richtig).
-      var byClass = /(^|\s)(ok|correct|right|richtig)(\s|$)/.test(inp.className);
-      if (byAttr || byClass) solved.push(inp.value);
-    });
-    var remaining = solved.slice();
-    Array.prototype.forEach.call(bank.querySelectorAll(".fb-wortbank-chip"), function (chip) {
-      var idx = remaining.indexOf(chip.textContent);
-      if (idx >= 0) { chip.classList.add("used"); remaining.splice(idx, 1); }
-      else { chip.classList.remove("used"); }
-    });
-  }
-
-  var wired = false;
-  function refreshSection(sec) {
-    var answers = collectAnswers(sec);
-    if (!answers.length) return false;
-    var bank = ensureBank(sec);
-    renderChips(bank, answers);
-    updateUsed(sec, bank);
-    return true;
-  }
-  function build() {
-    // Nichts tun, wenn die Seite schon eine Wort-Hilfe hat (skill-konforme Wortbank
-    // ODER alter "Wortkasten"). Verhindert doppelte Wortlisten.
-    if (document.querySelector(".wortbank, #wortbank-luecken, .wortkasten, .wort-kasten, .wordbank, #wortkasten")) return;
-    var secs = candidateSections();
-    if (!secs.length) return;
-    var any = false;
-    secs.forEach(function (sec) { if (refreshSection(sec)) any = true; });
-    if (any && !wired) {
-      wired = true;
-      // Ein delegierter Listener fürs gesamte Dokument hält alle Wortbänke aktuell.
-      document.addEventListener("input", function () {
-        Array.prototype.forEach.call(document.querySelectorAll(".fb-wortbank"), function (b) {
-          var sec = b.closest(".section, .tab, .tab-content") || b.parentNode.parentNode;
-          if (sec) updateUsed(sec, b);
-        });
-      });
-    }
-  }
-
-  function schedule() { setTimeout(build, 0); setTimeout(build, 150); }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", schedule);
-  } else {
-    schedule();
-  }
-  // Lazy-Render: viele Lektionen bauen den Lückentext erst beim Tab-Wechsel.
-  document.addEventListener("click", function (e) {
-    var t = e.target;
-    if (t && t.closest && t.closest(".nav-btn")) setTimeout(build, 150);
-  });
-})();
-
-</script>
 
 
 <script>
@@ -1657,5 +1424,158 @@ function resetGenus(){ initGenus(); genusTimerReset(); }
 })();
 </script>
 
+
+<!-- FB-LT-STORY-ENGINE -->
+<script>
+/* ============================================================================
+   FB-LT-STORY — kanonische Lückentext-Engine (EINE Quelle der Wahrheit)
+   ----------------------------------------------------------------------------
+   Mit Frank abgenommen 2026-06-30 (Piloten 1057X Heimweh, 3065G Adjektivdeklination).
+   Diese Datei ist die EINZIGE Quelle der mechanischen Lückentext-Logik. Der
+   Produzent scripts/inject_lt.py spielt sie (plus die CSS unten) in jede Lektion
+   ein — NIE von Hand pro Datei kopieren (sonst driften die Engines, genau der
+   Fehler, den wir abschaffen).
+
+   Kanonische Form:
+     · zusammenhängende STORY (Serif-Fließtext, Inline-Lücken), KEINE Nummern;
+     · GENAU 10 Lücken;  · §7-Wortbank (gemischt, nicht klickbar, .used);
+     · case-sensitiv, kein Prüfen-Button (nur Live-Feedback);
+     · Variante erkennt sich SELBST:
+         - hat eine Lücke data-base  → Grammatik (G): Wortbank zeigt die GRUNDFORM
+           (data-base), die Zielform (data-answer) ist nie sichtbar;
+         - sonst                     → Wortschatz (V/R/X): Wortbank zeigt die
+           Vollform (= data-answer).
+     · .used streicht den Chip der getroffenen Lücke durch (G: per data-base) —
+       Fortschrittsanzeige, verrät die Zielform nicht (Frank bestätigt 2026-06-30).
+
+   Markup-Vertrag (vom Produzenten erzeugt, vom Gate check_lueckentext.py geprüft):
+     <div class="wortbank" id="wortbank-luecken"></div>
+     <div id="lueckenContainer" class="luecken-story">
+       <p>… <input class="blank" data-answer="ZIELFORM" [data-base="GRUNDFORM"]> …</p>
+     </div>
+
+   Timer-Anbindung: die Engine ruft generische Hooks window.fbLtTimerStart()/
+   fbLtTimerStop(); der Produzent verdrahtet sie pro Datei auf den richtigen
+   Tab-Index (timerAutoStart(N)/timerStop(N)). Fehlen die Hooks, läuft die Engine
+   ohne Timer weiter.
+   ============================================================================ */
+
+/* ---- KANONISCHE CSS (vom Produzenten mit eingespielt) -----------------------
+.luecken-story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.1; color: #2c2c2c; text-align: justify; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0; padding: 18px 22px; }
+.luecken-story p { margin: 0 0 14px; }
+.luecken-story p:last-child { margin-bottom: 0; }
+.luecken-story input.blank { font-family: Georgia, 'Times New Roman', serif; border: none; border-bottom: 2px solid #c5cae9; background: transparent; outline: none; font-size: 1em; color: #2c2c2c; text-align: center; padding: 1px 4px; min-width: 4ch; transition: all .2s; }
+.luecken-story input.blank:focus { border-bottom-color: #667eea; }
+.luecken-story input.blank.correct { border-bottom-color: #27ae60; background: #e8f8f0; color: #27ae60; font-weight: 700; }
+.luecken-story input.blank.wrong { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c3c; }
+.wortbank { display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:#f0f0f8; border-radius:10px; min-height:48px; margin-bottom:18px; border:1px dashed #bbb; }
+.wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
+.wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
+---------------------------------------------------------------------------- */
+
+(function () {
+  "use strict";
+  if (window.__fbLtStory) return;
+  window.__fbLtStory = true;
+
+  function gaps() {
+    return Array.prototype.slice.call(
+      document.querySelectorAll('#lueckenContainer input.blank'));
+  }
+  // Wortbank-Wort einer Lücke: Grundform (G) falls vorhanden, sonst Vollform.
+  function wordOf(i) {
+    return i.getAttribute('data-base') || i.getAttribute('data-answer') || '';
+  }
+  function shuffle(a) {
+    for (var k = a.length - 1; k > 0; k--) {
+      var j = Math.floor(Math.random() * (k + 1));
+      var t = a[k]; a[k] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function update() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var rem = gaps().filter(function (i) { return i.classList.contains('correct'); })
+                    .map(wordOf);
+    Array.prototype.slice.call(bank.querySelectorAll('.wortbank-chip')).forEach(function (c) {
+      var idx = rem.indexOf(c.textContent);
+      if (idx >= 0) { c.classList.add('used'); rem.splice(idx, 1); }
+      else { c.classList.remove('used'); }
+    });
+  }
+
+  function done() {
+    var gg = gaps();
+    if (gg.length && gg.every(function (i) { return i.classList.contains('correct'); })
+        && typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  }
+
+  function live(i) {
+    var ans = i.getAttribute('data-answer'), val = i.value;   // case-sensitive, kein trim
+    i.classList.remove('correct', 'wrong');
+    if (val) {
+      if (val === ans) i.classList.add('correct');
+      else if (ans.indexOf(val) !== 0) i.classList.add('wrong');
+      if (typeof window.fbLtTimerStart === 'function') window.fbLtTimerStart();
+    }
+    update();
+    done();
+  }
+
+  function build() {
+    var bank = document.getElementById('wortbank-luecken');
+    if (!bank) return;
+    var gg = gaps();
+    if (!gg.length) return;
+    gg.forEach(function (i) {
+      var a = i.getAttribute('data-answer') || '', b = i.getAttribute('data-base') || '';
+      i.placeholder = '';
+      i.style.width = (Math.max(a.length, b.length) + 3) + 'ch';
+      if (!i.__fbWired) {
+        i.__fbWired = true;
+        i.addEventListener('input', function () { live(i); });
+      }
+    });
+    var seen = {}, words = [];
+    gg.forEach(function (i) { var w = wordOf(i); if (w && !seen[w]) { seen[w] = true; words.push(w); } });
+    bank.innerHTML = '';
+    shuffle(words).forEach(function (w) {
+      var c = document.createElement('span');
+      c.className = 'wortbank-chip';
+      c.textContent = w;
+      bank.appendChild(c);
+    });
+    update();
+  }
+
+  // Öffentliche Hooks für die Steuer-Buttons (Produzent verdrahtet onclick darauf).
+  window.fbLtBuild = build;
+  window.fbLtShowLoesung = function () {
+    gaps().forEach(function (i) {
+      i.value = i.getAttribute('data-answer');
+      i.classList.add('correct'); i.classList.remove('wrong');
+    });
+    update();
+    if (typeof window.fbLtTimerStop === 'function') window.fbLtTimerStop();
+  };
+  window.fbLtReset = function () {
+    gaps().forEach(function (i) { i.value = ''; i.classList.remove('correct', 'wrong'); });
+    build();
+  };
+
+  function run() { build(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  // Beim Wechsel auf den Lückentext-Tab neu aufbauen (mischt die Wortbank).
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.nav-btn')) setTimeout(build, 80);
+  });
+})();
+
+</script>
+
+<!-- FB-LT-STORY-HOOKS --><script>window.fbLtTimerStart=function(){if(typeof timerAutoStart==='function')timerAutoStart(2);};window.fbLtTimerStop=function(){if(typeof timerStop==='function')timerStop(2);};</script>
 </body>
 </html>
