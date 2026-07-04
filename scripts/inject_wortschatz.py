@@ -15,15 +15,22 @@ Nutzung: python3 inject_wortschatz.py datei.html [...]
 """
 import re, sys, io
 
-FUNCS_TO_STRIP = ["initWortschatz", "wortschatzCheck", "checkWortschatzAllOk",
+# AMBIGUOUS_BUILDERS sind Baufunktionsnamen, die in MANCHEN Dateien den Wortschatz-Training-Tab
+# bauen, in ANDEREN Dateien aber einen völlig anderen Tab (z.B. eine Vorentlastungs-Fotokarten-
+# Liste "Wörter") — Fund 2026-07-04: DE_A2_2015V u.a. haben SOWOHL `buildVocab()` (Wörter-Tab)
+# ALS AUCH `initVocab()` (echter Wortschatz-Tab) im selben File. Nur die tatsächlich als Ziel
+# identifizierte Funktion (Variable `builder` in process()) wird gestrippt/umbenannt — NIE
+# pauschal alle Namen dieser Liste, sonst wird der falsche Tab zerstört.
+AMBIGUOUS_BUILDERS = ["initWortschatz", "buildVocab", "initVocab", "renderVocab", "vocabInit",
+                      "buildWortschatz", "renderWortschatz"]
+# SAFE_HELPERS_TO_STRIP sind Check/Reset/Lösungs-Helfer, die praxisnah IMMER exklusiv zum
+# Wortschatz-Training-Tab gehören (ein einfacher Foto-Vorschau-Tab hat keine eigene Check-Logik).
+FUNCS_TO_STRIP = ["wortschatzCheck", "checkWortschatzAllOk",
                   "showWortschatzLoesung", "showWsLoesung", "resetWortschatz",
-                  "buildWortschatz", "renderWortschatz", "wsCheck", "buildWsCard",
-                  # B2-Root-"vocab"-Generation (Fund 2026-07-04)
-                  "buildVocab", "initVocab", "renderVocab", "vocabLiveCheck",
-                  "vocabCheck", "vocabReset", "resetVocab", "checkVocabAllDone",
+                  "wsCheck", "buildWsCard",
+                  "vocabLiveCheck", "vocabCheck", "vocabReset", "resetVocab", "checkVocabAllDone",
                   "showVocabLoesung", "vocabShowLoesung",
-                  # A1-"vocabInit"-Generation (Fund 2026-07-04, DE_A1_1113G/1123G)
-                  "vocabInit", "vocabCheckAllOk"]
+                  "vocabCheckAllOk"]
 
 
 def strip_func(s, name):
@@ -130,12 +137,28 @@ def process(path):
                           "vocabData", "WORT_DATA"]
     # 1) Baufunktion zuerst identifizieren (Generationen: initWortschatz / buildVocab / initVocab /
     #    renderVocab / vocabInit) — ihr Körper ist die verlässliche Quelle für BEIDE, Container-Id
-    #    UND Datenvariable.
+    #    UND Datenvariable. Kommen MEHRERE Kandidatennamen im selben File vor (Fund 2026-07-04:
+    #    getrennte Tabs "Wörter"/buildVocab und "Wortschatz"/initVocab), gewinnt die Funktion,
+    #    deren referenzierter Container am WEITESTEN HINTEN im Dokument liegt — der Wortschatz-
+    #    Training-Tab liegt konventionell spät (Tail-Reihenfolge Genus→Wortschatz→Schreiben).
+    builder = None
     old = ""
-    for builder in ["initWortschatz", "buildVocab", "initVocab", "renderVocab", "vocabInit"]:
-        old = func_body(s, builder)
-        if old:
-            break
+    candidates = []
+    for name in AMBIGUOUS_BUILDERS:
+        body = func_body(s, name)
+        if body:
+            candidates.append((name, body))
+    if len(candidates) == 1:
+        builder, old = candidates[0]
+    elif len(candidates) > 1:
+        def _last_ref_pos(body):
+            ids = re.findall(r"getElementById\(\s*['\"]([\w-]+)['\"]\s*\)", body)
+            pos = -1
+            for i in ids:
+                p = s.rfind('id="' + i + '"')
+                if p > pos: pos = p
+            return pos
+        builder, old = max(candidates, key=lambda bc: _last_ref_pos(bc[1]))
     # 2) Datenvariable: BEVORZUGT aus dem Bau-Funktionskörper lesen — schützt vor Verwechslung mit
     #    einem gleichnamigen Array eines ANDEREN Tabs (Fund 2026-07-04: DE_A2_2051V/2061V haben
     #    sowohl eine Vorentlastungs-Liste `WORTSCHATZ` für Tab "Wörter" als auch `WS_DATA` für den
@@ -189,24 +212,42 @@ def process(path):
         return "ABBRUCH: Container-Tag nicht ersetzbar (id=" + cont_id + ")"
     target = cont_matches[-1]
     cidx = target.start()
-    # Section-ID: letzte sec-... VOR dem Container (ganzer Vortext — Banner-Base64-robust).
-    # Generationen variieren: "sec-1"/"sec-genus" (Bindestrich) ODER "sec1".."sec9" (ohne
-    # Bindestrich, Fund 2026-07-04: A2.1). Beide Formen zulassen, aber nicht wahllos jedes
-    # "sec…"-Präfix (kein False-Positive auf z.B. "search…").
-    sec_matches = list(re.finditer(r'id="(sec\d+|sec-[\w-]+)"', s[:cidx]))
+    # Section-ID: die ID des zuletzt GEÖFFNETEN class="section"-Divs VOR dem Container. Nicht auf
+    # ein Namensmuster raten (sec-1, sec-genus, secN, tabN, … — Generationen variieren beliebig,
+    # Fund 2026-07-04: A2.1-Dateien mit "tab0".."tab5" statt "sec…" hätten mit einem sec-Muster
+    # den FALSCHEN, vorherigen Tab getroffen, z.B. "sec-genus" statt "tab5" → toter Lösungen-
+    # Button, weil der Selector die falsche Section traf). Stattdessen strukturell aus dem echten
+    # `<div class="section…" id="…">`-Tag lesen, ID-Attribut in beliebiger Reihenfolge zulässig.
+    def _section_ids_before(pos):
+        out = []
+        # G-Dateien nutzen <section class="section">, R/X/V/W/C-Dateien <div class="section">
+        # (daf-kern) — beide Tag-Namen zulassen (Fund 2026-07-04: DE_A2_1062X/1065V hätten mit
+        # nur <div> das <section id="tab4"> übersehen und "sec-genus" davor gewählt).
+        for m in re.finditer(r'<(?:div|section)\b[^>]*>', s[:pos]):
+            tag = m.group(0)
+            cls = re.search(r'class="([^"]*)"', tag)
+            if not cls or not re.search(r'(?<![\w-])section(?![\w-])', cls.group(1)):
+                continue
+            idm = re.search(r'id="([\w-]+)"', tag)
+            if idm:
+                out.append((m.start(), idm.group(1)))
+        return out
+    sec_matches = _section_ids_before(cidx)
     if not sec_matches:
         return "ABBRUCH: Section-ID nicht gefunden"
-    secid = sec_matches[-1].group(1)
-    sec_pos = sec_matches[-1].start()
+    sec_pos, secid = sec_matches[-1]
     # Timer-Index: zwischen Section-Start und Container
     env = s[sec_pos:cidx + 600]
     tm = re.search(r'timer-(\d+)', env) or re.search(r'timerResetOne\((\d+)\)', env) or re.search(r'resetTimer\((\d+)\)', env)
     if tm: tidx = int(tm.group(1))
     else:
-        mnum = re.match(r'sec-?(\d+)$', secid); tidx = int(mnum.group(1)) if mnum else 6
+        mnum = re.search(r'(\d+)$', secid); tidx = int(mnum.group(1)) if mnum else 6
     # 4) Container normalisieren — NUR die als Ziel identifizierte Instanz ersetzen (bei
     #    Duplikaten bleibt die andere Instanz unangetastet, z.B. der Vorentlastungs-Grid).
-    s = s[:target.start()] + '<div id="wortschatzContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>' + s[target.end():]
+    # KEIN Inline-Grid-Style: Inline schlägt die Mobil-Media-Query des CSS-Blocks
+    # (iPhone blieb zweispaltig, rechte Spalte abgeschnitten — Frank-Fund 2026-07-04).
+    # Das Grid kommt ausschließlich aus FB-WORTSCHATZ-KANON-CSS.
+    s = s[:target.start()] + '<div id="wortschatzContainer"></div>' + s[target.end():]
     # 5) Steuerleisten-Buttons normalisieren: JEDE Wortschatz-Lösungen-Variante (Name enthält
     #    "loesung/lösung" UND "wortschatz/ws") → showWortschatzLoesung(). Andere Tabs (showZuoLoesung,
     #    showLueckeLoesung, showGenusLoesung) enthalten kein wortschatz/ws → unberührt.
@@ -257,15 +298,23 @@ def process(path):
         if s3 == s:
             return "ABBRUCH: Container-Tag fuer Pill-Bar-Insertion nicht gefunden"
         s = s3
-    # 6) alte Funktionen entfernen — feste Liste + alle Wortschatz-Lösungs-Varianten (außer der kanonischen)
-    for fn in FUNCS_TO_STRIP:
+    # 6) alte Funktionen entfernen — feste sichere Helfer-Liste + NUR die als Ziel identifizierte
+    #    Baufunktion (nie pauschal alle AMBIGUOUS_BUILDERS-Namen, sonst reißt es einen fremden Tab
+    #    ein, der zufällig denselben Funktionsnamen benutzt, Fund 2026-07-04: DE_A2_2015V u.a.)
+    #    + alle Wortschatz-Lösungs-Varianten (außer der kanonischen).
+    strip_names = list(FUNCS_TO_STRIP)
+    if builder:
+        strip_names.append(builder)
+    for fn in strip_names:
         s = strip_func(s, fn)
     for fn in set(re.findall(r'function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(', s)):
         if _is_ws_loesung(fn) and fn != "showWortschatzLoesung":
             s = strip_func(s, fn)
-    # 6b) Verwaiste Aufrufe gestrippter Baufunktionen (z.B. `initVocab();` in der
-    #     Init-Sequenz) auf den Kanon umbiegen — sonst ReferenceError (Fund 2026-07-04).
-    s = re.sub(r'\b(initVocab|buildVocab|renderVocab|buildWortschatz|renderWortschatz)\s*\(\s*\)', 'initWortschatz()', s)
+    # 6b) Verwaiste Aufrufe der gestrippten Baufunktion (z.B. `initVocab();` in der Init-Sequenz)
+    #     auf den Kanon umbiegen — sonst ReferenceError (Fund 2026-07-04). NUR den gewählten
+    #     Builder-Namen umbiegen, ein NICHT gewählter Namensvetter (anderer Tab) bleibt unberührt.
+    if builder:
+        s = re.sub(r'\b' + re.escape(builder) + r'\s*\(\s*\)', 'initWortschatz()', s)
     # 7) kanonischen Block DIREKT NACH dem Daten-Array einfügen (gleicher <script>-Block
     #    wie der initWortschatz()-Aufruf — sonst ReferenceError über Block-Grenzen hinweg).
     # Timer-Funktionsnamen der Datei übernehmen (Lehre: stopTimer vs timerStop,
