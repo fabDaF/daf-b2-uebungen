@@ -229,6 +229,16 @@ footer{text-align:center;padding:16px;font-size:.78rem;color:#aaa;border-top:1px
 .wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
 .wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
 
+
+/* FB-WORTSCHATZ-KANON-CSS — skill-konforme Karten-Optik, NUR im Wortschatz-Tab (überschreibt abweichende Datei-CSS, Lückentext bleibt unberührt) */
+#wortschatzContainer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#wortschatzContainer .luecken-item,#wortschatzContainer .luecke-item{background:#f8f9ff;border:1px solid #dde3ff;border-left:4px solid #667eea;border-radius:10px;padding:12px 16px;margin:0;display:block;}
+#wortschatzContainer .luecken-item>div:first-child,#wortschatzContainer .luecke-item>div:first-child,#wortschatzContainer .ws-en{font-weight:700;color:#667eea;margin-bottom:8px;font-size:1.05em;}
+#wortschatzContainer input.blank{border:none;border-bottom:2px solid #667eea;border-radius:0;background:#fff;padding:4px 6px;outline:none;font-family:inherit;font-size:0.95em;}
+#wortschatzContainer input.blank:focus{border-bottom-color:#764ba2;}
+#wortschatzContainer input.blank.correct{border-bottom-color:#27ae60;background:#e8f8f0;}
+#wortschatzContainer input.blank.wrong{border-bottom-color:#e74c3c;background:#fdeaea;}
+@media(max-width:640px){#wortschatzContainer{grid-template-columns:1fr;}}
 </style></head>
 <body><div class="container">
 <header><h1>Diktat: Eine Bewerbung</h1><p>B2.2 · Einheit 7 · Schreiben</p></header>
@@ -302,10 +312,10 @@ Heike Müller</div>
   <img src="https://images.pexels.com/photos/4386370/pexels-photo-4386370.jpeg?auto=compress&w=900" class="tab-banner">
   <h2>Wortschatz</h2>
   <div class="ctrl">
-    <button onclick="vocabReset()">↺ Zurücksetzen</button>
+    <button onclick="showWortschatzLoesung()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">💡 Lösungen</button><button onclick="resetWortschatz()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">↺ Neustart</button>
     
   </div>
-  <div class="vocab-grid" id="vocab-grid"></div>
+  <div id="wortschatzContainer"></div>
 </div>
     <!-- ===== TAB: GENUS ===== -->
     <div class="tab" id="tab-genus">
@@ -526,54 +536,61 @@ const vocabItems = [
   { en: 'the capability / skill', art: 'die', wort: 'Fähigkeit', pl: '-en', img: 'https://images.pexels.com/photos/3771097/pexels-photo-3771097.jpeg?auto=compress&w=300' },
 ];
 
-function vocabBuild() {
-  const grid = document.getElementById('vocab-grid');
-  grid.innerHTML = vocabItems.map((v, i) => `
-    <div class="vocab-card">
-      <img src="${v.img}" class="bild" alt="">
-      <div class="wort-en">${v.en}</div>
-      <div class="eingabe-row">
-        <input type="text" placeholder="Artikel" id="vart${i}" autocomplete="off" oninput="vocabCheck(${i})" style="max-width:80px">
-        <input type="text" placeholder="Deutsch" id="vwort${i}" autocomplete="off" oninput="vocabCheck(${i})" style="flex:1">
-        <input type="text" placeholder="Plural" id="vpl${i}" autocomplete="off" oninput="vocabCheck(${i})" style="max-width:80px">
-      </div>
-      <div class="feedback" id="vfb${i}"></div>
-    </div>`).join('');
-}
-
-function vocabCheck(i) {
-  timerStart('vocab');
-  const v = vocabItems[i];
-  const art = document.getElementById('vart' + i).value.trim().toLowerCase();
-  const wort = document.getElementById('vwort' + i).value.trim().toLowerCase();
-  const pl = document.getElementById('vpl' + i).value.trim().toLowerCase();
-  const fb = document.getElementById('vfb' + i);
-  if (!art && !wort && !pl) { fb.textContent = ''; return; }
-  const artOk = art === v.art.toLowerCase();
-  const wortOk = wort === v.wort.toLowerCase();
-  const plOk = pl === v.pl.toLowerCase();
-  if (artOk && wortOk && plOk) {
-    fb.textContent = '✓ Richtig!'; fb.style.color = '#4caf50';
-    ['vart','vwort','vpl'].forEach(p => document.getElementById(p+i).className = 'correct');
-    const allOk = vocabItems.every((_, j) => document.getElementById('vfb'+j).textContent.startsWith('✓'));
-    if (allOk) timerStop('vocab');
-  } else {
-    fb.textContent = ''; fb.style.color = '';
-    ['vart','vwort','vpl'].forEach(p => document.getElementById(p+i).className = '');
-  }
-}
-
-function vocabReset() {
-  timerReset('vocab');
-  vocabItems.forEach((_, i) => {
-    ['vart','vwort','vpl'].forEach(p => { const el = document.getElementById(p+i); el.value=''; el.className=''; });
-    document.getElementById('vfb'+i).textContent = '';
+/* FB-WORTSCHATZ-KANON — deterministisch, schema-adaptiv (inject_wortschatz.py) */
+function initWortschatz(){
+  var c=document.getElementById("wortschatzContainer"); if(!c) return; c.innerHTML="";
+  vocabItems.forEach(function(item){
+    var artikel=(item.artikel!==undefined)?item.artikel:(item.art||"");
+    var de=(item.de!==undefined)?item.de:(item.wort||item.word||"");
+    var plural=(item.plural!==undefined)?item.plural:(item.pl||"");
+    var en=(item.en!==undefined)?item.en:(item.prompt||item.frage||"");
+    var type=item.type||(artikel?"n":"p");
+    var row=document.createElement("div"); row.className="luecken-item"; row.style.marginBottom="0";
+    var p=document.createElement("div"); p.style.cssText="font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;"; p.textContent=en; row.appendChild(p);
+    var fl=document.createElement("div"); fl.style.cssText="display:flex;gap:8px;flex-wrap:wrap;align-items:center;";
+    function mk(ph,w,ans,fld){var i=document.createElement("input");i.className="blank";i.type="text";i.placeholder=ph;i.style.width=w;i.dataset.answer=ans;i.dataset.field=fld;i.oninput=function(){wortschatzCheck(this);if(typeof timerAutoStart==="function")timerAutoStart(3);checkWortschatzAllOk();};return i;}
+    if(type==="n"){
+      fl.appendChild(mk("Artikel","70px",artikel,"art"));
+      fl.appendChild(mk("Wort","160px",de,"word"));
+      var pl=mk("Plural","140px",plural,"plural");
+      if(plural==="\u2013"||plural===""||plural==="-"){pl.value="\u2013";pl.disabled=true;pl.dataset.answer="\u2013";pl.classList.add("correct");pl.style.opacity="0.6";pl.title="Dieses Wort hat keinen Plural";pl.oninput=null;}
+      fl.appendChild(pl);
+    } else { fl.appendChild(mk("Deutsch","220px",de,"word")); }
+    row.appendChild(fl); c.appendChild(row);
   });
 }
+function wortschatzCheck(inp){
+  var u=inp.value,a=inp.dataset.answer,f=inp.dataset.field; inp.classList.remove("correct","wrong"); if(!u) return;
+  var cu=(f==="art")?u.toLowerCase().trim():u.trim(); var ca=(f==="art")?(a||"").toLowerCase():a;
+  if(cu===ca) inp.classList.add("correct"); else if(ca.indexOf(cu)===0){} else inp.classList.add("wrong");
+}
+function checkWortschatzAllOk(){
+  var ins=document.querySelectorAll("#tab-wortschatz input.blank");
+  var ok=ins.length>0 && Array.from(ins).every(function(i){return i.disabled||i.classList.contains("correct");});
+  if(ok){try{if(typeof timerStop==="function") timerStop(3);}catch(e){}}
+}
+function showWortschatzLoesung(){
+  try{if(typeof timerStop==="function") timerStop(3);}catch(e){}
+  document.querySelectorAll("#tab-wortschatz input.blank").forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add("correct");inp.classList.remove("wrong");});
+}
+function resetWortschatz(){
+  document.querySelectorAll("#tab-wortschatz input.blank").forEach(function(inp){if(!inp.disabled){inp.value="";inp.classList.remove("correct","wrong");}});
+  try{if(typeof timerResetOne==="function") timerResetOne(3);}catch(e){}
+}
+try{window.initWortschatz=initWortschatz;window.wortschatzCheck=wortschatzCheck;window.checkWortschatzAllOk=checkWortschatzAllOk;window.showWortschatzLoesung=showWortschatzLoesung;window.resetWortschatz=resetWortschatz;}catch(e){}
+
+initWortschatz();
+
+
+
+
+
+
+
 
 // ── INIT ─────────────────────────────────────────────────────────
 sbBuild();
-vocabBuild();
+
 
 /* ===== SCHREIBWERKSTATT (B2) =================================== */
 var SCHREIB_NAME_KEY      = 'schreibwerkstatt_B2_2073R_name';

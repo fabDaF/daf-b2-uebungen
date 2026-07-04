@@ -227,6 +227,16 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 @media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
 /* FB-SCHREIB-LAST */
 .nav-btn.schreib-last{order:99;}
+
+/* FB-WORTSCHATZ-KANON-CSS — skill-konforme Karten-Optik, NUR im Wortschatz-Tab (überschreibt abweichende Datei-CSS, Lückentext bleibt unberührt) */
+#wortschatzContainer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#wortschatzContainer .luecken-item,#wortschatzContainer .luecke-item{background:#f8f9ff;border:1px solid #dde3ff;border-left:4px solid #667eea;border-radius:10px;padding:12px 16px;margin:0;display:block;}
+#wortschatzContainer .luecken-item>div:first-child,#wortschatzContainer .luecke-item>div:first-child,#wortschatzContainer .ws-en{font-weight:700;color:#667eea;margin-bottom:8px;font-size:1.05em;}
+#wortschatzContainer input.blank{border:none;border-bottom:2px solid #667eea;border-radius:0;background:#fff;padding:4px 6px;outline:none;font-family:inherit;font-size:0.95em;}
+#wortschatzContainer input.blank:focus{border-bottom-color:#764ba2;}
+#wortschatzContainer input.blank.correct{border-bottom-color:#27ae60;background:#e8f8f0;}
+#wortschatzContainer input.blank.wrong{border-bottom-color:#e74c3c;background:#fdeaea;}
+@media(max-width:640px){#wortschatzContainer{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -487,7 +497,8 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
         Tragen Sie Artikel, Wort und Plural ein. <strong>–</strong> bedeutet: kein Plural üblich.
       </div>
 
-      <div id="wortschatzContainer"></div>
+      <div style="display:flex;gap:8px;margin:0 0 14px;"><button onclick="showWortschatzLoesung()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">💡 Lösungen</button><button onclick="resetWortschatz()" style="background:#f5f7ff;border:1px solid #c5cff5;border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">↺ Neustart</button></div>
+<div id="wortschatzContainer"></div>
     </div>
   </div>
 
@@ -580,6 +591,51 @@ var WORTSCHATZ = [
   { artikel: 'der', de: 'Querschnittsbefund', plural: 'Querschnittsbefunde', en: 'cross-sectional finding' },
   { artikel: 'die', de: 'Beurteilbarkeit', plural: '–', en: 'assessability / rateability' }
 ];
+
+/* FB-WORTSCHATZ-KANON — deterministisch, schema-adaptiv (inject_wortschatz.py) */
+function initWortschatz(){
+  var c=document.getElementById("wortschatzContainer"); if(!c) return; c.innerHTML="";
+  WORTSCHATZ.forEach(function(item){
+    var artikel=(item.artikel!==undefined)?item.artikel:(item.art||"");
+    var de=(item.de!==undefined)?item.de:(item.wort||item.word||"");
+    var plural=(item.plural!==undefined)?item.plural:(item.pl||"");
+    var en=(item.en!==undefined)?item.en:(item.prompt||item.frage||"");
+    var type=item.type||(artikel?"n":"p");
+    var row=document.createElement("div"); row.className="luecken-item"; row.style.marginBottom="0";
+    var p=document.createElement("div"); p.style.cssText="font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;"; p.textContent=en; row.appendChild(p);
+    var fl=document.createElement("div"); fl.style.cssText="display:flex;gap:8px;flex-wrap:wrap;align-items:center;";
+    function mk(ph,w,ans,fld){var i=document.createElement("input");i.className="blank";i.type="text";i.placeholder=ph;i.style.width=w;i.dataset.answer=ans;i.dataset.field=fld;i.oninput=function(){wortschatzCheck(this);if(typeof timerAutoStart==="function")timerAutoStart(2);checkWortschatzAllOk();};return i;}
+    if(type==="n"){
+      fl.appendChild(mk("Artikel","70px",artikel,"art"));
+      fl.appendChild(mk("Wort","160px",de,"word"));
+      var pl=mk("Plural","140px",plural,"plural");
+      if(plural==="\u2013"||plural===""||plural==="-"){pl.value="\u2013";pl.disabled=true;pl.dataset.answer="\u2013";pl.classList.add("correct");pl.style.opacity="0.6";pl.title="Dieses Wort hat keinen Plural";pl.oninput=null;}
+      fl.appendChild(pl);
+    } else { fl.appendChild(mk("Deutsch","220px",de,"word")); }
+    row.appendChild(fl); c.appendChild(row);
+  });
+}
+function wortschatzCheck(inp){
+  var u=inp.value,a=inp.dataset.answer,f=inp.dataset.field; inp.classList.remove("correct","wrong"); if(!u) return;
+  var cu=(f==="art")?u.toLowerCase().trim():u.trim(); var ca=(f==="art")?(a||"").toLowerCase():a;
+  if(cu===ca) inp.classList.add("correct"); else if(ca.indexOf(cu)===0){} else inp.classList.add("wrong");
+}
+function checkWortschatzAllOk(){
+  var ins=document.querySelectorAll("#sec-6 input.blank");
+  var ok=ins.length>0 && Array.from(ins).every(function(i){return i.disabled||i.classList.contains("correct");});
+  if(ok){try{if(typeof stopTimer==="function") stopTimer(2);}catch(e){}}
+}
+function showWortschatzLoesung(){
+  try{if(typeof stopTimer==="function") stopTimer(2);}catch(e){}
+  document.querySelectorAll("#sec-6 input.blank").forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add("correct");inp.classList.remove("wrong");});
+}
+function resetWortschatz(){
+  document.querySelectorAll("#sec-6 input.blank").forEach(function(inp){if(!inp.disabled){inp.value="";inp.classList.remove("correct","wrong");}});
+  try{if(typeof resetTimer==="function") resetTimer(2);}catch(e){}
+}
+try{window.initWortschatz=initWortschatz;window.wortschatzCheck=wortschatzCheck;window.checkWortschatzAllOk=checkWortschatzAllOk;window.showWortschatzLoesung=showWortschatzLoesung;window.resetWortschatz=resetWortschatz;}catch(e){}
+
+
 
 /* =========================================================
    NAVIGATION & TIMER
@@ -962,22 +1018,7 @@ function schreibSendenAlle() {
 
 var wsStarted = false;
 
-function initWortschatz() {
-  var container = document.getElementById('wortschatzContainer');
-  if (!container) return;
-  WORTSCHATZ.forEach(function(item, idx) {
-    var div = document.createElement('div');
-    div.className = 'luecken-item';
-    div.innerHTML =
-      '<div class="item-en">' + item.en + '</div>' +
-      '<div class="inputs-row">' +
-      '<input class="blank ws-artikel" type="text" id="ws-art-' + idx + '" placeholder="Artikel" autocomplete="off" spellcheck="false" oninput="checkWortschatz(' + idx + '); wsStart()">' +
-      '<input class="blank ws-wort" type="text" id="ws-wort-' + idx + '" placeholder="Nomen" autocomplete="off" spellcheck="false" oninput="checkWortschatz(' + idx + '); wsStart()">' +
-      '<input class="blank ws-plural" type="text" id="ws-pl-' + idx + '" placeholder="Plural" autocomplete="off" spellcheck="false" oninput="checkWortschatz(' + idx + '); wsStart()">' +
-      '</div>';
-    container.appendChild(div);
-  });
-}
+
 
 function wsStart() {
   if (!wsStarted) { wsStarted = true; startTimer(2); }
@@ -1020,15 +1061,7 @@ function showWortschatz() {
   stopTimer(2);
 }
 
-function resetWortschatz() {
-  wsStarted = false;
-  WORTSCHATZ.forEach(function(_, idx) {
-    ['ws-art-' + idx, 'ws-wort-' + idx, 'ws-pl-' + idx].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) { el.value = ''; el.classList.remove('correct', 'wrong'); }
-    });
-  });
-}
+
 
 /* =========================================================
    INIT
