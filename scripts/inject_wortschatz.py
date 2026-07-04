@@ -30,7 +30,11 @@ AMBIGUOUS_BUILDERS = ["initWortschatz", "buildVocab", "initVocab", "renderVocab"
                       # Datenarray wiederverwendet aus der Vorentlastung (VORENTLASTUNG), Buttons
                       # showWsLoesung()/resetWs(). VORENTLASTUNG bleibt als Datenquelle für
                       # highlightVocabInText() erhalten — nur initWs() selbst wird ersetzt.
-                      "initWs"]
+                      "initWs",
+                      # "vocab-grid"-Generation (Fund 2026-07-04: DE_B2_2073R) — Container
+                      # id="vocab-grid" (mit Bindestrich), Datenarray vocabItems, Buttons
+                      # vocabReset() (kein separater Lösungs-Button in dieser Generation).
+                      "vocabBuild"]
 # SAFE_HELPERS_TO_STRIP sind Check/Reset/Lösungs-Helfer, die praxisnah IMMER exklusiv zum
 # Wortschatz-Training-Tab gehören (ein einfacher Foto-Vorschau-Tab hat keine eigene Check-Logik).
 FUNCS_TO_STRIP = ["wortschatzCheck", "checkWortschatzAllOk",
@@ -40,7 +44,8 @@ FUNCS_TO_STRIP = ["wortschatzCheck", "checkWortschatzAllOk",
                   "showVocabLoesung", "vocabShowLoesung",
                   "vocabCheckAllOk",
                   "wortAlleZeigen", "wortReset",
-                  "resetWs", "checkWsAllDone"]
+                  "resetWs", "checkWsAllDone",
+                  "vocabReset"]
 
 
 def strip_func(s, name):
@@ -149,7 +154,9 @@ def process(path):
                           # zusätzlich als Wortschatz-Trainingsdaten wiederverwendet (initWs()).
                           # Sicher, weil Datavar-Auswahl den Körper des GEWONNENEN Builders
                           # (initWs) durchsucht — nie einen anderen Vorentlastungs-Tab.
-                          "VORENTLASTUNG"]
+                          "VORENTLASTUNG",
+                          # vocabItems (Fund 2026-07-04: DE_B2_2073R, vocabBuild()-Generation).
+                          "vocabItems"]
     # 1) Baufunktion zuerst identifizieren (Generationen: initWortschatz / buildVocab / initVocab /
     #    renderVocab / vocabInit) — ihr Körper ist die verlässliche Quelle für BEIDE, Container-Id
     #    UND Datenvariable. Kommen MEHRERE Kandidatennamen im selben File vor (Fund 2026-07-04:
