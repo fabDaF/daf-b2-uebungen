@@ -311,7 +311,7 @@ let m = html.match(/sbDragged\s*=\s*chip;\s*timerAutoStart\((\d+)\)/)
      || html.match(/onclick="show(?:Section|Tab)\((\d+)\)"[^>]{0,200}>[\s\S]{0,200}?Satzbau/);
 if (!m) { report.skip = 'SBTAB nicht ermittelbar'; out(); process.exit(0); }
 const cfg = fam === 'B'
-  ? { bank:'sb-bank-', row:'sb-row-', fb:'sb-fb-', caps:true,  click:false, tab:+m[1] }
+  ? { bank:'sb-bank-', row:'sb-row-', fb:'sb-fb-', caps:true,  click:true, tab:+m[1] } // click:true seit 2026-07-04 — iOS-Touch kann kein HTML5-DnD
   : { bank:'chips-',   row:'builder-', fb:'sfb-',  caps:false, click:true,  tab:+m[1] };
 const merged = [];
 data.forEach((ex, i) => {
