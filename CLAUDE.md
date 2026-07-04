@@ -142,6 +142,16 @@ Für Unter-Repos wie `htmlS/A2.1` genauso aus dem jeweiligen Repo-Root
 aufrufen. `COMMIT_BRANCH` und `COMMIT_REMOTE` lassen sich per env
 überschreiben.
 
+Seit 2026-07-04 ruft safe-commit.sh vor dem Commit automatisch
+`scripts/check_all.py` über die benannten HTML-Dateien auf — den
+Orchestrator aller `check_*`-Gates. Blockierende Gates (Quotes, Serif,
+Wortbank, Genus, Schreib-Padding, Pill-Buttons, fehlerhafte kanonische
+Lückentexte, Banner-Gesichter) stoppen den Commit; Backlog-Gates (Nav,
+schreib_last, Wortschatz) warnen nur. `SKIP_CHECKS=1` überspringt die
+Prüfung bewusst. Die „vor jedem Lektions-Commit laufen lassen"-Pflicht
+der einzelnen Gates ist damit strukturell erledigt statt
+erinnerungsbasiert.
+
 Die `warning: unable to unlink '.git/objects/*/tmp_obj_*'`-Meldungen
 sind kosmetisch — die Objekte liegen korrekt im Store.
 
@@ -222,11 +232,12 @@ Voraussetzung für Schritt 2 ist, dass der Codeberg-Token in der
 Sandbox-Credentials-Datei vorhanden ist (siehe Cowork-Sandbox-Setup
 oben). Auf dem Mac mit Keychain ist das ohnehin gegeben.
 
-Langfristig saubere Alternative (nicht eingerichtet, nur dokumentiert):
-eine eigene Domain wie `daf.frankburkert.de` mit DNS-Eintrag auf
-`fabdaf.github.io`. Im Ernstfall DNS-Update auf `fabbulos.codeberg.page`,
-keine Dashboard-Edits, keine Schüler-Kommunikation nötig. Ca. 10 EUR
-Domain pro Jahr, einmalig 30 Min Setup.
+Die eigene Domain ist seit 2026-05-27 eingerichtet: `daf.frankburkert-daf.de`
+(+ Sub-Subdomains a1/a2/b1/c1/materialien/architektur/lueckentexte/vertrag)
+zeigt per DNS auf GitHub Pages. Damit ist im Ernstfall auch der sauberste
+Recovery-Weg möglich: DNS-Update der Subdomains auf `fabbulos.codeberg.page`
+— keine Schüler-Kommunikation nötig, da die URLs gleich bleiben. Die
+Switch-Skripte oben bleiben als schneller Notfall-Weg bestehen.
 
 ## Lückentext braucht IMMER eine Wortbank (Pflicht, daf-kern §7)
 
@@ -649,6 +660,7 @@ Widerspruch gilt diese Datei; der Skill-Text wird über `skill-verwaltung` nachg
 - `scripts/check_genus_buttons.py` — Control-Button-Prüfung: blockt nicht-kanonische btn-show/btn-reset (vor Lektions-Commit); Reparateur `scripts/fix_genus_buttons.py`
 - `scripts/check_nav.py` — Nav-Header-Prüfung: blockt nicht-kanonische Nav (Variante C, vor Lektions-Commit); Normalisierer `scripts/fix_nav.py`, geteilte Wahrheit `scripts/nav_lib.py`
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
+- `scripts/check_all.py` — Orchestrator aller Gates (blockierend vs. Backlog-Warnung); wird von safe-commit.sh automatisch aufgerufen
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
   11-zu-9-Konsolidierung, warum die heutige Struktur so ist
 - `backup/INSTALL.md` — launchd-Backup-Aktivierung

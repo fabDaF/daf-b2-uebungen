@@ -1,6 +1,6 @@
 # fabDaF — Manifest (Übersicht)
 
-> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-05-27 08:22. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
+> **Automatisch generiert aus `MANIFEST.yaml`** am 2026-07-04 13:47. Diese Datei nicht direkt editieren — YAML ändern und `python3 scripts/render_manifest.py` erneut laufen lassen.
 
 Deutsch als Fremdsprache — Unterrichtsmaterialien und interaktive Übungen (Niveau A1–C2)
 
@@ -79,7 +79,7 @@ _Aktive B2-Lektionen (Root-Repo des Projekts; trägt auch MANIFEST.yaml). Zusät
 
 ### `daf-c1-uebungen`
 
-_C1-Lektionen-Repo. Im Dashboard als drei Sub-Kurse (C1.1, C1.2, C1.3) mit 23 Einheiten und 161 Lektionen verlinkt. Lokales Sub-Repo enthält aktuell nur 8 HTMLs — die übrigen Lektionen werden direkt auf GitHub Pages gehostet (siehe known_issue c1_local_subrepo_drift)._
+_C1-Lektionen-Repo. Im Dashboard als drei Sub-Kurse (C1.1, C1.2, C1.3) verlinkt. Lokales Sub-Repo ist seit 2026-07 vollständig (166 HTMLs)._
 
 - **Lokal:** `htmlS/C1`
 - **Remote:** https://github.com/fabDaF/daf-c1-uebungen.git
@@ -144,10 +144,6 @@ _Privatschüler-Material zu Vertragssprache, Komposita/FVG und Geschäftskommuni
 - **GitHub Pages:** aktiv unter https://vertrag.daf.frankburkert-daf.de/
 - **Dashboard basis:** `https://vertrag.daf.frankburkert-daf.de/`
 - **Erwartung:** ≥3 tracked files, ≥3 HTML
-
-## Bekannte offene Punkte
-
-Jeder Eintrag hier ist ein dokumentierter, aber noch nicht behobener Zustand. `verify_manifest.py` wertet sie nicht als Fehler, solange sie hier stehen. Sobald behoben → aus `MANIFEST.yaml` entfernen und neu rendern.
 
 ## Verworfene Repos
 
