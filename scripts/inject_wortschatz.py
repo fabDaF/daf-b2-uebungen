@@ -21,7 +21,9 @@ FUNCS_TO_STRIP = ["initWortschatz", "wortschatzCheck", "checkWortschatzAllOk",
                   # B2-Root-"vocab"-Generation (Fund 2026-07-04)
                   "buildVocab", "initVocab", "renderVocab", "vocabLiveCheck",
                   "vocabCheck", "vocabReset", "resetVocab", "checkVocabAllDone",
-                  "showVocabLoesung", "vocabShowLoesung"]
+                  "showVocabLoesung", "vocabShowLoesung",
+                  # A1-"vocabInit"-Generation (Fund 2026-07-04, DE_A1_1113G/1123G)
+                  "vocabInit", "vocabCheckAllOk"]
 
 
 def strip_func(s, name):
@@ -127,14 +129,14 @@ def process(path):
     # 1) Datenvariable
     datavar = None
     for v in ["WORTSCHATZ", "WS_DATA", "WORTSCHATZ_DATA", "VOCAB_DATA", "VOKABELN",
-              "vocabData"]:
+              "vocabData", "WORT_DATA"]:
         if re.search(r"\b(var|const|let)\s+" + v + r"\s*=\s*\[", s):
             datavar = v; break
     if not datavar:
         return "ABBRUCH: keine Wortschatz-Datenvariable gefunden"
     # 2) Container-Id aus alter Baufunktion (Generationen: initWortschatz / buildVocab / initVocab / renderVocab)
     old = ""
-    for builder in ["initWortschatz", "buildVocab", "initVocab", "renderVocab"]:
+    for builder in ["initWortschatz", "buildVocab", "initVocab", "renderVocab", "vocabInit"]:
         old = func_body(s, builder)
         if old:
             break
@@ -209,6 +211,22 @@ def process(path):
         return m.group(0)
 
     s = re.sub(r'onclick="([^"]*[Vv]ocab[^"]*)"', _norm_compound, s)
+    # 5c) Fehlende Steuerleiste ergänzen (Direct-Feedback-Altbestand ohne jeden Lösungen/Neustart-
+    #     Button, Fund 2026-07-04: A1 WORT_DATA-Generation). Franks Grundsatz: JEDER Wortschatz-Tab
+    #     bekommt die kanonischen Pill-Buttons — keine Ausnahme für "nur Live-Feedback"-Alt-Layouts.
+    #     Nur einfügen, wenn nach der Normalisierung oben KEIN showWortschatzLoesung()-Aufruf existiert.
+    if not re.search(r'onclick="\s*showWortschatzLoesung\(\)\s*"', s):
+        pill_bar = ('<div style="display:flex;gap:8px;margin:0 0 14px;">'
+                    '<button onclick="showWortschatzLoesung()" style="background:#f5f7ff;border:1px solid #c5cff5;'
+                    'border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">'
+                    '\U0001f4a1 Lösungen</button>'
+                    '<button onclick="resetWortschatz()" style="background:#f5f7ff;border:1px solid #c5cff5;'
+                    'border-radius:8px;padding:6px 16px;font-size:0.85em;color:#667eea;cursor:pointer;font-weight:600;">'
+                    '↺ Neustart</button></div>\n')
+        s3 = s.replace('<div id="wortschatzContainer"', pill_bar + '<div id="wortschatzContainer"', 1)
+        if s3 == s:
+            return "ABBRUCH: Container-Tag fuer Pill-Bar-Insertion nicht gefunden"
+        s = s3
     # 6) alte Funktionen entfernen — feste Liste + alle Wortschatz-Lösungs-Varianten (außer der kanonischen)
     for fn in FUNCS_TO_STRIP:
         s = strip_func(s, fn)
