@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>fabDaF – Kursübersicht</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
   <style>
     :root {
       --a11-color: #D4A574;
@@ -585,6 +586,18 @@
       .btn-wa { padding: 7px 11px; font-size: 0.78rem; }
     }
   </style>
+<style>
+/* FB-FORTSCHRITT: Erledigt-Markierung + Zuletzt-geöffnet (lokal, localStorage) */
+.karte.fb-done { opacity: 0.62; }
+.karte.fb-done .karte-titel { text-decoration: line-through; text-decoration-color: #27ae60; text-decoration-thickness: 2px; }
+.fb-done-btn { border: 1px solid #d5dbe8; background: #f7f9fc; color: #98a2b3; border-radius: 8px; padding: 7px 11px; cursor: pointer; font-size: 0.82rem; line-height: 1; }
+.fb-done-btn.on { background: #27ae60; border-color: #27ae60; color: #fff; }
+#fbZuletzt { max-width: 1100px; margin: 0 auto 14px; padding: 10px 14px; background: rgba(255,255,255,0.92); border-radius: 10px; display: none; align-items: center; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+#fbZuletzt.show { display: flex; }
+#fbZuletzt .fb-z-label { font-weight: 600; color: #667eea; font-size: 0.85rem; }
+#fbZuletzt a.fb-z-item { background: #eef0fb; color: #4a5fd4; text-decoration: none; padding: 6px 12px; border-radius: 999px; font-size: 0.82rem; }
+#fbZuletzt a.fb-z-item:hover { background: #e1e5fb; }
+</style>
 </head>
 <body>
 
@@ -2856,5 +2869,53 @@ render();
 })();
 </script>
 
+<script>
+// FB-FORTSCHRITT: Erledigt-Häkchen pro Karte + „Zuletzt geöffnet“-Zeile. Rein additiv,
+// Daten nur im localStorage des jeweiligen Browsers (fabdafDone / fabdafZuletzt).
+(function(){
+  var DONE_KEY='fabdafDone', LAST_KEY='fabdafZuletzt';
+  function load(k,d){ try{ return JSON.parse(localStorage.getItem(k)) || d; }catch(e){ return d; } }
+  function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  var done = load(DONE_KEY, {});
+  document.querySelectorAll('.karte').forEach(function(karte){
+    var akt = karte.querySelector('.karte-aktionen');
+    if (!akt || akt.querySelector('.fb-done-btn')) return;
+    var file = karte.getAttribute('data-file') || '';
+    var btn = document.createElement('button');
+    btn.className='fb-done-btn'; btn.type='button'; btn.textContent='\u2713';
+    btn.title='Als erledigt markieren';
+    if (done[file]) { btn.classList.add('on'); karte.classList.add('fb-done'); }
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (done[file]) { delete done[file]; btn.classList.remove('on'); karte.classList.remove('fb-done'); }
+      else { done[file] = new Date().toISOString().slice(0,10); btn.classList.add('on'); karte.classList.add('fb-done'); }
+      save(DONE_KEY, done);
+    });
+    akt.appendChild(btn);
+  });
+  var strip = document.createElement('div'); strip.id='fbZuletzt';
+  var label = document.createElement('span'); label.className='fb-z-label';
+  label.textContent='\u23F1 Zuletzt ge\u00F6ffnet:'; strip.appendChild(label);
+  var main = document.getElementById('main');
+  main.parentNode.insertBefore(strip, main);
+  function renderStrip(){
+    var list = load(LAST_KEY, []);
+    strip.querySelectorAll('a').forEach(function(a){ a.remove(); });
+    list.slice(0,3).forEach(function(it){
+      var a=document.createElement('a'); a.className='fb-z-item'; a.href=it.url;
+      a.target='_blank'; a.textContent=it.titel; strip.appendChild(a);
+    });
+    strip.classList.toggle('show', list.length>0);
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a.btn-oeffnen'); if(!a) return;
+    var karte = a.closest('.karte'); if(!karte) return;
+    var it = { titel: karte.getAttribute('data-titel')||'', url: a.href };
+    var list = load(LAST_KEY, []).filter(function(x){ return x.url !== it.url; });
+    list.unshift(it); save(LAST_KEY, list.slice(0,5)); renderStrip();
+  }, true);
+  renderStrip();
+})();
+</script>
 </body>
 </html>
