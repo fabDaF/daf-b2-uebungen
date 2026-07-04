@@ -36,6 +36,7 @@ BLOCKING = [
     "check_lueckentext.py",   # blockt nur kanonisch-aber-fehlerhaft (ohne --strict)
     "check_banner_faces.py",  # überspringt sich selbst ohne opencv (Exit 0)
     "check_container.py",     # vorzeitig schließender .container (Fund 2026-07-04)
+    "check_hilfebox.py",      # verbotene Aufgaben-/Tipp-Kästen (Frank-Regel, 2026-07-04)
 ]
 
 WARN = [

@@ -53,11 +53,8 @@ def genus_cats(text):
 
 def section_html(words, has_helpbox, has_controlbar, timer_idx, sec_id):
     box_cls = "help-box" if has_helpbox else "hilfe-box"
-    helpbox = ('<div class="%s"><strong>Genus üben:</strong> Ziehe jedes Wort in die richtige Kategorie — '
-               '<span style="color:#1565c0;font-weight:700;">der</span>, '
-               '<span style="color:#ad1457;font-weight:700;">die</span>, '
-               '<span style="color:#1b5e20;font-weight:700;">das</span> oder '
-               '<span style="color:#5e35b1;font-weight:700;">Plural</span>. Du bekommst sofort Feedback.</div>') % box_cls
+    # Frank-Regel 2026-07-04: KEINE Anweisungs-Kästen mehr erzeugen (check_hilfebox.py blockt sie).
+    helpbox = ''  # ehemaliger „Genus üben:"-Kasten entfernt
     kats = (
       '<div class="genus-kategorien">'
       '<div class="genus-kat kat-der"><div class="kat-title">der</div><div class="genus-drop" id="drop-der" data-cat="der"></div></div>'
