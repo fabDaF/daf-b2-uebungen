@@ -126,20 +126,34 @@ def process(path):
     s = io.open(path, encoding="utf-8").read()
     if "FB-WORTSCHATZ-KANON" in s:
         return "skip (schon kanonisch-injiziert)"
-    # 1) Datenvariable
-    datavar = None
-    for v in ["WORTSCHATZ", "WS_DATA", "WORTSCHATZ_DATA", "VOCAB_DATA", "VOKABELN",
-              "vocabData", "WORT_DATA"]:
-        if re.search(r"\b(var|const|let)\s+" + v + r"\s*=\s*\[", s):
-            datavar = v; break
-    if not datavar:
-        return "ABBRUCH: keine Wortschatz-Datenvariable gefunden"
-    # 2) Container-Id aus alter Baufunktion (Generationen: initWortschatz / buildVocab / initVocab / renderVocab)
+    DATAVAR_CANDIDATES = ["WORTSCHATZ", "WS_DATA", "WORTSCHATZ_DATA", "VOCAB_DATA", "VOKABELN",
+                          "vocabData", "WORT_DATA"]
+    # 1) Baufunktion zuerst identifizieren (Generationen: initWortschatz / buildVocab / initVocab /
+    #    renderVocab / vocabInit) — ihr Körper ist die verlässliche Quelle für BEIDE, Container-Id
+    #    UND Datenvariable.
     old = ""
     for builder in ["initWortschatz", "buildVocab", "initVocab", "renderVocab", "vocabInit"]:
         old = func_body(s, builder)
         if old:
             break
+    # 2) Datenvariable: BEVORZUGT aus dem Bau-Funktionskörper lesen — schützt vor Verwechslung mit
+    #    einem gleichnamigen Array eines ANDEREN Tabs (Fund 2026-07-04: DE_A2_2051V/2061V haben
+    #    sowohl eine Vorentlastungs-Liste `WORTSCHATZ` für Tab "Wörter" als auch `WS_DATA` für den
+    #    echten Wortschatz-Training-Tab — ein globaler Scan hätte die FALSCHE Liste erwischt und
+    #    2 Wörter verloren, die nur in WS_DATA stehen). Fallback: globaler Scan wie bisher, falls
+    #    kein Bau-Funktionskörper gefunden wurde.
+    datavar = None
+    if old:
+        referenced = set(re.findall(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\.\s*forEach", old))
+        for v in DATAVAR_CANDIDATES:
+            if v in referenced and re.search(r"\b(var|const|let)\s+" + v + r"\s*=\s*\[", s):
+                datavar = v; break
+    if not datavar:
+        for v in DATAVAR_CANDIDATES:
+            if re.search(r"\b(var|const|let)\s+" + v + r"\s*=\s*\[", s):
+                datavar = v; break
+    if not datavar:
+        return "ABBRUCH: keine Wortschatz-Datenvariable gefunden"
     cont_id = None
     if old:
         # SICHERHEIT: Nicht-Standard-Wortschatz mit MEHREREN Render-Containern (z.B. Vergleich
@@ -150,17 +164,36 @@ def process(path):
                                           or "vokab" in g.lower() or "wortschatz" in g.lower())]
         if len(grid_like) > 1:
             return "ABBRUCH: mehrere Render-Container (" + ",".join(sorted(grid_like)) + ") — Nicht-Standard, manuell"
-        mm = re.search(r"getElementById\(\s*['\"]([\w-]+)['\"]\s*\)", old)
-        if mm: cont_id = mm.group(1)
+        if len(grid_like) == 1:
+            # Eindeutiger Grid/Container-Kandidat — NICHT den ersten getElementById-Treffer
+            # im Fließtext nehmen (der ist oft ein Timer-Reset VOR dem eigentlichen Container,
+            # Fund 2026-07-04: DE_A2_2051V/2061V — erster Treffer war 'timer5', nicht 'vocabGrid').
+            cont_id = grid_like[0]
+        else:
+            mm = re.search(r"getElementById\(\s*['\"]([\w-]+)['\"]\s*\)", old)
+            if mm: cont_id = mm.group(1)
     if not cont_id:
         for cand in ["wortschatzContainer", "wsGrid", "vocabGrid", "wortschatzGrid", "wsContainer", "vocabContainer"]:
             if 'id="' + cand + '"' in s: cont_id = cand; break
     if not cont_id:
         return "ABBRUCH: Render-Container nicht gefunden"
-    # 3) Section-Id + Timer-Index aus Container-Umfeld
-    cidx = s.find('id="' + cont_id + '"')
-    # Section-ID: letzte sec-... VOR dem Container (ganzer Vortext — Banner-Base64-robust)
-    sec_matches = list(re.finditer(r'id="(sec-[\w-]+)"', s[:cidx]))
+    # 3) Container-Tag(e) lokalisieren. NORMALFALL: genau ein Treffer. Bei doppelter ID (Bug in
+    #    der Quelle, Fund 2026-07-04: DE_A2_2051V/2061V hatten id="vocabGrid" sowohl im
+    #    Vorentlastungs-Tab "Wörter" als auch im Wortschatz-Training-Tab, wodurch getElementById
+    #    immer nur die ERSTE traf) NICHT den ersten Treffer nehmen — der Wortschatz-Tab liegt
+    #    konventionell spät im Dokument (Tail-Reihenfolge Genus→Wortschatz→Schreiben); die dem
+    #    Dateiende nächste Instanz ist die Wortschatz-Training-Instanz.
+    cont_tag_re = re.compile(r'<div[^>]*id="' + re.escape(cont_id) + r'"[^>]*>\s*</div>')
+    cont_matches = list(cont_tag_re.finditer(s))
+    if not cont_matches:
+        return "ABBRUCH: Container-Tag nicht ersetzbar (id=" + cont_id + ")"
+    target = cont_matches[-1]
+    cidx = target.start()
+    # Section-ID: letzte sec-... VOR dem Container (ganzer Vortext — Banner-Base64-robust).
+    # Generationen variieren: "sec-1"/"sec-genus" (Bindestrich) ODER "sec1".."sec9" (ohne
+    # Bindestrich, Fund 2026-07-04: A2.1). Beide Formen zulassen, aber nicht wahllos jedes
+    # "sec…"-Präfix (kein False-Positive auf z.B. "search…").
+    sec_matches = list(re.finditer(r'id="(sec\d+|sec-[\w-]+)"', s[:cidx]))
     if not sec_matches:
         return "ABBRUCH: Section-ID nicht gefunden"
     secid = sec_matches[-1].group(1)
@@ -170,13 +203,10 @@ def process(path):
     tm = re.search(r'timer-(\d+)', env) or re.search(r'timerResetOne\((\d+)\)', env) or re.search(r'resetTimer\((\d+)\)', env)
     if tm: tidx = int(tm.group(1))
     else:
-        mnum = re.match(r'sec-(\d+)$', secid); tidx = int(mnum.group(1)) if mnum else 6
-    # 4) Container normalisieren
-    s2 = re.sub(r'<div[^>]*id="' + re.escape(cont_id) + r'"[^>]*>\s*</div>',
-                '<div id="wortschatzContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>', s, count=1)
-    if s2 == s and cont_id != "wortschatzContainer":
-        return "ABBRUCH: Container-Tag nicht ersetzbar (id=" + cont_id + ")"
-    s = s2
+        mnum = re.match(r'sec-?(\d+)$', secid); tidx = int(mnum.group(1)) if mnum else 6
+    # 4) Container normalisieren — NUR die als Ziel identifizierte Instanz ersetzen (bei
+    #    Duplikaten bleibt die andere Instanz unangetastet, z.B. der Vorentlastungs-Grid).
+    s = s[:target.start()] + '<div id="wortschatzContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>' + s[target.end():]
     # 5) Steuerleisten-Buttons normalisieren: JEDE Wortschatz-Lösungen-Variante (Name enthält
     #    "loesung/lösung" UND "wortschatz/ws") → showWortschatzLoesung(). Andere Tabs (showZuoLoesung,
     #    showLueckeLoesung, showGenusLoesung) enthalten kein wortschatz/ws → unberührt.
