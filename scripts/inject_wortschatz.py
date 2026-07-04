@@ -22,7 +22,15 @@ import re, sys, io
 # identifizierte Funktion (Variable `builder` in process()) wird gestrippt/umbenannt — NIE
 # pauschal alle Namen dieser Liste, sonst wird der falsche Tab zerstört.
 AMBIGUOUS_BUILDERS = ["initWortschatz", "buildVocab", "initVocab", "renderVocab", "vocabInit",
-                      "buildWortschatz", "renderWortschatz"]
+                      "buildWortschatz", "renderWortschatz",
+                      # "wortGrid"-Generation (Fund 2026-07-04: DE_B1_1036R) — Container id="wortGrid",
+                      # Datenarray WORT_DATA, Buttons wortAlleZeigen()/wortReset().
+                      "wortRender",
+                      # "initWs"-Generation (Fund 2026-07-04: DE_B1_1063R) — Container id="wsContainer",
+                      # Datenarray wiederverwendet aus der Vorentlastung (VORENTLASTUNG), Buttons
+                      # showWsLoesung()/resetWs(). VORENTLASTUNG bleibt als Datenquelle für
+                      # highlightVocabInText() erhalten — nur initWs() selbst wird ersetzt.
+                      "initWs"]
 # SAFE_HELPERS_TO_STRIP sind Check/Reset/Lösungs-Helfer, die praxisnah IMMER exklusiv zum
 # Wortschatz-Training-Tab gehören (ein einfacher Foto-Vorschau-Tab hat keine eigene Check-Logik).
 FUNCS_TO_STRIP = ["wortschatzCheck", "checkWortschatzAllOk",
@@ -30,7 +38,9 @@ FUNCS_TO_STRIP = ["wortschatzCheck", "checkWortschatzAllOk",
                   "wsCheck", "buildWsCard",
                   "vocabLiveCheck", "vocabCheck", "vocabReset", "resetVocab", "checkVocabAllDone",
                   "showVocabLoesung", "vocabShowLoesung",
-                  "vocabCheckAllOk"]
+                  "vocabCheckAllOk",
+                  "wortAlleZeigen", "wortReset",
+                  "resetWs", "checkWsAllDone"]
 
 
 def strip_func(s, name):
@@ -134,7 +144,12 @@ def process(path):
     if "FB-WORTSCHATZ-KANON" in s:
         return "skip (schon kanonisch-injiziert)"
     DATAVAR_CANDIDATES = ["WORTSCHATZ", "WS_DATA", "WORTSCHATZ_DATA", "VOCAB_DATA", "VOKABELN",
-                          "vocabData", "WORT_DATA"]
+                          "vocabData", "WORT_DATA",
+                          # VORENTLASTUNG wird in MANCHEN Dateien (Fund 2026-07-04: DE_B1_1063R)
+                          # zusätzlich als Wortschatz-Trainingsdaten wiederverwendet (initWs()).
+                          # Sicher, weil Datavar-Auswahl den Körper des GEWONNENEN Builders
+                          # (initWs) durchsucht — nie einen anderen Vorentlastungs-Tab.
+                          "VORENTLASTUNG"]
     # 1) Baufunktion zuerst identifizieren (Generationen: initWortschatz / buildVocab / initVocab /
     #    renderVocab / vocabInit) — ihr Körper ist die verlässliche Quelle für BEIDE, Container-Id
     #    UND Datenvariable. Kommen MEHRERE Kandidatennamen im selben File vor (Fund 2026-07-04:
@@ -196,7 +211,7 @@ def process(path):
             mm = re.search(r"getElementById\(\s*['\"]([\w-]+)['\"]\s*\)", old)
             if mm: cont_id = mm.group(1)
     if not cont_id:
-        for cand in ["wortschatzContainer", "wsGrid", "vocabGrid", "wortschatzGrid", "wsContainer", "vocabContainer"]:
+        for cand in ["wortschatzContainer", "wsGrid", "vocabGrid", "wortschatzGrid", "wsContainer", "vocabContainer", "wortGrid"]:
             if 'id="' + cand + '"' in s: cont_id = cand; break
     if not cont_id:
         return "ABBRUCH: Render-Container nicht gefunden"
