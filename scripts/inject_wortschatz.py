@@ -17,7 +17,11 @@ import re, sys, io
 
 FUNCS_TO_STRIP = ["initWortschatz", "wortschatzCheck", "checkWortschatzAllOk",
                   "showWortschatzLoesung", "showWsLoesung", "resetWortschatz",
-                  "buildWortschatz", "renderWortschatz", "wsCheck", "buildWsCard"]
+                  "buildWortschatz", "renderWortschatz", "wsCheck", "buildWsCard",
+                  # B2-Root-"vocab"-Generation (Fund 2026-07-04)
+                  "buildVocab", "initVocab", "renderVocab", "vocabLiveCheck",
+                  "vocabCheck", "vocabReset", "resetVocab", "checkVocabAllDone",
+                  "showVocabLoesung", "vocabShowLoesung"]
 
 
 def strip_func(s, name):
@@ -71,7 +75,7 @@ def inject_css(s):
     return s[:i] + CSS_BLOCK + s[i:]
 
 
-def canonical_block(secid, tidx, datavar):
+def canonical_block(secid, tidx, datavar, stop_fn="stopTimer", reset_fn="resetTimer"):
     return ('\n/* FB-WORTSCHATZ-KANON — deterministisch, schema-adaptiv (inject_wortschatz.py) */\n'
 'function initWortschatz(){\n'
 '  var c=document.getElementById("wortschatzContainer"); if(!c) return; c.innerHTML="";\n'
@@ -103,15 +107,15 @@ def canonical_block(secid, tidx, datavar):
 'function checkWortschatzAllOk(){\n'
 '  var ins=document.querySelectorAll("#' + secid + ' input.blank");\n'
 '  var ok=ins.length>0 && Array.from(ins).every(function(i){return i.disabled||i.classList.contains("correct");});\n'
-'  if(ok && typeof stopTimer==="function") stopTimer(' + str(tidx) + ');\n'
+'  if(ok){try{if(typeof ' + stop_fn + '==="function") ' + stop_fn + '(' + str(tidx) + ');}catch(e){}}\n'
 '}\n'
 'function showWortschatzLoesung(){\n'
-'  if(typeof stopTimer==="function") stopTimer(' + str(tidx) + ');\n'
+'  try{if(typeof ' + stop_fn + '==="function") ' + stop_fn + '(' + str(tidx) + ');}catch(e){}\n'
 '  document.querySelectorAll("#' + secid + ' input.blank").forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add("correct");inp.classList.remove("wrong");});\n'
 '}\n'
 'function resetWortschatz(){\n'
 '  document.querySelectorAll("#' + secid + ' input.blank").forEach(function(inp){if(!inp.disabled){inp.value="";inp.classList.remove("correct","wrong");}});\n'
-'  if(typeof resetTimer==="function") resetTimer(' + str(tidx) + ');\n'
+'  try{if(typeof ' + reset_fn + '==="function") ' + reset_fn + '(' + str(tidx) + ');}catch(e){}\n'
 '}\n'
 'try{window.initWortschatz=initWortschatz;window.wortschatzCheck=wortschatzCheck;window.checkWortschatzAllOk=checkWortschatzAllOk;window.showWortschatzLoesung=showWortschatzLoesung;window.resetWortschatz=resetWortschatz;}catch(e){}\n')
 
@@ -122,13 +126,18 @@ def process(path):
         return "skip (schon kanonisch-injiziert)"
     # 1) Datenvariable
     datavar = None
-    for v in ["WORTSCHATZ", "WS_DATA", "WORTSCHATZ_DATA", "VOCAB_DATA", "VOKABELN"]:
+    for v in ["WORTSCHATZ", "WS_DATA", "WORTSCHATZ_DATA", "VOCAB_DATA", "VOKABELN",
+              "vocabData"]:
         if re.search(r"\b(var|const|let)\s+" + v + r"\s*=\s*\[", s):
             datavar = v; break
     if not datavar:
         return "ABBRUCH: keine Wortschatz-Datenvariable gefunden"
-    # 2) Container-Id aus alter initWortschatz
-    old = func_body(s, "initWortschatz")
+    # 2) Container-Id aus alter Baufunktion (Generationen: initWortschatz / buildVocab / initVocab / renderVocab)
+    old = ""
+    for builder in ["initWortschatz", "buildVocab", "initVocab", "renderVocab"]:
+        old = func_body(s, builder)
+        if old:
+            break
     cont_id = None
     if old:
         # SICHERHEIT: Nicht-Standard-Wortschatz mit MEHREREN Render-Containern (z.B. Vergleich
@@ -142,7 +151,7 @@ def process(path):
         mm = re.search(r"getElementById\(\s*['\"]([\w-]+)['\"]\s*\)", old)
         if mm: cont_id = mm.group(1)
     if not cont_id:
-        for cand in ["wortschatzContainer", "wsGrid", "vocabGrid", "wortschatzGrid", "wsContainer"]:
+        for cand in ["wortschatzContainer", "wsGrid", "vocabGrid", "wortschatzGrid", "wsContainer", "vocabContainer"]:
             if 'id="' + cand + '"' in s: cont_id = cand; break
     if not cont_id:
         return "ABBRUCH: Render-Container nicht gefunden"
@@ -169,23 +178,55 @@ def process(path):
     # 5) Steuerleisten-Buttons normalisieren: JEDE Wortschatz-Lösungen-Variante (Name enthält
     #    "loesung/lösung" UND "wortschatz/ws") → showWortschatzLoesung(). Andere Tabs (showZuoLoesung,
     #    showLueckeLoesung, showGenusLoesung) enthalten kein wortschatz/ws → unberührt.
+    def _ws_token(n):
+        return "wortschatz" in n or "ws" in n or "vocab" in n or "vokab" in n
+
     def _is_ws_loesung(name):
         n = name.lower()
-        return ("loesung" in n or "lösung" in n) and ("wortschatz" in n or "ws" in n)
+        return ("loesung" in n or "lösung" in n) and _ws_token(n)
+
+    def _is_ws_reset(name):
+        n = name.lower()
+        return "reset" in n and _ws_token(n)
 
     def _norm_onclick(m):
-        return 'onclick="showWortschatzLoesung()"' if _is_ws_loesung(m.group(1)) else m.group(0)
+        if _is_ws_loesung(m.group(1)):
+            return 'onclick="showWortschatzLoesung()"'
+        if _is_ws_reset(m.group(1)):
+            return 'onclick="resetWortschatz()"'
+        return m.group(0)
 
     s = re.sub(r'onclick="\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*"', _norm_onclick, s)
+    # 5b) Compound-Onclicks der vocab-Generation (z.B. "resetVocab(); timerResetOne(3);" oder
+    #     "showVocabLoesung(4)") — die referenzierten Funktionen werden gleich gestrippt,
+    #     der Handler wäre tot. Auf die kanonischen Handler normalisieren (Fund 2026-07-04).
+    def _norm_compound(m):
+        val = m.group(1)
+        if re.search(r'\b(showVocab\w*|vocabShow\w*)\s*\(', val):
+            return 'onclick="showWortschatzLoesung()"'
+        if re.search(r'\b(resetVocab|vocabReset)\s*\(', val):
+            return 'onclick="resetWortschatz()"'
+        return m.group(0)
+
+    s = re.sub(r'onclick="([^"]*[Vv]ocab[^"]*)"', _norm_compound, s)
     # 6) alte Funktionen entfernen — feste Liste + alle Wortschatz-Lösungs-Varianten (außer der kanonischen)
     for fn in FUNCS_TO_STRIP:
         s = strip_func(s, fn)
     for fn in set(re.findall(r'function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(', s)):
         if _is_ws_loesung(fn) and fn != "showWortschatzLoesung":
             s = strip_func(s, fn)
+    # 6b) Verwaiste Aufrufe gestrippter Baufunktionen (z.B. `initVocab();` in der
+    #     Init-Sequenz) auf den Kanon umbiegen — sonst ReferenceError (Fund 2026-07-04).
+    s = re.sub(r'\b(initVocab|buildVocab|renderVocab|buildWortschatz|renderWortschatz)\s*\(\s*\)', 'initWortschatz()', s)
     # 7) kanonischen Block DIREKT NACH dem Daten-Array einfügen (gleicher <script>-Block
     #    wie der initWortschatz()-Aufruf — sonst ReferenceError über Block-Grenzen hinweg).
-    blk = canonical_block(secid, tidx, datavar)
+    # Timer-Funktionsnamen der Datei übernehmen (Lehre: stopTimer vs timerStop,
+    # resetTimer vs timerResetOne — hardcodierte Namen laufen sonst ins Leere).
+    stop_fn = "stopTimer" if re.search(r"function\s+stopTimer\b", s) else (
+        "timerStop" if re.search(r"function\s+timerStop\b", s) else "stopTimer")
+    reset_fn = "resetTimer" if re.search(r"function\s+resetTimer\b", s) else (
+        "timerResetOne" if re.search(r"function\s+timerResetOne\b", s) else "resetTimer")
+    blk = canonical_block(secid, tidx, datavar, stop_fn, reset_fn)
     dm = re.search(r"(?:var|const|let)\s+" + datavar + r"\s*=\s*\[", s)
     if not dm: return "ABBRUCH: Daten-Array-Start nicht gefunden"
     k = dm.end() - 1; depth = 0; end = None
