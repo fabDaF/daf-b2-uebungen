@@ -177,6 +177,16 @@ input.blank.no { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c
 .wortbank-chip { background:white; border:2px solid #667eea; color:#667eea; padding:5px 12px; border-radius:14px; font-weight:500; font-size:0.9em; user-select:none; }
 .wortbank-chip.used { opacity:0.35; text-decoration:line-through; }
 
+
+/* FB-WORTSCHATZ-KANON-CSS — skill-konforme Karten-Optik, NUR im Wortschatz-Tab (überschreibt abweichende Datei-CSS, Lückentext bleibt unberührt) */
+#wortschatzContainer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#wortschatzContainer .luecken-item,#wortschatzContainer .luecke-item{background:#f8f9ff;border:1px solid #dde3ff;border-left:4px solid #667eea;border-radius:10px;padding:12px 16px;margin:0;display:block;}
+#wortschatzContainer .luecken-item>div:first-child,#wortschatzContainer .luecke-item>div:first-child,#wortschatzContainer .ws-en{font-weight:700;color:#667eea;margin-bottom:8px;font-size:1.05em;}
+#wortschatzContainer input.blank{border:none;border-bottom:2px solid #667eea;border-radius:0;background:#fff;padding:4px 6px;outline:none;font-family:inherit;font-size:0.95em;}
+#wortschatzContainer input.blank:focus{border-bottom-color:#764ba2;}
+#wortschatzContainer input.blank.correct{border-bottom-color:#27ae60;background:#e8f8f0;}
+#wortschatzContainer input.blank.wrong{border-bottom-color:#e74c3c;background:#fdeaea;}
+@media(max-width:640px){#wortschatzContainer{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -334,7 +344,7 @@ input.blank.no { border-bottom-color: #e74c3c; background: #fdeaea; color: #e74c
       <span>🏆 Best: <span id="best-5">--:--</span></span>
     </div>
   </div>
-  <div id="wortschatzContainer"></div>
+  <div id="wortschatzContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
 </div>
 
 <div class="author-footer">
@@ -672,35 +682,53 @@ function initSatzbau() {
 
 /* ============ Wortschatz ============ */
 var WORTSCHATZ = [{"id": 1, "type": "n", "en": "💭 the question (as topic)", "artikel": "die", "de": "Frage", "plural": "Fragen"}, {"id": 2, "type": "n", "en": "📜 the disposal", "artikel": "die", "de": "Verfügung", "plural": "Verfügungen"}, {"id": 3, "type": "n", "en": "🗣️ the expression", "artikel": "der", "de": "Ausdruck", "plural": "Ausdrücke"}, {"id": 4, "type": "n", "en": "⚖️ the decision", "artikel": "die", "de": "Entscheidung", "plural": "Entscheidungen"}, {"id": 5, "type": "n", "en": "💡 the suggestion", "artikel": "der", "de": "Vorschlag", "plural": "Vorschläge"}, {"id": 6, "type": "n", "en": "🔑 the solution", "artikel": "die", "de": "Lösung", "plural": "Lösungen"}, {"id": 7, "type": "n", "en": "👋 the farewell", "artikel": "der", "de": "Abschied", "plural": "Abschiede"}, {"id": 8, "type": "n", "en": "❌ the rejection", "artikel": "die", "de": "Ablehnung", "plural": "Ablehnungen"}, {"id": 9, "type": "n", "en": "⚡ the force / power", "artikel": "die", "de": "Kraft", "plural": "Kräfte"}, {"id": 10, "type": "n", "en": "🔍 the consideration", "artikel": "der", "de": "Betracht", "plural": "–"}];
-function initWortschatz() {
-  var c = document.getElementById('wortschatzContainer');
-  c.innerHTML = WORTSCHATZ.map(function(w, i) {
-    var artW = 7;
-    var wordW = Math.max(w.de.length, 4) + 4;
-    var plW = Math.max(w.plural.length, 7) + 4;
-    var plDis = (w.plural === '–') ? 'disabled' : 'placeholder="Plural"';
-    return '<div class="luecken-item"><div class="ws-prompt">' + w.en + '</div>' +
-           '<div class="ws-inputs">' +
-           '<input class="blank" id="ws-a-'+i+'" placeholder="Artikel" style="width:'+artW+'ch;" oninput="wortschatzCheck('+i+')" autocomplete="off" data-ans="'+w.artikel+'">' +
-           '<input class="blank" id="ws-w-'+i+'" placeholder="Wort" style="width:'+wordW+'ch;" oninput="wortschatzCheck('+i+')" autocomplete="off" data-ans="'+w.de+'">' +
-           '<input class="blank" id="ws-p-'+i+'" '+plDis+' style="width:'+plW+'ch;" oninput="wortschatzCheck('+i+')" autocomplete="off" data-ans="'+w.plural+'">' +
-           '</div></div>';
-  }).join('');
-  WORTSCHATZ.forEach(function(w, i) {
-    if (w.plural === '–') { var el = document.getElementById('ws-p-'+i); if (el) { el.value = '–'; el.classList.add('ok'); } }
+
+/* FB-WORTSCHATZ-KANON — deterministisch, schema-adaptiv (inject_wortschatz.py) */
+function initWortschatz(){
+  var c=document.getElementById("wortschatzContainer"); if(!c) return; c.innerHTML="";
+  WORTSCHATZ.forEach(function(item){
+    var artikel=(item.artikel!==undefined)?item.artikel:(item.art||"");
+    var de=(item.de!==undefined)?item.de:(item.wort||item.word||"");
+    var plural=(item.plural!==undefined)?item.plural:(item.pl||"");
+    var en=(item.en!==undefined)?item.en:(item.prompt||item.frage||"");
+    var type=item.type||(artikel?"n":"p");
+    var row=document.createElement("div"); row.className="luecken-item"; row.style.marginBottom="0";
+    var p=document.createElement("div"); p.style.cssText="font-weight:600;color:#667eea;margin-bottom:6px;font-size:1.05em;"; p.textContent=en; row.appendChild(p);
+    var fl=document.createElement("div"); fl.style.cssText="display:flex;gap:8px;flex-wrap:wrap;align-items:center;";
+    function mk(ph,w,ans,fld){var i=document.createElement("input");i.className="blank";i.type="text";i.placeholder=ph;i.style.width=w;i.dataset.answer=ans;i.dataset.field=fld;i.oninput=function(){wortschatzCheck(this);if(typeof timerAutoStart==="function")timerAutoStart(5);checkWortschatzAllOk();};return i;}
+    if(type==="n"){
+      fl.appendChild(mk("Artikel","70px",artikel,"art"));
+      fl.appendChild(mk("Wort","160px",de,"word"));
+      var pl=mk("Plural","140px",plural,"plural");
+      if(plural==="\u2013"||plural===""||plural==="-"){pl.value="\u2013";pl.disabled=true;pl.dataset.answer="\u2013";pl.classList.add("correct");pl.style.opacity="0.6";pl.title="Dieses Wort hat keinen Plural";pl.oninput=null;}
+      fl.appendChild(pl);
+    } else { fl.appendChild(mk("Deutsch","220px",de,"word")); }
+    row.appendChild(fl); c.appendChild(row);
   });
 }
-function wortschatzCheck(i) {
-  var w = WORTSCHATZ[i];
-  timerAutoStart(5);
-  var a = document.getElementById('ws-a-'+i);
-  var word = document.getElementById('ws-w-'+i);
-  var p = document.getElementById('ws-p-'+i);
-  wsSingleCheck(a, w.artikel, true);
-  wsSingleCheck(word, w.de, false);
-  if (w.plural !== '–') wsSingleCheck(p, w.plural, false);
-  checkWortschatzAllOk();
+function wortschatzCheck(inp){
+  var u=inp.value,a=inp.dataset.answer,f=inp.dataset.field; inp.classList.remove("correct","wrong"); if(!u) return;
+  var cu=(f==="art")?u.toLowerCase().trim():u.trim(); var ca=(f==="art")?(a||"").toLowerCase():a;
+  if(cu===ca) inp.classList.add("correct"); else if(ca.indexOf(cu)===0){} else inp.classList.add("wrong");
 }
+function checkWortschatzAllOk(){
+  var ins=document.querySelectorAll("#sec-5 input.blank");
+  var ok=ins.length>0 && Array.from(ins).every(function(i){return i.disabled||i.classList.contains("correct");});
+  if(ok && typeof stopTimer==="function") stopTimer(5);
+}
+function showWortschatzLoesung(){
+  if(typeof stopTimer==="function") stopTimer(5);
+  document.querySelectorAll("#sec-5 input.blank").forEach(function(inp){inp.value=inp.dataset.answer;inp.classList.add("correct");inp.classList.remove("wrong");});
+}
+function resetWortschatz(){
+  document.querySelectorAll("#sec-5 input.blank").forEach(function(inp){if(!inp.disabled){inp.value="";inp.classList.remove("correct","wrong");}});
+  if(typeof timerResetOne==="function") timerResetOne(5);
+}
+try{window.initWortschatz=initWortschatz;window.wortschatzCheck=wortschatzCheck;window.checkWortschatzAllOk=checkWortschatzAllOk;window.showWortschatzLoesung=showWortschatzLoesung;window.resetWortschatz=resetWortschatz;}catch(e){}
+
+
+
+
 function wsSingleCheck(inp, ans, caseInsensitive) {
   if (!inp) return;
   var v = inp.value.trim();
@@ -712,15 +740,7 @@ function wsSingleCheck(inp, ans, caseInsensitive) {
   if (prefix) return;
   inp.classList.add('no');
 }
-function checkWortschatzAllOk() {
-  var all = WORTSCHATZ.every(function(w, i) {
-    var a = document.getElementById('ws-a-'+i);
-    var word = document.getElementById('ws-w-'+i);
-    var p = document.getElementById('ws-p-'+i);
-    return a.classList.contains('ok') && word.classList.contains('ok') && p.classList.contains('ok');
-  });
-  if (all) stopTimer(5);
-}
+
 function wsReset() {
   WORTSCHATZ.forEach(function(w, i) {
     ['ws-a-','ws-w-','ws-p-'].forEach(function(prefix) {
