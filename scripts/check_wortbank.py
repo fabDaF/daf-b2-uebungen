@@ -48,6 +48,12 @@ CONTAINER_RE = re.compile(r'id="wortbank-luecken"|class="[^"]*wortbank[^"]*"', r
 # G-Datei am Dateinamen erkennen (z. B. DE_B2_1032G-..., DE_A1_1033G_...).
 GFILE_RE = re.compile(r'_\d{4}G[-_.]')
 
+# Kanonische Lückentext-Story-Engine (scripts/lt-story-engine.js). Sie befüllt
+# #wortbank-luecken selbständig — eine daneben existierende, nie aufgerufene
+# Alt-initWortbank ist dann harmlos (neutralisierter Rest, kein leerer Kasten).
+# Ohne diese Erkennung produzierte das Gate ~60 Fehlalarme (Fund 2026-07-04).
+ENGINE_RE = re.compile(r'FB-LT-STORY|__fbLtStory')
+
 
 def _func_body(s, name):
     """Funktionskörper {…} per Klammerzählung extrahieren (defensiv begrenzt)."""
@@ -78,7 +84,12 @@ def gfile_wortbank_from_answers(path, s):
     # Vom Lehrer bestätigte Ausnahme (Wort-Auswahl/Deklination: Vollform zulässig).
     if "WORTBANK-VOLLFORM-OK" in s:
         return False
-    return bool(re.search(r"\.answer\b", _func_body(s, "initWortbank")))
+    body = _func_body(s, "initWortbank")
+    # Neutralisierte Alt-Funktion (Körper beginnt mit `return`) baut nichts mehr —
+    # der tote .answer-Code dahinter ist kein Verdacht (Fund 2026-07-04).
+    if re.match(r"\{\s*return\b", body):
+        return False
+    return bool(re.search(r"\.answer\b", body))
 
 
 def js_builder_defined_and_called(s, name):
@@ -114,8 +125,9 @@ def has_js_wortbank(s):
 
 def initwortbank_defined_but_unused(s):
     """True, wenn initWortbank() definiert, aber nirgends referenziert/aufgerufen wird.
-    Das universelle Modul (FB-WORTBANK-MODULE) befüllt eigenständig — dann irrelevant."""
-    if "FB-WORTBANK-MODULE" in s or "FB-LT-V1" in s:
+    Das universelle Modul (FB-WORTBANK-MODULE) und die kanonische Story-Engine
+    (FB-LT-STORY) befüllen eigenständig — dann irrelevant."""
+    if "FB-WORTBANK-MODULE" in s or "FB-LT-V1" in s or ENGINE_RE.search(s):
         return False
     defs = len(re.findall(r"function\s+initWortbank\b", s))
     if defs == 0:

@@ -39,6 +39,28 @@ BRANCH="${COMMIT_BRANCH:-main}"
 REMOTE="${COMMIT_REMOTE:-origin}"
 CO_AUTHOR="${CO_AUTHOR:-1}"
 
+# 0. Lektions-Gates über die benannten HTML-Dateien (SKIP_CHECKS=1 überspringt).
+#    check_all.py liegt im Root-Repo — aus Unterrepos heraus darüber suchen.
+if [[ "${SKIP_CHECKS:-0}" != "1" ]]; then
+  HTML_ARGS=()
+  for f in "$@"; do [[ "$f" == *.html ]] && HTML_ARGS+=("$f"); done
+  if [[ ${#HTML_ARGS[@]} -gt 0 ]]; then
+    CHECK_ALL=""
+    for cand in "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/check_all.py" \
+                scripts/check_all.py ../../scripts/check_all.py ../../../scripts/check_all.py; do
+      [[ -f "$cand" ]] && CHECK_ALL="$cand" && break
+    done
+    if [[ -n "$CHECK_ALL" ]]; then
+      if ! python3 "$CHECK_ALL" "${HTML_ARGS[@]}"; then
+        echo "ABBRUCH: blockierendes Gate rot. Fixen oder bewusst SKIP_CHECKS=1 setzen." >&2
+        exit 1
+      fi
+    else
+      echo "WARNUNG: check_all.py nicht gefunden — Gates übersprungen." >&2
+    fi
+  fi
+fi
+
 # 1. Alt-Index vorbereiten — umgeht .git/index.lock
 ALT_INDEX="/tmp/alt-index-$$"
 export GIT_INDEX_FILE="$ALT_INDEX"
