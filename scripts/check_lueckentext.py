@@ -146,10 +146,31 @@ def check_canonical(path, s):
     return problems
 
 
+def missing_loesungen_button(s):
+    """True, wenn der LT-Abschnitt einer kanonischen Datei KEINEN Lösungen-Button
+    trägt (statische Näherung; tote Alt-Buttons erkennt nur scripts/lt_verify.js).
+    Frank-Fund 2026-07-04 an 1013R: Engine-Hook fbLtShowLoesung existiert, aber
+    kein Button war je darauf verdrahtet. Adapter-Dateien (zweiter LT-Tab) sind
+    ausgenommen — dort gelten dateilokale Handler."""
+    if ("lueckenContainer2" in s) or ("blank2" in s):
+        return False
+    i = s.find('id="wortbank-luecken"')
+    if i < 0:
+        return False
+    sec = max(s.rfind('<div class="section"', 0, i), s.rfind('<section', 0, i))
+    if sec < 0:
+        return False
+    env = s[sec:i]
+    if "fbLtShowLoesung" in env:
+        return False
+    return not re.search(r'<button[^>]*>[^<]*L(?:ö|&ouml;)sung', env)
+
+
 def scan(paths):
     canonical_ok = []
     canonical_bad = []   # (problems, path)
     backlog = []         # Lückentext-Tab, aber noch nicht kanonisch
+    nobtn = []           # kanonisch, aber ohne Lösungen-Button (warnend)
     for p in paths:
         try:
             s = open(p, encoding="utf-8", errors="replace").read()
@@ -165,7 +186,9 @@ def scan(paths):
             canonical_bad.append((probs, p))
         else:
             canonical_ok.append(p)
-    return canonical_ok, canonical_bad, backlog
+        if missing_loesungen_button(s):
+            nobtn.append(p)
+    return canonical_ok, canonical_bad, backlog, nobtn
 
 
 def collect_repo():
@@ -194,7 +217,7 @@ if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     flags = {a for a in sys.argv[1:] if a.startswith("--")}
     files = args if args else collect_repo()
-    ok, bad, backlog = scan(files)
+    ok, bad, backlog, nobtn = scan(files)
 
     total = len(ok) + len(bad) + len(backlog)
     print(f"Lückentext-Inventur: {total} Dateien mit Lückentext-Tab")
@@ -217,9 +240,21 @@ if __name__ == "__main__":
             for pr in probs:
                 print(f"       - {pr}")
 
+    if nobtn:
+        print(f"\n⚠ {len(nobtn)} kanonische Datei(en) ohne Lösungen-Button im LT-Abschnitt "
+              f"(Fix: scripts/fix_lt_buttons.py, dynamischer Test: scripts/lt_verify.js):")
+        for p in nobtn[:15]:
+            print(f"    {p}")
+        if len(nobtn) > 15:
+            print(f"    … und {len(nobtn) - 15} weitere")
+
     if "--inventur" in flags:
         sys.exit(0)
 
     # Gate: kanonische Dateien MÜSSEN konform sein. Backlog blockt nur mit --strict.
-    fail = bool(bad) or ("--strict" in flags and bool(backlog))
+    # Fehlende Lösungen-Buttons blocken nur mit --strict-buttons — solange der
+    # C1-Rollout läuft, bleibt das eine Warnung (Kalibrierung 2026-07-04).
+    fail = (bool(bad)
+            or ("--strict" in flags and bool(backlog))
+            or ("--strict-buttons" in flags and bool(nobtn)))
     sys.exit(1 if fail else 0)

@@ -133,6 +133,18 @@ def inject(path):
         else:
             actions.append("Hooks(N=?-nicht erkannt)")
 
+    # 4) Steuer-Buttons sicherstellen (Frank-Fund 2026-07-04: Engine-Hooks ohne
+    #    verdrahteten Button). Geteilte Logik aus fix_lt_buttons — Produzent und
+    #    Reparateur driften so nicht auseinander.
+    try:
+        from fix_lt_buttons import ensure_buttons
+        s2, status = ensure_buttons(s)
+        if status == "ok" and s2 != s:
+            s = s2
+            actions.append("Buttons")
+    except Exception as e:
+        actions.append("Buttons(FEHLER: %s)" % e)
+
     if s != orig:
         open(path, "w", encoding="utf-8").write(s)
         return "OK [" + "+".join(actions) + "]: " + path
