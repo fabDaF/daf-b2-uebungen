@@ -33,7 +33,7 @@ BLOCKING = [
     "check_genus.py",
     "check_schreib_pad.py",
     "check_genus_buttons.py",
-    "check_lueckentext.py",   # blockt nur kanonisch-aber-fehlerhaft (ohne --strict)
+    "check_lueckentext.py --strict-buttons",  # seit 2026-07-05 blockierend inkl. Buttons (C1 nachgezogen)
     "check_banner_faces.py",  # überspringt sich selbst ohne opencv (Exit 0)
     "check_container.py",     # vorzeitig schließender .container (Fund 2026-07-04)
     "check_hilfebox.py",      # verbotene Aufgaben-/Tipp-Kästen (Frank-Regel, 2026-07-04)
@@ -47,7 +47,8 @@ WARN = [
 
 
 def run(script, files):
-    cmd = [sys.executable, os.path.join(HERE, script)] + files
+    teile = script.split()
+    cmd = [sys.executable, os.path.join(HERE, teile[0])] + teile[1:] + files
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     except Exception as e:  # Skript fehlt/kaputt: melden, nicht heimlich schlucken

@@ -113,7 +113,17 @@ def has_active_legacy_wordbank(s):
         if re.match(r'return;', s[start:start + 20]):
             continue  # bereits neutralisiert
         occurrences = len(re.findall(r'\b' + re.escape(name) + r'\s*\(', s))
-        if occurrences > 1:
+        if occurrences <= 1:
+            continue
+        # DRITTE Nachschärfung (2026-07-05, Fund an C1 7001V): eine aktive
+        # wortbank-benannte Funktion ist NUR dann ein Leak, wenn sie in den
+        # Container der Engine ('wortbank-luecken') schreibt. V-Dateien mit
+        # zweitem Übungs-Tab (z. B. Kollokationen) haben eigene, legitime
+        # wortbank-Funktionen mit EIGENEM Container ('wortbank-koll' o. ä.) —
+        # deren Neutralisierung würde eine funktionierende Übung töten.
+        naechste = s.find('\nfunction ', start)
+        body = s[start:naechste if naechste > -1 else start + 2000]
+        if 'wortbank-luecken' in body:
             return True
     return False
 
