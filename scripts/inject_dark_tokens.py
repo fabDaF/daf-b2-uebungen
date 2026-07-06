@@ -55,9 +55,9 @@ SPECIAL_DARK = {
 GRAD_RE = r'linear-gradient\(\s*135deg\s*,\s*#667eea(?:\s+0%)?\s*,\s*#764ba2(?:\s+100%)?\s*\)'
 COLOR_RE = re.compile(r'#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b|(?<![-\w])white(?![-\w])')
 
-TOGGLE_CSS = '''
+TOGGLE_CSS_TMPL = '''
 /* FB-THEME-TOGGLE */
-.header { position: relative; }
+%s { position: relative; }
 .theme-toggle {
   position: absolute; top: 14px; right: 14px;
   width: 38px; height: 38px; border-radius: 50%;
@@ -217,8 +217,9 @@ def process(fn):
       '@media (prefers-color-scheme: dark) {\n:root:not([data-theme="light"]) {\n'+dark_body+'\n}\n'+extras_media+'\n}\n'
       ':root[data-theme="dark"] {\n'+dark_body+'\n}\n'+extras_manual+'\n')
 
-    hat_header = re.search(r'<div class="header"[^>]*>', html)
-    toggle_css = TOGGLE_CSS if hat_header else ''
+    hat_header = re.search(r'<div class="header"[^>]*>|<header[^>]*>', html)
+    header_sel = '.header' if (hat_header and 'class="header"' in hat_header.group(0)) else 'header'
+    toggle_css = (TOGGLE_CSS_TMPL % header_sel) if hat_header else ''
     if rest_css:
         # Folgebloecke von hinten nach vorn ersetzen (Offsets bleiben gueltig), Dark-Block in den LETZTEN
         for i in range(len(blocks)-1, 0, -1):
@@ -231,7 +232,7 @@ def process(fn):
     html = html[:m.start(1)] + new_css + html[m.end(1):]
 
     if hat_header:
-        h2 = re.search(r'<div class="header"[^>]*>', html)
+        h2 = re.search(r'<div class="header"[^>]*>|<header[^>]*>', html)
         html = html[:h2.end()] + '\n  ' + TOGGLE_BTN + html[h2.end():]
         specials_ok.append('toggle')
     else:

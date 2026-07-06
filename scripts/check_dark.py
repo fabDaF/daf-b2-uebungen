@@ -12,7 +12,8 @@ def check(fn):
     if 'FB-DARK-MODE' not in h: fehler.append('FB-DARK-MODE-Block fehlt')
     if ':root:not([data-theme="light"])' not in h: fehler.append('Media-Dark-Selektor fehlt')
     if ':root[data-theme="dark"]' not in h: fehler.append('manueller Dark-Selektor fehlt')
-    if 'id="themeToggle"' not in h and '<div class="header"' in h: fehler.append('Schalter fehlt trotz Header')
+    hat_header = re.search(r'<div class="header"[^>]*>|<header[^>]*>', h)
+    if 'id="themeToggle"' not in h and hat_header: fehler.append('Schalter fehlt trotz Header')
     if 'FB-THEME-INIT' not in h: fehler.append('Theme-Init-Script fehlt')
     if not re.search(r'color:\s*#c6cade', h): fehler.append('Dark-Default-Textfarbe fehlt')
     return fehler
