@@ -992,7 +992,7 @@ function schreibValidiereName() {
 }
 
 function schreibPost(data, onOk, onErr) {
-    var body = JSON.stringify({
+    var body = schreibToFormData({
         access_key: FORMSUBMIT_ACCESS_KEY,
         name: data.name,
         subject: data.subject,
@@ -1002,7 +1002,6 @@ function schreibPost(data, onOk, onErr) {
     });
     fetch(FORMSUBMIT_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: body
     })
     .then(function(r) { if (!r.ok) throw new Error('HTTP_' + r.status); return r.json(); })
@@ -1211,6 +1210,9 @@ loadBestTimes();
   document.querySelectorAll('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ setTimeout(toggle, 60); }); });
   setTimeout(toggle, 80);
 })();
+
+// Wandelt ein Objekt in FormData: preflight-freier Versand (kein application/json-Header, keine CORS-OPTIONS-Vorabanfrage, die Firmen-Proxys mit HTTP 405 blocken).
+function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(function(k){fd.append(k,o[k]);});return fd;}
 </script>
 
 </body>

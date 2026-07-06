@@ -710,8 +710,7 @@ function schreibSendenAlle(){
 }
 function swPost(payload, onOk, onErr){
   fetch(SW_ENDPOINT, {
-    method:'POST', headers:{'Content-Type':'application/json', 'Accept':'application/json'},
-    body: JSON.stringify({ access_key:SW_ACCESS_KEY, name:payload.name, subject:payload.subject, from_name:'fabDaF Schreibwerkstatt', lektion:payload.lektion, message:payload.message })
+    method:'POST', body: schreibToFormData({ access_key:SW_ACCESS_KEY, name:payload.name, subject:payload.subject, from_name:'fabDaF Schreibwerkstatt', lektion:payload.lektion, message:payload.message })
   })
   .then(function(r){ if (!r.ok) throw new Error('HTTP_'+r.status); return r.json(); })
   .then(function(data){
@@ -1163,6 +1162,9 @@ highlightVocabInText();
 
 </script>
 
-<!-- FB-LT-STORY-HOOKS --><script>window.fbLtTimerStart=function(){if(typeof timerAutoStart==='function')timerAutoStart(3);};window.fbLtTimerStop=function(){if(typeof stopTimer==='function')stopTimer(3);};</script>
+<!-- FB-LT-STORY-HOOKS --><script>window.fbLtTimerStart=function(){if(typeof timerAutoStart==='function')timerAutoStart(3);};window.fbLtTimerStop=function(){if(typeof stopTimer==='function')stopTimer(3);};
+// Wandelt ein Objekt in FormData: preflight-freier Versand (kein application/json-Header, keine CORS-OPTIONS-Vorabanfrage, die Firmen-Proxys mit HTTP 405 blocken).
+function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(function(k){fd.append(k,o[k]);});return fd;}
+</script>
 </body>
 </html>
