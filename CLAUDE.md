@@ -706,6 +706,34 @@ Sekunden) selbst kurzzeitig 405/Blockaden liefern — im normalen Unterricht
 irrelevant (der Sammelversand bündelt ohnehin ALLES in EINEN Request). Letztes
 Sicherheitsnetz bleibt die Fallback-UX (📧 Mail / 📋 Zwischenablage).
 
+## Jede neue Lektion braucht Dark Mode (Pflicht seit 2026-07-07)
+
+Frank ist am 2026-07-07 aufgefallen, dass Dark Mode zwar technisch schon in
+~81 % der aktiven Lektionen steckt (Rollout aus dem Grafik-Piloten, siehe
+`GENUS-ROLLOUT.md`-Nachbarprojekt „Grafik-Pilot"), aber **nirgends als
+Pflicht dokumentiert und nirgends als Commit-Gate scharf** war — eine neue
+oder migrierte Datei konnte also durchrutschen, ohne dass es auffiel.
+
+Deshalb gilt ab sofort: **Jede neu erstellte oder migrierte Lektion bekommt
+den vollständigen Dark-Mode-Bau** — `FB-DESIGN-TOKENS` + `FB-DARK-MODE`-Block,
+`:root:not([data-theme="light"])`- und `:root[data-theme="dark"]`-Selektoren,
+Theme-Toggle (`id="themeToggle"`) im Header, `FB-THEME-INIT`-Script. Referenz
+für den vollständigen Bau: `htmlS/B1.1/DE_B1_1027X-naturkatastrophen.html`.
+
+- `scripts/check_dark.py` — Gate. Prüft NUR Dateien, die bereits
+  `FB-DESIGN-TOKENS` tragen, und meldet dort jeden Teilausbau (Exit 1) —
+  Rollout ist inkrementell, deshalb werden Dateien ganz ohne Tokens nicht
+  blockiert.
+- Seit 2026-07-07 in `scripts/check_all.py` als **WARN-Gate** eingebunden
+  (nicht BLOCKING) — analog zu `check_nav.py` und den anderen
+  Backlog-Gates: der bestehende Rückstand von ~220 Altdateien ohne Tokens
+  darf den Commit nicht sofort blockieren, aber jeder Commit macht den
+  fehlenden Dark-Mode-Bau sichtbar. **Vor jedem Lektions-Commit laufen
+  lassen**, zusammen mit den übrigen `check_*`-Skripten.
+- Bei einer komplett neuen Lektion: von Anfang an mit `FB-DESIGN-TOKENS`
+  bauen, nicht nachträglich patchen — dann ist `check_dark.py` von der
+  ersten Version an grün.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -720,6 +748,7 @@ Sicherheitsnetz bleibt die Fallback-UX (📧 Mail / 📋 Zwischenablage).
 - `scripts/check_banner_faces.py` — Banner-Gesichts-Prüfung: blockt angeschnittene Gesichter (vor Lektions-Commit)
 - `scripts/check_genus_buttons.py` — Control-Button-Prüfung: blockt nicht-kanonische btn-show/btn-reset (vor Lektions-Commit); Reparateur `scripts/fix_genus_buttons.py`
 - `scripts/check_nav.py` — Nav-Header-Prüfung: blockt nicht-kanonische Nav (Variante C, vor Lektions-Commit); Normalisierer `scripts/fix_nav.py`, geteilte Wahrheit `scripts/nav_lib.py`
+- `scripts/check_dark.py` — Dark-Mode-Prüfung (WARN-Gate, Backlog ~220 Dateien): meldet Teilausbauten bei bereits tokenisierten Dateien
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `scripts/check_all.py` — Orchestrator aller Gates (blockierend vs. Backlog-Warnung); wird von safe-commit.sh automatisch aufgerufen
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der

@@ -43,8 +43,8 @@ WARN = [
     "check_nav.py",
     "check_schreib_last.py",
     "check_wortschatz.py",
+    "check_dark.py",  # Dark-Mode-Backlog (~220 Dateien ohne FB-DESIGN-TOKENS), seit 2026-07-07
 ]
-
 
 def run(script, files):
     teile = script.split()
