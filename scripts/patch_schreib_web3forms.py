@@ -116,17 +116,20 @@ var FORMSUBMIT_MAILTO    = '{mail}';""".format(key=ACCESS_KEY, mail=MAILTO_FALLB
 
 
 NEW_POST_FN = """function schreibPostFormsubmit(subject, message, onOk, onErr) {
+  // FormData statt JSON: löst KEINEN CORS-Preflight (OPTIONS) aus. Firmen-Proxys
+  // beantworten die OPTIONS-Vorabanfrage oft mit HTTP 405 — dann scheiterte der
+  // JSON-Versand. Ein "simple request" (multipart/form-data, keine Custom-Header)
+  // umgeht das. Web3Forms akzeptiert FormData nativ.
+  var fd = new FormData();
+  fd.append('access_key', FORMSUBMIT_ACCESS_KEY);
+  fd.append('name', schreibAktuellerName());
+  fd.append('subject', subject);
+  fd.append('from_name', 'fabDaF Schreibwerkstatt');
+  fd.append('lektion', SCHREIB_LEKTION);
+  fd.append('message', message);
   return fetch(FORMSUBMIT_ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      access_key: FORMSUBMIT_ACCESS_KEY,
-      name: schreibAktuellerName(),
-      subject: subject,
-      from_name: 'fabDaF Schreibwerkstatt',
-      lektion: SCHREIB_LEKTION,
-      message: message
-    })
+    body: fd
   })
     .then(function (r) { if (!r.ok) throw new Error('HTTP_' + r.status); return r.json(); })
     .then(function (data) {
