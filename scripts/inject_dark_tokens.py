@@ -57,7 +57,7 @@ COLOR_RE = re.compile(r'#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b|(?<![-\w])white(?![-
 
 TOGGLE_CSS_TMPL = '''
 /* FB-THEME-TOGGLE */
-%s { position: relative; }
+__HEADER_SEL__ { position: relative; }
 .theme-toggle {
   position: absolute; top: 14px; right: 14px;
   width: 38px; height: 38px; border-radius: 50%;
@@ -219,7 +219,7 @@ def process(fn):
 
     hat_header = re.search(r'<div class="header"[^>]*>|<header[^>]*>', html)
     header_sel = '.header' if (hat_header and 'class="header"' in hat_header.group(0)) else 'header'
-    toggle_css = (TOGGLE_CSS_TMPL % header_sel) if hat_header else ''
+    toggle_css = (TOGGLE_CSS_TMPL.replace('__HEADER_SEL__', header_sel)) if hat_header else ''
     if rest_css:
         # Folgebloecke von hinten nach vorn ersetzen (Offsets bleiben gueltig), Dark-Block in den LETZTEN
         for i in range(len(blocks)-1, 0, -1):
