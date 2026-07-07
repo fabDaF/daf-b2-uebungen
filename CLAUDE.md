@@ -720,6 +720,29 @@ den vollständigen Dark-Mode-Bau** — `FB-DESIGN-TOKENS` + `FB-DARK-MODE`-Block
 Theme-Toggle (`id="themeToggle"`) im Header, `FB-THEME-INIT`-Script. Referenz
 für den vollständigen Bau: `htmlS/B1.1/DE_B1_1027X-naturkatastrophen.html`.
 
+**Produzent statt Handarbeit:** `scripts/inject_dark_tokens.py DATEI.html …` —
+generationsrobuster Injektor, ersetzt hartkodierte Farben durch CSS-Variablen,
+baut `FB-DESIGN-TOKENS` + `FB-DARK-MODE`-Block, Theme-Toggle und
+`FB-THEME-INIT` idempotent ein (Marker-Check `FB-DESIGN-TOKENS`, überspringt
+bereits tokenisierte Dateien). Bei neuen Lektionen direkt nach dem Bau laufen
+lassen, statt den Dark-Mode-Block von Hand abzutippen — Handarbeit hat bereits
+einmal dazu geführt, dass der Theme-Toggle zwar sichtbar war, aber wirkungslos
+blieb (kein `FB-DESIGN-TOKENS`-Block dahinter, VWL01X, 2026-07-07).
+
+⚠️ **Bug im Injektor gefunden und behoben (2026-07-07):** `TOGGLE_CSS_TMPL`
+nutzte den `%`-Operator zur String-Formatierung (`TOGGLE_CSS_TMPL % header_sel`),
+aber das Template selbst enthält ein literales `%` (`border-radius: 50%`) —
+das brach die Formatierung mit `not enough arguments for format string` bei
+**jeder** Datei mit `.header`-Klasse, sobald sie noch keine Tokens hatte. Fix:
+Platzhalter auf `__HEADER_SEL__` + `.replace()` umgestellt, kein `%`-Operator
+mehr im Spiel. Der Injektor lief davor faktisch nie erfolgreich durch (jeder
+Aufruf gegen eine untokenisierte Datei endete mit `SKIP … FEHLER not enough
+arguments`) — betroffene Altbestände sind daher nicht automatisch nachtokenisiert
+worden, sondern per Hand (Kopie aus einer bereits fertigen Referenzdatei). Nach
+dem Fix erstmals erfolgreich an `DE_C1_VWL01X-marktmechanismus.html` verifiziert
+(94 Variablen, 89 Dark-Werte, Toggle per JSDOM getestet: `data-theme` wechselt,
+`--grad-page-a` wechselt sichtbar auf den Dunkel-Wert).
+
 - `scripts/check_dark.py` — Gate. Prüft NUR Dateien, die bereits
   `FB-DESIGN-TOKENS` tragen, und meldet dort jeden Teilausbau (Exit 1) —
   Rollout ist inkrementell, deshalb werden Dateien ganz ohne Tokens nicht
@@ -776,6 +799,7 @@ AMDP, ir/, schueler/ und C2 übersehen):
 - `scripts/check_banner_faces.py` — Banner-Gesichts-Prüfung: blockt angeschnittene Gesichter (vor Lektions-Commit)
 - `scripts/check_genus_buttons.py` — Control-Button-Prüfung: blockt nicht-kanonische btn-show/btn-reset (vor Lektions-Commit); Reparateur `scripts/fix_genus_buttons.py`
 - `scripts/check_nav.py` — Nav-Header-Prüfung: blockt nicht-kanonische Nav (Variante C, vor Lektions-Commit); Normalisierer `scripts/fix_nav.py`, geteilte Wahrheit `scripts/nav_lib.py`
+- `scripts/inject_dark_tokens.py` — Dark-Mode-Produzent: baut FB-DESIGN-TOKENS + FB-DARK-MODE-Block + Theme-Toggle idempotent ein (%-Formatierungsbug 2026-07-07 behoben, siehe Pflichtabschnitt oben)
 - `scripts/check_dark.py` — Dark-Mode-Prüfung (WARN-Gate, Backlog ~220 Dateien): meldet Teilausbauten bei bereits tokenisierten Dateien
 - `scripts/check_mobil.py` — Handy-Bedienbarkeits-Prüfung: blockt Inline-Grid, click:false-Gerüst, nowrap-Chips ohne Override, fehlendes Viewport-Meta (vor Lektions-Commit); Reparateur für Chips `scripts/fb_chipwrap_swinit.py`
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
