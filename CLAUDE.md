@@ -734,6 +734,34 @@ für den vollständigen Bau: `htmlS/B1.1/DE_B1_1027X-naturkatastrophen.html`.
   bauen, nicht nachträglich patchen — dann ist `check_dark.py` von der
   ersten Version an grün.
 
+## Jede Lektion muss am Handy bedienbar sein (Pflicht seit 2026-07-07)
+
+Schüler arbeiten real am iPhone. Vier Defektklassen haben Lektionen dort
+unbedienbar gemacht (Funde 2026-07-04 an 2034R; Rest-Bestände von 159
+Dateien am 2026-07-07 bereinigt — die früheren Rollouts hatten B2-Root,
+AMDP, ir/, schueler/ und C2 übersehen):
+
+1. **Inline-Grid am `wortschatzContainer`** — ein Inline-Style schlägt JEDE
+   Media-Query; das iPhone bleibt zweispaltig. Das Grid gehört ausschließlich
+   in FB-WORTSCHATZ-KANON-CSS (inkl. 1-Spalten-Query aus
+   `inject_wortschatz.py`), nie ins style-Attribut.
+2. **Satzbau-Gerüst mit `"click":false`** — HTML5-Drag&Drop ist auf
+   iOS-Touch prinzipiell tot. `"click":true` (Tipp-Modus) ist der von Frank
+   am iPhone abgenommene Standard, ausnahmslos.
+3. **nowrap-Chips ohne Wrap-Override** — Chips mit ganzen Sätzen laufen aus
+   dem Viewport. Reparateur: `scripts/fb_chipwrap_swinit.py apply`.
+4. **Fehlendes Viewport-Meta** in einer Lektionsdatei (erkannt an
+   `class="container"`).
+
+- `scripts/check_mobil.py` — Sicherheitsnetz für alle vier Klassen; die
+  Chip-Wrap-Erkennung ist mit dem Reparateur geteilt (eine Wahrheit). Seit
+  2026-07-07 als **BLOCKING-Gate** in `check_all.py` (Backlog = 0 zum
+  Zeitpunkt der Scharfschaltung). **Vor jedem Lektions-Commit laufen
+  lassen**, zusammen mit den übrigen `check_*`-Skripten.
+- Bei Mobil-Beschwerden zuerst: Inline-Styles suchen, die Media-Queries
+  schlagen; bei Drag-Drop-Beschwerden `CFG.click` prüfen; bei überbreiten
+  Chips den Wrap-Override — nichts Neues erfinden.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -749,6 +777,7 @@ für den vollständigen Bau: `htmlS/B1.1/DE_B1_1027X-naturkatastrophen.html`.
 - `scripts/check_genus_buttons.py` — Control-Button-Prüfung: blockt nicht-kanonische btn-show/btn-reset (vor Lektions-Commit); Reparateur `scripts/fix_genus_buttons.py`
 - `scripts/check_nav.py` — Nav-Header-Prüfung: blockt nicht-kanonische Nav (Variante C, vor Lektions-Commit); Normalisierer `scripts/fix_nav.py`, geteilte Wahrheit `scripts/nav_lib.py`
 - `scripts/check_dark.py` — Dark-Mode-Prüfung (WARN-Gate, Backlog ~220 Dateien): meldet Teilausbauten bei bereits tokenisierten Dateien
+- `scripts/check_mobil.py` — Handy-Bedienbarkeits-Prüfung: blockt Inline-Grid, click:false-Gerüst, nowrap-Chips ohne Override, fehlendes Viewport-Meta (vor Lektions-Commit); Reparateur für Chips `scripts/fb_chipwrap_swinit.py`
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `scripts/check_all.py` — Orchestrator aller Gates (blockierend vs. Backlog-Warnung); wird von safe-commit.sh automatisch aufgerufen
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der

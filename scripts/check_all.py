@@ -37,6 +37,7 @@ BLOCKING = [
     "check_banner_faces.py",  # überspringt sich selbst ohne opencv (Exit 0)
     "check_container.py",     # vorzeitig schließender .container (Fund 2026-07-04)
     "check_hilfebox.py",      # verbotene Aufgaben-/Tipp-Kästen (Frank-Regel, 2026-07-04)
+    "check_mobil.py",         # Handy-Bedienbarkeit: Inline-Grid, click:false, Chip-Wrap, Viewport (Backlog 0 seit 2026-07-07)
 ]
 
 WARN = [
