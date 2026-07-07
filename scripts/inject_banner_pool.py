@@ -89,23 +89,60 @@ def svg_tag(eintrag):
 def bearbeite(pfad):
     s = open(pfad, encoding='utf-8').read()
     funktionen = nav_funktionen(s)
-    # Sections in DOM-Reihenfolge schneiden; Schlüssel aus der sec-ID lesen
+    # Sections in DOM-Reihenfolge schneiden; Schlüssel aus der sec-ID lesen.
+    # Fallback für ID-lose Generationen (positionales showSection über
+    # querySelectorAll('.section')): Sections per Klasse schneiden,
+    # Schlüssel = laufende Position.
     treffer = list(re.finditer(r'id="sec-([a-z0-9]+)"', s))
+    if len(treffer) < 3:
+        klassen = list(re.finditer(r'<(?:div|section)[^>]*class="(?:section|tab-content)[" ]', s))
+        if len(klassen) >= 3:
+            class _T:
+                def __init__(self, m, i): self._m, self._i = m, i
+                def start(self): return self._m.start()
+                def group(self, n): return str(self._i)
+            treffer = [_T(m, i) for i, m in enumerate(klassen)]
     if not treffer or not funktionen:
         print(f"SKIP {pfad} | keine sec-Sections oder keine Nav-Buttons")
         return
     grenzen = [m.start() for m in treffer] + [len(s)]
     indizes = [m.group(1) for m in treffer]
+
+    # Foto-Verteilung (Frank, 2026-07-07): NICHT beide Fotos vorn — erstes
+    # Foto auf dem ersten Tab, das zweite möglichst in der TAB-MITTE: ein
+    # Family-Tab mit Foto, dessen Position der Mitte am nächsten liegt,
+    # behält sein Foto (hash-stabile Wahl bei Gleichstand).
+    hat_foto = []
+    for i in range(len(grenzen) - 1):
+        teil = s[grenzen[i]:grenzen[i + 1]]
+        hat_foto.append(any('svg+xml' not in t for t in IMG_RE.findall(teil)))
+    mitte_pos = None
+    kandidaten_mitte = [i for i in range(1, len(indizes))
+                        if hat_foto[i] and funktionen.get(indizes[i]) in FAMILIEN]
+    if kandidaten_mitte:
+        ziel = (len(indizes) - 1) / 2.0
+        naechste = sorted(kandidaten_mitte, key=lambda i: abs(i - ziel))
+        beste = [i for i in naechste if abs(i - ziel) == abs(naechste[0] - ziel)]
+        h = int(hashlib.sha1(os.path.basename(pfad).encode()).hexdigest(), 16)
+        mitte_pos = beste[h % len(beste)]
+
     ersetzt = fotos = kein_pool = 0
     benutzt = set()
     for i in range(len(grenzen) - 1):
         teil = s[grenzen[i]:grenzen[i + 1]]
         fam = funktionen.get(indizes[i], 'UNBEKANNT')
+        if i == 0 or i == mitte_pos:
+            fam = 'FOTO-SLOT'  # erster Tab + Mitte behalten ihr Foto
         for tag in IMG_RE.findall(teil):
             if 'data:image/svg+xml' in tag:
                 continue  # schon Stil C / Genus
             if fam in ('GENUS',):
                 continue
+            if fam == 'FOTO-SLOT':
+                fotos += 1
+                continue
+            if fam == 'FOTO' and 'lesen' in FAMILIEN:
+                fam = 'lesen'  # zweiter Lese-/Vorentlastungs-Tab bekommt das Buch-SVG
             if fam in ('FOTO', 'UNBEKANNT') or fam not in FAMILIEN:
                 if fam in ('FOTO',):
                     fotos += 1
