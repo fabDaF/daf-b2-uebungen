@@ -645,6 +645,67 @@ Vollständige Regeln + Markup-Vertrag: Skill **`daf-lueckentext`** (die einzige 
 `daf-kern §7` / `daf-uebungsformen` / `daf-grammatik` verweisen nur noch dorthin). Bei
 Widerspruch gilt diese Datei; der Skill-Text wird über `skill-verwaltung` nachgezogen.
 
+## Schreibwerkstatt-Versand IMMER preflight-frei (FormData, Pflicht seit 2026-07-06)
+
+Der Schreibwerkstatt-/Textkorrektur-Versand ging lange als JSON mit
+`Content-Type: application/json` an Web3Forms. Dieser Header ist NICHT
+CORS-safelisted und erzwingt eine **Preflight-Anfrage (OPTIONS)**, bevor der
+eigentliche POST rausgeht. Abgesicherte **Firmen-Proxys beantworten OPTIONS oft
+mit HTTP 405** — dann scheitert der Versand, bevor er Web3Forms erreicht. Genau
+das ist einem Schüler am 2026-07-06 auf einem Firmenrechner passiert (B2 1063R).
+
+Deshalb gilt ausnahmslos: **Der Versand ist ein „simple request" ohne
+Custom-Header — Body als `FormData`, kein `Content-Type: application/json`,
+keine Preflight-Anfrage.** Web3Forms akzeptiert FormData nativ; die
+`data.success`-Prüfung, die Customer-Success-Fehler-UX und der Mailto-Fallback
+bleiben unverändert.
+
+Kanonische Form (so erzeugt der Patcher seit 2026-07-06):
+
+```js
+var fd = new FormData();
+fd.append('access_key', FORMSUBMIT_ACCESS_KEY);
+fd.append('name', schreibAktuellerName());
+fd.append('subject', subject);
+fd.append('from_name', 'fabDaF Schreibwerkstatt');
+fd.append('lektion', SCHREIB_LEKTION);
+fd.append('message', message);
+return fetch(FORMSUBMIT_ENDPOINT, { method: 'POST', body: fd })
+```
+
+Beim Bulk-Rollout über Altbestände wird stattdessen der Helper
+`schreibToFormData(obj)` injiziert und `body: JSON.stringify(obj)` →
+`body: schreibToFormData(obj)` getauscht (formatunabhängig, minimaler Diff).
+Beide Varianten sind preflight-frei — das ist die einzige Invariante, die zählt.
+
+Werkzeuge:
+
+- `scripts/patch_schreib_web3forms.py` — Produzent (NEW_POST_FN erzeugt FormData);
+  neu gebaute Lektionen sind automatisch preflight-frei.
+- `scripts/fix_schreib_formdata.py DATEI …` — idempotenter Bulk-Transform für
+  Altbestände (fetch-Options-scoped: tauscht NUR den Sende-`JSON.stringify`, nie
+  ein localStorage-`JSON.stringify`; entfernt den JSON-Header; injiziert den Helper;
+  node-`--check` vor dem Schreiben).
+- `scripts/commit_formdata_from_head.py --repo <root> --commit "MSG"` — committet den
+  Fix **isoliert aus HEAD** (transformiert die HEAD-Version jeder Zieldatei und
+  committet nur das). Nötig, weil die Arbeitskopie fremde, nicht committete WIP
+  enthalten kann — der HEAD-Weg lässt diese WIP unangetastet, Netto-Diff pro Datei
+  = ausschließlich Send-Code. GEHIRN_02G/05G bekamen dabei die volle
+  Web3Forms-Migration (ihnen fehlte der `access_key` — Versand war dort nie möglich).
+
+Stand 2026-07-06: Rollout über alle sieben aktiven Lektions-Repos durchgezogen
+(root/B2, A1, A2, B1, C1, Architektur, daf-materialien) — ~700 Dateien, alle
+Pages-Deploys grün. **Nachzuziehen über `skill-verwaltung` (nicht aus laufender
+Session editierbar):** `daf-schreibwerkstatt` §5 (JSON → FormData) und der
+`schueler-textkorrektur`-Generator (`schreibfeldSenden`) müssen ebenfalls FormData
+erzeugen, sonst gebiert der nächste Schülertext wieder einen Preflight-Versand.
+
+Grenze der Lösung: FormData beseitigt die Preflight-405-Klasse (Firmen-Proxy)
+strukturell. Web3Forms kann unter sehr schnellen Bursts (viele Einsendungen in
+Sekunden) selbst kurzzeitig 405/Blockaden liefern — im normalen Unterricht
+irrelevant (der Sammelversand bündelt ohnehin ALLES in EINEN Request). Letztes
+Sicherheitsnetz bleibt die Fallback-UX (📧 Mail / 📋 Zwischenablage).
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
