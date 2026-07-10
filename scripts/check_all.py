@@ -36,6 +36,8 @@ BLOCKING = [
     "check_lueckentext.py --strict-buttons",  # seit 2026-07-05 blockierend inkl. Buttons (C1 nachgezogen)
     "check_banner_faces.py",  # überspringt sich selbst ohne opencv (Exit 0)
     "check_container.py",     # vorzeitig schließender .container (Fund 2026-07-04)
+    "check_nested_sections.py",  # ineinander verschachtelte Tab-Sections (Fund 2026-07-10, 15 Dateien)
+    "check_orphan_init.py",   # verwaiste Init-Aufrufe → ReferenceError bricht Init ab (Fund 2026-07-10, 16 Dateien)
     "check_hilfebox.py",      # verbotene Aufgaben-/Tipp-Kästen (Frank-Regel, 2026-07-04)
     "check_mobil.py",         # Handy-Bedienbarkeit: Inline-Grid, click:false, Chip-Wrap, Viewport (Backlog 0 seit 2026-07-07)
 ]
@@ -45,6 +47,7 @@ WARN = [
     "check_schreib_last.py",
     "check_wortschatz.py",
     "check_dark.py",  # Dark-Mode-Backlog (~220 Dateien ohne FB-DESIGN-TOKENS), seit 2026-07-07
+    "check_runtime_smoke.py",  # node+jsdom-Laufzeit-Smoke; überspringt ohne jsdom (Fund 2026-07-10)
 ]
 
 def run(script, files):
