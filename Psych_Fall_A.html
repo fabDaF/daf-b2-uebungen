@@ -1438,5 +1438,57 @@ function schreibSendenAlle() {
 function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(function(k){fd.append(k,o[k]);});return fd;}
 </script>
 
+<!-- FB-WC-AUTOSAVE: Wortzähler + (falls nötig) Autosave für ältere Schreibwerkstätten.
+     Bestehende Zähler und ein bereits vorhandener Autosave werden NICHT verdoppelt. -->
+<script>
+(function () {
+  var SLUG = (location.pathname.split('/').pop() || 'lektion').replace(/\.html?$/, '');
+  var eigenerAutosave = (typeof SCHREIB_KEY_PREFIX !== 'undefined');
+
+  function key(ta, i) { return 'fb-sw-' + SLUG + '-' + (ta.dataset.aufgabe || i); }
+  function woerter(t) { t = (t || '').trim(); return t ? t.split(/\s+/).length : 0; }
+
+  function install() {
+    var tas = document.querySelectorAll('.schreib-mini-textarea, .schreibfeld-area');
+    Array.prototype.forEach.call(tas, function (ta, i) {
+      if (ta.dataset.fbWc) return;                 // schon verkabelt
+      ta.dataset.fbWc = '1';
+
+      var karte = ta.closest('.schreib-aufgabe-karte, .schreib-karte, .schreibfeld-block') || ta.parentNode;
+      var da = karte.querySelector('[class^="wc-"], [class*=" wc-"], .fb-wc strong, .schreib-count');
+      var ziel;
+      if (da) {
+        ziel = da;
+      } else {
+        var box = document.createElement('div');
+        box.className = 'fb-wc';
+        box.style.cssText = 'font-size:0.82em;color:#4a5a8c;margin-top:6px;font-family:"Segoe UI",system-ui,sans-serif;';
+        box.innerHTML = 'W\u00f6rter: <strong>0</strong>';
+        if (ta.nextSibling) karte.insertBefore(box, ta.nextSibling); else karte.appendChild(box);
+        ziel = box.querySelector('strong');
+      }
+
+      if (!eigenerAutosave) {
+        try { var s = localStorage.getItem(key(ta, i)); if (s && !ta.value) ta.value = s; } catch (e) {}
+      }
+
+      function update() {
+        ziel.textContent = woerter(ta.value);
+        if (!eigenerAutosave) { try { localStorage.setItem(key(ta, i), ta.value); } catch (e) {} }
+      }
+      ta.addEventListener('input', update);
+      update();
+    });
+  }
+
+  function start() {
+    install();
+    setTimeout(install, 400);                       // dynamisch gebaute Karten nachziehen
+    document.addEventListener('click', function () { setTimeout(install, 60); }, true);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
 </body>
 </html>
