@@ -2157,5 +2157,23 @@ function resetGenus(){ initGenus(); genusTimerReset(); }
 // Wandelt ein Objekt in FormData: preflight-freier Versand (kein application/json-Header, keine CORS-OPTIONS-Vorabanfrage, die Firmen-Proxys mit HTTP 405 blocken).
 function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(function(k){fd.append(k,o[k]);});return fd;}
 </script>
+<!-- FB-SCHREIB-INIT-FIX: garantiert genau EINEN Init-Lauf der Schreibwerkstatt.
+     Ohne ihn fehlt der input-Listener → Wortzähler bleibt 0 und der Text wird
+     nicht in localStorage gespeichert (Datenverlust beim Schließen des Fensters). -->
+<script>
+(function () {
+  if (typeof initSchreibwerkstatt !== 'function') return;
+  var orig = initSchreibwerkstatt;
+  var done = false;
+  window.initSchreibwerkstatt = function () {
+    if (done) return;            // Once-Guard: keine doppelten Listener
+    done = true;
+    return orig.apply(this, arguments);
+  };
+  function go() { try { window.initSchreibwerkstatt(); } catch (e) {} }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+  else go();
+})();
+</script>
 </body>
 </html>
