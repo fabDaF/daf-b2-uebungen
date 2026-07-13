@@ -1443,7 +1443,10 @@ function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(funct
 <script>
 (function () {
   var SLUG = (location.pathname.split('/').pop() || 'lektion').replace(/\.html?$/, '');
-  var eigenerAutosave = (typeof SCHREIB_KEY_PREFIX !== 'undefined');
+  // Die moderne Schreibwerkstatt-Generation bringt initSchreibwerkstatt() mit — und damit
+  // einen eigenen Autosave. Nur die alten (AMDP: buildSchreibwerkstatt) brauchen unseren.
+  var eigenerAutosave = (typeof initSchreibwerkstatt === 'function')
+                        || (typeof SCHREIB_KEY_PREFIX !== 'undefined');
 
   function key(ta, i) { return 'fb-sw-' + SLUG + '-' + (ta.dataset.aufgabe || i); }
   function woerter(t) { t = (t || '').trim(); return t ? t.split(/\s+/).length : 0; }
@@ -1474,7 +1477,8 @@ function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(funct
 
       function update() {
         ziel.textContent = woerter(ta.value);
-        if (!eigenerAutosave) { try { localStorage.setItem(key(ta, i), ta.value); } catch (e) {} }
+        // nie leere Werte anlegen — sonst füllt sich der Speicher mit Müll-Keys
+        if (!eigenerAutosave && ta.value) { try { localStorage.setItem(key(ta, i), ta.value); } catch (e) {} }
       }
       ta.addEventListener('input', update);
       update();
