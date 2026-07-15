@@ -785,6 +785,56 @@ AMDP, ir/, schueler/ und C2 übersehen):
   schlagen; bei Drag-Drop-Beschwerden `CFG.click` prüfen; bei überbreiten
   Chips den Wrap-Override — nichts Neues erfinden.
 
+## Kein Gendern — generisches Maskulinum (Pflicht, Gate seit 2026-07-15)
+
+Frank lehnt geschlechtergerechte Sprache kategorisch ab (siehe Memory
+`feedback_kein-gendern`). In ALLEN Materialien gilt durchgehend das
+generische Maskulinum. Verboten und beim Erstellen/Migrieren auszumerzen:
+
+- **Gender-Zeichen:** `Lehrer:innen`, `Lehrer*innen`, `Lehrer_innen`,
+  `Lehrer/innen`, `Kellner:in`, Binnen-I `SchülerInnen`.
+- **Doppelnennung:** `Lehrerinnen und Lehrer`, `Kolleginnen oder Kollegen`,
+  `Patientinnen und Patienten` → nur die maskuline Form.
+- **Partizip-Neuschöpfungen:** `Studierende`, `Teilnehmende`, `Mitarbeitende`,
+  `Lernende`, `Lehrende`, `Forschende`, `Pflegende`, `Sprechende`, `Helfende`,
+  `Zuhörende`, `Kunstschaffende`, `Vortragende` → `Studenten`, `Teilnehmer`,
+  `Mitarbeiter`, `Lerner`, `Lehrer`, `Forscher`, `Pfleger`, `Sprecher`,
+  `Helfer`, `Zuhörer`, `Künstler`, `Redner`.
+- **Alleinstehende weibliche Generika:** `die Lehrerinnen` statt `die Lehrer`
+  als Default für eine gemischte/unbestimmte Gruppe → maskulin.
+
+**Zwei Klassen bleiben — das ist KEIN Gendern:**
+
+1. **Bezug auf tatsächliche Frauen** bleibt unangetastet: benannte oder real
+   weibliche Personen/Gruppen (Marie Curie als Wissenschaftlerin, die
+   Suffragetten/Pussy Riot als Aktivistinnen, die Rana-Plaza-Näherinnen,
+   Königinnen, „die japanische Künstlerin Yayoi Kusama"). Weibliche Form als
+   Default zu ersetzen ist richtig — reale Frauen zu maskulinisieren wäre
+   genauso falsch und zerstört den Inhalt.
+2. **Genderform als GEGENSTAND** (Erwähnung, nicht Verwendung): ein Text ÜBER
+   die Genderdebatte (`DE_C1_3064S`), eine Anti-Gender-Erklärseite mit
+   Formen-Tabelle (`DE_AMDP_000`), ein Partizip-Adjektiv (`sprechende Tiere`
+   in `DE_B2_1021X`). Diese Dateien stehen in der `ALLOWLIST` von
+   `check_gender.py`. Auch `Reisende` bleibt (korrektes Standarddeutsch).
+
+**Gate:** `scripts/check_gender.py` ist ein **blockierendes** Gate in
+`check_all.py` und läuft damit automatisch bei jedem `safe-commit.sh`. Es
+fängt die drei maschinell sicher erkennbaren Klassen (Zeichen, Doppelnennung,
+Partizipform) mit hoher Präzision. Die alleinstehenden weiblichen Generika
+kann kein Regex von echten Frauen trennen — die bleiben Mensch-/Skill-Ebene
+(daf-kern-Skills, Memory). Neue legitime Ausnahme (Genderform als Gegenstand)?
+Bewusst in die `ALLOWLIST` von `check_gender.py` eintragen — die Reibung ist
+gewollt.
+
+**Offener Nachzug (skill-verwaltung, nicht aus laufender Session editierbar):**
+Der Schreibwerkstatt-Generator erzeugte die Doppelform-Default
+`Anonyme Einsenderin / anonymer Einsender` (in C1 bereits auf
+`Anonymer Einsender` bereinigt; in B1/B2/A1/A2 als Altbestand noch vorhanden).
+`daf-schreibwerkstatt` und der `schueler-textkorrektur`-Generator müssen den
+maskulinen Default erzeugen, sonst gebiert die nächste Lektion die Doppelform
+neu. Das Gate fängt diese singuläre Slash-Doppelform bewusst NICHT (zu
+FP-anfällig); daher Generator-Fix nötig.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -802,6 +852,7 @@ AMDP, ir/, schueler/ und C2 übersehen):
 - `scripts/inject_dark_tokens.py` — Dark-Mode-Produzent: baut FB-DESIGN-TOKENS + FB-DARK-MODE-Block + Theme-Toggle idempotent ein (%-Formatierungsbug 2026-07-07 behoben, siehe Pflichtabschnitt oben)
 - `scripts/check_dark.py` — Dark-Mode-Prüfung (WARN-Gate, Backlog ~220 Dateien): meldet Teilausbauten bei bereits tokenisierten Dateien
 - `scripts/check_mobil.py` — Handy-Bedienbarkeits-Prüfung: blockt Inline-Grid, click:false-Gerüst, nowrap-Chips ohne Override, fehlendes Viewport-Meta (vor Lektions-Commit); Reparateur für Chips `scripts/fb_chipwrap_swinit.py`
+- `scripts/check_gender.py` — Kein-Gendern-Gate: blockt Gender-Zeichen, Doppelnennung und Partizip-Neuschöpfungen (Frank-Regel, blockierend seit 2026-07-15); Allowlist für Genderform-als-Gegenstand-Dateien
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `scripts/check_all.py` — Orchestrator aller Gates (blockierend vs. Backlog-Warnung); wird von safe-commit.sh automatisch aufgerufen
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der

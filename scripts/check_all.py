@@ -28,6 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 BLOCKING = [
     "check_quotes.py",
+    "check_gender.py",       # kein Gendern: Zeichen/Doppelnennung/Partizipform (Frank-Regel, 2026-07-15; Repo-Backlog 0 bei Scharfschaltung)
     "check_serif.py",
     "check_wortbank.py",
     "check_genus.py",
