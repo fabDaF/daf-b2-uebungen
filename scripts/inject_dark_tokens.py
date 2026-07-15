@@ -211,7 +211,7 @@ def process(fn):
         else: unmapped.append(used[k])
     dark_body = '\n'.join(dark)
     root = '/* ===== FB-DESIGN-TOKENS (auto) ===== */\n:root {\n' + '\n'.join(light) + '\n}\n'
-    extras_media = '.tab-banner { box-shadow: 0 2px 8px rgba(0,0,0,0.45); }\nbody { color: #c6cade; }\nbutton, input, select, textarea { color: inherit; }'
+    extras_media = ':root:not([data-theme="light"]) .tab-banner { box-shadow: 0 2px 8px rgba(0,0,0,0.45); }\n:root:not([data-theme="light"]) body { color: #c6cade; }\n:root:not([data-theme="light"]) button, :root:not([data-theme="light"]) input, :root:not([data-theme="light"]) select, :root:not([data-theme="light"]) textarea { color: inherit; }'
     extras_manual = 'html[data-theme="dark"] .tab-banner { box-shadow: 0 2px 8px rgba(0,0,0,0.45); }\nhtml[data-theme="dark"] body { color: #c6cade; }\nhtml[data-theme="dark"] button, html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color: inherit; }'
     darkblock = ('\n/* ===== FB-DARK-MODE (System-Default + manueller Schalter) ===== */\n'
       '@media (prefers-color-scheme: dark) {\n:root:not([data-theme="light"]) {\n'+dark_body+'\n}\n'+extras_media+'\n}\n'
