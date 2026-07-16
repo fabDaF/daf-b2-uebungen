@@ -2248,23 +2248,24 @@ function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(funct
   else go();
 })();
 </script>
-<!-- FB-NAME-REQUIRED: Namensfeld-Pflicht (2026-07-16) -->
+
+<!-- FB-NAME-REQUIRED: Namenspflicht beim Senden (2026-07-16) -->
 <script>
 (function(){
   if (window.__fbNameRequired) return; window.__fbNameRequired = true;
-  var NAME_ID = 'schreib-name';
-  function nameVal(){ var i=document.getElementById(NAME_ID); return i ? (i.value||'').trim() : ''; }
-  if (typeof window.schreibNameOk !== 'function') {
-    window.schreibNameOk = function(){ return nameVal().length >= 2; };
-  }
+  function nameInput(){ return document.getElementById('schreib-name') || document.getElementById('sw-name') || document.querySelector('input.schreib-name'); }
+  function nameVal(){ var i = nameInput(); return i ? (i.value || '').trim() : ''; }
   if (typeof window.schreibPostFormsubmit === 'function') {
     var _origPost = window.schreibPostFormsubmit;
     window.schreibPostFormsubmit = function(subject, message, onOk, onErr){
       if (nameVal().length < 2){
-        var inp = document.getElementById(NAME_ID);
-        if (inp){ try{ inp.focus(); }catch(e){} if (inp.scrollIntoView) inp.scrollIntoView({behavior:'smooth', block:'center'}); }
-        var hint = document.getElementById('fb-name-hint');
-        if (hint){ hint.textContent = '⚠️ Bitte trage oben deinen Namen ein — ohne Namen kann der Text nicht gesendet werden.'; hint.style.color = '#c0392b'; }
+        var inp = nameInput();
+        if (inp){
+          try { inp.focus(); } catch(e){}
+          var box = (inp.closest && inp.closest('.schreib-name-box, .schreib-name-block')) || null;
+          if (box){ box.classList.add('shake'); setTimeout(function(){ box.classList.remove('shake'); }, 500); }
+          if (inp.scrollIntoView) inp.scrollIntoView({behavior:'smooth', block:'center'});
+        }
         if (typeof onErr === 'function') onErr(new Error('NAME_MISSING'));
         return;
       }
@@ -2278,25 +2279,6 @@ function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(funct
       return _origFehler.apply(this, arguments);
     };
   }
-  function insertNameField(){
-    if (document.getElementById(NAME_ID)) return;
-    var ta = document.querySelector('.schreib-mini-textarea');
-    if (!ta) return;
-    var sec = ta.closest('.section, .tab-content, section') || ta.parentNode;
-    var host = sec.querySelector('.sec-inner') || sec;
-    var block = document.createElement('div');
-    block.className = 'schreib-name-block';
-    block.style.cssText = 'margin:0 0 18px; padding:14px 16px; background:#fff5f5; border:1px solid #f3c6c6; border-radius:10px;';
-    block.innerHTML =
-      '<label for="' + NAME_ID + '" style="display:block; font-weight:600; color:#b71c1c; margin-bottom:6px;">Dein Name — Pflicht, damit Frank weiß, wer schreibt:</label>'
-      + '<input type="text" id="' + NAME_ID + '" placeholder="Dein Vor- und Nachname" autocomplete="name" style="width:100%; max-width:360px; padding:10px 14px; border:2px solid #e74c3c; border-radius:8px; font-family:inherit; font-size:0.98em; outline:none; box-sizing:border-box;">'
-      + '<div id="fb-name-hint" style="font-size:0.85em; color:#777; margin-top:6px;">Ohne Namen wird der Text nicht gesendet.</div>';
-    var h2 = host.querySelector('h2');
-    if (h2 && h2.parentNode === host) host.insertBefore(block, h2.nextSibling);
-    else host.insertBefore(block, host.firstChild);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', insertNameField);
-  else insertNameField();
 })();
 </script>
 
