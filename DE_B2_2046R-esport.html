@@ -1957,5 +1957,47 @@ function resetGenus(){ initGenus(); genusTimerReset(); }
 // Wandelt ein Objekt in FormData: preflight-freier Versand (kein application/json-Header, keine CORS-OPTIONS-Vorabanfrage, die Firmen-Proxys mit HTTP 405 blocken).
 function schreibToFormData(o){var fd=new FormData();Object.keys(o).forEach(function(k){fd.append(k,o[k]);});return fd;}
 </script>
+
+<!-- FB-NAME-REQUIRED: Namenspflicht beim Senden (2026-07-16) -->
+<script>
+(function(){
+  if (window.__fbNameRequired) return; window.__fbNameRequired = true;
+  function nameInput(){ return document.getElementById('schreib-name') || document.getElementById('sw-name') || document.querySelector('input.schreib-name'); }
+  function nameVal(){ var i = nameInput(); return i ? (i.value || '').trim() : ''; }
+  function blockUI(){
+    var inp = nameInput();
+    if (!inp) return;
+    try { inp.focus(); } catch(e){}
+    var box = (inp.closest && inp.closest('.schreib-name-box, .schreib-name-block')) || inp.parentNode;
+    if (box){ box.classList.add('shake'); setTimeout(function(){ box.classList.remove('shake'); }, 500); }
+    var hint = document.getElementById('fb-name-hint');
+    if (hint){ hint.textContent = '⚠️ Bitte trage oben deinen Namen ein — ohne Namen kann der Text nicht gesendet werden.'; hint.style.color = '#c0392b'; }
+    if (inp.scrollIntoView) inp.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  // Trigger umschließen (deckt ALLE Generationen ab, auch die ohne schreibPostFormsubmit):
+  ['schreibSendenEinzeln', 'schreibSendenAlleNochOffenen'].forEach(function(fn){
+    if (typeof window[fn] === 'function'){
+      var _o = window[fn];
+      window[fn] = function(){ if (nameVal().length < 2){ blockUI(); return; } return _o.apply(this, arguments); };
+    }
+  });
+  // Belt-and-suspenders: Choke-Point (falls ein Sende-Pfad nicht über die Trigger läuft):
+  if (typeof window.schreibPostFormsubmit === 'function') {
+    var _origPost = window.schreibPostFormsubmit;
+    window.schreibPostFormsubmit = function(subject, message, onOk, onErr){
+      if (nameVal().length < 2){ blockUI(); if (typeof onErr === 'function') onErr(new Error('NAME_MISSING')); return; }
+      return _origPost.apply(this, arguments);
+    };
+  }
+  if (typeof window.schreibFehlerErklaerung === 'function') {
+    var _origFehler = window.schreibFehlerErklaerung;
+    window.schreibFehlerErklaerung = function(err){
+      if (err && err.message === 'NAME_MISSING') return 'Bitte trage oben im Namensfeld deinen Namen ein — ohne Namen kann der Text nicht gesendet werden.';
+      return _origFehler.apply(this, arguments);
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
