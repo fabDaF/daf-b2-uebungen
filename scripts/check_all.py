@@ -41,6 +41,7 @@ BLOCKING = [
     "check_orphan_init.py",   # verwaiste Init-Aufrufe → ReferenceError bricht Init ab (Fund 2026-07-10, 16 Dateien)
     "check_hilfebox.py",      # verbotene Aufgaben-/Tipp-Kästen (Frank-Regel, 2026-07-04)
     "check_mobil.py",         # Handy-Bedienbarkeit: Inline-Grid, click:false, Chip-Wrap, Viewport (Backlog 0 seit 2026-07-07)
+    "check_schreib_name.py",  # Schreibwerkstatt darf nicht namenlos senden: FB-NAME-REQUIRED-Modul Pflicht (2026-07-16, Backlog 0)
 ]
 
 WARN = [

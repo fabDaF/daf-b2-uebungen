@@ -835,6 +835,42 @@ maskulinen Default erzeugen, sonst gebiert die nächste Lektion die Doppelform
 neu. Das Gate fängt diese singuläre Slash-Doppelform bewusst NICHT (zu
 FP-anfällig); daher Generator-Fix nötig.
 
+## Schreibwerkstatt sendet NIE ohne Namen (Pflicht, Gate seit 2026-07-16)
+
+Frank-Regel: Kein Schülertext darf ohne Namensangabe abgeschickt werden können,
+und der alte Platzhalter „Anonymer Einsender" / „Anonyme Einsenderin / anonymer
+Einsender" ist komplett verboten.
+
+Lage (korrekt ermittelt): ALLE Schreibwerkstatt-Lektionen haben bereits ein
+Namensfeld — in mehreren Generationen (`id="schreib-name"` modern mit
+`schreibNameOk`, `id="sw-name"` älter mit `schreibValidiereName`, plus eine dritte
+Generation ohne `schreibPostFormsubmit`). Ein Teil sperrte den leeren Namen NICHT
+(72 im Choke-Point-Set, 16 in der dritten Generation) → dort war namenloses
+Senden möglich.
+
+Fix (ausgerollt über alle **635** Formulare): das selbst-installierende Modul
+**FB-NAME-REQUIRED** (vor `</body>`), erzeugt von `scripts/inject_schreib_name.py`.
+Es baut KEIN Feld ein (jede Datei hat schon eins — frühere Einbau-Variante gab
+Doppler), sondern **umschließt generationsunabhängig die Sende-Trigger**
+(`schreibSendenEinzeln` / `schreibSendenAlleNochOffenen`) UND den Choke-Point
+`schreibPostFormsubmit`: Name < 2 Zeichen ⇒ kein Versand, Fokus + Shake auf das
+vorhandene Feld. Liest `#schreib-name` ODER `#sw-name` ODER `input.schreib-name`.
+Entfernt zusätzlich den `Anonymer Einsender`-Fallback aus `schreibAktuellerName`.
+
+- `scripts/inject_schreib_name.py DATEI.html …` — Produzent (idempotent; ersetzt
+  einen vorhandenen FB-NAME-REQUIRED-Block, doppelt nie).
+- `scripts/check_schreib_name.py` — **blockierendes** Gate in `check_all.py`:
+  meldet jede `schreib-mini-textarea`-Datei ohne FB-NAME-REQUIRED (Backlog 0 bei
+  Scharfschaltung). **Vor jedem Lektions-Commit** (läuft via safe-commit automatisch).
+- Neubau einer Lektion mit Schreibwerkstatt: nach dem Bau `inject_schreib_name.py`
+  laufen lassen (oder gleich mit Modul bauen), sonst blockt das Gate.
+
+**Offener Nachzug (skill-verwaltung, nicht aus laufender Session editierbar):** Die
+Generatoren `daf-schreibwerkstatt` und `schueler-textkorrektur` müssen das
+FB-NAME-REQUIRED-Modul selbst mit erzeugen (und dürfen keinen „Anonymer
+Einsender"-Fallback mehr schreiben), sonst gebiert die nächste generierte Lektion
+wieder eine namenlos-sendbare Schreibwerkstatt, die das Gate dann blockt.
+
 ## Ergänzende Dokumente in diesem Repo
 
 - `MANIFEST.yaml` — die SOLL-Welt, maschinenlesbar
@@ -853,6 +889,7 @@ FP-anfällig); daher Generator-Fix nötig.
 - `scripts/check_dark.py` — Dark-Mode-Prüfung (WARN-Gate, Backlog ~220 Dateien): meldet Teilausbauten bei bereits tokenisierten Dateien
 - `scripts/check_mobil.py` — Handy-Bedienbarkeits-Prüfung: blockt Inline-Grid, click:false-Gerüst, nowrap-Chips ohne Override, fehlendes Viewport-Meta (vor Lektions-Commit); Reparateur für Chips `scripts/fb_chipwrap_swinit.py`
 - `scripts/check_gender.py` — Kein-Gendern-Gate: blockt Gender-Zeichen, Doppelnennung und Partizip-Neuschöpfungen (Frank-Regel, blockierend seit 2026-07-15); Allowlist für Genderform-als-Gegenstand-Dateien
+- `scripts/check_schreib_name.py` — Schreibwerkstatt-Namenspflicht-Gate: blockt jedes `schreib-mini-textarea`-Formular ohne FB-NAME-REQUIRED (blockierend seit 2026-07-16); Produzent `scripts/inject_schreib_name.py`
 - `scripts/schreib_pad_lib.py` — geteilte Erkennung + `scripts/inject_schreib_pad.py` — Reparateur
 - `scripts/check_all.py` — Orchestrator aller Gates (blockierend vs. Backlog-Warnung); wird von safe-commit.sh automatisch aufgerufen
 - `backup/KONSOLIDIERUNG_20260410.md` — Geschichte der
