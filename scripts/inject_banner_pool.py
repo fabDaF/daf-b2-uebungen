@@ -117,8 +117,16 @@ def bearbeite(pfad):
         teil = s[grenzen[i]:grenzen[i + 1]]
         hat_foto.append(any('svg+xml' not in t for t in IMG_RE.findall(teil)))
     mitte_pos = None
+    def fam_von(i):
+        # Schlüssel-Lookup per sec-ID; Fallback: Nav-Position (C1-Generation:
+        # showSection(0..N) positional, Sections aber mit benannten IDs)
+        f = funktionen.get(indizes[i])
+        if f is None:
+            f = funktionen.get(str(i))
+        return f if f is not None else 'UNBEKANNT'
+
     kandidaten_mitte = [i for i in range(1, len(indizes))
-                        if hat_foto[i] and funktionen.get(indizes[i]) in FAMILIEN]
+                        if hat_foto[i] and fam_von(i) in FAMILIEN]
     if kandidaten_mitte:
         ziel = (len(indizes) - 1) / 2.0
         naechste = sorted(kandidaten_mitte, key=lambda i: abs(i - ziel))
@@ -130,7 +138,7 @@ def bearbeite(pfad):
     benutzt = set()
     for i in range(len(grenzen) - 1):
         teil = s[grenzen[i]:grenzen[i + 1]]
-        fam = funktionen.get(indizes[i], 'UNBEKANNT')
+        fam = fam_von(i)
         if i == 0 or i == mitte_pos:
             fam = 'FOTO-SLOT'  # erster Tab + Mitte behalten ihr Foto
         for tag in IMG_RE.findall(teil):
