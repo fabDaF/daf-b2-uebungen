@@ -225,9 +225,15 @@ def process(fn):
             if bm:
                 bend = css.find('}', bm.end())
                 if bend > 0: binner = css[bm.end():bend]
-            if not re.search(r'background(?:-color)?\s*:\s*[^;{}]*(?:#[0-9a-fA-F]{3,6}\b|(?<![-\w])white(?![-\w]))', binner):
+            if re.search(r'background(?:-color)?\s*:\s*[^;{}]*var\(--', binner):
+                # body nutzt EIGENES Var-System -> decl-Loop tokenisiert Literale,
+                # Dark-Werte fuer die dateieigenen Vars muessen nachtraeglich in den
+                # Dark-Block ergaenzt werden (haendisch oder per Zusatzskript).
+                specials_ok.append('page(vars)')
+            elif re.search(r'background(?:-color)?\s*:\s*[^;{}]*(?:#[0-9a-fA-F]{3,6}\b|(?<![-\w])white(?![-\w]))', binner):
+                specials_ok.append('page(solid)')
+            else:
                 return 'SKIP %s | body-Hintergrund nicht tokenisierbar (fremdes Layout)' % fn
-            specials_ok.append('page(solid)')
 
     css, ok = block_sub(css, r'\.header', r'(background\s*:\s*)'+GRAD_RE,
         r'\1linear-gradient(135deg, var(--grad-head-a), var(--grad-head-b))')
