@@ -5,6 +5,11 @@ Aufruf: python3 scripts/inject_dark_tokens.py DATEI.html [...]
 Idempotent (Marker FB-DESIGN-TOKENS). Pro Datei eine Berichtszeile:
   OK datei | vars=N dark=N specials=... fehlend=... unmapped=a,b
   SKIP datei | grund
+Seit 2026-07-21 auch fuer Nicht-Kanon-Layouts: beliebige body-/header-Gradienten
+(specials 'page(auto)'/'head(auto)', Dark-Werte berechnet, Ton bleibt), solide
+body-Hintergruende ('page(solid)', via decl-Loop) und Dateien ohne .header
+(Schalter fixiert oben rechts, 'toggle(fixed)'). Kanonische Lila-Dateien
+erzeugen unveraendert exakt dieselbe Ausgabe wie zuvor.
 """
 import re, sys, os
 
@@ -53,6 +58,9 @@ SPECIAL_DARK = {
  '--sf-container':'#23263a','--sf-pill':'#343a5e','--sf-input':'#1a1d2e',
 }
 GRAD_RE = r'linear-gradient\(\s*135deg\s*,\s*#667eea(?:\s+0%)?\s*,\s*#764ba2(?:\s+100%)?\s*\)'
+# Generischer Gradient (beliebiger Winkel, beliebige Stops) — Fallback fuer
+# Nicht-Kanon-Layouts (z. B. gruene Kollokationen-Serie in daf-materialien).
+GRAD_ANY = re.compile(r'(background\s*:\s*)((?:linear|radial)-gradient\([^;{}]*\))')
 COLOR_RE = re.compile(r'#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b|(?<![-\w])white(?![-\w])')
 
 TOGGLE_CSS_TMPL = '''
@@ -66,6 +74,17 @@ __HEADER_SEL__ { position: relative; }
   transition: background 0.2s; z-index: 5;
 }
 .theme-toggle:hover { background: rgba(255,255,255,0.3); }
+'''
+TOGGLE_CSS_FIXED = '''
+/* FB-THEME-TOGGLE (fixiert, Datei ohne Header) */
+.theme-toggle {
+  position: fixed; top: 14px; right: 14px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(102,126,234,0.45); border: 1px solid rgba(255,255,255,0.4);
+  color: white; font-size: 1.05em; cursor: pointer; line-height: 1;
+  transition: background 0.2s; z-index: 50;
+}
+.theme-toggle:hover { background: rgba(102,126,234,0.7); }
 '''
 TOGGLE_BTN = '<button class="theme-toggle" id="themeToggle" onclick="fbToggleTheme()" aria-label="Hell/Dunkel umschalten">\U0001F319</button>'
 INIT_JS = '''<script>/* FB-THEME-INIT */
@@ -140,6 +159,42 @@ def block_sub(css, sel_re, inner_old_re, inner_new, maxblock=4000):
     if not n: return css, False
     return css[:start] + inner2 + css[end:], True
 
+def grad_dark(val, kind):
+    """Berechneter Dark-Wert fuer Gradient-Stops — Ton bleibt, Helligkeit kippt.
+    kind 'page': tiefdunkler Seitenhintergrund; 'head': gedimmter, satter Akzent."""
+    try: r,g,b = _rgb(val)
+    except Exception: return None
+    h,l,sa = colorsys.rgb_to_hls(r/255,g/255,b/255)
+    if kind == 'page':
+        l2 = 0.12 + l*0.08; sa2 = max(min(sa,0.45)*0.7, 0.10)
+    else:
+        l2 = min(l, 0.30 + l*0.24); sa2 = min(sa, 0.55)
+    r2,g2,b2 = colorsys.hls_to_rgb(h, l2, sa2)
+    return _hex(r2*255,g2*255,b2*255)
+
+def block_grad_generic(css, sel_re, prefix, kind, special_light, special_dark, maxblock=4000):
+    """Tokenisiert die Farb-Stops des ersten Gradients im Block sel_re (Nicht-Kanon-Farben).
+    Light-Werte = Originalfarben, Dark-Werte berechnet (grad_dark). Winkel/Stops bleiben."""
+    m = re.search(sel_re + r'\s*\{', css)
+    if not m: return css, False
+    start = m.end(); end = css.find('}', start)
+    if end < 0 or end - start > maxblock: return css, False
+    inner = css[start:end]
+    gm = GRAD_ANY.search(inner)
+    if not gm: return css, False
+    grad = gm.group(2)
+    names = 'abcdefgh'; idx = [0]
+    def sub(cm):
+        if idx[0] >= len(names): return cm.group(0)
+        name = '--%s-%s' % (prefix, names[idx[0]]); idx[0] += 1
+        special_light[name] = cm.group(0)
+        special_dark[name] = grad_dark(cm.group(0), kind) or cm.group(0)
+        return 'var(%s)' % name
+    grad2 = COLOR_RE.sub(sub, grad)
+    if idx[0] == 0: return css, False
+    inner2 = inner[:gm.start(2)] + grad2 + inner[gm.end(2):]
+    return css[:start] + inner2 + css[end:], True
+
 def process(fn):
     html = open(fn, encoding='utf-8').read()
     if 'FB-DESIGN-TOKENS' in html:
@@ -151,21 +206,39 @@ def process(fn):
     rest_css = [b.group(1) for b in blocks[1:]]
 
     specials_ok, specials_fehlend = [], []
-    used = {}; special_light = {}
+    used = {}; special_light = {}; special_dark = {}
 
     css, ok = block_sub(css, r'(?<![\w.#-])body', r'(background\s*:\s*)'+GRAD_RE,
         r'\1linear-gradient(135deg, var(--grad-page-a) 0%, var(--grad-page-b) 100%)')
-    if not ok:
-        return 'SKIP %s | body-Gradient nicht gefunden (fremdes Layout)' % fn
-    special_light['--grad-page-a']='#667eea'; special_light['--grad-page-b']='#764ba2'
-    specials_ok.append('page')
+    if ok:
+        special_light['--grad-page-a']='#667eea'; special_light['--grad-page-b']='#764ba2'
+        specials_ok.append('page')
+    else:
+        css, ok = block_grad_generic(css, r'(?<![\w.#-])body', 'grad-page', 'page',
+            special_light, special_dark)
+        if ok:
+            specials_ok.append('page(auto)')
+        else:
+            # Solid-Body-Fallback: literale background-Farbe im body-Block ->
+            # der decl-Loop tokenisiert sie (auto_dark kippt die Helligkeit).
+            bm = re.search(r'(?<![\w.#-])body\s*\{', css); binner = ''
+            if bm:
+                bend = css.find('}', bm.end())
+                if bend > 0: binner = css[bm.end():bend]
+            if not re.search(r'background(?:-color)?\s*:\s*[^;{}]*(?:#[0-9a-fA-F]{3,6}\b|(?<![-\w])white(?![-\w]))', binner):
+                return 'SKIP %s | body-Hintergrund nicht tokenisierbar (fremdes Layout)' % fn
+            specials_ok.append('page(solid)')
 
     css, ok = block_sub(css, r'\.header', r'(background\s*:\s*)'+GRAD_RE,
         r'\1linear-gradient(135deg, var(--grad-head-a), var(--grad-head-b))')
     if ok:
         special_light['--grad-head-a']='#667eea'; special_light['--grad-head-b']='#764ba2'
         specials_ok.append('head')
-    else: specials_fehlend.append('head')
+    else:
+        css, ok = block_grad_generic(css, r'\.header', 'grad-head', 'head',
+            special_light, special_dark)
+        if ok: specials_ok.append('head(auto)')
+        else: specials_fehlend.append('head')
 
     css, ok = block_sub(css, r'\.wort-chip', r'(background\s*:\s*)'+GRAD_RE,
         r'\1linear-gradient(135deg, var(--grad-chip-a), var(--grad-chip-b))')
@@ -204,7 +277,7 @@ def process(fn):
     light += ['  %s: %s;' % (k,v) for k,v in sorted(used.items())]
     dark, unmapped = [], []
     for k in sorted(special_light):
-        dark.append('  %s: %s;' % (k, SPECIAL_DARK[k]))
+        dark.append('  %s: %s;' % (k, special_dark.get(k) or SPECIAL_DARK[k]))
     for k in sorted(used):
         dv = dark_of(k)
         if dv: dark.append('  %s: %s;' % (k, dv))
@@ -219,7 +292,7 @@ def process(fn):
 
     hat_header = re.search(r'<div class="header"[^>]*>|<header[^>]*>', html)
     header_sel = '.header' if (hat_header and 'class="header"' in hat_header.group(0)) else 'header'
-    toggle_css = (TOGGLE_CSS_TMPL.replace('__HEADER_SEL__', header_sel)) if hat_header else ''
+    toggle_css = (TOGGLE_CSS_TMPL.replace('__HEADER_SEL__', header_sel)) if hat_header else TOGGLE_CSS_FIXED
     if rest_css:
         # Folgebloecke von hinten nach vorn ersetzen (Offsets bleiben gueltig), Dark-Block in den LETZTEN
         for i in range(len(blocks)-1, 0, -1):
@@ -236,14 +309,24 @@ def process(fn):
         html = html[:h2.end()] + '\n  ' + TOGGLE_BTN + html[h2.end():]
         specials_ok.append('toggle')
     else:
-        specials_fehlend.append('toggle')
+        # Kein Header -> Schalter fixiert oben rechts am Viewport
+        b2 = re.search(r'<body[^>]*>', html)
+        if b2:
+            html = html[:b2.end()] + '\n  ' + TOGGLE_BTN + html[b2.end():]
+            specials_ok.append('toggle(fixed)')
+        else:
+            specials_fehlend.append('toggle')
 
     html = html.replace('</style>', '</style>\n' + INIT_JS, 1)
 
     if '<meta name="theme-color"' not in html:
         mv = re.search(r'<meta name="viewport"[^>]*>', html)
         if mv:
-            html = html[:mv.end()] + '\n<meta name="theme-color" content="#667eea" media="(prefers-color-scheme: light)">\n<meta name="theme-color" content="#23263e" media="(prefers-color-scheme: dark)">' + html[mv.end():]
+            tc_l = special_light.get('--grad-page-a', '#667eea')
+            if tc_l == 'white': tc_l = '#ffffff'
+            tc_d = (special_dark.get('--grad-page-a')
+                    or (SPECIAL_DARK['--grad-page-a'] if '--grad-page-a' in special_light else '#23263e'))
+            html = html[:mv.end()] + '\n<meta name="theme-color" content="%s" media="(prefers-color-scheme: light)">\n<meta name="theme-color" content="%s" media="(prefers-color-scheme: dark)">' % (tc_l, tc_d) + html[mv.end():]
 
     def inline_repl(mm):
         s = mm.group(1)
