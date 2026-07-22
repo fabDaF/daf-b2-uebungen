@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#667eea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#23263e" media="(prefers-color-scheme: dark)">
+<title>Finding Flow, Teil 2 — Korrektur · C1 3092R · fünf Aufgaben</title>
+<style>/* ===== FB-DESIGN-TOKENS (auto) ===== */
+:root {
+  --grad-head-a: #667eea;
+  --grad-head-b: #764ba2;
+  --grad-page-a: #667eea;
+  --grad-page-b: #764ba2;
+  --sf-container: #fff;
+  --bd-27ae60: #27ae60;
+  --bd-43a047: #43a047;
+  --bd-667eea: #667eea;
+  --bd-c5cff5: #c5cff5;
+  --bd-d5dcf7: #d5dcf7;
+  --bd-e0e8ff: #e0e8ff;
+  --bd-e74c3c: #e74c3c;
+  --bd-e8e8e8: #e8e8e8;
+  --bd-f0f0f0: #f0f0f0;
+  --bd-f3c6c6: #f3c6c6;
+  --bd-f9a825: #f9a825;
+  --bd-fff8e1: #fff8e1;
+  --bg-27ae60: #27ae60;
+  --bg-5568d3: #5568d3;
+  --bg-667eea: #667eea;
+  --bg-c8e6c9: #c8e6c9;
+  --bg-e8f5e9: #e8f5e9;
+  --bg-f5f7ff: #f5f7ff;
+  --bg-f8f9ff: #f8f9ff;
+  --bg-fafafa: #fafafa;
+  --bg-fff: #fff;
+  --bg-fff5f5: #fff5f5;
+  --bg-white: white;
+  --tx-1a237e: #1a237e;
+  --tx-1b5e20: #1b5e20;
+  --tx-241048: #241048;
+  --tx-27ae60: #27ae60;
+  --tx-2c2c2c: #2c2c2c;
+  --tx-34206b: #34206b;
+  --tx-3949ab: #3949ab;
+  --tx-5d4037: #5d4037;
+  --tx-667eea: #667eea;
+  --tx-888: #888;
+  --tx-aaa: #aaa;
+  --tx-b71c1c: #b71c1c;
+  --tx-c62828: #c62828;
+  --tx-e65100: #e65100;
+  --tx-e74c3c: #e74c3c;
+  --tx-f9a825: #f9a825;
+  --tx-fff: #fff;
+  --tx-white: white;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       background: linear-gradient(135deg, var(--grad-page-a) 0%, var(--grad-page-b) 100%);
+       min-height: 100vh; padding: 20px; }
+.container { max-width: 1100px; margin: 0 auto; background: var(--sf-container);
+             border-radius: 12px; overflow: hidden;
+             box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, var(--grad-head-a), var(--grad-head-b));
+          color: var(--tx-white); padding: 30px; text-align: center; }
+.header h1 { font-size: 1.9em; font-family: Georgia, serif; color: var(--tx-white); margin-bottom: 8px; }
+.header p { font-size: 1.0em; font-family: Georgia, serif; opacity: 0.95; }
+.header .meta { font-size: 0.85em; margin-top: 6px; opacity: 0.8; font-style: italic; }
+.header .big-emoji { font-size: 2.6em; margin-top: 12px; line-height: 1; }
+
+.body-area { padding: 40px 50px; }
+
+.regie {
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+  border-left: 4px solid var(--bd-f9a825); border-radius: 0 8px 8px 0;
+  padding: 18px 22px; margin-bottom: 36px;
+  font-size: 0.95em; line-height: 1.6; color: var(--tx-5d4037);
+}
+.regie strong { color: var(--tx-e65100); }
+
+/* — Originaltext-Block — */
+.dein-text-box {
+  background: var(--bg-fafafa); border: 1px solid var(--bd-e8e8e8); border-radius: 10px;
+  padding: 24px 32px; margin-bottom: 36px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.85; color: var(--tx-2c2c2c); text-align: justify; hyphens: auto;
+  max-width: 820px;
+}
+.dein-text-box p { margin-bottom: 6px; }
+.dein-text-box p:last-child { margin-bottom: 0; }
+.dein-text-label {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.72em; font-weight: 700;
+  color: var(--tx-888); letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* — Inline-Korrektur — */
+.satz-inline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.25em; line-height: 2.05;
+  color: var(--tx-2c2c2c);
+  margin-bottom: 18px;
+}
+.satz-inline .nr {
+  background: var(--bg-667eea); color: var(--tx-white); font-size: 0.55em; font-weight: 700;
+  padding: 4px 10px; border-radius: 12px; vertical-align: middle;
+  margin-right: 14px; letter-spacing: 0.06em;
+  font-family: 'Segoe UI', sans-serif;
+}
+.satz-inline .del { text-decoration: line-through; color: var(--tx-c62828); text-decoration-thickness: 1.5px; }
+.satz-inline .ins {
+  background: var(--bg-c8e6c9); color: var(--tx-1b5e20);
+  padding: 2px 6px; border-radius: 4px; font-weight: 600;
+}
+
+/* — Affirmation: was schon richtig ist — */
+.affirm {
+  background: var(--bg-e8f5e9); border-left: 4px solid var(--bd-43a047); border-radius: 0 8px 8px 0;
+  padding: 11px 18px; margin: 4px 0 24px 0;
+  font-family: Georgia, serif; font-size: 0.95em; line-height: 1.6; color: var(--tx-1b5e20);
+}
+
+.satz-block {
+  margin-bottom: 64px; padding-bottom: 36px;
+  border-bottom: 1px solid var(--bd-f0f0f0);
+}
+.satz-block:last-child { border-bottom: none; }
+
+/* — Mini-Lehrstücke (Grid) — */
+.lehrstuecke-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--tx-888);
+  margin: 24px 0 20px 0;
+}
+.lehrstuecke-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+}
+.lehr-karte {
+  background: var(--bg-white); border: 1px solid var(--bd-e8e8e8); border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex; flex-direction: column;
+}
+.fehler-name {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--tx-f9a825);
+  margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 2px solid var(--bd-fff8e1);
+}
+.regel {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.65;
+  color: var(--tx-2c2c2c); margin-bottom: 14px;
+  font-weight: 500;
+}
+.beispiele {
+  background: var(--bg-f8f9ff); border-radius: 8px;
+  padding: 12px 16px;
+  font-family: Georgia, serif; font-size: 0.92em; line-height: 1.65;
+  color: var(--tx-3949ab);
+  margin-bottom: 18px;
+}
+.beispiele .b-zeile { display: block; margin-bottom: 4px; }
+.beispiele .b-zeile:last-child { margin-bottom: 0; }
+
+/* — Mikro-Übung pro Karte — */
+.uebung {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed var(--bd-e0e8ff);
+}
+.uebung-kopf {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.uebung-label {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--tx-667eea);
+}
+.uebung-ctrl { display: flex; gap: 5px; }
+.u-btn {
+  background: var(--bg-f5f7ff); border: 1px solid var(--bd-c5cff5);
+  color: var(--tx-667eea); padding: 4px 10px; border-radius: 6px;
+  font-size: 0.75em; font-weight: 600; cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  transition: all 0.15s; line-height: 1.3;
+}
+.u-btn:hover { background: var(--bg-667eea); color: var(--tx-white); border-color: var(--bd-667eea); }
+.uebung-item {
+  font-family: Georgia, serif; font-size: 0.98em; line-height: 1.95;
+  color: var(--tx-2c2c2c); margin-bottom: 6px;
+}
+.u-inp {
+  border: none; border-bottom: 2px solid var(--bd-667eea);
+  background: transparent;
+  font-family: inherit; font-size: 1em;
+  color: var(--tx-1a237e); font-weight: 600;
+  outline: none; padding: 0 4px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.u-inp.ok    { border-bottom-color: var(--bd-27ae60); color: var(--tx-27ae60); }
+.u-inp.wrong { border-bottom-color: var(--bd-e74c3c); color: var(--tx-e74c3c); }
+.u-inp.w-art { width: 64px; }
+.u-inp.w-mid { width: 120px; }
+.u-inp.w-wide { width: 170px; }
+.u-fertig {
+  display: none;
+  margin-top: 12px;
+  font-size: 0.88em; color: var(--tx-1b5e20); font-weight: 600;
+  background: var(--bg-e8f5e9); padding: 8px 12px; border-radius: 6px;
+}
+.uebung.done .u-fertig { display: block; }
+
+/* — Schreibfeld — */
+.schreibfeld-block {
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%);
+  border: 1px solid var(--bd-d5dcf7); border-radius: 12px;
+  padding: 26px 30px; margin-top: 12px;
+}
+.schreibfeld-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.82em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--tx-667eea); margin-bottom: 10px;
+}
+.schreibfeld-hinweis {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.6;
+  color: var(--tx-2c2c2c); margin-bottom: 16px;
+}
+.schreibfeld-area {
+  width: 100%; min-height: 630px; resize: vertical;
+  border: 1px solid var(--bd-c5cff5); border-radius: 8px;
+  padding: 14px 16px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.8; color: var(--tx-2c2c2c); background: var(--bg-fff);
+  outline: none; transition: border-color 0.2s;
+}
+.schreibfeld-area:focus { border-color: var(--bd-667eea); }
+.schreibfeld-fuss {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.8em; color: var(--tx-888);
+}
+.schreib-status { font-style: italic; }
+.schreib-count { font-weight: 600; color: var(--tx-667eea); }
+.schreibfeld-aktion { margin-top: 16px; }
+.schreibfeld-btn {
+  background: var(--bg-667eea); color: var(--tx-fff); border: none;
+  padding: 12px 22px; border-radius: 8px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.95em; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.schreibfeld-btn:hover { background: var(--bg-5568d3); }
+.schreibfeld-btn:disabled { opacity: 0.6; cursor: default; }
+.schreibfeld-btn.gesendet { background: var(--bg-27ae60); }
+.schreib-send-status {
+  margin-top: 12px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.9em; line-height: 1.55;
+}
+.schreib-send-status.success { color: var(--tx-1b5e20); }
+.schreib-send-status.error { color: var(--tx-b71c1c); }
+.schreib-fb { background: var(--bg-fff5f5); border: 1px solid var(--bd-f3c6c6); border-radius: 8px; padding: 14px 16px; }
+.schreib-fb-titel { font-weight: 700; margin-bottom: 6px; }
+.schreib-fb-text { margin-bottom: 10px; }
+.schreib-fb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.schreib-fb-btn {
+  display: inline-block; background: var(--bg-fff); border: 1px solid var(--bd-c5cff5);
+  color: var(--tx-667eea); padding: 7px 12px; border-radius: 6px;
+  font-size: 0.85em; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.schreib-fb-btn-prim { background: var(--bg-667eea); color: var(--tx-fff); border-color: var(--bd-667eea); }
+
+.author-footer { text-align: center; margin: 28px auto 0 auto;
+                 max-width: 1100px; padding: 16px; font-size: 0.8rem; color: var(--tx-aaa); }
+.author-footer a { color: var(--tx-aaa); }
+
+@media (max-width: 700px) {
+  .body-area { padding: 24px 22px; }
+  .satz-inline { font-size: 1.1em; line-height: 1.95; }
+  .lehrstuecke-grid { grid-template-columns: 1fr; }
+}
+
+/* FB-JUMPTOP - Nach-oben-Button (Glas-Look) */
+.fb-jumptop {
+  position: fixed; bottom: 30px;
+  right: max(18px, calc(50vw - 500px + 14px));
+  background: rgba(118, 75, 162, 0.26);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  color: var(--tx-34206b); border: 1.5px solid rgba(255,255,255,0.75); border-radius: 28px;
+  padding: 15px 26px; font-size: 1.05em; font-weight: 800;
+  letter-spacing: 0.2px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(102,126,234,0.40), inset 0 1px 0 rgba(255,255,255,0.6);
+  text-shadow: 0 1px 1px rgba(255,255,255,0.55);
+  opacity: 0; visibility: hidden; transform: translateY(10px);
+  transition: opacity .25s, visibility .25s, transform .25s, background .2s, box-shadow .2s;
+  z-index: 9999; display: inline-flex; align-items: center; gap: 8px;
+}
+.fb-jumptop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.fb-jumptop:hover { background: rgba(118, 75, 162, 0.40); color: var(--tx-241048); box-shadow: 0 10px 32px rgba(102,126,234,0.50), inset 0 1px 0 rgba(255,255,255,0.65); }
+@media (max-width: 600px) { .fb-jumptop { bottom: 18px; right: 16px; padding: 12px 18px; font-size: 0.95em; } }
+
+/* FB-THEME-TOGGLE */
+.header { position: relative; }
+.theme-toggle {
+  position: absolute; top: 14px; right: 14px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.4);
+  color: white; font-size: 1.05em; cursor: pointer; line-height: 1;
+  transition: background 0.2s; z-index: 5;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.3); }
+
+/* ===== FB-DARK-MODE (System-Default + manueller Schalter) ===== */
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+  --grad-head-a: #4a52a8;
+  --grad-head-b: #5c4585;
+  --grad-page-a: #23263e;
+  --grad-page-b: #2f2440;
+  --sf-container: #23263a;
+  --bd-27ae60: #3f9d6d;
+  --bd-43a047: #3a5f3b;
+  --bd-667eea: #7b88e8;
+  --bd-c5cff5: #4a5384;
+  --bd-d5dcf7: #2d3a6c;
+  --bd-e74c3c: #b0584d;
+  --bd-e8e8e8: #414258;
+  --bd-f0f0f0: #3a3e58;
+  --bd-f3c6c6: #6a2f2f;
+  --bd-f9a825: #785721;
+  --bg-27ae60: #2f9c5f;
+  --bg-5568d3: #5a66cc;
+  --bg-667eea: #4a55b8;
+  --bg-c8e6c9: #213421;
+  --bg-e8f5e9: #1e3328;
+  --bg-f5f7ff: #2a2e4a;
+  --bg-f8f9ff: #262a44;
+  --bg-fafafa: #20202e;
+  --bg-fff: #262a44;
+  --bg-fff5f5: #3e0f0f;
+  --bg-white: #262a44;
+  --tx-1a237e: #c3cafd;
+  --tx-1b5e20: #a5d6a7;
+  --tx-241048: #d9cef8;
+  --tx-27ae60: #58c98b;
+  --tx-2c2c2c: #d6d8e8;
+  --tx-34206b: #cbbcf6;
+  --tx-3949ab: #aab4f8;
+  --tx-5d4037: #ceb5ad;
+  --tx-667eea: #93a0f2;
+  --tx-888: #8e93b0;
+  --tx-aaa: #6f7390;
+  --tx-b71c1c: #f28b7d;
+  --tx-c62828: #ef7365;
+  --tx-e65100: #eca077;
+  --tx-e74c3c: #ef7365;
+  --tx-f9a825: #ebbc70;
+}
+:root:not([data-theme="light"]) .tab-banner { box-shadow: 0 2px 8px rgba(0,0,0,0.45); }
+:root:not([data-theme="light"]) body { color: #c6cade; }
+:root:not([data-theme="light"]) button, :root:not([data-theme="light"]) input, :root:not([data-theme="light"]) select, :root:not([data-theme="light"]) textarea { color: inherit; }
+}
+:root[data-theme="dark"] {
+  --grad-head-a: #4a52a8;
+  --grad-head-b: #5c4585;
+  --grad-page-a: #23263e;
+  --grad-page-b: #2f2440;
+  --sf-container: #23263a;
+  --bd-27ae60: #3f9d6d;
+  --bd-43a047: #3a5f3b;
+  --bd-667eea: #7b88e8;
+  --bd-c5cff5: #4a5384;
+  --bd-d5dcf7: #2d3a6c;
+  --bd-e74c3c: #b0584d;
+  --bd-e8e8e8: #414258;
+  --bd-f0f0f0: #3a3e58;
+  --bd-f3c6c6: #6a2f2f;
+  --bd-f9a825: #785721;
+  --bg-27ae60: #2f9c5f;
+  --bg-5568d3: #5a66cc;
+  --bg-667eea: #4a55b8;
+  --bg-c8e6c9: #213421;
+  --bg-e8f5e9: #1e3328;
+  --bg-f5f7ff: #2a2e4a;
+  --bg-f8f9ff: #262a44;
+  --bg-fafafa: #20202e;
+  --bg-fff: #262a44;
+  --bg-fff5f5: #3e0f0f;
+  --bg-white: #262a44;
+  --tx-1a237e: #c3cafd;
+  --tx-1b5e20: #a5d6a7;
+  --tx-241048: #d9cef8;
+  --tx-27ae60: #58c98b;
+  --tx-2c2c2c: #d6d8e8;
+  --tx-34206b: #cbbcf6;
+  --tx-3949ab: #aab4f8;
+  --tx-5d4037: #ceb5ad;
+  --tx-667eea: #93a0f2;
+  --tx-888: #8e93b0;
+  --tx-aaa: #6f7390;
+  --tx-b71c1c: #f28b7d;
+  --tx-c62828: #ef7365;
+  --tx-e65100: #eca077;
+  --tx-e74c3c: #ef7365;
+  --tx-f9a825: #ebbc70;
+}
+html[data-theme="dark"] .tab-banner { box-shadow: 0 2px 8px rgba(0,0,0,0.45); }
+html[data-theme="dark"] body { color: #c6cade; }
+html[data-theme="dark"] button, html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color: inherit; }
+
+/* — Sammelabgabe: ein Abschnitt pro Aufgabe — */
+.aufgabe-section { margin-bottom: 56px; }
+.aufgabe-title {
+  font-family: Georgia, serif; font-size: 1.35em; color: var(--tx-667eea);
+  margin: 8px 0 22px 0; padding-bottom: 10px;
+  border-bottom: 3px solid var(--bd-e0e8ff);
+}
+.aufgabe-title .a-nr {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.6em; font-weight: 700;
+  background: var(--bg-667eea); color: var(--tx-white);
+  padding: 4px 11px; border-radius: 12px;
+  vertical-align: middle; margin-right: 12px; letter-spacing: 0.06em;
+}
+
+/* ===== FB-KONTRAST-FIX: helle Boxen tragen in BEIDEN Modi dunkelblaue Schrift =====
+   .regie und .schreibfeld-block haben einen hartkodierten hellen Hintergrund;
+   Token-Textfarben hellen im Dark Mode auf und werden dort unlesbar. */
+.regie { color: #1a2f6b; }
+.regie strong { color: #12235c; }
+.schreibfeld-titel { color: #2c3a8c; }
+.schreibfeld-hinweis { color: #1a2f6b; }
+.schreibfeld-fuss { color: #4a5a8c; }
+.schreib-count { color: #1a2f6b; }
+</style>
+<script>/* FB-THEME-INIT */
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('fb-theme'); } catch(e) {}
+  if (saved === 'dark' || saved === 'light') document.documentElement.dataset.theme = saved;
+  function effDark() {
+    var t = document.documentElement.dataset.theme;
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function paint() {
+    var b = document.getElementById('themeToggle');
+    if (b) b.textContent = effDark() ? '☀️' : '🌙';
+  }
+  window.fbToggleTheme = function() {
+    var next = effDark() ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('fb-theme', next); } catch(e) {}
+    paint();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paint); else paint();
+})();
+</script>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <button class="theme-toggle" id="themeToggle" onclick="fbToggleTheme()" aria-label="Hell/Dunkel umschalten">🌙</button>
+  <h1>Finding Flow — die Anatomie des Flow-Erlebnisses</h1>
+  <p>C1 – Lektion 3092R · Schreibwerkstatt (fünf Aufgaben)</p>
+  <div class="meta">Schreibwerkstatt-Korrektur · Piipa Poutiainen</div>
+  <div class="big-emoji">🧘</div>
+</div>
+
+<div class="body-area">
+
+  <div class="regie">
+    Fünf Antworten, die alle ihre Frage treffen — vom Yoga am Strand bis zum Mini-Dialog. Besonders gelungen ist der ehrliche Vergleich in Aufgabe 4 zwischen zehn Wochen Lernen und dem Ausgleich danach. Quer durch alle Texte sind vier Dinge zu üben: das Komma (vor Nebensätzen und vor <em>aber/sondern</em>), das Paar <em>als/wenn</em>, der zu-Infinitiv (<em>versuchen zu, Schwierigkeiten, sich zu konzentrieren</em>) und die Komposita mit Bindestrich (<em>Yoga-Übungen, Wirtschaftsprüfer-Prüfung</em>). Die fünf Originaltexte stehen unverändert über den Abschnitten.
+  </div>
+
+  <!-- ════════════════════════════ AUFGABE 1 ════════════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 1</span>Herausforderung und Können im Gleichgewicht</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Originaltext — unverändert</div>
+      <p>Eine Situation, in der meine Herausforderung und eigenes Können im Gleichwicht standen war als ich Yoga in Spanien trainierte. Es war am Strand und das Meer war sehr schön und die Yoga Übungen waren schwer aber nicht zu schwer. Ein und halbe Stunde ist schnell vorbei gegangen.</p>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        Eine Situation, in der meine Herausforderung und eigenes Können im <span class="del">Gleichwicht</span> <span class="ins">Gleichgewicht</span> standen<span class="ins">,</span> war<span class="ins">,</span> als ich Yoga in Spanien trainierte.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Komma um den Nebensatz</div>
+          <div class="regel">Jeder Nebensatz wird durch Kommas abgetrennt — auch dort, wo er mitten im Satz endet: <em>… standen, war, als …</em></div>
+          <div class="beispiele">
+            <span class="b-zeile">Eine Situation, in der alles passte, war der Yoga-Kurs.</span>
+            <span class="b-zeile">Es war schön, als die Stunde begann.</span>
+            <span class="b-zeile">Vor „als“ und nach dem Nebensatz: Komma.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — das Komma tippen</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Eine Zeit, in der ich viel übte<input class="u-inp w-art" data-sol="," placeholder="…"> war der Sommer.</div>
+            <div class="uebung-item">Es war schön<input class="u-inp w-art" data-sol="," placeholder="…"> als die Stunde begann.</div>
+            <div class="u-fertig">✓ Richtig: der Nebensatz ist eingerahmt.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 2</span>
+        Es war am Strand und das Meer war sehr schön und die <span class="del">Yoga Übungen</span> <span class="ins">Yoga-Übungen</span> waren schwer<span class="ins">,</span> aber nicht zu schwer.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Kompositum mit Bindestrich</div>
+          <div class="regel">Zusammengesetzte Nomen schreibt man zusammen oder mit Bindestrich — nie getrennt: <em>die Yoga-Übungen</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">die Yoga-Übungen · der Yoga-Kurs</span>
+            <span class="b-zeile">die Wirtschaftsprüfer-Prüfung</span>
+            <span class="b-zeile">der Flow-Moment</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — zusammensetzen</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Yoga + Übungen → die <input class="u-inp w-wide" data-sol="Yoga-Übungen" placeholder="…"></div>
+            <div class="uebung-item">Yoga + Kurs → der <input class="u-inp w-wide" data-sol="Yoga-Kurs" placeholder="…"></div>
+            <div class="u-fertig">✓ Richtig: ein Wort — mit Bindestrich.</div>
+          </div>
+        </div>
+        <div class="lehr-karte">
+          <div class="fehler-name">Komma vor „aber“</div>
+          <div class="regel">Vor <em>aber</em> und <em>sondern</em> steht immer ein Komma: <em>schwer, aber nicht zu schwer</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">schwer, aber nicht zu schwer</span>
+            <span class="b-zeile">nicht kennen, sondern anwenden</span>
+            <span class="b-zeile">schön, aber anstrengend</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — das Komma tippen</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Die Übungen waren schwer<input class="u-inp w-art" data-sol="," placeholder="…"> aber machbar.</div>
+            <div class="uebung-item">Ich spielte nicht gern<input class="u-inp w-art" data-sol="," placeholder="…"> aber ich musste.</div>
+            <div class="u-fertig">✓ Richtig: Komma vor aber.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 3</span>
+        <span class="del">Ein und halbe Stunde ist</span> <span class="ins">Eineinhalb Stunden sind</span> schnell <span class="del">vorbei gegangen</span> <span class="ins">vergangen</span>.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Eineinhalb Stunden</div>
+          <div class="regel">Die Zahl heißt <em>eineinhalb</em> (oder <em>anderthalb</em>) und steht vor dem Plural: <em>Eineinhalb Stunden sind vergangen.</em></div>
+          <div class="beispiele">
+            <span class="b-zeile">eineinhalb Stunden · anderthalb Stunden</span>
+            <span class="b-zeile">Die Zeit ist schnell vergangen.</span>
+            <span class="b-zeile">vergehen — verging — ist vergangen</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — Zahl und Verb</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">eineinhalb <input class="u-inp w-mid" data-sol="Stunden" placeholder="…"> (Stunde)</div>
+            <div class="uebung-item">Die Zeit ist schnell <input class="u-inp w-wide" data-sol="vergangen" placeholder="…">. (vergehen)</div>
+            <div class="u-fertig">✓ Richtig: eineinhalb Stunden sind vergangen.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ AUFGABE 2 ════════════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 2</span>Zielklarheit im eigenen Alltag</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Originaltext — unverändert</div>
+      <p>Eine Tätigkeit mit einem klaren Ziel bei meinem Arbeit ist wenn ich Präsentationen mache oder eine Rede schreibe. Ich habe ein klares Ziel und ich weiß, was ich sagen möchte. Ich fühle mich leichter und einfacher diese Tätigkeiten zu machen.</p>
+      <p>Eine Tätigkeit mit einem unklaren Ziel für mich ist Fußball zu spielen. Ich habe niemals gern Fußball gespielt aber manchmal musste ich in der Schule Fußball spielen. Es hat nicht viel Spaß für mich gemacht, weil ich habe das nicht genossen.</p>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        Eine Tätigkeit mit einem klaren Ziel bei <span class="del">meinem</span> <span class="ins">meiner</span> Arbeit ist<span class="ins">,</span> wenn ich Präsentationen mache oder eine Rede schreibe.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Bei meiner Arbeit</div>
+          <div class="regel"><em>Arbeit</em> ist feminin, und nach <em>bei</em> steht der Dativ: <em>bei meiner Arbeit</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">bei meiner Arbeit · bei der Arbeit</span>
+            <span class="b-zeile">nach der Arbeit · in der Schule</span>
+            <span class="b-zeile">die Arbeit — die Rede — die Prüfung (alle feminin)</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — die Dativ-Form</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">bei <input class="u-inp w-mid" data-sol="meiner" placeholder="…"> Arbeit (mein)</div>
+            <div class="uebung-item">in <input class="u-inp w-art" data-sol="der" placeholder="…"> Schule (die)</div>
+            <div class="uebung-item">nach <input class="u-inp w-art" data-sol="der" placeholder="…"> Rede (die)</div>
+            <div class="u-fertig">✓ Richtig: bei + Dativ, feminin → meiner.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 3</span>
+        <span class="del">Ich fühle mich leichter und einfacher diese Tätigkeiten zu machen.</span> <span class="ins">Es fällt mir leichter, diese Tätigkeiten zu machen.</span>
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Es fällt mir leicht</div>
+          <div class="regel">Wenn etwas nicht schwer ist, sagt man: <em>Es fällt mir leicht, … zu …</em> — mit Komma vor der zu-Gruppe.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Es fällt mir leicht, eine Rede zu schreiben.</span>
+            <span class="b-zeile">Es fällt mir schwer, Fußball zu spielen.</span>
+            <span class="b-zeile">Diese Tätigkeiten fallen mir leichter.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — die Wendung ergänzen</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Es <input class="u-inp w-mid" data-sol="fällt" placeholder="…"> mir leicht, Präsentationen zu machen.</div>
+            <div class="uebung-item">Es fällt <input class="u-inp w-art" data-sol="mir" placeholder="…"> schwer, früh aufzustehen. (ich)</div>
+            <div class="u-fertig">✓ Richtig: Es fällt mir leicht/schwer, … zu …</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 6</span>
+        Es hat <span class="del">nicht viel Spaß für mich gemacht</span> <span class="ins">mir nicht viel Spaß gemacht</span>, weil ich <span class="del">habe das nicht genossen</span> <span class="ins">das nicht genossen habe</span>.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Spaß machen + Dativ</div>
+          <div class="regel"><em>Spaß machen</em> steht mit dem Dativ: <em>Es macht mir Spaß</em> — nicht <em>für mich</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Es hat mir nicht viel Spaß gemacht.</span>
+            <span class="b-zeile">Yoga macht mir Spaß.</span>
+            <span class="b-zeile">Präsentationen machen ihr Spaß.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — die Dativ-Ergänzung</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Yoga macht <input class="u-inp w-art" data-sol="mir" placeholder="…"> Spaß. (ich)</div>
+            <div class="uebung-item">Fußball hat <input class="u-inp w-art" data-sol="mir" placeholder="…"> keinen Spaß gemacht. (ich)</div>
+            <div class="u-fertig">✓ Richtig: Spaß machen + mir.</div>
+          </div>
+        </div>
+        <div class="lehr-karte">
+          <div class="fehler-name">Weil: Verb ans Ende</div>
+          <div class="regel">Nach <em>weil</em> wandert das konjugierte Verb ans Satzende: <em>…, weil ich das nicht genossen habe</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">…, weil ich das nicht genossen habe.</span>
+            <span class="b-zeile">…, weil ich in der Schule spielen musste.</span>
+            <span class="b-zeile">…, weil die Übungen schwer waren.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — das Verb ans Ende</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">…, weil ich das nicht genossen <input class="u-inp w-mid" data-sol="habe" placeholder="…">.</div>
+            <div class="uebung-item">…, weil ich in der Schule spielen <input class="u-inp w-mid" data-sol="musste" placeholder="…">.</div>
+            <div class="u-fertig">✓ Richtig: weil … Verb am Ende.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ AUFGABE 3 ════════════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 3</span>Ein Rat an die Geigerin</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Originaltext — unverändert</div>
+      <p>Um neuen Sachen zu üben ist immer schwierig. Aber, wenn man wiederholt, kann man viel lernen und die Zeit vergessen. Wenn sie immer drei Stunden übt wird sie eines Tages eine Konzertmusikerin.</p>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        <span class="del">Um neuen</span> <span class="ins">Neue</span> Sachen zu üben ist immer schwierig.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Zu-Gruppe als Subjekt — ohne „um“</div>
+          <div class="regel">Ist die zu-Gruppe das Subjekt des Satzes, steht kein <em>um</em>: <em>Neue Sachen zu üben ist schwierig</em> — <em>um … zu</em> nennt einen Zweck.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Neue Sachen zu üben ist schwierig. (Subjekt)</span>
+            <span class="b-zeile">Sie übt drei Stunden, um besser zu werden. (Zweck)</span>
+            <span class="b-zeile">Test: Wozu? → um … zu.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — mit oder ohne „um“?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item"><input class="u-inp w-art" data-sol="Um" placeholder="…"> besser zu werden, übt sie jeden Tag. (Zweck)</div>
+            <div class="uebung-item">Drei Stunden zu üben <input class="u-inp w-art" data-sol="ist" placeholder="…"> anstrengend. (sein)</div>
+            <div class="u-fertig">✓ Richtig: Subjekt ohne um, Zweck mit um.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Sätze 2–3</span>
+        Aber<span class="del">,</span> wenn man wiederholt, kann man viel lernen und die Zeit vergessen. Wenn sie immer drei Stunden übt<span class="ins">,</span> wird sie eines Tages eine Konzertmusikerin.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesen Sätzen</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Komma beim wenn-Satz</div>
+          <div class="regel">Der wenn-Satz endet mit einem Komma — und direkt nach <em>aber</em> steht keins: <em>Aber wenn man wiederholt, kann man viel lernen.</em></div>
+          <div class="beispiele">
+            <span class="b-zeile">Wenn sie drei Stunden übt, wird sie besser.</span>
+            <span class="b-zeile">Aber wenn man wiederholt, lernt man viel.</span>
+            <span class="b-zeile">Erst der ganze wenn-Satz, dann das Komma.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — Komma oder nichts? (tippe „,“ oder „-“)</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Wenn sie drei Stunden übt<input class="u-inp w-art" data-sol="," placeholder="…"> wird sie besser.</div>
+            <div class="uebung-item">Aber<input class="u-inp w-art" data-sol="-" placeholder="…"> wenn man wiederholt, lernt man viel.</div>
+            <div class="u-fertig">✓ Richtig: Komma nach dem wenn-Satz, keins nach aber.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ AUFGABE 4 ════════════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 4</span>Langeweile versus Erregung</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Originaltext — unverändert</div>
+      <p>Eine Situation, in der ich mich gelangweilt habe, war als ich für das Wirschaftsprüfer Prüfung studiert habe. Für die Prüfung muss man viele Verschiedene Gesetze lernen. Es reicht nicht die Gesetze zu kennen sondern man muss auch die Gesetze in den richtigen Situationen anwenden können. Ich habe zehn Wochen nur studiert und geübt aber ich versuchte immer 8 Stunden lernen und danach etwas anders zu machen wie die Freunde treffen oder spazieren gehen.</p>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 1</span>
+        Eine Situation, in der ich mich gelangweilt habe, war<span class="ins">,</span> als ich für <span class="del">das Wirschaftsprüfer Prüfung</span> <span class="ins">die Wirtschaftsprüfer-Prüfung</span> <span class="del">studiert</span> <span class="ins">gelernt</span> habe.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Lernen oder studieren</div>
+          <div class="regel">Für eine Prüfung <em>lernt</em> man; <em>studieren</em> heißt: an einer Universität eingeschrieben sein.</div>
+          <div class="beispiele">
+            <span class="b-zeile">für die Prüfung lernen · zehn Wochen gelernt</span>
+            <span class="b-zeile">BWL studieren · in Helsinki studiert</span>
+            <span class="b-zeile">die Wirtschaftsprüfer-Prüfung (feminin: die Prüfung)</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — das passende Verb</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich habe für die Prüfung <input class="u-inp w-mid" data-sol="gelernt" placeholder="…">. (lernen)</div>
+            <div class="uebung-item">Sie hat in Helsinki BWL <input class="u-inp w-mid" data-sol="studiert" placeholder="…">. (studieren)</div>
+            <div class="u-fertig">✓ Richtig: Prüfung → lernen, Universität → studieren.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 2–3</span>
+        Für die Prüfung muss man viele <span class="del">Verschiedene</span> <span class="ins">verschiedene</span> Gesetze lernen. Es reicht nicht<span class="ins">,</span> die Gesetze zu kennen<span class="ins">,</span> sondern man muss auch die Gesetze in den richtigen Situationen anwenden können.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesen Sätzen</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Groß oder klein</div>
+          <div class="regel">Adjektive bleiben klein (<em>viele verschiedene Gesetze</em>), Nomen sind groß (<em>die gesetzlichen Dokumente</em>).</div>
+          <div class="beispiele">
+            <span class="b-zeile">viele verschiedene Gesetze (Adjektiv klein)</span>
+            <span class="b-zeile">die gesetzlichen Dokumente (Nomen groß)</span>
+            <span class="b-zeile">das Gesetz → gesetzlich</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — groß oder klein?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">viele <input class="u-inp w-wide" data-sol="verschiedene" placeholder="…"> Gesetze (Verschiedene?)</div>
+            <div class="uebung-item">die gesetzlichen <input class="u-inp w-wide" data-sol="Dokumente" placeholder="…"> (dokumente?)</div>
+            <div class="u-fertig">✓ Richtig: Adjektiv klein, Nomen groß.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Satz 4</span>
+        Ich habe zehn Wochen nur <span class="del">studiert</span> <span class="ins">gelernt</span> und geübt<span class="ins">,</span> aber ich versuchte immer<span class="ins">,</span> 8 Stunden <span class="del">lernen</span> <span class="ins">zu lernen</span> und danach etwas <span class="del">anders</span> <span class="ins">anderes</span> zu machen<span class="ins">,</span> wie die Freunde treffen oder spazieren gehen.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Versuchen + zu</div>
+          <div class="regel">Nach <em>versuchen</em> steht <em>zu</em> + Infinitiv: <em>Ich versuchte, acht Stunden zu lernen.</em></div>
+          <div class="beispiele">
+            <span class="b-zeile">Ich versuchte, acht Stunden zu lernen.</span>
+            <span class="b-zeile">Sie versucht, die Zeit zu vergessen.</span>
+            <span class="b-zeile">Es reicht nicht, die Gesetze zu kennen.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — die zu-Gruppe bilden</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich versuchte, jeden Tag <input class="u-inp w-wide" data-sol="zu üben" placeholder="…">. (üben)</div>
+            <div class="uebung-item">Sie versucht, die Zeit <input class="u-inp w-wide" data-sol="zu vergessen" placeholder="…">. (vergessen)</div>
+            <div class="u-fertig">✓ Richtig: versuchen, … zu + Infinitiv.</div>
+          </div>
+        </div>
+        <div class="lehr-karte">
+          <div class="fehler-name">Etwas anderes</div>
+          <div class="regel">Nach <em>etwas</em> wird das Adjektiv großgeschrieben (<em>etwas Neues</em>) — die eine Ausnahme bleibt klein: <em>etwas anderes</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">etwas anderes machen (klein — Ausnahme)</span>
+            <span class="b-zeile">etwas Neues lernen</span>
+            <span class="b-zeile">etwas Schönes erleben</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — die richtige Form</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">etwas <input class="u-inp w-mid" data-sol="anderes" placeholder="…"> machen (ander-)</div>
+            <div class="uebung-item">etwas <input class="u-inp w-mid" data-sol="Neues" placeholder="…"> lernen (neu)</div>
+            <div class="uebung-item">etwas <input class="u-inp w-mid" data-sol="Schönes" placeholder="…"> erleben (schön)</div>
+            <div class="u-fertig">✓ Richtig: groß nach etwas — außer „etwas anderes“.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ AUFGABE 5 ════════════════════════════ -->
+  <div class="aufgabe-section">
+    <div class="aufgabe-title"><span class="a-nr">Aufgabe 5</span>Ein Mini-Dialog über Flow bei der Arbeit</div>
+
+    <div class="dein-text-box">
+      <div class="dein-text-label">Originaltext — unverändert</div>
+      <p>A: Kannst du eine Situation beschreiben, wenn du in einer Aufgabe aufgehen hattest?<br>
+      B: Natürlich, letztes mal ist das passiert, als ich die gesetzliche dokumente gelesen habe. Und du?<br>
+      A: Sehr interessant, für mich passiert es niemals, als ich lese. Ich habe Schwierigkeiten zu konzentrieren aber als ich Präsentationen mache und für die Publikum spreche, kann ich die Zeit ganz verlieren.</p>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Zeile A</span>
+        Kannst du eine Situation beschreiben, <span class="del">wenn</span> <span class="ins">in der</span> du in einer Aufgabe <span class="del">aufgehen hattest</span> <span class="ins">aufgegangen bist</span>?
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu dieser Zeile</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Eine Situation, in der …</div>
+          <div class="regel">Nach <em>eine Situation</em> folgt ein Relativsatz: <em>eine Situation, in der …</em> — <em>wenn</em> beschreibt keine Situation.</div>
+          <div class="beispiele">
+            <span class="b-zeile">eine Situation, in der ich aufgegangen bin</span>
+            <span class="b-zeile">ein Moment, in dem die Zeit verschwand</span>
+            <span class="b-zeile">eine Aufgabe, bei der alles passt</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — der oder dem?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">eine Situation, in <input class="u-inp w-art" data-sol="der" placeholder="…"> ich die Zeit vergesse</div>
+            <div class="uebung-item">ein Moment, in <input class="u-inp w-art" data-sol="dem" placeholder="…"> alles leicht ist</div>
+            <div class="u-fertig">✓ Richtig: die Situation → in der, der Moment → in dem.</div>
+          </div>
+        </div>
+        <div class="lehr-karte">
+          <div class="fehler-name">Perfekt mit „sein“: aufgegangen</div>
+          <div class="regel"><em>aufgehen</em> bildet das Perfekt mit <em>sein</em>: <em>ich bin in der Aufgabe aufgegangen</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Ich bin in der Aufgabe aufgegangen.</span>
+            <span class="b-zeile">Die Zeit ist schnell vergangen.</span>
+            <span class="b-zeile">aufgehen — ging auf — ist aufgegangen</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — sein oder haben?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich <input class="u-inp w-art" data-sol="bin" placeholder="…"> in der Arbeit aufgegangen.</div>
+            <div class="uebung-item">Die Zeit <input class="u-inp w-art" data-sol="ist" placeholder="…"> schnell vergangen.</div>
+            <div class="u-fertig">✓ Richtig: aufgehen und vergehen mit sein.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Zeile B + A</span>
+        Natürlich, <span class="del">letztes mal</span> <span class="ins">das letzte Mal</span> ist das passiert, als ich die <span class="del">gesetzliche dokumente</span> <span class="ins">gesetzlichen Dokumente</span> gelesen habe. — Sehr interessant, für mich passiert es niemals, <span class="del">als</span> <span class="ins">wenn</span> ich lese.
+      </div>
+      <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu diesen Zeilen</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Als oder wenn</div>
+          <div class="regel"><em>als</em> = einmal in der Vergangenheit; <em>wenn</em> = immer wieder oder in der Gegenwart. In Zeile B ist <em>als</em> also richtig gewählt.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Als ich die Dokumente gelesen habe … (einmal, Vergangenheit)</span>
+            <span class="b-zeile">Wenn ich lese, passiert es nie. (immer)</span>
+            <span class="b-zeile">Wenn ich Präsentationen mache … (immer)</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — als oder wenn?</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item"><input class="u-inp w-mid" data-sol="Als" placeholder="…"> ich gestern las, vergaß ich die Zeit. (einmal)</div>
+            <div class="uebung-item"><input class="u-inp w-mid" data-sol="Wenn" placeholder="…"> ich lese, passiert es nie. (immer)</div>
+            <div class="uebung-item"><input class="u-inp w-mid" data-sol="Als" placeholder="…"> ich zum ersten Mal Yoga machte, war ich nervös.</div>
+            <div class="u-fertig">✓ Richtig: einmal → als, immer → wenn.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="satz-block">
+      <div class="satz-inline">
+        <span class="nr">Zeile A, Schluss</span>
+        Ich habe Schwierigkeiten<span class="ins">, mich</span> zu konzentrieren<span class="ins">,</span> aber <span class="del">als</span> <span class="ins">wenn</span> ich Präsentationen mache und <span class="del">für die</span> <span class="ins">vor dem</span> Publikum spreche, kann ich die Zeit ganz <span class="del">verlieren</span> <span class="ins">vergessen</span>.
+      </div>
+      <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu dieser Zeile</div>
+      <div class="lehrstuecke-grid">
+        <div class="lehr-karte">
+          <div class="fehler-name">Sich konzentrieren (reflexiv)</div>
+          <div class="regel"><em>konzentrieren</em> ist reflexiv: <em>Ich konzentriere mich</em> — also auch: <em>Schwierigkeiten, mich zu konzentrieren</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">Ich konzentriere mich auf die Rede.</span>
+            <span class="b-zeile">Schwierigkeiten, mich zu konzentrieren</span>
+            <span class="b-zeile">Er konzentriert sich auf das Publikum.</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — das Reflexivpronomen</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">Ich kann <input class="u-inp w-art" data-sol="mich" placeholder="…"> nicht konzentrieren.</div>
+            <div class="uebung-item">Er konzentriert <input class="u-inp w-art" data-sol="sich" placeholder="…"> auf die Rede.</div>
+            <div class="u-fertig">✓ Richtig: sich konzentrieren.</div>
+          </div>
+        </div>
+        <div class="lehr-karte">
+          <div class="fehler-name">Vor dem Publikum</div>
+          <div class="regel"><em>Publikum</em> ist Neutrum, und man spricht <em>vor</em> dem Publikum — <em>vor</em> + Dativ: <em>vor dem Publikum</em>.</div>
+          <div class="beispiele">
+            <span class="b-zeile">vor dem Publikum sprechen</span>
+            <span class="b-zeile">vor der Klasse stehen</span>
+            <span class="b-zeile">das Publikum hört zu</span>
+          </div>
+          <div class="uebung">
+            <div class="uebung-kopf">
+              <div class="uebung-label">Übung — die Dativ-Form</div>
+              <div class="uebung-ctrl">
+                <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+                <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+              </div>
+            </div>
+            <div class="uebung-item">vor <input class="u-inp w-art" data-sol="dem" placeholder="…"> Publikum (das)</div>
+            <div class="uebung-item">vor <input class="u-inp w-art" data-sol="der" placeholder="…"> Klasse (die)</div>
+            <div class="u-fertig">✓ Richtig: vor + Dativ.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ SCHREIBFELD · schriftlich üben (PFLICHT) ═══ -->
+  <div class="schreibfeld-block">
+    <div class="schreibfeld-titel">Schreibfeld — selbst schreiben und an Frank senden</div>
+    <p class="schreibfeld-hinweis">Eine der fünf Antworten noch einmal schreiben — am besten Aufgabe 4, weil dort die Kommas, <em>als/wenn</em> und der zu-Infinitiv zusammenkommen. Der Text wird automatisch in diesem Browser gespeichert; „An Frank senden“ schickt die Neufassung an den Unterricht.</p>
+    <textarea id="schreibfeld" class="schreibfeld-area" placeholder="Hier den Text neu schreiben …"></textarea>
+    <div class="schreibfeld-fuss">
+      <span id="schreib-status" class="schreib-status">Noch nichts gespeichert.</span>
+      <span id="schreib-count" class="schreib-count">0 Wörter</span>
+    </div>
+    <div class="schreibfeld-aktion">
+      <button type="button" id="schreib-send" class="schreibfeld-btn" onclick="schreibfeldSenden()">📨 An Frank senden</button>
+    </div>
+    <div id="schreib-send-status" class="schreib-send-status"></div>
+  </div>
+
+</div>
+
+<div class="author-footer">
+  <span style="font-weight:700">&copy; Frank Burkert</span> &middot; DaF-Materialien &middot;
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// Live-Feedback für alle .u-inp-Felder (case-sensitive Präfix-Check)
+function lieveCheck(inp) {
+  var val = (inp.value || '').trim();
+  var sol = inp.dataset.sol || '';
+  inp.classList.remove('ok', 'wrong');
+  if (!val) return;
+  if (val === sol) {
+    inp.classList.add('ok');
+    checkKartenDone(inp.closest('.uebung'));
+    return;
+  }
+  if (!sol.startsWith(val)) {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkKartenDone(uebung) {
+  if (!uebung) return;
+  var inputs = uebung.querySelectorAll('.u-inp');
+  var alleOk = Array.from(inputs).every(function(i) { return i.classList.contains('ok'); });
+  uebung.classList.toggle('done', alleOk);
+}
+
+document.querySelectorAll('.u-inp').forEach(function(inp) {
+  inp.addEventListener('input', function() { lieveCheck(inp); });
+});
+
+function showCardSolution(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = inp.dataset.sol || '';
+    inp.classList.remove('wrong');
+    inp.classList.add('ok');
+  });
+  uebung.classList.add('done');
+}
+
+function resetCard(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = '';
+    inp.classList.remove('ok', 'wrong');
+  });
+  uebung.classList.remove('done');
+}
+
+// Schreibfeld — Üben mit Browser-Speicherung + Versand an Frank
+var SCHREIBFELD_ENDPOINT   = 'https://api.web3forms.com/submit';
+var SCHREIBFELD_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var SCHREIBFELD_MAILTO     = 'unterricht@frankburkert-daf.de';
+var SCHREIBFELD_NAME       = 'Piipa Poutiainen';
+var SCHREIBFELD_LEKTION    = 'C1 – Korrektur 3092R · Schreibwerkstatt';
+
+(function () {
+  var ta = document.getElementById('schreibfeld');
+  if (!ta) return;
+  var KEY = 'fb-schreibfeld-piipa-3092r';
+  var status = document.getElementById('schreib-status');
+  var count = document.getElementById('schreib-count');
+  try { var saved = localStorage.getItem(KEY); if (saved) { ta.value = saved; } } catch (e) {}
+  function update() {
+    var t = ta.value.trim();
+    var w = t ? t.split(/\s+/).length : 0;
+    if (count) count.textContent = w + (w === 1 ? ' Wort' : ' Wörter');
+    try {
+      localStorage.setItem(KEY, ta.value);
+      if (status) status.textContent = t ? 'Automatisch gespeichert.' : 'Noch nichts gespeichert.';
+    } catch (e) { if (status) status.textContent = 'Speichern in diesem Browser nicht möglich.'; }
+    var sb = document.getElementById('schreib-send');
+    if (sb && sb.classList.contains('gesendet')) { sb.classList.remove('gesendet'); sb.innerHTML = '📨 Erneut senden'; }
+  }
+  ta.addEventListener('input', update);
+  update();
+})();
+
+function schreibfeldSenden() {
+  var ta = document.getElementById('schreibfeld');
+  var btn = document.getElementById('schreib-send');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !btn || !st) return;
+  var text = ta.value.trim();
+  if (text.length < 14) { st.className = 'schreib-send-status error'; st.textContent = 'Noch zu kurz — bitte zuerst den Text schreiben.'; return; }
+  var subject = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + ' · ' + SCHREIBFELD_NAME;
+  var message = '=== Schreibtraining (Korrektur-Neufassung) ===\n\n' + text;
+  btn.disabled = true; var orig = btn.innerHTML; btn.innerHTML = '⏳ Wird gesendet …';
+  var fd = new FormData();
+  fd.append('access_key', SCHREIBFELD_ACCESS_KEY);
+  fd.append('name', SCHREIBFELD_NAME);
+  fd.append('subject', subject);
+  fd.append('from_name', 'fabDaF Schreibwerkstatt');
+  fd.append('lektion', SCHREIBFELD_LEKTION);
+  fd.append('message', message);
+  fetch(SCHREIBFELD_ENDPOINT, { method: 'POST', body: fd })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP_' + r.status); return r.json(); })
+    .then(function (data) {
+      var ok = data && (data.success === true || data.success === 'true');
+      if (!ok) { var e = new Error('API_ERROR'); e.apiMessage = (data && data.message) || ''; throw e; }
+      btn.disabled = false; btn.classList.add('gesendet');
+      var j = new Date(); var info = 'gesendet um ' + String(j.getHours()).padStart(2, '0') + ':' + String(j.getMinutes()).padStart(2, '0');
+      btn.innerHTML = '✓ ' + info + ' · erneut senden';
+      st.className = 'schreib-send-status success'; st.textContent = '✓ Die Neufassung ist bei Frank angekommen.';
+    })
+    .catch(function (err) {
+      btn.disabled = false; btn.innerHTML = orig;
+      var subjectEnc = encodeURIComponent(subject);
+      var bodyEnc = encodeURIComponent('Name: ' + SCHREIBFELD_NAME + '\n\n' + message);
+      var mailto = 'mailto:' + SCHREIBFELD_MAILTO + '?subject=' + subjectEnc + '&body=' + bodyEnc;
+      st.className = 'schreib-send-status error';
+      st.innerHTML =
+        '<div class="schreib-fb">' +
+          '<div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — der Text ist sicher im Browser gespeichert.</div>' +
+          '<div class="schreib-fb-text">Einen Weg wählen, damit Frank die Neufassung trotzdem bekommt:</div>' +
+          '<div class="schreib-fb-actions">' +
+            '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 In Mail-Programm öffnen</a>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldKopieren()">📋 In Zwischenablage</button>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldSenden()">🔄 Nochmal versuchen</button>' +
+          '</div>' +
+        '</div>';
+    });
+}
+
+function schreibfeldKopieren() {
+  var ta = document.getElementById('schreibfeld');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !st) return;
+  var text = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + '\nName: ' + SCHREIBFELD_NAME + '\n\n' + ta.value.trim();
+  function fertig(ok) {
+    st.className = 'schreib-send-status ' + (ok ? 'success' : 'error');
+    st.textContent = ok ? '✓ In die Zwischenablage kopiert. Jetzt in eine Mail an Frank einfügen.' : '✗ Kopieren ging nicht — Text in der Box markieren und selbst kopieren.';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { fertig(true); }, function () { fertig(false); });
+  } else {
+    try { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); fertig(true); } catch (e) { fertig(false); }
+  }
+}
+</script>
+
+<!-- FB-JUMPTOP -->
+<button class="fb-jumptop" id="fbJumpTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben springen" aria-label="Nach oben springen">↑ Nach oben</button>
+<script>
+(function(){
+  var btn = document.getElementById('fbJumpTop');
+  if (!btn) return;
+  function toggle(){
+    var scrollable = document.documentElement.scrollHeight > window.innerHeight + 60;
+    btn.classList.toggle('show', scrollable);
+  }
+  window.addEventListener('scroll', toggle, {passive:true});
+  window.addEventListener('resize', toggle);
+  setTimeout(toggle, 80);
+})();
+</script>
+
+</body>
+</html>
