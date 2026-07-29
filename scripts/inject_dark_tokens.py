@@ -252,6 +252,13 @@ def process(fn):
         special_light['--grad-chip-a']='#667eea'; special_light['--grad-chip-b']='#764ba2'
         specials_ok.append('chip')
 
+    # Regelkarte (Entdecken-Tab): heller Light-Gradient blieb bisher stehen, weil der
+    # decl-Loop jede Deklaration mit 'gradient' im Wert ueberspringt -> im Dark-Mode
+    # heller Text (--tx-333) auf hellem Grund. Frank 2026-07-29.
+    css, ok = block_grad_generic(css, r'\.regel-karte', 'grad-regel', 'page',
+        special_light, special_dark)
+    if ok: specials_ok.append('regel')
+
     css, ok = block_sub(css, r'\.container', r'(background\s*:\s*)(?:#fff\b|#ffffff\b|white\b)',
         r'\1var(--sf-container)')
     if ok: special_light['--sf-container']='#fff'; specials_ok.append('container')
