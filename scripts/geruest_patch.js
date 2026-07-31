@@ -64,11 +64,19 @@ function planSentence(ex){
   for (let k=1; k<L; k++) if (valid.every(v=>v[k]===valid[0][k])) invariant.push(k);
   const anchorable = invariant.filter(k => !ban.has(valid[0][k]));
   const N = clamp(Math.round(L/3),2,4);
-  if (anchorable.length < 2) return {flag:'unter 2 sichere Anker'};
-  const chosen = spread(anchorable, Math.min(N, anchorable.length)).sort((a,b)=>a-b);
+  // 2026-07-31: Kein Satz fällt mehr in den freien Bau zurück. Reichen die sicheren
+  // Anker nicht (0 oder 1), wird trotzdem ein Gerüst gebaut — notfalls als reines
+  // Lückenraster ohne Anker. Skill daf-satzbau: „Ausgeliefert wird auf keinem
+  // Niveau ohne Gerüst." Frühere Rückgabe {flag:'unter 2 sichere Anker'} liess
+  // einzelne Sätze als leere Drop-Zone stehen (Bug „einige funktionieren nicht").
+  const chosen = anchorable.length
+    ? spread(anchorable, Math.min(N, anchorable.length)).sort((a,b)=>a-b)
+    : [];
   const row=[], parts=[];
   for (let k=0;k<L;k++){ if (chosen.includes(k)) row.push(valid[0][k]); else { row.push('_'); parts.push(valid[0][k]); } }
-  return {row, parts, flatValid: ex.valid && typeof ex.valid[0]==='string'};
+  const res = {row, parts, flatValid: ex.valid && typeof ex.valid[0]==='string'};
+  if (chosen.length < 2) res.warn = chosen.length ? 'nur 1 sicherer Anker' : 'kein sicherer Anker — reines Lückenraster';
+  return res;
 }
 const CSS = `
 /* ── Gerüst-Modus (B1+): sichtbare Lücken + feste Anker ── */
@@ -319,6 +327,7 @@ data.forEach((ex, i) => {
   const p = planSentence(ex);
   if (p.skip) return;
   if (p.flag) { report.flags.push('Satz ' + (i+1) + ': ' + p.flag); return; }
+  if (p.warn) report.flags.push('Satz ' + (i+1) + ': ' + p.warn + ' (trotzdem Gerüst)');
   merged.push({ i, row: p.row, parts: p.parts });
 });
 report.converted = merged.length;
