@@ -10,6 +10,12 @@
 # Es committet NICHTS. Es pusht nur, was bereits committet ist, und nur als
 # Fast-Forward. Alles andere wird uebersprungen und protokolliert.
 #
+# Zweite Aufgabe: den GitHub-Pages-Build ueberwachen. Ein Push allein bringt
+# nichts auf die Website — am 2026-08-06 sind drei Builds still gescheitert und
+# die Seiten blieben eine Woche alt. Nach jedem Push merkt sich das Skript den
+# Commit in _autopush.state und prueft bei den folgenden Laeufen den Build.
+# Gescheiterte Builds stoesst es bis zu zweimal neu an.
+#
 # Log:  ~/Cowork/Projekte/fabDaF/_autopush.log   (von Claude lesbar)
 # ---------------------------------------------------------------------------
 
@@ -18,6 +24,7 @@ set -uo pipefail
 BASE="${FABDAF_BASE:-$HOME/Cowork/Projekte/fabDaF}"
 CRED="$BASE/.git-credentials-fabdaf"
 LOG="$BASE/_autopush.log"
+STATE="$BASE/_autopush.state"        # offene Deploys: slug<TAB>sha<TAB>versuche
 LOCK="${TMPDIR:-/tmp}/fabdaf-autopush.lockdir"   # bewusst NICHT im Mount:
                                                  # die Cowork-Sandbox darf dort nicht loeschen
 
@@ -40,6 +47,24 @@ REPOS=(
 )
 
 log() { printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >> "$LOG"; }
+
+# GitHub-Slug (owner/repo) aus der origin-URL des Repos.
+slug_of() {
+  git -C "$1" remote get-url origin 2>/dev/null \
+    | sed -E 's#^.*github\.com[:/]##; s#\.git$##'
+}
+
+# Token aus der Credential-Datei; nur fuer die API noetig, nie ins Log.
+gh_token() { sed -E 's#^https://[^:]+:([^@]+)@.*$#\1#' "$CRED" 2>/dev/null | head -n1; }
+
+gh_api() {   # gh_api METHODE PFAD
+  curl -sS --max-time 25 -X "$1" \
+       -H "Authorization: token $(gh_token)" \
+       -H "Accept: application/vnd.github+json" \
+       "https://api.github.com/repos/$2" 2>/dev/null
+}
+
+json_field() { printf '%s' "$1" | sed -n "s/.*\"$2\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -n1; }
 
 # Nur eine Instanz gleichzeitig; verwaiste Locks nach 15 Min brechen.
 if ! mkdir "$LOCK" 2>/dev/null; then
@@ -92,7 +117,7 @@ for repo in "${REPOS[@]}"; do
 
   if ! git -C "$repo" merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
     if git -C "$repo" merge-base --is-ancestor "$local_sha" "$remote_sha" 2>/dev/null; then
-      log "SKIP  $name — lokal hinter origin/$branch (nichts zu pushen)"
+      : # lokal hinter origin — Dauerzustand einiger Klone, kein Ereignis, nicht loggen
     else
       log "ACHTUNG  $name — divergiert von origin/$branch, kein Auto-Push"
     fi
@@ -107,10 +132,50 @@ for repo in "${REPOS[@]}"; do
   if [ $? -eq 0 ]; then
     log "OK    $name — $ahead Commit(s) gepusht → ${local_sha:0:7}"
     pushed_any=1
+    slug=$(slug_of "$repo")
+    if [ -n "$slug" ]; then
+      grep -v "^$slug	" "$STATE" 2>/dev/null > "$STATE.tmp"; mv "$STATE.tmp" "$STATE" 2>/dev/null
+      printf '%s\t%s\t0\n' "$slug" "$local_sha" >> "$STATE"
+    fi
   else
     log "FEHLER $name — Push abgelehnt: $(printf '%s' "$out" | tail -n 2 | tr '\n' ' ')"
   fi
 done
+
+# ---------------------------------------------------------------------------
+# Pages-Deploys nachverfolgen. Bei jedem Lauf werden die offenen Eintraege aus
+# _autopush.state geprueft — so wartet der 2-Minuten-Takt fuer uns, statt dass
+# dieser Prozess minutenlang pollt und die Pushes blockiert.
+# ---------------------------------------------------------------------------
+if [ -s "$STATE" ]; then
+  NEXT="$STATE.next"; : > "$NEXT"
+  while IFS=$'\t' read -r slug sha tries; do
+    [ -n "${slug:-}" ] || continue
+    body=$(gh_api GET "$slug/pages/builds/latest")
+    status=$(json_field "$body" status)
+
+    case "$status" in
+      built)
+        log "DEPLOY $slug — Pages-Build erfolgreich (${sha:0:7}) — live"
+        ;;
+      errored|null|"")
+        if [ -z "$status" ]; then
+          printf '%s\t%s\t%s\n' "$slug" "$sha" "$tries" >> "$NEXT"   # API nicht erreichbar: spaeter nochmal
+        elif [ "${tries:-0}" -lt 2 ]; then
+          gh_api POST "$slug/pages/builds" >/dev/null
+          log "DEPLOY $slug — Build gescheitert, neu angestossen (Versuch $((tries+1))/2)"
+          printf '%s\t%s\t%s\n' "$slug" "$sha" "$((tries+1))" >> "$NEXT"
+        else
+          log "FEHLER $slug — Pages-Build bleibt rot nach 2 Versuchen; Seite ist NICHT aktuell"
+        fi
+        ;;
+      *)   # queued / building — beim naechsten Lauf erneut sehen
+        printf '%s\t%s\t%s\n' "$slug" "$sha" "$tries" >> "$NEXT"
+        ;;
+    esac
+  done < "$STATE"
+  mv "$NEXT" "$STATE"
+fi
 
 [ "$pushed_any" = "1" ] && log "----- Durchlauf beendet -----"
 exit 0
