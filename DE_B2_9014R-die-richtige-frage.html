@@ -1122,6 +1122,57 @@ function showSection(idx) {
 // ═══════════════════════════════════════════════════════
 // VORENTLASTUNG
 // ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// VOKABEL-HERVORHEBUNG IM LESETEXT (daf-lesetext §6)
+// ═══════════════════════════════════════════════════════
+function highlightVocabInText() {
+  var storyText = document.querySelector('.story-text') || document.querySelector('.lese-text');
+  if (!storyText) return;
+  var words = [];
+  if (typeof VORENTLASTUNG !== 'undefined' && VORENTLASTUNG.length) {
+    words = VORENTLASTUNG.map(function(item) {
+      var term = item.term.replace(/^(der|die|das)\s+/i, '');
+      return term.split(',')[0].split('(')[0].trim();
+    });
+  }
+  words = words.filter(function(w) { return w && w.length > 3; });
+  if (!words.length) return;
+  function walkAndHighlight(node) {
+    if (node.nodeType === 3) {
+      var text = node.nodeValue;
+      var replaced = text;
+      words.forEach(function(word) {
+        var escaped = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        var regex = new RegExp('(?<![a-zA-ZäöüÄÖÜß])(' + escaped + ')(?![a-zA-ZäöüÄÖÜß])', 'g');
+        replaced = replaced.replace(regex, function(match) { return '\x01' + match + '\x02'; });
+      });
+      if (replaced !== text) {
+        var span = document.createElement('span');
+        var parts = replaced.split(/\x01|\x02/);
+        var isHighlight = false;
+        parts.forEach(function(part) {
+          if (!part) { isHighlight = !isHighlight; return; }
+          if (isHighlight) {
+            var hl = document.createElement('span');
+            hl.className = 'vocab-hl';
+            hl.title = '📖 Vokabel aus der Vorentlastung';
+            hl.textContent = part;
+            span.appendChild(hl);
+          } else {
+            span.appendChild(document.createTextNode(part));
+          }
+          isHighlight = !isHighlight;
+        });
+        node.parentNode.replaceChild(span, node);
+      }
+    } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' &&
+               !(node.classList && node.classList.contains('vocab-hl'))) {
+      Array.prototype.slice.call(node.childNodes).forEach(walkAndHighlight);
+    }
+  }
+  walkAndHighlight(storyText);
+}
+
 function buildVorentlastung() {
   var grid = document.getElementById('vorentlastungGrid');
   if (!grid) return;
@@ -1498,6 +1549,7 @@ document.addEventListener('DOMContentLoaded', function() {
   buildSatzbau();
   initWortschatz();
   initSchreibwerkstatt();
+  highlightVocabInText();
 });
 // ── Schreibwerkstatt ──────────────────────────────────────────
 var SCHREIB_NAME_KEY = 'schreibwerkstatt_B2_9014R_name';
