@@ -23,7 +23,7 @@ def v(code, title, theme, samples):
         'lesson_code': code,
         'lesson_title': title,
         'banner_url': BANNER_URL, 'banner_alt': BANNER_ALT,
-        'intro': f'Fünf kleine Schreibaufgaben rund um „{theme}" und deine eigenen Erfahrungen mit dem Thema.',
+        'intro': f'Fünf kleine Schreibaufgaben rund um „{theme}“ und deine eigenen Erfahrungen mit dem Thema.',
         'tasks': tasks,
     }
 
@@ -148,7 +148,7 @@ CONFIGS_NEW = {
         'frage': ('Eine Frage an einen Künstler', 'Wenn du einen Künstler treffen könntest — was würdest du ihn fragen?',
                   'Wie lange brauchen Sie für ein Bild? Was inspiriert Sie am meisten?'),
         'liste': ('Drei Künstler oder Werke', 'Nenne drei Künstler oder Kunstwerke, die du gut findest, und sag kurz warum.',
-                  'Picasso, weil seine Bilder ungewöhnlich sind. Mozart, weil seine Musik fröhlich ist. „Der kleine Prinz", weil das Buch so tief ist.'),
+                  'Picasso, weil seine Bilder ungewöhnlich sind. Mozart, weil seine Musik fröhlich ist. „Der kleine Prinz“, weil das Buch so tief ist.'),
         'dialog': ('Mini-Dialog: Im Museum', 'Schreib einen kurzen Dialog zwischen zwei Besuchern im Museum.',
                    '— Was meinst du zu diesem Bild? — Ich verstehe es nicht so richtig. — Es soll Einsamkeit zeigen. — Ach so, jetzt sehe ich es auch.'),
     }),
@@ -214,7 +214,7 @@ CONFIGS_NEW = {
                       'Bevor ich nach Berlin gezogen war, hatte ich zwei Jahre in Madrid gelebt. Dort hatte ich auch meine ersten Deutsch-Stunden genommen.'),
         'beobachtung': ('Ein Tag, den du nicht vergisst', 'Beschreib einen wichtigen Tag mit Plusquamperfekt — was hatte vorher schon stattgefunden?',
                         'An dem Tag hatte es schon stundenlang geregnet. Ich war früh aufgestanden und hatte schon gefrühstückt, als der Anruf kam.'),
-        'frage': ('Eine Frage im Plusquamperfekt', 'Stell jemandem eine Frage im Plusquamperfekt — z.B. „Hattest du schon … gemacht?"',
+        'frage': ('Eine Frage im Plusquamperfekt', 'Stell jemandem eine Frage im Plusquamperfekt — z.B. „Hattest du schon … gemacht?“',
                   'Hattest du schon Deutsch gelernt, bevor du nach Deutschland gezogen bist? Wie viele Wörter hattest du etwa gekannt?'),
         'liste': ('Drei Dinge, die du vor 18 schon erlebt hattest', 'Schreib drei Dinge im Plusquamperfekt, die du vor deinem 18. Geburtstag schon erlebt hattest.',
                   'Mit 18 hatte ich schon zwei Länder besucht. Ich hatte schon einen Sommerjob gemacht. Und ich hatte schon eine erste große Liebe erlebt.'),
@@ -223,7 +223,7 @@ CONFIGS_NEW = {
     }),
 
     '1017G': g('1017G', 'Präpositionen mit Akkusativ und Dativ', 'Präpositionen mit Akkusativ und Dativ', {
-        'erfahrung': ('Dein letzter Ausflug', 'Erzähl in zwei Sätzen von einem Ausflug — nutze Präpositionen mit Dativ und Akkusativ (z.B. „in den Park", „an dem See").',
+        'erfahrung': ('Dein letzter Ausflug', 'Erzähl in zwei Sätzen von einem Ausflug — nutze Präpositionen mit Dativ und Akkusativ (z.B. „in den Park“, „an dem See“).',
                       'Letzten Sonntag bin ich in den Wald gegangen. Am Bach habe ich zwei Stunden auf einem Stein gesessen.'),
         'beobachtung': ('Wo du heute warst', 'Beschreib in zwei Sätzen, wo du heute überall warst. Mit Präpositionen!',
                         'Heute war ich zuerst auf dem Markt, dann bin ich in die Apotheke gegangen. Am Nachmittag habe ich im Café gearbeitet.'),
@@ -238,11 +238,11 @@ CONFIGS_NEW = {
     '1023G': g('1023G', 'Verben mit Dativ', 'Verben mit Dativ (helfen, gefallen, gehören, danken …)', {
         'erfahrung': ('Wem du heute geholfen hast', 'Wem hast du heute oder gestern geholfen? Schreib zwei Sätze mit Dativ-Verben.',
                       'Heute habe ich meiner Oma geholfen, die Einkäufe nach oben zu tragen. Sie hat mir später einen Kaffee angeboten.'),
-        'beobachtung': ('Was dir gefällt', 'Was gefällt dir an deiner Stadt oder deiner Wohnung? Zwei Sätze mit „gefallen".',
+        'beobachtung': ('Was dir gefällt', 'Was gefällt dir an deiner Stadt oder deiner Wohnung? Zwei Sätze mit „gefallen“.',
                         'Mir gefällt besonders der kleine Park hinter dem Haus. Auch mein Nachbar gefällt mir, weil er immer freundlich grüßt.'),
-        'frage': ('Eine Frage mit „gehören" oder „passen"', 'Stell zwei Fragen mit Dativ-Verben („gehören", „passen", „schmecken").',
+        'frage': ('Eine Frage mit „gehören“ oder „passen“', 'Stell zwei Fragen mit Dativ-Verben („gehören“, „passen“, „schmecken“).',
                   'Wem gehört diese Jacke da auf dem Stuhl? Schmeckt dir der Kuchen, den ich gebacken habe?'),
-        'liste': ('Drei Dinge, drei Personen', 'Verbinde drei Dinge mit drei Personen — nutze „gehören".',
+        'liste': ('Drei Dinge, drei Personen', 'Verbinde drei Dinge mit drei Personen — nutze „gehören“.',
                   'Der Hund gehört meiner Schwester. Das Auto gehört unserem Nachbarn. Das alte Klavier gehört meinen Eltern.'),
         'dialog': ('Mini-Dialog: Hilfe anbieten', 'Schreib einen kurzen Dialog, in dem jemand Hilfe anbietet.',
                    '— Soll ich dir helfen? — Ja, danke, das ist zu schwer für mich. — Gib es mir, ich trage es nach oben. — Du hast mir sehr geholfen, danke.'),
@@ -253,7 +253,7 @@ CONFIGS_NEW = {
                       'Ich habe mein Buch auf den Tisch gelegt. Danach habe ich die Schlüssel in die Schublade gesteckt.'),
         'beobachtung': ('Dein Schreibtisch', 'Was steht oder liegt auf deinem Schreibtisch? Zwei Sätze mit Wechselpräpositionen (Dativ — Ort).',
                         'Auf meinem Schreibtisch steht der Computer. Neben dem Computer liegt ein Notizbuch. Hinter dem Bildschirm sehe ich eine Pflanze.'),
-        'frage': ('Eine Wo-Frage und eine Wohin-Frage', 'Stell eine „Wo?"-Frage (Dativ) und eine „Wohin?"-Frage (Akkusativ).',
+        'frage': ('Eine Wo-Frage und eine Wohin-Frage', 'Stell eine „Wo?“-Frage (Dativ) und eine „Wohin?“-Frage (Akkusativ).',
                   'Wo ist mein Handy — auf dem Tisch oder unter dem Sofa? Wohin soll ich diese Tasche stellen — neben den Stuhl?'),
         'liste': ('Vier Möbel, vier Positionen', 'Nenne vier Möbel und sag, wo sie stehen — mit Wechselpräpositionen.',
                   'Das Bett steht an der Wand. Der Stuhl steht vor dem Fenster. Der Tisch steht zwischen dem Sofa und dem Fernseher. Die Lampe hängt über dem Esstisch.'),
@@ -282,26 +282,26 @@ CONFIGS_NEW = {
         'frage': ('Eine Superlativ-Frage', 'Stell jemandem eine Frage mit Superlativ.',
                   'Was war das schönste Geschenk, das du je bekommen hast? Wer ist der wichtigste Mensch in deinem Leben?'),
         'liste': ('Die besten und schlechtesten Dinge', 'Schreib zu drei Themen je einen Superlativ-Satz: Lieblingsessen, Lieblingsfilm, Lieblingsbuch.',
-                  'Mein Lieblingsessen ist Pasta — am liebsten mit Tomatensauce. Mein Lieblingsfilm ist „Amélie" — das poetischste Werk. Mein Lieblingsbuch ist „Der kleine Prinz" — das tiefste Kinderbuch.'),
+                  'Mein Lieblingsessen ist Pasta — am liebsten mit Tomatensauce. Mein Lieblingsfilm ist „Amélie“ — das poetischste Werk. Mein Lieblingsbuch ist „Der kleine Prinz“ — das tiefste Kinderbuch.'),
         'dialog': ('Mini-Dialog: Der beste Urlaub', 'Schreib einen kurzen Dialog: zwei Personen sprechen über ihren besten Urlaub.',
                    '— Wo war dein schönster Urlaub? — In Griechenland, auf Santorini. — Was war das Beste? — Der Sonnenuntergang am Meer war unbeschreiblich.'),
     }),
 
-    '1043G': g('1043G', 'Nebensätze mit dass und weil', 'Nebensätze mit „dass" und „weil" — Verb am Satzende!', {
-        'erfahrung': ('Was du heute denkst', 'Schreib zwei Sätze über das, was du heute denkst — mit „Ich denke, dass …" oder „Ich glaube, dass …".',
+    '1043G': g('1043G', 'Nebensätze mit dass und weil', 'Nebensätze mit „dass“ und „weil“ — Verb am Satzende!', {
+        'erfahrung': ('Was du heute denkst', 'Schreib zwei Sätze über das, was du heute denkst — mit „Ich denke, dass …“ oder „Ich glaube, dass …“.',
                       'Ich denke, dass mein Deutsch besser wird. Ich glaube auch, dass ich mehr Vokabeln lernen muss.'),
-        'beobachtung': ('Etwas, das dich freut — und warum', 'Erzähl, was dich heute freut. Nutze „weil".',
+        'beobachtung': ('Etwas, das dich freut — und warum', 'Erzähl, was dich heute freut. Nutze „weil“.',
                         'Mich freut heute, dass die Sonne scheint. Ich bin glücklich, weil ich nachher einen Spaziergang machen kann.'),
-        'frage': ('Eine Frage mit „warum"', 'Stell eine Frage und gib eine mögliche Antwort mit „weil".',
+        'frage': ('Eine Frage mit „warum“', 'Stell eine Frage und gib eine mögliche Antwort mit „weil“.',
                   'Warum lernst du Deutsch? Lernst du es, weil du in Deutschland arbeiten möchtest?'),
-        'liste': ('Drei Gründe für drei Hobbys', 'Nenne drei deiner Hobbys und je einen Grund — alle mit „weil".',
+        'liste': ('Drei Gründe für drei Hobbys', 'Nenne drei deiner Hobbys und je einen Grund — alle mit „weil“.',
                   'Ich lese gern, weil ich mich dabei entspanne. Ich koche gern, weil ich kreativ sein kann. Ich gehe gern wandern, weil ich Natur brauche.'),
-        'dialog': ('Mini-Dialog: dass und weil', 'Schreib einen kurzen Dialog mit „dass" und „weil".',
+        'dialog': ('Mini-Dialog: dass und weil', 'Schreib einen kurzen Dialog mit „dass“ und „weil“.',
                    '— Weißt du, dass Tom umzieht? — Ja, ich glaube, dass er nach München geht. — Warum eigentlich? — Weil er dort eine neue Stelle hat.'),
     }),
 
     '1047G': g('1047G', 'Reflexive Verben', 'reflexive Verben (sich freuen, sich treffen, sich ärgern …)', {
-        'erfahrung': ('Worauf du dich freust', 'Worauf freust du dich diese Woche? Schreib zwei Sätze mit „sich freuen auf".',
+        'erfahrung': ('Worauf du dich freust', 'Worauf freust du dich diese Woche? Schreib zwei Sätze mit „sich freuen auf“.',
                       'Ich freue mich auf das Wochenende mit meiner Familie. Außerdem freue ich mich auf das gute Wetter.'),
         'beobachtung': ('Worüber du dich ärgerst', 'Worüber ärgerst du dich manchmal? Zwei Sätze.',
                         'Ich ärgere mich oft über die langsamen Busse. Auch über laute Nachbarn ärgere ich mich.'),
@@ -314,15 +314,15 @@ CONFIGS_NEW = {
     }),
 
     '1053G': g('1053G', 'Der-Wörter und ein-Wörter', 'die der-Wörter (dieser, jeder, welcher) und ein-Wörter (kein, mein, dein, sein)', {
-        'erfahrung': ('Dein Lieblingsbuch oder -film', 'Beschreib dein Lieblingsbuch oder deinen Lieblingsfilm mit „dieses", „mein", „kein". Zwei Sätze.',
-                      'Dieses Buch heißt „Tschick" und ist mein absolutes Lieblingsbuch. Keinen anderen Roman habe ich öfter gelesen.'),
+        'erfahrung': ('Dein Lieblingsbuch oder -film', 'Beschreib dein Lieblingsbuch oder deinen Lieblingsfilm mit „dieses“, „mein“, „kein“. Zwei Sätze.',
+                      'Dieses Buch heißt „Tschick“ und ist mein absolutes Lieblingsbuch. Keinen anderen Roman habe ich öfter gelesen.'),
         'beobachtung': ('Drei Sachen in deinem Zimmer', 'Beschreib drei Sachen mit der-Wörtern oder ein-Wörtern (dieser, mein, kein …).',
                         'Dieser Stuhl ist sehr alt. Mein Computer steht direkt daneben. Keinen Drucker habe ich im Moment.'),
-        'frage': ('Frage mit „welcher"', 'Stell zwei Fragen mit „welcher", „welche" oder „welches".',
+        'frage': ('Frage mit „welcher“', 'Stell zwei Fragen mit „welcher“, „welche“ oder „welches“.',
                   'Welches Buch liest du gerade? Welche Sprachen verstehst du sonst noch?'),
-        'liste': ('Drei Personen, drei Eigenschaften', 'Nutze „mein", „dein", „sein", „ihr" — schreib drei Sätze über drei Personen.',
+        'liste': ('Drei Personen, drei Eigenschaften', 'Nutze „mein“, „dein“, „sein“, „ihr“ — schreib drei Sätze über drei Personen.',
                   'Meine Schwester ist Lehrerin. Sein Bruder studiert Medizin. Ihre beste Freundin lebt in Wien.'),
-        'dialog': ('Mini-Dialog: Welches?', 'Schreib einen kurzen Dialog mit Fragen wie „Welcher? Welche? Welches?".',
+        'dialog': ('Mini-Dialog: Welches?', 'Schreib einen kurzen Dialog mit Fragen wie „Welcher? Welche? Welches?“.',
                    '— Welches T-Shirt soll ich anziehen? — Dieses blaue gefällt mir am besten. — Und welche Hose? — Deine schwarze passt gut dazu.'),
     }),
 
@@ -363,7 +363,7 @@ CONFIGS_NEW = {
         'intro': 'Fünf kleine Schreibaufgaben zu den Bausteinen eines guten Briefes oder einer guten E-Mail.',
         'tasks': [
             {'titel': 'Eine freundliche Anrede', 'frage': 'Schreib drei verschiedene Anreden — eine formelle, eine semi-formelle und eine informelle.',
-             'beispiel': 'Formell: „Sehr geehrte Frau Schulz,". Semi-formell: „Liebe Frau Schulz,". Informell: „Hallo Anna,".'},
+             'beispiel': 'Formell: „Sehr geehrte Frau Schulz,“. Semi-formell: „Liebe Frau Schulz,“. Informell: „Hallo Anna,“.'},
             {'titel': 'Ein freundlicher Einstieg', 'frage': 'Wie beginnst du eine E-Mail, wenn du schon länger nichts geschrieben hast? Schreib zwei Sätze.',
              'beispiel': 'Ich hoffe, es geht dir gut. Lange habe ich nichts von mir hören lassen — heute will ich das ändern.'},
             {'titel': 'Ein konkretes Anliegen', 'frage': 'Formuliere ein höfliches Anliegen in zwei Sätzen — z.B. eine Bitte um Hilfe oder einen Terminwunsch.',
@@ -371,7 +371,7 @@ CONFIGS_NEW = {
             {'titel': 'Ein Dank', 'frage': 'Bedank dich in zwei Sätzen für etwas Konkretes.',
              'beispiel': 'Vielen Dank für deine Geduld letzten Montag. Ohne deine Hilfe hätte ich das Formular nicht ausgefüllt bekommen.'},
             {'titel': 'Eine Verabschiedung', 'frage': 'Schreib drei Verabschiedungen — eine formelle, eine semi-formelle, eine informelle.',
-             'beispiel': 'Formell: „Mit freundlichen Grüßen, Maria Lopez". Semi-formell: „Herzliche Grüße, Maria". Informell: „Bis bald, Maria".'},
+             'beispiel': 'Formell: „Mit freundlichen Grüßen, Maria Lopez“. Semi-formell: „Herzliche Grüße, Maria“. Informell: „Bis bald, Maria“.'},
         ]
     },
 
@@ -539,12 +539,12 @@ CONFIGS_NEW = {
     # EINHEIT 2 — G-Dateien (12)
     # ============================================================
 
-    '2013G': g('2013G', 'Indirekte Rede', 'die indirekte Rede (z.B. „Er sagte, dass er müde sei.")', {
+    '2013G': g('2013G', 'Indirekte Rede', 'die indirekte Rede (z.B. „Er sagte, dass er müde sei.“)', {
         'erfahrung': ('Etwas, das jemand dir gesagt hat', 'Was hat dir heute jemand gesagt? Schreib es in der indirekten Rede.',
                       'Meine Mutter sagte, dass sie heute Abend anrufen würde. Mein Kollege meinte, er hätte schon zu Mittag gegessen.'),
         'beobachtung': ('Was im Radio oder TV kam', 'Berichte in indirekter Rede über eine Nachricht oder ein Wetter-Update.',
                         'Der Wetterbericht sagte, dass es morgen regnen werde. Außerdem hieß es, die Temperaturen würden fallen.'),
-        'frage': ('Indirekte Frage', 'Stell zwei indirekte Fragen — „Ich möchte wissen, ob …" / „Kannst du mir sagen, wann …".',
+        'frage': ('Indirekte Frage', 'Stell zwei indirekte Fragen — „Ich möchte wissen, ob …“ / „Kannst du mir sagen, wann …“.',
                   'Kannst du mir sagen, wann der nächste Bus kommt? Ich möchte wissen, ob das Restaurant am Sonntag offen hat.'),
         'liste': ('Drei Aussagen, indirekt wiedergegeben', 'Wiederhole drei kurze Aussagen in indirekter Rede.',
                   'Maria sagte, dass sie krank sei. Tom meinte, er habe keine Zeit. Anna erklärte, sie wolle nach Hause gehen.'),
@@ -565,23 +565,23 @@ CONFIGS_NEW = {
                    '— Wer hat die Küche so geputzt? — Sie wurde von meiner Schwester geputzt. — Und wann wird das Wohnzimmer gemacht? — Es wird morgen gemacht.'),
     }),
 
-    '2023G': g('2023G', 'Position der Konnektoren', 'die Wortstellung mit Konnektoren („denn", „aber", „deshalb", „trotzdem")', {
-        'erfahrung': ('Dein Tag mit Konnektoren', 'Erzähl zwei Sätze über deinen Tag mit Konnektoren wie „aber" oder „deshalb".',
+    '2023G': g('2023G', 'Position der Konnektoren', 'die Wortstellung mit Konnektoren („denn“, „aber“, „deshalb“, „trotzdem“)', {
+        'erfahrung': ('Dein Tag mit Konnektoren', 'Erzähl zwei Sätze über deinen Tag mit Konnektoren wie „aber“ oder „deshalb“.',
                       'Ich wollte heute spazieren gehen, aber es hat geregnet. Deshalb habe ich zu Hause gelesen.'),
-        'beobachtung': ('Pro und Contra', 'Schreib zwei Sätze zu einem Thema deiner Wahl mit „aber" oder „trotzdem".',
+        'beobachtung': ('Pro und Contra', 'Schreib zwei Sätze zu einem Thema deiner Wahl mit „aber“ oder „trotzdem“.',
                         'Ich liebe Schokolade. Trotzdem versuche ich, nicht zu viel davon zu essen.'),
-        'frage': ('Frage mit „warum" + Antwort mit „denn"', 'Schreib eine „Warum"-Frage und eine Antwort mit „denn".',
+        'frage': ('Frage mit „warum“ + Antwort mit „denn“', 'Schreib eine „Warum“-Frage und eine Antwort mit „denn“.',
                   'Warum lernst du Deutsch so intensiv? — Ich lerne so viel, denn ich möchte bald in Berlin arbeiten.'),
-        'liste': ('Vier Sätze, vier Konnektoren', 'Schreib vier Sätze mit „aber", „deshalb", „trotzdem", „denn".',
+        'liste': ('Vier Sätze, vier Konnektoren', 'Schreib vier Sätze mit „aber“, „deshalb“, „trotzdem“, „denn“.',
                   'Es ist spät, aber ich bin noch wach. Mir ist kalt, deshalb ziehe ich einen Pullover an. Der Film war lang, trotzdem hat er mir gefallen. Ich kaufe oft im Bio-Laden, denn die Qualität ist besser.'),
         'dialog': ('Mini-Dialog: Konnektoren', 'Schreib einen Dialog mit mindestens zwei Konnektoren.',
                    '— Warum kommst du heute spät? — Mein Zug hatte Verspätung, deshalb bin ich erst jetzt da. — Aber zum Glück bist du noch gekommen. — Ja, denn ich wollte dich unbedingt sehen.'),
     }),
 
-    '2027G': g('2027G', 'Lokal- und Direktionaladverbien', 'Lokal- und Direktionaladverbien („oben", „unten", „nach oben", „nach unten")', {
+    '2027G': g('2027G', 'Lokal- und Direktionaladverbien', 'Lokal- und Direktionaladverbien („oben“, „unten“, „nach oben“, „nach unten“)', {
         'erfahrung': ('Wo du wohnst', 'Beschreib in zwei Sätzen, wo in deinem Haus du wohnst — mit Lokaladverbien.',
                       'Ich wohne oben im dritten Stock. Unten im Erdgeschoss gibt es einen kleinen Briefkasten für mich.'),
-        'beobachtung': ('Bewegung im Alltag', 'Beschreib zwei Bewegungen aus deinem Tag mit „nach oben", „nach unten", „nach rechts" usw.',
+        'beobachtung': ('Bewegung im Alltag', 'Beschreib zwei Bewegungen aus deinem Tag mit „nach oben“, „nach unten“, „nach rechts“ usw.',
                         'Morgens gehe ich die Treppe nach unten zur Bäckerei. Dann fahre ich mit dem Bus nach rechts in die Stadtmitte.'),
         'frage': ('Eine Richtungsfrage', 'Stell zwei Fragen mit Richtungsadverbien.',
                   'Wohin geht es weiter — nach links oder nach rechts? Soll ich nach oben gehen oder hier unten warten?'),
@@ -604,27 +604,27 @@ CONFIGS_NEW = {
                    '— Erinnerst du dich, als wir nach Italien fuhren? — Natürlich! Es regnete fast jeden Tag. — Aber wir lachten trotzdem viel. — Stimmt, und am Strand spielten wir Karten.'),
     }),
 
-    '2037G': g('2037G', 'Modalpartikeln', 'Modalpartikeln wie „ja", „doch", „mal", „eigentlich", „denn"', {
-        'erfahrung': ('Mit Modalpartikeln nachfragen', 'Schreib zwei Fragen mit „eigentlich" oder „denn".',
+    '2037G': g('2037G', 'Modalpartikeln', 'Modalpartikeln wie „ja“, „doch“, „mal“, „eigentlich“, „denn“', {
+        'erfahrung': ('Mit Modalpartikeln nachfragen', 'Schreib zwei Fragen mit „eigentlich“ oder „denn“.',
                       'Wie heißt du eigentlich? Wo wohnst du denn?'),
-        'beobachtung': ('Eine kleine Aufforderung', 'Bitte jemanden um etwas mit „mal" oder „doch".',
+        'beobachtung': ('Eine kleine Aufforderung', 'Bitte jemanden um etwas mit „mal“ oder „doch“.',
                         'Komm doch mal her! Probier das mal — das schmeckt super.'),
-        'frage': ('Höfliche Frage mit Modalpartikeln', 'Stell zwei höfliche Fragen mit „eigentlich", „denn" oder „mal".',
+        'frage': ('Höfliche Frage mit Modalpartikeln', 'Stell zwei höfliche Fragen mit „eigentlich“, „denn“ oder „mal“.',
                   'Was machst du eigentlich beruflich? Hast du mal eine Sekunde Zeit?'),
-        'liste': ('Vier Sätze, vier Partikeln', 'Schreib vier Sätze, jeder mit einer anderen Modalpartikel („ja", „doch", „mal", „eigentlich").',
+        'liste': ('Vier Sätze, vier Partikeln', 'Schreib vier Sätze, jeder mit einer anderen Modalpartikel („ja“, „doch“, „mal“, „eigentlich“).',
                   'Das ist ja interessant! Komm doch zu uns rüber. Sag mal, wie spät ist es? Wie heißt du eigentlich?'),
         'dialog': ('Mini-Dialog: Lebendige Sprache', 'Schreib einen kurzen Alltagsdialog mit mehreren Modalpartikeln.',
                    '— Sag mal, wo ist denn meine Brille? — Die liegt doch auf dem Tisch! — Ach ja, jetzt sehe ich sie. — Du suchst sie eigentlich jeden Tag.'),
     }),
 
-    '2043G': g('2043G', 'Konjunktiv II', 'den Konjunktiv II („ich hätte", „ich wäre", „ich würde …")', {
+    '2043G': g('2043G', 'Konjunktiv II', 'den Konjunktiv II („ich hätte“, „ich wäre“, „ich würde …“)', {
         'erfahrung': ('Was du anders machen würdest', 'Was würdest du in deinem Leben anders machen, wenn du könntest? Zwei Sätze im Konjunktiv II.',
                       'Wenn ich noch einmal jung wäre, würde ich mehr reisen. Ich hätte auch lieber eine andere Sprache als Schulsprache gewählt.'),
         'beobachtung': ('Ein höflicher Wunsch', 'Formuliere zwei höfliche Wünsche im Konjunktiv II.',
                         'Ich hätte gern noch einen Kaffee, bitte. Könnten Sie mir kurz helfen?'),
         'frage': ('Frage im Konjunktiv II', 'Stell zwei Fragen im Konjunktiv II.',
                   'Was würdest du machen, wenn du eine Million Euro hättest? Wärst du gern ein Tier — und wenn ja, welches?'),
-        'liste': ('Drei „Wenn ich nur …"-Sätze', 'Schreib drei Sätze, die mit „Wenn ich nur …" beginnen.',
+        'liste': ('Drei „Wenn ich nur …“-Sätze', 'Schreib drei Sätze, die mit „Wenn ich nur …“ beginnen.',
                   'Wenn ich nur mehr Zeit hätte! Wenn ich nur besser Klavier spielen könnte! Wenn ich nur mutiger wäre!'),
         'dialog': ('Mini-Dialog: Höfliche Bitte', 'Schreib einen kurzen Restaurant-Dialog im Konjunktiv II.',
                    '— Könnte ich bitte die Speisekarte haben? — Selbstverständlich. — Hätten Sie auch etwas Vegetarisches? — Wir hätten heute eine Pilzpfanne.'),
@@ -635,7 +635,7 @@ CONFIGS_NEW = {
                       'Der Hund schläft. Ich streichle den Hund. Ich gebe dem Hund Wasser. Das ist das Spielzeug des Hundes.'),
         'beobachtung': ('Ein Geschenk', 'Beschreib in zwei Sätzen ein Geschenk — wer gibt wem was?',
                         'Mein Bruder schenkt seiner Frau einen Ring. Sie freut sich sehr über das schöne Geschenk.'),
-        'frage': ('Eine Frage mit allen vier Fällen', 'Stell zwei Fragen mit verschiedenen Fällen („Wem gehört …?", „Wessen Buch ist das?").',
+        'frage': ('Eine Frage mit allen vier Fällen', 'Stell zwei Fragen mit verschiedenen Fällen („Wem gehört …?“, „Wessen Buch ist das?“).',
                   'Wessen Tasche steht im Flur? Wem hast du gestern den Brief gegeben?'),
         'liste': ('Drei Verben, drei Sätze', 'Schreib drei Sätze mit drei verschiedenen Verben — jedes verlangt einen anderen Kasus.',
                   'Ich sehe meinen Freund. Ich helfe meinem Freund. Ich erinnere mich an meinen Freund.'),
@@ -643,10 +643,10 @@ CONFIGS_NEW = {
                    '— Wem gehört das Buch? — Es ist das Buch meiner Schwester. — Hast du es gelesen? — Ja, ich habe ihr gesagt, dass es mir gut gefallen hat.'),
     }),
 
-    '2053G': g('2053G', 'Indefinitpronomen', 'Indefinitpronomen wie „etwas", „nichts", „jemand", „niemand", „alle", „einige"', {
-        'erfahrung': ('Was niemand weiß', 'Schreib zwei Sätze mit „jemand", „niemand", „etwas" oder „nichts" über deinen Tag.',
+    '2053G': g('2053G', 'Indefinitpronomen', 'Indefinitpronomen wie „etwas“, „nichts“, „jemand“, „niemand“, „alle“, „einige“', {
+        'erfahrung': ('Was niemand weiß', 'Schreib zwei Sätze mit „jemand“, „niemand“, „etwas“ oder „nichts“ über deinen Tag.',
                       'Heute habe ich niemanden in meiner Familie angerufen. Ich habe etwas Neues gelernt — fünf neue Vokabeln.'),
-        'beobachtung': ('Alle, einige, niemand', 'Schreib zwei Sätze über deine Freunde oder Kollegen — mit „alle", „einige", „niemand".',
+        'beobachtung': ('Alle, einige, niemand', 'Schreib zwei Sätze über deine Freunde oder Kollegen — mit „alle“, „einige“, „niemand“.',
                         'Alle in meinem Team sprechen Englisch. Einige Kollegen sprechen auch Französisch. Niemand spricht Russisch.'),
         'frage': ('Frage mit Indefinitpronomen', 'Stell zwei Fragen mit Indefinitpronomen.',
                   'Hat jemand schon das neue Café an der Ecke ausprobiert? Habt ihr etwas Schönes am Wochenende vor?'),
@@ -657,22 +657,22 @@ CONFIGS_NEW = {
     }),
 
     '2057G': g('2057G', 'Genitiv', 'den Genitiv (des Mannes, der Frau, der Kinder)', {
-        'erfahrung': ('Eine Sache aus deiner Familie', 'Beschreib eine Sache mit Genitiv — z.B. „das Auto meines Bruders".',
+        'erfahrung': ('Eine Sache aus deiner Familie', 'Beschreib eine Sache mit Genitiv — z.B. „das Auto meines Bruders“.',
                       'Das Haus meiner Eltern ist nicht groß, aber sehr gemütlich. Im Wohnzimmer steht das alte Klavier meiner Großmutter.'),
         'beobachtung': ('Drei Genitiv-Sätze', 'Schreib drei kurze Sätze mit Genitiv.',
                         'Der Hund des Nachbarn bellt oft. Die Mutter meiner Freundin kommt aus Polen. Das Auto unserer Firma ist alt.'),
-        'frage': ('Frage mit „Wessen?"', 'Stell zwei Fragen mit „Wessen?".',
+        'frage': ('Frage mit „Wessen?“', 'Stell zwei Fragen mit „Wessen?“.',
                   'Wessen Buch liegt da auf dem Stuhl? Wessen Idee war das eigentlich?'),
-        'liste': ('Vier feste Wendungen mit Genitiv', 'Schreib vier Sätze mit Wendungen wie „während der Woche", „statt des Kaffees", „trotz des Regens".',
+        'liste': ('Vier feste Wendungen mit Genitiv', 'Schreib vier Sätze mit Wendungen wie „während der Woche“, „statt des Kaffees“, „trotz des Regens“.',
                   'Während der Woche arbeite ich. Statt des Kaffees nehme ich heute Tee. Trotz des Regens gehen wir spazieren. Wegen der Hitze blieb ich zu Hause.'),
         'dialog': ('Mini-Dialog: Mit Genitiv', 'Schreib einen Dialog mit Genitiv-Konstruktionen.',
                    '— Wessen Mantel liegt auf dem Stuhl? — Es ist der Mantel meines Bruders. — Und die Tasche? — Die gehört der Freundin meiner Mutter.'),
     }),
 
-    '2063G': g('2063G', 'Verben mit fester Präposition', 'Verben mit fester Präposition („sich freuen auf", „warten auf", „denken an", „sprechen über")', {
+    '2063G': g('2063G', 'Verben mit fester Präposition', 'Verben mit fester Präposition („sich freuen auf“, „warten auf“, „denken an“, „sprechen über“)', {
         'erfahrung': ('Worauf du wartest', 'Worauf wartest du gerade? Schreib zwei Sätze mit Verben + Präposition.',
                       'Ich warte seit drei Wochen auf eine Antwort von der Bank. Außerdem freue ich mich auf das nächste lange Wochenende.'),
-        'beobachtung': ('An wen du heute gedacht hast', 'An wen oder was hast du heute gedacht? Zwei Sätze mit „denken an".',
+        'beobachtung': ('An wen du heute gedacht hast', 'An wen oder was hast du heute gedacht? Zwei Sätze mit „denken an“.',
                         'Heute Morgen habe ich an meinen alten Lehrer gedacht. Er hat mich an die Liebe zu Büchern erinnert.'),
         'frage': ('Frage mit Verb + Präposition', 'Stell zwei Fragen mit Verben + fester Präposition.',
                   'Über welches Thema möchtest du gern reden? Auf was freust du dich diese Woche am meisten?'),
@@ -682,8 +682,8 @@ CONFIGS_NEW = {
                    '— Warum freust du dich so? — Ich freue mich auf das Konzert heute Abend. — Über welche Band sprichst du? — Über die neue Band aus Berlin. Hast du schon von ihr gehört?'),
     }),
 
-    '2067G': g('2067G', 'Mehr über Adjektivendungen', 'Adjektivendungen ohne Artikel (z.B. „bei schönem Wetter", „mit frischem Brot")', {
-        'erfahrung': ('Wetter und Aktivitäten', 'Schreib zwei Sätze mit „bei schönem Wetter", „bei kaltem Wetter" oder ähnlich.',
+    '2067G': g('2067G', 'Mehr über Adjektivendungen', 'Adjektivendungen ohne Artikel (z.B. „bei schönem Wetter“, „mit frischem Brot“)', {
+        'erfahrung': ('Wetter und Aktivitäten', 'Schreib zwei Sätze mit „bei schönem Wetter“, „bei kaltem Wetter“ oder ähnlich.',
                       'Bei schönem Wetter gehe ich gern wandern. Bei starkem Regen bleibe ich lieber zu Hause mit einem Buch.'),
         'beobachtung': ('Was du isst und trinkst', 'Beschreib in zwei Sätzen, was du oft isst — mit Adjektiven ohne Artikel.',
                         'Zum Frühstück nehme ich gern frisches Brot mit kaltem Käse. Dazu trinke ich starken schwarzen Kaffee.'),

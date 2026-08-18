@@ -272,7 +272,7 @@ function schreibSendenAlleNochOffenen() {
     function () {
       btn.disabled = false;
       btn.innerHTML = '📨 Alle noch nicht gesendeten Antworten schicken';
-      schreibStatusZeigen('error', '✗ Direkter Versand nicht möglich. Bitte einzeln pro Karte versuchen oder „In Zwischenablage" verwenden.');
+      schreibStatusZeigen('error', '✗ Direkter Versand nicht möglich. Bitte einzeln pro Karte versuchen oder „In Zwischenablage“ verwenden.');
     }
   );
 }
@@ -334,7 +334,6 @@ def task_card_html(idx: int, t: dict) -> str:
       <div class="schreib-aufgabe-karte">
         <span class="schreib-aufgabe-nr">{idx}</span><span class="schreib-aufgabe-titel">{t['titel']}</span>
         <div class="schreib-aufgabe-frage">{t['frage']}</div>
-        <div class="schreib-beispiel">Beispiel: „{t['beispiel']}"</div>
         <textarea class="schreib-mini-textarea" data-aufgabe="{idx}" data-titel="{t['titel']}"></textarea>
         <div class="schreib-mini-footer">
           <span class="schreib-mini-meta">Wörter: <strong class="wc-{idx}">0</strong> <span class="schreib-mini-status" id="sw-status-{idx}"></span></span>
@@ -690,6 +689,7 @@ def main():
         # Allow running with empty configs (for testing the patcher logic)
         pass
 
+    gepatcht = []
     for code in args.codes:
         cfg = CONFIGS.get(code)
         if not cfg:
@@ -704,6 +704,18 @@ def main():
             print(f"FAIL — Mehrdeutig: {[c.name for c in cands]}")
             continue
         print(patch_file(cands[0], cfg, args.niveau, niveau_cfg))
+        gepatcht.append(str(cands[0]))
+
+    # Pflicht-Nachlauf: der eingebaute Versand-Code ist formsubmit-Altbestand.
+    # patch_schreib_web3forms.py ist idempotent und macht daraus Web3Forms
+    # inkl. body.success-Check + Customer-Success-Error-UX.
+    if gepatcht:
+        import subprocess
+        w3 = pathlib.Path(__file__).parent / 'patch_schreib_web3forms.py'
+        if w3.exists():
+            subprocess.run([sys.executable, str(w3)] + gepatcht, check=False)
+        else:
+            print('WARNUNG — patch_schreib_web3forms.py fehlt, Versand bleibt formsubmit!')
 
 
 if __name__ == '__main__':

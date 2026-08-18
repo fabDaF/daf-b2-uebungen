@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """check_quotes.py — Gate: deutsche Anführungszeichen (daf-audit Showstopper).
 
+Geprüft werden alle .html-Dateien UND die Inhaltsquellen scripts/configs_*.py —
+deren Aufgabentexte landen 1:1 im generierten HTML; eine ASCII-Schlussquote dort
+ist derselbe Fehler, nur eine Stufe frueher.
+
 Findet „…"-Paare, die mit ASCII U+0022 statt U+201C schließen.
 Gehärtete Fassung des kanonischen Regex aus daf-audit/SKILL.md: HTML-Tags
 werden als Ganzes konsumiert (`<[^>]*>`), damit Zitate, die über Inline-
@@ -37,7 +41,7 @@ def html_files(paths):
         for root, dirs, files in os.walk(p):
             dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
             for f in files:
-                if f.endswith('.html'):
+                if f.endswith('.html') or (f.startswith('configs_') and f.endswith('.py')):
                     yield os.path.join(root, f)
 
 
