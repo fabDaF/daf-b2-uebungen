@@ -37,8 +37,9 @@ Aufruf:
   python3 scripts/check_banner_faces.py                 # ganzes Repo (ohne daf-archiv)
   python3 scripts/check_banner_faces.py datei.html …    # einzelne Dateien
 
-Abhängigkeit: `pip install opencv-python-headless numpy`. Fehlt sie, Exit 0 mit
-Warnung — der Commit-Workflow hängt nie an einer fehlenden Bibliothek.
+Abhängigkeit: `pip install 'opencv-python-headless<5' numpy`. Fehlt sie ODER
+bringt sie die Haar-Kaskaden nicht mit (OpenCV 5 hat sie entfernt), endet das
+Skript mit Exit 0 und Warnung — der Commit-Workflow hängt nie an der Bibliothek.
 
 Vor jedem Lektions-Commit laufen lassen — mit check_serif.py, check_wortbank.py,
 check_genus.py und check_schreib_pad.py.
@@ -66,11 +67,40 @@ def _load_cv():
         return None, None
 
 
+class DetectorUnavailable(Exception):
+    """Die Haar-Kaskaden-API fehlt in dieser OpenCV-Installation."""
+
+
 def _cascades(cv2):
-    hd = cv2.data.haarcascades
-    c = {n: cv2.CascadeClassifier(hd + "haarcascade_" + n + ".xml")
-         for n in FACE_CASCADES}
-    c["eye"] = cv2.CascadeClassifier(hd + "haarcascade_eye.xml")
+    """Baut die Haar-Kaskaden — oder wirft DetectorUnavailable.
+
+    Warum die Prüferei (2026-08-19): OpenCV 5 hat die Haar-Kaskaden aus dem
+    Kernmodul entfernt — es gibt dort weder `cv2.CascadeClassifier` noch die
+    XML-Dateien unter `cv2.data.haarcascades` (das Verzeichnis existiert, ist
+    aber leer). Vorher schlug das als AttributeError mitten im Modul-Load zu
+    und liess JEDEN Commit auflaufen — entgegen der Zusage in CLAUDE.md und
+    GRAFIK-BANNER-SERIE.md, dass dieses Gate den Workflow nie blockiert.
+    Deshalb: alles, was den Detektor unbrauchbar macht, wird hier zu einer
+    sauberen Ausnahme, die der Aufrufer in einen Skip (Exit 0) uebersetzt.
+    """
+    if not hasattr(cv2, "CascadeClassifier"):
+        raise DetectorUnavailable(
+            "OpenCV %s kennt keine CascadeClassifier-API "
+            "(ab OpenCV 5 entfernt)" % getattr(cv2, "__version__", "?"))
+    hd = getattr(getattr(cv2, "data", None), "haarcascades", None)
+    if not hd or not os.path.isdir(hd):
+        raise DetectorUnavailable("cv2.data.haarcascades nicht gefunden")
+    c = {}
+    for n in tuple(FACE_CASCADES) + ("eye",):
+        path = hd + "haarcascade_" + n + ".xml"
+        if not os.path.isfile(path):
+            raise DetectorUnavailable(
+                "Kaskaden-Datei fehlt: haarcascade_%s.xml" % n)
+        k = cv2.CascadeClassifier(path)
+        if k.empty():
+            raise DetectorUnavailable(
+                "Kaskade nicht ladbar: haarcascade_%s.xml" % n)
+        c[n] = k
     return c
 
 
@@ -210,7 +240,14 @@ if __name__ == "__main__":
         print("⚠ check_banner_faces.py ÜBERSPRUNGEN — opencv nicht installiert.")
         print("  pip install opencv-python-headless numpy")
         sys.exit(0)
-    casc = _cascades(cv2)
+    try:
+        casc = _cascades(cv2)
+    except DetectorUnavailable as e:
+        print("\u26a0 check_banner_faces.py \u00dcBERSPRUNGEN \u2014 %s." % e)
+        print("  Abhilfe: pip install 'opencv-python-headless<5'")
+        print("  Regel \u00a71.5 (Banner per Auge pr\u00fcfen) gilt solange "
+              "unvermindert \u2014 der automatische Guardrail fehlt hier.")
+        sys.exit(0)
     files = args if args else collect_repo()
     all_hard, all_skip = [], []
     for p in files:

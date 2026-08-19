@@ -72,7 +72,15 @@ def main():
     for script in BLOCKING:
         code, out = run(script, files)
         if code == 0:
-            print(f"  ✓ {script}")
+            # Ein Gate darf sich selbst überspringen (fehlende optionale
+            # Abhängigkeit). Das ist grün, aber NICHT geprüft — deshalb sagen
+            # wir es laut, statt ein ✓ zu zeigen, das Deckung vortäuscht.
+            if "ÜBERSPRUNGEN" in out:
+                print(f"  ⊘ {script} — übersprungen, NICHT geprüft")
+                for line in out.splitlines():
+                    print(f"      {line}")
+            else:
+                print(f"  ✓ {script}")
         else:
             failed.append(script)
             print(f"  ✗ {script}")
@@ -82,7 +90,12 @@ def main():
     for script in WARN:
         code, out = run(script, files)
         if code == 0:
-            print(f"  ✓ {script}")
+            if "ÜBERSPRUNGEN" in out:
+                print(f"  ⊘ {script} — übersprungen, NICHT geprüft")
+                for line in out.splitlines():
+                    print(f"      {line}")
+            else:
+                print(f"  ✓ {script}")
         else:
             print(f"  ⚠ {script} (Backlog-Gate, blockiert nicht)")
             # Nur die Kopfzeilen zeigen, nicht die komplette Datei-Liste.

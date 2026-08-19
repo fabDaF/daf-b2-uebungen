@@ -488,8 +488,13 @@ getöntes Porträt liefert der Gesichtserkennung null Gesichter):
    gemeldet (`--strict` blockt auch das). SVG-Banner werden übersprungen
    (selbstgebaut, gesichtsfrei). **Vor jedem Lektions-Commit laufen lassen**,
    zusammen mit `check_serif.py`, `check_wortbank.py`, `check_genus.py` und
-   `check_schreib_pad.py`. Braucht `opencv-python-headless`; fehlt sie,
-   überspringt das Skript mit Warnung (Exit 0), blockiert also nie den Workflow.
+   `check_schreib_pad.py`. Braucht `opencv-python-headless` **in Version 4**
+   (`pip install 'opencv-python-headless<5'`) — OpenCV 5 hat die Haar-Kaskaden
+   aus dem Kernmodul entfernt. Fehlt die Bibliothek oder bringt sie die
+   Kaskaden nicht mit, überspringt das Skript sich mit Warnung (Exit 0) und
+   blockiert nie den Workflow; `check_all.py` meldet es dann als
+   `⊘ … übersprungen, NICHT geprüft`. In diesem Fall greift ausschliesslich
+   Regel §1.5 — die Banner per Auge prüfen.
 2. **Regel** (dieser Abschnitt) — schließt die Lücke, die der Detektor nicht
    automatisch fassen kann: voll im Bild komponieren oder ersetzen.
 3. **Struktur-Default** — bei neuen Lektionen im Zweifel gleich ein

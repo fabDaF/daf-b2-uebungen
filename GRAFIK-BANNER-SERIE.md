@@ -153,5 +153,9 @@ git diff HEAD --quiet -- DATEI.html || überspringen+berichten
   IMMER mit `git show HEAD:DATEI > DATEI`.
 - Pages-Deploys springen nach Pushes gelegentlich nicht an — bei stale Live-Stand
   leerer Retrigger-Commit (bekanntes Muster, siehe Memory).
-- `check_banner_faces.py` braucht opencv; fehlt es, überspringt es sich selbst —
-  das entbindet nicht von Regel §1.5.
+- `check_banner_faces.py` braucht opencv **4** (`pip install
+  'opencv-python-headless<5'`); ab OpenCV 5 fehlt die Haar-Kaskaden-API, dann
+  überspringt es sich selbst — das entbindet nicht von Regel §1.5.
+  Bis 2026-08-19 stürzte es in dem Fall stattdessen ab und blockierte jeden
+  Commit; seither ist der Skip sauber und `check_all.py` weist ihn als
+  `⊘ … NICHT geprüft` aus.
