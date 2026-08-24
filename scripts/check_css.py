@@ -36,24 +36,11 @@ COMMENT_RE = re.compile(r'/\*.*?\*/', re.S)
 DECL_RE = re.compile(r'^\s*[-a-zA-Z][-a-zA-Z0-9]*\s*:\s*[^;{}]+;\s*$')
 SKIP_DIRS = {'daf-archiv', '_to_delete', 'node_modules', '.git', 'backup'}
 
-# Nur für Klasse B (verwaiste Deklaration). Diese beiden Dateien sind seit
-# ihrem ALLERERSTEN Commit so — der Generator hat damals die Selektoren samt
-# Klammern der „Figuren-Karten" verloren, es gibt also keine heile Fassung in
-# der Historie, aus der man sie zurückholen könnte. Die Deklarationen sind
-# wirkungslos (tote Formatierung), aber sie zu erraten wäre Erfindung. Die
-# Dateien stehen deshalb bewusst hier, damit das Gate für die gefährliche
-# Klasse A (verwaister Selektor, verschluckt die Folgeregel) sofort blockierend
-# laufen kann. Beide sind inhaltlich dieselbe Genus-Übung.
-# → Aufräumen heißt: die Figuren-Karten-CSS neu schreiben, dann hier streichen.
-ALLOWLIST_DEKLARATION = {
-    'htmlS/A1.1 NEW/DE_A1_1000G-der-die-das-genus.html',
-    'daf-materialien/Grundlagen/Grammatik/genus-training.html',
-}
-
-
-def _allowlisted(path):
-    norm = os.path.normpath(path).replace(os.sep, '/')
-    return any(norm.endswith(a) for a in ALLOWLIST_DEKLARATION)
+# Stand 2026-08-24: Backlog 0 — das Gate läuft blockierend.
+# Die beiden Genus-Übungen (A1 1000G und daf-materialien/genus-training) waren
+# seit ihrem allerersten Commit kaputt: der Generator hatte einen abgeschnittenen
+# zweiten <head> mit selektorlosen „Figuren-Karten"-Deklarationen erzeugt. Der
+# abgeschnittene Block ist entfernt, die vollständige CSS stand ohnehin dahinter.
 
 
 def _strip_comments(css):
@@ -120,10 +107,7 @@ def main():
     files = [f for f in sys.argv[1:] if f.endswith('.html')] or collect_repo()
     total = 0
     for f in files:
-        erlaubt = _allowlisted(f)
         for ln, art, txt in scan(f):
-            if art == 'verwaiste Deklaration' and erlaubt:
-                continue
             total += 1
             print(f"✗ {f}:{ln}  {art}: {txt}")
     if total:
