@@ -349,10 +349,6 @@ def section_html(cfg: dict, wrap_tag: str) -> str:
       <div class="section-title">📨 Schreibwerkstatt</div>
       <div class="section-sub">{cfg['intro']}</div>
 
-      <div class="hilfe-box">
-        Schreiben ist das beste Training. Nimm dir Zeit für eine, zwei oder alle fünf Aufgaben. <strong>Jede Antwort kannst du einzeln an Frank schicken</strong> — du musst nicht alle bearbeiten. Wenn du den Sammelbutton am Ende benutzt, gehen alle noch nicht gesendeten Antworten in einer Mail.
-      </div>
-
       <div class="schreib-name-box">
         <label class="schreib-label" for="sw-name">Dein Name (Pflicht — damit Frank weiß, wer geschrieben hat):</label>
         <input type="text" id="sw-name" class="schreib-name" placeholder="z. B. Maria Lopez" required>

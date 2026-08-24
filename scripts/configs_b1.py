@@ -1554,6 +1554,26 @@ CONFIGS = {
              'beispiel': '— Was würdest du an meiner Stelle tun? — Ich könnte mir beides vorstellen — du musst hören, was du fühlst. — Ich tendiere zur Stelle in München. — Dann nimm sie. Vielleicht ist es Zeit für etwas Neues.'},
         ]
     },
+
+    # ── 1012G — Konjunktiv II der Modalverben (Grammatik) ────────────────
+    '1012G': {
+        'lesson_code': '1012G', 'lesson_title': 'Konjunktiv II der Modalverben',
+        'banner_url': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDIwMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJzYiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzViNTRiOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdhNGZiMCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNzYikiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NjAsNDApIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjEyMCIgcng9IjgiIGZpbGw9IiNmYmZhZmYiLz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjI2IiByeD0iOCIgZmlsbD0iI2U3ZTNmYiIvPjxnIHN0cm9rZT0iI2M3YmZmMCIgc3Ryb2tlLXdpZHRoPSIzIj48bGluZSB4MT0iMjAiIHkxPSI1MiIgeDI9IjE2MCIgeTI9IjUyIi8+PGxpbmUgeDE9IjIwIiB5MT0iNzIiIHgyPSIxNjAiIHkyPSI3MiIvPjxsaW5lIHgxPSIyMCIgeTE9IjkyIiB4Mj0iMTIwIiB5Mj0iOTIiLz48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc0MCw2MCkgcm90YXRlKDQwKSI+PHJlY3QgeD0iLTciIHk9Ii03MCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjExMCIgZmlsbD0iI2YzYzE0YSIvPjxwb2x5Z29uIHBvaW50cz0iLTcsNDAgNyw0MCAwLDYwIiBmaWxsPSIjMzMzIi8+PHJlY3QgeD0iLTciIHk9Ii03MCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiBmaWxsPSIjZDlhNTMxIi8+PC9nPjx0ZXh0IHg9IjM1MCIgeT0iMTE1IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgb3BhY2l0eT0iMC45Ij5TY2hyZWliZW4gYW4gRnJhbms8L3RleHQ+PC9zdmc+',
+        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'intro': 'Fünf kleine Schreibaufgaben zum Konjunktiv II der Modalverben.',
+        'tasks': [
+            {'titel': 'Eine höfliche Bitte', 'frage': 'Schreib eine kurze, höfliche Nachricht an eine Behörde, einen Vermieter oder eine Lehrkraft. Benutze mindestens zweimal „Könnten Sie …“ oder „Dürfte ich …“. (3–4 Sätze)',
+             'beispiel': 'Sehr geehrte Frau Weber, dürfte ich Sie um eine kurze Auskunft bitten? Könnten Sie mir sagen, welche Unterlagen ich mitbringen muss? Ich könnte am Freitag vorbeikommen.'},
+            {'titel': 'Ein Ratschlag', 'frage': 'Ein Freund schläft schlecht und ist immer müde. Gib ihm drei Ratschläge mit „solltest“ und „müsstest“. (3–4 Sätze)',
+             'beispiel': 'Du solltest abends früher ins Bett gehen. Du müsstest das Handy eine Stunde vorher weglegen. Und du solltest am Wochenende nicht bis mittags schlafen.'},
+            {'titel': 'Ein Wunsch', 'frage': 'Was würdest du gern können oder dürfen, was heute nicht geht? Schreib deinen Wunsch mit „Wenn ich … könnte“ oder „Wenn ich … dürfte“. (3–4 Sätze)',
+             'beispiel': 'Wenn ich fließend Japanisch sprechen könnte, würde ich ein Jahr in Osaka arbeiten. Ich könnte dort im Café mit den Gästen reden. Wenn ich das dürfte, würde ich sofort anfangen.'},
+            {'titel': 'Anders entschieden', 'frage': 'Erzähl von einer Situation, die du heute anders machen würdest. Benutze den Konjunktiv II der Vergangenheit: „Ich hätte … sollen“ oder „Ich hätte … können“. (4–5 Sätze)',
+             'beispiel': 'Ich hätte mich früher für den Kurs anmelden sollen. Dann hätte ich noch einen Platz bekommen können. Ich hätte auch meine Kollegin fragen können, aber ich habe es vergessen.'},
+            {'titel': 'Wenn der Tag anders gelaufen wäre', 'frage': 'Karim verpasst seinen Zug zum Vorstellungsgespräch. Schreib, was er hätte tun können oder müssen — und was dann passiert wäre. (4–5 Sätze)',
+             'beispiel': 'Karim hätte eine Stunde früher losfahren müssen. Dann hätte er den Zug nicht verpasst und wäre pünktlich angekommen. Er hätte auch in der Firma anrufen können, aber dazu war er zu nervös.'},
+        ],
+    },
 }
 # Remove None entries
 CONFIGS = {k: v for k, v in CONFIGS.items() if v is not None}
