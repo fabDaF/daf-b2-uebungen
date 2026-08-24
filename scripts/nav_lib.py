@@ -38,15 +38,74 @@ _RULE_PATTERNS = [
     (r'\.nav-btn:hover\s*\{[^}]*\}',  'nav-btn:hover'),
     (r'\.nav-btn\.active\s*\{[^}]*\}','nav-btn.active'),
     (r'\.nav-btn:last-child\s*\{[^}]*\}', 'nav-btn:last-child'),
-    (r'\.nav-emoji\s*\{[^}]*\}',      'nav-emoji'),
-    (r'\.nav-label\s*\{[^}]*\}',      'nav-label'),
+    # Nachfahren-Schreibweise mit erfassen (`.nav-btn .nav-emoji { … }`), damit
+    # die Regel GANZ verschwindet statt nur ab `.nav-emoji` — sonst bleibt
+    # `.nav-btn` als verwaiste Zeile stehen (Fund 2026-08-24, siehe
+    # _starts_a_rule).
+    (r'(?:\.nav-btn(?:\.[\w-]+)?(?::[\w-]+)?\s+)?\.nav-emoji\s*\{[^}]*\}', 'nav-emoji'),
+    (r'(?:\.nav-btn(?:\.[\w-]+)?(?::[\w-]+)?\s+)?\.nav-label\s*\{[^}]*\}', 'nav-label'),
 ]
 _NAV_COMMENT = re.compile(r'/\*\s*=+\s*NAV\b[^*]*\*/', re.I)
 
 
+_TRAILING_COMMENT = re.compile(r'/\*.*?\*/\s*$', re.S)
+
+
+def _starts_a_rule(text, pos):
+    """
+    True, wenn an Position `pos` wirklich eine NEUE Regel beginnt — und der
+    Selektor nicht bloß der letzte Teil eines Nachfahren-Selektors ist.
+
+    Warum das nötig ist (Fund 2026-08-24, B1 1012G mitten im Unterricht):
+    `\\.nav-label\\s*\\{[^}]*\\}` matcht auch INNERHALB von
+    `.nav-btn .nav-label { … }`. Wurde dieser Treffer entfernt, blieb die
+    nackte Zeile `.nav-btn` stehen. Für den Browser ist das kein Fehler,
+    sondern der Anfang eines Selektors: er liest weiter bis zur nächsten `{`
+    und macht daraus `.nav-btn .section` — damit war `.section{display:none}`
+    verschluckt und ALLE Tabs standen gleichzeitig untereinander.
+    """
+    vorher = text[:pos]
+    # Kommentare und Leerraum rückwärts überspringen.
+    while True:
+        gekuerzt = vorher.rstrip()
+        neu = _TRAILING_COMMENT.sub('', gekuerzt)
+        if neu == gekuerzt:
+            vorher = gekuerzt
+            break
+        vorher = neu
+    # '\x00' ist der Platzhalter, den normalize() für den kanonischen Block
+    # einsetzt — er steht für eine bereits abgeschlossene Regel.
+    return (not vorher) or vorher[-1] in '}{;>\x00'
+
+
 def _rule_body(text, selector_regex):
-    m = re.search(selector_regex, text)
-    return m.group(0) if m else None
+    for m in re.finditer(selector_regex, text):
+        if _starts_a_rule(text, m.start()):
+            return m.group(0)
+    return None
+
+
+def _sub_rules(pattern, ersatz, text, limit=0):
+    """
+    Wie re.sub, ersetzt aber NUR Treffer, die eine Regel anfangen.
+    Rückgabe: (neuer_text, anzahl_ersetzungen).
+    """
+    out = []
+    pos = 0
+    n = 0
+    for m in re.finditer(pattern, text):
+        if m.start() < pos:
+            continue
+        if not _starts_a_rule(text, m.start()):
+            continue
+        out.append(text[pos:m.start()])
+        out.append(ersatz)
+        pos = m.end()
+        n += 1
+        if limit and n >= limit:
+            break
+    out.append(text[pos:])
+    return ''.join(out), n
 
 
 def verify(text):
@@ -101,31 +160,39 @@ def normalize(text):
     Rückgabe: (neuer_text, changed_bool, grund_str)
     Bricht sicher ab (changed=False), wenn keine .nav-btn-Basisregel existiert.
     """
-    if not re.search(r'\.nav-btn\s*\{[^}]*\}', text):
+    if not _rule_body(text, r'\.nav-btn\s*\{[^}]*\}'):
         return text, False, 'Keine .nav-btn-Basisregel — Layout unbekannt, nichts geändert.'
 
     work = text
 
     # Anker: Position der ersten relevanten Regel (für korrekte Einfügung).
     anchor_re = r'\.nav\s*\{[^}]*\}'
-    if not re.search(anchor_re, work):
+    if not _rule_body(work, anchor_re):
         anchor_re = r'\.nav-btn\s*\{[^}]*\}'
 
     PLACEHOLDER = '\x00NAV_CANON\x00'
-    work, n = re.subn(anchor_re, PLACEHOLDER, work, count=1)
+    work, n = _sub_rules(anchor_re, PLACEHOLDER, work, limit=1)
     if n == 0:
         return text, False, 'Anker nicht ersetzbar — nichts geändert.'
 
-    # Alle übrigen Ziel-Regeln und alte NAV-Kommentare entfernen.
+    # Alle übrigen Ziel-Regeln und alte NAV-Kommentare entfernen — jeweils
+    # INKLUSIVE des nachfolgenden Zeilenumbruchs, damit keine verwaisten
+    # Leerzeilen zurückbleiben. So bleibt der Diff chirurgisch: NUR der
+    # Nav-Block ändert sich, der Rest der Datei (auch Leerzeilen) bleibt unberührt.
+    #
+    # WICHTIG: Es wird ausschließlich entfernt, was eine Regel ANFÄNGT
+    # (_starts_a_rule). Ein Treffer mitten in einem Nachfahren-Selektor würde
+    # sonst nur das hintere Stück wegschneiden und den vorderen Selektor als
+    # verwaiste Zeile zurücklassen — die verschluckt dann die Folgeregel.
     for pat, _name in _RULE_PATTERNS:
-        work = re.sub(pat, '', work)
-    work = _NAV_COMMENT.sub('', work)
+        work, _ = _sub_rules(pat + r'[ \t]*\r?\n?', '', work)
+    work = re.sub(_NAV_COMMENT.pattern + r'[ \t]*\r?\n?', '', work, flags=re.I)
 
     # Platzhalter durch den kanonischen Block ersetzen.
     work = work.replace(PLACEHOLDER, CANONICAL_NAV_CSS, 1)
 
-    # Aufräumen: durch Löschungen entstandene Mehrfach-Leerzeilen glätten.
-    work = re.sub(r'\n[ \t]*\n[ \t]*\n+', '\n\n', work)
+    # KEINE globale Leerzeilen-Glättung — die würde Zeilen außerhalb des
+    # Nav-Blocks anfassen und den Diff unnötig aufblähen (nicht chirurgisch).
 
     changed = (work != text)
     return work, changed, ('Nav auf Variante C normalisiert.' if changed else 'Bereits kanonisch.')

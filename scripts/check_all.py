@@ -42,6 +42,7 @@ BLOCKING = [
     "check_hilfebox.py",      # verbotene Aufgaben-/Tipp-Kästen (Frank-Regel, 2026-07-04)
     "check_mobil.py",         # Handy-Bedienbarkeit: Inline-Grid, click:false, Chip-Wrap, Viewport (Backlog 0 seit 2026-07-07)
     "check_schreib_name.py",  # Schreibwerkstatt darf nicht namenlos senden: FB-NAME-REQUIRED-Modul Pflicht (2026-07-16, Backlog 0)
+    "check_css.py",           # verwaiste Selektoren/Deklarationen: gültiges CSS mit falscher Bedeutung — verschluckt die Folgeregel (Fund 2026-08-24, B1 1012G: alle Tabs untereinander; Backlog 0 bei Scharfschaltung)
 ]
 
 WARN = [
@@ -51,6 +52,19 @@ WARN = [
     "check_dark.py",  # Dark-Mode-Backlog (~220 Dateien ohne FB-DESIGN-TOKENS), seit 2026-07-07
     "check_runtime_smoke.py",  # node+jsdom-Laufzeit-Smoke; überspringt ohne jsdom (Fund 2026-07-10)
 ]
+
+def _uebersprungen(out):
+    """
+    Erkennt, dass ein Gate sich selbst übersprungen hat.
+
+    Die Gates schreiben das unterschiedlich (check_banner_faces.py in
+    Großbuchstaben „ÜBERSPRUNGEN", check_runtime_smoke.py klein
+    „⚠ übersprungen: …"). Der frühere Vergleich auf die Großschreibung ließ
+    den Laufzeit-Smoke stumm als ✓ durchgehen, obwohl er gar nicht geprüft
+    hatte — ein grünes Häkchen, das Deckung vortäuscht.
+    """
+    return "übersprungen" in out.casefold()
+
 
 def run(script, files):
     teile = script.split()
@@ -75,7 +89,7 @@ def main():
             # Ein Gate darf sich selbst überspringen (fehlende optionale
             # Abhängigkeit). Das ist grün, aber NICHT geprüft — deshalb sagen
             # wir es laut, statt ein ✓ zu zeigen, das Deckung vortäuscht.
-            if "ÜBERSPRUNGEN" in out:
+            if _uebersprungen(out):
                 print(f"  ⊘ {script} — übersprungen, NICHT geprüft")
                 for line in out.splitlines():
                     print(f"      {line}")
@@ -90,7 +104,7 @@ def main():
     for script in WARN:
         code, out = run(script, files)
         if code == 0:
-            if "ÜBERSPRUNGEN" in out:
+            if _uebersprungen(out):
                 print(f"  ⊘ {script} — übersprungen, NICHT geprüft")
                 for line in out.splitlines():
                     print(f"      {line}")

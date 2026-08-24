@@ -26,6 +26,41 @@ function poly(w) {
   w.IntersectionObserver = w.IntersectionObserver || Obs;
   w.ResizeObserver = w.ResizeObserver || Obs;
   if (!w.scrollTo) w.scrollTo = () => {};
+  // jsdom kennt kein fetch — ohne diesen Stub meldet jede Seite, die beim
+  // Laden etwas nachlädt (z. B. htmlS/dashboard.html), einen Fehlalarm.
+  if (!w.fetch) w.fetch = () => new Promise(() => {});
+}
+
+/* Beim Laden darf GENAU EIN Tab sichtbar sein.
+ *
+ * Warum (Fund 2026-08-24, B1 1012G mitten im Unterricht): ein verwaister
+ * Selektor `.nav-btn` verschluckte die Folgeregel `.section { display: none }`.
+ * Die Datei war syntaktisch heil, warf keinen Laufzeitfehler, alle Gates waren
+ * grün — und trotzdem standen alle sechs Tabs gleichzeitig untereinander.
+ * Statisch fängt das jetzt check_css.py; hier steht das Laufzeit-Netz, das die
+ * Wirkung prüft statt der Ursache: egal wodurch die Regel verlorengeht.
+ */
+function tabLayoutFehler(w) {
+  const d = w.document;
+  const hatTabNav = d.querySelector('.nav-btn[onclick*="showTab"], .nav-btn[onclick*="showSection"], .nb[onclick*="showTab"]');
+  if (!hatTabNav) return null;
+  for (const klasse of [".section", ".tab-content", ".sec"]) {
+    const tabs = [...d.querySelectorAll(klasse)];
+    if (tabs.length < 2) continue;
+    // Nur die Klasse prüfen, die WIRKLICH die Tabs trägt: eines ihrer Elemente
+    // muss im Auslieferungszustand `active` sein. Sonst würde ein reiner
+    // Innen-Wrapper (z. B. `.tab-content` als Padding-Hülle INNERHALB jeder
+    // Section) fälschlich als „alle Tabs sichtbar" gemeldet.
+    if (!tabs.some((t) => t.classList.contains("active"))) continue;
+    let sichtbar = 0;
+    for (const t of tabs) {
+      try { if (w.getComputedStyle(t).display !== "none") sichtbar++; } catch (e) { return null; }
+    }
+    if (sichtbar !== 1) {
+      return `Tab-Layout: ${sichtbar} von ${tabs.length} ${klasse}-Tabs gleichzeitig sichtbar (erwartet: genau 1)`;
+    }
+  }
+  return null;
 }
 
 const bad = [];
@@ -42,6 +77,8 @@ for (const fp of files) {
   try {
     const dom = new JSDOM(html, { runScripts: "dangerously", pretendToBeVisual: true,
       virtualConsole: vc, url: "https://x/" + fp, beforeParse: poly });
+    const layout = tabLayoutFehler(dom.window);
+    if (layout) errs.push(layout);
     try { dom.window.close(); } catch (e) {}
   } catch (e) {
     bad.push([fp, "PARSE/LOAD: " + e.message]); continue;
