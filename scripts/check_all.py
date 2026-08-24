@@ -62,8 +62,17 @@ def _uebersprungen(out):
     „⚠ übersprungen: …"). Der frühere Vergleich auf die Großschreibung ließ
     den Laufzeit-Smoke stumm als ✓ durchgehen, obwohl er gar nicht geprüft
     hatte — ein grünes Häkchen, das Deckung vortäuscht.
+
+    Geprüft wird die WARNZEILE (beginnt mit ⚠), nicht der ganze Text: check_genus.py
+    erwähnt das Wort „übersprungen" in seiner ganz normalen Erfolgsmeldung
+    („Nicht-Genus-Arrays … werden übersprungen") und wäre sonst fälschlich als
+    ungeprüft gemeldet worden.
     """
-    return "übersprungen" in out.casefold()
+    for zeile in out.splitlines():
+        z = zeile.strip()
+        if z.startswith("⚠") and "übersprungen" in z.casefold():
+            return True
+    return False
 
 
 def run(script, files):
