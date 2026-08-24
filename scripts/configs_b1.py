@@ -8,6 +8,12 @@ kurze Stellungnahme, Erzählung mit Konnektoren.
 """
 from __future__ import annotations
 
+# Schreibwerkstatt-Banner als eingebettetes SVG. Der Pexels-Hotlink unten ist
+# Altbestand — Remote-src ist im Projekt verboten (pexels-bild-check:
+# Endzustand ist immer Base64). Neue Einträge nehmen BANNER_SW.
+BANNER_SW = ('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDIwMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJzYiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzViNTRiOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdhNGZiMCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNzYikiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NjAsNDApIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjEyMCIgcng9IjgiIGZpbGw9IiNmYmZhZmYiLz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjI2IiByeD0iOCIgZmlsbD0iI2U3ZTNmYiIvPjxnIHN0cm9rZT0iI2M3YmZmMCIgc3Ryb2tlLXdpZHRoPSIzIj48bGluZSB4MT0iMjAiIHkxPSI1MiIgeDI9IjE2MCIgeTI9IjUyIi8+PGxpbmUgeDE9IjIwIiB5MT0iNzIiIHgyPSIxNjAiIHkyPSI3MiIvPjxsaW5lIHgxPSIyMCIgeTE9IjkyIiB4Mj0iMTIwIiB5Mj0iOTIiLz48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc0MCw2MCkgcm90YXRlKDQwKSI+PHJlY3QgeD0iLTciIHk9Ii03MCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjExMCIgZmlsbD0iI2YzYzE0YSIvPjxwb2x5Z29uIHBvaW50cz0iLTcsNDAgNyw0MCAwLDYwIiBmaWxsPSIjMzMzIi8+PHJlY3QgeD0iLTciIHk9Ii03MCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiBmaWxsPSIjZDlhNTMxIi8+PC9nPjx0ZXh0IHg9IjM1MCIgeT0iMTE1IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgb3BhY2l0eT0iMC45Ij5TY2hyZWliZW4gYW4gRnJhbms8L3RleHQ+PC9zdmc+',
+             'Notizbuch und Stift, bereit zum Schreiben')
+
 BANNER = ('https://images.pexels.com/photos/733856/pexels-photo-733856.jpeg?auto=compress&cs=tinysrgb&w=800',
           'Notizbuch und Stift, bereit zum Schreiben')
 
@@ -1558,8 +1564,7 @@ CONFIGS = {
     # ── 1012G — Konjunktiv II der Modalverben (Grammatik) ────────────────
     '1012G': {
         'lesson_code': '1012G', 'lesson_title': 'Konjunktiv II der Modalverben',
-        'banner_url': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDIwMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJzYiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzViNTRiOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdhNGZiMCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNzYikiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NjAsNDApIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjEyMCIgcng9IjgiIGZpbGw9IiNmYmZhZmYiLz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjI2IiByeD0iOCIgZmlsbD0iI2U3ZTNmYiIvPjxnIHN0cm9rZT0iI2M3YmZmMCIgc3Ryb2tlLXdpZHRoPSIzIj48bGluZSB4MT0iMjAiIHkxPSI1MiIgeDI9IjE2MCIgeTI9IjUyIi8+PGxpbmUgeDE9IjIwIiB5MT0iNzIiIHgyPSIxNjAiIHkyPSI3MiIvPjxsaW5lIHgxPSIyMCIgeTE9IjkyIiB4Mj0iMTIwIiB5Mj0iOTIiLz48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc0MCw2MCkgcm90YXRlKDQwKSI+PHJlY3QgeD0iLTciIHk9Ii03MCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjExMCIgZmlsbD0iI2YzYzE0YSIvPjxwb2x5Z29uIHBvaW50cz0iLTcsNDAgNyw0MCAwLDYwIiBmaWxsPSIjMzMzIi8+PHJlY3QgeD0iLTciIHk9Ii03MCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiBmaWxsPSIjZDlhNTMxIi8+PC9nPjx0ZXh0IHg9IjM1MCIgeT0iMTE1IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgb3BhY2l0eT0iMC45Ij5TY2hyZWliZW4gYW4gRnJhbms8L3RleHQ+PC9zdmc+',
-        'banner_alt': 'Notizbuch und Stift, bereit zum Schreiben',
+        'banner_url': BANNER_SW[0], 'banner_alt': BANNER_SW[1],
         'intro': 'Fünf kleine Schreibaufgaben zum Konjunktiv II der Modalverben.',
         'tasks': [
             {'titel': 'Eine höfliche Bitte', 'frage': 'Schreib eine kurze, höfliche Nachricht an eine Behörde, einen Vermieter oder eine Lehrkraft. Benutze mindestens zweimal „Könnten Sie …“ oder „Dürfte ich …“. (3–4 Sätze)',
@@ -1572,6 +1577,108 @@ CONFIGS = {
              'beispiel': 'Ich hätte mich früher für den Kurs anmelden sollen. Dann hätte ich noch einen Platz bekommen können. Ich hätte auch meine Kollegin fragen können, aber ich habe es vergessen.'},
             {'titel': 'Wenn der Tag anders gelaufen wäre', 'frage': 'Karim verpasst seinen Zug zum Vorstellungsgespräch. Schreib, was er hätte tun können oder müssen — und was dann passiert wäre. (4–5 Sätze)',
              'beispiel': 'Karim hätte eine Stunde früher losfahren müssen. Dann hätte er den Zug nicht verpasst und wäre pünktlich angekommen. Er hätte auch in der Firma anrufen können, aber dazu war er zu nervös.'},
+        ],
+    },
+    '1015G': {
+        'lesson_code': '1015G', 'lesson_title': 'Temporaladverbien',
+        'banner_url': BANNER_SW[0], 'banner_alt': BANNER_SW[1],
+        'intro': 'Fünf kleine Schreibaufgaben rund um Zeitangaben im Alltag.',
+        'tasks': [
+            {'titel': 'Dein ganz normaler Tag', 'frage': 'Beschreib deinen Alltag an einem gewöhnlichen Werktag. Benutze mindestens vier Temporaladverbien (täglich, morgens, danach, abends, immer, oft). 30–50 Wörter.',
+             'beispiel': 'Morgens trinke ich immer zwei Tassen Kaffee, danach fahre ich mit dem Rad ins Büro. Mittags esse ich meistens in der Kantine. Abends koche ich selten — dafür bin ich täglich viel zu müde.'},
+            {'titel': 'Früher und heute', 'frage': 'Was hast du früher anders gemacht als heute? Vergleiche mit „früher“, „damals“, „heute“ und „inzwischen“. 30–50 Wörter.',
+             'beispiel': 'Früher habe ich jeden Abend ferngesehen. Damals kannte ich fast jede Serie. Heute lese ich lieber, und inzwischen schaue ich nur noch am Wochenende einen Film. Meine Augen danken es mir.'},
+            {'titel': 'Ein Zettel für jemanden', 'frage': 'Schreib einen kurzen Zettel wie in der Geschichte: Jemand soll bald irgendwo hinkommen. Benutze „bald“, „gleich“, „nachher“ oder „gegen Mittag“. 30–50 Wörter.',
+             'beispiel': 'Hallo Sara, komm bitte gleich in die Teeküche. Wir feiern nachher den Geburtstag von Ali, und gegen Mittag ist der Kuchen bestimmt schon weg. Bring bitte Teller mit — bis bald!'},
+            {'titel': 'Wie oft?', 'frage': 'Wie oft machst du diese Dinge: Sport, kochen, telefonieren, aufräumen? Antworte mit „nie“, „selten“, „manchmal“, „oft“, „immer“. 30–50 Wörter.',
+             'beispiel': 'Sport mache ich manchmal, meistens am Wochenende. Ich koche fast täglich, weil ich gern esse. Mit meiner Schwester telefoniere ich oft, aber aufräumen tue ich leider nur selten.'},
+            {'titel': 'Nächste Woche', 'frage': 'Was hast du in den nächsten Tagen vor? Benutze „morgen“, „übermorgen“, „nächste Woche“ und „bald“. 30–50 Wörter.',
+             'beispiel': 'Morgen habe ich einen Zahnarzttermin, übermorgen kommt mein Bruder zu Besuch. Nächste Woche fange ich einen neuen Kurs an. Bald ziehe ich außerdem um — es wird also nicht langweilig.'},
+        ],
+    },
+    '1025G': {
+        'lesson_code': '1025G', 'lesson_title': 'Adjektive als Nomen',
+        'banner_url': BANNER_SW[0], 'banner_alt': BANNER_SW[1],
+        'intro': 'Fünf kleine Schreibaufgaben zu Adjektiven, Steigerung und Umwelt.',
+        'tasks': [
+            {'titel': 'Saubere und schmutzige Luft', 'frage': 'Wie ist die Luft dort, wo du wohnst? Beschreib sie mit mindestens drei Adjektiven im Vergleich (sauberer, schlechter, am schlimmsten). 30–50 Wörter.',
+             'beispiel': 'In meinem Viertel ist die Luft sauberer als im Zentrum, weil hier viele Bäume stehen. Am schlimmsten ist es im Winter, wenn alle heizen. Dann riecht es abends deutlich schlechter.'},
+            {'titel': 'Das Beste und das Schlimmste', 'frage': 'Nenne das Beste und das Schlimmste an deinem Wohnort. Benutze substantivierte Adjektive: „das Beste“, „das Schlimmste“, „das Schöne“. 30–50 Wörter.',
+             'beispiel': 'Das Beste an meiner Stadt ist der Park direkt am Fluss. Das Schöne daran: Er ist immer offen. Das Schlimmste sind die Mieten — sie steigen schneller als die Gehälter.'},
+            {'titel': 'Erneuerbare Energie', 'frage': 'Findest du erneuerbare Energien wichtig? Begründe deine Meinung mit „weil“ und benutze mindestens zwei Vergleiche. 30–50 Wörter.',
+             'beispiel': 'Ich finde erneuerbare Energien wichtiger als alles andere, weil Kohle die Luft stärker belastet. Solarstrom ist sauberer, und auf lange Sicht wird er auch billiger als Gas.'},
+            {'titel': 'Die Jungen und die Alten', 'frage': 'Wer tut mehr für die Umwelt — die Jungen oder die Älteren? Schreib deine Meinung mit substantivierten Adjektiven. 30–50 Wörter.',
+             'beispiel': 'Ich glaube, die Jungen reden mehr über die Umwelt, aber die Älteren leben oft sparsamer. Die Besten sind die, die beides verbinden: wenig kaufen und trotzdem laut sein.'},
+            {'titel': 'Ein Tipp für Neue', 'frage': 'Gib jemandem, der neu in deiner Stadt ist, drei Tipps zum umweltfreundlichen Leben. Benutze Steigerungsformen. 30–50 Wörter.',
+             'beispiel': 'Kauf auf dem Markt ein, dort ist das Gemüse frischer und billiger. Nimm das Rad, damit kommst du schneller durch die Stadt. Und die kürzesten Wege sind meistens die schönsten.'},
+        ],
+    },
+    '1032G': {
+        'lesson_code': '1032G', 'lesson_title': 'Mehr über Lokaladverbien',
+        'banner_url': BANNER_SW[0], 'banner_alt': BANNER_SW[1],
+        'intro': 'Fünf kleine Schreibaufgaben zu Ort und Richtung.',
+        'tasks': [
+            {'titel': 'Dein Umzug', 'frage': 'Erzähl von einem Umzug: Was musste nach oben, was blieb draußen, wo stand der Wagen? Benutze mindestens vier Lokaladverbien. 30–50 Wörter.',
+             'beispiel': 'Der Möbelwagen stand rückwärts in der Einfahrt. Die Kartons warteten draußen auf dem Bürgersteig, und alles musste nach oben in den dritten Stock. Drinnen war es zum Glück schon sauber.'},
+            {'titel': 'Deine Wohnung von innen', 'frage': 'Beschreib deine Wohnung: Was ist links, was rechts, was liegt oben oder unten? 30–50 Wörter.',
+             'beispiel': 'Rechts vom Eingang liegt die Küche, links das Bad. Oben unter dem Dach habe ich ein kleines Arbeitszimmer. Unten im Keller stehen das Fahrrad und viel zu viele alte Kisten.'},
+            {'titel': 'Der Weg zu dir', 'frage': 'Erklär jemandem den Weg von der nächsten Haltestelle zu dir. Benutze „geradeaus“, „nach links“, „hinauf“, „gegenüber“. 30–50 Wörter.',
+             'beispiel': 'Geh von der Haltestelle geradeaus bis zur Ampel, dann nach links in die Gartenstraße. Mein Haus liegt gegenüber der Bäckerei. Klingle unten, dann komm bitte bis in den zweiten Stock hinauf.'},
+            {'titel': 'Geräusche von nebenan', 'frage': 'Was hörst oder riechst du von deinen Nachbarn? Benutze „von nebenan“, „von oben“, „von unten“, „draußen“. 30–50 Wörter.',
+             'beispiel': 'Von nebenan höre ich abends oft eine Gitarre. Von oben kommt jeden Morgen der Duft von Kaffee. Draußen bellt der Hund aus dem Erdgeschoss, und von unten dröhnt manchmal die Waschmaschine.'},
+            {'titel': 'Hin und her', 'frage': 'Beschreib einen Weg, den du regelmäßig hin und zurück machst. Benutze „hin“, „zurück“, „dorthin“, „hierher“. 30–50 Wörter.',
+             'beispiel': 'Jeden Dienstag fahre ich zum Kurs hin und erst spät wieder zurück. Dorthin nehme ich die Straßenbahn, hierher laufe ich abends lieber zu Fuß. Der Weg zurück ist der schönere.'},
+        ],
+    },
+    '1035G': {
+        'lesson_code': '1035G', 'lesson_title': 'Infinitivkonstruktionen: haben zu / sein zu',
+        'banner_url': BANNER_SW[0], 'banner_alt': BANNER_SW[1],
+        'intro': 'Fünf kleine Schreibaufgaben zu Pflichten und Regeln.',
+        'tasks': [
+            {'titel': 'Deine Hausregeln', 'frage': 'Schreib fünf Regeln für dein Haus oder deine WG. Benutze „ist zu …“ und „sind zu …“. 30–50 Wörter.',
+             'beispiel': 'Der Müll ist jeden Dienstag hinauszubringen. Die Küche ist nach dem Kochen aufzuräumen. Ab zweiundzwanzig Uhr sind die Ruhezeiten einzuhalten. Die Haustür ist nachts abzuschließen, und Fahrräder sind im Hof abzustellen.'},
+            {'titel': 'Ein Zettel für die Vertretung', 'frage': 'Du bist eine Woche weg. Schreib einen Zettel, was deine Vertretung zu erledigen hat. 30–50 Wörter.',
+             'beispiel': 'Die Post ist täglich zu leeren, und die Pflanzen sind zweimal zu gießen. Anrufe sind kurz zu notieren. Falls etwas kaputtgeht, ist sofort der Hausmeister zu informieren — die Nummer liegt auf dem Tisch.'},
+            {'titel': 'Was du zu tun hast', 'frage': 'Was hast du diese Woche zu erledigen? Benutze „ich habe … zu …“ mindestens dreimal. 30–50 Wörter.',
+             'beispiel': 'Ich habe bis Freitag einen Bericht zu schreiben und zwei Rechnungen zu bezahlen. Außerdem habe ich meiner Vermieterin zu antworten. Am Wochenende habe ich zum Glück gar nichts zu tun.'},
+            {'titel': 'Regeln, die dich nerven', 'frage': 'Welche Regel an deinem Arbeitsplatz oder in deinem Haus findest du unnötig? Begründe mit „weil“. 30–50 Wörter.',
+             'beispiel': 'Bei uns sind alle Fenster abends zu schließen, auch im Hochsommer. Das finde ich unnötig, weil die Räume dann morgens stickig sind. Sinnvoller wäre, sie nur zu kippen.'},
+            {'titel': 'Eine kurze Anleitung', 'frage': 'Erklär in Regelform, wie man ein Gerät bei dir zu Hause bedient. Benutze „ist zu …“. 30–50 Wörter.',
+             'beispiel': 'Der Wasserkocher ist höchstens bis zur oberen Linie zu füllen. Der Deckel ist fest zu schließen, bevor der Schalter zu drücken ist. Nach dem Kochen ist der Stecker zu ziehen.'},
+        ],
+    },
+    '1042G': {
+        'lesson_code': '1042G', 'lesson_title': 'Mehr über Pronomen',
+        'banner_url': BANNER_SW[0], 'banner_alt': BANNER_SW[1],
+        'intro': 'Fünf kleine Schreibaufgaben zu Indefinit- und Reflexivpronomen.',
+        'tasks': [
+            {'titel': 'Ein rätselhaftes Paket', 'frage': 'Vor deiner Tür steht ein Paket ohne Absender. Erzähl, was passiert. Benutze „jemand“, „niemand“, „etwas“, „nichts“. 30–50 Wörter.',
+             'beispiel': 'Jemand hatte das Paket in der Nacht abgestellt, aber niemand im Haus hatte etwas gehört. Darin lag etwas Kleines in Papier gewickelt. Ich verstand zuerst gar nichts und fragte mich, wer das war.'},
+            {'titel': 'Woran du dich erinnerst', 'frage': 'Woran erinnerst du dich aus deiner Kindheit besonders gut? Benutze „ich erinnere mich an …“ und „ich stelle mir vor …“. 30–50 Wörter.',
+             'beispiel': 'Ich erinnere mich an den Garten meiner Großmutter und an den Geruch von nassem Gras. Wenn ich mir das vorstelle, sehe ich mich selbst barfuß zwischen den Beeten stehen.'},
+            {'titel': 'Manche, keiner, alle', 'frage': 'Beschreib die Menschen in deinem Haus oder Team. Benutze „manche“, „einige“, „keiner“, „alle“. 30–50 Wörter.',
+             'beispiel': 'Manche Nachbarn grüßen jeden Morgen, einige kenne ich nur vom Sehen. Keiner von ihnen weiß, wie ich heiße. Alle sind trotzdem freundlich, wenn man im Treppenhaus stehen bleibt.'},
+            {'titel': 'Sich etwas wünschen', 'frage': 'Was wünschst du dir gerade? Benutze Reflexivpronomen: „ich wünsche mir“, „ich freue mich auf“, „ich ärgere mich über“. 30–50 Wörter.',
+             'beispiel': 'Ich wünsche mir eine ruhige Woche. Ich freue mich auf den Besuch meiner Freundin und ärgere mich nur noch über den kaputten Aufzug. Sonst habe ich mich gut eingelebt.'},
+            {'titel': 'Nachgefragt', 'frage': 'Schreib einen kurzen Dialog: Jemand sucht etwas, niemand hat es gesehen. 30–50 Wörter.',
+             'beispiel': '„Hat jemand meinen Schlüssel gesehen?“ — „Nein, hier war niemand.“ — „Aber irgendwer muss ihn doch genommen haben.“ — „Vielleicht hast du ihn dir selbst in die Jacke gesteckt?“'},
+        ],
+    },
+    '1045G': {
+        'lesson_code': '1045G', 'lesson_title': 'Mehr über die Negation',
+        'banner_url': BANNER_SW[0], 'banner_alt': BANNER_SW[1],
+        'intro': 'Fünf kleine Schreibaufgaben zum Verneinen.',
+        'tasks': [
+            {'titel': 'Der Stromausfall', 'frage': 'Erzähl von einem Abend ohne Strom oder Internet. Benutze „nichts“, „niemand“, „nirgendwo“, „nie“. 30–50 Wörter.',
+             'beispiel': 'Plötzlich war es so dunkel, dass ich nichts mehr sah. Im Flur begegnete ich niemandem, und Kerzen fand ich nirgendwo. So hilflos hatte ich mich noch nie gefühlt.'},
+            {'titel': 'Weder … noch', 'frage': 'Was hast du zu Hause gerade nicht? Schreib drei Sätze mit „weder … noch“. 30–50 Wörter.',
+             'beispiel': 'In meiner Küche gibt es weder Streichhölzer noch Kerzen. Ich habe weder Zeit noch Lust einzukaufen. Und im Kühlschrank steht weder Milch noch etwas anderes Brauchbares.'},
+            {'titel': 'Was du nie machst', 'frage': 'Nenne drei Dinge, die du nie oder fast nie machst, und sag warum. 30–50 Wörter.',
+             'beispiel': 'Ich trinke nie Kaffee nach sechs, weil ich sonst nicht einschlafe. Ich gehe fast nie ins Kino, und ich fahre niemals ohne Helm Rad — das war mir noch nie egal.'},
+            {'titel': 'Kein oder nicht?', 'frage': 'Beschreib etwas, das dir nicht gefällt. Benutze mindestens zweimal „kein“ und zweimal „nicht“. 30–50 Wörter.',
+             'beispiel': 'Ich mag kalten Kaffee nicht, und ich habe keine Geduld für lange Warteschlangen. Das ist kein großes Problem, aber schön finde ich es wirklich nicht.'},
+            {'titel': 'Ohne …', 'frage': 'Wie wäre ein Tag ohne Handy? Schreib deine Vermutung mit „ohne“ und Verneinungen. 30–50 Wörter.',
+             'beispiel': 'Ohne Handy würde ich vermutlich nichts verpassen, aber ich wüsste nirgendwo die Uhrzeit. Ich könnte niemanden kurz fragen, und ohne Karte fände ich den Weg nicht.'},
         ],
     },
 }
