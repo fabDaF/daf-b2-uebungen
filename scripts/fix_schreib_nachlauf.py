@@ -120,11 +120,31 @@ def guard_early_call(t):
     return t, f'{len(treffer)} verfrühte(r) Init-Aufruf(e) entschärft'
 
 
+SEC_TAG = re.compile(r'<(?:div|section)\b[^>]*>')
+
+
+def _section_ids(t):
+    """Ids aller Tab-Sections in DOM-Reihenfolge — unabhängig von der
+    Attribut-Reihenfolge. Manche Lektionen schreiben id VOR class
+    (`<div id="sec-0" class="section active">`, Fund 2026-08-24 an B2 2062G);
+    ein Muster, das class zuerst erwartet, übersieht sie und vergibt dann
+    eine schon belegte Nummer."""
+    ids = []
+    for m in SEC_TAG.finditer(t):
+        tag = m.group(0)
+        klasse = re.search(r'class="([^"]*)"', tag)
+        if not klasse or 'section' not in klasse.group(1).split():
+            continue
+        ident = re.search(r'id="([^"]*)"', tag)
+        ids.append(ident.group(1) if ident else '')
+    return ids
+
+
 def numerische_id(t):
     """B) id="sec-schreib" numerisch machen, wo die Tab-Funktion per ID sucht."""
     if 'id="sec-schreib"' not in t or not ID_BASIERT.search(t):
         return t, None
-    ids = re.findall(r'<(?:div|section) class="section(?:\s+[^"]*)?" id="([^"]+)"', t)
+    ids = _section_ids(t)
     if 'sec-schreib' not in ids:
         return t, None
     ziel = f'sec-{ids.index("sec-schreib")}'

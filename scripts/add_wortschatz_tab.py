@@ -23,8 +23,21 @@ import sys
 ID_BASIERT = re.compile(r"getElementById\(\s*['\"]sec-['\"]\s*\+\s*\w+\s*\)")
 
 
+SEC_TAG = re.compile(r'<(?:div|section)\b[^>]*>')
+
+
 def _sections(t):
-    return re.findall(r'<(?:div|section) class="section(?:\s+[^"]*)?" id="([^"]+)"', t)
+    """Ids aller Tab-Sections in DOM-Reihenfolge — unabhängig von der
+    Attribut-Reihenfolge (manche Dateien schreiben id vor class)."""
+    ids = []
+    for m in SEC_TAG.finditer(t):
+        tag = m.group(0)
+        klasse = re.search(r'class="([^"]*)"', tag)
+        if not klasse or 'section' not in klasse.group(1).split():
+            continue
+        ident = re.search(r'id="([^"]*)"', tag)
+        ids.append(ident.group(1) if ident else '')
+    return ids
 
 
 def transform(t, daten):
