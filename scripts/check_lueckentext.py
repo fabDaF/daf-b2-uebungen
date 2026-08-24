@@ -35,6 +35,20 @@ TAB_RE = re.compile(
     r'nav-label[^>]*>\s*L(?:ü|&uuml;)ckentext'
     r'|<(?:h2|div)[^>]*>\s*[^<]*L(?:ü|&uuml;)ckentext', re.I)
 
+# Zweiter Nachweis: manche Lektionen haben einen Lückentext, nennen den Tab aber
+# anders („Gegenwart", „Vergangenheit", „Lückensätze" …). Genau so ist B1 1012G
+# am 2026-08-24 durch ALLE Gates gerutscht — der Tab hieß nicht „Lückentext",
+# also hat dieses Skript die Datei nie angesehen, obwohl sie zwei Einzelsatz-
+# Lückentexte mit lösungsverratender Wortbank enthielt. Erkannt wird jetzt auch
+# die MECHANIK, nicht nur die Beschriftung.
+ENGINE_RE = re.compile(r'id="lueckenContainer"|\bLUECKEN_\w*\s*=|function\s+buildLuecke\b'
+                       r'|id="luecke-container')
+
+
+def hat_lueckentext(s):
+    return bool(TAB_RE.search(s) or ENGINE_RE.search(s))
+
+
 MARKER = "FB-LT-STORY"
 # konkurrierende Alt-Engines
 COMPETITORS = ("FB-WORTBANK-MODULE", "FB-LT-V1")
@@ -186,9 +200,14 @@ def scan(paths):
             s = open(p, encoding="utf-8", errors="replace").read()
         except OSError:
             continue
-        if not TAB_RE.search(s):
+        if not hat_lueckentext(s):
             continue
-        if MARKER not in s:
+        # Der MARKER allein heißt nur, dass die Engine EINGESPIELT ist —
+        # inject_lt.py darf das gefahrlos vor dem Schreiben der Story tun.
+        # Kanonisch ist eine Datei erst, wenn auch der Story-Container mit
+        # Lücken existiert; sonst ist sie Rollout-Backlog, kein Defekt.
+        # (Fund 2026-08-24 an B2 1042G: Engine da, Story nie geschrieben.)
+        if MARKER not in s or not gaps(s):
             backlog.append(p)
             continue
         probs = check_canonical(p, s)
@@ -230,7 +249,7 @@ if __name__ == "__main__":
     ok, bad, backlog, nobtn = scan(files)
 
     total = len(ok) + len(bad) + len(backlog)
-    print(f"Lückentext-Inventur: {total} Dateien mit Lückentext-Tab")
+    print(f"Lückentext-Inventur: {total} Dateien mit Lückentext")
     print(f"  ✓ kanonisch (FB-LT-STORY, konform): {len(ok)}")
     print(f"  ✗ kanonisch, aber fehlerhaft:        {len(bad)}")
     print(f"  ⧗ Backlog (noch nicht kanonisch):    {len(backlog)}")
