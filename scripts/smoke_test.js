@@ -51,7 +51,10 @@ function tabLayoutFehler(w) {
     // muss im Auslieferungszustand `active` sein. Sonst würde ein reiner
     // Innen-Wrapper (z. B. `.tab-content` als Padding-Hülle INNERHALB jeder
     // Section) fälschlich als „alle Tabs sichtbar" gemeldet.
-    if (!tabs.some((t) => t.classList.contains("active"))) continue;
+    // Manche Lektionen schreiben die Aktiv-Klasse deutsch ("aktiv") — 20 Dateien
+    // im Repo. Ohne diese Variante hätte die Prüfung sie stillschweigend
+    // übersprungen (Fund 2026-08-24 an B1 1015G).
+    if (!tabs.some((t) => t.classList.contains("active") || t.classList.contains("aktiv"))) continue;
     let sichtbar = 0;
     for (const t of tabs) {
       try { if (w.getComputedStyle(t).display !== "none") sichtbar++; } catch (e) { return null; }
