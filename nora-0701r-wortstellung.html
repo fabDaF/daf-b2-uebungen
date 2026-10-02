@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wortstellung — Korrektur · C2 0701R · Nora</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       min-height: 100vh; padding: 20px; }
+.container { max-width: 1100px; margin: 0 auto; background: white;
+             border-radius: 12px; overflow: hidden;
+             box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white; padding: 30px; text-align: center; }
+.header h1 { font-size: 1.9em; font-family: Georgia, serif; color: white; margin-bottom: 8px; }
+.header p { font-size: 1.0em; font-family: Georgia, serif; opacity: 0.95; }
+.header .meta { font-size: 0.85em; margin-top: 6px; opacity: 0.8; font-style: italic; }
+
+.body-area { padding: 40px 50px; }
+
+.regie {
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+  border-left: 4px solid #f9a825; border-radius: 0 8px 8px 0;
+  padding: 18px 22px; margin-bottom: 36px;
+  font-size: 0.95em; line-height: 1.6; color: #5d4037;
+}
+.regie strong { color: #e65100; }
+
+/* ── „Dein Text“ — als ehrwürdiger Block ── */
+.dein-text-box {
+  background: #fafafa; border: 1px solid #e8e8e8; border-radius: 10px;
+  padding: 24px 32px; margin-bottom: 36px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.85; color: #2c2c2c; text-align: justify; hyphens: auto;
+  max-width: 820px;
+}
+.dein-text-label {
+  font-family: 'Segoe UI', sans-serif; font-size: 0.72em; font-weight: 700;
+  color: #888; letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ── Inline-Korrektur ── */
+.satz-inline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.25em; line-height: 2.05;
+  color: #2c2c2c;
+  margin-bottom: 28px;
+}
+.satz-inline .nr {
+  background: #667eea; color: white; font-size: 0.55em; font-weight: 700;
+  padding: 4px 10px; border-radius: 12px; vertical-align: middle;
+  margin-right: 14px; letter-spacing: 0.06em;
+  font-family: 'Segoe UI', sans-serif;
+}
+.satz-inline .del { text-decoration: line-through; color: #c62828; text-decoration-thickness: 1.5px; }
+.satz-inline .ins {
+  background: #c8e6c9; color: #1b5e20;
+  padding: 2px 6px; border-radius: 4px; font-weight: 600;
+}
+
+.satz-block {
+  margin-bottom: 64px; padding-bottom: 36px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.satz-block:last-child { border-bottom: none; }
+
+/* ── Mini-Lehrstücke (E2-Grid) ── */
+.lehrstuecke-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #888;
+  margin: 24px 0 20px 0;
+}
+.lehrstuecke-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+}
+.lehr-karte {
+  background: white; border: 1px solid #e8e8e8; border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex; flex-direction: column;
+}
+.fehler-name {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #f9a825;
+  margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 2px solid #fff8e1;
+}
+.regel {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.65;
+  color: #2c2c2c; margin-bottom: 14px;
+  font-weight: 500;
+}
+.beispiele {
+  background: #f8f9ff; border-radius: 8px;
+  padding: 12px 16px;
+  font-family: Georgia, serif; font-size: 0.92em; line-height: 1.65;
+  color: #3949ab;
+  margin-bottom: 18px;
+}
+.beispiele .b-zeile { display: block; margin-bottom: 4px; }
+.beispiele .b-zeile:last-child { margin-bottom: 0; }
+
+/* ── Mikro-Übung pro Karte ── */
+.uebung {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed #e0e8ff;
+}
+.uebung-kopf {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.uebung-label {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #667eea;
+}
+.uebung-ctrl { display: flex; gap: 5px; }
+.u-btn {
+  background: #f5f7ff; border: 1px solid #c5cff5;
+  color: #667eea; padding: 4px 10px; border-radius: 6px;
+  font-size: 0.75em; font-weight: 600; cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  transition: all 0.15s; line-height: 1.3;
+}
+.u-btn:hover { background: #667eea; color: white; border-color: #667eea; }
+.uebung-item {
+  font-family: Georgia, serif; font-size: 0.98em; line-height: 1.95;
+  color: #2c2c2c; margin-bottom: 6px;
+}
+.u-inp {
+  border: none; border-bottom: 2px solid #667eea;
+  background: transparent;
+  font-family: inherit; font-size: 1em;
+  color: #1a237e; font-weight: 600;
+  outline: none; padding: 0 4px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.u-inp.ok    { border-bottom-color: #27ae60; color: #27ae60; }
+.u-inp.wrong { border-bottom-color: #e74c3c; color: #e74c3c; }
+.u-inp.w-art { width: 56px; }
+.u-inp.w-mid { width: 90px; }
+.u-inp.w-wide { width: 140px; }
+.u-fertig {
+  display: none;
+  margin-top: 12px;
+  font-size: 0.88em; color: #1b5e20; font-weight: 600;
+  background: #e8f5e9; padding: 8px 12px; border-radius: 6px;
+}
+.uebung.done .u-fertig { display: block; }
+
+/* ── Footer ── */
+.schreibfeld-block {
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%);
+  border: 1px solid #d5dcf7; border-radius: 12px;
+  padding: 26px 30px; margin-top: 12px;
+}
+.schreibfeld-titel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.82em; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #667eea; margin-bottom: 10px;
+}
+.schreibfeld-hinweis {
+  font-family: Georgia, serif; font-size: 1.0em; line-height: 1.6;
+  color: #2c2c2c; margin-bottom: 16px;
+}
+.schreibfeld-area {
+  width: 100%; min-height: 630px; resize: vertical;
+  border: 1px solid #c5cff5; border-radius: 8px;
+  padding: 14px 16px;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em;
+  line-height: 1.8; color: #2c2c2c; background: #fff;
+  outline: none; transition: border-color 0.2s;
+}
+.schreibfeld-area:focus { border-color: #667eea; }
+.schreibfeld-fuss {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.8em; color: #888;
+}
+.schreib-status { font-style: italic; }
+.schreib-count { font-weight: 600; color: #667eea; }
+.schreibfeld-aktion { margin-top: 16px; }
+.schreibfeld-btn {
+  background: #667eea; color: #fff; border: none;
+  padding: 12px 22px; border-radius: 8px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.95em; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.schreibfeld-btn:hover { background: #5568d3; }
+.schreibfeld-btn:disabled { opacity: 0.6; cursor: default; }
+.schreibfeld-btn.gesendet { background: #27ae60; }
+.schreib-send-status {
+  margin-top: 12px;
+  font-family: 'Segoe UI', sans-serif; font-size: 0.9em; line-height: 1.55;
+}
+.schreib-send-status.success { color: #1b5e20; }
+.schreib-send-status.error { color: #b71c1c; }
+.schreib-fb { background: #fff5f5; border: 1px solid #f3c6c6; border-radius: 8px; padding: 14px 16px; }
+.schreib-fb-titel { font-weight: 700; margin-bottom: 6px; }
+.schreib-fb-text { margin-bottom: 10px; }
+.schreib-fb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.schreib-fb-btn {
+  display: inline-block; background: #fff; border: 1px solid #c5cff5;
+  color: #667eea; padding: 7px 12px; border-radius: 6px;
+  font-size: 0.85em; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.schreib-fb-btn-prim { background: #667eea; color: #fff; border-color: #667eea; }
+
+.author-footer { text-align: center; margin: 28px auto 0 auto;
+                 max-width: 1100px; padding: 16px; font-size: 0.8rem; color: #aaa; }
+.author-footer a { color: #aaa; }
+
+@media (max-width: 700px) {
+  .body-area { padding: 24px 22px; }
+  .satz-inline { font-size: 1.1em; line-height: 1.95; }
+  .lehrstuecke-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Zusätze 0701R: Prinzip-Box, Stärken, große Übungen ── */
+.abschnitt-titel {
+  font-family: Georgia, serif; font-size: 1.45em; color: #4a3f8f;
+  margin: 10px 0 18px 0; padding-bottom: 8px; border-bottom: 2px solid #eef0fb;
+}
+.prinzip-box {
+  background: #fbfaff; border: 1px solid #ddd8f5; border-radius: 12px;
+  padding: 26px 30px; margin-bottom: 40px;
+}
+.prinzip-box p { font-family: Georgia, serif; font-size: 1.02em; line-height: 1.7; color: #2c2c2c; margin-bottom: 12px; }
+.mf-reihe { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 18px 0; }
+.mf-chip {
+  min-width: 64px; text-align: center; padding: 10px 12px; border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
+  font-family: Georgia, serif; font-size: 1.05em;
+}
+.mf-chip b { display: block; font-size: 1.6em; line-height: 1.1; }
+.mf-chip span { font-size: 0.78em; opacity: 0.9; }
+.mf-merksatz {
+  background: #fff8e1; border-left: 4px solid #f9a825; border-radius: 0 8px 8px 0;
+  padding: 12px 18px; margin: 14px 0; font-family: Georgia, serif; font-size: 1.05em;
+  color: #5d4037; line-height: 1.6;
+}
+.mf-merksatz strong { color: #e65100; }
+.tab-wrap { overflow-x: auto; margin: 10px 0 16px 0; }
+table.mf-tab { border-collapse: collapse; width: 100%; font-family: Georgia, serif; font-size: 0.96em; }
+table.mf-tab th, table.mf-tab td { border: 1px solid #e3e0f3; padding: 8px 10px; text-align: left; vertical-align: top; line-height: 1.5; }
+table.mf-tab th { background: #f3f1fc; color: #4a3f8f; font-family: 'Segoe UI', sans-serif; font-size: 0.85em; letter-spacing: 0.04em; }
+table.mf-tab td.e { color: #1b5e20; font-weight: 700; text-align: center; }
+table.mf-tab td.en { color: #3949ab; font-weight: 700; text-align: center; }
+.sig { color: #c2185b; font-weight: 700; }
+.staerken {
+  background: #f1f8e9; border: 1px solid #dcedc8; border-radius: 10px;
+  padding: 18px 24px; margin-bottom: 40px;
+}
+.staerken-titel { font-family: 'Segoe UI', sans-serif; font-size: 0.78em; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #558b2f; margin-bottom: 10px; }
+.staerken p { font-family: Georgia, serif; line-height: 1.7; color: #33691e; margin-bottom: 8px; }
+.staerken-liste { display: flex; flex-wrap: wrap; gap: 8px; }
+.staerken-liste span { background: #fff; border: 1px solid #c5e1a5; border-radius: 16px; padding: 4px 12px; font-family: Georgia, serif; font-size: 0.93em; color: #33691e; }
+.check-zeile { font-family: 'Segoe UI', sans-serif; font-size: 0.86em; color: #6a1b9a; background: #f6effa; border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; line-height: 1.55; }
+.grosse-uebung {
+  background: #fff; border: 1px solid #e3e0f3; border-radius: 12px;
+  padding: 24px 28px; margin-bottom: 34px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.grosse-uebung h3 { font-family: Georgia, serif; color: #4a3f8f; font-size: 1.2em; margin-bottom: 6px; }
+.grosse-uebung .anleitung { font-family: Georgia, serif; color: #555; font-size: 0.97em; line-height: 1.6; margin-bottom: 14px; }
+.grosse-uebung .uebung { border-top: none; padding-top: 0; }
+.story { font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; line-height: 2.2; color: #2c2c2c; text-align: left; }
+.u-inp.w-end { width: 46px; }
+.u-inp.w-beg { width: 70px; }
+.hinweis-klein { font-family: 'Segoe UI', sans-serif; font-size: 0.8em; color: #888; }
+.diag-tab td { padding: 6px 10px; }
+.pos { display: inline-block; font-family: 'Segoe UI', sans-serif; font-size: 0.68em; font-weight: 700; color: #fff; background: #9575cd; border-radius: 4px; padding: 1px 6px; margin: 0 2px; vertical-align: middle; }
+.pos.v { background: #c2185b; }
+.felder { font-family: Georgia, serif; line-height: 2.1; }
+.felder .f { display: inline-block; border: 1px solid #e3e0f3; border-radius: 6px; padding: 0 8px; margin: 2px 1px; background: #fbfaff; }
+.felder .f.verb { background: #fce4ec; border-color: #f8bbd0; color: #ad1457; font-weight: 700; }
+.big-emoji { font-size: 2.6em; margin-top: 10px; line-height: 1; }
+table.mf-tab b { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <h1>Die Geister, die ich rief — Wortstellung</h1>
+  <p>C2 – Korrektur 0701R · Schwerpunkt: die Position des Verbs</p>
+  <div class="meta">Schreibwerkstatt-Korrektur für Nora</div>
+  <div class="big-emoji">🧭</div>
+</div>
+
+<div class="body-area">
+
+  <div class="regie">
+    <strong>Zur Einsendung:</strong> Die Nebensätze sind fast durchgehend stark: In acht Nebensätzen steht das Verb sicher am Ende. Die eigentliche Baustelle liegt woanders — im Hauptsatz, sobald etwas anderes als das Subjekt auf Position 1 steht. Das passiert fünfmal, und fünfmal rutscht das Subjekt vor das Verb oder fällt weg. Dazu kommen vier Nebensätze, die lang wurden und in denen das Verb nach vorne gewandert ist. Dieses Dokument behandelt nur die Wortstellung; die Endungen haben ein eigenes Dokument.
+  </div>
+
+  <div class="dein-text-box">
+    <div class="dein-text-label">Originaltext — unverändert</div>
+    <p><strong>Aufgabe 1.</strong> Ich bin sicher, dass wir in der Gymnasium Goethe gelesen haben, aber leider habe ich fast alles von der Zeit vergessen. Heutzutage ich habe wenig Geduld für klassische Literatur, besonders Gedichte, da dazu viel innere Ruhe benötigt ist, die Bedeutung und Schönheit einsenken zu lassen.</p>
+    <p style="margin-top:12px"><strong>Aufgabe 2.</strong> Um eine bessere Meinung zu bilden ich habe heute beide gelesen/gesehen. Leider die ungarische Übersetzung des Gedichtes hat mich gar nicht gefallen, weil es nicht in einem gehobener Styl geschrieben war. Bei dem Animationsfilm war auch nicht begeistert, obwohl die Musik absolute ausgezeichnet ist.</p>
+    <p style="margin-top:12px"><strong>Aufgabe 3.</strong> Ich finde es absolute passend und gar nicht übertrieben, obwohl ich glaube KI ist nicht die einzige Entwicklung der Menschheit, wo wir so eine starke Unsicherheit fühlen sollten. Atomenergie, starke Kunststoff Verwendung, künstliche Vitamine und Medikamenten, Handys und so weiter, haben fast die gleiche unbewusste Zukunft und Auswirkung als KI. Es bewundert mich warum KI so starke Gefühle auslöst und warum sind wir nicht so empfindlich bei den anderen genannten Fälle. Noch dazu es ist wichtig zu merken, dass mit eine starke, einfache Strukturierung den unfassbar viele, verfügbare Information, womit wir jeden Tag kämpfen, KI bietet eine Erleichterung für alle von uns.</p>
+    <p style="margin-top:12px"><strong>Aufgabe 4.</strong> Ich muss jetzt lachen, da ich habe diese Themen schon runtergeschrieben ohne zu wissen dass es kommt… Und da sind viele auf meine Liste: erstes Mal fliegen (Flugzeuge), dann Strom, Atomkraft, Bluetooth oder Radiowellen, Impfungen. Alle genannte technologische Fortschritte hatten signifikante Einfluss auf unsere alltägliche Aktivitäten und haben mehrere Berufe grundsätzlich verändert.</p>
+  </div>
+
+  <div class="staerken">
+    <div class="staerken-titel">Das sitzt schon — acht Nebensätze mit Verb am Ende</div>
+    <p>Das Verb am Satzende ist im Text gut verankert — auch mit zwei Verben (gelesen haben, fühlen sollten). Und einmal steht ein Hauptsatz mit besetzter Position 1 bereits perfekt: „Und da sind viele …“.</p>
+    <div class="staerken-liste">
+      <span>dass wir … Goethe gelesen haben</span>
+      <span>da dazu viel innere Ruhe benötigt ist</span>
+      <span>weil es nicht … geschrieben war</span>
+      <span>obwohl die Musik … ausgezeichnet ist</span>
+      <span>wo wir so eine starke Unsicherheit fühlen sollten</span>
+      <span>warum KI so starke Gefühle auslöst</span>
+      <span>ohne zu wissen</span>
+      <span>dass es kommt</span>
+      <span>Und da sind viele …</span>
+    </div>
+  </div>
+
+  <!-- ═══ DAS PRINZIP ═══ -->
+  <h2 class="abschnitt-titel">Das Prinzip: Das Verb hat seinen festen Platz</h2>
+  <div class="prinzip-box">
+    <div class="mf-merksatz"><strong>Regel 1 · Hauptsatz:</strong> Das konjugierte Verb steht auf <strong>Position 2</strong>. Position 1 kann das Subjekt sein — oder ein anderes Satzglied. Steht etwas anderes auf Position 1, rückt das Subjekt <strong>hinter</strong> das Verb.</div>
+    <div class="tab-wrap">
+      <table class="mf-tab">
+        <tr><th>Position 1</th><th>Position 2 · Verb</th><th>Mittelfeld</th><th>Satzende</th></tr>
+        <tr><td>Ich</td><td class="e">habe</td><td>heute wenig Geduld.</td><td></td></tr>
+        <tr><td>Heutzutage</td><td class="e">habe</td><td><b>ich</b> wenig Geduld.</td><td></td></tr>
+        <tr><td>Leider</td><td class="e">hat</td><td><b>mir</b> die Übersetzung gar nicht</td><td>gefallen.</td></tr>
+        <tr><td>Noch dazu</td><td class="e">ist</td><td><b>es</b> wichtig,</td><td>…</td></tr>
+        <tr><td>Um mir eine Meinung zu bilden,</td><td class="e">habe</td><td><b>ich</b> heute beide</td><td>gelesen.</td></tr>
+      </table>
+    </div>
+    <div class="mf-merksatz"><strong>Regel 2 · Nebensatz:</strong> Nach <em>dass, weil, da, obwohl, ob, warum, wo …</em> steht das konjugierte Verb <strong>am Ende</strong>. Bei zwei Verben steht das konjugierte ganz hinten: <em>gelesen haben, fühlen sollten</em>. Das gilt auch für indirekte Fragen und für den zweiten Teil nach „und warum …“.</div>
+    <div class="tab-wrap">
+      <table class="mf-tab">
+        <tr><th>Konnektor</th><th>Subjekt</th><th>Mittelfeld</th><th>Verb(en) am Ende</th></tr>
+        <tr><td>da</td><td>ich</td><td>diese Themen schon</td><td class="e">runtergeschrieben habe</td></tr>
+        <tr><td>warum</td><td>wir</td><td>nicht so empfindlich</td><td class="e">sind</td></tr>
+        <tr><td>dass</td><td>KI</td><td>mit einer starken Strukturierung … eine Erleichterung</td><td class="e">bietet</td></tr>
+      </table>
+    </div>
+    <div class="mf-merksatz"><strong>Regel 3 · Nebensatz vorn:</strong> Ein ganzer Nebensatz kann Position 1 sein. Dann folgt nach dem Komma <strong>sofort das Verb</strong> des Hauptsatzes: <em>Weil der Film schwach war, <b>war ich</b> enttäuscht.</em></div>
+    <p><strong>Die Prüffrage:</strong> Hauptsatz oder Nebensatz? Im Hauptsatz: Was steht auf Position 1? Ist es nicht das Subjekt → Verb, dann Subjekt. Im Nebensatz: Verb ganz ans Ende — auch wenn der Satz lang wird.</p>
+  </div>
+
+  <h2 class="abschnitt-titel">Die acht Stellen im Text</h2>
+
+  <!-- ═══ STELLE 1 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 1</span>
+      Heutzutage <span class="del">ich habe</span> <span class="ins">habe ich</span> wenig Geduld für klassische Literatur …
+    </div>
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu dieser Stelle</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Position 1 besetzt → Verb, dann Subjekt</div>
+        <div class="regel">„Heutzutage“ belegt schon Position 1. Das Verb bleibt auf Position 2, das Subjekt „ich“ rückt dahinter. Zwei Satzglieder vor dem Verb gibt es im Aussagesatz nicht.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Ich habe heute wenig Geduld.</span>
+          <span class="b-zeile">Heutzutage habe ich wenig Geduld.</span>
+          <span class="b-zeile">Für Gedichte habe ich wenig Geduld.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Verb + Subjekt einsetzen</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Heutzutage <input class="u-inp w-mid" data-sol="lese" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> kaum Gedichte. <span class="hinweis-klein">(ich · lesen)</span></div>
+          <div class="uebung-item">Früher <input class="u-inp w-mid" data-sol="hatte" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> mehr Geduld. <span class="hinweis-klein">(ich · haben, Präteritum)</span></div>
+          <div class="uebung-item">Für Lyrik <input class="u-inp w-mid" data-sol="braucht" placeholder="…"> <input class="u-inp w-mid" data-sol="man" placeholder="…"> innere Ruhe. <span class="hinweis-klein">(man · brauchen)</span></div>
+          <div class="u-fertig">✓ Richtig: Position 2 bleibt dem Verb.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STELLE 2 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 2</span>
+      Um <span class="ins">mir</span> eine bessere Meinung zu bilden<span class="ins">,</span> <span class="del">ich habe</span> <span class="ins">habe ich</span> heute beide gelesen/gesehen.
+    </div>
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu dieser Stelle</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Nebensatz auf Position 1</div>
+        <div class="regel">Der ganze um-zu-Satz ist Position 1. Nach dem Komma kommt deshalb sofort das Verb des Hauptsatzes, dann das Subjekt. Nebenbei: Es heißt „sich eine Meinung bilden“ — also „um mir eine Meinung zu bilden“.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Ich habe beide gelesen, um mir eine Meinung zu bilden.</span>
+          <span class="b-zeile">Um mir eine Meinung zu bilden, habe ich beide gelesen.</span>
+          <span class="b-zeile">Komma + Verb: Der Nebensatz zählt als ein Satzglied.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — nach dem Komma</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Um das Original zu verstehen, <input class="u-inp w-mid" data-sol="habe" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> es zweimal gelesen. <span class="hinweis-klein">(ich · haben)</span></div>
+          <div class="uebung-item">Obwohl die Musik gut ist, <input class="u-inp w-mid" data-sol="gefällt" placeholder="…"> <input class="u-inp w-mid" data-sol="mir" placeholder="…"> der Film nicht. <span class="hinweis-klein">(mir · gefallen)</span></div>
+          <div class="uebung-item">Weil KI so schnell lernt, <input class="u-inp w-mid" data-sol="haben" placeholder="…"> <input class="u-inp w-mid" data-sol="wir" placeholder="…"> Angst. <span class="hinweis-klein">(wir · haben)</span></div>
+          <div class="u-fertig">✓ Richtig: Komma — Verb — Subjekt.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STELLE 3 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 2</span>
+      Leider <span class="del">die ungarische Übersetzung des Gedichtes hat mich</span> <span class="ins">hat mir die ungarische Übersetzung des Gedichtes</span> gar nicht gefallen …
+    </div>
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu dieser Stelle</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Auch ein kleines Wort ist Position 1</div>
+        <div class="regel">Ein einziges Adverb wie „leider“ füllt Position 1 vollständig. Das Verb folgt direkt. Das kurze Pronomen „mir“ steht gern gleich hinter dem Verb, das lange Subjekt danach. („gefallen“ verlangt den Dativ: mir, nicht mich.)</div>
+        <div class="beispiele">
+          <span class="b-zeile">Leider hat mir die Übersetzung nicht gefallen.</span>
+          <span class="b-zeile">Zum Glück ist die Musik ausgezeichnet.</span>
+          <span class="b-zeile">Ebenso: trotzdem, deshalb, außerdem, vielleicht, zuerst …</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Adverb vorn</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Leider <input class="u-inp w-mid" data-sol="war" placeholder="…"> <input class="u-inp w-mid" data-sol="die" placeholder="…"> Übersetzung nicht gehoben genug. <span class="hinweis-klein">(die Übersetzung · sein, Präteritum)</span></div>
+          <div class="uebung-item">Trotzdem <input class="u-inp w-mid" data-sol="hat" placeholder="…"> <input class="u-inp w-mid" data-sol="mir" placeholder="…"> die Musik gefallen. <span class="hinweis-klein">(mir · haben)</span></div>
+          <div class="uebung-item">Vielleicht <input class="u-inp w-mid" data-sol="lese" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> das Original noch einmal. <span class="hinweis-klein">(ich · lesen)</span></div>
+          <div class="u-fertig">✓ Richtig: Adverb — Verb — Rest.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STELLE 4 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 2</span>
+      <span class="del">Bei dem</span> <span class="ins">Vom</span> Animationsfilm war <span class="ins">ich</span> auch nicht begeistert …
+    </div>
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu dieser Stelle</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Das Subjekt auf Position 3</div>
+        <div class="regel">Hier steht das Verb schon richtig auf Position 2 — aber das Subjekt fehlt. Wenn Position 1 besetzt ist, gehört das Subjekt direkt hinter das Verb; weglassen kann man es im deutschen Aussagesatz nicht. („begeistert sein von“ → vom Animationsfilm.)</div>
+        <div class="beispiele">
+          <span class="b-zeile">Vom Animationsfilm war ich auch nicht begeistert.</span>
+          <span class="b-zeile">Von der Übersetzung war ich enttäuscht.</span>
+          <span class="b-zeile">Prüffrage: Wer war nicht begeistert? → Das Wort muss im Satz stehen.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Subjekt hinter das Verb</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Von der Musik war <input class="u-inp w-mid" data-sol="ich" placeholder="…"> sofort begeistert.</div>
+          <div class="uebung-item">Mit dem Ende des Films waren <input class="u-inp w-mid" data-sol="wir" placeholder="…"> nicht zufrieden.</div>
+          <div class="uebung-item">Vom Original bin <input class="u-inp w-mid" data-sol="ich" placeholder="…"> immer noch beeindruckt.</div>
+          <div class="u-fertig">✓ Richtig: Subjekt auf Position 3.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STELLE 5 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 3</span>
+      … obwohl ich glaube<span class="ins">, dass</span> KI <span class="del">ist</span> nicht die einzige Entwicklung der Menschheit <span class="ins">ist</span>, …
+    </div>
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu dieser Stelle</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">glauben, dass … → Verb am Ende</div>
+        <div class="regel">Was glaube ich? Die Antwort ist eine ganze Aussage — ein dass-Satz. Im dass-Satz steht das Verb am Ende. Mündlich hört man auch „ich glaube, KI ist …“; im geschriebenen Text ist der dass-Satz die sichere Wahl — und das Komma ist dann Pflicht.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Ich glaube, dass KI nicht die einzige Entwicklung ist.</span>
+          <span class="b-zeile">Ich denke, dass wir zu empfindlich reagieren.</span>
+          <span class="b-zeile">Ich bin sicher, dass wir Goethe gelesen haben. (im Text schon richtig!)</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Verb ans Ende</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Ich glaube, dass KI keine neue Gefahr <input class="u-inp w-mid" data-sol="ist" placeholder="sein">.</div>
+          <div class="uebung-item">Ich denke, dass wir zu empfindlich <input class="u-inp w-mid" data-sol="reagieren" placeholder="reagieren">.</div>
+          <div class="uebung-item">Ich vermute, dass viele Menschen Angst <input class="u-inp w-mid" data-sol="haben" placeholder="haben">.</div>
+          <div class="u-fertig">✓ Richtig: dass-Satz mit Verb am Ende.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STELLE 6 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 3</span>
+      Es <span class="del">bewundert</span> <span class="ins">wundert</span> mich<span class="ins">,</span> warum KI so starke Gefühle auslöst und warum <span class="del">sind</span> wir nicht so empfindlich bei den anderen genannten <span class="del">Fälle</span> <span class="ins">Fällen sind</span>.
+    </div>
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu dieser Stelle</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Indirekte Frage: auch der zweite Teil</div>
+        <div class="regel">Eine indirekte Frage ist ein Nebensatz — Verb am Ende. Der erste warum-Satz ist perfekt („warum KI … auslöst“). Nach „und warum“ beginnt ein zweiter Nebensatz: Auch dort wandert das Verb ans Ende.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Warum sind wir nicht empfindlich? (direkte Frage → Verb Position 1/2)</span>
+          <span class="b-zeile">Es wundert mich, warum wir nicht empfindlich sind. (indirekt → Verb am Ende)</span>
+          <span class="b-zeile">… warum KI Angst auslöst und warum wir ruhig bleiben.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — indirekte Frage</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Es wundert mich, warum wir bei Atomkraft so ruhig <input class="u-inp w-mid" data-sol="bleiben" placeholder="bleiben">.</div>
+          <div class="uebung-item">Ich frage mich, ob KI wirklich gefährlicher <input class="u-inp w-mid" data-sol="ist" placeholder="sein">.</div>
+          <div class="uebung-item">… warum KI Angst auslöst und warum Impfungen das nicht <input class="u-inp w-mid" data-sol="tun" placeholder="tun">.</div>
+          <div class="u-fertig">✓ Richtig: Jeder Nebensatz endet mit dem Verb.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STELLE 7 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 3</span>
+      Noch dazu <span class="del">es ist</span> <span class="ins">ist es</span> wichtig zu merken, dass <span class="ins">KI</span> mit einer starken, einfachen Strukturierung der unfassbar vielen, verfügbaren Informationen, <span class="del">womit</span> <span class="ins">mit denen</span> wir jeden Tag kämpfen, <span class="del">KI bietet</span> eine Erleichterung für <span class="del">alle von uns</span> <span class="ins">uns alle bietet</span>.
+    </div>
+    <div class="lehrstuecke-titel">Zwei Mini-Lehrstücke zu diesem Satz</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Position 1 besetzt — dritte Variante</div>
+        <div class="regel">„Noch dazu“ steht auf Position 1 — wie „Heutzutage“ und „Leider“. Also: Verb, dann Subjekt. Dasselbe gilt für „außerdem“, „zudem“, „darüber hinaus“.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Noch dazu ist es wichtig, …</span>
+          <span class="b-zeile">Außerdem ist es wichtig zu bemerken, dass …</span>
+          <span class="b-zeile">Darüber hinaus bietet KI eine Erleichterung.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Konnektor-Adverb vorn</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">Außerdem <input class="u-inp w-mid" data-sol="ist" placeholder="…"> <input class="u-inp w-mid" data-sol="es" placeholder="…"> wichtig, … <span class="hinweis-klein">(es · sein)</span></div>
+          <div class="uebung-item">Zudem <input class="u-inp w-mid" data-sol="spart" placeholder="…"> <input class="u-inp w-mid" data-sol="KI" placeholder="…"> uns Zeit. <span class="hinweis-klein">(KI · sparen)</span></div>
+          <div class="uebung-item">Darüber hinaus <input class="u-inp w-mid" data-sol="müssen" placeholder="…"> <input class="u-inp w-mid" data-sol="wir" placeholder="…"> kritisch bleiben. <span class="hinweis-klein">(wir · müssen)</span></div>
+          <div class="u-fertig">✓ Richtig: Auch Konnektor-Adverbien belegen Position 1.</div>
+        </div>
+      </div>
+
+      <div class="lehr-karte">
+        <div class="fehler-name">Langer dass-Satz: Subjekt vorn, Verb hinten</div>
+        <div class="regel">Im dass-Satz steht das Subjekt direkt nach „dass“, das Verb ganz am Ende. Dazwischen darf das Mittelfeld so lang werden, wie es will — der Rahmen bleibt. Tipp für lange Sätze: Subjekt sofort nennen, dann erst die Details.</div>
+        <div class="beispiele">
+          <span class="b-zeile">dass KI … eine Erleichterung für uns alle bietet</span>
+          <span class="b-zeile">dass KI durch Strukturierung der Informationen Erleichterung bietet</span>
+          <span class="b-zeile">„uns alle“ — das Pronomen steht vor „alle“.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Rahmen schließen</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">… dass <input class="u-inp w-mid" data-sol="KI" placeholder="…"> uns mit einer klaren Struktur viel Arbeit <input class="u-inp w-mid" data-sol="abnimmt" placeholder="…">. <span class="hinweis-klein">(abnehmen · KI)</span></div>
+          <div class="uebung-item">… dass <input class="u-inp w-mid" data-sol="wir" placeholder="…"> jeden Tag mit zu vielen Informationen <input class="u-inp w-mid" data-sol="kämpfen" placeholder="…">. <span class="hinweis-klein">(kämpfen · wir)</span></div>
+          <div class="u-fertig">✓ Richtig: Der Rahmen hält auch lange Sätze.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STELLE 8 ═══ -->
+  <div class="satz-block">
+    <div class="satz-inline">
+      <span class="nr">Aufgabe 4</span>
+      Ich muss jetzt lachen, da ich <span class="del">habe</span> diese Themen schon runtergeschrieben <span class="ins">habe,</span> ohne zu wissen<span class="ins">,</span> dass es kommt …
+    </div>
+    <div class="lehrstuecke-titel">Ein Mini-Lehrstück zu dieser Stelle</div>
+    <div class="lehrstuecke-grid">
+      <div class="lehr-karte">
+        <div class="fehler-name">Perfekt im Nebensatz</div>
+        <div class="regel">Im Hauptsatz bilden „habe“ und Partizip eine Klammer: Ich habe die Themen schon runtergeschrieben. Im Nebensatz wandert auch „habe“ ans Ende — ganz nach hinten, hinter das Partizip. Vor „ohne zu“ und vor „dass“ steht ein Komma.</div>
+        <div class="beispiele">
+          <span class="b-zeile">Hauptsatz: Ich habe die Themen schon aufgeschrieben.</span>
+          <span class="b-zeile">Nebensatz: …, da ich die Themen schon aufgeschrieben habe.</span>
+          <span class="b-zeile">Im Text schon richtig: dass wir Goethe gelesen haben.</span>
+        </div>
+        <div class="uebung">
+          <div class="uebung-kopf">
+            <div class="uebung-label">Übung — Hilfsverb ans Ende</div>
+            <div class="uebung-ctrl">
+              <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+              <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+            </div>
+          </div>
+          <div class="uebung-item">…, da ich die Liste schon gestern <input class="u-inp w-wide" data-sol="geschrieben habe" placeholder="schreiben, Perfekt">.</div>
+          <div class="uebung-item">…, weil die Technik viele Berufe <input class="u-inp w-wide" data-sol="verändert hat" placeholder="verändern, Perfekt">.</div>
+          <div class="uebung-item">…, obwohl wir Goethe in der Schule <input class="u-inp w-wide" data-sol="gelesen haben" placeholder="lesen, Perfekt">.</div>
+          <div class="u-fertig">✓ Richtig: Partizip + Hilfsverb ganz am Ende.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ÜBUNGEN ═══ -->
+  <h2 class="abschnitt-titel">Übungen</h2>
+
+  <div class="grosse-uebung">
+    <h3>Übung 1 · Position 1 wechseln</h3>
+    <p class="anleitung">Derselbe Satz, ein anderes Element auf Position 1. Verb und Subjekt einsetzen.</p>
+    <div class="uebung">
+      <div class="uebung-kopf">
+        <div class="uebung-label">Verb (Position 2) + Subjekt (Position 3)</div>
+        <div class="uebung-ctrl">
+          <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+          <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+        </div>
+      </div>
+      <div class="uebung-item">1. Wir haben im Gymnasium Goethe gelesen. → Im Gymnasium <input class="u-inp w-mid" data-sol="haben" placeholder="…"> <input class="u-inp w-mid" data-sol="wir" placeholder="…"> Goethe gelesen.</div>
+      <div class="uebung-item">2. Ich habe fast alles vergessen. → Leider <input class="u-inp w-mid" data-sol="habe" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> fast alles vergessen.</div>
+      <div class="uebung-item">3. Die Musik ist ausgezeichnet. → Immerhin <input class="u-inp w-mid" data-sol="ist" placeholder="…"> <input class="u-inp w-mid" data-sol="die" placeholder="…"> Musik ausgezeichnet.</div>
+      <div class="uebung-item">4. Wir fühlen bei KI eine starke Unsicherheit. → Bei KI <input class="u-inp w-mid" data-sol="fühlen" placeholder="…"> <input class="u-inp w-mid" data-sol="wir" placeholder="…"> eine starke Unsicherheit.</div>
+      <div class="uebung-item">5. Der Strom hat viele Berufe verändert. → Zuerst <input class="u-inp w-mid" data-sol="hat" placeholder="…"> <input class="u-inp w-mid" data-sol="der" placeholder="…"> Strom viele Berufe verändert.</div>
+      <div class="uebung-item">6. Ich muss jetzt lachen. → Jetzt <input class="u-inp w-mid" data-sol="muss" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> lachen.</div>
+      <div class="u-fertig">✓ Sechsmal Position 2 gehalten.</div>
+    </div>
+  </div>
+
+  <div class="grosse-uebung">
+    <h3>Übung 2 · Nebensatz vorn — Verb sofort</h3>
+    <p class="anleitung">Der Nebensatz steht vorn. Was kommt direkt nach dem Komma? Verb und Subjekt einsetzen.</p>
+    <div class="uebung">
+      <div class="uebung-kopf">
+        <div class="uebung-label">Komma — Verb — Subjekt</div>
+        <div class="uebung-ctrl">
+          <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+          <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+        </div>
+      </div>
+      <div class="uebung-item">1. Da Gedichte viel Ruhe brauchen, <input class="u-inp w-mid" data-sol="lese" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> sie selten. <span class="hinweis-klein">(ich · lesen)</span></div>
+      <div class="uebung-item">2. Als ich die Übersetzung las, <input class="u-inp w-mid" data-sol="war" placeholder="…"> <input class="u-inp w-mid" data-sol="ich" placeholder="…"> enttäuscht. <span class="hinweis-klein">(ich · sein, Präteritum)</span></div>
+      <div class="uebung-item">3. Obwohl KI viel kann, <input class="u-inp w-mid" data-sol="ist" placeholder="…"> <input class="u-inp w-mid" data-sol="sie" placeholder="…"> nicht die einzige Gefahr. <span class="hinweis-klein">(sie · sein)</span></div>
+      <div class="uebung-item">4. Um die Informationsflut zu bewältigen, <input class="u-inp w-mid" data-sol="brauchen" placeholder="…"> <input class="u-inp w-mid" data-sol="wir" placeholder="…"> Struktur. <span class="hinweis-klein">(wir · brauchen)</span></div>
+      <div class="u-fertig">✓ Viermal richtig: Der Nebensatz ist Position 1.</div>
+    </div>
+  </div>
+
+  <div class="grosse-uebung">
+    <h3>Übung 3 · Das Verb ans Ende</h3>
+    <p class="anleitung">Hauptsatz → Nebensatz. Die Verbform am Ende einsetzen (bei zwei Verben beide, in der richtigen Reihenfolge).</p>
+    <div class="uebung">
+      <div class="uebung-kopf">
+        <div class="uebung-label">Nebensatz schließen</div>
+        <div class="uebung-ctrl">
+          <button type="button" class="u-btn" onclick="showCardSolution(this)">Lösung</button>
+          <button type="button" class="u-btn" onclick="resetCard(this)">Neustart</button>
+        </div>
+      </div>
+      <div class="uebung-item">1. Wir sind nicht so empfindlich. → Es wundert mich, warum wir nicht so empfindlich <input class="u-inp w-mid" data-sol="sind" placeholder="…">.</div>
+      <div class="uebung-item">2. KI löst starke Gefühle aus. → Ich verstehe nicht, warum KI so starke Gefühle <input class="u-inp w-mid" data-sol="auslöst" placeholder="…">.</div>
+      <div class="uebung-item">3. Ich kann das Gedicht heute noch verstehen. → Ich weiß nicht, ob ich das Gedicht heute noch <input class="u-inp w-wide" data-sol="verstehen kann" placeholder="…">.</div>
+      <div class="uebung-item">4. Ich habe die Themen schon notiert. → Ich lache, da ich die Themen schon <input class="u-inp w-wide" data-sol="notiert habe" placeholder="…">.</div>
+      <div class="uebung-item">5. KI bietet uns allen eine Erleichterung. → Es ist wichtig, dass KI uns allen eine Erleichterung <input class="u-inp w-mid" data-sol="bietet" placeholder="…">.</div>
+      <div class="uebung-item">6. Die Übersetzung war nicht gehoben. → Sie gefiel mir nicht, weil die Übersetzung nicht gehoben <input class="u-inp w-mid" data-sol="war" placeholder="…">.</div>
+      <div class="u-fertig">✓ Sechsmal den Rahmen geschlossen.</div>
+    </div>
+  </div>
+
+  <!-- ═══ SCHREIBFELD · schriftlich üben (PFLICHT) ═══ -->
+  <div class="schreibfeld-block">
+    <div class="schreibfeld-titel">Schreibfeld — selbst schreiben und an Frank senden</div>
+    <p class="schreibfeld-hinweis">Aufgabe 1 und 2 noch einmal schreiben — diesmal mit der Wortstellung von oben. Bei jedem Hauptsatz kurz prüfen: Was steht auf Position 1? Bei jedem Nebensatz: Steht das Verb am Ende? Der Text wird automatisch in diesem Browser gespeichert. Mit „An Frank senden“ geht die Neufassung direkt an den Unterricht.</p>
+    <textarea id="schreibfeld" class="schreibfeld-area" placeholder="Hier den verbesserten Text schreiben …"></textarea>
+    <div class="schreibfeld-fuss">
+      <span id="schreib-status" class="schreib-status">Noch nichts gespeichert.</span>
+      <span id="schreib-count" class="schreib-count">0 Wörter</span>
+    </div>
+    <div class="schreibfeld-aktion">
+      <button type="button" id="schreib-send" class="schreibfeld-btn" onclick="schreibfeldSenden()">📨 An Frank senden</button>
+    </div>
+    <div id="schreib-send-status" class="schreib-send-status"></div>
+  </div>
+
+</div>
+
+<div class="author-footer">
+  <span style="font-weight:700">© Frank Burkert</span> · DaF-Materialien ·
+  <a href="mailto:unterricht@frankburkert-daf.de">unterricht@frankburkert-daf.de</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// Live-Feedback für alle .u-inp-Felder
+function lieveCheck(inp) {
+  var val = (inp.value || '').trim();
+  var sol = inp.dataset.sol || '';
+  inp.classList.remove('ok', 'wrong');
+  if (!val) return;
+  if (val === sol) {
+    inp.classList.add('ok');
+    checkKartenDone(inp.closest('.uebung'));
+    return;
+  }
+  // case-sensitive Präfix-Check
+  if (!sol.startsWith(val)) {
+    inp.classList.add('wrong');
+  }
+}
+
+function checkKartenDone(uebung) {
+  if (!uebung) return;
+  var inputs = uebung.querySelectorAll('.u-inp');
+  var alleOk = Array.from(inputs).every(function(i) { return i.classList.contains('ok'); });
+  uebung.classList.toggle('done', alleOk);
+}
+
+document.querySelectorAll('.u-inp').forEach(function(inp) {
+  inp.addEventListener('input', function() { lieveCheck(inp); });
+});
+
+function showCardSolution(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = inp.dataset.sol || '';
+    inp.classList.remove('wrong');
+    inp.classList.add('ok');
+  });
+  uebung.classList.add('done');
+}
+
+function resetCard(btn) {
+  var uebung = btn.closest('.uebung');
+  if (!uebung) return;
+  uebung.querySelectorAll('.u-inp').forEach(function(inp) {
+    inp.value = '';
+    inp.classList.remove('ok', 'wrong');
+  });
+  uebung.classList.remove('done');
+}
+
+// Schreibfeld — Üben mit Browser-Speicherung + Versand an Frank (KEY/NAME/NIVEAU/SENDUNG pro Datei anpassen)
+var SCHREIBFELD_ENDPOINT   = 'https://api.web3forms.com/submit';
+var SCHREIBFELD_ACCESS_KEY = 'e96ea83f-67e2-4fff-81df-76fee86a09ff';
+var SCHREIBFELD_MAILTO     = 'unterricht@frankburkert-daf.de';
+var SCHREIBFELD_NAME       = 'Nora';
+var SCHREIBFELD_LEKTION    = 'C2 – Korrektur 0701R (Wortstellung)';
+
+(function () {
+  var ta = document.getElementById('schreibfeld');
+  if (!ta) return;
+  var KEY = 'fb-schreibfeld-nora-0701r-wortstellung';
+  var status = document.getElementById('schreib-status');
+  var count = document.getElementById('schreib-count');
+  try { var saved = localStorage.getItem(KEY); if (saved) { ta.value = saved; } } catch (e) {}
+  function update() {
+    var t = ta.value.trim();
+    var w = t ? t.split(/\s+/).length : 0;
+    if (count) count.textContent = w + (w === 1 ? ' Wort' : ' Wörter');
+    try {
+      localStorage.setItem(KEY, ta.value);
+      if (status) status.textContent = t ? 'Automatisch gespeichert.' : 'Noch nichts gespeichert.';
+    } catch (e) { if (status) status.textContent = 'Speichern in diesem Browser nicht möglich.'; }
+    var sb = document.getElementById('schreib-send');
+    if (sb && sb.classList.contains('gesendet')) { sb.classList.remove('gesendet'); sb.innerHTML = '📨 Erneut senden'; }
+  }
+  ta.addEventListener('input', update);
+  update();
+})();
+
+function schreibfeldSenden() {
+  var ta = document.getElementById('schreibfeld');
+  var btn = document.getElementById('schreib-send');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !btn || !st) return;
+  var text = ta.value.trim();
+  if (text.length < 14) { st.className = 'schreib-send-status error'; st.textContent = 'Noch zu kurz — bitte zuerst den Text schreiben.'; return; }
+  var subject = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + ' · ' + SCHREIBFELD_NAME;
+  var message = '=== Schreibtraining (Korrektur-Neufassung) ===\n\n' + text;
+  btn.disabled = true; var orig = btn.innerHTML; btn.innerHTML = '⏳ Wird gesendet …';
+  // FormData statt JSON: loest KEINEN CORS-Preflight (OPTIONS) aus. Firmen-Proxys
+  // beantworten OPTIONS oft mit HTTP 405 - dann scheiterte der JSON-Versand. FormData
+  // ist ein simple request ohne Custom-Header; Web3Forms akzeptiert es nativ.
+  var fd = new FormData();
+  fd.append('access_key', SCHREIBFELD_ACCESS_KEY);
+  fd.append('name', SCHREIBFELD_NAME);
+  fd.append('subject', subject);
+  fd.append('from_name', 'fabDaF Schreibwerkstatt');
+  fd.append('lektion', SCHREIBFELD_LEKTION);
+  fd.append('message', message);
+  fetch(SCHREIBFELD_ENDPOINT, {
+    method: 'POST',
+    body: fd
+  })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP_' + r.status); return r.json(); })
+    .then(function (data) {
+      var ok = data && (data.success === true || data.success === 'true');
+      if (!ok) { var e = new Error('API_ERROR'); e.apiMessage = (data && data.message) || ''; throw e; }
+      btn.disabled = false; btn.classList.add('gesendet');
+      var j = new Date(); var info = 'gesendet um ' + String(j.getHours()).padStart(2, '0') + ':' + String(j.getMinutes()).padStart(2, '0');
+      btn.innerHTML = '✓ ' + info + ' · erneut senden';
+      st.className = 'schreib-send-status success'; st.textContent = '✓ Die Neufassung ist bei Frank angekommen.';
+    })
+    .catch(function (err) {
+      btn.disabled = false; btn.innerHTML = orig;
+      var subjectEnc = encodeURIComponent(subject);
+      var bodyEnc = encodeURIComponent('Name: ' + SCHREIBFELD_NAME + '\n\n' + message);
+      var mailto = 'mailto:' + SCHREIBFELD_MAILTO + '?subject=' + subjectEnc + '&body=' + bodyEnc;
+      st.className = 'schreib-send-status error';
+      st.innerHTML =
+        '<div class="schreib-fb">' +
+          '<div class="schreib-fb-titel">⚠ Online-Versand hat nicht geklappt — der Text ist sicher im Browser gespeichert.</div>' +
+          '<div class="schreib-fb-text">Einen Weg wählen, damit Frank die Neufassung trotzdem bekommt:</div>' +
+          '<div class="schreib-fb-actions">' +
+            '<a class="schreib-fb-btn schreib-fb-btn-prim" href="' + mailto + '">📧 In Mail-Programm öffnen</a>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldKopieren()">📋 In Zwischenablage</button>' +
+            '<button type="button" class="schreib-fb-btn" onclick="schreibfeldSenden()">🔄 Nochmal versuchen</button>' +
+          '</div>' +
+        '</div>';
+    });
+}
+
+function schreibfeldKopieren() {
+  var ta = document.getElementById('schreibfeld');
+  var st = document.getElementById('schreib-send-status');
+  if (!ta || !st) return;
+  var text = 'Schreibtraining · ' + SCHREIBFELD_LEKTION + '\nName: ' + SCHREIBFELD_NAME + '\n\n' + ta.value.trim();
+  function fertig(ok) {
+    st.className = 'schreib-send-status ' + (ok ? 'success' : 'error');
+    st.textContent = ok ? '✓ In die Zwischenablage kopiert. Jetzt in eine Mail an Frank einfügen.' : '✗ Kopieren ging nicht — Text in der Box markieren und selbst kopieren.';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { fertig(true); }, function () { fertig(false); });
+  } else {
+    try { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); fertig(true); } catch (e) { fertig(false); }
+  }
+}
+</script>
+</body>
+</html>
