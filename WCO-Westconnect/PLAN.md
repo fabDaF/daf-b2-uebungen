@@ -25,6 +25,9 @@
 | 11 | WCO11X | Sicherheitsimpuls (Schaden Daaden) | – | ⬜ offen |
 | 12 | WCO12X | Absage MSH — Handzettel für Kunden (Hagen) | – | ⬜ offen |
 | 13 | WCO13X | Versionsverläufe in SharePoint / Excel | – | ⬜ offen |
+| 14 | WCO14X | Projektabnahme — Dokumentation (Passiv mit Modalverb, Sprech-Trainer) | `DE_B2_WCO14X-projektabnahme-dokumentation.html` | ✅ live (Mail „Glasfaser“, 06.10.2026) |
+| 15 | WCO15X | Einweisung Gashochdruckleitung (sein + zu + Infinitiv, Sprech-Trainer) | `DE_B2_WCO15X-einweisung-gashochdruckleitung.html` | ✅ live (Mail „Glasfaser“, 06.10.2026) |
+| 16 | WCO16X | Rohrverband verlegen, Kabel einblasen (je … desto, Sprech-Trainer) | `DE_B2_WCO16X-rohrverband-einblasen.html` | ✅ live (Mail „Glasfaser“, 06.10.2026) |
 
 > **Anmerkung:** Die Themen 3–13 sind aus der Schulungsmail und den Anhängen abgeleitet. Reihenfolge und Auswahl bitte vor dem Bau bestätigen — manche eignen sich weniger für eine ganze Sachtext-Lektion (z. B. WCO13X — Excel-Versionsverläufe ist eher ein Tool-Tipp als ein Lesetext). Frank entscheidet, welche dieser Themen tatsächlich produziert werden und in welcher Folge.
 
