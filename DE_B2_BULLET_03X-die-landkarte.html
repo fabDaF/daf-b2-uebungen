@@ -185,6 +185,7 @@ body {
 .drop-zone.dragover { background: var(--bg-e8eaff); border-color: var(--bd-667eea); }
 
 /* Chips */
+#genus-bank .chip.selected, .genus-grid .chip.selected { outline: 3px solid var(--bd-667eea); outline-offset: 2px; }
 .chip { background: var(--bg-white); border: 2px solid var(--bd-667eea); color: var(--tx-667eea); padding: 8px 14px; border-radius: 20px; cursor: move; font-weight: 500; font-size: 0.9em; transition: all 0.2s; user-select: none; white-space: nowrap; }
 .chip.correct { background: var(--bg-27ae60); border-color: var(--bd-27ae60); color: var(--tx-white); }
 .chip.wrong { background: var(--bg-e74c3c); border-color: var(--bd-e74c3c); color: var(--tx-white); }
@@ -1312,15 +1313,41 @@ function buildGenus() {
       var correct = draggedChip.dataset.cat === zone.dataset.cat;
       draggedChip.classList.toggle('correct', correct);
       draggedChip.classList.toggle('wrong', !correct);
-      stopTimer(2);
+      genusFertig();
+    });
+    // Klick/Tippen: ausgewählten Chip in diese Zone legen (Handy-Bedienung)
+    zone.addEventListener('click', function(e){
+      if (!genusSel || e.target.closest('.chip')) return;
+      timerAutoStart(2); zone.appendChild(genusSel); genusSel.classList.remove('selected'); genusSel = null; genusFarben(); genusFertig();
     });
   });
+  bank.addEventListener('click', function(e){
+    if (!genusSel || e.target.closest('.chip') || genusSel.parentNode === bank) return;
+    bank.appendChild(genusSel); genusSel.classList.remove('selected'); genusSel = null; genusFarben();
+  });
+  bank.querySelectorAll('.chip').forEach(function(chip){
+    chip.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (genusSel === chip){ chip.classList.remove('selected'); genusSel = null; return; }
+      if (genusSel) genusSel.classList.remove('selected');
+      genusSel = chip; chip.classList.add('selected');
+    });
+  });
+}
+var genusSel = null;
+function genusFarben(){
+  document.querySelectorAll('.genus-grid .chip').forEach(function(c){ var z = c.closest('.drop-zone'); var ok = !!z && c.dataset.cat === z.dataset.cat; c.classList.toggle('correct', ok); c.classList.toggle('wrong', !ok); });
+  document.querySelectorAll('#genus-bank .chip').forEach(function(c){ c.classList.remove('correct', 'wrong'); });
+}
+function genusFertig(){
+  var bank = document.getElementById('genus-bank');
+  if (bank && !bank.querySelector('.chip') && !document.querySelector('.genus-grid .chip.wrong')) stopTimer(2);
 }
 
 function showGenusLoesung() {
   stopTimer(2);
   GENUS_DATA.forEach(function(item) {
-    document.querySelectorAll('.chip').forEach(function(chip){
+    document.querySelectorAll('#genus-bank .chip, .genus-grid .chip').forEach(function(chip){
       if (chip.textContent.trim() === item.word.trim()) {
         var zone = document.getElementById('zone-'+item.cat);
         if (zone) { zone.appendChild(chip); chip.className='chip correct'; }
@@ -1332,7 +1359,7 @@ function showGenusLoesung() {
 function resetGenus() {
   var bank = document.getElementById('genus-bank');
   if (!bank) return;
-  document.querySelectorAll('.drop-zone .chip').forEach(function(chip){
+  document.querySelectorAll('.genus-grid .drop-zone .chip').forEach(function(chip){
     chip.className='chip';
     bank.appendChild(chip);
   });
@@ -1355,7 +1382,7 @@ function buildMC() {
     var optsHtml = item.opts.map(function(opt, oi){
       return '<button class="mc-opt" onclick="checkMC(this,'+qi+','+oi+')"><span class="mc-letter">'+['A','B','C','D'][oi]+'</span><span>'+opt+'</span></button>';
     }).join('');
-    div.innerHTML = '<div class="mc-question">'+(qi+1)+'. '+item.q+'</div><div class="mc-opts">'+optsHtml+'</div>';
+    div.innerHTML = '<div class="mc-question">'+item.q+'</div><div class="mc-opts">'+optsHtml+'</div>';
     ct.appendChild(div);
   });
 }
@@ -1465,6 +1492,11 @@ function sbCheckAuto(idx) {
     });
     if (allDone) stopTimer(5);
   }
+}
+
+function sbCheckAllDone() {
+  var ok = satzbauData.every(function(_, i){ var b = document.getElementById('builder-' + i); return b && b.classList.contains('correct'); });
+  if (ok) stopTimer(5);
 }
 
 function sbShowSolution() {
@@ -1725,12 +1757,12 @@ function buildGrammatik() {
 
 function grCheck(inp) {
   var v = inp.value.trim().toLowerCase();
-  var a = (inp.dataset.ans || '').toLowerCase();
+  var alts = (inp.dataset.ans || '').toLowerCase().split('|');
   inp.classList.remove('correct','wrong');
   if (!v) return;
   timerAutoStart(8);
-  if (v === a) { inp.classList.add('correct'); grCheckAllOk(); return; }
-  if (a.indexOf(v) === 0) return;
+  if (alts.indexOf(v) !== -1) { inp.classList.add('correct'); grCheckAllOk(); return; }
+  if (alts.some(function(a){ return a.indexOf(v) === 0; })) return;
   inp.classList.add('wrong');
 }
 
@@ -1741,7 +1773,7 @@ function grCheckAllOk() {
 
 function showGrLoesung() {
   document.querySelectorAll('#grContainer input.blank').forEach(function(inp){
-    inp.value = inp.dataset.ans;
+    inp.value = inp.dataset.ans.split('|')[0];
     inp.classList.remove('wrong');
     inp.classList.add('correct');
   });
@@ -2283,7 +2315,7 @@ function schreibLeeren() {
   }
   if (typeof window.sbShowSolution === "function"){
     var osol = window.sbShowSolution;
-    window.sbShowSolution = function(i){ if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
+    window.sbShowSolution = function(i){ if (i === undefined){ satzbauData.forEach(function(ex, k){ if (ex.row) showSol(k); }); if (typeof stopTimer === "function") stopTimer(5); return; } if (satzbauData[i] && satzbauData[i].row){ showSol(i); return; } osol.apply(this, arguments); };
   }
   /* Bugfix 2026-06-10: bei leerer Row (Free-Build) zusätzlich die Bank prüfen,
      sonst baut sich das Gerüst beim Erstladen nie auf (nur nach Neustart). */

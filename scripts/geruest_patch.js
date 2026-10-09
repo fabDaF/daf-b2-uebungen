@@ -94,6 +94,7 @@ function addon(cfg, merged){
 '   hüllt Init/Lösung/Reset. Original-Logik für Sätze ohne row bleibt unberührt. */',
 '(function(){',
 '  var CFG = ' + C + ';',
+'  /* FB-SB-TIMER-FALLBACK */ if (typeof sbCheckAllDone !== "function") window.sbCheckAllDone = function(){ var ok = satzbauData.every(function(_, i){ var r = document.getElementById(CFG.row + i); return r && r.classList.contains("correct"); }); if (ok && typeof stopTimer === "function") stopTimer(CFG.tab); };',
 '  var SBGAP = ' + M + ';',
 '  SBGAP.forEach(function(g){ var ex = satzbauData[g.i]; if (!ex) return;',
 '    ex.row = g.row; ex.parts = g.parts;',
@@ -310,6 +311,9 @@ if (html.includes("'sb-bank-'") || html.includes('"sb-bank-"') || html.includes(
 else if (html.includes("'builder-'") || html.includes('"builder-"') || html.includes("builder-'+")) fam = 'A';
 if (!fam) { report.skip = 'unbekanntes ID-Schema'; out(); process.exit(0); }
 report.fam = fam;
+// Schutz (2026-10-09): Familie per bank-ID erkannt, aber Zeilen-ID fehlt im nativen Code (z. B. sb-drop-/sb-zone-)
+// → Add-on leert die Bank und baut keine Zeilen = leerer Satzbau-Tab (Fund: Kap10-Haustechnik, 1026R). Dann nicht patchen.
+if (!html.includes(fam === 'B' ? 'sb-row-' : 'builder-')) { report.skip = 'Zeilen-ID-Schema passt nicht (sb-row-/builder- fehlt)'; out(); process.exit(0); }
 const initFn = ['initSatzbau','buildSatzbau'].find(f => html.includes('function ' + f));
 if (!initFn) { report.skip = 'keine Init-Funktion'; out(); process.exit(0); }
 if (!html.includes('function sbShowSolution')) { report.note = 'kein natives sbShowSolution — Add-on-Buttons übernehmen'; }
