@@ -69,7 +69,7 @@ function spZeige(){
   const aufgabe = modus === 'satz' ? 'Laut einen Satz mit diesem Verb und diesem Nomen sprechen.' : 'Laut fragen: „Wo…?“ – und mit dem Nomen antworten.';
   box.innerHTML = `<div class="tr-meta">Karte ${spPos + 1} von ${spQueue.length} · ${esc(VAP_GRUPPEN[e.g] || '')}</div>
     <div class="sp-cue"><span class="sp-verb">${esc(vapVerbLabel(e))}</span><span class="sp-plus">+</span><span class="sp-nomen">${esc(spNomen(e))}</span></div>
-    ${e.h ? `<div class="quiz-hint">(${esc(e.h)})</div>` : ''}
+    ${e.h ? `<div class="quiz-hint">(${esc(vapHint(e))})</div>` : ''}
     <div class="sp-aufgabe">🗣️ ${aufgabe}</div>
     <div class="sp-bar"><div id="sp-fill"></div></div><div class="sp-count" id="sp-count">${sek} s</div>
     <div class="sp-gehoert" id="sp-gehoert"></div>
