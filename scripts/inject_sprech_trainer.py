@@ -210,7 +210,7 @@ function spUrteil(e){
 function spGehoertZeigen(e){
   if (!spGehoert) return;
   const u = spUrteil(e);
-  const urteil = u.hat ? `<span class="sp-ok">✓ „${esc(e.p)}“ erkannt</span>` : u.falsch.length ? `<span class="sp-no">✗ „${esc(u.falsch[0])}“ statt „${esc(e.p)}“</span>` : '';
+  const urteil = u.hat ? `<span class="sp-ok">✓ „${esc(e.p)}“ erkannt</span>` : u.falsch.length ? `<span class="sp-no">✗ „${esc(u.falsch[0])}“ ist nicht richtig</span>` : '';
   spStatus(`🎤 Gehört: „${esc(spGehoert)}“ ${urteil}`, u.hat ? 'gut' : (u.falsch.length ? 'schlecht' : 'info'));
 }
 // Bewertung nach dem Auflösen: was hat das Mikrofon gehört?
