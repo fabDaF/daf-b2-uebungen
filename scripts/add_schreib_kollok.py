@@ -27,7 +27,7 @@ CONF = {
    'Prüfung ablegen':         ('prüfung', r'(ableg|abgelegt|abzulegen|\bleg(e|t|st|te|en|ten)\b)'),
    'Prüfung bestehen':        ('prüfung', r'(besteh|bestand)'),
    'Ergebnis erzielen':       ('ergebnis', r'erziel'),
-   'Kritik üben':             ('kritik', r'(\büb(t|te|ten|en|st)\b|geübt)'),
+   'Kritik üben':             ('kritik', r'((^|[^a-zäöüß])üb(t|te|ten|en|st)\b|geübt)'),
    'Entscheidung treffen':    ('entscheidung', r'(treff|triff|traf|getroffen)'),
    'Entscheidung überdenken': ('entscheidung', r'(überdenk|überdacht)'),
    'langjährige Erfahrung':   ('erfahrung', r'langjährig'),
