@@ -76,12 +76,27 @@ def main(datei, daten):
     nav_html = s[nav_i:m.start()]
     n = len(re.findall(r'class="nav-btn', nav_html))
     assert n >= 2, ('zu wenige Nav-Buttons', n)
-    btn = '\n' + m.group(1) + '    <div class="nav-btn" onclick="showSection(%d)"><!-- %s -->🗣️ Sprechen</div>' % (n, M)
-    s = s[:m.start()] + btn + s[m.start():]
-    # Section vor dem Footer
-    f = s.index('<div class="author-footer">')
-    f = s.rfind('\n', 0, f) + 1
-    s = s[:f] + SECTION.format(i=n, m=M, intro=d['intro']) + s[f:]
+    # Seit 2026-10-19 hat die Serie eine Schreibwerkstatt als LETZTEN Tab (FB-SCHREIB-KOLLOK):
+    # dann kommt „Sprechen" davor (Nav-Button vor dem Schreibwerkstatt-Button, Section vor sec-schreiben).
+    schreib = re.search(r'\n([ \t]*)<div class="nav-btn" onclick="showSection\(\d+\)">📨 Schreibwerkstatt</div>', s[nav_i:m.start()])
+    if schreib:
+        n = len(re.findall(r'class="nav-btn', s[nav_i:nav_i + schreib.start()]))
+        btn = '\n' + schreib.group(1) + '<div class="nav-btn" onclick="showSection(%d)"><!-- %s -->🗣️ Sprechen</div>' % (n, M)
+        s = s[:nav_i + schreib.start()] + btn + s[nav_i + schreib.start():]
+        # alle Nav-Indizes nach DOM-Reihenfolge neu nummerieren (showSection = Index)
+        m3 = re.compile(r'\n([ \t]*)</div>').search(s, nav_i); k = [0]
+        def rn(mm): v = 'showSection(%d)' % k[0]; k[0] += 1; return v
+        s = s[:nav_i] + re.sub(r'showSection\(\d+\)', rn, s[nav_i:m3.start()]) + s[m3.start():]
+        f = s.index('<!-- ==================== TAB 5: Schreibwerkstatt (FB-SCHREIB-KOLLOK)')
+        f = s.rfind('\n', 0, f) + 1
+        s = s[:f] + SECTION.format(i=n, m=M, intro=d['intro']) + s[f:]
+    else:
+        btn = '\n' + m.group(1) + '    <div class="nav-btn" onclick="showSection(%d)"><!-- %s -->🗣️ Sprechen</div>' % (n, M)
+        s = s[:m.start()] + btn + s[m.start():]
+        # Section vor dem Footer
+        f = s.index('<div class="author-footer">')
+        f = s.rfind('\n', 0, f) + 1
+        s = s[:f] + SECTION.format(i=n, m=M, intro=d['intro']) + s[f:]
     # CSS + JS
     s = s.replace('</style>', '</style>\n<style>/* %s-CSS */\n' % M + lies('sprech.css') + '</style>', 1)
     data = 'var SP_DATA = ' + json.dumps(d['karten'], ensure_ascii=False, indent=1) + ';\n'
@@ -93,7 +108,7 @@ def main(datei, daten):
     secs = re.findall(r'<div class="section[ "]', s)
     assert len(navs) == len(secs), ('Nav/Section-Anzahl ungleich', len(navs), len(secs))
     order = re.findall(r'<div class="section[^"]*" id="([^"]+)"', s)
-    assert order[-1] == 'sec-sprechen', order
+    assert order[-1] == 'sec-sprechen' or (order[-1] == 'sec-schreiben' and order[-2] == 'sec-sprechen'), order
     idx = [int(x) for x in re.findall(r'onclick="showSection\((\d+)\)"', s[nav_i:m2.start()])]
     assert idx == list(range(len(idx))), ('Nav-Indizes nicht lückenlos', idx)
     open(datei, 'w', encoding='utf-8').write(s)

@@ -3370,6 +3370,8 @@ var SP_DATA = [
 // Erkannt wird ein Treffer, wenn ein gesprochenes Wort mit einem der ok-Wortanfänge beginnt
 // (bei "stamm|partikel" muss zusätzlich die Partikel als eigenes Wort fallen).
 // Konkurrenz = die ok-Wortanfänge aller anderen Karten (→ „✗ X statt Y“).
+// SP_TEXTE (optional, pro Lektion vor der Engine definiert) ersetzt die Verb-Formulierungen — z. B. Wortschatz: Wort + Artikel.
+var SP_T = (function(){ var d = {start:'Das Nomen erscheint – dann laut das passende Verb sagen, bevor der Balken abgelaufen ist.', kurz:'Laut Nomen + passendes Verb sagen.', satz:'Laut einen ganzen Satz mit dem passenden Verb sprechen.', frage:'Kam das Verb sofort?', erkannt:'✓ richtiges Verb erkannt', dabei:'✓ Richtig – das passende Verb war dabei!', nichtDabei:'– das passende Verb war nicht dabei.'}; var u = window.SP_TEXTE || {}; for (var k in u) d[k] = u[k]; return d; })();
 var spQueue = [], spPos = 0, spTimer = null, spRunde = {ok:0, total:0, fehler:[], mic:false, micOk:0, micTotal:0}, spMic = false, spRec = null, spGehoert = '', spOffen = false, spBewertet = false;
 var SpRecCtor = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 function spEsc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -3389,16 +3391,16 @@ function spZeige(){
   if (!spQueue.length || spPos >= spQueue.length){
     var nochmal = spRunde.fehler.length ? '<div class="sp-wdh"><strong>Noch nicht automatisch:</strong> ' + spRunde.fehler.map(function(x){ return spEsc(x.loesung); }).join(' · ') + '</div>' : '';
     var micBtn = SpRecCtor ? '<button class="sp-btn ok" onclick="spStart(true)">🎤 Mit Mikrofon starten</button>' : '';
-    box.innerHTML = '<div class="sp-leer">' + (spRunde.total ? '🎉 Runde fertig – <strong>' + spRunde.ok + ' von ' + spRunde.total + '</strong> sofort parat' + (spRunde.mic ? ' · Mikrofon: ' + spRunde.micOk + ' von ' + spRunde.micTotal + ' richtig erkannt' : '') + '.' : 'Das Nomen erscheint – dann laut das passende Verb sagen, bevor der Balken abgelaufen ist.') +
+    box.innerHTML = '<div class="sp-leer">' + (spRunde.total ? '🎉 Runde fertig – <strong>' + spRunde.ok + ' von ' + spRunde.total + '</strong> sofort parat' + (spRunde.mic ? ' · Mikrofon: ' + spRunde.micOk + ' von ' + spRunde.micTotal + ' richtig erkannt' : '') + '.' : SP_T.start) +
       nochmal + '<div class="sp-leer-btns">' + micBtn + '<button class="sp-btn" onclick="spStart(false)">' + (spRunde.total ? 'Noch eine Runde ohne Mikrofon' : 'Ohne Mikrofon starten') + '</button></div>' +
       (SpRecCtor ? '' : '<div class="sp-hint">Dieser Browser hat keine Spracherkennung – mit Mikrofon geht es in Chrome oder Safari.</div>') + '</div>';
     spStandZeigen();
     return;
   }
   var e = spQueue[spPos], sek = spSek();
-  var aufgabe = spModus() === 'satz' ? 'Laut einen ganzen Satz mit dem passenden Verb sprechen.' : 'Laut Nomen + passendes Verb sagen.';
+  var aufgabe = spModus() === 'satz' ? SP_T.satz : SP_T.kurz;
   box.innerHTML = '<div class="sp-meta">Karte ' + (spPos + 1) + ' von ' + spQueue.length + '</div>' +
-    '<div class="sp-cue">' + spEsc(e.cue) + ' <span class="sp-luecke">' + spEsc(e.luecke || '___') + '</span></div>' +
+    '<div class="sp-cue">' + spEsc(e.cue) + ' <span class="sp-luecke">' + spEsc(e.luecke == null ? '___' : e.luecke) + '</span></div>' +
     (e.hint ? '<div class="sp-hint">(' + spEsc(e.hint) + ')</div>' : '') +
     '<div class="sp-aufgabe">🗣️ ' + aufgabe + '</div>' +
     '<div class="sp-bar"><div id="sp-fill"></div></div><div class="sp-count" id="sp-count">' + sek + ' s</div>' +
@@ -3417,7 +3419,7 @@ function spAufloesen(){
   var e = spQueue[spPos];
   var cnt = document.getElementById('sp-count'); if (cnt) cnt.textContent = 'Lösung';
   document.getElementById('sp-loesung').innerHTML = '<div class="sp-loesung-zeile"><strong>' + spEsc(e.loesung) + '</strong></div>' + (e.beispiel ? '<div class="sp-beispiel">' + spEsc(e.beispiel) + '</div>' : '');
-  document.getElementById('sp-aktion').innerHTML = '<span class="sp-frage">Kam das Verb sofort?</span><span><button class="sp-btn ok" onclick="spBewerten(true)">✓ Ja, sofort</button> <button class="sp-btn" onclick="spBewerten(false)">✗ Nein, überlegt</button></span>';
+  document.getElementById('sp-aktion').innerHTML = '<span class="sp-frage">' + SP_T.frage + '</span><span><button class="sp-btn ok" onclick="spBewerten(true)">✓ Ja, sofort</button> <button class="sp-btn" onclick="spBewerten(false)">✗ Nein, überlegt</button></span>';
   if (!spMic) spStatus('Vergleiche mit der Lösung: Hast du <strong>' + spEsc(e.loesung) + '</strong> gesagt? Dann „Ja, sofort“.', 'info');
   setTimeout(function(){ if (spOffen && spQueue[spPos] === e) spMicFazit(e); }, 900);
 }
@@ -3506,16 +3508,16 @@ function spUrteil(e){
 function spGehoertZeigen(e){
   if (!spGehoert) return;
   var u = spUrteil(e);
-  var urteil = u.hat ? '<span class="sp-ok">✓ richtiges Verb erkannt</span>' : u.falsch.length ? '<span class="sp-no">✗ „' + spEsc(u.falsch[0]) + '“ passt hier nicht</span>' : '';
+  var urteil = u.hat ? '<span class="sp-ok">' + SP_T.erkannt + '</span>' : u.falsch.length ? '<span class="sp-no">✗ „' + spEsc(u.falsch[0]) + '“ passt hier nicht</span>' : '';
   spStatus('🎤 Gehört: „' + spEsc(spGehoert) + '“ ' + urteil, u.hat ? 'gut' : (u.falsch.length ? 'schlecht' : 'info'));
 }
 function spMicFazit(e){
   if (!spMic) return;
   var u = spUrteil(e), html, typ, empf = null;
   if (!spGehoert){ html = '🎤 Das Mikrofon hat nichts verstanden. Bewerte dich bitte selbst.'; typ = 'warn'; }
-  else if (u.hat){ html = '🎤 Gehört: „' + spEsc(spGehoert) + '“ <span class="sp-ok">✓ Richtig – das passende Verb war dabei!</span>'; typ = 'gut'; empf = true; }
+  else if (u.hat){ html = '🎤 Gehört: „' + spEsc(spGehoert) + '“ <span class="sp-ok">' + SP_T.dabei + '</span>'; typ = 'gut'; empf = true; }
   else if (u.falsch.length){ html = '🎤 Gehört: „' + spEsc(spGehoert) + '“ <span class="sp-no">✗ Du hast „' + spEsc(u.falsch[0]) + '“ gesagt – richtig ist: ' + spEsc(e.loesung) + '.</span>'; typ = 'schlecht'; empf = false; }
-  else { html = '🎤 Gehört: „' + spEsc(spGehoert) + '“ <span class="sp-no">– das passende Verb war nicht dabei.</span>'; typ = 'schlecht'; empf = false; }
+  else { html = '🎤 Gehört: „' + spEsc(spGehoert) + '“ <span class="sp-no">' + SP_T.nichtDabei + '</span>'; typ = 'schlecht'; empf = false; }
   spStatus(html, typ);
   if (empf !== null){ spRunde.micTotal++; if (empf) spRunde.micOk++; spStandZeigen(); }
   if (empf !== null){ var btns = document.querySelectorAll('#sp-aktion .sp-btn'); if (btns.length === 2) btns[empf ? 0 : 1].classList.add('sp-empf'); }
