@@ -16,6 +16,9 @@
 # Commit in _autopush.state und prueft bei den folgenden Laeufen den Build.
 # Gescheiterte Builds stoesst es bis zu zweimal neu an.
 #
+# Dritte Aufgabe (seit 2026-10-08): jeden neuen Commit ZUSAETZLICH direkt nach
+# Codeberg spiegeln — unabhaengig von GitHub (siehe Abschnitt "Codeberg-Direktspiegel").
+#
 # Log:  ~/Cowork/Projekte/fabDaF/_autopush.log   (von Claude lesbar)
 # ---------------------------------------------------------------------------
 
@@ -141,6 +144,95 @@ for repo in "${REPOS[@]}"; do
     log "FEHLER $name — Push abgelehnt: $(printf '%s' "$out" | tail -n 2 | tr '\n' ' ')"
   fi
 done
+
+# ---------------------------------------------------------------------------
+# Codeberg-Direktspiegel (seit 2026-10-08).
+# Die GitHub Action codeberg-mirror.yml laeuft AUF GitHub: faellt GitHub aus
+# oder wird der Account gesperrt, steht der Mirror still. Deshalb schiebt der
+# Mac jeden neuen Commit zusaetzlich SELBST nach Codeberg — unabhaengig davon,
+# ob der GitHub-Push oben geklappt hat. Die Action bleibt als zweiter Weg.
+#   * main/master nur als Fast-Forward (nie destruktiv); ist Codeberg weiter
+#     als der lokale Klon, passiert nichts.
+#   * pages wird danach dem Branch nachgefuehrt (wie in der Action).
+#   * Nur Repos mit .github/workflows/codeberg-mirror.yml (= Mirror-Programm).
+# Zugang: bevorzugt SSH-Deploy-Key .codeberg-ssh/id_ed25519 (in allen Mirror-
+#        Repos als Deploy Key mit Schreibrecht eingetragen, per daf-archiv/
+#        .github/workflows/codeberg-deploykey.yml). Ersatzweise Token-Datei
+#        .git-credentials-codeberg (scripts/set-codeberg-token.sh). Fehlt
+#        beides, ruht dieser Teil still.
+# Merker: refs/fabdaf-mirror/codeberg/<branch> = zuletzt gespiegelter Commit,
+#        damit der 2-Minuten-Takt im Leerlauf kein Netz braucht.
+# Bei Auth-/Netzfehlern pausiert der Teil 60 Minuten (kein Log-Spam).
+# ---------------------------------------------------------------------------
+CB_CRED="$BASE/.git-credentials-codeberg"
+CB_OWNER="fabbuLos"
+CB_BASEURL="${FABDAF_CB_BASEURL:-https://codeberg.org}"
+CB_PAUSE="${TMPDIR:-/tmp}/fabdaf-codeberg.pause"
+CB_KEY="$BASE/.codeberg-ssh/id_ed25519"   # bevorzugt: SSH-Deploy-Key (gitignored)
+
+CB_MODE=""
+if [ -r "$CB_KEY" ]; then
+  CB_MODE=ssh
+  chmod 700 "$BASE/.codeberg-ssh" 2>/dev/null; chmod 600 "$CB_KEY" 2>/dev/null
+  export GIT_SSH_COMMAND="ssh -i \"$CB_KEY\" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=\"$BASE/.codeberg-ssh/known_hosts\""
+elif [ -r "$CB_CRED" ]; then
+  CB_MODE=https
+fi
+
+if [ -n "$CB_MODE" ] && [ -z "$(find "$CB_PAUSE" -maxdepth 0 -mmin -60 2>/dev/null)" ]; then
+  for repo in "${REPOS[@]}"; do
+    [ -d "$repo/.git" ] || continue
+    [ -f "$repo/.github/workflows/codeberg-mirror.yml" ] || continue
+    name="${repo#$BASE/}"; [ "$name" = "$repo" ] && name="(root/B2)"
+
+    branch=$(git -C "$repo" symbolic-ref --quiet --short HEAD 2>/dev/null) || continue
+    case "$branch" in main|master) ;; *) continue ;; esac
+    local_sha=$(git -C "$repo" rev-parse "$branch" 2>/dev/null) || continue
+    mark="refs/fabdaf-mirror/codeberg/$branch"
+    [ "$local_sha" = "$(git -C "$repo" rev-parse --verify --quiet "$mark" 2>/dev/null)" ] && continue
+
+    slug=$(slug_of "$repo"); cb_repo="${slug##*/}"
+    [ -n "$cb_repo" ] || continue
+    if [ "$CB_MODE" = ssh ]; then cb_url="git@codeberg.org:$CB_OWNER/$cb_repo.git"
+    else cb_url="$CB_BASEURL/$CB_OWNER/$cb_repo.git"; fi
+
+    out=$(git -C "$repo" -c credential.helper= -c "credential.helper=store --file=$CB_CRED" \
+          push "$cb_url" "$local_sha:refs/heads/$branch" 2>&1)
+    if [ $? -ne 0 ]; then
+      if printf '%s' "$out" | grep -q -E "non-fast-forward|fetch first|\[rejected\]"; then
+        # Codeberg ist weiter als dieser Klon (oder divergiert) — nicht anfassen,
+        # Merker setzen, damit erst ein neuer lokaler Commit wieder versucht.
+        git -C "$repo" update-ref "$mark" "$local_sha" 2>/dev/null
+        continue
+      fi
+      log "FEHLER Codeberg $name — Push fehlgeschlagen: $(printf '%s' "$out" | tail -n 2 | tr '\n' ' ') — Pause 60 Min"
+      touch "$CB_PAUSE"
+      break
+    fi
+
+    out2=$(git -C "$repo" -c credential.helper= -c "credential.helper=store --file=$CB_CRED" \
+           push "$cb_url" "+$local_sha:refs/heads/pages" 2>&1)
+    if [ $? -ne 0 ]; then
+      # Wettlauf mit der GitHub-Action codeberg-mirror.yml: beide force-pushen `pages`
+      # in derselben Sekunde, der Zweite wird abgewiesen ("reference already exists" /
+      # "incorrect old value"). Steht Codeberg-`pages` bereits auf unserem Commit, ist
+      # alles in Ordnung — kein Fehler, kein Retry (2026-10-19).
+      remote_pages=$(git -C "$repo" -c credential.helper= -c "credential.helper=store --file=$CB_CRED" \
+                     ls-remote "$cb_url" refs/heads/pages 2>/dev/null | cut -f1)
+      if [ "$remote_pages" != "$local_sha" ]; then
+        log "FEHLER Codeberg $name — pages nicht nachgefuehrt: $(printf '%s' "$out2" | tail -n 2 | tr '\n' ' ')"
+        continue
+      fi
+      out2="$local_sha -> pages (bereits aktuell, Wettlauf mit GitHub-Action)"
+    fi
+
+    git -C "$repo" update-ref "$mark" "$local_sha" 2>/dev/null
+    if printf '%s\n%s\n' "$out" "$out2" | grep -q -- ' -> '; then   # nur echte Updates loggen
+      log "CODEBERG $name — gespiegelt → ${local_sha:0:7}"
+      pushed_any=1
+    fi
+  done
+fi
 
 # ---------------------------------------------------------------------------
 # Pages-Deploys nachverfolgen. Bei jedem Lauf werden die offenen Eintraege aus
