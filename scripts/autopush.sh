@@ -205,9 +205,15 @@ if [ -n "$CB_MODE" ] && [ -z "$(find "$CB_PAUSE" -maxdepth 0 -mmin -60 2>/dev/nu
         git -C "$repo" update-ref "$mark" "$local_sha" 2>/dev/null
         continue
       fi
-      log "FEHLER Codeberg $name — Push fehlgeschlagen: $(printf '%s' "$out" | tail -n 2 | tr '\n' ' ') — Pause 60 Min"
-      touch "$CB_PAUSE"
-      break
+      # Wettlauf mit der GitHub-Action auch auf main: steht Codeberg schon auf unserem Commit, ist alles gut.
+      remote_main=$(git -C "$repo" -c credential.helper= -c "credential.helper=store --file=$CB_CRED" \
+                    ls-remote "$cb_url" "refs/heads/$branch" 2>/dev/null | cut -f1)
+      if [ "$remote_main" != "$local_sha" ]; then
+        log "FEHLER Codeberg $name — Push fehlgeschlagen: $(printf '%s' "$out" | tail -n 2 | tr '\n' ' ') — Pause 60 Min"
+        touch "$CB_PAUSE"
+        break
+      fi
+      out="$local_sha -> $branch (bereits aktuell, Wettlauf mit GitHub-Action)"
     fi
 
     out2=$(git -C "$repo" -c credential.helper= -c "credential.helper=store --file=$CB_CRED" \
