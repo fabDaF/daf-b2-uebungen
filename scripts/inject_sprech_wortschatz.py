@@ -141,10 +141,14 @@ def norm(r):
     return en.strip(), art, de, pl, typ
 
 
+FUNKTIONSWOERTER = {'sich', 'auf', 'an', 'in', 'im', 'am', 'mit', 'von', 'vom', 'zu', 'zum', 'zur', 'für', 'über', 'unter', 'bei', 'beim', 'nach', 'aus', 'um', 'vor', 'der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'etwas', 'jemanden', 'jemandem', 'jmdn', 'jmdm', 'etw', 'und', 'oder', 'nicht', 'kein', 'keine', 'sein', 'haben', 'werden', 'lassen', 'machen', 'sehr'}
+
 def stamm(wort):
-    w = wort.lower().replace('sich ', '').strip()
-    w = re.split(r'[\s,/(]', w)[0]
-    w = re.sub(r'[^a-zäöüß]', '', w)
+    """Prüf-Wortanfang: bei Mehrwort-Ausdrücken das längste Inhaltswort (nicht „auf"/„sich"/Artikel)."""
+    w = wort.lower().split('(')[0].split(',')[0].split('/')[0]
+    woerter = [re.sub(r'[^a-zäöüß]', '', x) for x in w.split()]
+    inhalt = [x for x in woerter if x and x not in FUNKTIONSWOERTER and len(x) >= 4]
+    w = max(inhalt, key=len) if inhalt else (woerter[0] if woerter else '')
     return w[:5] if len(w) >= 5 else w
 
 
