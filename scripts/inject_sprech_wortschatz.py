@@ -132,7 +132,7 @@ def find_data(s):
 
 
 def norm(r):
-    en = r.get('en') or r.get('eng') or r.get('prompt') or r.get('english') or r.get('frage') or ''
+    en = r.get('en') or r.get('eng') or r.get('prompt') or r.get('english') or r.get('frage') or r.get('translation') or ''
     en = re.sub(r'^\((.*)\)$', r'\1', en.strip())
     art = (r.get('artikel') or r.get('art') or r.get('article') or '').strip()
     de = (r.get('de') or r.get('wort') or r.get('word') or r.get('german') or r.get('term') or '').strip()
