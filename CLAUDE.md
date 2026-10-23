@@ -200,6 +200,17 @@ Inhalte unter `fabbulos.codeberg.page/<repo>/`. Die Mirror-Action wird
 allerdings AUF GITHUB ausgeführt — fällt GitHub aus, läuft kein Sync
 mehr.
 
+**Seit 2026-10-08 zusätzlich: Codeberg-Direktspiegel vom Mac.**
+`scripts/autopush.sh` schiebt jeden neuen Commit der Mirror-Repos auch
+SELBST nach Codeberg (main als Fast-Forward, danach `pages`) — unabhängig
+von GitHub. Zugang per SSH-Deploy-Key `.codeberg-ssh/id_ed25519`
+(gitignored, nur auf dem Mac), in allen 10 Mirror-Repos als Deploy Key
+„fabdaf-autopush-mac“ mit Schreibrecht eingetragen (via
+`daf-archiv/.github/workflows/codeberg-deploykey.yml`, idempotent). Ersatzweg:
+Token-Datei per `scripts/set-codeberg-token.sh`. Log-Zeilen: `CODEBERG …` bzw.
+`FEHLER Codeberg …` in `_autopush.log`; Merker
+`refs/fabdaf-mirror/codeberg/main` je Repo = zuletzt gespiegelter Commit.
+
 Wenn GitHub jemals nicht mehr erreichbar ist (Account-Sperre, längerer
 Pages-Ausfall etc.), ist das vorbereitete Vorgehen:
 
