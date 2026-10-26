@@ -42,6 +42,24 @@ def _split(inhalt):
     return emoji, label
 
 
+# <div class="tab-nav"> — Altname des Nav-Containers. fix_nav.py spielt die
+# kanonische .nav-Regel ins CSS, fasst das HTML aber nicht an; traegt der
+# Container weiter tab-nav, greift die Pillen-Optik gar nicht (Fund 2026-10-26
+# an 7 B2-Lektionen). Nur umbenennen, wenn eine .nav-Regel wirklich da ist.
+TABNAV_HTML = re.compile(r'<(div|nav)(\s+)class="tab-nav"')
+TABNAV_CSS = re.compile(r'^\.tab-nav\s*\{[^}]*\}\n?', re.M)
+NAV_REGEL = re.compile(r'^\.nav\s*\{', re.M)
+
+
+def nav_container(t):
+    """tab-nav -> nav, samt toter .tab-nav-Regel. Gibt (text, geaendert)."""
+    if not TABNAV_HTML.search(t) or not NAV_REGEL.search(t):
+        return t, False
+    t = TABNAV_HTML.sub(r'<\1\2class="nav"', t)
+    t = TABNAV_CSS.sub('', t)
+    return t, True
+
+
 def transform(t):
     treffer = []
 
@@ -55,7 +73,11 @@ def transform(t):
         return (f'{auf}<span class="nav-emoji">{emoji}</span>'
                 f'<span class="nav-label">{label}</span>{zu}')
 
-    return BTN.sub(ersetze, t), treffer
+    t = BTN.sub(ersetze, t)
+    t, umbenannt = nav_container(t)
+    if umbenannt:
+        treffer.append('Container tab-nav->nav')
+    return t, treffer
 
 
 def main(argv):

@@ -113,8 +113,15 @@ def js_obj_rows(blk):
 
 
 def find_data(s):
-    """Erstes Array, dessen Variablenname nach Wortschatz/Vokabeln klingt; Inhalt per Klammer-Balance."""
-    best = None
+    """Array, dessen Variablenname nach Wortschatz/Vokabeln klingt; Inhalt per Klammer-Balance.
+
+    Bei mehreren Treffern entscheidet die Zahl der BRAUCHBAREN Karten, nicht die
+    Zeilenzahl: Dateien tragen neben dem Wortschatz-Array oft eine laengere
+    Hilfsliste (VOCAB_HIGHLIGHT fuers Lesetext-Highlighting, CH_WORDS …), die
+    kein en/de-Paar hat und darum 0 Karten liefert (Fund 2026-10-26 an
+    DE_B2_2026R-gentrifizierung).
+    """
+    best = None; best_n = -1
     for m in re.finditer(r'(?:(?:var|const|let)\s+|^[ \t]*)(\w+)\s*=\s*\[', s, re.M):
         name = m.group(1)
         if not re.search(r'wortschatz|vocab|vokab|ws_data|words', name, re.I): continue
@@ -127,7 +134,9 @@ def find_data(s):
                 if depth == 0: j = k; break
         if j is None: continue
         rows = js_obj_rows(s[i:j + 1])
-        if rows and (best is None or len(rows) > len(best[1])): best = (name, rows)
+        if not rows: continue
+        n = len(karten(rows))
+        if n > best_n: best, best_n = (name, rows), n
     return best
 
 
