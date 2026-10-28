@@ -1161,6 +1161,22 @@ function shuffle(arr) {
     return a;
 }
 
+/* FB-ZUO-VERTEILT: Mischen mit Kategorie-Verteilung — nie mehr als 2 Chips
+   derselben Kategorie hintereinander, damit die Wortbank keine Lösung verrät. */
+function shuffleVerteilt(arr) {
+    var pool = shuffle(arr), groups = {}, total = pool.length, out = [];
+    pool.forEach(function(it) { (groups[it.cat] = groups[it.cat] || []).push(it); });
+    while (out.length < total) {
+        var keys = shuffle(Object.keys(groups)).filter(function(k) { return groups[k].length; });
+        var last = out.length ? out[out.length - 1].cat : null;
+        var cand = keys.filter(function(k) { return k !== last; });
+        if (!cand.length) cand = keys;
+        cand.sort(function(x, y) { return groups[y].length - groups[x].length; });
+        out.push(groups[cand[0]].shift());
+    }
+    return out;
+}
+
 function makeZuoChip(text, cat, tabIdx) {
     var chip = document.createElement('div');
     chip.className = 'chip';
@@ -1250,7 +1266,7 @@ function initZuo(tabIdx) {
         while (zone.children.length > 1) zone.removeChild(zone.lastChild);
         registerZuoZone(zone, tabIdx);
     });
-    shuffle(data).forEach(function(item) {
+    shuffleVerteilt(data).forEach(function(item) {
         bank.appendChild(makeZuoChip(item.w, item.cat, tabIdx));
     });
 }
@@ -1264,7 +1280,7 @@ function resetZuo(tabIdx) {
         while (zone.children.length > 1) zone.removeChild(zone.lastChild);
     });
     var data = zuo3Data;
-    shuffle(data).forEach(function(item) {
+    shuffleVerteilt(data).forEach(function(item) {
         bank.appendChild(makeZuoChip(item.w, item.cat, tabIdx));
     });
 }
