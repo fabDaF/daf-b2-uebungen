@@ -13,8 +13,7 @@ nachgezogen ist.
 | Niveau | Wörter | Modus |
 |---|---|---|
 | A1 | 5–9 | freier Bau, nur einfache Hauptsätze und Fragen, KEINE Kommasätze |
-| A2 einfache Sätze | 6–10 | freier Bau |
-| A2 Kommasätze | 9–14 (14 hart) | **Hybrid:** bis 10 Wörter freier Bau, ab 11 Wörtern geführter Gerüst-Modus (`geruest_patch.js`) |
+| A2 | 6–14 (14 hart) | **geführter Gerüst-Modus** (wie B1+, `geruest_patch.js`) — NICHT freier Bau. Einfache Sätze UND Kommasätze, alle im Gerüst. Korrigiert 2026-06-12 nach Franks B2-Referenz (1011X): A2-Satzbau soll wie B2 aussehen, mit festen Ankern + gestrichelten Leerfeldern. |
 
 Satzzeichen-Chips zählen nicht mit. Zu kurze Sätze mit Zeit-/Ortsangaben
 verlängern, nie künstlich aufblähen.
@@ -83,6 +82,116 @@ valid-Arrays mit.
    Anführungszeichen-Regex. Commit via safe-commit.sh.
 7. **Skill-Update daf-satzbau** (Staffel-Tabelle + Hybrid-Regel + neue
    Reference) als .skill verpacken → Frank installiert.
+
+## Stand 2026-06-12
+
+- **Schritt 1 erledigt:** Konnektoren-Freigabetabelle liegt in
+  `htmlS/A2.1/a2-konnektoren.md` (belegt aus Lektionstiteln). Vor jeder
+  Satz-Neuschreibung konsultieren.
+- **Schritt 2 erledigt:** `scripts/check_satzbau_laenge.py` kennt jetzt die
+  A1/A2-Staffel inkl. Dual-Korridor (einfach 6–10 / Komma 9–14), A1-Komma-
+  verbot und A2-Kommasatz-Quote (`--strict-quote` macht die Quote hart).
+  Erstlauf gegen Bestand: 284 Längenverstöße (253 einfach, 31 Komma) + 88
+  Quote-Warnungen.
+- **Schritt 3 angefangen:** `DE_A2_1011V-meine-freunde.html` komplett auf
+  Spec gebracht und als **Referenzimplementierung** committet (Engine +
+  CSS + Daten + JSDOM-Test grün, `--strict-quote` bestanden). Vorlage für
+  den Batch.
+- **Schritt 3 — Einheit 101x ERLEDIGT 2026-06-14:** 1012X–1018S auf Staffel
+  gebracht (alle Sätze 6–14 W), je Datei ≥2 Kommasätze + 1 Frage, valid-
+  Varianten wo Vorfeld flexibel. `--strict-quote` grün, JSDOM-Erstlade +
+  Komma-Engine grün. Einheit 101x nutzt nur koordinierende Konnektoren
+  (und/oder/aber/denn/sondern) — Kommasätze als „HS, aber/denn HS". Sonder-
+  fall **1013G (Plusquamperfekt):** behält die temporalen Nebensätze
+  nachdem/bevor (das ist der Grammatikfokus = de-facto-Einführungslektion
+  dieser Strukturen), der progressionswidrige weil-Satz (weil erst ab 1043)
+  wurde durch eine PQP-Frage ersetzt. **1014R:** parts-Quote-Stil von ASCII-
+  Doppel- auf einfache Anführungszeichen normalisiert (Kanon). Gerüst-Modus
+  (Schritt 4) für 101x noch offen — bewusst getrennt gehalten.
+- **Schritt 3 — Einheit 102x ERLEDIGT 2026-06-14:** 1021V–1028S (Arbeitswelt/
+  Bewerbungen) auf Staffel, je ≥2 Kommasätze (aber/denn) + Frage, valid-
+  Varianten. `--strict-quote` + JSDOM grün. Didaktische Anker: Dativ-Frage
+  „wem" in 1023G (Verben mit Dativ); Telefon-Grußformeln in 1026X bewusst
+  ohne Konnektor-Komma (würden den 9–14-W-Kommakorridor verfehlen). Zahl-Chip
+  „35" in 1024R durch „viele" ersetzt.
+- **Schritt 3+4 ZUSAMMENGEFÜHRT (Frank 2026-06-14): Daten und Gerüst sind EIN
+  Schritt, nie getrennt ausliefern.** Freier Bau ist kein auslieferbarer
+  Zwischenzustand für A2. `geruest_patch.js` um eine **Konnektoren-Sperre**
+  erweitert (und/oder/aber/denn/sondern/weil/dass/wenn/… nie Anker — Zielform
+  gehört in die Bank). Gerüst-Modus nachgezogen für **101x + 102x** (16
+  Dateien) und direkt mitgebaut für **103x**. daf-satzbau-Skill aktualisiert
+  (A2 = Gerüst, „Zweites Versprechen" Daten+Gerüst untrennbar, Konnektoren-
+  Sperre) und als .skill zur Installation übergeben.
+- **Schritt 3+4 — Einheit 103x ERLEDIGT 2026-06-14:** 1031V–1038S (Wohnen)
+  Daten auf Staffel + Quote UND Gerüst in einem Schwung. Komparativ/Superlativ-
+  Vergleiche (als/wie), Zahlen ausgeschrieben (achthundert statt 865 etc.).
+  7/7 Sätze pro Datei konvertiert, 0 Konnektor-Anker, `--strict-quote` + JSDOM
+  grün.
+- **ALLE KANONISCHEN EINHEITEN ERLEDIGT 2026-06-15:** 104x, 105x, 106x
+  (A2.1) + 201x, 202x, 203x, 204x-kanonisch (2041V/2047G/2048S), 205x, 206x
+  (A2.2) — alle Daten auf Staffel + Kommasatz-Quote UND Gerüst in einem
+  Schwung, parts==valid konsistent, JSDOM-Erstlade grün. Konnektoren-
+  Progression beachtet (deshalb/darum ab 2023, als ab 2033, damit ab 2046).
+  Zahlen ausgeschrieben, Caps korrigiert, Wortstellungsfehler behoben.
+  Patcher-Verbesserung: NOTVERB um flektierte Artikel/Adjektive/Adverbien
+  (-en/-t) erweitert, damit kurze Sätze nicht fälschlich aus dem Gerüst
+  fallen. Vereinzelt bleiben kurze Mittel-Sätze (6 W, viele Verben/Partikeln)
+  additiv im freien Bau — nie an Position 0.
+- **Lückentext-Ästhetik 2026-06-15:** `.luecken-text` projektweit auf
+  Serifenschrift + einheitliches Lese-Panel umgestellt (34 Dateien);
+  `.luecken-text` in `check_serif.py` aufgenommen.
+- **Vorstufe-0-Sonderfälle — 4 von 9 ERLEDIGT 2026-06-15:** 1042X + 1046X
+  (waren längst kanonisch parts/valid, nur Gerüst fehlte → gepatcht); 1071W +
+  1072S (words-Struktur → JS `.words`→`.parts`, parts/valid, Staffel+Quote,
+  Gerüst). Alle 4 live, JSDOM-Erstlade grün.
+- **NUR NOCH OFFEN — 5 Sonderfälle mit EIGENEM, nicht-kanonischem Satzbau-JS
+  (click-basiert, Exaktstring-Vergleich gegen `.correct`/`words`, KEINE
+  sbMakeChip/sbRegisterZone/initSatzbau):** 2042X (`SATZBAU_DATA` chips-Struktur),
+  2043G (`satzbau3` parts/correct, click + sb-bank/sb-row), 2044R
+  (`SENTENCE_DATA`/`words`), 2045V (`var words`, kein Satzbau-Container),
+  2046X (builder-/`.correct`). Diese brauchen je einen **vollständigen
+  Satzbau-Tab-Neubau** (eigenes JS entfernen, kanonisches Drag+Gerüst-Pattern
+  einsetzen) — eigenes, sorgfältiges Paket, am besten in frischem Kontext
+  (kaputter Tab = Unterrichts-Risiko).
+- **2043G Tab-Neubau ERLEDIGT 2026-06-15 (Pilot):** eigenes satzbau3/click-JS
+  durch kanonisches Drag+Gerüst (aus 1013G) ersetzt; Konjunktiv-II-Sätze auf
+  Staffel+Quote, 6/7 geführt, Syntax/Konsistenz/Erstlade grün, live. Weg
+  dokumentiert in Memory `reference_satzbau-tab-neubau.md`.
+- **NOCH OFFEN — 4 Tab-Neubauten mit JE EIGENER Infrastruktur (nicht uniform!):**
+  2042X (`SATZBAU_DATA` chips-Struktur), 2044R (`SENTENCE_DATA`/words),
+  2045V (`var words`), 2046X (Sätze als `data-correct` in hardcodierten HTML-
+  Chips + eigene Timer `startTimer`/`switchTab` statt timerAutoStart/showSection).
+  Jede braucht individuelle Anpassung des Pilot-Wegs (Timer-Index/Funktionsnamen,
+  Daten-Ort, Container). In frischem Kontext einzeln sauber bauen.
+- **NEUE Voraussetzung entdeckt (Komma-Engine-Lücke):** Die 93 kanonischen
+  Dateien zerfallen in **zwei Engine-Generationen**:
+  - **Gen-B (35 Dateien):** Chip-Klasse `.sb-chip`, `sbMakeChip` setzt
+    `punct-chip` für `','`/`';'`, CSS vorhanden → komma-fähig.
+  - **Gen-A (58 Dateien, u. a. 1011V):** Chip-Klasse `.chip`, **kein**
+    Komma-Support — `sbMakeChip` kennt `punct-chip` nicht, CSS fehlt.
+    Komma-Sätze sind hier nicht darstellbar, bis die Engine nachgerüstet
+    ist. **Das ist der eigentliche Grund, warum A2 die Kommasatz-Quote
+    nirgends erfüllt.**
+  - Minimal-Patch pro Gen-A-Datei (an 1011V verifiziert, zwei chirurgische
+    Eingriffe): (1) in `sbMakeChip` nach `chip.className='chip';` einfügen
+    `if(word===','||word===';')chip.classList.add('punct-chip');`; (2) CSS
+    `.chip.punct-chip{…}` + `.chip.punct-chip.correct/.incorrect` +
+    `.sentence-builder .chip.punct-chip{margin-left:-6px;}` direkt nach
+    `.chip.selected`. Capitalization-Logik (`i===0`) verträgt Kommas bereits.
+  - **ERLEDIGT 2026-06-14:** Patcher `scripts/satzbau_komma_engine.py` gebaut
+    (idempotent, var-aware für `chip`/`c`, patcht nur den `sbMakeChip`-Körper
+    — nie Q&A-/Kategorie-Chips —, CSS-Anker-Fallback
+    `.selected→.incorrect→.wrong→.correct`) und über alle Gen-A-Satzbau-
+    Dateien gelaufen. Saubere Neu-Klassifikation per `sbMakeChip`+`satzbauData`
+    ergab **54** echte Gen-A-Dateien ohne Komma-JS (nicht 58 — die Differenz
+    waren Q&A-only-Dateien und Sonderfälle ohne kanonischen Satzbau). 5 davon
+    hatten ein vorbestehendes, unvollständiges punct-chip-CSS (margin-Regel
+    fehlte) → gezielt ergänzt. Verifikation: JSDOM-Funktionstest 54/54
+    (`sbMakeChip(',')`→`.punct-chip`, Wort→kein punct-chip), Syntax-Check aller
+    Script-Blöcke grün, Diff gegen HEAD trägt ausschließlich punct-chip-Zeilen.
+    Gen-B (1 Datei) braucht keinen Engine-Patch.
+- **Offen:** Vorstufe 0 (15 Sonderfälle), Schritt 3 Rest (101x ff. Daten auf
+  Staffel + Kommasatz-Quote), Schritt 4–7.
 
 ## Randbefunde (beim Rollout miterledigen)
 
