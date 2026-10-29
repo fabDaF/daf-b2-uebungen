@@ -20,6 +20,7 @@
 # Optional: COMMIT_BRANCH=main (default)
 #           COMMIT_REMOTE=origin (default)
 #           CO_AUTHOR=1 (default: hängt Claude-Co-Author an)
+#           CLAUDE_MODEL="Claude Opus 5" (default: "Claude" ohne Version)
 
 set -euo pipefail
 
@@ -77,7 +78,7 @@ PARENT="$(git rev-parse HEAD)"
 if [[ "$CO_AUTHOR" == "1" ]]; then
   FULL_MSG="$MSG
 
-Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
+Co-Authored-By: ${CLAUDE_MODEL:-Claude} <noreply@anthropic.com>"
 else
   FULL_MSG="$MSG"
 fi
