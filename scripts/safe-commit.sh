@@ -87,6 +87,16 @@ COMMIT="$(git commit-tree "$TREE" -p "$PARENT" -m "$FULL_MSG")"
 # 3. Ref direkt setzen (KEIN Write-Tool, KEIN Permission-Dialog)
 echo "$COMMIT" > ".git/refs/heads/$BRANCH"
 
+# 3b. Echten .git/index auf den neuen Stand ziehen.
+#     Ohne das bleibt .git/index fuer immer auf dem Stand VOR dem Commit.
+#     Folge: `git status` meldet Phantom-Aenderungen (Index-vs-HEAD) und
+#     spaetere Sessions halten das Repo faelschlich fuer schmutzig — bis Nov.
+#     2026 waren dadurch 9 von 11 fabDaF-Repos betroffen.
+#     `cp` statt `mv`/`git`: ueberschreibt die Datei in-place, loest kein
+#     unlink aus und braucht deshalb kein .git/index.lock.
+cp "$ALT_INDEX" .git/index \
+  || echo "WARNUNG: .git/index nicht aktualisiert — im Repo 'git reset' noetig." >&2
+
 # 4. Push — Push-Hook triggert ggf. automatisch nochmal, das ist OK
 git push "$REMOTE" "$BRANCH" 2>&1 | tail -5 || true
 
