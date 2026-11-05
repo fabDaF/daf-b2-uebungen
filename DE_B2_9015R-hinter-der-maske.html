@@ -1423,15 +1423,31 @@ function highlightVocabInText() {
 }
 
 var GR_DATA = [
-  { direkt: "Er kennt die Regeln. Er hält sie nicht ein.", vor: "Obwohl er die Regeln ", nach: ", hält er sie nicht ein.", ans: "kennt", hint: "Verb am Ende" },
-  { direkt: "Wir sind schlechte Beobachter. Wir glauben das Gegenteil.", vor: "Wir glauben das Gegenteil, obwohl wir schlechte Beobachter ", nach: ".", ans: "sind", hint: "Verb am Ende" },
-  { direkt: "Das Eingeständnis fiel ihm schwer. Er machte es trotzdem.", vor: "Das Eingeständnis fiel ihm schwer; trotzdem ", nach: " er es.", ans: "machte", hint: "Verb an zweiter Stelle" },
-  { direkt: "Der Neid ist ein kleines Gefühl. Er richtet großen Schaden an.", vor: "Der Neid ist ein kleines Gefühl; dennoch ", nach: " er großen Schaden an.", ans: "richtet", hint: "Verb an zweiter Stelle" },
-  { direkt: "Die Zahl der Kontakte wächst. Die Übung nimmt ab.", vor: "Während die Zahl der Kontakte ", nach: ", nimmt die Übung ab.", ans: "wächst", hint: "Verb am Ende" },
-  { direkt: "Er schreibt langsamer. Er hält die Erfahrung für einen Gewinn.", vor: "Zwar schreibt er langsamer, aber er ", nach: " die Erfahrung für einen Gewinn.", ans: "hält", hint: "Verb an zweiter Stelle" },
-  { direkt: "Die dunklen Regungen verschwinden nicht. Sie wandern nach hinten.", vor: "Die dunklen Regungen verschwinden nicht, sondern ", nach: " nach hinten.", ans: "wandern", hint: "Verb direkt nach der Konjunktion" },
-  { direkt: "Er verliert ungern. Er beschönigt seinen Ehrgeiz nicht.", vor: "Obwohl er ungern ", nach: ", beschönigt er seinen Ehrgeiz nicht.", ans: "verliert", hint: "Verb am Ende" },
-];
+  { direkt: "Er kennt die Regeln. Er hält sie nicht ein.",
+    vor: "Obwohl ", ans: "er die Regeln kennt", nach: ", hält er sie nicht ein.",
+    hint: "Nebensatz — das Verb ganz ans Ende" },
+  { direkt: "Das Eingeständnis fiel ihm schwer. Er machte es.",
+    vor: "Das Eingeständnis fiel ihm schwer; trotzdem ", ans: "machte er es", nach: ".",
+    hint: "Hauptsatz nach Adverb — Verb vor Subjekt" },
+  { direkt: "Die Zahl der Kontakte wächst. Die Übung nimmt ab.",
+    vor: "Während ", ans: "die Zahl der Kontakte wächst", nach: ", nimmt die Übung ab.",
+    hint: "Nebensatz — das Verb ganz ans Ende" },
+  { direkt: "Der Neid ist ein kleines Gefühl. Er richtet großen Schaden an.",
+    vor: "Der Neid ist ein kleines Gefühl; dennoch ", ans: "richtet er großen Schaden an", nach: ".",
+    hint: "Verb vor Subjekt — trennbares Präfix bleibt hinten" },
+  { direkt: "Er schreibt langsamer. Er hält die Erfahrung für einen Gewinn.",
+    vor: "Zwar schreibt er langsamer, aber ", ans: "er hält die Erfahrung für einen Gewinn", nach: ".",
+    hint: "Hauptsatz nach aber — Subjekt vor Verb" },
+  { direkt: "Die dunklen Regungen verschwinden nicht. Sie wandern nach hinten.",
+    vor: "Die dunklen Regungen verschwinden nicht, sondern ", ans: "wandern nach hinten", nach: ".",
+    hint: "nach sondern ohne neues Subjekt" },
+  { direkt: "Das Eingeständnis fiel schwer. Er erkannte die Muster.",
+    vor: "Obwohl ", ans: "das Eingeständnis schwerfiel", nach: ", erkannte er die Muster.",
+    hint: "Nebensatz — das trennbare Verb rückt wieder zusammen" },
+  { direkt: "Er konnte sich selbst nicht durchschauen. Er schrieb über Menschenkenntnis.",
+    vor: "Obwohl ", ans: "er sich selbst nicht durchschauen konnte", nach: ", schrieb er über Menschenkenntnis.",
+    hint: "Nebensatz — das Modalverb ganz zuletzt" },
+]
 
 var grMcDone = [false, false, false, false];
 
@@ -1479,7 +1495,8 @@ function buildGrammatik() {
     inp.className = 'blank';
     inp.placeholder = '';
     inp.dataset.ans = ex.ans;
-    inp.style.width = (Math.max(ex.ans.length, 8) + 4) + 'ch';
+    inp.style.width = (Math.min(Math.max(ex.ans.length, 8) + 4, 42)) + 'ch';
+    inp.style.maxWidth = '100%';
     inp.addEventListener('input', function(){ grCheck(inp); });
     ind.appendChild(inp);
     ind.appendChild(document.createTextNode(ex.nach));
