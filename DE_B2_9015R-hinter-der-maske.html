@@ -607,6 +607,13 @@ html[data-theme="dark"] button, html[data-theme="dark"] input, html[data-theme="
 .container { overflow: hidden; overflow: clip; }
 .wortbank { position: sticky; top: 0; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 @media (max-width: 600px) { .wortbank { padding: 8px; gap: 6px; } .wortbank-chip { padding: 3px 9px; font-size: 0.85em; } }
+
+/* ===== GRAMMATIK-KONNEKTORENBANK ===== */
+.gr-bank { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 14px; margin-bottom: 18px;
+  background: var(--bg-f0f0f8, #f0f0f8); border: 1px dashed var(--bd-c5cff5, #c5cae9); border-radius: 10px; }
+.gr-bank-chip { font-family: Georgia, 'Times New Roman', serif; font-size: 0.95em;
+  background: var(--bg-white, #fff); color: var(--tx-667eea, #667eea); border: 1px solid var(--bd-c5cff5, #c5cae9);
+  border-radius: 14px; padding: 3px 12px; }
 </style>
 <style>/* FB-SPRECH-WORTSCHATZ-CSS */
 /* ===== SPRECH-TRAINER GENERISCH (FB-SPRECH-GENERIC) ===== */
@@ -1422,32 +1429,42 @@ function highlightVocabInText() {
   walkAndHighlight(storyText);
 }
 
+var GR_KONNEKTOREN = ["obwohl", "obgleich", "auch wenn", "während", "wohingegen", "trotzdem", "dennoch", "aber", "doch", "sondern"];
+
 var GR_DATA = [
   { direkt: "Er kennt die Regeln. Er hält sie nicht ein.",
-    vor: "Obwohl ", ans: "er die Regeln kennt", nach: ", hält er sie nicht ein.",
-    hint: "Nebensatz — das Verb ganz ans Ende" },
+    vor: "", k: "obwohl|obgleich|auch wenn", kh: "Konjunktion — Einräumung",
+    mitte: " er die Regeln ", v: "kennt", vh: "Verb ans Ende",
+    nach: ", hält er sie nicht ein." },
   { direkt: "Das Eingeständnis fiel ihm schwer. Er machte es.",
-    vor: "Das Eingeständnis fiel ihm schwer; trotzdem ", ans: "machte er es", nach: ".",
-    hint: "Hauptsatz nach Adverb — Verb vor Subjekt" },
+    vor: "Das Eingeständnis fiel ihm schwer; ", k: "trotzdem|dennoch", kh: "Adverb — Einräumung",
+    mitte: " ", v: "machte", vh: "Verb vor dem Subjekt",
+    nach: " er es." },
   { direkt: "Die Zahl der Kontakte wächst. Die Übung nimmt ab.",
-    vor: "Während ", ans: "die Zahl der Kontakte wächst", nach: ", nimmt die Übung ab.",
-    hint: "Nebensatz — das Verb ganz ans Ende" },
+    vor: "", k: "während|wohingegen", kh: "Konjunktion — Gegensatz",
+    mitte: " die Zahl der Kontakte ", v: "wächst", vh: "Verb ans Ende",
+    nach: ", nimmt die Übung ab." },
   { direkt: "Der Neid ist ein kleines Gefühl. Er richtet großen Schaden an.",
-    vor: "Der Neid ist ein kleines Gefühl; dennoch ", ans: "richtet er großen Schaden an", nach: ".",
-    hint: "Verb vor Subjekt — trennbares Präfix bleibt hinten" },
+    vor: "Der Neid ist ein kleines Gefühl; ", k: "dennoch|trotzdem", kh: "Adverb — Einräumung",
+    mitte: " ", v: "richtet", vh: "Verb vor dem Subjekt, Vorsilbe bleibt hinten",
+    nach: " er großen Schaden an." },
   { direkt: "Er schreibt langsamer. Er hält die Erfahrung für einen Gewinn.",
-    vor: "Zwar schreibt er langsamer, aber ", ans: "er hält die Erfahrung für einen Gewinn", nach: ".",
-    hint: "Hauptsatz nach aber — Subjekt vor Verb" },
+    vor: "Zwar schreibt er langsamer, ", k: "aber|doch", kh: "verbindet zwei Hauptsätze",
+    mitte: " er ", v: "hält", vh: "Verb nach dem Subjekt",
+    nach: " die Erfahrung für einen Gewinn." },
   { direkt: "Die dunklen Regungen verschwinden nicht. Sie wandern nach hinten.",
-    vor: "Die dunklen Regungen verschwinden nicht, sondern ", ans: "wandern nach hinten", nach: ".",
-    hint: "nach sondern ohne neues Subjekt" },
-  { direkt: "Das Eingeständnis fiel schwer. Er erkannte die Muster.",
-    vor: "Obwohl ", ans: "das Eingeständnis schwerfiel", nach: ", erkannte er die Muster.",
-    hint: "Nebensatz — das trennbare Verb rückt wieder zusammen" },
+    vor: "Die dunklen Regungen verschwinden nicht, ", k: "sondern", kh: "korrigiert eine Verneinung",
+    mitte: " ", v: "wandern", vh: "Verb ohne neues Subjekt",
+    nach: " nach hinten." },
   { direkt: "Er konnte sich selbst nicht durchschauen. Er schrieb über Menschenkenntnis.",
-    vor: "Obwohl ", ans: "er sich selbst nicht durchschauen konnte", nach: ", schrieb er über Menschenkenntnis.",
-    hint: "Nebensatz — das Modalverb ganz zuletzt" },
-]
+    vor: "", k: "auch wenn|obwohl|obgleich", kh: "Konjunktion — Einräumung",
+    mitte: " er sich selbst nicht durchschauen ", v: "konnte", vh: "Modalverb ganz zuletzt",
+    nach: ", schrieb er über Menschenkenntnis." },
+  { direkt: "Schadenfreude stellt sich von selbst ein. Die Freude über fremdes Glück kostet Mühe.",
+    vor: "Schadenfreude stellt sich von selbst ein, ", k: "wohingegen|während", kh: "Konjunktion — Gegensatz",
+    mitte: " die Freude über fremdes Glück Mühe ", v: "kostet", vh: "Verb ans Ende",
+    nach: "." },
+];
 
 var grMcDone = [false, false, false, false];
 
@@ -1477,32 +1494,57 @@ function grMc(step, btn, correct) {
   }
 }
 
+function grBlank(ans, hint, breite) {
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = 'blank';
+  inp.placeholder = '';
+  inp.dataset.ans = ans;
+  inp.style.width = breite + 'ch';
+  inp.style.maxWidth = '100%';
+  inp.addEventListener('input', function(){ grCheck(inp); });
+  var wrap = document.createDocumentFragment();
+  wrap.appendChild(inp);
+  if (hint) {
+    var h = document.createElement('span');
+    h.className = 'gr-hint';
+    h.textContent = hint;
+    wrap.appendChild(h);
+  }
+  return wrap;
+}
+
 function buildGrammatik() {
   var ct = document.getElementById('grContainer');
   if (!ct) return;
   ct.innerHTML = '';
-  GR_DATA.forEach(function(ex, i){
+
+  var bank = document.createElement('div');
+  bank.className = 'gr-bank';
+  GR_KONNEKTOREN.slice().sort(function(){return Math.random()-0.5;}).forEach(function(w){
+    var c = document.createElement('span');
+    c.className = 'gr-bank-chip';
+    c.textContent = w;
+    bank.appendChild(c);
+  });
+  ct.appendChild(bank);
+
+  GR_DATA.forEach(function(ex){
     var item = document.createElement('div');
     item.className = 'gr-item';
     var d = document.createElement('div');
     d.className = 'gr-direkt';
-    d.textContent = '„' + ex.direkt + '“';
+    d.textContent = '\u201E' + ex.direkt + '\u201C';
     var ind = document.createElement('div');
     ind.className = 'gr-indirekt';
-    ind.appendChild(document.createTextNode(ex.vor));
-    var inp = document.createElement('input');
-    inp.type = 'text';
-    inp.className = 'blank';
-    inp.placeholder = '';
-    inp.dataset.ans = ex.ans;
-    inp.style.width = (Math.min(Math.max(ex.ans.length, 8) + 4, 42)) + 'ch';
-    inp.style.maxWidth = '100%';
-    inp.addEventListener('input', function(){ grCheck(inp); });
-    ind.appendChild(inp);
+    if (ex.vor) ind.appendChild(document.createTextNode(ex.vor));
+    ind.appendChild(grBlank(ex.k, '', Math.max(ex.k.split('|')[0].length, 8) + 3));
+    ind.appendChild(document.createTextNode(ex.mitte));
+    ind.appendChild(grBlank(ex.v, '', Math.max(ex.v.length, 7) + 3));
     ind.appendChild(document.createTextNode(ex.nach));
     var hint = document.createElement('span');
     hint.className = 'gr-hint';
-    hint.textContent = ex.hint;
+    hint.textContent = ex.kh + ' \u00B7 ' + ex.vh;
     ind.appendChild(hint);
     item.appendChild(d); item.appendChild(ind);
     ct.appendChild(item);
@@ -1510,13 +1552,17 @@ function buildGrammatik() {
 }
 
 function grCheck(inp) {
-  var v = inp.value.trim().toLowerCase();
-  var a = (inp.dataset.ans || '').toLowerCase();
+  var v = inp.value.trim().toLowerCase().replace(/\s+/g, ' ');
+  var alts = (inp.dataset.ans || '').toLowerCase().split('|');
   inp.classList.remove('correct','wrong');
   if (!v) return;
   timerAutoStart(8);
-  if (v === a) { inp.classList.add('correct'); grCheckAllOk(); return; }
-  if (a.indexOf(v) === 0) return;
+  for (var i = 0; i < alts.length; i++) {
+    if (v === alts[i]) { inp.classList.add('correct'); grCheckAllOk(); return; }
+  }
+  for (var j = 0; j < alts.length; j++) {
+    if (alts[j].indexOf(v) === 0) return;
+  }
   inp.classList.add('wrong');
 }
 
@@ -1527,7 +1573,7 @@ function grCheckAllOk() {
 
 function showGrLoesung() {
   document.querySelectorAll('#grContainer input.blank').forEach(function(inp){
-    inp.value = inp.dataset.ans;
+    inp.value = (inp.dataset.ans || '').split('|')[0];
     inp.classList.remove('wrong');
     inp.classList.add('correct');
   });
