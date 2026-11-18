@@ -65,7 +65,8 @@ SECTION = '''
 <!-- /FB-SPRECH-WORTSCHATZ -->'''
 EXTRA_CSS = ('.sp-intro { color: var(--sp-muted); line-height: 1.6; margin: 0 0 14px; }\n'
              '.sp-cue .sp-luecke:empty { display: none; }\n'
-             '#sec-sprechen { padding: 0 0 10px; }\n')
+             '#sec-sprechen { padding: 30px 24px 20px; }\n'
+             '@media (max-width: 600px) { #sec-sprechen { padding: 18px 16px 16px; } }\n')
 
 CLS = lambda tok: r'class="(?:[^"]*\s)?%s(?:\s[^"]*)?"' % tok
 SEC_TAG = re.compile(r'<(div|section)\b[^>]*' + CLS('section') + r'[^>]*>')
